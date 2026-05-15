@@ -1,0 +1,543 @@
+[
+  {
+    "id": "model-001",
+    "topic": "modeling",
+    "subtopic": "Gateways",
+    "difficulty": "medium",
+    "question": "A parallel gateway split fans out into 3 branches. Downstream they converge into a parallel gateway join. Two of the branches always activate; the third only activates when a condition is met (and there is no sequence flow condition on the parallel split — all three flows are always taken). What happens when the condition is false?",
+    "options": [
+      { "id": "a", "text": "The join completes after the two active tokens arrive." },
+      { "id": "b", "text": "The third branch is automatically skipped and the join continues." },
+      { "id": "c", "text": "The process deadlocks waiting for the third token forever." },
+      { "id": "d", "text": "An incident is raised after a default 30s timeout." }
+    ],
+    "correctOptionId": "c",
+    "explanation": "A parallel (AND) gateway split always produces tokens on every outgoing flow regardless of conditions, and a parallel join always waits for one token from EACH incoming flow. There is no skipping or implicit timeout. To avoid this deadlock you must use an inclusive gateway, which evaluates conditions on outgoing flows and only waits for tokens that were actually produced.",
+    "docs": [
+      { "title": "Parallel gateway", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/gateways/" }
+    ],
+    "tags": ["parallel-gateway", "deadlock"]
+  },
+  {
+    "id": "model-002",
+    "topic": "modeling",
+    "subtopic": "Gateways",
+    "difficulty": "easy",
+    "question": "Which BPMN gateway should you use when you want exactly ONE of several outgoing paths to be taken based on data, with the first matching condition winning?",
+    "options": [
+      { "id": "a", "text": "Parallel gateway" },
+      { "id": "b", "text": "Exclusive (XOR) gateway" },
+      { "id": "c", "text": "Inclusive gateway" },
+      { "id": "d", "text": "Event-based gateway" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "An exclusive (XOR) gateway evaluates outgoing sequence flow conditions in order and takes exactly the first one that evaluates to true. A default flow can be configured to handle the case where no condition matches.",
+    "docs": [
+      { "title": "Exclusive gateway", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/exclusive-gateways/" }
+    ]
+  },
+  {
+    "id": "model-003",
+    "topic": "modeling",
+    "subtopic": "Event-based gateway",
+    "difficulty": "medium",
+    "question": "An event-based gateway is followed by a Message Catch event and a Timer (PT5M). Which statement is correct?",
+    "options": [
+      { "id": "a", "text": "Both events are evaluated; whichever fires first wins, and the other is cancelled." },
+      { "id": "b", "text": "Both events fire and the process continues on both paths in parallel." },
+      { "id": "c", "text": "The timer always wins after 5 minutes regardless of message arrival." },
+      { "id": "d", "text": "The message wins if it arrives within the timer window; otherwise the timer wins and message subscription persists." }
+    ],
+    "correctOptionId": "a",
+    "explanation": "An event-based gateway represents a race between events. When the first event occurs, that path is taken and all other events behind the gateway are cancelled. Subscriptions to losing events are removed.",
+    "docs": [
+      { "title": "Event-based gateway", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-based-gateways/" }
+    ]
+  },
+  {
+    "id": "model-004",
+    "topic": "modeling",
+    "subtopic": "Boundary events",
+    "difficulty": "medium",
+    "question": "What is the key difference between an interrupting and a non-interrupting boundary event?",
+    "options": [
+      { "id": "a", "text": "An interrupting boundary event blocks all other events; non-interrupting allows them in priority order." },
+      { "id": "b", "text": "An interrupting boundary event cancels the activity it is attached to; a non-interrupting event leaves the activity running and continues a parallel flow." },
+      { "id": "c", "text": "Non-interrupting boundary events can only be timer events." },
+      { "id": "d", "text": "There is no functional difference in Camunda 8; both behave identically." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "An interrupting boundary event terminates the activity it is attached to and the token continues from the boundary event. A non-interrupting boundary event spawns a new parallel token while the original activity continues running. Visually, non-interrupting events have a dashed border.",
+    "docs": [
+      { "title": "Boundary events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/events/" }
+    ]
+  },
+  {
+    "id": "model-005",
+    "topic": "modeling",
+    "subtopic": "Subprocesses",
+    "difficulty": "medium",
+    "question": "Which subprocess type is triggered by an event (such as a message or timer) rather than by an incoming sequence flow?",
+    "options": [
+      { "id": "a", "text": "Embedded subprocess" },
+      { "id": "b", "text": "Call activity" },
+      { "id": "c", "text": "Event subprocess" },
+      { "id": "d", "text": "Ad-hoc subprocess" }
+    ],
+    "correctOptionId": "c",
+    "explanation": "An event subprocess is contained within a process or subprocess and is triggered by a start event with a trigger (message, timer, error, escalation, signal). It can be interrupting or non-interrupting and has no incoming sequence flow.",
+    "docs": [
+      { "title": "Event subprocess", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/" }
+    ]
+  },
+  {
+    "id": "model-006",
+    "topic": "modeling",
+    "subtopic": "Multi-instance",
+    "difficulty": "medium",
+    "question": "You apply a multi-instance marker (parallel) to a service task with a collection of 5 input items. How many service task instances are created and how do they execute?",
+    "options": [
+      { "id": "a", "text": "5 instances, executed sequentially one after another." },
+      { "id": "b", "text": "5 instances, all created at once and executed in parallel." },
+      { "id": "c", "text": "1 instance that loops 5 times internally." },
+      { "id": "d", "text": "5 instances that share the same job and complete together." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "A parallel multi-instance marker creates one instance of the activity for each item in the input collection, all activated simultaneously. Each instance receives one item from the collection as a local variable.",
+    "docs": [
+      { "title": "Multi-instance", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/" }
+    ]
+  },
+  {
+    "id": "model-007",
+    "topic": "modeling",
+    "subtopic": "Tasks",
+    "difficulty": "easy",
+    "question": "Which task type should you use to invoke an external decision modeled in DMN?",
+    "options": [
+      { "id": "a", "text": "Service task" },
+      { "id": "b", "text": "Script task" },
+      { "id": "c", "text": "Business rule task" },
+      { "id": "d", "text": "Manual task" }
+    ],
+    "correctOptionId": "c",
+    "explanation": "A business rule task is the BPMN element designed to invoke a DMN decision. You configure it with the decision id of the deployed DMN.",
+    "docs": [
+      { "title": "Business rule task", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/" }
+    ]
+  },
+  {
+    "id": "model-008",
+    "topic": "modeling",
+    "subtopic": "Pools and lanes",
+    "difficulty": "easy",
+    "question": "What is the purpose of a Lane within a Pool?",
+    "options": [
+      { "id": "a", "text": "To partition activities by responsibility (role, department, system) within a single participant." },
+      { "id": "b", "text": "To represent a separate executable process." },
+      { "id": "c", "text": "To define a transactional boundary for compensation." },
+      { "id": "d", "text": "To configure parallel execution of activities." }
+    ],
+    "correctOptionId": "a",
+    "explanation": "Lanes visually group activities within a single Pool by responsibility. They do not affect execution semantics, only documentation/clarity.",
+    "docs": [
+      { "title": "Pools and lanes", "url": "https://camunda.com/bpmn/reference/#participants-lane" }
+    ]
+  },
+  {
+    "id": "model-009",
+    "topic": "modeling",
+    "subtopic": "Error handling",
+    "difficulty": "hard",
+    "question": "A service task throws a BPMN error with code 'INVENTORY_EMPTY'. There is an error boundary event on the enclosing embedded subprocess catching 'INVENTORY_EMPTY', and another error boundary event on the service task itself catching the same code. Which boundary event handles the error?",
+    "options": [
+      { "id": "a", "text": "Both, they fire in parallel." },
+      { "id": "b", "text": "The boundary event on the service task (innermost match wins)." },
+      { "id": "c", "text": "The boundary event on the subprocess." },
+      { "id": "d", "text": "An incident is raised because the model is ambiguous." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "BPMN error events propagate from the innermost scope outward. The first matching error boundary event closest to the source handles the error. Only if no inner handler exists does the error propagate to enclosing scopes.",
+    "docs": [
+      { "title": "Error events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/" }
+    ]
+  },
+  {
+    "id": "model-010",
+    "topic": "modeling",
+    "subtopic": "Compensation",
+    "difficulty": "hard",
+    "question": "A compensation throw event is reached. Which activities will be compensated?",
+    "options": [
+      { "id": "a", "text": "Every completed activity in the process, automatically." },
+      { "id": "b", "text": "Only completed activities that have a compensation boundary event attached and a compensation handler defined." },
+      { "id": "c", "text": "Only activities still currently active." },
+      { "id": "d", "text": "All service tasks in the process regardless of state." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Compensation only applies to activities that (1) have completed successfully and (2) have a compensation boundary event with an attached compensation handler. Other completed activities without compensation handlers are not affected.",
+    "docs": [
+      { "title": "Compensation", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/" }
+    ]
+  },
+  {
+    "id": "model-011",
+    "topic": "modeling",
+    "subtopic": "Gateways",
+    "difficulty": "medium",
+    "question": "An exclusive gateway has three outgoing flows but no condition matches at runtime, and no default flow is configured. What happens?",
+    "options": [
+      { "id": "a", "text": "The token is silently discarded and the process completes." },
+      { "id": "b", "text": "An incident is raised because no path could be taken." },
+      { "id": "c", "text": "The first outgoing flow is taken arbitrarily." },
+      { "id": "d", "text": "The last outgoing flow is taken arbitrarily." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "When no condition on an XOR gateway matches and no default flow is set, Zeebe raises an incident. Always configure a default flow to avoid this.",
+    "docs": [
+      { "title": "Exclusive gateway", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/exclusive-gateways/" }
+    ]
+  },
+  {
+    "id": "model-012",
+    "topic": "modeling",
+    "subtopic": "Inclusive gateway",
+    "difficulty": "hard",
+    "question": "Which statement about inclusive gateway joins in Camunda 8 is correct?",
+    "options": [
+      { "id": "a", "text": "They wait for tokens from ALL incoming flows even if some can never arrive." },
+      { "id": "b", "text": "They wait only for tokens that the corresponding split actually produced (based on condition evaluation)." },
+      { "id": "c", "text": "They behave identically to exclusive gateway joins." },
+      { "id": "d", "text": "They merge into the first arriving token and discard the rest." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "An inclusive gateway join only waits for tokens that were created at the matching split. This avoids the deadlock problem of using a parallel join when not all flows are taken.",
+    "docs": [
+      { "title": "Inclusive gateway", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/inclusive-gateways/" }
+    ]
+  },
+  {
+    "id": "model-013",
+    "topic": "modeling",
+    "subtopic": "Start events",
+    "difficulty": "easy",
+    "question": "Which start event type allows a process to be started by sending a named message to the cluster?",
+    "options": [
+      { "id": "a", "text": "None start event" },
+      { "id": "b", "text": "Timer start event" },
+      { "id": "c", "text": "Message start event" },
+      { "id": "d", "text": "Signal start event" }
+    ],
+    "correctOptionId": "c",
+    "explanation": "A message start event subscribes the process to a named message at deployment time. Publishing that message creates a new process instance.",
+    "docs": [
+      { "title": "Message events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/" }
+    ]
+  },
+  {
+    "id": "model-014",
+    "topic": "modeling",
+    "subtopic": "Timer events",
+    "difficulty": "medium",
+    "question": "A timer start event uses the cycle expression `0 0 9 * * MON-FRI`. What does it do?",
+    "options": [
+      { "id": "a", "text": "Starts an instance every weekday at 09:00 (cron expression)." },
+      { "id": "b", "text": "Starts an instance every 9 minutes." },
+      { "id": "c", "text": "Starts an instance once on the first Monday after deployment." },
+      { "id": "d", "text": "Invalid syntax — Zeebe only accepts ISO 8601 timers." }
+    ],
+    "correctOptionId": "a",
+    "explanation": "Zeebe timer start events accept either ISO 8601 (e.g., R/PT5M) or 6/7-field cron expressions. This cron fires at 09:00 every Monday through Friday.",
+    "docs": [
+      { "title": "Timer events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/" }
+    ]
+  },
+  {
+    "id": "model-015",
+    "topic": "modeling",
+    "subtopic": "Signal vs message",
+    "difficulty": "medium",
+    "question": "What is the key behavioral difference between a Signal and a Message in BPMN?",
+    "options": [
+      { "id": "a", "text": "Signals are persisted, messages are not." },
+      { "id": "b", "text": "A signal is broadcast to all matching subscriptions; a message is correlated to a specific subscription using a correlation key." },
+      { "id": "c", "text": "Messages can only be received by user tasks." },
+      { "id": "d", "text": "Signals are synchronous, messages are asynchronous." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Signals are broadcast — every active subscription with the same signal name receives them. Messages target a single waiting subscription matched by a correlation key value.",
+    "docs": [
+      { "title": "Signal events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/signal-events/" }
+    ]
+  },
+  {
+    "id": "model-016",
+    "topic": "modeling",
+    "subtopic": "User task",
+    "difficulty": "easy",
+    "question": "Which BPMN task type pauses the process and waits for a human to complete the work via Tasklist?",
+    "options": [
+      { "id": "a", "text": "Service task" },
+      { "id": "b", "text": "Manual task" },
+      { "id": "c", "text": "User task" },
+      { "id": "d", "text": "Receive task" }
+    ],
+    "correctOptionId": "c",
+    "explanation": "A user task creates a task entry that appears in Tasklist. It blocks until a user claims and completes it. Manual tasks are documentary only and do not pause execution in Zeebe.",
+    "docs": [
+      { "title": "User tasks", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/" }
+    ]
+  },
+  {
+    "id": "model-017",
+    "topic": "modeling",
+    "subtopic": "Receive task",
+    "difficulty": "medium",
+    "question": "When would you use a Receive Task instead of a Message Catch intermediate event?",
+    "options": [
+      { "id": "a", "text": "Always — they are equivalent and Receive Task is preferred." },
+      { "id": "b", "text": "When you also want to perform processing logic via a job worker on the same wait." },
+      { "id": "c", "text": "When the message correlation should not use a correlation key." },
+      { "id": "d", "text": "Both behave the same in Zeebe; Receive Task is mainly a stylistic choice within sequence flow." }
+    ],
+    "correctOptionId": "d",
+    "explanation": "In Zeebe, both a Receive Task and an intermediate Message Catch event wait for a correlated message and continue. The choice is mostly notational. Receive tasks are slightly preferred when fitting into a task-centric sequence.",
+    "docs": [
+      { "title": "Receive task", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/receive-tasks/" }
+    ]
+  },
+  {
+    "id": "model-018",
+    "topic": "modeling",
+    "subtopic": "Terminate end event",
+    "difficulty": "medium",
+    "question": "What happens when a Terminate End Event is reached inside an embedded subprocess?",
+    "options": [
+      { "id": "a", "text": "The entire process instance is cancelled, including parallel branches." },
+      { "id": "b", "text": "All tokens within the enclosing subprocess scope are cancelled, but tokens outside the subprocess continue." },
+      { "id": "c", "text": "Only the current token is consumed; siblings continue." },
+      { "id": "d", "text": "The subprocess is restarted from its start event." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "A terminate end event cancels all active tokens within its enclosing scope. Inside an embedded subprocess, the scope is that subprocess; outer tokens are unaffected.",
+    "docs": [
+      { "title": "Terminate end event", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/none-events/" }
+    ]
+  },
+  {
+    "id": "model-019",
+    "topic": "modeling",
+    "subtopic": "Escalation",
+    "difficulty": "medium",
+    "question": "How does an Escalation event differ from an Error event?",
+    "options": [
+      { "id": "a", "text": "Escalation cancels the activity that threw it; Error does not." },
+      { "id": "b", "text": "Error cancels the activity that threw it; Escalation can be non-interrupting and lets the original activity continue." },
+      { "id": "c", "text": "There is no difference in Camunda 8; both behave identically." },
+      { "id": "d", "text": "Escalation can only be caught by an end event." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Errors are always interrupting and signal a recoverable failure that requires alternate handling. Escalations can be non-interrupting and are typically used to notify higher levels without aborting the source activity.",
+    "docs": [
+      { "title": "Escalation events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/escalation-events/" }
+    ]
+  },
+  {
+    "id": "model-020",
+    "topic": "modeling",
+    "subtopic": "Call activity",
+    "difficulty": "easy",
+    "question": "What does a Call Activity do?",
+    "options": [
+      { "id": "a", "text": "Invokes an external REST endpoint." },
+      { "id": "b", "text": "Synchronously invokes another deployed BPMN process as a subprocess and waits for it to complete." },
+      { "id": "c", "text": "Starts another process asynchronously without waiting." },
+      { "id": "d", "text": "Triggers a DMN decision." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "A Call Activity references another process (by process id) and starts an instance of it. The parent waits for the child to complete before continuing.",
+    "docs": [
+      { "title": "Call activity", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/" }
+    ]
+  },
+  {
+    "id": "model-021",
+    "topic": "modeling",
+    "subtopic": "Multi-instance",
+    "difficulty": "medium",
+    "question": "In a multi-instance activity, which standard variable references the index of the current instance (0-based)?",
+    "options": [
+      { "id": "a", "text": "loopCounter" },
+      { "id": "b", "text": "instanceIndex" },
+      { "id": "c", "text": "iterationCounter" },
+      { "id": "d", "text": "index" }
+    ],
+    "correctOptionId": "a",
+    "explanation": "Zeebe exposes `loopCounter` (1-based by default for sequential, but commonly referenced as the loop index) along with the per-instance variable name configured by the user.",
+    "docs": [
+      { "title": "Multi-instance", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/" }
+    ]
+  },
+  {
+    "id": "model-022",
+    "topic": "modeling",
+    "subtopic": "Sequence flows",
+    "difficulty": "easy",
+    "question": "Where should conditional expressions on sequence flows be placed for evaluation?",
+    "options": [
+      { "id": "a", "text": "On flows leaving any task." },
+      { "id": "b", "text": "On flows leaving exclusive or inclusive gateways (and the default flow is the fallback)." },
+      { "id": "c", "text": "Only on flows leaving event-based gateways." },
+      { "id": "d", "text": "On flows entering parallel gateways." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Conditional sequence flows are typically used after exclusive or inclusive gateways. While BPMN allows conditions on flows from tasks, it is uncommon and harder to read; gateways are the recommended pattern.",
+    "docs": [
+      { "title": "Sequence flow", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/exclusive-gateways/" }
+    ]
+  },
+  {
+    "id": "model-023",
+    "topic": "modeling",
+    "subtopic": "Link events",
+    "difficulty": "medium",
+    "question": "What is the purpose of throw and catch Link events?",
+    "options": [
+      { "id": "a", "text": "To call an external HTTP link." },
+      { "id": "b", "text": "To act as 'go-to' connectors within the same process to avoid crossing sequence flow lines." },
+      { "id": "c", "text": "To start a new process instance via deep link." },
+      { "id": "d", "text": "To compensate completed activities." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Link events are an off-page connector. A throw Link with a given name jumps to the catch Link with the same name within the same process scope. They have no runtime side effects beyond control flow.",
+    "docs": [
+      { "title": "Link events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/link-events/" }
+    ]
+  },
+  {
+    "id": "model-024",
+    "topic": "modeling",
+    "subtopic": "Transactions",
+    "difficulty": "hard",
+    "question": "Which BPMN element groups activities so that compensation can be triggered for the whole group on cancellation?",
+    "options": [
+      { "id": "a", "text": "Embedded subprocess" },
+      { "id": "b", "text": "Transaction subprocess" },
+      { "id": "c", "text": "Call activity" },
+      { "id": "d", "text": "Ad-hoc subprocess" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "A Transaction subprocess provides transactional semantics: on cancel, all completed activities with compensation handlers within the subprocess are compensated. Note: transactional subprocesses are not supported by Zeebe's runtime in all cases — verify Camunda 8 support before using.",
+    "docs": [
+      { "title": "Transaction subprocess", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/embedded-subprocesses/" }
+    ]
+  },
+  {
+    "id": "model-025",
+    "topic": "modeling",
+    "subtopic": "Process versioning",
+    "difficulty": "easy",
+    "question": "What identifier on a BPMN process is used to address it across deployments and versions?",
+    "options": [
+      { "id": "a", "text": "The BPMN file name." },
+      { "id": "b", "text": "The process id (the `id` attribute on the bpmn:process element)." },
+      { "id": "c", "text": "The diagram name shown in the Modeler tab." },
+      { "id": "d", "text": "The process key generated by Zeebe at deployment." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "The process id (BPMN attribute) is the stable identifier used to start instances. Each deployment creates a new version with a new process definition key (an internal Zeebe identifier).",
+    "docs": [
+      { "title": "Process model", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/bpmn-primer/" }
+    ]
+  },
+  {
+    "id": "model-026",
+    "topic": "modeling",
+    "subtopic": "Data objects",
+    "difficulty": "easy",
+    "question": "How are BPMN Data Objects represented in Camunda 8 runtime semantics?",
+    "options": [
+      { "id": "a", "text": "They are persisted as relational rows linked to the instance." },
+      { "id": "b", "text": "They are documentary only — Zeebe relies on process variables (JSON) for data flow." },
+      { "id": "c", "text": "They are serialized to XML at every step." },
+      { "id": "d", "text": "They define the schema of input mappings." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "BPMN Data Objects are visual modeling elements only in Camunda 8. The actual data storage and flow is done via JSON process variables.",
+    "docs": [
+      { "title": "Variables", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+    ]
+  },
+  {
+    "id": "model-027",
+    "topic": "modeling",
+    "subtopic": "Conditional event",
+    "difficulty": "medium",
+    "question": "Which trigger type is NOT supported by Zeebe (Camunda 8) start events at the time of writing?",
+    "options": [
+      { "id": "a", "text": "Message" },
+      { "id": "b", "text": "Timer" },
+      { "id": "c", "text": "Signal" },
+      { "id": "d", "text": "Conditional" }
+    ],
+    "correctOptionId": "d",
+    "explanation": "Conditional events (which fire when a process variable matches a condition) are not supported at process start in Camunda 8. Use a job worker or message-based trigger instead.",
+    "docs": [
+      { "title": "BPMN coverage", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/bpmn-coverage/" }
+    ]
+  },
+  {
+    "id": "model-028",
+    "topic": "modeling",
+    "subtopic": "Manual task",
+    "difficulty": "easy",
+    "question": "How is a Manual Task executed by Zeebe?",
+    "options": [
+      { "id": "a", "text": "It blocks until a user completes it via Tasklist." },
+      { "id": "b", "text": "It is documentary — Zeebe simply passes through it without creating a job or task." },
+      { "id": "c", "text": "It triggers a job worker of type `manual`." },
+      { "id": "d", "text": "It raises an incident requiring manual resolution." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "A Manual Task models work performed off-system (outside the process engine). Zeebe treats it as a pass-through: no job, no task, just a sequence flow continuation.",
+    "docs": [
+      { "title": "Manual task", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/manual-tasks/" }
+    ]
+  },
+  {
+    "id": "model-029",
+    "topic": "modeling",
+    "subtopic": "Send task",
+    "difficulty": "medium",
+    "question": "How is a Send Task implemented in Camunda 8?",
+    "options": [
+      { "id": "a", "text": "It is a built-in HTTP send action." },
+      { "id": "b", "text": "It is implemented like a service task via a job worker (or a connector) — you supply a job type." },
+      { "id": "c", "text": "It automatically publishes a BPMN message correlated by name." },
+      { "id": "d", "text": "It is a no-op." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "A Send Task is treated like a service task by Zeebe: configure a `zeebe:taskDefinition` type and a worker (or connector) handles the actual send.",
+    "docs": [
+      { "title": "Send task", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/send-tasks/" }
+    ]
+  },
+  {
+    "id": "model-030",
+    "topic": "modeling",
+    "subtopic": "Best practices",
+    "difficulty": "medium",
+    "question": "Which is the recommended practice for handling business exceptions in a BPMN process?",
+    "options": [
+      { "id": "a", "text": "Throw a Java exception in the worker." },
+      { "id": "b", "text": "Set the job retries to 0 to force an incident." },
+      { "id": "c", "text": "Throw a BPMN error from the worker (or model an exclusive gateway) so the process can react with an error boundary event or alternate flow." },
+      { "id": "d", "text": "Cancel the process instance via the API." }
+    ],
+    "correctOptionId": "c",
+    "explanation": "Business exceptions are part of the model — represent them as BPMN errors caught by error boundary events or as alternate paths after an XOR gateway. Technical failures are handled via retries/incidents.",
+    "docs": [
+      { "title": "Error events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/" }
+    ]
+  }
+]

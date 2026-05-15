@@ -1,0 +1,322 @@
+[
+  {
+    "id": "scn-model-001",
+    "topic": "modeling",
+    "subtopic": "Parallel multi-instance + cancellation",
+    "difficulty": "hard",
+    "style": "scenario",
+    "scenario": "Context: A loan-approval process uses a Parallel Multi-instance Subprocess 'Security Background Check', one instance per co-signer. Inside each instance a Service Task calls an external risk API.\nAction: One instance returns a 'High Risk' result mid-batch.\nCondition: When 'High Risk' is detected, ALL still-running background checks for that loan must be cancelled immediately and the process must continue at a 'Manual Fraud Review' task.",
+    "question": "Which modelling approach correctly cancels every parallel instance and routes flow to the review task?",
+    "options": [
+      { "id": "a", "text": "Place a Terminate End Event inside the multi-instance subprocess on the 'High Risk' branch." },
+      { "id": "b", "text": "Attach an Interrupting Error Boundary Event to the multi-instance subprocess; have the worker throw a BPMN error with the agreed errorCode on 'High Risk'." },
+      { "id": "c", "text": "Switch the multi-instance to Sequential and exit via an Exclusive Gateway after each iteration." },
+      { "id": "d", "text": "Attach a Non-interrupting Signal Boundary Event to the subprocess and broadcast 'High Risk'." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "An interrupting boundary event on a multi-instance activity terminates the whole multi-instance scope (all parallel instances) and continues on the boundary's outgoing flow. A Terminate End Event inside the multi-instance only kills the single iteration. Sequential breaks the parallelism requirement. Non-interrupting does not stop the running instances.",
+    "docs": [
+      { "title": "Error events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/" }
+    ]
+  },
+  {
+    "id": "scn-model-002",
+    "topic": "modeling",
+    "subtopic": "Global cancellation pattern",
+    "difficulty": "medium",
+    "style": "scenario",
+    "scenario": "Context: A 'Travel Booking' process uses a Parallel Gateway to run three service tasks concurrently: 'Book Flight', 'Book Hotel', 'Book Car'.\nAction: While the tasks are running, the customer sends a 'Cancel Trip' message.\nCondition: All currently active booking tasks must be interrupted and the process must proceed to a 'Process Refund' task.",
+    "question": "Which BPMN pattern best implements this 'global cancellation' for the booking scope?",
+    "options": [
+      { "id": "a", "text": "A Terminate End Event triggered in parallel to the booking tasks via the message." },
+      { "id": "b", "text": "An Event Subprocess with a Non-interrupting Message Start Event that leads to 'Process Refund'." },
+      { "id": "c", "text": "An Event Subprocess with an Interrupting Message Start Event at the scope containing the booking tasks, leading to 'Process Refund'." },
+      { "id": "d", "text": "A separate Message Boundary Event on each booking task, all leading to 'Process Refund'." }
+    ],
+    "correctOptionId": "c",
+    "explanation": "An interrupting message-start event subprocess at the enclosing scope cancels all parallel tokens inside that scope and starts the refund path. A terminate end kills the instance entirely (no refund possible). Non-interrupting would let the bookings continue. Per-task boundary events work but are not DRY and break when new branches are added.",
+    "docs": [
+      { "title": "Event subprocess", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/" }
+    ]
+  },
+  {
+    "id": "scn-model-003",
+    "topic": "modeling",
+    "subtopic": "Non-interrupting boundary timer",
+    "difficulty": "medium",
+    "style": "scenario",
+    "scenario": "Context: A high-priority support ticket process contains a User Task 'Analyze Support Ticket'. A Non-interrupting Timer Boundary Event with a 2-hour duration is attached; on fire it leads to a 'Notify Manager' service task.\nAction: 2 hours elapse while the user task is still being worked on.",
+    "question": "What is the resulting state of the process instance?",
+    "options": [
+      { "id": "a", "text": "'Analyze Support Ticket' is cancelled and the token moves exclusively to 'Notify Manager'." },
+      { "id": "b", "text": "The original token stays at the user task and a new parallel token enters 'Notify Manager'." },
+      { "id": "c", "text": "Operate raises an incident because only Parallel Gateways may produce multiple tokens." },
+      { "id": "d", "text": "The timer only fires after the user task is completed by a human." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Non-interrupting boundary events spawn an additional parallel path without cancelling the attached activity. Multiple active tokens are perfectly legal in BPMN and do not produce incidents.",
+    "docs": [
+      { "title": "Timer events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/" }
+    ]
+  },
+  {
+    "id": "scn-cfg-001",
+    "topic": "configuring-processes",
+    "subtopic": "Message correlation & TTL",
+    "difficulty": "hard",
+    "style": "scenario",
+    "scenario": "Context: An order-fulfillment process has a Message Intermediate Catch Event 'Payment Received'. An external system publishes the matching message with a Time-to-Live of 30s while the process token is still in a preceding Service Task. The service task takes 45s to complete.",
+    "question": "What happens when the token finally reaches the catch event?",
+    "options": [
+      { "id": "a", "text": "The broker buffers the message indefinitely until a subscription appears, regardless of TTL." },
+      { "id": "b", "text": "The message is discarded immediately because no subscription existed when it arrived." },
+      { "id": "c", "text": "The message is buffered for 30s; the token arrives after the TTL has expired so the message is gone and the instance waits for a new one." },
+      { "id": "d", "text": "Zeebe raises an incident in Operate notifying that a message could not be correlated." }
+    ],
+    "correctOptionId": "c",
+    "explanation": "Zeebe buffers messages for their TTL so they can correlate with future subscriptions. With TTL=30s and the subscription opening at 45s, the message has already expired and the instance keeps waiting for a new one. No incident is raised for an expired message.",
+    "docs": [
+      { "title": "Messages", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+    ]
+  },
+  {
+    "id": "scn-cfg-002",
+    "topic": "configuring-processes",
+    "subtopic": "Variable mapping for Call Activity",
+    "difficulty": "medium",
+    "style": "scenario",
+    "scenario": "Context: A Call Activity invokes a 'Shipping Subprocess'. To keep data isolated you want to pass only a constructed object to the child: include the existing orderId and a calculated boolean priority that is true when orderValue > 1000.",
+    "question": "Which FEEL expression is correct for the Input Mapping target variable shippingRequest?",
+    "options": [
+      { "id": "a", "text": "createObject(\"orderId\", orderId, \"priority\", orderValue > 1000)" },
+      { "id": "b", "text": "{orderId: orderId, priority: if orderValue > 1000 then true else false}" },
+      { "id": "c", "text": "new Map(orderId -> orderId, priority -> orderValue > 1000)" },
+      { "id": "d", "text": "JSON.stringify({orderId: orderId, priority: orderValue > 1000})" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "FEEL contexts are constructed with curly-brace literal notation { key: value, ... } and entry values can be any FEEL expression (including if-then-else). createObject, new Map and JSON.stringify are not FEEL constructs.",
+    "docs": [
+      { "title": "FEEL context expressions", "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-context-expressions/" }
+    ]
+  },
+  {
+    "id": "scn-cfg-003",
+    "topic": "configuring-processes",
+    "subtopic": "Parallel join semantics",
+    "difficulty": "easy",
+    "style": "scenario",
+    "scenario": "Context: A logistics process forks via a Parallel Gateway into 'Pack Items', 'Prepare Invoice' and 'Arrange Shipping', all joining at a single Parallel Gateway.\nAction: 'Pack Items' and 'Prepare Invoice' have arrived at the join; 'Arrange Shipping' is still active waiting on an external carrier.",
+    "question": "What is the state of the joining Parallel Gateway?",
+    "options": [
+      { "id": "a", "text": "It emits the outgoing token as soon as the first token arrives (first-come)." },
+      { "id": "b", "text": "It emits the token once a majority (2 of 3) of inputs have arrived, following Raft." },
+      { "id": "c", "text": "It consumes the arrived tokens but emits nothing until a token has arrived from every incoming sequence flow." },
+      { "id": "d", "text": "It raises an incident after 30s of waiting without all tokens." }
+    ],
+    "correctOptionId": "c",
+    "explanation": "A converging Parallel Gateway has AND semantics: it waits for one token on each incoming flow before emitting. Raft is Zeebe's internal replication consensus and has nothing to do with BPMN gateway logic. Long waits are normal and do not raise incidents.",
+    "docs": [
+      { "title": "Gateways", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/gateways/" }
+    ]
+  },
+  {
+    "id": "scn-dmn-001",
+    "topic": "decisions-business-rules",
+    "subtopic": "Unique hit policy violation",
+    "difficulty": "hard",
+    "style": "scenario",
+    "scenario": "Context: A decision table computes a customer discount based on membership level and purchase history. Hit policy is UNIQUE (U).\nAction: At runtime the inputs satisfy the conditions of two different rows simultaneously.",
+    "question": "How does the Zeebe DMN engine handle this evaluation?",
+    "options": [
+      { "id": "a", "text": "It picks the first matching row in document order (FIRST behaviour)." },
+      { "id": "b", "text": "It evaluates both rules and returns a list of the two outputs (COLLECT behaviour)." },
+      { "id": "c", "text": "The evaluation fails with an error; in Zeebe this surfaces as an incident on the calling Business Rule Task." },
+      { "id": "d", "text": "The engine returns null for the output and the process continues." }
+    ],
+    "correctOptionId": "c",
+    "explanation": "UNIQUE requires exactly one matching rule. Two matches violate the hit policy and the DMN evaluation throws an error, which in a running process surfaces as an incident on the Business Rule Task. FIRST and COLLECT have different policies; the engine never silently returns null.",
+    "docs": [
+      { "title": "Decision table hit policy", "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/" }
+    ]
+  },
+  {
+    "id": "scn-dmn-002",
+    "topic": "decisions-business-rules",
+    "subtopic": "DRD information requirements",
+    "difficulty": "medium",
+    "style": "scenario",
+    "scenario": "Context: A DRD has two tables: 'Determine Tax Bracket' (output: taxBracket) and 'Calculate Final Tax', which depends on it via an Information Requirement.",
+    "question": "How does 'Calculate Final Tax' access the result of the required decision in Camunda 8?",
+    "options": [
+      { "id": "a", "text": "A BPMN Service Task between the two decisions must copy taxBracket into a global variable." },
+      { "id": "b", "text": "Reference the required decision by its decision ID in the input expressions; Zeebe makes its result available in the evaluation context (use decisionId.outputName for multi-output tables)." },
+      { "id": "c", "text": "Fetch the first decision's result via the Operate API and inject it before the second decision runs." },
+      { "id": "d", "text": "The output is stored in an internal SQL table that the second decision queries by default." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Within a DRD, Zeebe evaluates required decisions automatically and exposes their outputs under the required decision's ID (and for multi-output tables, decisionId.outputName). No intermediate Service Task, Operate call, or SQL table is involved.",
+    "docs": [
+      { "title": "DRD", "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-requirements-graph/" }
+    ]
+  },
+  {
+    "id": "scn-form-001",
+    "topic": "forms",
+    "subtopic": "Nested data binding + read-only",
+    "difficulty": "medium",
+    "style": "scenario",
+    "scenario": "Context: A 'Loan Approval' user task form should display the applicant's credit score from a process variable applicantData = {\"name\":\"John\",\"creditScore\":750}. Users must see the score but not edit it.",
+    "question": "How should you configure the Text Field component?",
+    "options": [
+      { "id": "a", "text": "Set Key = applicantData.creditScore and enable Read-only." },
+      { "id": "b", "text": "Set Key = creditScore and add a User Task input mapping that copies applicantData.creditScore." },
+      { "id": "c", "text": "Set Key = applicantData.creditScore and set Disabled = true via FEEL." },
+      { "id": "d", "text": "Set Key = applicantData and use Template {{creditScore}}, then mark the field read-only." }
+    ],
+    "correctOptionId": "a",
+    "explanation": "Camunda forms support dotted-path binding so the Key can address a nested field directly. Read-only is the canonical way to make a field display-only. The other options either work-around the native binding or misuse template syntax for input binding.",
+    "docs": [
+      { "title": "Data binding", "url": "https://docs.camunda.io/docs/components/modeler/forms/configuration/forms-config-data-binding/" }
+    ]
+  },
+  {
+    "id": "scn-conn-001",
+    "topic": "connectors",
+    "subtopic": "Secret reference syntax",
+    "difficulty": "easy",
+    "style": "scenario",
+    "scenario": "Context: An outbound REST connector calls a payment gateway that needs a sensitive API key in the Authorization header. The key is stored as a Camunda 8 secret named PAYMENT_GATEWAY_KEY.",
+    "question": "Which syntax correctly references the secret inside the connector configuration?",
+    "options": [
+      { "id": "a", "text": "{{PAYMENT_GATEWAY_KEY}}" },
+      { "id": "b", "text": "secrets.PAYMENT_GATEWAY_KEY" },
+      { "id": "c", "text": "{{secrets.PAYMENT_GATEWAY_KEY}}" },
+      { "id": "d", "text": "$=secrets.PAYMENT_GATEWAY_KEY" }
+    ],
+    "correctOptionId": "c",
+    "explanation": "Connector fields support the {{secrets.NAME}} placeholder. The runtime replaces it with the value from the secret store before execution. The bare secrets.* form is deprecated, and $= is FEEL — a different mechanism.",
+    "docs": [
+      { "title": "Use connectors", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/" }
+    ]
+  },
+  {
+    "id": "scn-ext-001",
+    "topic": "extensions-integrations",
+    "subtopic": "Business error vs technical failure",
+    "difficulty": "medium",
+    "style": "scenario",
+    "scenario": "Context: A Java worker handles 'Reserve Inventory'. During execution the worker determines the item is out of stock. The BPMN model has an Error Boundary Event with errorCode OUT_OF_STOCK on the service task.",
+    "question": "Which client call routes execution to the boundary event without triggering retries or an incident?",
+    "options": [
+      { "id": "a", "text": "client.newFailCommand(job.getKey()).retries(0).errorMessage(\"OUT_OF_STOCK\").send();" },
+      { "id": "b", "text": "client.newThrowErrorCommand(job.getKey()).errorCode(\"OUT_OF_STOCK\").errorMessage(\"Item unavailable\").send();" },
+      { "id": "c", "text": "throw new RuntimeException(\"OUT_OF_STOCK\");" },
+      { "id": "d", "text": "client.newCompleteCommand(job.getKey()).variables(\"{\\\"status\\\":\\\"OUT_OF_STOCK\\\"}\").send();" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Throw-error signals a business (BPMN) error and triggers the matching error catch event. Fail with retries=0 produces a technical incident, not a BPMN error path. A Java exception is a technical failure (retry/incident). Completing with a variable is the happy path and would need a downstream gateway.",
+    "docs": [
+      { "title": "Error events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/" }
+    ]
+  },
+  {
+    "id": "scn-ext-002",
+    "topic": "extensions-integrations",
+    "subtopic": "Worker crash & job lock",
+    "difficulty": "hard",
+    "style": "scenario",
+    "scenario": "Context: A Java worker with timeout=5 minutes and maxJobsActive=32 activates a batch of 10 jobs. Two minutes into processing the JVM crashes.",
+    "question": "What happens to those 10 jobs in Zeebe?",
+    "options": [
+      { "id": "a", "text": "Zeebe detects the TCP loss and immediately makes the jobs activatable by other workers." },
+      { "id": "b", "text": "They stay locked until the 5-minute timeout expires, after which they become activatable again." },
+      { "id": "c", "text": "Zeebe raises an incident for each job because no Complete/Fail arrived within the heartbeat interval." },
+      { "id": "d", "text": "The Job Executor rolls the job state back to the last savepoint, undoing the activation." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Zeebe relies on the lock timeout — it cannot distinguish a crash from a transient network blip. Jobs stay locked for the configured duration and only then become activatable again. No incident is raised for a simple timeout. 'Job Executor' and savepoints describe Camunda 7, not Zeebe.",
+    "docs": [
+      { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+    ]
+  },
+  {
+    "id": "scn-ext-003",
+    "topic": "extensions-integrations",
+    "subtopic": "Technical retry with backoff",
+    "difficulty": "medium",
+    "style": "scenario",
+    "scenario": "Context: A worker calls an external API which intermittently returns HTTP 500. Requirement: retry up to 3 times with a delay between attempts; after the third failure, raise an incident in Operate.",
+    "question": "What is the correct implementation pattern in the worker?",
+    "options": [
+      { "id": "a", "text": "Throw a BPMN error and loop back to the task via a boundary error event." },
+      { "id": "b", "text": "On failure call newFailCommand with retries = current - 1 and a retryBackoff duration; when retries hit 0 Zeebe creates the incident automatically." },
+      { "id": "c", "text": "Thread.sleep for the backoff and retry the API call recursively inside the same job activation." },
+      { "id": "d", "text": "Set autoRetry on @JobWorker and configure backoff in application.properties; rely on the client to manage the schedule." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Technical failures use fail-job with retries and retryBackoff so the broker schedules the next activation. When retries reach 0 the broker creates the incident. BPMN errors are for business outcomes. Thread.sleep blocks the worker thread and risks the job timing out. Client-side autoRetry is not the canonical mechanism.",
+    "docs": [
+      { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+    ]
+  },
+  {
+    "id": "scn-ext-004",
+    "topic": "extensions-integrations",
+    "subtopic": "Multi-instance current element binding",
+    "difficulty": "easy",
+    "style": "scenario",
+    "scenario": "Context: A 'Process Order' service task is wrapped in a Parallel Multi-instance with inputCollection bound to the variable orders (a list of order objects).",
+    "question": "How does the worker access the current order being processed by each instance?",
+    "options": [
+      { "id": "a", "text": "Set inputCollection = orders and inputElement = item; each instance has a local variable named item with the current element." },
+      { "id": "b", "text": "Same as A plus an input mapping item → localItem on the task." },
+      { "id": "c", "text": "Set inputCollection = =orders, leave inputElement empty; Zeebe auto-creates item_1, item_2 …" },
+      { "id": "d", "text": "Define a completion condition referencing the element variable name." }
+    ],
+    "correctOptionId": "a",
+    "explanation": "inputElement names the local variable Zeebe sets to the current element on each multi-instance activation. No extra input mapping is needed and there is no implicit item_1/item_2 naming. Completion condition controls termination, not data binding.",
+    "docs": [
+      { "title": "Multi-instance", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/" }
+    ]
+  },
+  {
+    "id": "scn-mng-001",
+    "topic": "managing-development",
+    "subtopic": "Resolving a job incident",
+    "difficulty": "medium",
+    "style": "scenario",
+    "scenario": "Context: An instance is stuck with an incident at a Service Task. The cause is a FEEL mapping order.pric * 1.2; the variable is actually named price, not pric.",
+    "question": "What is the most efficient way to unblock this single instance without redeploying the model?",
+    "options": [
+      { "id": "a", "text": "Access the broker's RocksDB and rename the variable in state." },
+      { "id": "b", "text": "In Operate, edit the variables on the instance to add the field the (faulty) expression expects, then Retry the incident." },
+      { "id": "c", "text": "Create an Optimize dashboard and use an Auto-Fix plugin to patch the FEEL expression at runtime." },
+      { "id": "d", "text": "Fix the typo in the BPMN and redeploy; Zeebe migrates active instances to the new version automatically." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Operate's documented incident-resolution flow is: update variables → (optionally) increase retries → mark resolved / Retry. Direct RocksDB access is unsupported. Optimize is analytics, not state mutation. Redeploy does not automatically migrate running instances; migration is a separate, explicit operation.",
+    "docs": [
+      { "title": "Resolve incidents — update variables", "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/" }
+    ]
+  },
+  {
+    "id": "scn-mng-002",
+    "topic": "managing-development",
+    "subtopic": "Event subprocess vs interrupting choice",
+    "difficulty": "medium",
+    "style": "scenario",
+    "scenario": "Context: An 'Insurance Claim' process uses an Event Subprocess with a Non-Interrupting Message Start Event to handle 'Customer Update' messages. An instance is currently waiting at a 'Review Claim' User Task when a Customer Update message arrives.",
+    "question": "What happens to the process tokens?",
+    "options": [
+      { "id": "a", "text": "The user task token is cancelled and a new token starts the event subprocess." },
+      { "id": "b", "text": "The user task stays active and a new token is created inside the event subprocess — multiple active tokens." },
+      { "id": "c", "text": "The message is ignored because event subprocesses only activate during transitions." },
+      { "id": "d", "text": "An incident is raised because a single instance cannot have multiple active tokens without a Parallel Gateway." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "A non-interrupting event subprocess spawns a parallel execution path without terminating the existing scope. Multiple active tokens are normal in BPMN and do not produce incidents. Interrupting variants would cancel the parent scope.",
+    "docs": [
+      { "title": "Event subprocess", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/" }
+    ]
+  }
+]

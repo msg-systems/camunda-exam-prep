@@ -1,0 +1,218 @@
+[
+  {
+    "id": "conn-001",
+    "topic": "connectors",
+    "subtopic": "Inbound vs outbound",
+    "difficulty": "easy",
+    "question": "Which statement correctly distinguishes inbound and outbound connectors?",
+    "options": [
+      { "id": "a", "text": "Inbound connectors are faster than outbound connectors." },
+      { "id": "b", "text": "Outbound connectors are triggered by external events; inbound connectors call external APIs from within a process." },
+      { "id": "c", "text": "Inbound connectors trigger or correlate with a process from external events; outbound connectors are invoked by a process to call external systems." },
+      { "id": "d", "text": "Only outbound connectors require secrets." }
+    ],
+    "correctOptionId": "c",
+    "explanation": "Inbound connectors listen to external events (webhooks, queues) and start or correlate with process instances. Outbound connectors are placed on service tasks (or similar) and call external systems from within the process.",
+    "docs": [
+      { "title": "Use connectors", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/" }
+    ]
+  },
+  {
+    "id": "conn-002",
+    "topic": "connectors",
+    "subtopic": "Secrets",
+    "difficulty": "medium",
+    "question": "In Camunda 8 SaaS, how do you reference a connector secret named MY_API_KEY in a connector configuration?",
+    "options": [
+      { "id": "a", "text": "${MY_API_KEY}" },
+      { "id": "b", "text": "{{secrets.MY_API_KEY}}" },
+      { "id": "c", "text": "{{secrets.MY_API_KEY}} or =secrets.MY_API_KEY in FEEL contexts" },
+      { "id": "d", "text": "$secret(MY_API_KEY)" }
+    ],
+    "correctOptionId": "c",
+    "explanation": "Connector secrets are referenced through the secrets context. The exact syntax depends on whether the field expects FEEL or templating, but the placeholder always lives under the 'secrets' namespace.",
+    "docs": [
+      { "title": "Use connectors", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/" }
+    ]
+  },
+  {
+    "id": "conn-003",
+    "topic": "connectors",
+    "subtopic": "HTTP REST connector",
+    "difficulty": "medium",
+    "question": "Which built-in outbound connector is used to call an arbitrary REST API?",
+    "options": [
+      { "id": "a", "text": "Webhook connector" },
+      { "id": "b", "text": "REST connector (HTTP REST connector)" },
+      { "id": "c", "text": "Kafka connector" },
+      { "id": "d", "text": "Slack connector" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "The REST connector lets you configure URL, method, headers, query, and body to call any HTTP endpoint, with the response captured into process variables via output mapping.",
+    "docs": [
+      { "title": "REST connector", "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/" }
+    ]
+  },
+  {
+    "id": "conn-004",
+    "topic": "connectors",
+    "subtopic": "Webhook",
+    "difficulty": "medium",
+    "question": "Which inbound connector starts or correlates a process instance from an external HTTP POST?",
+    "options": [
+      { "id": "a", "text": "REST connector" },
+      { "id": "b", "text": "Webhook connector" },
+      { "id": "c", "text": "Email connector" },
+      { "id": "d", "text": "Kafka connector" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "The Webhook inbound connector exposes an HTTP endpoint that triggers process starts or correlates messages, optionally with HMAC verification.",
+    "docs": [
+      { "title": "Webhook connector", "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/" }
+    ]
+  },
+  {
+    "id": "conn-005",
+    "topic": "connectors",
+    "subtopic": "Connector lifecycle",
+    "difficulty": "hard",
+    "question": "Where do outbound connectors execute in a self-managed Camunda 8 deployment?",
+    "options": [
+      { "id": "a", "text": "Inside the Zeebe broker process." },
+      { "id": "b", "text": "In a dedicated Connector Runtime (Spring Boot service) that activates jobs of the configured connector job types." },
+      { "id": "c", "text": "Inside Operate." },
+      { "id": "d", "text": "On the client browser." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "The Connector Runtime is a separate worker process. It activates jobs (e.g., `io.camunda:http-json:1`) and executes the matching connector function, returning results.",
+    "docs": [
+      { "title": "Connector runtime", "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/" }
+    ]
+  },
+  {
+    "id": "conn-006",
+    "topic": "connectors",
+    "subtopic": "Element template binding",
+    "difficulty": "medium",
+    "question": "How are connectors typically presented to modelers?",
+    "options": [
+      { "id": "a", "text": "As a generic service task with manual configuration of all properties." },
+      { "id": "b", "text": "Through element templates that wrap the connector and expose only the necessary configuration UI." },
+      { "id": "c", "text": "Only via the Web Modeler marketplace." },
+      { "id": "d", "text": "As a special BPMN node type." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Each connector ships with an element template (JSON) that the Modeler uses to render a tailored properties panel and bind values to the underlying job/headers.",
+    "docs": [
+      { "title": "Use connectors", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/" }
+    ]
+  },
+  {
+    "id": "conn-007",
+    "topic": "connectors",
+    "subtopic": "Connector errors",
+    "difficulty": "medium",
+    "question": "An outbound connector call fails with HTTP 500. How can the BPMN process react with custom error handling?",
+    "options": [
+      { "id": "a", "text": "It cannot — connector failures always cause incidents." },
+      { "id": "b", "text": "Use the Error Expression on the connector to map response conditions to a BPMN error code, caught by an error boundary event." },
+      { "id": "c", "text": "Restart the broker." },
+      { "id": "d", "text": "Add a service task downstream that checks the response." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Connectors expose 'Error Expression' (FEEL) that converts technical/business outcomes into BPMN errors. Boundary events catch them for tailored handling.",
+    "docs": [
+      { "title": "Error handling", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/" }
+    ]
+  },
+  {
+    "id": "conn-008",
+    "topic": "connectors",
+    "subtopic": "Inbound activation",
+    "difficulty": "hard",
+    "question": "When does an inbound connector subscription become active?",
+    "options": [
+      { "id": "a", "text": "Only when a process instance reaches a catch event." },
+      { "id": "b", "text": "After the BPMN with the inbound connector is deployed (the runtime registers the subscription based on the model)." },
+      { "id": "c", "text": "Only after manual activation via the API." },
+      { "id": "d", "text": "Never — they require a poll." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "The Connector Runtime watches deployments, registers inbound subscriptions defined by the BPMN, and starts listening (e.g., webhook endpoints become live) without per-instance setup.",
+    "docs": [
+      { "title": "Inbound connectors", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/inbound/" }
+    ]
+  },
+  {
+    "id": "conn-009",
+    "topic": "connectors",
+    "subtopic": "Marketplace",
+    "difficulty": "easy",
+    "question": "Where can you discover community and partner connectors?",
+    "options": [
+      { "id": "a", "text": "Camunda Marketplace" },
+      { "id": "b", "text": "GitHub releases of Zeebe broker" },
+      { "id": "c", "text": "Operate." },
+      { "id": "d", "text": "Docker Hub only." }
+    ],
+    "correctOptionId": "a",
+    "explanation": "Camunda Marketplace lists official, partner, and community connectors with installation and usage instructions.",
+    "docs": [
+      { "title": "Marketplace", "url": "https://marketplace.camunda.com/" }
+    ]
+  },
+  {
+    "id": "conn-010",
+    "topic": "connectors",
+    "subtopic": "Custom connector",
+    "difficulty": "hard",
+    "question": "What annotation marks a Java class as a custom outbound connector function?",
+    "options": [
+      { "id": "a", "text": "@CamundaConnector" },
+      { "id": "b", "text": "@OutboundConnector" },
+      { "id": "c", "text": "@JobWorker" },
+      { "id": "d", "text": "@BpmnConnector" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "@OutboundConnector(name, inputVariables, type) declares the connector. It implements OutboundConnectorFunction and is auto-discovered by the runtime.",
+    "docs": [
+      { "title": "Connector SDK", "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/" }
+    ]
+  },
+  {
+    "id": "conn-011",
+    "topic": "connectors",
+    "subtopic": "Secrets in self-managed",
+    "difficulty": "medium",
+    "question": "How are connector secrets typically supplied in a self-managed Connector Runtime?",
+    "options": [
+      { "id": "a", "text": "Hardcoded in BPMN." },
+      { "id": "b", "text": "As environment variables loaded by the runtime, then referenced via `secrets.NAME` in connector configuration." },
+      { "id": "c", "text": "Stored in Operate." },
+      { "id": "d", "text": "Stored in a Zeebe variable." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "The runtime reads secrets from environment variables (or a custom SecretProvider). BPMN never contains the literal secret value.",
+    "docs": [
+      { "title": "Connector secrets", "url": "https://docs.camunda.io/docs/components/console/manage-clusters/manage-secrets/" }
+    ]
+  },
+  {
+    "id": "conn-012",
+    "topic": "connectors",
+    "subtopic": "REST connector body",
+    "difficulty": "medium",
+    "question": "Which content types are supported for the REST connector request body out of the box?",
+    "options": [
+      { "id": "a", "text": "Only JSON" },
+      { "id": "b", "text": "JSON, form-url-encoded, plain text, and multipart support varies by connector version" },
+      { "id": "c", "text": "Only XML" },
+      { "id": "d", "text": "Only YAML" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "The REST connector supports common content types and lets you set Content-Type headers manually for others. Multipart support exists in recent versions.",
+    "docs": [
+      { "title": "REST connector", "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/" }
+    ]
+  }
+]

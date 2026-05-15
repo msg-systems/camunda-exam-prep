@@ -1,0 +1,812 @@
+[
+  {
+    "id": "cfg-001",
+    "topic": "configuring-processes",
+    "subtopic": "Service task",
+    "difficulty": "easy",
+    "question": "When configuring a service task in Camunda 8, what attribute determines which job worker will pick up the job?",
+    "options": [
+      { "id": "a", "text": "The task name." },
+      { "id": "b", "text": "The task id." },
+      { "id": "c", "text": "The task type (zeebe:taskDefinition type)." },
+      { "id": "d", "text": "The implementation language attribute." }
+    ],
+    "correctOptionId": "c",
+    "explanation": "Camunda 8 uses the zeebe:taskDefinition 'type' attribute on a service task to match it with workers that subscribe to the same job type via long-polling.",
+    "docs": [
+      { "title": "Service task", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/service-tasks/" }
+    ]
+  },
+  {
+    "id": "cfg-002",
+    "topic": "configuring-processes",
+    "subtopic": "Job retries",
+    "difficulty": "medium",
+    "question": "A job worker fails a job with retries set to 0. What happens?",
+    "options": [
+      { "id": "a", "text": "The job is silently dropped and the process instance continues." },
+      { "id": "b", "text": "An incident is created for the job and the process instance pauses at that task." },
+      { "id": "c", "text": "The whole process instance is cancelled." },
+      { "id": "d", "text": "Zeebe automatically retries every 10 seconds indefinitely." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "When retries reach 0, Zeebe creates an incident. The process instance remains active but execution at that task is paused until the incident is resolved (typically via Operate by updating retries or variables).",
+    "docs": [
+      { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+    ]
+  },
+  {
+    "id": "cfg-003",
+    "topic": "configuring-processes",
+    "subtopic": "Message correlation",
+    "difficulty": "medium",
+    "question": "What is required to correlate an inbound message to a specific waiting process instance?",
+    "options": [
+      { "id": "a", "text": "Only the message name." },
+      { "id": "b", "text": "The message name and a correlation key value matching the subscription." },
+      { "id": "c", "text": "The process instance key only." },
+      { "id": "d", "text": "A signed JWT token." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Message correlation requires both the message name (matches the subscription definition) and a correlation key value that matches what the waiting process instance subscribed with.",
+    "docs": [
+      { "title": "Message events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/" }
+    ]
+  },
+  {
+    "id": "cfg-004",
+    "topic": "configuring-processes",
+    "subtopic": "Timer formats",
+    "difficulty": "medium",
+    "question": "Which ISO 8601 expression configures a timer to repeat every 30 minutes, three times?",
+    "options": [
+      { "id": "a", "text": "PT30M/3" },
+      { "id": "b", "text": "R3/PT30M" },
+      { "id": "c", "text": "PT30M*3" },
+      { "id": "d", "text": "P3T30M" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "ISO 8601 repeating intervals use the format Rn/<duration>. R3/PT30M means repeat 3 times, every 30 minutes.",
+    "docs": [
+      { "title": "Timer events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/" }
+    ]
+  },
+  {
+    "id": "cfg-005",
+    "topic": "configuring-processes",
+    "subtopic": "Call activity",
+    "difficulty": "medium",
+    "question": "By default in Camunda 8, what happens to variables defined inside a called process when it completes?",
+    "options": [
+      { "id": "a", "text": "They are automatically merged into the parent process variable scope." },
+      { "id": "b", "text": "They are lost unless you explicitly configure output mappings on the call activity." },
+      { "id": "c", "text": "They are appended with a child- prefix in the parent." },
+      { "id": "d", "text": "They are copied if their names match parent variables." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Camunda 8 does NOT propagate child variables back to the parent automatically. You must configure output mappings on the call activity to copy specific variables back. This is a common exam trap.",
+    "docs": [
+      { "title": "Call activity", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/" }
+    ]
+  },
+  {
+    "id": "cfg-006",
+    "topic": "configuring-processes",
+    "subtopic": "Variable mapping",
+    "difficulty": "medium",
+    "question": "What is the difference between an input mapping and an output mapping on a task?",
+    "options": [
+      { "id": "a", "text": "Input mappings apply only to user tasks; output mappings only to service tasks." },
+      { "id": "b", "text": "Input mappings transform process variables before the task starts; output mappings transform task results into process variables after completion." },
+      { "id": "c", "text": "Both apply at task completion; input runs first." },
+      { "id": "d", "text": "There is no difference; they are synonyms." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Input mappings are evaluated when the activity is activated and create local variables in the activity's scope. Output mappings are evaluated when the activity completes and propagate values to the higher scope.",
+    "docs": [
+      { "title": "Input/output mappings", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+    ]
+  },
+  {
+    "id": "cfg-007",
+    "topic": "configuring-processes",
+    "subtopic": "Element templates",
+    "difficulty": "easy",
+    "question": "What is the primary purpose of element templates in Camunda Modeler?",
+    "options": [
+      { "id": "a", "text": "To replace BPMN with a proprietary diagramming language." },
+      { "id": "b", "text": "To provide reusable, pre-configured BPMN elements (often used to wrap connectors) with custom property panels." },
+      { "id": "c", "text": "To deploy multiple processes in a single bundle." },
+      { "id": "d", "text": "To generate Java worker code." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Element templates let you encapsulate configuration of a BPMN element (commonly a service task wrapping a connector) and present a tailored property panel to modelers, hiding implementation details.",
+    "docs": [
+      { "title": "Element templates", "url": "https://docs.camunda.io/docs/components/concepts/element-templates/" }
+    ]
+  },
+  {
+    "id": "cfg-008",
+    "topic": "configuring-processes",
+    "subtopic": "Job timeout",
+    "difficulty": "medium",
+    "question": "A job has a timeout of 30 seconds. The worker activates the job but takes 45 seconds to complete it. What happens?",
+    "options": [
+      { "id": "a", "text": "The completion succeeds; timeouts only affect activation." },
+      { "id": "b", "text": "Zeebe rejects the late completion and re-activates the job for another worker after the timeout expires." },
+      { "id": "c", "text": "The job worker is permanently banned from picking up jobs." },
+      { "id": "d", "text": "An incident is created immediately at the 30s mark." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "If a worker exceeds the job timeout, Zeebe makes the job available to other workers again. The original worker's eventual complete call will be rejected because the job is no longer locked to it.",
+    "docs": [
+      { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+    ]
+  },
+  {
+    "id": "cfg-009",
+    "topic": "configuring-processes",
+    "subtopic": "Process variables",
+    "difficulty": "easy",
+    "question": "In what format are process variables stored and exchanged in Camunda 8?",
+    "options": [
+      { "id": "a", "text": "Java serialized objects" },
+      { "id": "b", "text": "JSON" },
+      { "id": "c", "text": "XML" },
+      { "id": "d", "text": "Protobuf" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Zeebe variables are JSON. Workers receive and return JSON, and FEEL operates on JSON values.",
+    "docs": [
+      { "title": "Variables", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+    ]
+  },
+  {
+    "id": "cfg-010",
+    "topic": "configuring-processes",
+    "subtopic": "Variable scope",
+    "difficulty": "medium",
+    "question": "A variable `total` is set in an embedded subprocess. Where is it visible by default?",
+    "options": [
+      { "id": "a", "text": "Only inside that subprocess scope (and its children)." },
+      { "id": "b", "text": "Throughout the entire process instance." },
+      { "id": "c", "text": "Only inside the activity that set it." },
+      { "id": "d", "text": "Only after the subprocess completes." }
+    ],
+    "correctOptionId": "a",
+    "explanation": "Variables are local to the scope where they are created (subprocess, multi-instance body, activity) unless explicitly propagated upward. Setting at the top scope makes them visible everywhere.",
+    "docs": [
+      { "title": "Variable scopes", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+    ]
+  },
+  {
+    "id": "cfg-011",
+    "topic": "configuring-processes",
+    "subtopic": "Output mapping",
+    "difficulty": "medium",
+    "question": "An output mapping on a service task is `result -> orderTotal`. After the worker completes the job with `{ \"result\": 42 }`, what is set as a process variable?",
+    "options": [
+      { "id": "a", "text": "result = 42" },
+      { "id": "b", "text": "orderTotal = 42" },
+      { "id": "c", "text": "result = 42 and orderTotal = 42" },
+      { "id": "d", "text": "Nothing — output mappings only apply to user tasks." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Output mapping evaluates the source FEEL expression (`result`) against the job result and assigns the value to the target variable name (`orderTotal`) in the higher scope. Without output mapping, all job result keys are merged.",
+    "docs": [
+      { "title": "Variable mappings", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+    ]
+  },
+  {
+    "id": "cfg-012",
+    "topic": "configuring-processes",
+    "subtopic": "Default merge",
+    "difficulty": "medium",
+    "question": "Without any output mapping configured on a service task, what happens to a worker's result variables?",
+    "options": [
+      { "id": "a", "text": "They are discarded." },
+      { "id": "b", "text": "They are merged into the activity's parent scope as top-level variables." },
+      { "id": "c", "text": "They are stored under a `result.` prefix." },
+      { "id": "d", "text": "They cause an incident." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "By default, the entire JSON map returned by the worker is merged into the activity's enclosing scope as variables.",
+    "docs": [
+      { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+    ]
+  },
+  {
+    "id": "cfg-013",
+    "topic": "configuring-processes",
+    "subtopic": "Headers",
+    "difficulty": "medium",
+    "question": "What is the purpose of `taskHeaders` on a service task?",
+    "options": [
+      { "id": "a", "text": "To pass HTTP headers to the worker." },
+      { "id": "b", "text": "To pass static, model-time configuration values to the job worker (visible per activated job)." },
+      { "id": "c", "text": "To define the input variable mapping." },
+      { "id": "d", "text": "To configure retry counts." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Task headers are key/value pairs defined at modeling time and delivered to the worker with each activated job. They are typically used to parameterize generic workers without changing the worker code.",
+    "docs": [
+      { "title": "Service task", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/service-tasks/" }
+    ]
+  },
+  {
+    "id": "cfg-014",
+    "topic": "configuring-processes",
+    "subtopic": "FEEL conditions",
+    "difficulty": "easy",
+    "question": "Which is a valid FEEL condition expression for an outgoing sequence flow from an XOR gateway?",
+    "options": [
+      { "id": "a", "text": "${total > 100}" },
+      { "id": "b", "text": "= total > 100" },
+      { "id": "c", "text": "if total > 100" },
+      { "id": "d", "text": "/total/ > 100" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Camunda 8 conditions use FEEL with a leading `=` to denote an expression. `${...}` is the older Camunda 7 JUEL syntax and is not used in Zeebe.",
+    "docs": [
+      { "title": "FEEL", "url": "https://docs.camunda.io/docs/components/modeler/feel/what-is-feel/" }
+    ]
+  },
+  {
+    "id": "cfg-015",
+    "topic": "configuring-processes",
+    "subtopic": "Retry backoff",
+    "difficulty": "hard",
+    "question": "How can you implement exponential backoff for failed jobs in Camunda 8?",
+    "options": [
+      { "id": "a", "text": "It is configured on the BPMN task as an attribute." },
+      { "id": "b", "text": "The worker calls `failJob` with a `retryBackoff` parameter (delay before the job becomes available again)." },
+      { "id": "c", "text": "Zeebe applies a hard-coded exponential backoff automatically." },
+      { "id": "d", "text": "Use a timer boundary event and re-route." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "When failing a job, the worker can pass a backoff (in ms). Zeebe will not re-activate the job before that delay elapses, enabling worker-driven exponential backoff.",
+    "docs": [
+      { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+    ]
+  },
+  {
+    "id": "cfg-016",
+    "topic": "configuring-processes",
+    "subtopic": "Async behavior",
+    "difficulty": "medium",
+    "question": "Are sequence flows in Camunda 8 (Zeebe) synchronous or asynchronous?",
+    "options": [
+      { "id": "a", "text": "Synchronous within a thread." },
+      { "id": "b", "text": "Always asynchronous — Zeebe records each step as an event in its event-sourced engine." },
+      { "id": "c", "text": "Configurable per sequence flow with `async:true`." },
+      { "id": "d", "text": "Synchronous unless an `xor` gateway is involved." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Zeebe is event-sourced and processes steps asynchronously. Unlike Camunda 7, there is no need for `async:before/after` markers — every step is asynchronous.",
+    "docs": [
+      { "title": "Architecture", "url": "https://docs.camunda.io/docs/components/zeebe/technical-concepts/architecture/" }
+    ]
+  },
+  {
+    "id": "cfg-017",
+    "topic": "configuring-processes",
+    "subtopic": "Message TTL",
+    "difficulty": "hard",
+    "question": "What is the role of the time-to-live (TTL) on a published message?",
+    "options": [
+      { "id": "a", "text": "How long the worker has to process it." },
+      { "id": "b", "text": "How long Zeebe buffers the message waiting for a matching subscription before discarding it." },
+      { "id": "c", "text": "How long the message remains in the audit log." },
+      { "id": "d", "text": "TTL is not supported." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "TTL controls how long a published message is buffered if no current subscription matches. If a process instance subscribes within TTL, it is correlated; otherwise the message is discarded.",
+    "docs": [
+      { "title": "Message events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/" }
+    ]
+  },
+  {
+    "id": "cfg-018",
+    "topic": "configuring-processes",
+    "subtopic": "Message uniqueness",
+    "difficulty": "hard",
+    "question": "Two messages with the same name and same correlation key are published in quick succession. The first is correlated; what happens to the second?",
+    "options": [
+      { "id": "a", "text": "It is also correlated to the same instance." },
+      { "id": "b", "text": "It is rejected if a `messageId` is supplied and matches an already-processed message; otherwise it is buffered/correlated separately based on subscription state." },
+      { "id": "c", "text": "It is queued forever." },
+      { "id": "d", "text": "It causes the original to be re-correlated." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Specifying a `messageId` provides idempotent publication: Zeebe rejects duplicates with the same id within the cluster's retention. Without messageId, behavior depends on subscriptions and TTL.",
+    "docs": [
+      { "title": "Message correlation", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+    ]
+  },
+  {
+    "id": "cfg-019",
+    "topic": "configuring-processes",
+    "subtopic": "User task assignment",
+    "difficulty": "medium",
+    "question": "How do you assign a user task to a specific user at modeling time?",
+    "options": [
+      { "id": "a", "text": "Use the `zeebe:assignmentDefinition` extension with `assignee`, `candidateGroups`, and `candidateUsers`." },
+      { "id": "b", "text": "Use a `zeebe:taskListener` of type `assignment`." },
+      { "id": "c", "text": "Set the `bpmn:performer` attribute." },
+      { "id": "d", "text": "Add a service task before it." }
+    ],
+    "correctOptionId": "a",
+    "explanation": "Camunda 8 user tasks use the `zeebe:assignmentDefinition` extension to declare assignee and candidate groups/users (FEEL-supported).",
+    "docs": [
+      { "title": "User tasks", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/" }
+    ]
+  },
+  {
+    "id": "cfg-020",
+    "topic": "configuring-processes",
+    "subtopic": "Job activation",
+    "difficulty": "medium",
+    "question": "Which property primarily controls back-pressure on a job worker?",
+    "options": [
+      { "id": "a", "text": "The job retries." },
+      { "id": "b", "text": "The maximum number of jobs the worker activates per long-poll plus its handler concurrency." },
+      { "id": "c", "text": "The Zeebe broker thread pool size." },
+      { "id": "d", "text": "The TTL of the deployed BPMN." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Workers control how many jobs they activate per request and how many they process concurrently. These two settings together define throughput and back-pressure.",
+    "docs": [
+      { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+    ]
+  },
+  {
+    "id": "cfg-021",
+    "topic": "configuring-processes",
+    "subtopic": "Timer cycle",
+    "difficulty": "medium",
+    "question": "Which timer expression is INVALID in Zeebe?",
+    "options": [
+      { "id": "a", "text": "PT15M" },
+      { "id": "b", "text": "R/PT1H" },
+      { "id": "c", "text": "2026-01-01T00:00:00Z" },
+      { "id": "d", "text": "every 15 minutes" }
+    ],
+    "correctOptionId": "d",
+    "explanation": "Zeebe accepts ISO 8601 durations (PT15M), repeating intervals (R/PT1H), date-times, and cron expressions — but not natural language.",
+    "docs": [
+      { "title": "Timer events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/" }
+    ]
+  },
+  {
+    "id": "cfg-022",
+    "topic": "configuring-processes",
+    "subtopic": "Conditional flow default",
+    "difficulty": "easy",
+    "question": "What is the purpose of marking a sequence flow as the 'default' flow on an exclusive gateway?",
+    "options": [
+      { "id": "a", "text": "It always fires regardless of conditions." },
+      { "id": "b", "text": "It is taken when no other condition matches." },
+      { "id": "c", "text": "It is evaluated first." },
+      { "id": "d", "text": "It indicates the most likely path for analytics." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "The default flow is a fallback. It is taken only when no conditional flow matches, preventing 'no path matches' incidents.",
+    "docs": [
+      { "title": "Exclusive gateway", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/exclusive-gateways/" }
+    ]
+  },
+  {
+    "id": "cfg-023",
+    "topic": "configuring-processes",
+    "subtopic": "User task forms",
+    "difficulty": "medium",
+    "question": "How do you bind a Camunda Form to a user task?",
+    "options": [
+      { "id": "a", "text": "Use `zeebe:formDefinition` referencing the form key (and optionally form id for embedded forms)." },
+      { "id": "b", "text": "Hardcode the JSON in the BPMN." },
+      { "id": "c", "text": "Forms are auto-generated from variables." },
+      { "id": "d", "text": "Forms cannot be linked to user tasks." }
+    ],
+    "correctOptionId": "a",
+    "explanation": "The `zeebe:formDefinition` extension on a user task references either an embedded form (by id) or a Camunda form deployed alongside the process.",
+    "docs": [
+      { "title": "User task forms", "url": "https://docs.camunda.io/docs/components/modeler/forms/use-forms/" }
+    ]
+  },
+  {
+    "id": "cfg-024",
+    "topic": "configuring-processes",
+    "subtopic": "Multi-instance",
+    "difficulty": "medium",
+    "question": "When configuring a multi-instance activity, what does the `inputElement` attribute do?",
+    "options": [
+      { "id": "a", "text": "Defines the variable name that holds the current item from the input collection inside each instance." },
+      { "id": "b", "text": "Defines the input collection itself." },
+      { "id": "c", "text": "Configures the output aggregation." },
+      { "id": "d", "text": "Limits the number of instances." }
+    ],
+    "correctOptionId": "a",
+    "explanation": "`inputCollection` is the source collection, `inputElement` names the per-instance local variable. Together they let you iterate, e.g., over a list of items.",
+    "docs": [
+      { "title": "Multi-instance", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/" }
+    ]
+  },
+  {
+    "id": "cfg-025",
+    "topic": "configuring-processes",
+    "subtopic": "Output collection",
+    "difficulty": "hard",
+    "question": "In a multi-instance activity, which two attributes together collect each instance's result into a list?",
+    "options": [
+      { "id": "a", "text": "outputCollection and outputElement" },
+      { "id": "b", "text": "resultCollection and resultElement" },
+      { "id": "c", "text": "aggregator and field" },
+      { "id": "d", "text": "list and reduce" }
+    ],
+    "correctOptionId": "a",
+    "explanation": "`outputCollection` names the variable that will receive the list, and `outputElement` is the FEEL expression evaluated per instance to determine what to collect.",
+    "docs": [
+      { "title": "Multi-instance", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/" }
+    ]
+  },
+  {
+    "id": "cfg-026",
+    "topic": "configuring-processes",
+    "subtopic": "Subprocess scope",
+    "difficulty": "medium",
+    "question": "An incident is raised inside an embedded subprocess. Where in Operate must it be resolved?",
+    "options": [
+      { "id": "a", "text": "On the call activity." },
+      { "id": "b", "text": "On the process instance — at the activity that raised it (any depth, including inside a subprocess)." },
+      { "id": "c", "text": "On the deployment." },
+      { "id": "d", "text": "On the broker." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Incidents are resolved at the activity that produced them inside the running instance, regardless of nesting depth. Operate exposes them in the instance view.",
+    "docs": [
+      { "title": "Incidents", "url": "https://docs.camunda.io/docs/components/concepts/incidents/" }
+    ]
+  },
+  {
+    "id": "cfg-027",
+    "topic": "configuring-processes",
+    "subtopic": "Process IDs",
+    "difficulty": "easy",
+    "question": "Two BPMN files declare processes with the same `id`. What happens when both are deployed?",
+    "options": [
+      { "id": "a", "text": "Both are deployed as separate processes." },
+      { "id": "b", "text": "They are treated as different versions of the same process." },
+      { "id": "c", "text": "The deployment fails." },
+      { "id": "d", "text": "The first is overwritten silently." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Process id is the logical key; deploying multiple BPMNs with the same process id creates incrementing versions.",
+    "docs": [
+      { "title": "Deployments", "url": "https://docs.camunda.io/docs/components/concepts/deployments/" }
+    ]
+  },
+  {
+    "id": "cfg-028",
+    "topic": "configuring-processes",
+    "subtopic": "Retry semantics",
+    "difficulty": "medium",
+    "question": "A worker fails a job (retries decreases from 3 to 2). When is the job re-activated?",
+    "options": [
+      { "id": "a", "text": "Immediately, by the same worker." },
+      { "id": "b", "text": "After the configured retry backoff (or immediately if none) — by any worker subscribed to the job type." },
+      { "id": "c", "text": "Only after a manual intervention." },
+      { "id": "d", "text": "Never; only timeouts re-activate jobs." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "After failing with retries > 0, the job becomes available for re-activation by any subscribed worker, after the optional backoff.",
+    "docs": [
+      { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+    ]
+  },
+  {
+    "id": "cfg-029",
+    "topic": "configuring-processes",
+    "subtopic": "BPMN error catch",
+    "difficulty": "medium",
+    "question": "How do you make a process catch a specific BPMN error code thrown by a worker?",
+    "options": [
+      { "id": "a", "text": "Use a try/catch in the worker code." },
+      { "id": "b", "text": "Attach an error boundary event with the matching error code (or `*` for any error)." },
+      { "id": "c", "text": "Set the retry count to 0." },
+      { "id": "d", "text": "Use a compensation handler." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Error boundary events filter by error code. The worker throws a BPMN error (via the API), which is caught by the boundary event matching the code; the code itself supports a default catch-all.",
+    "docs": [
+      { "title": "Error events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/" }
+    ]
+  },
+  {
+    "id": "cfg-030",
+    "topic": "configuring-processes",
+    "subtopic": "Process variables size",
+    "difficulty": "medium",
+    "question": "Which is a recommended best practice for keeping process variable size manageable?",
+    "options": [
+      { "id": "a", "text": "Always store the entire payload as one big variable." },
+      { "id": "b", "text": "Keep large blobs out of variables — store an external reference (id/URL) and fetch via worker." },
+      { "id": "c", "text": "Compress all variables on the client side." },
+      { "id": "d", "text": "Variables have no size limit, so anything goes." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Large variables hurt throughput and exporter performance. Store references and fetch payloads in workers when needed. Zeebe enforces an upper limit per variable (configurable) but small payloads are best practice.",
+    "docs": [
+      { "title": "Variables best practices", "url": "https://docs.camunda.io/docs/components/best-practices/development/handling-data-in-processes/" }
+    ]
+  },
+  {
+    "id": "cfg-031",
+    "topic": "configuring-processes",
+    "subtopic": "Correlation key",
+    "difficulty": "medium",
+    "question": "Where do you configure a correlation key for a message catch event?",
+    "options": [
+      { "id": "a", "text": "On the message definition (FEEL expression evaluated against process variables when the subscription is created)." },
+      { "id": "b", "text": "On the worker code." },
+      { "id": "c", "text": "In application.yaml." },
+      { "id": "d", "text": "Globally per cluster." }
+    ],
+    "correctOptionId": "a",
+    "explanation": "Each message catch event references a `bpmn:message` definition with a FEEL `correlationKey` expression that resolves to a value at subscription time. Inbound messages must carry a matching correlation key value.",
+    "docs": [
+      { "title": "Message correlation", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+    ]
+  },
+  {
+    "id": "cfg-032",
+    "topic": "configuring-processes",
+    "subtopic": "Element instance state",
+    "difficulty": "easy",
+    "question": "Which tool primarily exposes the live state of running process instances and incidents?",
+    "options": [
+      { "id": "a", "text": "Tasklist" },
+      { "id": "b", "text": "Operate" },
+      { "id": "c", "text": "Optimize" },
+      { "id": "d", "text": "Modeler" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Operate is purpose-built for monitoring running instances and incident management. Tasklist is for human tasks, Optimize for analytics, Modeler for design.",
+    "docs": [
+      { "title": "Operate", "url": "https://docs.camunda.io/docs/components/operate/operate-introduction/" }
+    ]
+  },
+  {
+    "id": "cfg-033",
+    "topic": "configuring-processes",
+    "subtopic": "Job type design",
+    "difficulty": "easy",
+    "question": "Which approach is best for naming job types?",
+    "options": [
+      { "id": "a", "text": "Use generic names like `task1`, `task2`." },
+      { "id": "b", "text": "Use descriptive, namespaced names like `inventory.checkStock` to avoid collisions across teams." },
+      { "id": "c", "text": "Always reuse `default`." },
+      { "id": "d", "text": "Use numeric ids." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Namespaced job types prevent collisions between teams/services and make ownership clear, especially when many workers share a cluster.",
+    "docs": [
+      { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+    ]
+  },
+  {
+    "id": "cfg-034",
+    "topic": "configuring-processes",
+    "subtopic": "Variable injection",
+    "difficulty": "medium",
+    "question": "In a Spring Boot worker, how can you receive only specific variables instead of all of them?",
+    "options": [
+      { "id": "a", "text": "Use `fetchVariables = { \"a\", \"b\" }` on the @JobWorker annotation." },
+      { "id": "b", "text": "Use `@VariableFilter`." },
+      { "id": "c", "text": "Variables cannot be filtered." },
+      { "id": "d", "text": "Configure it server-side per process." }
+    ],
+    "correctOptionId": "a",
+    "explanation": "`fetchVariables` on @JobWorker (or method-parameter @Variable annotations) limits which variables are fetched, reducing payload size and improving throughput.",
+    "docs": [
+      { "title": "Spring SDK", "url": "https://docs.camunda.io/docs/apis-tools/spring-zeebe-sdk/getting-started/" }
+    ]
+  },
+  {
+    "id": "cfg-035",
+    "topic": "configuring-processes",
+    "subtopic": "Element templates",
+    "difficulty": "medium",
+    "question": "How are element templates loaded into the Web Modeler?",
+    "options": [
+      { "id": "a", "text": "Imported per project from JSON template files." },
+      { "id": "b", "text": "They are downloaded from npm at build time." },
+      { "id": "c", "text": "They live inside the BPMN file." },
+      { "id": "d", "text": "They cannot be added to Web Modeler." }
+    ],
+    "correctOptionId": "a",
+    "explanation": "In Web Modeler, element templates are imported per project as JSON files. Desktop Modeler reads them from a local templates folder.",
+    "docs": [
+      { "title": "Element templates", "url": "https://docs.camunda.io/docs/components/modeler/desktop-modeler/element-templates/about-templates/" }
+    ]
+  },
+  {
+    "id": "cfg-036",
+    "topic": "configuring-processes",
+    "subtopic": "Tenant",
+    "difficulty": "medium",
+    "question": "What does multi-tenancy in Camunda 8 enable?",
+    "options": [
+      { "id": "a", "text": "Multiple BPMN versions in a single tenant." },
+      { "id": "b", "text": "Logical isolation of resources (process definitions, instances) by tenant id within a single cluster." },
+      { "id": "c", "text": "Higher throughput per CPU core." },
+      { "id": "d", "text": "An optimized exporter for analytics." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Multi-tenancy lets you share a cluster across tenants while keeping data and operations logically isolated. Resources are tagged with tenantId and queried per tenant.",
+    "docs": [
+      { "title": "Multi-tenancy", "url": "https://docs.camunda.io/docs/self-managed/concepts/multi-tenancy/" }
+    ]
+  },
+  {
+    "id": "cfg-037",
+    "topic": "configuring-processes",
+    "subtopic": "Form input mapping",
+    "difficulty": "medium",
+    "question": "Variables submitted by a Camunda form are stored where?",
+    "options": [
+      { "id": "a", "text": "In a private form table." },
+      { "id": "b", "text": "As process variables in the user task scope (and then propagated as configured)." },
+      { "id": "c", "text": "Only in the audit log." },
+      { "id": "d", "text": "Forms cannot write variables." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "When the user submits, form values become variables in the user task's local scope. Output mappings (or default merge) propagate them to higher scopes.",
+    "docs": [
+      { "title": "Forms", "url": "https://docs.camunda.io/docs/components/modeler/forms/use-forms/" }
+    ]
+  },
+  {
+    "id": "cfg-038",
+    "topic": "configuring-processes",
+    "subtopic": "Listeners",
+    "difficulty": "hard",
+    "question": "What does an execution listener (job-worker-style listener) on a service task allow?",
+    "options": [
+      { "id": "a", "text": "Camunda 8 has full BPMN execution listeners equivalent to Camunda 7." },
+      { "id": "b", "text": "Camunda 8 supports task listeners on user tasks (e.g., on assignment) and start/end execution listeners as a recent feature; capabilities are more limited than C7." },
+      { "id": "c", "text": "There are no listeners in Camunda 8." },
+      { "id": "d", "text": "Only Java code listeners are supported." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Camunda 8 introduced task listeners (e.g., assignment) and process/execution listeners using job-worker mechanics. They are not 100% equivalent to Camunda 7's Java execution listeners but provide hook points.",
+    "docs": [
+      { "title": "User task listeners", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/" }
+    ]
+  },
+  {
+    "id": "cfg-039",
+    "topic": "configuring-processes",
+    "subtopic": "BPMN extension",
+    "difficulty": "easy",
+    "question": "What is the XML namespace prefix used for Zeebe-specific BPMN extensions?",
+    "options": [
+      { "id": "a", "text": "camunda" },
+      { "id": "b", "text": "zeebe" },
+      { "id": "c", "text": "c8" },
+      { "id": "d", "text": "ext" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Camunda 8 uses the `zeebe:` prefix (e.g., `zeebe:taskDefinition`, `zeebe:input`) — distinct from Camunda 7 which used `camunda:`.",
+    "docs": [
+      { "title": "BPMN coverage", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/bpmn-coverage/" }
+    ]
+  },
+  {
+    "id": "cfg-040",
+    "topic": "configuring-processes",
+    "subtopic": "Variable types",
+    "difficulty": "easy",
+    "question": "Which is NOT a valid JSON type for a Zeebe process variable?",
+    "options": [
+      { "id": "a", "text": "string" },
+      { "id": "b", "text": "number" },
+      { "id": "c", "text": "java.time.Date" },
+      { "id": "d", "text": "object" }
+    ],
+    "correctOptionId": "c",
+    "explanation": "Variables are JSON; only JSON-compatible types are supported (string, number, boolean, array, object, null). Dates are encoded as ISO 8601 strings.",
+    "docs": [
+      { "title": "Variables", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+    ]
+  },
+  {
+    "id": "cfg-041",
+    "topic": "configuring-processes",
+    "subtopic": "Idempotency",
+    "difficulty": "hard",
+    "question": "Why should a job worker's business action be idempotent?",
+    "options": [
+      { "id": "a", "text": "Because Zeebe will replay events on broker restart." },
+      { "id": "b", "text": "Because at-least-once semantics mean a job can be redelivered (timeout, network failure) and the worker may execute the action more than once." },
+      { "id": "c", "text": "Because the BPMN spec mandates it." },
+      { "id": "d", "text": "Because variables are immutable." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Zeebe provides at-least-once job delivery. Network or worker timeouts can lead to a job being re-activated and re-processed, so idempotency is essential.",
+    "docs": [
+      { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+    ]
+  },
+  {
+    "id": "cfg-042",
+    "topic": "configuring-processes",
+    "subtopic": "Process variables update",
+    "difficulty": "medium",
+    "question": "Which API call lets you change variables on a running process instance from outside (e.g., to fix a bad value)?",
+    "options": [
+      { "id": "a", "text": "deployResource" },
+      { "id": "b", "text": "setVariables (with optional `local` flag)" },
+      { "id": "c", "text": "publishMessage" },
+      { "id": "d", "text": "completeJob" }
+    ],
+    "correctOptionId": "b",
+    "explanation": "`setVariables` updates variables on a process instance scope (or any element instance scope). With `local=true` it stays in that scope; otherwise it merges upward.",
+    "docs": [
+      { "title": "Orchestration Cluster API", "url": "https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/orchestration-cluster-api-rest-overview/" }
+    ]
+  },
+  {
+    "id": "cfg-043",
+    "topic": "configuring-processes",
+    "subtopic": "Cancel instance",
+    "difficulty": "easy",
+    "question": "How do you cancel a running process instance?",
+    "options": [
+      { "id": "a", "text": "Modify the BPMN to add a terminate end event." },
+      { "id": "b", "text": "Call cancelProcessInstance via the API (or do it in Operate)." },
+      { "id": "c", "text": "Restart the broker." },
+      { "id": "d", "text": "Set retries to -1." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "Cancel via the Orchestration Cluster API (cancelProcessInstance) or use the Operate UI which calls the same API.",
+    "docs": [
+      { "title": "Operate", "url": "https://docs.camunda.io/docs/components/operate/userguide/operate-introduction/" }
+    ]
+  },
+  {
+    "id": "cfg-044",
+    "topic": "configuring-processes",
+    "subtopic": "Process variables FEEL",
+    "difficulty": "medium",
+    "question": "Inside an input mapping you write `= upper case(customer.name)`. What does it produce?",
+    "options": [
+      { "id": "a", "text": "Throws an error — FEEL has no upper case function." },
+      { "id": "b", "text": "Returns the customer's name uppercased (FEEL `upper case` built-in)." },
+      { "id": "c", "text": "Returns the constant string 'CUSTOMER.NAME'." },
+      { "id": "d", "text": "Returns the SHA-256 of the name." }
+    ],
+    "correctOptionId": "b",
+    "explanation": "FEEL provides string built-ins including `upper case(string)` and `lower case(string)` (note the space).",
+    "docs": [
+      { "title": "FEEL string functions", "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-string/" }
+    ]
+  },
+  {
+    "id": "cfg-045",
+    "topic": "configuring-processes",
+    "subtopic": "Compensation throw",
+    "difficulty": "hard",
+    "question": "Where can a Compensation Throw event be triggered from?",
+    "options": [
+      { "id": "a", "text": "Only from end events." },
+      { "id": "b", "text": "Only from boundary events." },
+      { "id": "c", "text": "From an intermediate throw event or end event, and triggers compensation handlers in the same scope (or the referenced activity)." },
+      { "id": "d", "text": "From inside a worker by throwing an exception." }
+    ],
+    "correctOptionId": "c",
+    "explanation": "Compensation Throw events come in intermediate-throw and end variants. Without an activity reference they trigger all compensable activities in scope; with a reference, only that activity's handler.",
+    "docs": [
+      { "title": "Compensation", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/" }
+    ]
+  }
+]
