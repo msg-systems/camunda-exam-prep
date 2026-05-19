@@ -1,0 +1,27 @@
+{
+  "id": "ext-fetch-variables",
+  "topic": "extensions-integrations",
+  "subtopic": "job workers",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Echo Bank runs 25000 jobs per day in Camunda 8.8 against process instances with very large variable payloads. The team wants the job worker activation to fetch only orderId and amountCents instead of every variable on the process scope, to keep activation responses small for downstream workers.",
+  "question": "Which Camunda 8 job worker configuration limits the variables returned at activation?",
+  "options": [
+    { "id": "a", "text": "Configure fetchVariables on the worker (or @JobWorker attribute fetchVariables) with the explicit list of names; the broker returns only those variables" },
+    { "id": "b", "text": "Configure an input mapping on the service task with an exhaustive list of every variable to exclude; the broker reads the inversion at activation" },
+    { "id": "c", "text": "Configure a maxVariableBytes limit on the worker; the broker truncates the variable payload at the byte limit on every activation per call" },
+    { "id": "d", "text": "Configure a process-level variable allow list on application.properties; the broker reads the allow list at deployment time on every activation" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Camunda 8 job activation supports a fetchVariables list (or @JobWorker(fetchVariables = {...}) in the Spring SDK); only the listed variables are returned." },
+    "b": { "text": "Incorrect. Input mappings rename or compute variables on the task, they do not control the activation fetch scope on the worker." },
+    "c": { "text": "Incorrect. The broker does not truncate by byte count; it returns the explicit fetchVariables list as configured." },
+    "d": { "text": "Incorrect. Allow-listing variables is not a process-level config; the documented mechanism is fetchVariables on the worker activation." }
+  },
+  "explanation": "Job activation accepts a fetchVariables list; only the listed variables are returned in the activation response for the worker.",
+  "docs": [
+    { "title": "Job worker variable fetching", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+  ]
+}

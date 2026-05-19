@@ -1,0 +1,27 @@
+{
+  "id": "cp-signal-name-expression",
+  "topic": "configuring-processes",
+  "subtopic": "signal events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Keystone Telco broadcasts a tenant-scoped signal across 6 microservices in Camunda 8.8 with 8000 events per day. The signal name must include the tenant id at throw time (e.g., \"market-down-\" + tenantId) so only the tenant-specific subscribers react to the broadcast.",
+  "question": "How is the dynamic signal name configured on a throw signal event in Camunda 8?",
+  "options": [
+    { "id": "a", "text": "Set the signal name expression on the throw event to a FEEL expression like =\"market-down-\" + tenantId; the engine resolves it at throw time" },
+    { "id": "b", "text": "Set the signal name to the literal market-down on the throw event; tenant scoping is added by the engine from the runtime tenant id implicitly" },
+    { "id": "c", "text": "Set the signal name on the throw event to a JUEL expression referencing tenantId; the engine reads tenant id as a per-instance JUEL variable for this case" },
+    { "id": "d", "text": "Set the signal name on the throw event to a literal market-down and add a correlation key tenantId; Camunda 8 signals support correlation keys" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Camunda 8 signal events accept a FEEL name expression evaluated at throw time, which produces the runtime signal name for subscribers." },
+    "b": { "text": "Incorrect. The engine does not implicitly prefix signal names with tenant ids; that scoping must come from the expression." },
+    "c": { "text": "Incorrect. Camunda 8 uses FEEL, not JUEL, for runtime expressions on BPMN signal name fields." },
+    "d": { "text": "Incorrect. Signals are broadcast and have no correlation key like messages do; scoping is achieved by encoding the value in the name expression." }
+  },
+  "explanation": "Camunda 8 signal events accept a FEEL name expression evaluated at throw time; subscribers receive the broadcast by exact name match.",
+  "docs": [
+    { "title": "BPMN signal events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/signal-events/" }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "mod-receive-task-vs-message-event",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Delta Payments processes 14000 transactions per day in Camunda 8.8. After issuing an authorization request, the process must pause and wait for an asynchronous confirmation message. The architect chooses between a receive task and a message intermediate catch event for this wait state.",
+  "question": "What is true about both elements when used to wait for an asynchronous message correlation?",
+  "options": [
+    { "id": "a", "text": "Both elements subscribe to the configured message name and complete on correlation, sharing identical wait-state semantics in the engine" },
+    { "id": "b", "text": "Only the receive task can carry a correlation key expression while the message catch event must inherit the key from the process root" },
+    { "id": "c", "text": "Only the message catch event subscribes to the broker while the receive task creates a Tasklist item for a human to confirm" },
+    { "id": "d", "text": "Both elements require a separate boundary event on the same activity to actually start the message subscription at runtime" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The Camunda 8 docs describe the receive task and the message intermediate catch event as semantically equivalent for awaiting a correlated message." },
+    "b": { "text": "Incorrect. Both elements carry the message reference and correlation key expression; neither one can rely on a non-existent root-level inheritance rule." },
+    "c": { "text": "Incorrect. Receive tasks are not human work items and never produce Tasklist entries; they are message-correlated wait states." },
+    "d": { "text": "Incorrect. Boundary message events attach to other activities; receive tasks and intermediate catch events subscribe on their own without a boundary helper." }
+  },
+  "explanation": "Camunda 8 treats the receive task and the message intermediate catch event as equivalent message wait states; both subscribe to the message name and complete on correlation.",
+  "docs": [
+    { "title": "BPMN message events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/" }
+  ]
+}

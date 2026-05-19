@@ -1,0 +1,27 @@
+{
+  "id": "dec-default-hit-policy",
+  "topic": "decisions-business-rules",
+  "subtopic": "hit policy",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Insurance ships a new DMN decision table to Camunda 8.8 that classifies 12000 claims per day into risk bands. The modeler did not select a hit policy in the properties panel, and the team wants to confirm what the deployed table will do when more than one rule matches the input data.",
+  "question": "Which hit policy will the deployed decision table use, and what happens if two rules match the same input?",
+  "options": [
+    { "id": "a", "text": "UNIQUE is the default hit policy, and a matching pair of rules raises an evaluation error reported as an incident on the business rule task" },
+    { "id": "b", "text": "COLLECT is the default hit policy, and overlapping rule outputs are returned to the process as a list with arbitrary ordering" },
+    { "id": "c", "text": "FIRST is the default hit policy, and the engine quietly returns only the output of the first overlapping rule defined in the table" },
+    { "id": "d", "text": "RULE ORDER is the default hit policy, and overlapping rules emit an ordered list of outputs to the calling business rule task" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The DMN docs state that when no hit policy is set the default UNIQUE applies; a second matching rule violates UNIQUE and the evaluation fails." },
+    "b": { "text": "Incorrect. COLLECT must be set explicitly on the decisionTable XML element and is never the implicit default in Camunda DMN." },
+    "c": { "text": "Incorrect. FIRST is a separate explicit policy and is not chosen by Camunda when the hitPolicy attribute is omitted from the decision table." },
+    "d": { "text": "Incorrect. RULE ORDER must be set explicitly and is not the default behaviour for a decision table without a hit policy attribute." }
+  },
+  "explanation": "The DMN spec implemented by Camunda 8.8 defaults to UNIQUE when no hit policy is set; multiple matches violate UNIQUE and the engine raises an evaluation incident on the business rule task.",
+  "docs": [
+    { "title": "DMN hit policy", "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/" }
+  ]
+}

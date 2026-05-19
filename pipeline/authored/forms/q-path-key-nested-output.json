@@ -1,0 +1,27 @@
+{
+  "id": "frm-path-key-nested-output",
+  "topic": "forms",
+  "subtopic": "data binding",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Insurance is migrating 8 claim-intake forms to Camunda 8.8 Forms. The claims team needs a single text field on the form to map to the nested process variable claim.applicant.age so the downstream service worker can read it as 35 without any post-processing in FEEL.",
+  "question": "How should the form field key be configured to produce the nested structure on submission?",
+  "options": [
+    { "id": "a", "text": "Set the field key to the path claim.applicant.age so the submission writes the value into the nested object directly" },
+    { "id": "b", "text": "Set the field key to applicant_age and add an input mapping on the user task to expand it into the nested object" },
+    { "id": "c", "text": "Set the field key to claim and let the form runtime infer applicant.age from the field label text at submission time" },
+    { "id": "d", "text": "Set the field key to age and add an output mapping that wraps the value in claim.applicant using FEEL on the user task" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Forms support path keys like user.info.age, which produce the corresponding nested JSON structure on submission with no extra mapping." },
+    "b": { "text": "Incorrect. A simple key with an input mapping requires extra glue per user task and defeats the form's built-in path-key support." },
+    "c": { "text": "Incorrect. Field labels are presentation text only and do not influence how the form runtime constructs the submitted JSON shape." },
+    "d": { "text": "Incorrect. Output mapping on the user task is a workaround; the form's path key is the documented native way to write nested process data." }
+  },
+  "explanation": "Camunda Forms accept a path as the field key (for example user.info.age), and the runtime writes the value into the corresponding nested JSON structure on submission. Output mappings on the user task are not required.",
+  "docs": [
+    { "title": "Forms data binding", "url": "https://docs.camunda.io/docs/components/modeler/forms/configuration/forms-config-data-binding/" }
+  ]
+}

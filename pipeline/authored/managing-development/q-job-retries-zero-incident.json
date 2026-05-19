@@ -1,0 +1,27 @@
+{
+  "id": "mgmt-job-retries-zero-incident",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "North Telco operates a Camunda 8.8 production cluster with 13000 transactions per day. A service task's job worker repeatedly throws an exception, eventually decreasing the job's retries to 0. Operators need to know precisely what state the broker now exposes for the failed unit of work.",
+  "question": "What does the broker do when a job's retries decrement to 0 after exhausting all attempts?",
+  "options": [
+    { "id": "a", "text": "The broker raises a job-failure incident on the failed job; Operate exposes it for retry or modification by an operator" },
+    { "id": "b", "text": "The broker silently cancels the active token on the affected activity; no incident is raised and no operator action is required" },
+    { "id": "c", "text": "The broker resets the retries counter to its original value automatically; the worker is then re-activated and retries indefinitely" },
+    { "id": "d", "text": "The broker re-publishes the job to every other worker in the same job type group; one of those workers must complete the job to clear it" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. When retries reach 0, Zeebe raises an incident on the job; Operate then surfaces it for operator retry or modification." },
+    "b": { "text": "Incorrect. The broker does not silently drop tokens; exhausted retries always raise a visible incident on the affected job." },
+    "c": { "text": "Incorrect. The broker never auto-resets retries; the operator must explicitly raise retries to retry the failed job." },
+    "d": { "text": "Incorrect. Jobs are pulled by activated workers; the broker does not push to other workers after retries reach 0." }
+  },
+  "explanation": "When a job's retries reach 0, Zeebe raises an incident that Operate surfaces; an operator must raise the retries to retry the job.",
+  "docs": [
+    { "title": "Job workers and incidents", "url": "https://docs.camunda.io/docs/components/concepts/incidents/" }
+  ]
+}

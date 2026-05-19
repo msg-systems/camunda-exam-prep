@@ -1,0 +1,27 @@
+{
+  "id": "dec-multiple-outputs-shape",
+  "topic": "decisions-business-rules",
+  "subtopic": "decision logic",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Junction Insurance evaluates 14000 policies per day in Camunda 8.8 for motor cover. One DMN table named pricing has 2 output columns named premiumEur and discountPct and uses the UNIQUE hit policy. The team must read both fields downstream from the business rule task's resultVariable.",
+  "question": "What is the shape of the decision result returned to the calling business rule task for one matching rule?",
+  "options": [
+    { "id": "a", "text": "A single context such as { premiumEur: 480, discountPct: 5 } is returned because UNIQUE produces one matched row with two named outputs" },
+    { "id": "b", "text": "Two separate top-level variables premiumEur and discountPct are returned, replacing the resultVariable with two fields on the parent scope" },
+    { "id": "c", "text": "A list of contexts of length 1 is returned because every decision table evaluation produces a list of matched rows, regardless of hit policy" },
+    { "id": "d", "text": "Only the first output column premiumEur is returned because the resultVariable is always scalar for tables with the UNIQUE hit policy" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. For UNIQUE with multiple output columns, the result is a context (FEEL map) of the named outputs of the single matched rule." },
+    "b": { "text": "Incorrect. The business rule task writes one resultVariable; named outputs are nested within that variable, not flattened onto the parent scope automatically." },
+    "c": { "text": "Incorrect. UNIQUE returns a single matched rule's output as a context, not a list; lists arise from RULE ORDER or COLLECT (without aggregator)." },
+    "d": { "text": "Incorrect. Every named output column appears in the result of a matched rule; the engine does not silently drop additional output columns." }
+  },
+  "explanation": "A UNIQUE table with two output columns returns a single context (FEEL map) containing both named outputs for the matched rule, exposed via the business rule task's resultVariable.",
+  "docs": [
+    { "title": "Decision table output", "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-output/" }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "mgmt-publish-message-from-operate",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Meridian Insurance handles 5500 claims per day in Camunda 8.8. An external system that publishes the verifyClaim message is offline. The operator must move the one stuck instance forward from a message intermediate catch event without restarting the instance or modifying the BPMN file.",
+  "question": "Which operator action correlates a message to the single stuck waiting instance from the management surface?",
+  "options": [
+    { "id": "a", "text": "Use the Zeebe publish-message API or the Tasklist or Modeler tooling to publish verifyClaim with the matching correlation key for that one instance" },
+    { "id": "b", "text": "Use Operate's process instance modification to move the token to the next activity; messages can only be sent from connected production systems" },
+    { "id": "c", "text": "Use Operate's incident resolution to set retries to 1; message intermediate catch events fire when retries become positive on the parent activity" },
+    { "id": "d", "text": "Use Tasklist's claim button on the message intermediate catch event; claiming the catch event satisfies the message subscription on the instance" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Operators publish messages with a correlation key via the Zeebe API (or wrapping UIs) to satisfy a waiting message subscription on a specific instance." },
+    "b": { "text": "Incorrect. Messages can be published from any client authorised against the cluster, not only from the original production system." },
+    "c": { "text": "Incorrect. Retries do not satisfy message subscriptions; they only retry failed jobs on activities like service tasks." },
+    "d": { "text": "Incorrect. Message catch events are not Tasklist items; they are message subscriptions waiting for a published correlated message." }
+  },
+  "explanation": "Operators publish a correlated message via the Zeebe publish-message API (Operate, Tasklist, or zbctl) to release a process instance from a message wait state.",
+  "docs": [
+    { "title": "Publish a message", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+  ]
+}

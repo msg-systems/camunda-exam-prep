@@ -1,0 +1,27 @@
+{
+  "id": "ext-rpa-bridge",
+  "topic": "extensions-integrations",
+  "subtopic": "RPA",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Meridian Insurance integrates a Robotic Process Automation tool into a Camunda 8.8 process to handle 3000 transactions per day. The team must invoke an existing RPA bot from a BPMN service task and pass the bot's result back into process variables for the downstream business rule task to evaluate.",
+  "question": "Which Camunda 8 integration pattern invokes an external RPA bot from a BPMN service task?",
+  "options": [
+    { "id": "a", "text": "Run the RPA worker bridge subscribed to a configured job type; the bridge translates Zeebe jobs to RPA bot invocations and returns the bot result as variables" },
+    { "id": "b", "text": "Embed the RPA bot as a Java class on the broker classpath; the broker invokes the class on each activated job and returns the bot result as variables" },
+    { "id": "c", "text": "Configure the RPA bot URL as a custom header on the service task; the broker invokes the bot via HTTP GET on each activated job and reads JSON result as variables" },
+    { "id": "d", "text": "Deploy the RPA bot as a connector secret; the runtime reads the secret on activation and invokes the bot from inside the broker's connector runtime worker" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Camunda 8's RPA integration runs an RPA worker bridge that subscribes to a job type and forwards activations to the RPA tool, returning the result as job complete variables." },
+    "b": { "text": "Incorrect. The broker does not embed third-party Java classes; integration is via a separate worker process." },
+    "c": { "text": "Incorrect. The broker does not invoke arbitrary URLs via custom headers; the RPA bridge worker is the documented mechanism." },
+    "d": { "text": "Incorrect. Connector secrets are static reference values, not executable RPA bots; the documented mechanism is the RPA worker bridge." }
+  },
+  "explanation": "Camunda 8 invokes RPA bots via a dedicated RPA worker bridge that subscribes to a job type and forwards activations to the RPA tool, returning the bot's result as job complete variables.",
+  "docs": [
+    { "title": "Camunda RPA", "url": "https://docs.camunda.io/docs/components/rpa/" }
+  ]
+}

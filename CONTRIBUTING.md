@@ -5,9 +5,9 @@ Thanks for considering a contribution! This is a community study tool, and impro
 ## Ways to help
 
 - **Report a wrong / outdated question** — open an issue with the question id (e.g. `imp-s5-cfg-03`), the topic, and what's wrong. Link to the relevant Camunda 8 docs if you have them.
-- **Add a new question set** — see the "Adding a new set of 60 questions" section in [README.md](README.md). Drop a `setNN.md` file into `pipeline/sources/`, run the importer, send a PR.
+- **Add a new question set** — see the "Adding a new set of 60 questions" section in [README.md](README.md). Drop a `full_exam_60q_v2_setNN.json` file (matching `pipeline/sources/exam-sets/exam.schema.json`) into `pipeline/sources/exam-sets/`, run the converter, send a PR.
 - **Fix a bug or improve UX** — small focused PRs preferred over large rewrites.
-- **Improve the importer / parser** — see `pipeline/import-scenarios.mjs`.
+- **Improve the converter** — see `pipeline/import-json-sets.mjs` (source schema: `pipeline/sources/exam-sets/exam.schema.json`).
 
 ## Local development
 

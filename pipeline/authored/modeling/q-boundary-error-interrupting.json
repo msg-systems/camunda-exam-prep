@@ -1,0 +1,27 @@
+{
+  "id": "mod-boundary-error-interrupting",
+  "topic": "modeling",
+  "subtopic": "events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Keystone Bank processes 16000 transactions per day in Camunda 8.8. The service task call-payment-gateway may throw the BPMN error code GATEWAY_DOWN. When that error fires, the current activity must end and the token must flow through the boundary error handler branch without continuing past the original task.",
+  "question": "How is the boundary error event configured to interrupt the attached service task?",
+  "options": [
+    { "id": "a", "text": "Use an interrupting boundary error event with the matching error code; the attached activity is terminated and the boundary path is taken" },
+    { "id": "b", "text": "Use a non-interrupting boundary error event with the matching error code; the attached activity continues in parallel with the handler branch" },
+    { "id": "c", "text": "Use an interrupting boundary timer event with the same error code; timer events can match named BPMN errors when configured properly" },
+    { "id": "d", "text": "Use an interrupting boundary message event whose name equals GATEWAY_DOWN; the engine resolves error codes by message name on activities" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Boundary error events with matching error codes are interrupting by definition; the attached activity is cancelled and execution continues on the boundary path." },
+    "b": { "text": "Incorrect. Boundary error events do not support a non-interrupting variant in Camunda; error catch is always interrupting." },
+    "c": { "text": "Incorrect. Timer events match elapsed time, not BPMN error codes; they cannot intercept a thrown error from a service task." },
+    "d": { "text": "Incorrect. Message events match message names through correlation; error codes are matched by error event definitions, not by message names." }
+  },
+  "explanation": "Boundary error events in Camunda are interrupting and match the thrown error code; the attached activity is cancelled and execution continues on the boundary path.",
+  "docs": [
+    { "title": "BPMN error events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/" }
+  ]
+}

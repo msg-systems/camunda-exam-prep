@@ -1,0 +1,27 @@
+{
+  "id": "dec-required-decision-reference",
+  "topic": "decisions-business-rules",
+  "subtopic": "DRG",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Catering models a DRG in Camunda 8.8 for 1200 events per year across its dinner-service contracts. The decision beverages depends on the result of the decision dish, which is defined in the same DMN file. The team needs the beverages table to consume the dish output without writing a process variable in between.",
+  "question": "How is the dependency between the beverages decision and the dish decision modeled and resolved in DMN?",
+  "options": [
+    { "id": "a", "text": "An informationRequirement element with a requiredDecision href of #dish makes the dish output available inside beverages by the decision ID dish" },
+    { "id": "b", "text": "An informationRequirement element with a requiredInput href of #dish makes the dish output available inside beverages by the input data ID dish" },
+    { "id": "c", "text": "An authorityRequirement element with a requiredDecision href of #dish makes the dish output available inside beverages by the decision name Dish" },
+    { "id": "d", "text": "A knowledgeSource element with an href of #dish makes the dish output available inside beverages keyed by the knowledge source ID" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The DRG docs show requiredDecision inside informationRequirement with href=#decisionId; the result is then accessed by that decision ID in the dependent decision." },
+    "b": { "text": "Incorrect. requiredInput points to an inputData element, not to another decision; it cannot reference the dish decision." },
+    "c": { "text": "Incorrect. authorityRequirement wires a knowledge source, has no execution semantics, and is ignored during evaluation." },
+    "d": { "text": "Incorrect. knowledgeSource elements are decorative authorities and are ignored at evaluation time per the DRG documentation." }
+  },
+  "explanation": "DRG dependencies are declared with informationRequirement/requiredDecision pointing to the decision ID by href; the dependent decision references the result by that ID at evaluation.",
+  "docs": [
+    { "title": "Decision requirements graph", "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-requirements-graph/" }
+  ]
+}

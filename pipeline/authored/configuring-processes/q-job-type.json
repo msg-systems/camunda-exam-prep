@@ -1,0 +1,27 @@
+{
+  "id": "cp-job-type",
+  "topic": "configuring-processes",
+  "subtopic": "service task",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Delta Insurance handles 12000 transactions per day in Camunda 8.8. A service task must dispatch work to the team's Java job worker which subscribes to the type credit-check. The architect must configure the service task so the broker activates a job with the matching type for that worker.",
+  "question": "Which property on the service task tells the broker which job worker is supposed to activate the job?",
+  "options": [
+    { "id": "a", "text": "Set the job type property on the service task to credit-check; the broker creates a job of that type for matching workers to activate" },
+    { "id": "b", "text": "Set the implementation property to the fully qualified class name of the Java job worker; the broker injects an instance at activation time" },
+    { "id": "c", "text": "Set the activity id property to credit-check; the broker matches the activity id against the worker's configured subscription string" },
+    { "id": "d", "text": "Set the documentation property to credit-check; the broker reads the documentation field to route jobs to workers across the cluster" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Service tasks in Camunda 8 declare a job type; the broker creates a job of that type and any worker subscribed to it can activate it." },
+    "b": { "text": "Incorrect. Camunda 8 does not invoke Java classes by name; the worker subscribes to a job type and is decoupled from the broker." },
+    "c": { "text": "Incorrect. Activity id is the BPMN element id and is not used for routing jobs to workers; the routing key is the job type." },
+    "d": { "text": "Incorrect. Documentation is human-readable metadata and is not consulted by the broker for job routing." }
+  },
+  "explanation": "The job type property on a service task is the routing key the broker uses to match a job to a job worker that subscribes to that type.",
+  "docs": [
+    { "title": "Service task and job workers", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/service-tasks/" }
+  ]
+}

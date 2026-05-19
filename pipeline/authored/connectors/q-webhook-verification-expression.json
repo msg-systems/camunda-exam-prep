@@ -1,0 +1,27 @@
+{
+  "id": "con-webhook-verification-expression",
+  "topic": "connectors",
+  "subtopic": "inbound webhook",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Catalyst SaaS, a publisher handling 80000 events per day, integrates Slack with a Camunda 8.8 HTTP Webhook connector. Slack performs a one-time verification challenge by POSTing {\"type\":\"url_verification\",\"challenge\":\"abc\"} and expects the body {\"challenge\":\"abc\"} returned with HTTP 200 in under 3 seconds; otherwise normal process correlation must run.",
+  "question": "Which Verification expression handles the Slack challenge without creating a process instance?",
+  "options": [
+    { "id": "a", "text": "= if request.body.type = \"url_verification\" then { body: { challenge: request.body.challenge }, statusCode: 200 } else null so the webhook returns the challenge and skips correlation" },
+    { "id": "b", "text": "= if request.body.type = \"url_verification\" then { challenge: request.body.challenge } else null so the connector returns the raw body and still triggers a process instance for each call" },
+    { "id": "c", "text": "Configure an Activation Condition of = request.body.type != \"url_verification\" so verification calls are silently dropped without any HTTP response to Slack" },
+    { "id": "d", "text": "Set a Response Expression instead of a Verification Expression so the webhook continues normal correlation while also returning the challenge body to Slack" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. When the verification expression returns a non-null value, the webhook returns that response immediately and skips activation, HMAC, and correlation." },
+    "b": { "text": "Incorrect. Without wrapping in a body object and an explicit statusCode the response format is incomplete, and correlation would still run on the verification call." },
+    "c": { "text": "Incorrect. Activation Condition drops the call from process correlation but does not return a custom HTTP response to the caller, which Slack requires." },
+    "d": { "text": "Incorrect. Response Expression runs after correlation completes; the verification step must run before correlation is attempted at all." }
+  },
+  "explanation": "The Verification Expression returns a response object (body, statusCode, headers) and short-circuits the entire webhook pipeline so no process instance is created. Returning null falls through to normal processing.",
+  "docs": [
+    { "title": "HTTP Webhook connector - verification expression", "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/" }
+  ]
+}

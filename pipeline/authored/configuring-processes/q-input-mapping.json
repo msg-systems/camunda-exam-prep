@@ -1,0 +1,27 @@
+{
+  "id": "cp-input-mapping",
+  "topic": "configuring-processes",
+  "subtopic": "I/O mappings",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Insurance processes 9500 claims per day in Camunda 8.8. A service task expects a job variable named amountCents while the process variable is named claimAmountCents. The team must rename the variable for the job worker only, without changing the process-scoped variable upstream.",
+  "question": "Which Camunda 8 task configuration renames the variable on the job activation without touching the process variable?",
+  "options": [
+    { "id": "a", "text": "Add an input mapping with source claimAmountCents and target amountCents on the service task; the job sees the renamed variable" },
+    { "id": "b", "text": "Add an output mapping with source claimAmountCents and target amountCents on the service task; the job sees the renamed variable" },
+    { "id": "c", "text": "Rename the upstream process variable globally; the job worker SDK accepts only canonical variable names and rejects mappings at activation" },
+    { "id": "d", "text": "Configure a custom header amountCents=claimAmountCents on the service task; the engine swaps the variable name at job activation time" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Input mappings on a task evaluate FEEL expressions before activation and expose them under the configured target names on the job scope." },
+    "b": { "text": "Incorrect. Output mappings transform variables that flow from the task back to the process scope, not the other direction at activation." },
+    "c": { "text": "Incorrect. Renaming process variables affects every consumer; input mappings are the documented per-task rename mechanism." },
+    "d": { "text": "Incorrect. Custom headers are static metadata for the worker; they do not rename variables at activation in the engine." }
+  },
+  "explanation": "Input mappings rename or compute variables for a task at activation; the source FEEL expression evaluates against process scope and the result is bound to the target name on the task scope.",
+  "docs": [
+    { "title": "Variable mappings", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+  ]
+}

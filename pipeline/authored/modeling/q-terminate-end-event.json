@@ -1,0 +1,27 @@
+{
+  "id": "mod-terminate-end-event",
+  "topic": "modeling",
+  "subtopic": "events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "North Logistics handles 6000 shipments per day in Camunda 8.8. A subprocess contains 3 parallel branches that produce work in progress. When one branch detects a critical failure, every remaining branch inside the same subprocess must be cancelled and the subprocess must finish immediately.",
+  "question": "Which end event variant ends every active token within the same scope and terminates that scope at once?",
+  "options": [
+    { "id": "a", "text": "Terminate end event ends every token within its containing scope, completing the enclosing subprocess or process immediately" },
+    { "id": "b", "text": "None end event ends every token within the surrounding scope at once and is the only end event with that semantics" },
+    { "id": "c", "text": "Error end event ends every token within the surrounding scope after first publishing the configured error code to all subscribers" },
+    { "id": "d", "text": "Signal end event ends every token within the surrounding scope after broadcasting the configured signal name to all subscribers" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The Camunda 8 docs describe the terminate end event as ending all active executions in its containing scope and immediately completing that scope." },
+    "b": { "text": "Incorrect. A none end event consumes only its own token; sibling branches continue to run until they reach their own end events." },
+    "c": { "text": "Incorrect. Error end events throw an error that must be caught; they do not implicitly cancel the surrounding scope as a whole." },
+    "d": { "text": "Incorrect. Signal end events broadcast a signal; they do not cancel sibling branches inside the same scope by themselves." }
+  },
+  "explanation": "Terminate end events end every active execution inside the containing scope and complete that scope immediately, which fits a critical-branch cancellation pattern.",
+  "docs": [
+    { "title": "BPMN terminate end event", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/terminate-events/" }
+  ]
+}

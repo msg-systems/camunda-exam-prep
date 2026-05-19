@@ -1,0 +1,27 @@
+{
+  "id": "ext-rest-api-start",
+  "topic": "extensions-integrations",
+  "subtopic": "REST API",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Iris Insurance starts 11000 transactions per day in Camunda 8.8 from a curl integration. The team prefers the HTTP REST API to start a process instance by bpmnProcessId with a JSON variables payload over installing a language SDK in a constrained environment.",
+  "question": "Which Camunda 8 REST API endpoint creates a new process instance?",
+  "options": [
+    { "id": "a", "text": "POST /v2/process-instances with a JSON body containing processDefinitionKey or bpmnProcessId and a variables object as the payload root" },
+    { "id": "b", "text": "POST /api/v1/instances with a JSON body containing the bpmnProcessId only; variables are supplied via subsequent PUT /api/v1/instances/{id}/variables" },
+    { "id": "c", "text": "PUT /process/{bpmnProcessId}/start with no body; the broker uses the most recent set of process variables from the previous instance of the definition" },
+    { "id": "d", "text": "POST /zeebe/grpc with a base64-encoded gRPC payload; the REST API tunnels gRPC requests as a fallback for HTTP-only environments without protocol negotiation" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Camunda 8's REST API uses POST /v2/process-instances with processDefinitionKey or bpmnProcessId and a variables object to start an instance." },
+    "b": { "text": "Incorrect. /api/v1/instances is not the documented Camunda 8 path; /v2/process-instances is the canonical surface." },
+    "c": { "text": "Incorrect. There is no implicit reuse of prior variables and no PUT-style start endpoint; the documented endpoint is POST /v2/process-instances." },
+    "d": { "text": "Incorrect. The Camunda 8 REST API is native HTTP/JSON, not a gRPC tunnel; gRPC is a separate Zeebe protocol." }
+  },
+  "explanation": "Camunda 8 REST API: POST /v2/process-instances starts an instance with processDefinitionKey or bpmnProcessId plus a variables object.",
+  "docs": [
+    { "title": "Orchestration cluster REST API", "url": "https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/" }
+  ]
+}

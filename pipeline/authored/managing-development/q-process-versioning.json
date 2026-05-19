@@ -1,0 +1,27 @@
+{
+  "id": "mgmt-process-versioning",
+  "topic": "managing-development",
+  "subtopic": "deployment",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Keystone Logistics deploys 6 versions of the same BPMN process id in Camunda 8.8. New process instances are created via the start-instance API by process id (not by process definition key) with 5000 requests per hour. Operators ask which version each new instance will use.",
+  "question": "Which version does the engine choose when a new instance is started by process id without specifying a version?",
+  "options": [
+    { "id": "a", "text": "The latest deployed version of the process id at the time of the start-instance request is used for the new process instance" },
+    { "id": "b", "text": "The first deployed version of the process id is used because earliest deployment defines the canonical contract for the process" },
+    { "id": "c", "text": "A round-robin across every deployed version of the process id is used so workload is balanced across all live versions" },
+    { "id": "d", "text": "The engine raises a not-unique-process-id error because starting by process id requires an explicit version in Camunda 8" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Starting an instance by process id without a version uses the latest deployed version of that id, per the deployment versioning docs." },
+    "b": { "text": "Incorrect. The engine selects the latest version when no version is specified; the first deployed version is not the implicit default." },
+    "c": { "text": "Incorrect. The engine does not round-robin across versions; new instances default to the latest deployed version." },
+    "d": { "text": "Incorrect. Process id can be reused across versions; starting by id without a version is a supported pattern in Camunda 8." }
+  },
+  "explanation": "Camunda 8 selects the latest deployed version of a process id when starting an instance by id without explicitly specifying a version key.",
+  "docs": [
+    { "title": "Deploy a process", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/" }
+  ]
+}

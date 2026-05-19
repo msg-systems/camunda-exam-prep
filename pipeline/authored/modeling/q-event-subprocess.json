@@ -1,0 +1,27 @@
+{
+  "id": "mod-event-subprocess",
+  "topic": "modeling",
+  "subtopic": "subprocesses",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Orion Retail handles 12000 orders per day in Camunda 8.8 inside a single embedded subprocess. Whenever a cancelOrder message arrives while the subprocess is active, the team must run a refund branch in parallel with the existing work without cancelling the main flow of the subprocess.",
+  "question": "Which BPMN construct triggers a parallel refund branch inside the same subprocess when the cancelOrder message arrives?",
+  "options": [
+    { "id": "a", "text": "A non-interrupting event subprocess started by a message start event runs the refund branch in parallel with the main flow of the parent subprocess" },
+    { "id": "b", "text": "An interrupting event subprocess started by a message start event runs the refund branch and cancels the main flow of the parent subprocess" },
+    { "id": "c", "text": "A boundary message event on the embedded subprocess starts the refund branch and cancels the main flow of the parent subprocess" },
+    { "id": "d", "text": "An ad-hoc subprocess started by the cancelOrder message arrival runs the refund branch in parallel without affecting the main flow" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Non-interrupting event subprocesses run a side flow within the parent scope without cancelling the main flow, which is exactly the parallel refund requirement." },
+    "b": { "text": "Incorrect. Interrupting event subprocesses cancel the main flow on trigger; the scenario requires the main flow to continue." },
+    "c": { "text": "Incorrect. Boundary events attach to a host activity; a non-interrupting boundary would also need to be placed on the subprocess, but the documented internal pattern is the event subprocess." },
+    "d": { "text": "Incorrect. Ad-hoc subprocesses execute internal activities in any order without a fixed flow; they are not triggered by external messages." }
+  },
+  "explanation": "Non-interrupting event subprocesses started by a message start event run as a side flow inside the parent subprocess without cancelling the main flow.",
+  "docs": [
+    { "title": "BPMN event subprocesses", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/" }
+  ]
+}

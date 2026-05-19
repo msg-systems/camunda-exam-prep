@@ -1,0 +1,27 @@
+{
+  "id": "ext-job-streaming",
+  "topic": "extensions-integrations",
+  "subtopic": "job workers",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Umbra Bank reduces job activation latency for 32000 jobs per day in Camunda 8.8. The team configures the job worker to receive jobs as they become available on the broker rather than waiting for a long-poll round trip between worker and broker on every batch cycle.",
+  "question": "Which Camunda 8 job worker feature streams activated jobs to the worker without long-poll round trips?",
+  "options": [
+    { "id": "a", "text": "Enable job streaming on the worker (also called streaming activation); the broker pushes activated jobs over an open gRPC stream to the worker" },
+    { "id": "b", "text": "Enable websocket activation on the worker; the broker upgrades the gRPC connection and pushes activated jobs over a websocket channel on each tick" },
+    { "id": "c", "text": "Enable kafka activation on the worker; the broker publishes activated jobs to a per-type Kafka topic that the worker subscribes to on connection" },
+    { "id": "d", "text": "Enable SSE activation on the worker; the broker pushes activated jobs over a Server-Sent Events HTTP channel on every job event in the broker" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Camunda 8 supports job streaming: the broker pushes activated jobs to the worker over an open gRPC stream, eliminating long-poll latency." },
+    "b": { "text": "Incorrect. There is no websocket upgrade in the Camunda 8 broker protocol; streaming runs over gRPC." },
+    "c": { "text": "Incorrect. Kafka is not used as a job activation transport; gRPC streaming is the documented mechanism." },
+    "d": { "text": "Incorrect. SSE is not the documented job streaming transport; gRPC streaming is." }
+  },
+  "explanation": "Camunda 8 job streaming uses gRPC server-streaming so the broker pushes activated jobs to the worker without long-poll round trips.",
+  "docs": [
+    { "title": "Job streaming", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+  ]
+}

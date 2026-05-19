@@ -1,0 +1,27 @@
+{
+  "id": "cp-message-correlation-key",
+  "topic": "configuring-processes",
+  "subtopic": "message events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Iris Bank correlates 9000 transactions per day in Camunda 8.8 by orderId between an external payment system and running process instances. The team must configure the message intermediate catch event so each published message reaches exactly the one instance whose orderId matches the message payload.",
+  "question": "Which message event configuration ensures point-to-point correlation by the orderId process variable?",
+  "options": [
+    { "id": "a", "text": "Set a correlation key expression like =orderId on the message reference; the broker uses the value to locate the unique waiting instance" },
+    { "id": "b", "text": "Set the message name to orderId on the message reference; the broker matches messages to waiting instances by the message name alone" },
+    { "id": "c", "text": "Set a correlation key expression like =orderId on the boundary error event attached to the message catch; correlation only fires on boundary events" },
+    { "id": "d", "text": "Set the message subscription scope to per-tenant on the message reference; the broker uses the tenant id implicitly for cross-instance correlation" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Camunda 8 messages need a name and a correlation key expression on the message reference; both must match the published message at runtime." },
+    "b": { "text": "Incorrect. The message name alone identifies the subscription, not the specific instance; a correlation key value is also required." },
+    "c": { "text": "Incorrect. Boundary error events match error codes, not message correlation keys; correlation is a property of message references." },
+    "d": { "text": "Incorrect. Tenant id is an isolation mechanism, not a per-instance correlation key; the documented control is the correlation key expression." }
+  },
+  "explanation": "Camunda 8 message correlation requires a message name plus a FEEL correlation key expression on the message reference; the broker matches the published message to the unique waiting instance.",
+  "docs": [
+    { "title": "Message correlation", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+  ]
+}

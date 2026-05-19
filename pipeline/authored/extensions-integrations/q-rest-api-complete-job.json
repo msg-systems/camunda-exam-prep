@@ -1,0 +1,27 @@
+{
+  "id": "ext-rest-api-complete-job",
+  "topic": "extensions-integrations",
+  "subtopic": "REST API",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Wren Logistics implements a job worker in a language without an official Camunda SDK and handles 6000 jobs per day in Camunda 8.8. The team must complete an activated job via the REST API by posting the resulting variables as JSON keyed by the job key returned at activation time.",
+  "question": "Which Camunda 8 REST API endpoint completes a job by its key?",
+  "options": [
+    { "id": "a", "text": "POST /v2/jobs/{jobKey}/completion with a JSON body containing a variables object on the payload root; the broker marks the job complete" },
+    { "id": "b", "text": "PUT /v2/jobs/{jobKey} with a JSON body containing a status field set to COMPLETED and a variables object as the payload root" },
+    { "id": "c", "text": "POST /api/v1/jobs/complete with a JSON body containing the job key and a variables object as the payload root for the broker to match" },
+    { "id": "d", "text": "POST /zeebe/grpc with a base64-encoded CompleteJob protobuf body; the broker accepts gRPC over REST as a transport bridge for HTTP-only clients" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The Camunda 8 REST API completes a job at POST /v2/jobs/{jobKey}/completion with a JSON variables payload." },
+    "b": { "text": "Incorrect. There is no PUT /v2/jobs/{jobKey} status form; completion is a dedicated sub-resource." },
+    "c": { "text": "Incorrect. The v1 path is not the documented Camunda 8 surface; /v2/jobs/{jobKey}/completion is the canonical endpoint." },
+    "d": { "text": "Incorrect. The REST API is native HTTP/JSON, not a gRPC tunnel." }
+  },
+  "explanation": "Camunda 8 REST API: POST /v2/jobs/{jobKey}/completion with a JSON variables payload completes a job.",
+  "docs": [
+    { "title": "Orchestration cluster REST API", "url": "https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/" }
+  ]
+}

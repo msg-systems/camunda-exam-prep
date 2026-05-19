@@ -1,0 +1,27 @@
+{
+  "id": "cp-multi-instance-completion",
+  "topic": "configuring-processes",
+  "subtopic": "multi-instance",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Orion Insurance evaluates 5000 claims per day in Camunda 8.8 through a parallel multi-instance review task with 7 reviewers per claim. The team must end the multi-instance activity as soon as 3 reviewers approve rather than waiting for every reviewer to complete the loop.",
+  "question": "Which Camunda 8 multi-instance property models this short-circuit early-termination rule?",
+  "options": [
+    { "id": "a", "text": "Set completionCondition to a FEEL expression like = count(approvers) >= 3 so the multi-instance ends once 3 iterations approve" },
+    { "id": "b", "text": "Set inputCollection to the first 3 elements of the reviewer list using FEEL so the multi-instance only iterates 3 times in total" },
+    { "id": "c", "text": "Set loop cardinality to 3 on the multi-instance task so the engine creates only 3 reviewer iterations regardless of the original list length" },
+    { "id": "d", "text": "Set outputCollection to a FEEL expression with a maximum size of 3 so the engine ignores iterations that would push it past the limit" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The completionCondition is a FEEL boolean expression that, when true, ends the multi-instance activity early and cancels the remaining iterations." },
+    "b": { "text": "Incorrect. Trimming the input list pre-selects reviewers; it does not implement a dynamic 3-of-7 short-circuit at runtime." },
+    "c": { "text": "Incorrect. Loop cardinality fixes the count up front and cannot wait for 3 approvals among 7 created iterations." },
+    "d": { "text": "Incorrect. outputCollection size is not a stop condition; the completionCondition expression is the documented short-circuit control." }
+  },
+  "explanation": "The completionCondition on a multi-instance marker is a FEEL boolean expression evaluated after each iteration; when it becomes true, the engine ends the activity and cancels remaining iterations.",
+  "docs": [
+    { "title": "BPMN multi-instance", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/" }
+  ]
+}

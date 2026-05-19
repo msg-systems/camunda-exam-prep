@@ -1,0 +1,27 @@
+{
+  "id": "con-sdk-outbound-type-binding",
+  "topic": "connectors",
+  "subtopic": "custom connector SDK",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Meridian Insurance is building a custom outbound connector with the Camunda 8.8 Connector SDK to score 60000 transactions per day against a proprietary fraud API. The Java class annotated @OutboundConnector exposes the name MyFraudConnector with type io.camunda:fraud-connector:1 and must be reachable by the connector runtime as a job worker within 5 seconds of deployment.",
+  "question": "Which mechanism connects the BPMN task to this Java implementation at runtime?",
+  "options": [
+    { "id": "a", "text": "The element template declares a hidden property bound to zeebe:taskDefinition with the property type set to the same string io.camunda:fraud-connector:1 so the job type matches" },
+    { "id": "b", "text": "The connector runtime scans the BPMN XML for the literal class name MyFraudConnector and instantiates it directly through Java reflection at deploy time" },
+    { "id": "c", "text": "The element template stores the fully qualified Java class name in a zeebe:taskHeader so the runtime can load it from the classpath when the job activates" },
+    { "id": "d", "text": "The connector runtime registers a single global job type for every custom connector and dispatches by inspecting the input variables on each activated job" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The element template binds zeebe:taskDefinition.type to the value declared in @OutboundConnector, which is the job type the connector worker fetches." },
+    "b": { "text": "Incorrect. The runtime does not scan the BPMN XML for Java class names; the binding is via the job type registered in zeebe:taskDefinition." },
+    "c": { "text": "Incorrect. Job headers carry per-task configuration such as resultVariable or errorExpression, not the connector implementation class to load." },
+    "d": { "text": "Incorrect. Each custom connector registers its own job type; there is no single global type that dispatches by input shape across all connectors." }
+  },
+  "explanation": "An outbound connector's @OutboundConnector type matches the zeebe:taskDefinition type value declared in the element template. The connector runtime registers a job worker for that exact type to fetch and execute jobs.",
+  "docs": [
+    { "title": "Connector SDK - outbound connector element template", "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/" }
+  ]
+}

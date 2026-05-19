@@ -1,0 +1,27 @@
+{
+  "id": "mgmt-operate-incident-resolution",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Bank runs 12000 transactions per day in Camunda 8.8. A service task has retried 3 attempts and now raises an incident on a process instance. An operator opens Operate and wants to resolve the incident so the same job is retried again without modifying the process definition.",
+  "question": "Which action in Operate resolves the incident and lets the engine retry the failed job?",
+  "options": [
+    { "id": "a", "text": "Increment the job retries on the incident from 0 to a positive number and then mark the incident as resolved in Operate" },
+    { "id": "b", "text": "Cancel the incident and create a fresh process instance with the same business key from the process definition in Operate" },
+    { "id": "c", "text": "Restart the broker node that originally raised the incident; the job retries reset automatically on broker startup in 8.8" },
+    { "id": "d", "text": "Manually publish a retry message to the broker through the Operate console using a FEEL correlation key expression" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The Operate docs describe incident resolution as setting the job retries to a positive value and acknowledging the incident; the engine then retries the job." },
+    "b": { "text": "Incorrect. Cancelling and restarting an instance loses progress; the documented retry path is to increment retries on the existing job." },
+    "c": { "text": "Incorrect. Broker restarts do not change job retries; retries are a property of the job stored in the broker state machine." },
+    "d": { "text": "Incorrect. Operate does not publish retry messages; retries are controlled by updating the job retries counter on the failed job." }
+  },
+  "explanation": "The Operate incident resolution flow increments the job retries on the failed job and acknowledges the incident, which is the documented operator action for transient failures.",
+  "docs": [
+    { "title": "Operate incidents", "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/" }
+  ]
+}

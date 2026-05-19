@@ -1,0 +1,27 @@
+{
+  "id": "ext-java-create-process-instance",
+  "topic": "extensions-integrations",
+  "subtopic": "Java client",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Catalyst Logistics starts 14000 transactions per day in Camunda 8.8 from a Java service. The team uses the official Java client and must start a process by its bpmnProcessId, send a variables map, and use the latest deployed version of the definition without explicitly looking up version numbers.",
+  "question": "Which Java client fluent call starts a process instance with the latest version in Camunda 8?",
+  "options": [
+    { "id": "a", "text": "client.newCreateInstanceCommand().bpmnProcessId(\"order\").latestVersion().variables(map).send() resolves the latest version on the broker and returns a future" },
+    { "id": "b", "text": "client.newCreateInstanceCommand().processId(\"order\").variables(map).send() resolves the latest version by default and is the documented fluent path" },
+    { "id": "c", "text": "client.deploy(\"order\").startInstance(map).send() deploys-and-starts in one call and is the documented Java client fluent path in 8.8" },
+    { "id": "d", "text": "client.startProcess(\"order\", map) is a static helper that resolves the latest version internally and is the documented Java client surface" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The Camunda 8 Java client uses a fluent builder: newCreateInstanceCommand().bpmnProcessId(...).latestVersion().variables(...).send()." },
+    "b": { "text": "Incorrect. The fluent step is bpmnProcessId not processId, and latestVersion() must be called explicitly." },
+    "c": { "text": "Incorrect. There is no deploy-and-start fluent call in the Java client; deploy and start are separate commands." },
+    "d": { "text": "Incorrect. The Java client uses a fluent builder; there is no static client.startProcess helper of that signature." }
+  },
+  "explanation": "The Java client starts an instance via newCreateInstanceCommand().bpmnProcessId(...).latestVersion().variables(...).send().",
+  "docs": [
+    { "title": "Java client", "url": "https://docs.camunda.io/docs/apis-tools/java-client/" }
+  ]
+}

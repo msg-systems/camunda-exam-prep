@@ -1,0 +1,27 @@
+{
+  "id": "ext-multi-tenant-header",
+  "topic": "extensions-integrations",
+  "subtopic": "multi-tenancy",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vanta Marketplace hosts 4 tenants and 9000 transactions per day in Camunda 8.8. The team's job worker uses the Java client and must restrict the activations to a single tenant id at a time, so workers running for one tenant do not pick up jobs belonging to a different tenant id.",
+  "question": "Which Camunda 8 client mechanism scopes a job worker activation to one tenant?",
+  "options": [
+    { "id": "a", "text": "Configure tenantIds on the activate-jobs command (or @JobWorker attribute tenantIds); the broker returns jobs only for the configured tenant ids" },
+    { "id": "b", "text": "Configure a tenant prefix on the job type (e.g., t1__credit-check); the broker isolates activations by parsing the prefix on every activation call" },
+    { "id": "c", "text": "Configure the worker to authenticate with a per-tenant client id; the broker associates the worker session with the tenant from the OAuth token claim" },
+    { "id": "d", "text": "Configure a tenant custom header on every service task in the BPMN; the broker matches the worker's tenant header on activation by string equality" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Camunda 8 client activate-jobs commands accept tenantIds (and the Spring SDK exposes the attribute on @JobWorker); the broker filters jobs by tenant." },
+    "b": { "text": "Incorrect. Tenant isolation is a first-class field on the activation command, not a string prefix on job type." },
+    "c": { "text": "Incorrect. While Identity scopes access, the activation filter is the explicit tenantIds command attribute." },
+    "d": { "text": "Incorrect. Custom headers are static per-element data on the BPMN; tenant filtering is on the activation request." }
+  },
+  "explanation": "Camunda 8 multi-tenancy: the activate-jobs command (and SDK worker config) accepts tenantIds; the broker returns only jobs for those tenants.",
+  "docs": [
+    { "title": "Multi-tenancy job activation", "url": "https://docs.camunda.io/docs/self-managed/concepts/multi-tenancy/" }
+  ]
+}

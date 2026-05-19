@@ -1,0 +1,27 @@
+{
+  "id": "dec-unique-incident",
+  "topic": "decisions-business-rules",
+  "subtopic": "evaluation errors",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Healthcare evaluates 5000 records per day in Camunda 8.8 through a referral business rule task. The DMN table uses the UNIQUE hit policy but a new release contains 2 overlapping rules. Operations sees the process stop progressing and wants to know what the engine raises when two rules match the same input.",
+  "question": "What does the engine do when two rules of a UNIQUE decision table are satisfied by the same evaluation input?",
+  "options": [
+    { "id": "a", "text": "The decision evaluation fails and an incident is raised on the business rule task that the operator must resolve in Operate" },
+    { "id": "b", "text": "The engine silently returns the first matched rule and adds an audit log entry visible only in the broker log files" },
+    { "id": "c", "text": "The engine merges the two matched rules' outputs into one context by overwriting earlier keys with later values from the table" },
+    { "id": "d", "text": "The engine returns the second matched rule and discards the first under the assumption that later rules are more specific" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. A UNIQUE violation is an evaluation error in Camunda 8; the business rule task raises an incident that must be resolved before the process continues." },
+    "b": { "text": "Incorrect. UNIQUE forbids more than one match; the engine does not silently pick a rule and continue." },
+    "c": { "text": "Incorrect. There is no documented merge semantics for UNIQUE; overlapping matches are an error state, not a merge operation." },
+    "d": { "text": "Incorrect. UNIQUE is order-independent and never picks a winner among overlapping rules in Camunda DMN." }
+  },
+  "explanation": "UNIQUE forbids overlapping matches; the decision evaluation fails, and Camunda 8 raises an incident on the business rule task that an operator must resolve.",
+  "docs": [
+    { "title": "DMN hit policy", "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/" }
+  ]
+}

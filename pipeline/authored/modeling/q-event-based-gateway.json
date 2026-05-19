@@ -1,0 +1,27 @@
+{
+  "id": "mod-event-based-gateway",
+  "topic": "modeling",
+  "subtopic": "gateways",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Telco runs 7000 customers per day through a payment confirmation flow in Camunda 8.8. After the request, the process races a confirmation message against a 30 seconds timeout; whichever event fires first wins, the other branch is discarded and the process continues forward.",
+  "question": "Which gateway type implements this race between a catching message event and a catching timer event?",
+  "options": [
+    { "id": "a", "text": "Event-based gateway with two outgoing catching events on intermediate catch events selects whichever event fires first as the winner" },
+    { "id": "b", "text": "Exclusive gateway with two FEEL conditions referencing the engine current time selects the first matching condition as the winner" },
+    { "id": "c", "text": "Parallel gateway with two outgoing flows synchronizes the message and the timer and continues only after both events have fired" },
+    { "id": "d", "text": "Inclusive gateway with two conditional outgoing flows selects every event whose condition is true and then races the resulting branches" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The Camunda 8 docs describe event-based gateways as racing catch events; the first event to fire wins and the others are removed." },
+    "b": { "text": "Incorrect. Exclusive gateways evaluate condition expressions immediately at the gateway, not against future asynchronous events." },
+    "c": { "text": "Incorrect. Parallel gateways do not race events; they synchronize branches and would wait for both to fire before continuing." },
+    "d": { "text": "Incorrect. Inclusive gateways evaluate conditions on outgoing flows immediately, not as a race of catching events." }
+  },
+  "explanation": "Event-based gateways race catching events on the outgoing branches and let the first triggered event win, discarding the other waiting events.",
+  "docs": [
+    { "title": "BPMN event-based gateway", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-based-gateways/" }
+  ]
+}

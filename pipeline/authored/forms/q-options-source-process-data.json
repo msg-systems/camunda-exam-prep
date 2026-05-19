@@ -1,0 +1,27 @@
+{
+  "id": "frm-options-source-process-data",
+  "topic": "forms",
+  "subtopic": "options source",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Capital, a brokerage handling 200000 transactions per day, builds a Camunda 8.8 select field whose options come from a previous service task that fetches up to 50 instruments per call. The set of instruments differs per process instance, so hardcoding the list on the form schema is not acceptable for the trading-desk workflow.",
+  "question": "Which options-source configuration loads the dropdown from a process variable produced earlier in the instance?",
+  "options": [
+    { "id": "a", "text": "Use the dynamic options group with an input values key pointing at the variable that holds the array of label/value entries" },
+    { "id": "b", "text": "Use a static options group and add an output mapping on the user task that swaps the labels at runtime from process data" },
+    { "id": "c", "text": "Use the dynamic options group with a fixed comma-separated string variable that the runtime auto-parses into label and value pairs" },
+    { "id": "d", "text": "Use the static options group and rely on form versioning to publish a new form revision whenever the instrument list changes" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The dynamic options source uses an input values key that names the form variable holding the array of label/value entries." },
+    "b": { "text": "Incorrect. The static options source freezes the options into the form schema; output mappings on the user task cannot rewrite the static list at runtime." },
+    "c": { "text": "Incorrect. The expected format is a JSON array of label/value objects, not a comma-separated string that the runtime parses for you." },
+    "d": { "text": "Incorrect. Publishing a new form revision per process instance does not scale and is exactly what the dynamic options source replaces." }
+  },
+  "explanation": "Form fields with selectable options support a dynamic options source whose input values key names a process variable. The variable must be an array of objects with label and value fields.",
+  "docs": [
+    { "title": "Forms options source", "url": "https://docs.camunda.io/docs/components/modeler/forms/configuration/forms-config-options/" }
+  ]
+}

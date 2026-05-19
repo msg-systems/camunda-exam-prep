@@ -49,7 +49,7 @@ export interface Question {
   optionExplanations?: Partial<Record<'a' | 'b' | 'c' | 'd', OptionExplanation>>;
   docs: DocLink[];
   tags?: string[];
-  camundaVersion?: string;
+  camundaVersion: '8.8';
 }
 
 export interface TopicMeta {

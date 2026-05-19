@@ -1,0 +1,27 @@
+{
+  "id": "mgmt-multi-tenancy",
+  "topic": "managing-development",
+  "subtopic": "tenants",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Bank operates a Camunda 8.8 SaaS cluster shared by 5 tenants with 9000 transactions per day across the cluster. Each tenant has its own deployments and process instances and must never see another tenant's data in Operate or Tasklist, even when process definition ids overlap.",
+  "question": "Which Camunda 8 mechanism enforces this strict isolation across the shared cluster?",
+  "options": [
+    { "id": "a", "text": "Multi-tenancy by tenant id; every deployment and runtime call carries a tenant id and Operate or Tasklist filters by the caller's tenants" },
+    { "id": "b", "text": "Multi-tenancy by process id prefix; the engine isolates tenants by requiring distinct process id prefixes per tenant on every deployment" },
+    { "id": "c", "text": "Multi-tenancy by separate Zeebe partitions; the engine assigns one partition exclusively to each tenant for full physical isolation" },
+    { "id": "d", "text": "Multi-tenancy by JWT scope alone; the engine inspects OAuth scopes on each request and rejects calls that do not list every tenant id" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Camunda 8 multi-tenancy carries a tenant id on every deployment and runtime call; Operate, Tasklist, and the engine filter visibility by the caller's tenants." },
+    "b": { "text": "Incorrect. Process id prefixes are convention, not a mechanism; multi-tenancy is implemented by a tenant id field, not by name prefixes." },
+    "c": { "text": "Incorrect. Partitions are a Zeebe scaling mechanism unrelated to tenancy; partitions are not assigned per tenant in Camunda 8." },
+    "d": { "text": "Incorrect. OAuth scopes alone do not enforce tenant isolation; the documented tenant id field is the primary boundary, with token claims as a feed." }
+  },
+  "explanation": "Multi-tenancy in Camunda 8 is implemented by a tenant id attached to deployments and runtime calls; Operate and Tasklist filter visibility by the caller's tenants.",
+  "docs": [
+    { "title": "Multi-tenancy", "url": "https://docs.camunda.io/docs/self-managed/concepts/multi-tenancy/" }
+  ]
+}

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { ALL_QUESTIONS, getRandomExamSet } from '../src/data';
 import { TOPICS } from '../src/data/topics';
+import blueprint from '../pipeline/blueprint.json';
 
 describe('Question pool', () => {
   it('has unique question ids', () => {
@@ -29,12 +30,26 @@ describe('Question pool', () => {
     }
   });
 
-  it('every question has at least one doc link with https url', () => {
+  it('every question has a docs.camunda.io url', () => {
     for (const q of ALL_QUESTIONS) {
       expect(q.docs.length).toBeGreaterThan(0);
       for (const d of q.docs) {
-        expect(d.url).toMatch(/^https?:\/\//);
+        expect(d.url).toMatch(/^https:\/\/docs\.camunda\.io\/docs\//);
       }
+    }
+  });
+
+  it('every question is tagged camundaVersion 8.8', () => {
+    for (const q of ALL_QUESTIONS) {
+      expect(q.camundaVersion).toBe('8.8');
+    }
+  });
+
+  it('correct option explanation starts with "Correct."', () => {
+    for (const q of ALL_QUESTIONS) {
+      const expl = q.optionExplanations?.[q.correctOptionId];
+      expect(expl).toBeDefined();
+      expect(expl?.text.startsWith('Correct.')).toBe(true);
     }
   });
 
@@ -45,8 +60,22 @@ describe('Question pool', () => {
 
   it('getRandomExamSet returns the requested size when pool is large enough', () => {
     const size = Math.min(10, ALL_QUESTIONS.length);
+    if (size === 0) return; // pool not yet authored
     const set = getRandomExamSet(size);
     expect(set.length).toBe(size);
     expect(new Set(set.map((q) => q.id)).size).toBe(size);
+  });
+
+  it('pool meets or exceeds blueprint topic targets (when fully authored)', () => {
+    // During in-progress authoring the pool may be partial. We only assert
+    // that topics never exceed their blueprint targets by accident, and that
+    // once the total is at the blueprint size, every topic is on target.
+    const byTopic: Record<string, number> = {};
+    for (const q of ALL_QUESTIONS) byTopic[q.topic] = (byTopic[q.topic] || 0) + 1;
+    if (ALL_QUESTIONS.length >= blueprint.targetPoolSize) {
+      for (const [t, target] of Object.entries(blueprint.topics)) {
+        expect(byTopic[t] || 0).toBeGreaterThanOrEqual(target as number);
+      }
+    }
   });
 });

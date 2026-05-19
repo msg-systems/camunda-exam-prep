@@ -1,0 +1,27 @@
+{
+  "id": "cp-job-timeout",
+  "topic": "configuring-processes",
+  "subtopic": "service task",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Tessera Telco runs 30000 jobs per hour in Camunda 8.8. The job worker's average completion time spikes during peak hours, and the architect must set the activation timeout so a worker has 120 seconds to complete a job before the broker re-activates the job for another worker.",
+  "question": "Which property sets the activation lock duration on a job activation in Camunda 8?",
+  "options": [
+    { "id": "a", "text": "Set the activation timeout on the worker (or the request) to 120 seconds; the broker holds the job locked for the worker until the timeout elapses" },
+    { "id": "b", "text": "Set the retries property on the service task to 120; the broker uses the retries field as a per-second timeout when the worker is connected" },
+    { "id": "c", "text": "Set the assignee property to 120s on the user task; the broker reuses the assignee field as an activation timeout for adjacent service tasks" },
+    { "id": "d", "text": "Set the custom header timeout=120 on the service task; the broker reads the header and treats the value as the activation timeout in seconds" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Job activation specifies a lock timeout per call; the broker re-activates the job for another worker if the timeout elapses before completion." },
+    "b": { "text": "Incorrect. Retries is a separate counter for failure recovery, not a per-activation timeout." },
+    "c": { "text": "Incorrect. Assignee is a user task property and does not control job activation timeouts for service tasks." },
+    "d": { "text": "Incorrect. Custom headers are static metadata; the timeout is a property of the activation request, not of the service task element." }
+  },
+  "explanation": "Job activation in Camunda 8 takes a timeout per call; the broker re-activates the job if the worker does not complete it within that lock duration.",
+  "docs": [
+    { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+  ]
+}

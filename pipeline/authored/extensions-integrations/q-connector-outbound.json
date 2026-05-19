@@ -1,0 +1,27 @@
+{
+  "id": "ext-connector-outbound",
+  "topic": "extensions-integrations",
+  "subtopic": "Connector SDK",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Insurance writes a custom Camunda 8.8 outbound connector to invoke a private REST API for 7000 transactions per day. The connector receives configuration via the element template and reads variables from the job; the team must implement the contract the connector runtime expects on each invocation.",
+  "question": "Which Java interface or annotation does a Camunda 8 outbound connector implementation provide?",
+  "options": [
+    { "id": "a", "text": "Implement OutboundConnectorFunction with the execute(OutboundConnectorContext) method; the runtime calls execute on each activated job for that type" },
+    { "id": "b", "text": "Implement JobHandler with the handle(JobClient, ActivatedJob) method; the connector runtime treats every outbound connector as a job worker class" },
+    { "id": "c", "text": "Annotate a Spring bean with @ConnectorFunction(type = \"my-connector\"); the runtime scans for the annotation and invokes the bean as the connector" },
+    { "id": "d", "text": "Extend BaseConnector and override invoke(Map<String,Object>); the runtime instantiates the class and calls invoke for each activated job" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Outbound connectors in Camunda 8 implement OutboundConnectorFunction and define execute(OutboundConnectorContext) which the runtime calls per activated job." },
+    "b": { "text": "Incorrect. JobHandler is the lower-level job worker interface; outbound connectors implement OutboundConnectorFunction instead." },
+    "c": { "text": "Incorrect. The Connector SDK uses OutboundConnectorFunction discovery (e.g., service loader or annotations on the function class), not @ConnectorFunction on Spring beans." },
+    "d": { "text": "Incorrect. There is no BaseConnector class with invoke(Map); the supported contract is OutboundConnectorFunction.execute." }
+  },
+  "explanation": "Outbound connectors implement OutboundConnectorFunction; the runtime calls execute(OutboundConnectorContext) on each activated job for that connector type.",
+  "docs": [
+    { "title": "Connector SDK outbound", "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/" }
+  ]
+}

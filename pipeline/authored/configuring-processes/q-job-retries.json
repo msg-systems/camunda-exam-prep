@@ -1,0 +1,27 @@
+{
+  "id": "cp-job-retries",
+  "topic": "configuring-processes",
+  "subtopic": "service task",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Echo Telco runs 22000 requests per day in Camunda 8.8 against a fragile downstream API. The architect must configure the service task so transient failures are retried 5 times by the engine before an incident is raised on the failed job by the broker.",
+  "question": "Which Camunda 8 property controls how many times the engine retries a job before raising an incident?",
+  "options": [
+    { "id": "a", "text": "Set the retries property on the service task to 5; the broker decrements retries on failure and raises an incident when it reaches 0" },
+    { "id": "b", "text": "Set the timeout property on the service task to 5 seconds; the broker retries the job every 5 seconds until 0 are left" },
+    { "id": "c", "text": "Set the assignee property on the service task to 5; the broker activates the job 5 times in parallel for redundancy purposes" },
+    { "id": "d", "text": "Set the implementation type to retry-on-failure with a value of 5; the broker reads the type discriminator and retries that many times" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The retries property on a service task seeds the job's retries counter; the broker raises an incident when retries reach 0." },
+    "b": { "text": "Incorrect. Timeout configures how long an activation lock is held by the worker, not the number of retries on failure." },
+    "c": { "text": "Incorrect. Assignee is a user task property; it does not apply to service tasks and does not control retry counts." },
+    "d": { "text": "Incorrect. There is no retry-on-failure implementation type; the retries property is the documented control." }
+  },
+  "explanation": "The retries property on a service task initialises the job's retries counter; the broker raises an incident when the counter reaches 0 after worker-reported failures.",
+  "docs": [
+    { "title": "Job retries", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/service-tasks/" }
+  ]
+}

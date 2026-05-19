@@ -1,0 +1,27 @@
+{
+  "id": "con-webhook-correlation-key",
+  "topic": "connectors",
+  "subtopic": "inbound webhook",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Stellar Telco, a carrier processing 250000 SIM activations per day, uses a Camunda 8.8 HTTP Webhook connector on a message intermediate catch event. The vendor POSTs {\"orderId\":\"A-123\",\"status\":\"paid\"} and the engine must correlate the message to the running process instance whose orderId process variable equals A-123 within 5 seconds.",
+  "question": "Which pair of correlation key settings is correct?",
+  "options": [
+    { "id": "a", "text": "Correlation key (process) = orderId and Correlation key (payload) = request.body.orderId so both sides resolve to A-123 for correlation" },
+    { "id": "b", "text": "Correlation key (process) = request.body.orderId and Correlation key (payload) = orderId so the variable lookup happens against the incoming HTTP body" },
+    { "id": "c", "text": "Correlation key (process) = orderId and Correlation key (payload) = request.headers.orderId so the engine reads the value from the HTTP request headers section" },
+    { "id": "d", "text": "Correlation key (process) = request.params.orderId and Correlation key (payload) = orderId so the URL parameter is matched against the process variable name" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Correlation key (process) names the process variable that subscriptions use; Correlation key (payload) is a FEEL expression that extracts the same value from the incoming request." },
+    "b": { "text": "Incorrect. The two fields are reversed; process side references the process variable, payload side reads from the request object." },
+    "c": { "text": "Incorrect. The incoming body field is request.body.orderId; the headers form is only correct when the vendor places the correlation value in an HTTP header." },
+    "d": { "text": "Incorrect. URL parameters live under request.params and the process side must be a variable name, not a request expression." }
+  },
+  "explanation": "Correlation key (process) is a FEEL expression referring to the process variable that is used as the subscription key. Correlation key (payload) is a FEEL expression that extracts the matching value from the incoming webhook request.",
+  "docs": [
+    { "title": "HTTP Webhook connector - correlation", "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/" }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "ext-publish-message-api",
+  "topic": "extensions-integrations",
+  "subtopic": "REST API",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Marketplace publishes 11000 messages per day in Camunda 8.8 from an external scheduler. The team must publish a message with a name, a correlationKey value, a variables payload, and a timeToLive so the broker correlates the message to a unique waiting instance over the cluster's REST API surface.",
+  "question": "Which Camunda 8 REST API endpoint publishes a single message for correlation?",
+  "options": [
+    { "id": "a", "text": "POST /v2/messages/publication with a JSON body containing name, correlationKey, variables, and timeToLive as fields on the request root" },
+    { "id": "b", "text": "POST /v2/messages/broadcast with a JSON body containing name and variables; the broker fans the broadcast out to every waiting subscription for the message name" },
+    { "id": "c", "text": "POST /v2/signals/publication with a JSON body containing the message name as the signal name; messages are routed as signals on the published name string" },
+    { "id": "d", "text": "POST /zeebe/messages/{name} with a JSON body containing correlationKey and variables; the URL path carries the message name as a path parameter for routing" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. POST /v2/messages/publication accepts name, correlationKey, variables, and timeToLive in the request body for message correlation." },
+    "b": { "text": "Incorrect. There is no broadcast endpoint for messages; messages are point-to-point and use the publication endpoint." },
+    "c": { "text": "Incorrect. Messages and signals are distinct; signals do not carry correlation keys." },
+    "d": { "text": "Incorrect. The documented endpoint carries name in the JSON body, not the URL path, on the /v2/messages/publication route." }
+  },
+  "explanation": "Camunda 8 REST API publishes messages at POST /v2/messages/publication with name, correlationKey, variables, and timeToLive in the body.",
+  "docs": [
+    { "title": "Publish message via REST API", "url": "https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/" }
+  ]
+}

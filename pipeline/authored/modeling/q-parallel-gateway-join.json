@@ -1,0 +1,27 @@
+{
+  "id": "mod-parallel-gateway-join",
+  "topic": "modeling",
+  "subtopic": "gateways",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Manufacturer dispatches 5000 shipments per day in Camunda 8.8. After a parallel split, three branches run in parallel: pack, label, and invoice. A parallel join gateway downstream must wait for every branch to arrive before continuing to the dispatch task.",
+  "question": "How does a parallel join gateway in Camunda 8 decide when to forward a token to its outgoing flow?",
+  "options": [
+    { "id": "a", "text": "The join consumes one token from every incoming sequence flow and then produces a single token on the outgoing sequence flow" },
+    { "id": "b", "text": "The join produces a single outgoing token as soon as the first incoming token arrives and discards later tokens to avoid duplication" },
+    { "id": "c", "text": "The join forwards every incoming token to the outgoing flow with no synchronization, producing a token per branch downstream" },
+    { "id": "d", "text": "The join requires an explicit FEEL completion condition expression on the gateway to decide when enough branches have arrived" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. A BPMN parallel gateway joins by consuming exactly one token from each incoming sequence flow and producing one token on the outgoing flow." },
+    "b": { "text": "Incorrect. The parallel gateway synchronizes; it does not forward on first arrival and never silently discards branch tokens." },
+    "c": { "text": "Incorrect. Forwarding every token without synchronization describes an inclusive merge without join semantics, not a parallel join." },
+    "d": { "text": "Incorrect. Parallel joins do not use completion conditions; that pattern belongs to multi-instance activities, not gateways." }
+  },
+  "explanation": "The parallel gateway joins by consuming one token from every incoming flow and emitting one token on its outgoing flow, synchronizing parallel branches.",
+  "docs": [
+    { "title": "BPMN parallel gateway", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/parallel-gateways/" }
+  ]
+}

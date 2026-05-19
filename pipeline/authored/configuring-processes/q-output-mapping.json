@@ -1,0 +1,27 @@
+{
+  "id": "cp-output-mapping",
+  "topic": "configuring-processes",
+  "subtopic": "I/O mappings",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Marketplace runs 8000 orders per day in Camunda 8.8. A service task's job worker completes with a variable result, but downstream activities expect the value as priceEur on the process scope. The team must transform that one variable without writing FEEL inside every downstream activity.",
+  "question": "Which Camunda 8 task configuration maps the job's result variable into priceEur on the process scope?",
+  "options": [
+    { "id": "a", "text": "Add an output mapping with source result and target priceEur on the service task; the engine writes priceEur into the parent scope on completion" },
+    { "id": "b", "text": "Add an input mapping with source result and target priceEur on the service task; the engine writes priceEur into the parent scope on completion" },
+    { "id": "c", "text": "Define a process script task with FEEL between this task and every downstream consumer to evaluate priceEur on the parent scope each time" },
+    { "id": "d", "text": "Configure a custom header source=result and target=priceEur on the service task; the engine performs the rename on completion of the task" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Output mappings run on task completion: the source FEEL expression evaluates against the task scope and writes the result under target on the parent scope." },
+    "b": { "text": "Incorrect. Input mappings run at activation, not on completion; renaming the job's output is the documented role of output mappings." },
+    "c": { "text": "Incorrect. Output mappings on a single task are simpler and avoid sprinkling FEEL across every downstream activity." },
+    "d": { "text": "Incorrect. Custom headers are static metadata for the worker; they do not transform variables on task completion." }
+  },
+  "explanation": "Output mappings evaluate FEEL on task completion against the task scope and propagate the result to the parent scope under the configured target name.",
+  "docs": [
+    { "title": "Variable mappings", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+  ]
+}

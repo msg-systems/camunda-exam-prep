@@ -1,0 +1,27 @@
+{
+  "id": "dec-required-decision-result-shape",
+  "topic": "decisions-business-rules",
+  "subtopic": "DRG",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Granite Bank wires a DRG in Camunda 8.8 across 9000 loan applications per day. The required decision creditScore has 2 output columns named band and score and uses the UNIQUE hit policy. The dependent decision underwriting must read both outputs from the upstream result during evaluation.",
+  "question": "How does the underwriting decision access the band and score outputs of the required creditScore decision?",
+  "options": [
+    { "id": "a", "text": "Access the outputs by the decision ID grouped with output names, e.g. creditScore.band and creditScore.score, in input expressions of underwriting" },
+    { "id": "b", "text": "Access the outputs as a top-level FEEL list with positional indexes such as creditScore[1] and creditScore[2] in input expressions of underwriting" },
+    { "id": "c", "text": "Access the outputs only via process variables that the calling business rule task must explicitly map after the upstream decision runs" },
+    { "id": "d", "text": "Access the outputs by the decision name with output IDs, e.g. CreditScore.bandOutputId, in input expressions of underwriting" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The DRG docs state that when a required decision has multiple outputs, values are grouped under the decision ID and accessed by output name (decisionId.outputName)." },
+    "b": { "text": "Incorrect. UNIQUE returns a single matching rule, not a list, and the engine does not expose outputs by positional index in the dependent decision." },
+    "c": { "text": "Incorrect. DRG dependencies are resolved natively during DMN evaluation; no intermediate process variable mapping is required for required decisions in the same DRG." },
+    "d": { "text": "Incorrect. The decision is referenced by its ID and outputs by their names, not by output IDs or the human-readable decision name." }
+  },
+  "explanation": "For required decisions with multiple outputs, the docs prescribe accessing values by decisionId.outputName; the structure depends on the upstream hit policy.",
+  "docs": [
+    { "title": "Decision requirements graph", "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-requirements-graph/" }
+  ]
+}

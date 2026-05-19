@@ -1,0 +1,27 @@
+{
+  "id": "cp-variable-scope-local",
+  "topic": "configuring-processes",
+  "subtopic": "variable scope",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Catalyst Logistics handles 6500 shipments per day in Camunda 8.8. A subprocess uses a temporary variable named iter inside a multi-instance loop. The team must keep iter visible only inside the subprocess scope and never expose it on the parent process variables after the subprocess completes.",
+  "question": "Which Camunda 8 mechanism keeps a variable scoped to its subprocess and prevents propagation to the parent scope?",
+  "options": [
+    { "id": "a", "text": "Set the variable on the subprocess scope directly (e.g., via an input mapping on the subprocess) so iter is local to that scope" },
+    { "id": "b", "text": "Define the variable on the root process scope and add an output mapping on every parent activity that filters iter out of the propagation" },
+    { "id": "c", "text": "Annotate the variable as private in the BPMN extension element; the engine honours private variables and never propagates them to parents" },
+    { "id": "d", "text": "Define the variable as a custom header on the subprocess element; custom headers are scoped to the element and never become process variables" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Camunda 8 variables are created on the scope where they are set; a variable defined on the subprocess scope stays local to that scope." },
+    "b": { "text": "Incorrect. Root-scope variables propagate to descendants; filtering on every parent activity is fragile compared with scoping at creation." },
+    "c": { "text": "Incorrect. Camunda BPMN has no private variable annotation; visibility is determined by the scope where the variable is created." },
+    "d": { "text": "Incorrect. Custom headers are static metadata, not process variables; they do not provide a runtime variable scoping mechanism." }
+  },
+  "explanation": "Variables created on a subprocess scope are local to that scope; propagation to the parent scope happens only when explicitly mapped via output mappings.",
+  "docs": [
+    { "title": "Variable scopes", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+  ]
+}

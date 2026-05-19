@@ -1,0 +1,27 @@
+{
+  "id": "mod-service-vs-send-task",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Logistics handles 9000 orders per day in Camunda 8.8. The process must call a job worker that performs synchronous work and writes the result back to a process variable before the next step executes. The architect debates between a service task and a send task for this exact behaviour.",
+  "question": "Which task type is correct for invoking a synchronous job worker that returns variables to the process?",
+  "options": [
+    { "id": "a", "text": "Service task with the configured job type is the modeled element for synchronous job workers that update process variables" },
+    { "id": "b", "text": "Send task is the modeled element for synchronous job workers that update process variables and is favoured over a service task" },
+    { "id": "c", "text": "Manual task is the modeled element for synchronous workers when the worker is implemented as a Java method on the engine" },
+    { "id": "d", "text": "Script task is the modeled element for synchronous workers when the worker also needs to update process variables on completion" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Camunda 8 implements service tasks via job workers; the broker creates a job of the configured type and accepts the worker's completion with variables." },
+    "b": { "text": "Incorrect. Send tasks model an outgoing message and are used with message correlation, not with general-purpose synchronous job workers." },
+    "c": { "text": "Incorrect. Manual tasks are pure documentation that pass through without any external invocation; nothing is created in the broker for a worker to pick up." },
+    "d": { "text": "Incorrect. Script tasks are not modeled as job workers in Camunda 8; service tasks are the documented mechanism for invoking external code." }
+  },
+  "explanation": "The Camunda 8 docs map a service task to a job type that an external worker activates and completes with variables, which is the canonical synchronous worker invocation.",
+  "docs": [
+    { "title": "BPMN service task", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/service-tasks/" }
+  ]
+}

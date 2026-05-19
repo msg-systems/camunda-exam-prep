@@ -1,0 +1,27 @@
+{
+  "id": "mgmt-operate-data-source",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Orion Retail runs Camunda 8.8 self-managed in production with 14000 orders per day. The SRE team must size disk for the Operate read model and asks where Operate stores the historical data it surfaces in process instance, incident, and variable views.",
+  "question": "Which storage system underlies the Operate read model in Camunda 8.8 self-managed?",
+  "options": [
+    { "id": "a", "text": "Operate reads from an Elasticsearch (or OpenSearch) index that an exporter populates from the Zeebe event stream over time" },
+    { "id": "b", "text": "Operate reads from a Postgres relational database that the broker writes to synchronously on every state-machine event in the cluster" },
+    { "id": "c", "text": "Operate reads from the broker's in-memory state directly using the gRPC client for every page load of every operator session" },
+    { "id": "d", "text": "Operate reads from a built-in H2 file database persisted alongside the broker on each broker node for high-availability replication" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Operate's read model is built on Elasticsearch (or OpenSearch) indexed by an exporter that consumes the Zeebe event stream." },
+    "b": { "text": "Incorrect. Camunda 8 does not use Postgres for the runtime read model; Elasticsearch or OpenSearch is the documented store." },
+    "c": { "text": "Incorrect. Operate does not query broker state directly per page load; that would not scale to the volume of historical queries." },
+    "d": { "text": "Incorrect. The broker does not store historical view data in an embedded H2 file; the exporter writes to Elasticsearch or OpenSearch." }
+  },
+  "explanation": "Operate's read model is built on Elasticsearch or OpenSearch indices populated by an exporter that consumes the Zeebe event stream from the broker.",
+  "docs": [
+    { "title": "Operate architecture", "url": "https://docs.camunda.io/docs/self-managed/operate-deployment/install-and-start/" }
+  ]
+}

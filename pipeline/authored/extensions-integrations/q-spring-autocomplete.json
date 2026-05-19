@@ -1,0 +1,27 @@
+{
+  "id": "ext-spring-autocomplete",
+  "topic": "extensions-integrations",
+  "subtopic": "Spring SDK",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Delta Bank's Spring SDK job worker handles 9000 jobs per day in Camunda 8.8 for the type charge-payment. The method returns a map of variables, and the team wants the framework to call complete-job automatically on a successful return rather than requiring an explicit completion call.",
+  "question": "Which @JobWorker attribute controls whether the SDK auto-completes the job on a successful method return?",
+  "options": [
+    { "id": "a", "text": "Set autoComplete = true on the @JobWorker annotation; the SDK calls complete-job with the returned map on successful return" },
+    { "id": "b", "text": "Set autoActivate = true on the @JobWorker annotation; the SDK calls activate-job in advance and complete-job on every method return path" },
+    { "id": "c", "text": "Return null from the method; the SDK interprets a null return as a signal to call complete-job with no variables on the activated job" },
+    { "id": "d", "text": "Set fetchVariables = {} on the @JobWorker annotation; the SDK reads the empty set as an opt-in for auto-completion of jobs of the type" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The @JobWorker annotation exposes autoComplete; when true, the SDK invokes complete-job with the returned variables on success." },
+    "b": { "text": "Incorrect. There is no autoActivate attribute; activation is always handled by the SDK runtime." },
+    "c": { "text": "Incorrect. Returning null does not implicitly switch on auto-completion; the explicit attribute controls it." },
+    "d": { "text": "Incorrect. fetchVariables is a filter for which variables the worker receives, not an auto-completion flag." }
+  },
+  "explanation": "@JobWorker(autoComplete = true) makes the Spring SDK call complete-job with the returned variables on a successful method return.",
+  "docs": [
+    { "title": "Camunda 8 Spring SDK auto-complete", "url": "https://docs.camunda.io/docs/apis-tools/spring-zeebe-sdk/getting-started/" }
+  ]
+}

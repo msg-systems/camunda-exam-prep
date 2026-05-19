@@ -1,0 +1,27 @@
+{
+  "id": "mgmt-identity-roles",
+  "topic": "managing-development",
+  "subtopic": "Identity",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Ridge Telco operates a Camunda 8.8 self-managed cluster across 5 microservices. The security team must let support staff read process instance state in Operate but never let them retry incidents or modify variables on the running 7000 records per hour processed by the cluster.",
+  "question": "Which Identity authorization configuration matches this read-only Operate access for support staff?",
+  "options": [
+    { "id": "a", "text": "Grant the support group the operate-read permission only; the Operate UI disables retry, cancel, and variable update actions for those users" },
+    { "id": "b", "text": "Grant the support group the operate-admin role and restrict retry and modify actions through additional process definition allowlists in Identity" },
+    { "id": "c", "text": "Grant the support group the operate-developer role; this role grants read access plus a non-destructive write action set in Operate" },
+    { "id": "d", "text": "Grant the support group the zeebe-read role; Identity propagates Zeebe roles into Operate as read-only access for users without an Operate role" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Camunda 8 Identity supports a per-application read permission for Operate; the UI disables destructive actions for users without write permission." },
+    "b": { "text": "Incorrect. operate-admin grants destructive permissions; adding allowlists does not retroactively make admin a read-only role." },
+    "c": { "text": "Incorrect. There is no operate-developer hybrid role in Camunda 8 Identity; reads and writes are separate per-application permissions." },
+    "d": { "text": "Incorrect. Zeebe and Operate have independent permissions in Identity; a Zeebe role does not automatically grant Operate access." }
+  },
+  "explanation": "Identity applies per-application permissions; the operate read permission lets users view process state without enabling retry, cancel, or variable update actions.",
+  "docs": [
+    { "title": "Identity authorizations", "url": "https://docs.camunda.io/docs/self-managed/identity/user-guide/authorizations/" }
+  ]
+}
