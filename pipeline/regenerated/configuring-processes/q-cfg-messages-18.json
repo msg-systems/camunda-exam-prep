@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-18",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "NovaPay, a fintech payments provider, publishes 4500 messages per day for a 'Payment captured' event to Camunda 8.8 from a flaky gateway that frequently retries the same logical event. The team needs idempotent publication so a retry that arrives while the original message is still buffered does not produce a second correlation against the same payment.",
+  "question": "Which Camunda 8.8 message field ensures duplicate publishes carrying the same name and correlation key are rejected while the original is still buffered?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set the messageId to a stable per-event identifier such as the payment tracking number; the broker rejects any new publish that shares the same name, correlation key, and messageId while the original is still buffered"
+    },
+    {
+      "id": "b",
+      "text": "Set the correlationKey to a stable per-event identifier such as the payment tracking number; the broker rejects any later publish that reuses the same correlationKey value at the cluster level"
+    },
+    {
+      "id": "c",
+      "text": "Set a higher timeToLive on the publish call; the broker then compares incoming payloads byte-for-byte against buffered messages and discards the retry as a duplicate of the original"
+    },
+    {
+      "id": "d",
+      "text": "Set an idempotencyKey header on the publish endpoint; the broker stores the header per tenant and rejects later publishes that reuse the same value within the buffered window"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The optional messageId provides the idempotency key documented for message uniqueness: a message is rejected and not correlated if one with the same name, correlation key, and messageId is already buffered. Once that buffered entry is discarded, a publish with the same triple is accepted again."
+    },
+    "b": {
+      "text": "Incorrect. The correlationKey routes the message to the correct subscription or single instance; it is not part of the uniqueness triple on its own and reusing it does not by itself trigger rejection of a retry."
+    },
+    "c": {
+      "text": "Incorrect. Time-to-live controls how long an unmatched message waits in the buffer for a subscription; the engine does not deduplicate by comparing payload bytes against buffered messages."
+    },
+    "d": {
+      "text": "Incorrect. The publish endpoint does not define an idempotencyKey header. Idempotency is provided by the optional messageId, evaluated together with the name and correlation key against the buffer."
+    }
+  },
+  "explanation": "Message uniqueness is enforced when an optional messageId is set: a publish is rejected if a message with the same name, correlation key, and id is already in the buffer, and is accepted again only once that buffered entry is discarded. The uniqueness check is disabled when no messageId is set.",
+  "docs": [
+    {
+      "title": "Messages",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

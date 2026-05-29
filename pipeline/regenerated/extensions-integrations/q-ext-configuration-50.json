@@ -1,0 +1,50 @@
+{
+  "id": "ext-configuration-50",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Wren Insurance models a Camunda 8.8 claims process and writes a Camunda Spring Boot Starter worker that handles 4100 jobs per day. The developer wants the handler signature to materialize process variables as a strongly typed MyProcessVariables object so the worker can mutate fields and return the object to push changes back to Zeebe, and a reviewer checks that the documented annotation is used.",
+  "question": "Which @JobWorker parameter annotation materializes process variables as a strongly typed object for the handler?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use the @CustomHeaders annotation on a MyProcessVariables parameter so the starter binds the class fields to the activated job variables and returns the updated object to Zeebe automatically"
+    },
+    {
+      "id": "b",
+      "text": "Use the @Variable annotation on a MyProcessVariables parameter so the starter binds the class fields to the activated job variables and returns the updated object to Zeebe automatically"
+    },
+    {
+      "id": "c",
+      "text": "Use the @VariableMap annotation on a MyProcessVariables parameter so the starter binds the class fields to the activated job variables and returns the updated object to Zeebe automatically"
+    },
+    {
+      "id": "d",
+      "text": "Use the @VariablesAsType annotation on a MyProcessVariables parameter so the starter binds the class fields to the activated job variables and returns the updated object to Zeebe automatically"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. @CustomHeaders binds a Map<String, String> of job custom headers and has no effect on the variable fetching behaviour for the worker."
+    },
+    "b": {
+      "text": "Incorrect. @Variable binds a single process variable to a method parameter by name; it does not materialize an entire typed object from the variable map."
+    },
+    "c": {
+      "text": "Incorrect. The starter does not document a @VariableMap annotation; the documented bulk-binding annotation for typed variable objects is @VariablesAsType."
+    },
+    "d": {
+      "text": "Correct. @VariablesAsType maps the activated process variables into a custom class such as MyProcessVariables, comparable to getVariablesAsType, and Jackson's @JsonProperty annotation is respected for field mapping."
+    }
+  },
+  "explanation": "The starter exposes the @VariablesAsType annotation to map activated process variables into a custom class. The names of the fields of the type join the list of variables to fetch, and returning the object pushes any changes back to Zeebe on auto-completion.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-62",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A logistics dispatcher's process contains an embedded subprocess that currently has no active instance. Operators must activate task C inside that subprocess across 40 shipments using the modification command. The architect needs to understand what the engine does when the enclosing subprocess does not yet have any active instance to host the nested element activation.",
+  "question": "What does the engine do when activating a nested element if the enclosing subprocess does not currently have any active instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It creates a new subprocess instance first, including any event subscriptions for its boundary events, then activates the requested element inside the new subprocess instance"
+    },
+    {
+      "id": "b",
+      "text": "It rejects the modification command because a subprocess instance must already exist before a nested element can be activated, so the operator has to activate the subprocess separately first"
+    },
+    {
+      "id": "c",
+      "text": "It activates the requested element at the process root scope and re-parents it to the subprocess only after the next deployment refresh runs across the affected process instances"
+    },
+    {
+      "id": "d",
+      "text": "It creates a new subprocess instance and additionally activates the subprocess start event with its input variable mappings so the regular activation path of the subprocess is fully replayed end to end"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. If the subprocess does not have an active instance, the process instance creates a new instance of the subprocess first, including creating event subscriptions for boundary events. The requested element is then activated inside the new subprocess instance."
+    },
+    "b": {
+      "text": "Incorrect. The engine does not reject the command in this case. Creating the missing subprocess instance is part of the standard nested element activation flow, so no separate activation step is required from the operator."
+    },
+    "c": {
+      "text": "Incorrect. The element is not placed at the root scope. It is always activated inside an instance of its enclosing subprocess; the engine creates that subprocess instance on the fly if one does not already exist."
+    },
+    "d": {
+      "text": "Incorrect. The newly created subprocess instance does not activate the subprocess start event or apply input variable mappings. It differs from a regular subprocess activation in exactly that way during modification-driven nested activation."
+    }
+  },
+  "explanation": "When a nested element is activated through modification and the enclosing subprocess has no active instance, the engine creates a new subprocess instance first, including its boundary event subscriptions, but it skips the start event and input variable mappings of the subprocess.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

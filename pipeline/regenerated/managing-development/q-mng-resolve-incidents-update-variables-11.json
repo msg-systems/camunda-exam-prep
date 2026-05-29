@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-11",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Banking runs Camunda 8.8 on the order-process model with 7000 instances per day at the bank. After creating a new instance with zbctl, the operator must advance it to the XOR gateway by completing the Initiate Payment service task using community-supported zbctl on a Linux host inside the bank's tooling environment.",
+  "question": "Which zbctl command creates the job worker that completes the Initiate Payment task and advances the instance toward the XOR gateway?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The command ./bin/zbctl --insecure create worker initiate-payment --handler cat starts a worker that subscribes to the Initiate Payment job type and completes activated jobs so the instance advances to the XOR gateway"
+    },
+    {
+      "id": "b",
+      "text": "The command ./bin/zbctl --insecure complete job initiate-payment --variables empty marks the Initiate Payment task as completed from the command line and advances the instance to the XOR gateway on the broker for the bank"
+    },
+    {
+      "id": "c",
+      "text": "The command ./bin/zbctl --insecure publish message initiate-payment --correlationKey 1234 advances the Initiate Payment task and routes the instance toward the XOR gateway through message correlation inside the bank's cluster"
+    },
+    {
+      "id": "d",
+      "text": "The command ./bin/zbctl --insecure activate task initiate-payment --workerName cat activates the Initiate Payment task with a one-shot worker and advances the instance toward the XOR gateway on the broker for the bank"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Advance an instance to an XOR gateway section shows the operator running ./bin/zbctl --insecure create worker initiate-payment --handler cat to start a worker that completes Initiate Payment jobs and advances the instance to the XOR gateway."
+    },
+    "b": {
+      "text": "Incorrect. The documented step uses zbctl create worker with a handler, not a complete job command; the worker subscribes to the job type and completes activated jobs as they arrive on the broker."
+    },
+    "c": {
+      "text": "Incorrect. Initiate Payment is a service task completed by a worker; the publish message command is used later for the Payment Received intermediate message catch event, not for the Initiate Payment task."
+    },
+    "d": {
+      "text": "Incorrect. zbctl uses create worker with a handler to subscribe to a job type rather than a one-shot activate task command, and the documented handler value on Linux is cat with the initiate-payment job type."
+    }
+  },
+  "explanation": "The Advance an instance to an XOR gateway section instructs the operator to create a job worker for the Initiate Payment task with ./bin/zbctl --insecure create worker initiate-payment --handler cat so activated jobs are completed and the instance moves toward the XOR gateway.",
+  "docs": [
+    {
+      "title": "Variables and incidents",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ]
+}

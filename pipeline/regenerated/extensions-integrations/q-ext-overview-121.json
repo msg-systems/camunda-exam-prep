@@ -1,0 +1,50 @@
+{
+  "id": "ext-overview-121",
+  "topic": "extensions-integrations",
+  "subtopic": "operate-api",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Marketplace paginates 654 records from a POST /v1/process-instances/search call against the Camunda 8.8 Operate API in batches of 10 records per page. The team needs to know what to do with the sortValues array returned in each Results body so the next call retrieves the next page without skipping or duplicating items.",
+  "question": "What does the sortValues array in an Operate API Results object enable a client to do for the next request?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Copy the sortValues array from the current results into searchAfter on the next query to retrieve the next page of items, following the documented search-after pagination model"
+    },
+    {
+      "id": "b",
+      "text": "Copy the sortValues array from the current results into a searchBefore field on the next query to navigate one page backward through the result set on the server"
+    },
+    {
+      "id": "c",
+      "text": "Copy the sortValues array from the current results into the size field on the next query so the server returns exactly the matching number of items in the following page"
+    },
+    {
+      "id": "d",
+      "text": "Copy the sortValues array from the current results into the sort.field array on the next query to re-sort the page by the previously returned identifiers in place"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Results section explains that sortValues holds the values you need to fetch the next page; you copy them into searchAfter on the next query. The docs reference this as the Elasticsearch search-after pagination model."
+    },
+    "b": {
+      "text": "Incorrect. There is no documented searchBefore field; pagination is forward-only via searchAfter using sortValues from the previous response."
+    },
+    "c": {
+      "text": "Incorrect. size is a numeric maximum item count and is independent of sortValues, which is the cursor for searchAfter rather than a page size."
+    },
+    "d": {
+      "text": "Incorrect. sortValues is not copied into sort.field; sort defines which field to order by, while sortValues is the cursor used in searchAfter."
+    }
+  },
+  "explanation": "Each Operate Results body returns an items array, a total count, and a sortValues array. To get the next page of results, the client copies sortValues from the current response into the searchAfter field of the next query, which is the documented search-after pagination model.",
+  "docs": [
+    {
+      "title": "Operate API overview",
+      "url": "https://docs.camunda.io/docs/apis-tools/operate-api/overview/"
+    }
+  ]
+}

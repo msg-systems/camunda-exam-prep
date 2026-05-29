@@ -1,0 +1,50 @@
+{
+  "id": "cfg-signals-41",
+  "topic": "configuring-processes",
+  "subtopic": "signals",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Energy deploys a new Camunda 8.8 process whose only start event is a signal start event named gridFailure. The operations team expects the next broadcast of gridFailure to launch new process instances rather than affecting the 1,200 instances of another grid-monitoring process that are currently running on the cluster.",
+  "question": "Why does deploying this process cause subsequent gridFailure broadcasts to start new process instances?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Deploying a process with a signal start event creates a signal subscription whose triggering starts a new process instance for each broadcast that matches the signal name."
+    },
+    {
+      "id": "b",
+      "text": "Deploying a process with a signal start event registers it as a service worker subscription, so each broadcast is delivered to the first available worker as a job activation."
+    },
+    {
+      "id": "c",
+      "text": "Deploying a process replaces all earlier signal subscriptions with the same name across the cluster, so only the newly deployed process can react to subsequent broadcasts."
+    },
+    {
+      "id": "d",
+      "text": "Deploying a process with a signal start event opens a one-shot subscription that is consumed after the first matching broadcast and then deleted from the cluster automatically."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs state that deploying a process with a signal start event creates a new signal subscription, and that the triggered subscription starts a new process instance for each matching broadcast."
+    },
+    "b": {
+      "text": "Incorrect. Signal subscriptions are not job activations; the engine does not deliver broadcasts to workers, it starts process instances when a signal start event is triggered."
+    },
+    "c": {
+      "text": "Incorrect. Subscriptions with the same name coexist; a broadcast triggers all matching subscriptions rather than replacing earlier subscriptions with the same name on deployment."
+    },
+    "d": {
+      "text": "Incorrect. A signal start event subscription is not one-shot; the docs describe broadcasts triggering all matching subscriptions, so the start event remains available for future broadcasts."
+    }
+  },
+  "explanation": "Two kinds of signal subscriptions exist. A signal catch event creates one when a process instance reaches it, and a signal start event creates one at deployment time. Triggering a start event subscription starts a new process instance, which is exactly what Aurora Energy needs.",
+  "docs": [
+    {
+      "title": "Signals",
+      "url": "https://docs.camunda.io/docs/components/concepts/signals/"
+    }
+  ]
+}

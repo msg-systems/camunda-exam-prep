@@ -1,0 +1,50 @@
+{
+  "id": "mod-inclusive-gateways-75",
+  "topic": "modeling",
+  "subtopic": "gateways",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Granite Healthcare orchestrates 3500 claims per day with a Camunda 8.8 process whose branches fan out through a diverging inclusive gateway and later rejoin at a converging inclusive gateway. The clinical team needs to know when the join is considered complete so the next activity runs only once.",
+  "question": "When does a converging inclusive gateway complete and continue the outgoing flow?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The converging inclusive gateway completes when only one incoming sequence flow has been taken and the rest of the incoming flows are still pending in other branches"
+    },
+    {
+      "id": "b",
+      "text": "The converging inclusive gateway completes when the first incoming sequence flow arrives and immediately cancels every other branch that has not yet reached the gateway"
+    },
+    {
+      "id": "c",
+      "text": "The converging inclusive gateway completes when every incoming sequence flow has been taken at least once or no active flow node can still reach the gateway along an untaken path"
+    },
+    {
+      "id": "d",
+      "text": "The converging inclusive gateway completes when a configurable timer attached to the gateway expires regardless of how many incoming sequence flows have arrived"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. A single incoming flow is not enough to close the join; the converging inclusive gateway must account for every incoming path that can still be reached by an active flow node."
+    },
+    "b": {
+      "text": "Incorrect. The converging inclusive gateway does not cancel sibling branches when one flow arrives first; it waits for the remaining reachable paths to complete or for them to become unreachable."
+    },
+    "c": {
+      "text": "Correct. The documented join rule is that the gateway completes when all incoming sequence flows have been taken at least once or when no active flow node can still reach it along an untaken incoming path."
+    },
+    "d": {
+      "text": "Incorrect. The converging inclusive gateway does not own a timer; completion is driven entirely by token arrival and reachability of the remaining incoming sequence flows."
+    }
+  },
+  "explanation": "The documented behavior of a converging inclusive gateway is that it completes either when every incoming sequence flow has been taken at least once, or when no active flow node can still reach it through an untaken incoming path.",
+  "docs": [
+    {
+      "title": "BPMN inclusive gateways",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/inclusive-gateways/"
+    }
+  ]
+}

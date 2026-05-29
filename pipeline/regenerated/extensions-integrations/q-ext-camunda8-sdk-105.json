@@ -1,0 +1,50 @@
+{
+  "id": "ext-camunda8-sdk-105",
+  "topic": "extensions-integrations",
+  "subtopic": "typescript-sdk",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Marketplace launches a Camunda 8.8 checkout process for 18000 orders per day in which the calling Node.js script must receive the final value of serviceTaskOutcome and userTaskStatus directly. The team uses the TypeScript SDK and wants the call that blocks the awaiting code until the short-running process instance finishes and returns the final variable map, rather than returning immediately with the process instance key.",
+  "question": "Which SDK call returns once the short-running process instance has completed and exposes the final variables?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Call camunda.createProcessInstanceWithResult with the processDefinitionId and variables, passing awaitCompletion true so the promise resolves on completion with the final variable values"
+    },
+    {
+      "id": "b",
+      "text": "Call camunda.createProcessInstance with the processDefinitionId and variables, passing awaitCompletion true so the promise resolves on completion with the final variable values"
+    },
+    {
+      "id": "c",
+      "text": "Call camunda.startProcess with the processDefinitionId and variables, passing waitForResult true so the promise resolves on completion with the final variable values for the run"
+    },
+    {
+      "id": "d",
+      "text": "Call camunda.createProcessInstance with the processDefinitionId and variables and then poll getProcessInstance until state COMPLETED is observed to retrieve the final variable values"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The quickstart uses camunda.createProcessInstanceWithResult with awaitCompletion true, which awaits process completion and resolves with the processInstanceKey and the final variable values."
+    },
+    "b": {
+      "text": "Incorrect. createProcessInstance returns as soon as the instance is created and exposes the process instance ID; awaiting completion with final variables is the role of createProcessInstanceWithResult."
+    },
+    "c": {
+      "text": "Incorrect. The documented API is createProcessInstance and createProcessInstanceWithResult; there is no startProcess with a waitForResult flag in the quickstart."
+    },
+    "d": {
+      "text": "Incorrect. Polling getProcessInstance reads historical state from the Zeebe exporter which is eventually consistent; the direct way is createProcessInstanceWithResult with awaitCompletion true."
+    }
+  },
+  "explanation": "For short-running processes the quickstart calls camunda.createProcessInstanceWithResult with awaitCompletion true. The promise resolves once the instance completes and includes processInstanceKey and the final variable map.",
+  "docs": [
+    {
+      "title": "Camunda 8 TypeScript SDK",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ]
+}

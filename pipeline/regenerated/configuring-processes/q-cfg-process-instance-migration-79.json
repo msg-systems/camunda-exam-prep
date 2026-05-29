@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-79",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Quanta Fintech is migrating 1100 instances of its Camunda 8.8 disbursement process. The new process model adds a new message catch event on the existing service task and removes an old timer catch event that is no longer needed. The team plans the catch-event mapping instructions inside the migration plan.",
+  "question": "How are the new target catch event and the removed source catch event handled by the mapping instructions during migration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The unmapped new target catch event causes a new subscription to be opened on migration, and the unmapped source catch event has its existing subscription closed during the migration."
+    },
+    {
+      "id": "b",
+      "text": "The unmapped new target catch event is ignored at migration time, and the unmapped source catch event keeps its subscription open as a fallback so no events are lost during migration."
+    },
+    {
+      "id": "c",
+      "text": "The unmapped new target catch event requires a manual SubscribeEvent call after migration, and the unmapped source catch event is automatically rolled into the new target catch event."
+    },
+    {
+      "id": "d",
+      "text": "The unmapped new target catch event raises an incident during migration, and the unmapped source catch event is automatically converted into a boundary event on the active scope task."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. If a target catch event is not the target of a mapping, a new subscription is opened on migration; if a source catch event is not mapped, its subscription is closed during migration."
+    },
+    "b": {
+      "text": "Incorrect. Unmapped target catch events are not ignored: new subscriptions are opened for them. Unmapped source catch events do not stay open as a fallback; their subscriptions are closed."
+    },
+    "c": {
+      "text": "Incorrect. No manual SubscribeEvent call is needed; subscriptions for unmapped target catch events are opened automatically as part of the migration."
+    },
+    "d": {
+      "text": "Incorrect. Unmapped target catch events do not raise an incident, and source catch events are not converted into boundary events; the engine opens or closes subscriptions based on whether mappings are present."
+    }
+  },
+  "explanation": "Catch event handling during migration is driven by mapping instructions: mapped catch events have their subscriptions migrated, unmapped target catch events get new subscriptions, and unmapped source catch events have their subscriptions closed.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-63",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Bank has a process instance waiting on user task B after completing task A. Operators must activate an interrupting message event subprocess that contains task C across 30 instances because the external publisher is offline. The team wants to confirm whether activating the interrupting event subprocess via modification automatically terminates task B as the BPMN semantics suggest.",
+  "question": "What is the side effect on task B when an interrupting event subprocess containing task C is activated through a modification command?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Task B is not terminated automatically; the activation makes the event subprocess active and starts task C, and a separate terminate instruction is required to interrupt task B"
+    },
+    {
+      "id": "b",
+      "text": "Task B is terminated automatically the moment the interrupting event subprocess becomes active because the subprocess interrupting flag propagates through the modification command"
+    },
+    {
+      "id": "c",
+      "text": "Task B is paused for the duration of the event subprocess and resumes automatically once task C completes, so no explicit termination instruction is required from the operator"
+    },
+    {
+      "id": "d",
+      "text": "Task B is moved into the event subprocess scope and continues executing alongside task C inside the event subprocess until either of them completes and ends the scope"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Activating an interrupting event subprocess through modification does not interrupt the process instance or terminate task B; both task B and task C are active after the activation. To simulate interrupting behavior, the modification must include a terminate instruction for task B."
+    },
+    "b": {
+      "text": "Incorrect. The interrupting flag of the event subprocess is not propagated through modification activation. The activation only starts the event subprocess and its start event; it does not terminate sibling tasks like B automatically."
+    },
+    "c": {
+      "text": "Incorrect. Modification does not pause sibling tasks while an event subprocess runs. Both task B and task C are active concurrently after the activation, until terminated or completed independently."
+    },
+    "d": {
+      "text": "Incorrect. Task B is not re-parented into the event subprocess scope. It remains in its original scope while task C runs in the event subprocess, so the two tasks live in separate scopes after the activation."
+    }
+  },
+  "explanation": "Activating an interrupting event subprocess via modification does not by itself interrupt the process instance or terminate sibling tasks. To get interrupting behavior, the modification must include an explicit terminate instruction for the sibling task that should be interrupted.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

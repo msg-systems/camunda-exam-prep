@@ -1,0 +1,50 @@
+{
+  "id": "mod-signal-events-64",
+  "topic": "modeling",
+  "subtopic": "signal-events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Pinnacle marketplace runs an order fulfilment process in Camunda 8.8 that ships 4200 shipments per day. After a parcel is loaded onto the carrier truck, the process must publish a parcel shipped signal at the end of the flow so that downstream warehouse and billing processes can each react to the broadcast event.",
+  "question": "Which BPMN end event XML configuration broadcasts the parcel shipped signal when the token reaches the end of the flow?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A bpmn:endEvent containing a signalEventDefinition with signalRef pointing at a sibling bpmn:signal element named parcel shipped broadcasts the signal when the end event executes for that token"
+    },
+    {
+      "id": "b",
+      "text": "A bpmn:intermediateThrowEvent containing a signalEventDefinition with signalRef pointing at a sibling bpmn:signal element named parcel shipped publishes the signal at the configured intermediate point"
+    },
+    {
+      "id": "c",
+      "text": "A bpmn:boundaryEvent attached to the carrier task containing a signalEventDefinition and a sibling bpmn:signal element named parcel shipped catches the broadcast signal during the activity"
+    },
+    {
+      "id": "d",
+      "text": "A bpmn:endEvent containing a messageEventDefinition with messageRef pointing at a sibling bpmn:message element named parcel shipped publishes the broadcast to every downstream process at end"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. A signal end event is modelled as an endEvent containing a signalEventDefinition with signalRef pointing at a bpmn:signal element; when the token reaches the end event the engine broadcasts the named signal to every matching subscriber."
+    },
+    "b": {
+      "text": "Incorrect. An intermediate throw event with a signal definition also broadcasts a signal, but the scenario asks for the broadcast to happen at the end of the flow rather than at an intermediate sequence flow point."
+    },
+    "c": {
+      "text": "Incorrect. Boundary signal events catch a broadcast signal while an activity is active; they do not throw a signal to downstream processes when the flow ends successfully."
+    },
+    "d": {
+      "text": "Incorrect. messageEventDefinition models a one to one message correlated to a single recipient, which does not broadcast to multiple downstream processes the way a signal end event does."
+    }
+  },
+  "explanation": "The signal end event XML pairs an endEvent containing a signalEventDefinition with signalRef and a sibling bpmn:signal element that carries the broadcast name. When the end event executes, the configured signal is broadcast to every matching subscriber across the deployed processes.",
+  "docs": [
+    {
+      "title": "BPMN signal events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/signal-events/"
+    }
+  ]
+}

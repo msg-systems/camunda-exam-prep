@@ -1,0 +1,50 @@
+{
+  "id": "mod-timer-events-85",
+  "topic": "modeling",
+  "subtopic": "events",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Healthcare runs a triage process in Camunda 8.8 for 5000 cases per day. The team needs a timer boundary event on a long-running review activity: one variant must cancel the review after 5 minutes if it is still active, and a second variant must only notify support after PT1H without cancelling the review.",
+  "question": "Which combination of timer boundary event variants correctly satisfies both requirements?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An interrupting timer boundary event with a time duration of PT5M for the cancel case and a non-interrupting timer boundary event with a time duration of PT1H for the notify case"
+    },
+    {
+      "id": "b",
+      "text": "A non-interrupting timer boundary event with a time duration of PT5M for the cancel case and an interrupting timer boundary event with a time cycle of PT1H for the notify case"
+    },
+    {
+      "id": "c",
+      "text": "An interrupting timer boundary event with a time cycle of PT5M for the cancel case and a non-interrupting timer boundary event with a time date of PT1H for the notify case"
+    },
+    {
+      "id": "d",
+      "text": "An interrupting timer boundary event with a time date of PT5M for both the cancel case and the notify case, distinguished only by the configured number of repetitions"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Interrupting timer boundary events terminate the attached activity when the timer fires and accept a time duration or time date. Non-interrupting timer boundary events fire without cancelling the activity and accept a time duration, time cycle, or time date."
+    },
+    "b": {
+      "text": "Incorrect. A non-interrupting variant would not cancel the review, so it cannot satisfy the 5-minute cancellation requirement; the cancel case requires the interrupting variant."
+    },
+    "c": {
+      "text": "Incorrect. An interrupting timer boundary event accepts a time duration or time date, not a time cycle, so a PT5M cycle on the interrupting boundary is not the documented configuration."
+    },
+    "d": {
+      "text": "Incorrect. A PT5M value is a duration rather than a date, and a single interrupting variant cannot satisfy the non-cancelling notify requirement regardless of the repetition count."
+    }
+  },
+  "explanation": "Interrupting timer boundary events must use a time duration or time date and they terminate the activity when fired. Non-interrupting timer boundary events accept time duration, time cycle, or time date and leave the activity in place.",
+  "docs": [
+    {
+      "title": "BPMN timer events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ]
+}

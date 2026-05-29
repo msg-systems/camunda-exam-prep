@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-82",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "A logistics platform processes 1200 shipments per day through a process that contains a message event subprocess whose start event listens for the message shipment-cancelled. The team is migrating 320 instances to version 12 of the process and needs to keep the same message name in flight so existing message correlations still reach the migrated instances after the migration completes.",
+  "question": "Which behavior occurs when the source message event subprocess start event is mapped to the target start event during a migration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The associated message subscription is migrated to the target start event, preserving the message name and any in-flight correlation for the running process instance"
+    },
+    {
+      "id": "b",
+      "text": "The message subscription is duplicated, opening a second active subscription on the target start event so the same message can correlate twice into the migrated process instance"
+    },
+    {
+      "id": "c",
+      "text": "The message subscription is converted into a signal subscription that broadcasts to every running instance of the target process definition rather than correlating by name"
+    },
+    {
+      "id": "d",
+      "text": "The message subscription is paused until the next deployment refresh, after which it is reopened with the original message name and any buffered messages are delivered"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Mapping a catch event during migration migrates the associated subscription. For a message event subprocess start event, that preserves the message name and any in-flight correlation, which is the documented way to keep the same message name across the migration."
+    },
+    "b": {
+      "text": "Incorrect. Migrating a catch event subscription rebinds the existing subscription to the target; it does not create a second active subscription on the target. Only one subscription is associated with the migrated catch event."
+    },
+    "c": {
+      "text": "Incorrect. Catch event subscriptions do not change type during migration. A message subscription stays a message subscription and continues to be correlated by message name and correlation key on the target."
+    },
+    "d": {
+      "text": "Incorrect. There is no pause-and-replay phase during migration. Subscriptions are migrated, removed, or added in the same transactional migration command, not buffered between deployment refreshes."
+    }
+  },
+  "explanation": "Mapping a message event subprocess start event during migration migrates the associated message subscription to the target start event. This is the documented mechanism for keeping the same message name available to in-flight instances after the migration.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

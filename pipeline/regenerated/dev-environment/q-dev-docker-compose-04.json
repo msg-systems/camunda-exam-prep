@@ -1,0 +1,50 @@
+{
+  "id": "dev-docker-compose-04",
+  "topic": "dev-environment",
+  "subtopic": "Desktop Modeler OAuth to full configuration",
+  "difficulty": "hard",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Bank runs the full Docker Compose configuration to evaluate Camunda 8.8 over 14 days. A developer opens Desktop Modeler to deploy a payments BPMN diagram to http://localhost:8088/v2 and selects OAuth as the authentication method against the local Keycloak realm. The team has already processed 400 requests through the local Orchestration Cluster, but the deploy attempt fails until the OAuth client values are entered exactly as documented.",
+  "question": "Which client ID and audience must be configured when Desktop Modeler connects to the full Docker Compose configuration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set the client ID to camunda-identity with audience identity-api, and reuse the demo/demo credentials for the OAuth token endpoint"
+    },
+    {
+      "id": "b",
+      "text": "Set the client ID to zeebe-client with audience zeebe-api, matching the Zeebe Gateway client name used in earlier Camunda 8 releases"
+    },
+    {
+      "id": "c",
+      "text": "Set the client ID to orchestration with audience orchestration-api, using the secret value from the .env file under ORCHESTRATION_CLIENT_SECRET"
+    },
+    {
+      "id": "d",
+      "text": "Set the client ID to management-identity with audience management-api, pointing to the Keycloak token endpoint on port 18080"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The docs specify the client ID orchestration, not camunda-identity, and demo/demo are user credentials for the web UIs, not the OAuth client credentials used by Desktop Modeler against Keycloak."
+    },
+    "b": {
+      "text": "Incorrect. zeebe-client and zeebe-api reflect older Camunda 8 naming; the Docker Compose docs for 8.8 require client ID orchestration with audience orchestration-api against the local Keycloak realm."
+    },
+    "c": {
+      "text": "Correct. The Docker Compose full configuration guide instructs developers to use client ID orchestration, audience orchestration-api, and the client secret value read from the .env file's ORCHESTRATION_CLIENT_SECRET entry."
+    },
+    "d": {
+      "text": "Incorrect. management-identity and management-api are not the values the docs prescribe; Desktop Modeler must use the orchestration client and the orchestration-api audience to deploy through the Orchestration Cluster."
+    }
+  },
+  "explanation": "When connecting Desktop Modeler to the full Docker Compose configuration, select OAuth and set Cluster endpoint to http://localhost:8088/v2, client ID to orchestration, audience to orchestration-api, and read the client secret from the .env file's ORCHESTRATION_CLIENT_SECRET.",
+  "docs": [
+    {
+      "title": "Developer quickstart with Docker Compose",
+      "url": "https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/docker-compose/"
+    }
+  ]
+}

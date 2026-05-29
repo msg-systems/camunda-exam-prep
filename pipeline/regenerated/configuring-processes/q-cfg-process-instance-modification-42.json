@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-42",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Insurance models a loan adjudication flow for its lending arm and runs 2500 claims per day in Camunda 8.8. An operations engineer is preparing a runbook for process instance modification and needs to know which element types the engine refuses to activate, so the team avoids submitting commands that the engine would reject at apply time.",
+  "question": "Which element type is rejected by the engine when used as the activating element in a modification command?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A user task element placed in the top-level process scope that is not currently active in the instance"
+    },
+    {
+      "id": "b",
+      "text": "A service task element placed in the top-level process scope that is not currently active in the instance"
+    },
+    {
+      "id": "c",
+      "text": "A boundary event attached to a service task element in the top-level process scope of the instance"
+    },
+    {
+      "id": "d",
+      "text": "An intermediate timer catch event placed in the top-level process scope of the running instance"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. A user task in the top-level scope is a regular activity and can be targeted by activation instructions; the documented limitations do not call out plain user tasks as forbidden activation targets."
+    },
+    "b": {
+      "text": "Incorrect. A service task in the top-level scope is a regular activity and can be activated by a modification command; the documented limitations do not list plain service tasks as forbidden activation targets."
+    },
+    "c": {
+      "text": "Correct. The documented limitations explicitly list boundary events among the element types the engine rejects as activating elements, alongside process and subprocess start events, events of an event-based gateway, multi-instance children, and sequence flows."
+    },
+    "d": {
+      "text": "Incorrect. A regular intermediate timer catch event in the main flow is a plain catch event and is not in the rejection list; only events that belong to an event-based gateway are called out as forbidden activation targets."
+    }
+  },
+  "explanation": "Process instance modification refuses certain activating elements: process or subprocess start events, boundary events, events that belong to an event-based gateway, elements inside a multi-instance subprocess, and sequence flows. Regular activities and standalone catch events remain valid targets.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

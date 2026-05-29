@@ -1,0 +1,50 @@
+{
+  "id": "cfg-variables-12",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helio Bank stores a precise monetary balance with up to 28 significant decimal digits in a Camunda 8.8 reconciliation process running 6,000 transactions daily. The architect plans to store this balance directly as a process variable of type number and asks whether the engine will preserve the full precision in payload.",
+  "question": "What does the Camunda 8.8 variables documentation say about storing a 28-digit precise decimal directly as a number variable?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Non-integer numbers are stored as IEEE 754 doubles with roughly 15 to 17 significant decimal digits, so a 28-digit precise decimal should be kept as a string or in an external data store."
+    },
+    {
+      "id": "b",
+      "text": "Non-integer numbers are stored as arbitrary-precision BigDecimal values inside the engine, so a 28-digit precise decimal is preserved exactly without any further configuration in the model."
+    },
+    {
+      "id": "c",
+      "text": "Non-integer numbers are stored as 128-bit decimals after Camunda 8.8, which is sufficient to keep about 34 significant digits and therefore the 28-digit decimal stays exact in payload."
+    },
+    {
+      "id": "d",
+      "text": "Non-integer numbers must be wrapped in a BPMN extension element to enable the engine's arbitrary-precision mode, after which the 28-digit decimal can be stored as a number variable."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs state non-integer numbers are stored as IEEE 754 doubles with roughly 15-17 significant decimal digits and recommend strings or an external store for arbitrary-precision values."
+    },
+    "b": {
+      "text": "Incorrect. The engine does not store non-integer numbers as BigDecimal; the documented precision is limited by the IEEE 754 double representation rather than arbitrary precision."
+    },
+    "c": {
+      "text": "Incorrect. There is no documented 128-bit decimal mode in Camunda 8.8 variables; non-integer numbers remain IEEE 754 doubles with the limited significant-digit range stated in the docs."
+    },
+    "d": {
+      "text": "Incorrect. The docs describe no BPMN extension element that switches the engine to arbitrary-precision number storage for variables; the IEEE 754 double representation always applies."
+    }
+  },
+  "explanation": "Number variables follow the JSON model: integers fit a 64-bit range, while non-integers use IEEE 754 doubles with about 15-17 significant decimal digits. For higher precision, the docs recommend storing values as strings or moving them to an external data store entirely.",
+  "docs": [
+    {
+      "title": "Variables",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ]
+}

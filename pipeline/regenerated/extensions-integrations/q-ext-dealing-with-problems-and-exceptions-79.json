@@ -1,0 +1,50 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-79",
+  "topic": "extensions-integrations",
+  "subtopic": "business-transactions",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Tessera Insurance integrates a Camunda 8.8 onboarding process with a CRM system and a billing system for 7000 customers per day. The team wants 'all or nothing' semantics across both downstream systems and asks which Camunda 8.8 best-practice construct represents that consistency boundary in the process model.",
+  "question": "Which Camunda 8.8 best-practice construct provides 'all or nothing' semantics across the CRM and billing services in this onboarding process?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A single technical ACID transaction spans the workflow engine, the CRM database, and the billing database so the three commit together at the gateway after both service tasks complete in the process instance"
+    },
+    {
+      "id": "b",
+      "text": "The workflow engine elevates its own local transaction to a two-phase commit coordinator at runtime so the CRM system and the billing system join one global ACID transaction across the cluster for every onboarding"
+    },
+    {
+      "id": "c",
+      "text": "The CRM system and the billing system share one local ACID transaction managed by the workflow engine and intermediate inconsistent states between them cannot occur during the onboarding orchestration at runtime"
+    },
+    {
+      "id": "d",
+      "text": "A business transaction marks a section of the process for which 'all or nothing' semantics apply from a business perspective, even though intermediate inconsistent states between CRM and billing may be observed during execution"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. ACID transactions cannot be applied across distributed systems; the CRM, the billing system, and the workflow engine each run their own local transactions and there is no joined technical transaction across them."
+    },
+    "b": {
+      "text": "Incorrect. The workflow engine does not act as a global two-phase commit coordinator; the guide states there cannot be a joined technical transaction across the engine, the CRM, and the billing system."
+    },
+    "c": {
+      "text": "Incorrect. The CRM and the billing system run separate ACID transactions; intermediate inconsistent states (such as a new customer being present in CRM but not yet in billing) can and do occur in between steps."
+    },
+    "d": {
+      "text": "Correct. A business transaction marks a section of the process for which 'all or nothing' semantics apply from a business perspective; intermediate inconsistent states between distributed systems may still be observed in between the participating steps."
+    }
+  },
+  "explanation": "Camunda 8.8 cannot stretch a technical ACID transaction across distributed services; the engine, CRM, and billing each commit their own local transactions. The best-practice answer is a business transaction: a process section with 'all or nothing' semantics at the business level, accepting intermediate inconsistencies in between steps.",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

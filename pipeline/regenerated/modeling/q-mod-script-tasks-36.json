@@ -1,0 +1,50 @@
+{
+  "id": "mod-script-tasks-36",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Lumen Fintech evaluates 10000 calls per day against risk-scoring FEEL expressions inside Camunda 8.8 script tasks. The operations team needs the runtime behavior when a FEEL evaluation fails so they can monitor and resolve the right signal.",
+  "question": "What happens when a FEEL expression on a script task fails to evaluate successfully?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An incident is raised at the parent scope, and once the incident is resolved the process continues at the next activity placed after the failing script task element"
+    },
+    {
+      "id": "b",
+      "text": "An incident is raised at the script task, and once the incident is resolved the FEEL expression is evaluated again at the same script task before the flow continues"
+    },
+    {
+      "id": "c",
+      "text": "The job is failed with a backoff retry until the configured retry count reaches zero, then the engine completes the script task with a null result and moves the flow forward"
+    },
+    {
+      "id": "d",
+      "text": "The script task is silently skipped and the configured resultVariable is written with a null value so downstream gateways treat the missing path as default at runtime"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The documented incident is raised at the script task itself rather than at the parent scope, and the engine retries the expression at the same script task on resolution."
+    },
+    "b": {
+      "text": "Correct. The documentation states that if the FEEL expression evaluation is unsuccessful, an incident is raised at the script task, and when the incident is resolved the script task is evaluated again."
+    },
+    "c": {
+      "text": "Incorrect. The FEEL-based script task does not run a job worker with retries; it evaluates the FEEL expression inline, and a failure produces a documented incident rather than retry decrement."
+    },
+    "d": {
+      "text": "Incorrect. A failed FEEL evaluation does not silently skip the script task or write a null result; the engine raises an incident that must be resolved before the process can continue."
+    }
+  },
+  "explanation": "A failed FEEL evaluation at a script task raises an incident on that script task, and when the incident is resolved the FEEL expression is re-evaluated against the current scope.",
+  "docs": [
+    {
+      "title": "BPMN script tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/script-tasks/"
+    }
+  ]
+}

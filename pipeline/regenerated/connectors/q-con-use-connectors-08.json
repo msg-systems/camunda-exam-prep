@@ -1,0 +1,50 @@
+{
+  "id": "con-use-connectors-08",
+  "topic": "connectors",
+  "subtopic": "use-connectors",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Energy, a utility serving 90,000 customers across the region, calls a tariff REST API from a Camunda 8.8 outbound connector. On a transient failure the team wants the connector job to fail with the message 'tariff API down', retry 2 more times with a 30-second backoff between attempts, and they do not need to attach any extra variables to the failure context.",
+  "question": "Which jobError() call produces a job that retries twice with a 30-second backoff and no extra variables?",
+  "options": [
+    {
+      "id": "a",
+      "text": "jobError(\"tariff API down\", {}, 2, @\"PT30S\"), explicitly passing an empty variables context so the retries and retryBackoff positional parameters can be set"
+    },
+    {
+      "id": "b",
+      "text": "jobError(\"tariff API down\", 2, @\"PT30S\"), skipping the variables parameter and passing only the retries count and the retryBackoff positional arguments"
+    },
+    {
+      "id": "c",
+      "text": "jobError(\"tariff API down\", retries=2, retryBackoff=@\"PT30S\"), using named parameter syntax so the variables default of {} is kept implicitly in the call"
+    },
+    {
+      "id": "d",
+      "text": "jobError(\"tariff API down\", @\"PT30S\", 2), passing the retry backoff duration first and the retries count second to override the documented defaults"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. jobError() accepts positional parameters in the order errorMessage, variables, retries, retryBackoff; optional parameters can only be omitted if no later parameter is supplied, so to set retries=2 and retryBackoff=PT30S the empty variables context {} must be passed explicitly."
+    },
+    "b": {
+      "text": "Incorrect. With positional arguments, omitting variables makes the runtime interpret the number 2 as the variables parameter, which expects a context (not a number); the empty context must be passed explicitly to reach the retries slot."
+    },
+    "c": {
+      "text": "Incorrect. The documented jobError() signature uses positional parameters, not named parameters such as retries= or retryBackoff=; named-argument syntax is not part of this function's calling convention in the docs."
+    },
+    "d": {
+      "text": "Incorrect. The documented parameter order after errorMessage is variables, retries, retryBackoff; swapping retries and retryBackoff would treat the duration as the variables value and the number as the retries default, breaking the call shape."
+    }
+  },
+  "explanation": "jobError(errorMessage, variables, retries, retryBackoff) returns a context with errorType=\"jobError\", errorMessage, variables (default {}), retries (default 0), and retryBackoff (default PT0S). Optional parameters can be omitted only when no later parameter is provided, so to specify retries and retryBackoff you must also include an explicit variables context.",
+  "docs": [
+    {
+      "title": "How to use connectors",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ]
+}

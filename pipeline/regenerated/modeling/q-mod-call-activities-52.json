@@ -1,0 +1,50 @@
+{
+  "id": "mod-call-activities-52",
+  "topic": "modeling",
+  "subtopic": "call-activities",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Logistics deploys a parent shipping workflow and a child labelling process to Camunda 8.8 together. Every parent process instance that starts in this release must invoke exactly the labelling process version contained in the same deployment, even after 12 deployments add newer child versions to the same cluster.",
+  "question": "Which bindingType value on the called element pins the child invocation to the version included in the parent deployment?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Setting bindingType to deployment on the zeebe:calledElement of the call activity binds it to the child process version contained in the same parent deployment"
+    },
+    {
+      "id": "b",
+      "text": "Setting bindingType to latest on the zeebe:calledElement of the call activity binds it to whichever child process version is most recently deployed at runtime"
+    },
+    {
+      "id": "c",
+      "text": "Setting bindingType to versionTag without a versionTag attribute on the zeebe:calledElement binds the call activity to the matching parent versionTag at runtime"
+    },
+    {
+      "id": "d",
+      "text": "Omitting bindingType on the zeebe:calledElement of the call activity binds it to the child process version that lives in the same parent deployment package"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Additional resources XML shows bindingType=\"deployment\" on zeebe:calledElement, which ties the call activity to the child process version contained in the same deployment as the parent process definition."
+    },
+    "b": {
+      "text": "Incorrect. The latest binding tracks the most recently deployed child process at runtime rather than the version contained in the parent's own deployment, so a later deployment of the child would change which version runs."
+    },
+    "c": {
+      "text": "Incorrect. The versionTag binding requires both bindingType=\"versionTag\" and an explicit versionTag attribute on the called element; it does not implicitly track the parent process version."
+    },
+    "d": {
+      "text": "Incorrect. When bindingType is omitted on the zeebe:calledElement the binding defaults to latest, not deployment, so omitting the attribute does not lock the call to the parent deployment."
+    }
+  },
+  "explanation": "Pinning a call activity to the version in the parent's own deployment requires setting bindingType=\"deployment\" on the zeebe:calledElement. When bindingType is omitted the default is latest, and versionTag binding requires an explicit versionTag attribute.",
+  "docs": [
+    {
+      "title": "BPMN call activities",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/"
+    }
+  ]
+}

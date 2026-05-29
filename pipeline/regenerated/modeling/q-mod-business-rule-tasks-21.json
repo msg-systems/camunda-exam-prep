@@ -1,0 +1,50 @@
+{
+  "id": "mod-business-rule-tasks-21",
+  "topic": "modeling",
+  "subtopic": "business-rule-tasks",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Fintech processes 2500 transactions per day through a BPMN flow in Camunda 8.8. Instead of evaluating a DMN model, the team implements risk scoring inside an external Python service and wants the business rule task to behave like a service task so that the existing pool of job workers can pick up scoring jobs of type risk-score.",
+  "question": "Which extension element configures a business rule task in Camunda 8 to dispatch a job to a custom job worker instead of evaluating a DMN decision?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The zeebe:calledDecision extension element with a decisionId of risk-score dispatches the job to the registered Python job worker for scoring"
+    },
+    {
+      "id": "b",
+      "text": "The zeebe:taskHeaders extension element with a type attribute of risk-score dispatches the job to the registered Python job worker for scoring"
+    },
+    {
+      "id": "c",
+      "text": "The zeebe:taskDefinition extension element with a type attribute of risk-score dispatches the job to the registered Python job worker for scoring"
+    },
+    {
+      "id": "d",
+      "text": "The zeebe:calledElement extension element with a processId of risk-score dispatches the job to the registered Python job worker for scoring"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The zeebe:calledDecision extension element links the business rule task to a deployed DMN decision through decisionId and does not dispatch a job to an external job worker."
+    },
+    "b": {
+      "text": "Incorrect. Task headers pass static key-value parameters to the job once a job type has been defined. They do not declare the job type that workers subscribe to."
+    },
+    "c": {
+      "text": "Correct. The zeebe:taskDefinition extension element with a type attribute makes the business rule task behave like a service task and creates a job that workers can claim by that type."
+    },
+    "d": {
+      "text": "Incorrect. The zeebe:calledElement extension element belongs to call activities and references a child BPMN processId, not a job worker type for a business rule task."
+    }
+  },
+  "explanation": "A business rule task with a job worker implementation defines its job type through zeebe:taskDefinition. It then behaves like a service task and creates a job that any worker subscribed to the configured type can pick up.",
+  "docs": [
+    {
+      "title": "BPMN business rule tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-35",
+  "topic": "configuring-processes",
+  "subtopic": "modification",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "NovaPay, a payments provider on Camunda 8.8, has 1200 instances of a settlement process stuck on a message catch event B between service tasks A and C. The upstream merchant connector is offline for the next 4 hours and cannot publish the awaited message. The operations engineer wants to repair each instance with a single modification command so processing continues at task C.",
+  "question": "Which pair of modification instructions moves the token from the stuck catch event B to the next service task C?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Activate the catch event B again and activate the service task C so both elements run in parallel and the worker for C can pick up the new job at NovaPay"
+    },
+    {
+      "id": "b",
+      "text": "Terminate the service task C and activate the catch event B again so the engine retries the message subscription at NovaPay and resumes normal flow"
+    },
+    {
+      "id": "c",
+      "text": "Activate the catch event B and terminate the service task A so the original token returns to the previous step and continues forward at NovaPay"
+    },
+    {
+      "id": "d",
+      "text": "Terminate the instance of the catch event B and activate the service task C so the token moves forward and the worker for C picks up the new job"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Re-activating B leaves the stuck subscription in place and adds a parallel token at C; the documented repair terminates the catch event instance instead of running both in parallel."
+    },
+    "b": {
+      "text": "Incorrect. Task C is not active yet, so it cannot be terminated; the documented repair terminates the catch event B and activates the next task C."
+    },
+    "c": {
+      "text": "Incorrect. Task A is already completed and cannot be terminated as an active instance; the example terminates the stuck catch event B and activates the next task C."
+    },
+    "d": {
+      "text": "Correct. The example in the docs moves the token by terminating the instance of catch event B and activating the next element C, which lets a worker pick up the new job for C."
+    }
+  },
+  "explanation": "Process instance modification repairs a stuck instance with two instruction types: activate an element of the process and terminate an active instance of an element. The catch event example shows moving the token forward by terminating the catch event instance and activating the next task.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

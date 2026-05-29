@@ -1,0 +1,50 @@
+{
+  "id": "frm-utilizing-forms-14",
+  "topic": "forms",
+  "subtopic": "utilizing-forms - deploy",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helix Telco, a telco operator, runs 5500 instances per week of a service activation diagram on a Camunda 8.3 cluster and links a Camunda 8.8 Forms user task form to the human approval step. The team expects the deployment to keep working for the next 6 months without forcing a cluster upgrade, and they want to know what happens to the linked form when they click Deploy from Web Modeler against the older cluster.",
+  "question": "What happens to a form linked to a user task when the diagram is deployed to a Camunda cluster with a version lower than 8.4?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The form is rejected by the deployment endpoint because pre-8.4 clusters cannot read the linked form resource so the diagram fails to deploy"
+    },
+    {
+      "id": "b",
+      "text": "The form is uploaded as a separate resource and the user task fetches it from the Tasklist API the first time that task is claimed by the operator"
+    },
+    {
+      "id": "c",
+      "text": "The form is converted into a Camunda 7 form definition and stored alongside the diagram so the older runtime can render the user task to operators"
+    },
+    {
+      "id": "d",
+      "text": "The form is automatically embedded into the user task by the deployment so the older cluster keeps backwards compatibility for that form at runtime"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Deployment to a pre-8.4 cluster is not rejected for linked forms. The runtime handles the version gap by automatically embedding the form into the user task to keep backwards compatibility."
+    },
+    "b": {
+      "text": "Incorrect. The Tasklist API does not perform a separate fetch for linked forms on pre-8.4 clusters. The form is embedded into the user task at deployment time instead."
+    },
+    "c": {
+      "text": "Incorrect. There is no automatic conversion to a Camunda 7 form definition. The Camunda 8 form is embedded into the user task to keep the older cluster compatible."
+    },
+    "d": {
+      "text": "Correct. When the target cluster is older than 8.4, forms linked to user tasks or none start events are automatically embedded into the user task during deployment so the older runtime can still resolve and render them, preserving backwards compatibility."
+    }
+  },
+  "explanation": "Linked forms are normally deployed alongside the diagram and resolved to their latest version at runtime. When the target cluster version is lower than 8.4, the deployment automatically embeds forms linked to user tasks or none start events into the user task itself to guarantee backwards compatibility with the older runtime.",
+  "docs": [
+    {
+      "title": "Utilizing forms - deploy and start",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/utilizing-forms/"
+    }
+  ]
+}

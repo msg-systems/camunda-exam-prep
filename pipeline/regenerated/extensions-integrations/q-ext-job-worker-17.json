@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-17",
+  "topic": "extensions-integrations",
+  "subtopic": "java-job-worker",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Zenith Bank monitors a Camunda 8.8 Java job worker that processes 8400 transactions per day. The platform team has the built in JobWorkerMetrics counters wired into Prometheus and wants to derive the live count of jobs that have been activated by the worker but have not yet been handled by the JobHandler.",
+  "question": "How can Zenith Bank derive the count of buffered jobs inside its Camunda 8.8 Java worker from the built in JobWorkerMetrics counters?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Read the gauge exposed by the Zeebe gateway named zeebe.client.jobs.buffered that the broker increments for every activate jobs response sent to a connected Java client worker registered at Zenith Bank"
+    },
+    {
+      "id": "b",
+      "text": "Read the unhandledJobs counter exposed automatically by the JobHandler interface that the Java client increments before invoking the handler and decrements upon return from JobHandler#handle at Zenith Bank"
+    },
+    {
+      "id": "c",
+      "text": "Subtract the count of jobs handled from the count of jobs activated reported by JobWorkerMetrics so the Zenith Bank platform team derives the count of queued or buffered jobs not yet handled by the worker"
+    },
+    {
+      "id": "d",
+      "text": "Subtract the configured pollInterval from the latest backoff delay reported by the BackoffSupplier so the Zenith Bank team estimates the buffered job count from the timing of the next scheduled poll"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. There is no zeebe.client.jobs.buffered gauge exposed by the gateway; the built in metrics are the activated and handled counters on JobWorkerMetrics on the client side."
+    },
+    "b": {
+      "text": "Incorrect. JobHandler does not expose an unhandledJobs counter; the documented approach is to derive buffered jobs by subtracting handled from activated counts reported by JobWorkerMetrics."
+    },
+    "c": {
+      "text": "Correct. JobWorkerMetrics exposes the count of jobs activated and the count of jobs handled; subtracting handled from activated yields the count of queued or buffered jobs that the worker has not yet handled."
+    },
+    "d": {
+      "text": "Incorrect. The BackoffSupplier delay relates to retry timing after failed polls and has no relationship to the count of buffered jobs inside the worker."
+    }
+  },
+  "explanation": "JobWorkerMetrics in the Camunda 8.8 Java client tracks two counters, jobs activated and jobs handled. Subtracting handled from activated gives the count of queued or buffered jobs that the worker has yet to hand to its JobHandler.",
+  "docs": [
+    {
+      "title": "Java client job worker",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

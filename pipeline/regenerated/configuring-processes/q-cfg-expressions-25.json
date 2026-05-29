@@ -1,0 +1,50 @@
+{
+  "id": "cfg-expressions-25",
+  "topic": "configuring-processes",
+  "subtopic": "expressions",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Kestrel Logistics runs Camunda 8.8 over 12000 shipments per day and observed a long-running FEEL expression evaluated against a very large input list inside an exclusive gateway condition. The platform team wants to confirm the default FEEL evaluation timeout and what the engine does when an expression exceeds that timeout on a process instance.",
+  "question": "What is the default FEEL evaluation timeout and what does the engine do when an expression exceeds it?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Expression evaluation times out after 60 seconds by default; on timeout the engine returns null from the expression and continues the instance along the default sequence flow without raising any incident or interrupting the activation"
+    },
+    {
+      "id": "b",
+      "text": "Expression evaluation times out after 30 seconds by default; on timeout the engine retries the evaluation up to 3 attempts and only then raises an incident on the activated job for the affected element"
+    },
+    {
+      "id": "c",
+      "text": "Expression evaluation never times out; long-running FEEL expressions block the partition thread until completion and the engine relies on broker watchdog monitoring to terminate processing if needed"
+    },
+    {
+      "id": "d",
+      "text": "Expression evaluation times out after 5 seconds by default; on timeout the evaluation is interrupted and the engine raises an incident for the affected process instance"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The documented default is 5 seconds rather than 60 seconds, and on timeout the engine raises an incident for the affected process instance rather than returning null and continuing along a default sequence flow."
+    },
+    "b": {
+      "text": "Incorrect. The documented default is 5 seconds rather than 30 seconds, and the expressions page does not describe any automatic retry of FEEL evaluation on timeout; it raises an incident on the affected instance."
+    },
+    "c": {
+      "text": "Incorrect. The expressions page states that expression evaluation does time out, and gives a default of 5 seconds; long-running FEEL expressions do not run unbounded, and an incident is raised on the affected process instance when the timeout is exceeded."
+    },
+    "d": {
+      "text": "Correct. The expressions concept page states that expression evaluation times out after five seconds by default, that the timeout is configurable, and that an expression which exceeds the timeout has its evaluation interrupted and triggers an incident on the affected process instance."
+    }
+  },
+  "explanation": "Evaluation timeouts prevent long-running FEEL expressions from blocking processing. The default timeout is five seconds and is configurable. When an expression exceeds the timeout, evaluation is interrupted and an incident is raised for the affected process instance.",
+  "docs": [
+    {
+      "title": "Expressions",
+      "url": "https://docs.camunda.io/docs/components/concepts/expressions/"
+    }
+  ]
+}

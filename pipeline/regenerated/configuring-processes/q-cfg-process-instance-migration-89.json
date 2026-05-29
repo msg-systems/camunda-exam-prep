@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-89",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "An airline updates a process that contains a joining parallel gateway named gateway1 with one taken incoming sequence flow named flow1, by inserting a new element C before the gateway. That creates a new target gateway named gateway2 and a new target sequence flow named flow2. Roughly 350 instances are waiting at gateway1 with flow1 already taken and element B still active in a user task.",
+  "question": "Which set of mapping instructions correctly migrates the waiting instances to the updated target process definition?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Map active element B to target B, map gateway1 to gateway2, and map the taken sequence flow flow1 to target sequence flow flow2 so the joining gateway state is preserved on the target"
+    },
+    {
+      "id": "b",
+      "text": "Map only active element B to target B and let the engine auto-infer gateway and sequence flow mappings using the BPMN element names that appear in both definitions during migration"
+    },
+    {
+      "id": "c",
+      "text": "Map gateway1 to gateway2 only and rely on the variable scope of the joining gateway to carry both the active element B and the taken sequence flow forward to the target definition"
+    },
+    {
+      "id": "d",
+      "text": "Map active element B to target B and map gateway1 to gateway2; the taken sequence flow does not need a mapping because the gateway state already carries the taken-flow record forward"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Migrating a waiting joining parallel gateway requires mappings for the active element, the joining gateway itself, and each taken incoming sequence flow. All three instructions together let the engine reconstruct the joining state on the target gateway."
+    },
+    "b": {
+      "text": "Incorrect. The engine does not auto-infer gateway or sequence flow mappings from element names. Every active element must be mapped explicitly, and joining gateways with taken flows additionally need explicit mappings for the gateway and the taken flow."
+    },
+    "c": {
+      "text": "Incorrect. A joining gateway has no variable scope that carries the active element forward, and the active element must be mapped on its own. Mapping the gateway alone leaves the active user task and the taken sequence flow unmapped."
+    },
+    "d": {
+      "text": "Incorrect. The taken incoming sequence flow must be mapped explicitly because the joining gateway needs to know which target flow each already-taken source flow corresponds to. Without that mapping the migration plan would be rejected."
+    }
+  },
+  "explanation": "Migrating a joining parallel gateway that has already collected taken sequence flows requires mapping the active element, the joining gateway, and each previously taken incoming sequence flow. The target gateway must also have at least as many incoming sequence flows as the source.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

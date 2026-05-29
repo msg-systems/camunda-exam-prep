@@ -1,0 +1,50 @@
+{
+  "id": "mod-business-rule-tasks-18",
+  "topic": "modeling",
+  "subtopic": "business-rule-tasks",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Insurance runs a Camunda 8.8 underwriting process that evaluates 8000 policies per day with a deployed DMN decision named riskScore on a business rule task. Operations is rehearsing how the engine behaves when riskScore evaluation fails because of a missing input variable and needs to plan their incident response runbook.",
+  "question": "What happens at the business rule task in Camunda 8.8 when the DMN decision evaluation is unsuccessful?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The process instance terminates and the business rule task is removed from the active instances list permanently for that run"
+    },
+    {
+      "id": "b",
+      "text": "The business rule task completes with an empty result variable and the process instance moves to the next sequence flow as normal"
+    },
+    {
+      "id": "c",
+      "text": "The business rule task is skipped and a default outgoing sequence flow is taken so the process instance can continue without manual action"
+    },
+    {
+      "id": "d",
+      "text": "An incident is raised at the business rule task and the decision is evaluated again once the incident has been resolved by an operator"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The business rule task documentation states an incident is raised on a failed DMN evaluation; the process instance is not terminated and remains at the business rule task."
+    },
+    "b": {
+      "text": "Incorrect. The business rule task does not complete on a failed DMN evaluation; the engine raises an incident at the task instead of moving the token onward."
+    },
+    "c": {
+      "text": "Incorrect. There is no default-flow fallback for a failed DMN evaluation on a business rule task; the engine raises an incident at the task instead of taking a default outgoing flow."
+    },
+    "d": {
+      "text": "Correct. The Camunda 8.8 business rule task documentation states that if the decision evaluation is unsuccessful, an incident is raised at the business rule task, and once the incident is resolved the decision is evaluated again."
+    }
+  },
+  "explanation": "When a Camunda 8.8 business rule task evaluates a deployed DMN decision unsuccessfully, the engine raises an incident at that task. The process instance waits at the business rule task until the incident is resolved, after which the decision is evaluated again.",
+  "docs": [
+    {
+      "title": "BPMN business rule task",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ]
+}

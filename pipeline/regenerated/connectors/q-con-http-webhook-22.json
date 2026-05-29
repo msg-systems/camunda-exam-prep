@@ -1,0 +1,50 @@
+{
+  "id": "con-http-webhook-22",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Logistics, a carrier processing 35000 shipments per day on Camunda 8.8, attaches an HTTP Webhook intermediate catch event to its dispatch process. The integration team must correlate inbound partner messages to the right process instance using a process variable orderId, while the partner sends a JSON body like {\"orderId\": \"123\"} and they want each message buffered for 1 hour if it arrives before the process is ready to consume it.",
+  "question": "Which correlation configuration does the HTTP Webhook connector documentation prescribe for this intermediate catch event?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Correlation key (process) set to =request.body.orderId and Correlation key (payload) set to =orderId, with Message TTL configured as 60 (a plain integer in minutes) since the connector parses durations as minutes"
+    },
+    {
+      "id": "b",
+      "text": "Correlation key (process) set to =request.headers.orderId and Correlation key (payload) left blank, with Message ID expression set to =orderId so deduplication and correlation share a single source of truth"
+    },
+    {
+      "id": "c",
+      "text": "Correlation key (process) set to =orderId and Correlation key (payload) set to =request.body.orderId, with Message TTL set to PT1H as an ISO 8601 duration so each message is buffered in Zeebe for 1 hour"
+    },
+    {
+      "id": "d",
+      "text": "Correlation key (process) and Correlation key (payload) set to the same FEEL expression =orderId on both sides so the connector evaluates both expressions against the request body for symmetric correlation across the catch event"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The process side reads from process variables (=orderId), not from the request body, and Message TTL is an ISO 8601 duration like PT1H, not a plain integer count of minutes."
+    },
+    "b": {
+      "text": "Incorrect. The payload correlation key is required to extract the value from the incoming message and is not left blank; Message ID expression is for deduplication only, not for the correlation key itself."
+    },
+    "c": {
+      "text": "Correct. The HTTP Webhook docs specify Correlation key (process) as a FEEL expression on process variables (=orderId) and Correlation key (payload) as a FEEL expression extracting the value from the incoming message (=request.body.orderId). Message TTL is set as an ISO 8601 duration such as PT1H to buffer messages for one hour in Zeebe."
+    },
+    "d": {
+      "text": "Incorrect. The two correlation keys evaluate against different sources: the process key uses process variables and the payload key uses the incoming request; they are not symmetric copies of the same expression."
+    }
+  },
+  "explanation": "The HTTP Webhook Correlation section requires two FEEL expressions: Correlation key (process) defines the subscription correlation key against process variables, while Correlation key (payload) extracts the value from the incoming message. Message TTL accepts ISO 8601 durations such as PT1H to buffer messages in Zeebe before correlation.",
+  "docs": [
+    {
+      "title": "HTTP Webhook connector - Correlation",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ]
+}

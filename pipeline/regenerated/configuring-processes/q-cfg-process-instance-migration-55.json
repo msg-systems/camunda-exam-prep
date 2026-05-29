@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-55",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Retailer runs 10000 orders per day on Camunda 8.8. A redesigned process adds a compensation boundary event to service task A. Some active instances are still waiting on service task A and others have already completed A before the migration. The platform team needs to understand when the new compensation subscription is opened for the in-flight instances after a mapping of A to A.",
+  "question": "When is the new compensation subscription opened for instances of service task A after migration with mapping A to A?",
+  "options": [
+    {
+      "id": "a",
+      "text": "On migration commit for both finished and active instances of service task A so a future compensation throw event can reach the task in all cases"
+    },
+    {
+      "id": "b",
+      "text": "On completion of the next process instance only and never for the currently active instance because the subscription requires a fresh activation of the task"
+    },
+    {
+      "id": "c",
+      "text": "On migration commit for finished instances of service task A only because the compensation engine requires a completed activity to anchor the subscription"
+    },
+    {
+      "id": "d",
+      "text": "On completion of the active instance of service task A because the subscription is only opened when completing a task that has a compensation boundary event"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The documentation states that for activity instances that have already finished before migration, no new compensation subscription is opened, so a future throw event cannot compensate them."
+    },
+    "b": {
+      "text": "Incorrect. Currently active instances do receive the new compensation subscription when they complete; the subscription is not limited to fresh activations after migration."
+    },
+    "c": {
+      "text": "Incorrect. The opposite is documented: no new compensation subscription is opened for activity instances that have already finished at the time of migration."
+    },
+    "d": {
+      "text": "Correct. The documentation states that adding a compensation boundary event opens a new compensation subscription only for currently active or not yet started instances, and the subscription is created on completion of the task with the compensation boundary event."
+    }
+  },
+  "explanation": "Adding a compensation boundary event during migration only opens a new compensation subscription for activity instances that are active or have not yet started, and the subscription is created on completion of the task. Already finished instances cannot be compensated later.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

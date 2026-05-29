@@ -1,0 +1,50 @@
+{
+  "id": "ext-handling-data-in-processes-83",
+  "topic": "extensions-integrations",
+  "subtopic": "handling-data-in-processes",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "HelixHealth is a healthcare provider running a patient referral process on Camunda 8.8 that handles 7200 referrals per day. The Java development team wants to remove copy pasted process variable name strings from across 14 microservices, and also needs type safe reads of variables inside its job workers with optional custom serialization.",
+  "question": "Which Camunda 8.8 pattern centralizes process variable names and adds type safe deserialization inside a Java job worker?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Define a single global enum shared across every process definition and rely on the Zeebe broker to enforce variable type checks on every activate jobs request issued by HelixHealth Java workers"
+    },
+    {
+      "id": "b",
+      "text": "Define string constants in a Java interface per process definition and use a Process Data Accessor object that the Java client deserializes from process variables JSON for type safe variable reads"
+    },
+    {
+      "id": "c",
+      "text": "Define worker properties in a Spring configuration file and let the Camunda 8 broker inject typed variable holders into every JobHandler invocation at HelixHealth by matching variable names"
+    },
+    {
+      "id": "d",
+      "text": "Define BPMN level data objects in the modeler and let the Java client automatically generate Process Data Accessor classes from each deployed process definition at HelixHealth startup time"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The best practice recommends an interface of string constants per process definition for variable names; there is no global enum that Zeebe enforces type checks against on activate jobs requests."
+    },
+    "b": {
+      "text": "Correct. The handling data page recommends collecting variable names as constants in a per process Java interface and using a Process Data Accessor class; the Java client deserializes the process variables JSON into that object for type safe access."
+    },
+    "c": {
+      "text": "Incorrect. The broker does not inject typed variable holders into JobHandler invocations based on Spring configuration; type safe access is achieved by the client deserializing variables into a Process Data Accessor."
+    },
+    "d": {
+      "text": "Incorrect. Data Accessor classes are written by the developer as plain Java objects; the Java client does not auto generate them from BPMN data objects at deployment or at startup."
+    }
+  },
+  "explanation": "Camunda 8.8 recommends collecting process variable names as string constants in a Java interface per process and using a Process Data Accessor object. The Java client deserializes process variables JSON into that object, giving type safe access while ignoring unknown variables.",
+  "docs": [
+    {
+      "title": "Handling data in processes",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/handling-data-in-processes/"
+    }
+  ]
+}

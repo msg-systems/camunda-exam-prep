@@ -1,0 +1,50 @@
+{
+  "id": "ext-writing-good-workers-144",
+  "topic": "extensions-integrations",
+  "subtopic": "workers",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Onyx Bank tunes a Camunda 8.8 job worker that runs across 5 service tasks where each process instance carries about 30 process variables of varying size. The performance lead wants the worker to use the FetchVariables parameter consistently to reduce broker and network load.",
+  "question": "How does the Camunda 8.8 best practice describe the FetchVariables parameter for job activation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use FetchVariables to declare only the variables your job handler needs; by default the activated job carries all variables visible within the scope, which keeps transferred data minimal and helps performance"
+    },
+    {
+      "id": "b",
+      "text": "Use FetchVariables to declare which variables Zeebe should drop from the process scope before activation; by default the activated job carries no variables and must reload them from the broker explicitly"
+    },
+    {
+      "id": "c",
+      "text": "Use FetchVariables to mark variables that may be cached locally in the worker; by default the activated job carries only the bpmnProcessId and the task type and any variable read still requires a separate REST round trip"
+    },
+    {
+      "id": "d",
+      "text": "Use FetchVariables to encrypt sensitive variables in transit between the broker and the worker; by default the activated job carries the variable names but never the variable values until a fetch confirmation arrives"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Data minimization in workers section says by default, when the FetchVariables parameter is omitted, the job payload contains all variables visible within the scope, and recommends using FetchVariables to only fetch the variables the job handler needs to keep data transferred minimal."
+    },
+    "b": {
+      "text": "Incorrect. The default is all visible variables, not none, and FetchVariables narrows what is fetched rather than dropping variables from the process scope."
+    },
+    "c": {
+      "text": "Incorrect. FetchVariables controls which variables are included in the activation payload, not a local caching hint, and the default does include the visible variables."
+    },
+    "d": {
+      "text": "Incorrect. FetchVariables is about data minimization, not encryption, and it does not relate to a separate fetch confirmation step."
+    }
+  },
+  "explanation": "In Camunda 8.8 the FetchVariables parameter lets a worker fetch only the variables its handler needs; if omitted, the job activation payload includes all variables visible within the scope, which is heavier on bandwidth and broker resources.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-36",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client-job-worker",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Marketplace runs a Camunda 8.8 multi-tenant cluster with 12 tenants registered for its merchant onboarding domain. The platform team must open a Java worker that picks up jobs for three specific tenants and must accept that if authorisation is missing for any one of those tenants the worker stops picking up jobs entirely instead of just those tenants.",
+  "question": "How does a Camunda 8.8 Java job worker handle multi-tenancy when configured for several tenant ids on the builder?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The worker accepts a primary tenant id and falls back to a default tenant when authorisation is missing for the primary tenant, ensuring that at least the default tenant continues to be processed at runtime"
+    },
+    {
+      "id": "b",
+      "text": "The worker is configured with a single tenant id per call to .open(), and rotating tenants requires opening a separate worker per tenant; default tenants configured on the client are ignored entirely by every worker"
+    },
+    {
+      "id": "c",
+      "text": "The worker fans out jobs across the supplied tenants by round-robin polling and silently skips any tenant for which the client is not authorised while continuing to serve the authorised tenants from the supplied set"
+    },
+    {
+      "id": "d",
+      "text": "The worker is configured with one or more tenant ids on the builder (or inherits default tenants from the client) and refuses to pick up any jobs if the client is not authorised for every supplied tenant"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. There is no documented fallback to a default tenant on missing authorisation; the worker stops working on jobs entirely when the client is not authorised for every supplied tenant."
+    },
+    "b": {
+      "text": "Incorrect. The builder exposes both .tenantId(...) and .tenantIds(...) for multiple tenants, and default tenants configured via CAMUNDA_DEFAULT_JOB_WORKER_TENANT_IDS or camunda.client.worker.tenantIds apply to every worker the client opens."
+    },
+    "c": {
+      "text": "Incorrect. The Multi-tenancy section states that the client must be authorised for all supplied tenants; if it is not, the worker will not work on any jobs rather than only skipping the unauthorised tenants."
+    },
+    "d": {
+      "text": "Correct. The Multi-tenancy section says workers are configured with one or more tenant ids on the builder (or inherit default tenants from CAMUNDA_DEFAULT_JOB_WORKER_TENANT_IDS or camunda.client.worker.tenantIds), and that the worker will not work on any jobs unless the client is authorised for every configured tenant."
+    }
+  },
+  "explanation": "Multi-tenancy on the Java job worker is configured through .tenantId(...) or .tenantIds(...) on the worker builder, or through default tenants set on the client via the environment variable CAMUNDA_DEFAULT_JOB_WORKER_TENANT_IDS or the property camunda.client.worker.tenantIds. The client must be authorised for every configured tenant; otherwise the worker will not work on any jobs.",
+  "docs": [
+    {
+      "title": "Java client job worker multi-tenancy",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

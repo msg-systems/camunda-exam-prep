@@ -1,0 +1,50 @@
+{
+  "id": "ext-camunda8-sdk-64",
+  "topic": "extensions-integrations",
+  "subtopic": "typescript-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helix Healthcare orchestrates a triage workflow that creates 1200 instances per day on Camunda 8.8. A Node.js worker needs to continuously claim and complete CREATED user tasks via the Tasklist API client, polling once every 1000 milliseconds rather than running a one-shot search of the queue.",
+  "question": "Which configuration turns camunda.searchUserTasks into a continuous user task subscription in the Camunda 8.8 TypeScript SDK?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set the consistency option pollIntervalMs to zero so the SDK polls the Tasklist API as fast as the network allows without blocking the loop"
+    },
+    {
+      "id": "b",
+      "text": "Set the consistency option waitUpToMs to Infinity so the SDK keeps polling and treats the predicate function as a long-running subscription"
+    },
+    {
+      "id": "c",
+      "text": "Pass a webhookUrl alongside the filter so the Tasklist gateway pushes every newly created user task to the SDK over an HTTP callback channel"
+    },
+    {
+      "id": "d",
+      "text": "Set the option streaming to true on the search request so the gateway opens a server-sent events channel and pushes user tasks to the client"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Setting pollIntervalMs to zero is not the documented subscription switch; the SDK turns searchUserTasks into a subscription when waitUpToMs is set to Infinity."
+    },
+    "b": {
+      "text": "Correct. The user task poller comment states that setting waitUpToMs to Infinity converts the predicate into a polling subscription that continues to run until cancelled."
+    },
+    "c": {
+      "text": "Incorrect. The user task example uses polling via searchUserTasks; there is no webhookUrl option documented for Tasklist callbacks in the SDK example."
+    },
+    "d": {
+      "text": "Incorrect. The SDK example uses polling with the consistency options pollIntervalMs and waitUpToMs, not a server-sent events streaming flag on the search request."
+    }
+  },
+  "explanation": "The programmatic user task worker uses camunda.searchUserTasks with consistency.waitUpToMs set to Infinity and a predicate function that claims and completes each task; this configuration is what turns the search into a continuous subscription.",
+  "docs": [
+    {
+      "title": "Camunda 8 TypeScript SDK",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ]
+}

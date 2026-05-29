@@ -1,0 +1,50 @@
+{
+  "id": "dec-decision-table-hit-policy-14",
+  "topic": "decisions-business-rules",
+  "subtopic": "hit-policy",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Healthcare processes 4000 claims per day in a Camunda 8.8 triage workflow. The team chose the ANY hit policy on the triage DMN table because two rules can match the same patient. A late change introduces a second rule whose output differs from the first satisfied rule's output for one specific patient cohort of 250 patients per week, and operations wants to know what the engine will return on those evaluations.",
+  "question": "What happens at runtime when the ANY hit policy sees two satisfied rules whose output entries are not identical to each other?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The decision result returns the output entries of the first satisfied rule in document order with no engine error reported"
+    },
+    {
+      "id": "b",
+      "text": "The decision result is treated as a hit-policy violation, and the evaluation fails on that decision instance with an error"
+    },
+    {
+      "id": "c",
+      "text": "The decision result returns the output entries of all satisfied rules as a list ordered by the matching rule positions"
+    },
+    {
+      "id": "d",
+      "text": "The decision result returns the output entries of one satisfied rule and silently drops any conflicting outputs from the table"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Returning the first satisfied rule's output describes the FIRST policy, not ANY, which has no document-order preference between satisfied rules."
+    },
+    "b": {
+      "text": "Correct. The Any section states that if multiple rules are satisfied which generate different outputs, the hit policy is violated, so the evaluation fails on that decision instance."
+    },
+    "c": {
+      "text": "Incorrect. ANY never returns a list of outputs. The docs say the result contains only the output of one of the satisfied rules under valid conditions, not a list of all of them."
+    },
+    "d": {
+      "text": "Incorrect. ANY does not silently drop conflicting outputs. The documented behaviour when outputs differ is a hit-policy violation, not a quiet selection of one entry."
+    }
+  },
+  "explanation": "ANY allows several rules to be satisfied only while their outputs are identical; once two satisfied rules generate different output entries, the hit policy is violated and the evaluation fails on that decision instance.",
+  "docs": [
+    {
+      "title": "DMN decision table hit policy",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "mng-process-instance-modification-52",
+  "topic": "managing-development",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/process-instance-modification/"
+    }
+  ],
+  "subtopic": "Operate",
+  "scenario": "A Cascadia Health operator runs Camunda 8.8 Operate and tries to cancel all running tokens within a single flow node instance nested in a multi-instance body that currently carries 1300 tokens. The operator needs to plan how many tokens will be affected by a single cancel or move action in this version.",
+  "question": "How many tokens at most can be affected by a single cancel or move operation on this multi-instance scope in this version?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A single cancel or move operation affects at most 500 tokens within the flow node instance nested in the multi-instance body, so the operation must be repeated until all child tokens have been handled"
+    },
+    {
+      "id": "b",
+      "text": "A single cancel or move operation affects every running child token in the multi-instance body in one step;  the documented limit applies only to plain non multi-instance flow nodes in the instance"
+    },
+    {
+      "id": "c",
+      "text": "A single cancel or move operation affects at most 50 tokens at a time, so the operator must trigger 26 separate operations against the same flow node instance to cover all 1300 running tokens here"
+    },
+    {
+      "id": "d",
+      "text": "A single cancel or move operation affects at most 5000 tokens, so the entire 1300 token multi-instance body can always be processed in one cancel or one move action without any further repetition"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs state that when cancelling or moving all tokens within a single flow node instance nested in a multi-instance body, a maximum of 500 tokens can be affected; the modification can be repeated on the same flow node instance until all tokens have been handled."
+    },
+    "b": {
+      "text": "Incorrect. The documented limit specifically applies when cancelling or moving all tokens within a single flow node instance nested in a multi-instance body, so a single operation does not always cover every running child token in one step."
+    },
+    "c": {
+      "text": "Incorrect. The documented per-operation cap on a multi-instance scope is 500 tokens, not 50, so the number of repeated operations needed to cover 1300 tokens is not 26."
+    },
+    "d": {
+      "text": "Incorrect. The documented per-operation cap is 500 tokens for this case, not 5000; the 1300 token multi-instance body cannot be processed in a single cancel or move action under this limit."
+    }
+  },
+  "explanation": "For a cancel or move that targets all tokens within a single flow node instance nested in a multi-instance body, a maximum of 500 tokens can be affected per operation. The modification must be repeated on the same flow node instance until every token has been handled."
+}

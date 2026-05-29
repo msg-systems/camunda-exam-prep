@@ -1,0 +1,50 @@
+{
+  "id": "con-use-connectors-01",
+  "topic": "connectors",
+  "subtopic": "using secrets",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Payments, a fintech processing 75000 transactions per hour, configures a Camunda 8.8 REST outbound connector to call a partner gateway. A developer must reference the secret PARTNER_API_KEY in the Authorization header of a FEEL context map without exposing the value anywhere in the BPMN model or in process variables.",
+  "question": "Which Authorization header value uses the documented secrets syntax correctly inside the FEEL expression?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set Authorization to secrets.PARTNER_API_KEY directly inside the FEEL map without quotes, treating the secret like a regular process variable that the engine resolves at runtime"
+    },
+    {
+      "id": "b",
+      "text": "Set Authorization to {{ secrets.PARTNER_API_KEY }} wrapped in backticks inside the FEEL map so the engine treats it as a template literal rather than a plain string value"
+    },
+    {
+      "id": "c",
+      "text": "Set Authorization to ${secrets.PARTNER_API_KEY} inside the FEEL map so the dollar-brace template is expanded by the connector at execution time as a configured secret reference"
+    },
+    {
+      "id": "d",
+      "text": "Set Authorization to \"{{secrets.PARTNER_API_KEY}}\" wrapped in double quotes inside the FEEL map so the placeholder is passed through and resolved by the connector at execution time"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Secrets are not variables, and the bare secrets.* form is the deprecated syntax; the documented placeholder is {{secrets.NAME}} and it must be wrapped in double quotes inside a FEEL expression."
+    },
+    "b": {
+      "text": "Incorrect. FEEL has no backtick template-literal syntax; the documented form is {{secrets.NAME}} inside a regular double-quoted string within the FEEL expression."
+    },
+    "c": {
+      "text": "Incorrect. The documented placeholder is {{secrets.NAME}}, not the dollar-brace form; the connector replaces the {{...}} placeholder at execution time, not a shell-style template."
+    },
+    "d": {
+      "text": "Correct. The placeholder {{secrets.PARTNER_API_KEY}} is wrapped in double quotes inside the FEEL expression; the engine passes the placeholder through to the connector, which then resolves the secret on execution."
+    }
+  },
+  "explanation": "Secrets are referenced with the {{secrets.NAME}} placeholder. Because secrets are not variables, the placeholder must be wrapped in double quotes when used in a FEEL expression. The engine passes the placeholder through and the connector resolves it at execution time.",
+  "docs": [
+    {
+      "title": "How to use connectors - using secrets",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-testing-process-definitions-175",
+  "topic": "extensions-integrations",
+  "subtopic": "testing",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Evergreen Insurance's Camunda 8.8 invoice flow includes an ArchiveInvoiceWorker that translates a specific business exception from its ArchiveService into a BPMN error. The team handles 1800 invoices per day and is reviewing which collaborator should be mocked when authoring the process test for this worker.",
+  "question": "Which collaborator should the Evergreen team mock in the process test for ArchiveInvoiceWorker?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Mock the ArchiveService called by the worker, keep the ArchiveInvoiceWorker running as the production class so input mapping and business-exception-to-BPMN-error translation are still exercised end to end"
+    },
+    {
+      "id": "b",
+      "text": "Mock the ArchiveInvoiceWorker itself with a stub that completes the job successfully, so the test focuses on the BPMN model and does not depend on the worker class at all"
+    },
+    {
+      "id": "c",
+      "text": "Mock the Zeebe client used by the ArchiveInvoiceWorker to short-circuit job activation, so neither the worker code nor the ArchiveService is reached during the process test"
+    },
+    {
+      "id": "d",
+      "text": "Mock both the ArchiveInvoiceWorker and the ArchiveService at the same time, then assert on the FEEL expressions executed by the engine in the process tests run by CI"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Test scope and mocking guidance keeps the worker class in the test so its input data mapping and business-exception-to-BPMN-error translation are validated, and mocks only the engine-independent ArchiveService so the test never calls the real legacy system."
+    },
+    "b": {
+      "text": "Incorrect. Mocking the ArchiveInvoiceWorker removes the very glue code the process test is supposed to cover, including the input mapping and the BPMN error translation."
+    },
+    "c": {
+      "text": "Incorrect. Mocking the Zeebe client takes the engine out of the picture entirely, which defeats the purpose of a process test that drives the BPMN model."
+    },
+    "d": {
+      "text": "Incorrect. Mocking both the worker and the service skips the same glue code the process test is meant to verify and leaves nothing meaningful to assert."
+    }
+  },
+  "explanation": "In a Camunda 8.8 process test the worker class is executed for real so its input mapping and BPMN error translation are covered, while only the workflow engine-independent backend service it calls is replaced by a mock.",
+  "docs": [
+    {
+      "title": "Testing process definitions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/testing-process-definitions/"
+    }
+  ]
+}

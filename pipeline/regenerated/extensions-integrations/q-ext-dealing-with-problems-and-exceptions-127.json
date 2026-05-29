@@ -1,0 +1,50 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-127",
+  "topic": "extensions-integrations",
+  "subtopic": "problems-and-exceptions",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Sable Bank runs Camunda 8.8 workers that retrieve money for 7500 transactions per day inside a regional bank. A developer authors a retrieveMoney worker with the taskDefinition retries attribute set to 5 in BPMN, and now must implement the catch block correctly so the engine keeps retrying until the configured retry budget is exhausted.",
+  "question": "Which call must the worker make on a caught exception so that Zeebe leverages the built-in retry mechanism?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Call newFailCommand with retries set to job.getRetries() minus one and a meaningful errorMessage; once the remaining retries reach zero, Zeebe raises an incident that Operate surfaces to a human operator"
+    },
+    {
+      "id": "b",
+      "text": "Call newCompleteCommand with a process variable retryRequested set to true so the workflow engine schedules the next attempt against the original taskDefinition retries budget configured in the BPMN model"
+    },
+    {
+      "id": "c",
+      "text": "Call newThrowErrorCommand with errorCode RETRY so the BPMN error mechanism reschedules the service task automatically and increments the remaining retries counter on the job for the next attempt"
+    },
+    {
+      "id": "d",
+      "text": "Call newUpdateJobRetriesCommand with retries set back to the original BPMN value of 5 every time the catch block runs so the engine never raises an incident on this particular service task"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The retry snippet calls newFailCommand, decrements retries with job.getRetries() minus one, and provides a meaningful errorMessage; once remaining retries reach zero, Zeebe raises an incident that Operate exposes to a human operator."
+    },
+    "b": {
+      "text": "Incorrect. CompleteCommand advances the instance; it does not trigger a retry, and there is no documented retryRequested variable convention."
+    },
+    "c": {
+      "text": "Incorrect. ThrowError reports a BPMN error to the process model; it is not the retry mechanism and does not increment the retry counter."
+    },
+    "d": {
+      "text": "Incorrect. Restoring retries to 5 inside the catch block would defeat the retry budget; the documented snippet decrements retries instead."
+    }
+  },
+  "explanation": "The retries attribute on the taskDefinition sets the initial retry budget. Inside the catch block, the worker uses newFailCommand, decrements retries by one with job.getRetries() minus one, and writes a meaningful errorMessage. When the remaining retries reach zero, an incident is raised and surfaced in Operate for human resolution.",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

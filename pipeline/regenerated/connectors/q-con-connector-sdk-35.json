@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-35",
+  "topic": "connectors",
+  "subtopic": "connector-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Stellar Insurance, an insurer ingesting 50000 events per day from a partner system, builds a custom inbound connector for Camunda 8.8. A developer authors the element template and must bind the runtime type io.camunda:mytestinbound:1 so the connector runtime can match incoming subscriptions to the correct executable class at activation time.",
+  "question": "Which template property binding does the SDK specify for the inbound runtime type value io.camunda:mytestinbound:1?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A visible String property labelled Type, bound as a zeebe:taskDefinition with property type so the inbound subscription is routed by Zeebe job type at activation time"
+    },
+    {
+      "id": "b",
+      "text": "A Dropdown property bound as a zeebe:input with name inbound.type, where the value io.camunda:mytestinbound:1 appears as one of the editable choices for users in Web Modeler"
+    },
+    {
+      "id": "c",
+      "text": "A Text property bound as a zeebe:taskHeader with key inbound.type, written into the job custom header so the executable can be discovered by the InboundConnectorExecutable SPI at runtime"
+    },
+    {
+      "id": "d",
+      "text": "A Hidden property with value io.camunda:mytestinbound:1, bound as a zeebe:property with name inbound.type so the runtime resolves the executable class from this connection value"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Inbound connectors are not driven by zeebe:taskDefinition; that binding is used for outbound connectors and service tasks, not for inbound subscriptions."
+    },
+    "b": {
+      "text": "Incorrect. The type definition is not a user-editable Dropdown bound to zeebe:input; it is a Hidden property carrying a fixed connection value via zeebe:property."
+    },
+    "c": {
+      "text": "Incorrect. The binding type is zeebe:property with name inbound.type, not a zeebe:taskHeader key written to the job; inbound discovery does not use task headers for the type."
+    },
+    "d": {
+      "text": "Correct. The inbound element template defines a Hidden property whose value is io.camunda:mytestinbound:1 and whose binding is type zeebe:property with name inbound.type. This is the connection that configures which version of the runtime executable to use."
+    }
+  },
+  "explanation": "An inbound connector element template carries the runtime type as a Hidden property with a fixed value and a zeebe:property binding to the name inbound.type. This identifies the executable class version that should handle the subscription, in the same way the outbound binding via zeebe:taskDefinition selects an outbound function.",
+  "docs": [
+    {
+      "title": "Connector SDK - Inbound connector element template",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

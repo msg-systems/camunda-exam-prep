@@ -1,0 +1,50 @@
+{
+  "id": "ext-routing-events-to-processes-118",
+  "topic": "extensions-integrations",
+  "subtopic": "user-triggered-messages",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Catalyst Bank runs a Camunda 8.8 order-to-cash process that handles 750 orders per day and waits at an intermediate message event for payment confirmation. The team chose not to model a user task because the accountant prefers a custom search screen listing orders awaiting payment. When the accountant clicks Paid, the right waiting instance must move on.",
+  "question": "Which Camunda 8 mechanism routes the accountant Paid click to the correct waiting order process instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Display the matching waiting order in Camunda Tasklist; the accountant claims the inbox item and Tasklist completes the awaiting message event on the affected instance."
+    },
+    {
+      "id": "b",
+      "text": "Build a custom search screen for the accountant; on Paid click the application calls the Zeebe API to correlate a message to the affected waiting order process instance."
+    },
+    {
+      "id": "c",
+      "text": "Configure an interrupting boundary timer on the waiting activity; the workflow engine resumes the right order automatically once the accountant logs into the search screen."
+    },
+    {
+      "id": "d",
+      "text": "Publish a signal from the custom screen; the workflow engine broadcasts the signal to every waiting order instance and resumes each of them at the same time."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The best practice notes that these scenarios are not directly supported by Camunda Tasklist. A Tasklist inbox does not carry the Paid click; the page recommends a custom screen plus an API call from the application to correlate the user message instead."
+    },
+    "b": {
+      "text": "Correct. The best practice describes a custom search screen for the accountant that observes waiting orders. When the accountant hits Paid, custom code uses the Zeebe API to correlate the user generated message to the affected waiting process instance, which fits the Catalyst Bank flow."
+    },
+    "c": {
+      "text": "Incorrect. A boundary timer fires on time elapsing, not on a user click. The page documents a custom screen plus an API correlation call from the application, not a time controlled boundary on the activity, to deliver the accountant trigger."
+    },
+    "d": {
+      "text": "Incorrect. The page calls out correlating the user message to the affected instance, not broadcasting to all waiting orders. A signal would resume every waiting instance and would not target the single order that just received its payment from the accountant."
+    }
+  },
+  "explanation": "When a human user replaces a task with an active trigger, the best practice pairs a custom search screen with API code that correlates the user generated message to the affected waiting process instance; Camunda Tasklist does not directly support this pattern.",
+  "docs": [
+    {
+      "title": "Routing events to processes",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/routing-events-to-processes/"
+    }
+  ]
+}

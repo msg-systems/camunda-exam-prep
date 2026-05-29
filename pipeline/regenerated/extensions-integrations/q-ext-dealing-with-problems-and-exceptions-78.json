@@ -1,0 +1,50 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-78",
+  "topic": "extensions-integrations",
+  "subtopic": "error-strategy",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "A Helios Insurance modeling team handles 9000 invoice events per day in Camunda 8.8 and debates whether a downstream invoice-service outage should be classified as a 'business error' or a 'technical error' before deciding what to draw in the BPMN. The team risks long discussions about classification and wants to align on the documented framing.",
+  "question": "What does the Camunda 8.8 best-practices guide recommend as the primary distinction when deciding how to handle a problem in a process model?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Classify the problem strictly as a business error or as a technical error based on the originating source, then map technical errors to retries and business errors to boundary events without further analysis of the desired reaction"
+    },
+    {
+      "id": "b",
+      "text": "Treat every downstream technical outage as a business error so it always becomes a modeled BPMN branch and the operations team can decide later if a retry would have been the better generic technical response at runtime"
+    },
+    {
+      "id": "c",
+      "text": "Distinguish between business reactions, which are modeled in the process, and technical reactions, which are handled generically with retries or incidents, focusing on the reaction to the problem rather than its source"
+    },
+    {
+      "id": "d",
+      "text": "Treat every problem as a technical error first and only escalate to a modeled BPMN branch after the workflow engine has exhausted all configured retries on the offending service task across the cluster runtime"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The guide explicitly cautions that classifying by source leads to confusing discussions about whether a problem is technical or not; the relevant distinction is how you react, not where the error came from."
+    },
+    "b": {
+      "text": "Incorrect. Many technical outages should fall back to generic retries or incidents rather than always becoming a modeled BPMN branch; the choice depends on the desired business reaction."
+    },
+    "c": {
+      "text": "Correct. The recommendation is to talk about business reactions, which are modeled in the process, and technical reactions, which are handled generically using retries or incidents, and to focus on the reaction rather than the source of the error."
+    },
+    "d": {
+      "text": "Incorrect. The decision between a modeled reaction and a generic retry is driven by the desired business reaction to the problem, not by an unconditional 'retries first, model later' policy on every problem."
+    }
+  },
+  "explanation": "The Camunda 8.8 best-practices guide reframes the discussion: instead of arguing whether an error is business or technical by source, it recommends distinguishing business reactions (modeled explicitly in the process, like sending the invoice manually) from technical reactions (handled generically via retries or incidents).",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

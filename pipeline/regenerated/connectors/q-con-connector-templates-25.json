@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-templates-25",
+  "topic": "connectors",
+  "subtopic": "connector-templates",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Pinecrest Insurance, an insurer receiving 800 claims per day via a partner webhook, models a Camunda 8.8 BPMN start event with the HTTP Webhook inbound connector template and wants the start event to fire only when the payload field claim.amount is greater than 500 euros, ignoring all other webhook calls.",
+  "question": "Where in the inbound start event connector template should the team place the FEEL filter so the start event only triggers for qualifying claims?",
+  "options": [
+    {
+      "id": "a",
+      "text": "In the Webhook ID property bound to inbound.context, as a FEEL expression appended to the webhook ID string that forms the public URL path segment"
+    },
+    {
+      "id": "b",
+      "text": "In the Variables property bound to inbound.variableMapping, returning null for non-qualifying claims so the start event silently drops the inbound request payload"
+    },
+    {
+      "id": "c",
+      "text": "In the HMAC algorithm dropdown bound to inbound.hmacAlgorithm, picking a custom value that rejects payloads where claim.amount stays below the 500 euro threshold"
+    },
+    {
+      "id": "d",
+      "text": "In the Condition property bound to inbound.activationCondition, as a FEEL expression that evaluates the incoming webhook payload before the start event actually triggers"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Webhook ID property holds the URL path segment and binds as a plain String to inbound.context; the docs do not describe it as a FEEL trigger filter on the payload."
+    },
+    "b": {
+      "text": "Incorrect. The Variables property is for mapping the payload into process variables through inbound.variableMapping; the docs do not describe it as gating whether the start event fires."
+    },
+    "c": {
+      "text": "Incorrect. The HMAC algorithm dropdown selects sha_1, sha_256, or sha_512 for signature verification; the docs do not describe it as a business filter on payload values."
+    },
+    "d": {
+      "text": "Correct. The inbound start event template defines a Condition property in the activation group bound to inbound.activationCondition with feel: required, described as the condition under which the connector triggers; leaving it empty catches all events."
+    }
+  },
+  "explanation": "In the inbound start event template, the activation group includes a Condition field bound to inbound.activationCondition with feel: required. A FEEL expression there decides whether the webhook event triggers the start event; an empty value catches all events.",
+  "docs": [
+    {
+      "title": "Connector templates - Inbound start event",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-templates/"
+    }
+  ]
+}

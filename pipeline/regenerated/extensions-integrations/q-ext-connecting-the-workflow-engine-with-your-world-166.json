@@ -1,0 +1,50 @@
+{
+  "id": "ext-connecting-the-workflow-engine-with-your-world-166",
+  "topic": "extensions-integrations",
+  "subtopic": "connecting-the-workflow-engine",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Orion Marketplace runs a Camunda 8.8 Spring Boot service for a retailer that activates 15000 jobs per day for service tasks of type serviceA. A platform engineer wants the shortest snippet that opens a subscription for that job type and runs the worker glue code without the team writing any explicit polling loop or worker registration boilerplate.",
+  "question": "Which Camunda Spring Boot Starter feature opens the subscription for the job worker automatically?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Subclassing AbstractJobHandler and registering the bean with the Spring context causes the starter to open a subscription against the broker for the configured job type at application start-up"
+    },
+    {
+      "id": "b",
+      "text": "Annotating the application class with @EnableZeebeWorker and listing the job type in application.yaml causes the starter to long-poll for that job type without further code from the worker bean"
+    },
+    {
+      "id": "c",
+      "text": "Annotating a bean method with @JobWorker(type = \"serviceA\") lets the Spring integration start the job worker and open the subscription for that job type automatically in the background"
+    },
+    {
+      "id": "d",
+      "text": "Registering a Spring @Scheduled method with the job type as a parameter causes the starter to translate the schedule into a long-poll subscription against the broker for that job type"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. There is no documented AbstractJobHandler base class that the starter scans for subscriptions; the documented mechanism is the @JobWorker annotation on a bean method."
+    },
+    "b": {
+      "text": "Incorrect. The documented mechanism is the @JobWorker annotation on a bean method, not an @EnableZeebeWorker plus YAML job-type list."
+    },
+    "c": {
+      "text": "Correct. The Camunda Spring Boot Starter starts the job worker and opens the subscription automatically when a bean method is annotated with @JobWorker(type = ...); the snippet on the page shows the type set to serviceA."
+    },
+    "d": {
+      "text": "Incorrect. @Scheduled drives time-based execution and is not used to translate into Zeebe long-poll subscriptions; @JobWorker is the documented integration."
+    }
+  },
+  "explanation": "With the Camunda Spring Boot Starter a developer only annotates a bean method with @JobWorker(type = \"serviceA\"). The starter takes care of starting the worker, opening the subscription, and long-polling the broker for jobs of that type, while the method body holds the business logic.",
+  "docs": [
+    {
+      "title": "Connecting the workflow engine with your world",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/connecting-the-workflow-engine-with-your-world/"
+    }
+  ]
+}

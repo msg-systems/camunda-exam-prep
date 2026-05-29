@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-48",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Bank runs 4200 instances per day on Camunda 8.8 and is migrating an active service task that lives inside an embedded subprocess to a redesigned process definition where both the subprocess and the inner task have new ids. The platform team needs to know which mapping instructions are required so the active element inside the subprocess can be migrated cleanly.",
+  "question": "Which mapping instruction is required to migrate an active element that is located inside a subprocess?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Provide a mapping from the source subprocess id to the target subprocess id so the engine can resolve the parent scope during migration"
+    },
+    {
+      "id": "b",
+      "text": "Provide a mapping from the source process id to the target process id so the engine can resolve the parent scope during migration"
+    },
+    {
+      "id": "c",
+      "text": "Provide a mapping from the source pool id to the target pool id so the engine can resolve the parent scope during migration"
+    },
+    {
+      "id": "d",
+      "text": "Provide a mapping from the source lane id to the target lane id so the engine can resolve the parent scope during migration"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The documentation states that a mapping instruction must be provided from the process instance's subprocess id to the target subprocess id to migrate subprocesses, in addition to the mapping for the inner active element."
+    },
+    "b": {
+      "text": "Incorrect. A process definition id mapping is not how scope migration is configured for subprocesses; the subprocess element itself requires its own mapping instruction in addition to the inner element."
+    },
+    "c": {
+      "text": "Incorrect. Pools are not the scope that the documented mapping instruction targets; the subprocess element id mapping is what allows the active inner element to be migrated."
+    },
+    "d": {
+      "text": "Incorrect. Lanes are visual swimlanes and are not the scope used for migration mapping; the subprocess element id mapping is what the engine requires."
+    }
+  },
+  "explanation": "When migrating an active element inside a subprocess, two mapping instructions are needed: one for the active inner element and one for the parent subprocess id. Without the subprocess id mapping the engine cannot resolve the new parent scope.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

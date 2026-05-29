@@ -1,0 +1,50 @@
+{
+  "id": "ext-configuration-27",
+  "topic": "extensions-integrations",
+  "subtopic": "Spring Boot Starter connectivity",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Crestline Logistics runs a Camunda 8.8 Spring Boot client against a Self-Managed Zeebe Gateway sized for 11 brokers and 30000 jobs per day. The platform team must ensure the client uses gRPC for every gateway call instead of the default REST preference, with camunda.client.grpc-address set to http://gateway.crestline.local:26500 in the application.yaml file.",
+  "question": "Which configuration change forces the Camunda 8.8 Spring Boot client to use gRPC instead of REST for gateway calls by default?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set camunda.client.protocol to grpc on the Camunda client so REST is fully disabled and every call to the gateway flows through the gRPC channel by default at runtime"
+    },
+    {
+      "id": "b",
+      "text": "Set camunda.client.grpc-only to true on the Camunda client so REST is fully disabled and every call to the gateway flows through the gRPC channel by default at runtime"
+    },
+    {
+      "id": "c",
+      "text": "Omit the camunda.client.rest-address property entirely on the Camunda client so it falls back to gRPC for every gateway call once the REST address fails to resolve at runtime"
+    },
+    {
+      "id": "d",
+      "text": "Set camunda.client.prefer-rest-over-grpc to false on the Camunda client so the default REST preference is inverted and every call to the gateway flows through the gRPC channel"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. There is no camunda.client.protocol toggle in the documented connectivity properties; the documented switch between REST and gRPC is the prefer-rest-over-grpc boolean property."
+    },
+    "b": {
+      "text": "Incorrect. There is no grpc-only flag in the documented connectivity properties; the documented switch between REST and gRPC is the prefer-rest-over-grpc boolean property that defaults to true."
+    },
+    "c": {
+      "text": "Incorrect. The documented switch is the explicit prefer-rest-over-grpc property; omitting rest-address does not flip the client preference and leaves the default REST behavior unchanged at runtime."
+    },
+    "d": {
+      "text": "Correct. By default the Camunda client prefers REST over gRPC whenever possible; setting camunda.client.prefer-rest-over-grpc to false inverts that preference so calls flow through the gRPC channel."
+    }
+  },
+  "explanation": "The Camunda 8 client defaults to REST over gRPC whenever possible; setting camunda.client.prefer-rest-over-grpc to false inverts the preference so the client uses gRPC for gateway calls, alongside the grpc-address property pointing at the gateway gRPC endpoint.",
+  "docs": [
+    {
+      "title": "Spring Boot Starter configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

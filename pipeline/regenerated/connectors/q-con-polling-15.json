@@ -1,0 +1,50 @@
+{
+  "id": "con-polling-15",
+  "topic": "connectors",
+  "subtopic": "polling",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Riverstack Tools, a developer-tools marketplace serving 8000 developers, configures a Camunda 8.8 HTTP Polling connector against api.github.com to monitor a critical GitHub issue every 10 minutes. The connector targets a single issue endpoint with Bearer token auth, must wake the process only when the issue closes, and should expose the issue URL plus a boolean derived from the 'needs review' label as BPMN process variables.",
+  "question": "Which Result Expression matches the documented GitHub-issue example for capturing the issue URL and the 'needs review' label?",
+  "options": [
+    {
+      "id": "a",
+      "text": "={issueUrl: body.html_url, needsReview: contains(body.labels.name, \"needs review\")} as the Result Expression on the connector configuration"
+    },
+    {
+      "id": "b",
+      "text": "={issueUrl: request.body.html_url, needsReview: list contains(request.body.labels, \"needs review\")} as the Result Expression configuration"
+    },
+    {
+      "id": "c",
+      "text": "={url: body.html_url, label: \"needs review\"} as a flat FEEL context that renames the URL field and writes the label name as a constant string"
+    },
+    {
+      "id": "d",
+      "text": "={issueUrl: body.html_url, needsReview: list contains((body.labels).name, \"needs review\")} as the Result Expression on the connector"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The FEEL contains function checks substrings on a single string value, so it cannot be applied to the labels array; list contains is the function for testing membership in a list value such as the labels names."
+    },
+    "b": {
+      "text": "Incorrect. The HTTP Polling connector exposes the polled payload under the body context, not request.body; the request.* prefix is the convention for the HTTP Webhook connector rather than the polling protocol."
+    },
+    "c": {
+      "text": "Incorrect. Writing the label as a constant string ignores the actual labels array on the GitHub issue, so the needsReview process variable would always carry a fixed string rather than a boolean derived from the response."
+    },
+    "d": {
+      "text": "Correct. The documented GitHub-issue Result Expression uses list contains on (body.labels).name to test the 'needs review' label and assigns body.html_url to the issueUrl process variable from the polled response body context."
+    }
+  },
+  "explanation": "The HTTP Polling connector reads the polled response from the body context; the GitHub-issue example assigns body.html_url to issueUrl and uses list contains((body.labels).name, \"needs review\") to compute a boolean for the needsReview process variable on the waiting process instance.",
+  "docs": [
+    {
+      "title": "HTTP Polling connector - Examples",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/polling/"
+    }
+  ]
+}

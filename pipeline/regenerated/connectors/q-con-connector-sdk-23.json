@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-23",
+  "topic": "connectors",
+  "subtopic": "connector-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Bank, a digital bank handling 250000 transactions per day on Camunda 8.8, embeds a custom outbound connector inside an existing Java service that already owns a CamundaClient instance, and needs Result Variable, Result Expression, and Error Expression behavior to match the prepackaged connector runtime exactly.",
+  "question": "Which SDK class should the team wrap MyConnectorFunction with so the custom job worker keeps Result Variable, Result Expression, and Error Expression behavior?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Extend AbstractConnectorContext and pass an instance of that subclass directly to camundaClient.newWorker().handler(...) so the worker reuses the prepackaged context for result mapping"
+    },
+    {
+      "id": "b",
+      "text": "Wrap MyConnectorFunction in a new ConnectorJobHandler with a DefaultValidationProvider and pass that as the handler argument to camundaClient.newWorker().handler(...) when opening the worker"
+    },
+    {
+      "id": "c",
+      "text": "Register MyConnectorFunction via the io.camunda.connector.api.secret.SecretProvider SPI and let the CamundaClient auto-discover the function as the job worker handler on startup"
+    },
+    {
+      "id": "d",
+      "text": "Pass MyConnectorFunction to OutboundConnectorContext.newWorker(...) directly so the SDK constructs a job worker without going through the ConnectorJobHandler wrapper class"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. AbstractConnectorContext is a base class for building a context inside a custom wrapper; it is not itself a JobHandler and the docs do not pass it to newWorker().handler(...)."
+    },
+    "b": {
+      "text": "Correct. The SDK lists ConnectorJobHandler as the wrapper class that adapts a connector function into a Zeebe job handler and supplies Result Variable, Result Expression, and Error Expression handling, used as new ConnectorJobHandler(new MyConnectorFunction(), new DefaultValidationProvider())."
+    },
+    "c": {
+      "text": "Incorrect. SecretProvider is an SPI for supplying secret values to the connector, not for registering a function as the job worker handler with the Camunda client."
+    },
+    "d": {
+      "text": "Incorrect. OutboundConnectorContext is a context object the wrapper builds for the function; it does not expose a newWorker(...) builder for the job worker."
+    }
+  },
+  "explanation": "ConnectorJobHandler is the SDK wrapper class that exposes a connector function as a Zeebe job handler. It supplies an OutboundConnectorContext, environment-variable-based secret management via SPI, Result Variable and Result Expression mapping, and Error Expression handling without bespoke code.",
+  "docs": [
+    {
+      "title": "Connector SDK - Custom runtime environment",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

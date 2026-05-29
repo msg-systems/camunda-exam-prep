@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-60",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "NovaPay processes 20000 transactions per day in Camunda 8.8. A platform engineer migrates a running process instance whose target process definition introduces a brand new boundary message catch event on a long-running service task. The migration plan supplies mappings for every active element but deliberately includes no mapping instruction for the newly added catch event in the target definition.",
+  "question": "How does the engine handle a catch event that exists in the target definition but is absent from the migration plan?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A new subscription is created for the catch event in the target definition during the migration of the corresponding active element"
+    },
+    {
+      "id": "b",
+      "text": "The migration command is rejected transactionally because every catch event in the target definition must appear in the migration plan"
+    },
+    {
+      "id": "c",
+      "text": "The subscription from a source catch event is reattached to the target catch event using a bpmnProcessId match performed automatically"
+    },
+    {
+      "id": "d",
+      "text": "The catch event in the target definition is ignored and no subscription is created since it was not referenced by any mapping instruction"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs state that when a catch event exists in the target process definition and is not part of the migration plan, a new subscription is created for that catch event as part of the per-element migration."
+    },
+    "b": {
+      "text": "Incorrect. Absence of a target catch event from the migration plan is not a rejection reason. The engine simply creates a new subscription rather than failing the command."
+    },
+    "c": {
+      "text": "Incorrect. The engine does not perform an automatic bpmnProcessId match for catch events; subscriptions migrate only when an explicit mapping is supplied."
+    },
+    "d": {
+      "text": "Incorrect. New target catch events are not ignored. The documented operation order creates a fresh subscription for any target catch event missing from the plan."
+    }
+  },
+  "explanation": "Catch event reconciliation during migration follows a fixed order. Source catch events not in the plan have their subscriptions removed, mapped catch events have subscriptions migrated, and target catch events missing from the plan get newly created subscriptions on the migrated element.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

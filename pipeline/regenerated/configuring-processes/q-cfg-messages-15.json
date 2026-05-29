@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-15",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Keystone Bank correlates 7500 payment confirmation messages per hour to running process instances in Camunda 8.8 using a FEEL expression =orderId on a message catch event. An operator updates orderId on one process instance 2 hours after the subscription was opened and expects the new value to take effect on the open subscription.",
+  "question": "What happens to an open message subscription on a catch event when the referenced correlation variable is updated on the same process instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The subscription is closed immediately on the variable update and a fresh subscription is opened with the new correlation key on the next poll"
+    },
+    {
+      "id": "b",
+      "text": "The subscription re-evaluates the correlation key expression on each variable update and rebinds the subscription to the new correlation key"
+    },
+    {
+      "id": "c",
+      "text": "The subscription is correlated to every process instance whose current variables match the updated correlation key on each variable change"
+    },
+    {
+      "id": "d",
+      "text": "The subscription keeps the original correlation key value computed at activation and ignores subsequent updates to the referenced variable"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The documented behavior is that a subscription is closed only when the corresponding element or its scope is left, not when the referenced variable is updated on the instance."
+    },
+    "b": {
+      "text": "Incorrect. The message name and correlation key expressions are evaluated on activating the message catch event; the subscription is not re-evaluated when the variable changes later."
+    },
+    "c": {
+      "text": "Incorrect. Correlation matches a published message to an open subscription by message name and correlation key; updating a variable does not retroactively rebind any subscriptions to other instances."
+    },
+    "d": {
+      "text": "Correct. The docs state that after a subscription is opened, it is not updated when the referenced process variable is changed; the subscription retains the correlation key from activation."
+    }
+  },
+  "explanation": "Message subscriptions are based on the message name and the correlation key evaluated when the catch event activates. Once opened, the subscription holds those evaluation results and is not updated when the referenced process variable later changes. The subscription closes only when the element or its scope is left.",
+  "docs": [
+    {
+      "title": "Messages",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

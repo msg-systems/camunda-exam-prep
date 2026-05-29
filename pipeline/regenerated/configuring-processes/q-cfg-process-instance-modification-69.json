@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-69",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Quantum Retail operates a Camunda 8.8 returns process and an SRE plans to issue an experimental modification command on a live cluster to re-activate a task earlier in the flow on roughly 120 instances stuck since a 48-hour worker outage that affected the downstream system.",
+  "question": "What guidance does the Camunda 8.8 documentation give about validating this modification before it is applied to production instances?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Validate the modification on a non-production cluster or by using Camunda Process Test, with the engine not detecting unintended situations created by the modification."
+    },
+    {
+      "id": "b",
+      "text": "Validate the modification by enabling the engine's built-in dry-run flag, which simulates the modification without changing any state on the target cluster at all."
+    },
+    {
+      "id": "c",
+      "text": "Validate the modification by running it on a single instance first; the engine then rejects subsequent commands when it observes an unintended state in that instance."
+    },
+    {
+      "id": "d",
+      "text": "Validate the modification automatically by relying on the engine's reachability check, which guarantees that the resulting state could be reached by normal execution."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs state the engine does not detect unintended modification outcomes and recommend testing the planned modification on a non-production cluster or with Camunda Process Test."
+    },
+    "b": {
+      "text": "Incorrect. The modification API has no documented dry-run flag; modifications are applied directly to the targeted process instance and there is no simulate-only mode."
+    },
+    "c": {
+      "text": "Incorrect. The engine does not analyse the result of a previous modification to validate later ones; the docs say it has no detection of unintended states at all."
+    },
+    "d": {
+      "text": "Incorrect. The docs explicitly warn that modification can create states that are not reachable by regular execution, and the engine does not perform a reachability check."
+    }
+  },
+  "explanation": "Modification is a powerful repair tool but the engine itself does not detect unintended results. The documented mitigation is to validate the planned modification on a non-production cluster or with Camunda Process Test before issuing it against live production instances.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

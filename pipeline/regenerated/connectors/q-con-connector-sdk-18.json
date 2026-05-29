@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-18",
+  "topic": "connectors",
+  "subtopic": "inbound-project",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Helix Marketplace, a retailer running its catalog on Camunda 8.8, packages a custom inbound connector module that subscribes to 12000 webhook events per day from upstream merchants. The team wants the connector class auto-discovered by the runtime without listing it in any element template attribute or annotation parameter across all 30 instances of its Self-Managed cluster.",
+  "question": "Which file in the inbound connector module exposes the InboundConnectorExecutable implementation to the runtime?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A META-INF/MANIFEST.MF entry that lists the fully qualified executable class name under a Connector-Class attribute inside the connector JAR"
+    },
+    {
+      "id": "b",
+      "text": "A resources/META-INF/services/io.camunda.connector.api.inbound.InboundConnectorExecutable file listing the fully qualified executable class name"
+    },
+    {
+      "id": "c",
+      "text": "A connector-runtime.properties file that lists the inbound connector classes under a key named inbound.executable.classes inside the JAR"
+    },
+    {
+      "id": "d",
+      "text": "An element-templates/inbound-template-connector.json entry that exposes the fully qualified Java class under a runtimeClass attribute"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The connector SDK does not rely on a Connector-Class manifest attribute. Manifest entries are not part of the documented discovery path for inbound connector executables in the SDK guide."
+    },
+    "b": {
+      "text": "Correct. The SDK guide shows the resources/META-INF/services/io.camunda.connector.api.inbound.InboundConnectorExecutable file as the Service Provider Interface entry that makes the executable class discoverable by the connector runtime."
+    },
+    "c": {
+      "text": "Incorrect. There is no connector-runtime.properties discovery file in the SDK; the runtime relies on the ServiceLoader SPI under META-INF/services rather than a properties key."
+    },
+    "d": {
+      "text": "Incorrect. Element templates describe modeling building blocks and bindings; the runtime does not load the executable Java class from a runtimeClass attribute on the JSON element template."
+    }
+  },
+  "explanation": "Custom inbound connectors are made detectable through the standard Java ServiceLoader SPI. The connector project provides a file under resources/META-INF/services named after the InboundConnectorExecutable interface; the file lists the fully qualified implementation class so the runtime can load it at startup.",
+  "docs": [
+    {
+      "title": "Connector SDK",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-95",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A logistics platform migrates 600 instances where each active service task has an associated active job, an active boundary event subscription, and one or two local variables in scope. The team must confirm which entities tied to each active element are migrated alongside the active element itself when the migration's execution step runs.",
+  "question": "Which entities associated with an active element are migrated alongside the active element itself during the migration execution step?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The associated jobs, incidents, local variables, and event subscriptions contained in each active element are migrated together with the active element to the target process definition"
+    },
+    {
+      "id": "b",
+      "text": "Only the associated jobs are migrated together with the active element; incidents and local variables are reset to defaults and event subscriptions are reopened against the target definition"
+    },
+    {
+      "id": "c",
+      "text": "Only the associated event subscriptions are migrated together with the active element; jobs are canceled and recreated and local variables are merged into global variables on migration"
+    },
+    {
+      "id": "d",
+      "text": "Only the associated local variables are migrated together with the active element; jobs are kept untouched but moved to a holding queue and event subscriptions are dropped during migration"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. While traversing each active element, the migration also migrates the jobs, incidents, local variables, and event subscriptions contained in that active element. These entities have their processDefinitionKey, bpmnProcessId, and elementId properties updated to the target definition."
+    },
+    "b": {
+      "text": "Incorrect. Incidents and local variables are not reset during migration; they are migrated with the active element. Event subscriptions are not blindly reopened either; they are migrated, removed, or added according to the mapping instructions."
+    },
+    "c": {
+      "text": "Incorrect. Jobs are not canceled and recreated during migration. They are migrated together with the active element, and local variables stay local rather than being merged into global variables of the process instance."
+    },
+    "d": {
+      "text": "Incorrect. Jobs are migrated together with the active element, not moved to a separate holding queue. Event subscriptions are not dropped either; they follow the catch event mapping rules of the migration plan."
+    }
+  },
+  "explanation": "For each active element migrated, the engine also migrates the jobs, incidents, local variables, and event subscriptions contained in that element. All of these entities have their processDefinitionKey, bpmnProcessId, and elementId properties updated to point at the target.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

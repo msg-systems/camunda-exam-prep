@@ -1,0 +1,50 @@
+{
+  "id": "frm-forms-element-library-number-19",
+  "topic": "forms",
+  "subtopic": "number - datatypes",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Foods captures a quantity for 60 orders per day inside a Camunda 8.8 number field bound to the key qty. The source variable can arrive either as a JSON number or as a string of digits, and the team needs to know which datatype the field will emit by default so that 3 downstream FEEL expressions can rely on a stable shape.",
+  "question": "What is the documented output datatype of the number field when no extra serialization property is configured on it?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The field outputs the value as the original incoming type, mirroring whether the source was a string of digits or a JSON number with no coercion of the data"
+    },
+    {
+      "id": "b",
+      "text": "The field outputs the value as a string of digits using JavaScript-style parsing rules so downstream FEEL can apply its own numeric coercion later in the flow"
+    },
+    {
+      "id": "c",
+      "text": "The field outputs the value strictly as integer data, parsing string inputs through JavaScript tryParse before emitting the integer to downstream consumers of the form"
+    },
+    {
+      "id": "d",
+      "text": "The field outputs the value as a decimal number whenever any digits after the decimal are entered, preserving the precision the operator typed into the input"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The number field does not preserve the source type; it coerces inputs through tryParse and standardises the output, so a string source does not remain a string."
+    },
+    "b": {
+      "text": "Incorrect. String-of-digits is not the documented output shape; the field always emits a strict integer rather than passing the raw textual form through to consumers."
+    },
+    "c": {
+      "text": "Correct. The documentation states that the number field accepts numeric or parseable string input via JavaScript tryParse and always outputs strictly integer data by default."
+    },
+    "d": {
+      "text": "Incorrect. Without extra serialization, the default output is strictly integer data; decimal entries are not preserved in their decimal form by the default emission path."
+    }
+  },
+  "explanation": "By default, a number field accepts numeric input or strings parseable through JavaScript tryParse, but the runtime always emits strictly integer data unless additional serialization is configured to change the output shape.",
+  "docs": [
+    {
+      "title": "Forms element library - number field",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-number/"
+    }
+  ]
+}

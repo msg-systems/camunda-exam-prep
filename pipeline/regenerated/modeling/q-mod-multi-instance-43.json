@@ -1,0 +1,50 @@
+{
+  "id": "mod-multi-instance-43",
+  "topic": "modeling",
+  "subtopic": "multi-instance",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Logistics dispatches 4000 shipments per day through a Camunda 8.8 parallel multi-instance service task that scores each route. The team needs the collected route scores in the outputCollection to line up index by index with the original inputCollection so a downstream FEEL expression can correlate each score back to the source shipment, even though instances finish out of order.",
+  "question": "How does Zeebe order entries in the outputCollection for a parallel multi-instance activity?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Entries are inserted into outputCollection at the same index as the inputElement in inputCollection so the order matches the input even when activity is parallel"
+    },
+    {
+      "id": "b",
+      "text": "Entries are appended to outputCollection in the order in which the parallel instances complete so order may diverge from the inputCollection at runtime"
+    },
+    {
+      "id": "c",
+      "text": "Entries are sorted by the loopCounter variable when the multi-instance body completes and then propagated as a fresh array to the parent scope"
+    },
+    {
+      "id": "d",
+      "text": "Entries are placed using a target index returned by the outputElement expression so authors must encode the input position into each result"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. When the instance completes, the outputElement expression is evaluated and the result is inserted into outputCollection at the same index as the inputElement of inputCollection, so the order matches the inputCollection even for parallel multi-instance activities."
+    },
+    "b": {
+      "text": "Incorrect. The docs explicitly state that the order of outputCollection is determined by the inputCollection index, not by the completion order of parallel instances, so appending on completion does not describe the documented behaviour."
+    },
+    "c": {
+      "text": "Incorrect. Sorting on body completion is not how the engine builds the outputCollection; entries are placed at the inputCollection index as each instance completes, not reordered at the end by loopCounter."
+    },
+    "d": {
+      "text": "Incorrect. The outputElement expression defines the value of the entry, not its target index; Zeebe assigns the index from the matching inputElement position in inputCollection."
+    }
+  },
+  "explanation": "For both sequential and parallel multi-instance activities Zeebe places each instance's outputElement value into outputCollection at the same index as the corresponding inputElement in inputCollection, which guarantees a deterministic mapping between input and output entries.",
+  "docs": [
+    {
+      "title": "BPMN multi-instance",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "mod-escalation-events-67",
+  "topic": "modeling",
+  "subtopic": "events",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Zenith Logistics handles 4000 shipments per day in Camunda 8.8. The team attaches a boundary escalation event to a fulfillment subprocess that should react to any escalation raised inside that scope, not just one specific escalation code, so the carrier can intervene whenever an internal escalation is thrown.",
+  "question": "Which XML configuration turns the boundary escalation event into a catch-all that handles every escalation from the attached activity?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The boundary event sets escalationRef on the escalationEventDefinition so it catches only the matching escalation code."
+    },
+    {
+      "id": "b",
+      "text": "The boundary event omits the escalationRef on the escalationEventDefinition so it catches any escalation thrown from the activity."
+    },
+    {
+      "id": "c",
+      "text": "The boundary event sets cancelActivity to true so it catches every escalation regardless of escalation code from the scope."
+    },
+    {
+      "id": "d",
+      "text": "The boundary event references a wildcard escalation element so it catches any escalation thrown from the attached activity."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Setting escalationRef binds the boundary event to one specific escalation element and its code, so it catches only that escalation rather than every one thrown by the attached activity."
+    },
+    "b": {
+      "text": "Correct. The documented catch-all boundary escalation event is modelled by an escalationEventDefinition with no escalationRef attribute, so it reacts to any escalation thrown inside the attached activity scope."
+    },
+    "c": {
+      "text": "Incorrect. The cancelActivity attribute decides whether the boundary event interrupts the activity; it does not change which escalations are matched on the escalationEventDefinition."
+    },
+    "d": {
+      "text": "Incorrect. The bpmn:escalation element identifies a single named escalation by code; there is no wildcard escalation reference, so this is not how a catch-all boundary event is expressed."
+    }
+  },
+  "explanation": "An escalation boundary catch-all event is built by attaching an escalationEventDefinition without an escalationRef. With no reference set, the boundary event matches any escalation thrown from inside the attached activity scope.",
+  "docs": [
+    {
+      "title": "BPMN escalation events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/escalation-events/"
+    }
+  ]
+}

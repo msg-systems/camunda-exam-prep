@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-64",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Mercer Insurance runs a Camunda 8.8 claims process handling 5,000 claims per day. After the upstream message service failed, an SRE issues a modification command to activate a follow-up task inside a non-interrupting message event subprocess and includes variable instructions for the missing message payload without specifying any scope on those instructions.",
+  "question": "Where will the process instance store the variables that were supplied with the modification command in this situation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The process instance creates the variables globally in the root scope of the process instance, making them visible to every active and future element."
+    },
+    {
+      "id": "b",
+      "text": "The process instance creates the variables as local variables of the activating event subprocess scope, hiding them from the surrounding process scope."
+    },
+    {
+      "id": "c",
+      "text": "The process instance creates the variables on the activity scope of the activating task itself, so only that task and not its peers can read them."
+    },
+    {
+      "id": "d",
+      "text": "The process instance rejects the modification because variable instructions without an explicit scope are not allowed when activating elements inside event subprocesses."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs state that if no scope is defined on a variable instruction, the process instance sets the variables globally in the root scope of the process instance before activating the element."
+    },
+    "b": {
+      "text": "Incorrect. Variables are only created as local to a scope when the variable instruction explicitly names that scope, and the modification in this scenario provides no scope at all."
+    },
+    "c": {
+      "text": "Incorrect. The activity scope of the activating task is only used when the variable instruction names a flow scope of that element; the documented default is the root scope."
+    },
+    "d": {
+      "text": "Incorrect. The modification command accepts variable instructions without a scope and treats them as global root-scope variables rather than rejecting them for missing a scope."
+    }
+  },
+  "explanation": "When a variable instruction inside a modification command omits the scope, the process instance places the values in the root scope so they are globally visible. A scope is only used when explicitly defined, and it must be a flow scope of the activating element. Variables are set before activating the element so they are available for input mappings.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

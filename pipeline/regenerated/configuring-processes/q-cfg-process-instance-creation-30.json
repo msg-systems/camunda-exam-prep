@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-creation-30",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-creation",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lumen Marketplace runs a short Camunda 8.8 process that scores 1500 risk-check requests per hour for merchant onboarding. Each instance finishes in under 2 seconds and the client widget needs the scoring variables returned in the same HTTP response so the operator can immediately approve or hold the merchant.",
+  "question": "Which Camunda 8.8 command is intended for short-running processes whose result variables must be returned on the same call that created the instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "CreateProcessInstance creates the instance asynchronously and forwards the final result variables to a callback URL that the client configured on the original create request payload"
+    },
+    {
+      "id": "b",
+      "text": "CreateProcessInstanceWithResult automatically resends the same request when no response arrives, which guarantees the client always receives the final scoring variables exactly one time"
+    },
+    {
+      "id": "c",
+      "text": "PublishMessage with awaitCompletion set to true correlates against a message start event and returns the final result variables in a synchronous response once the process has finished executing"
+    },
+    {
+      "id": "d",
+      "text": "CreateProcessInstanceWithResult executes the process synchronously and returns the resulting variables together with the process instance key once the process execution has completed"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. CreateProcessInstance responds immediately with the process instance key before execution starts and is therefore asynchronous; the documentation does not describe a callback URL field for delivering result variables."
+    },
+    "b": {
+      "text": "Incorrect. The documentation explicitly warns that when the client resends the command it creates a new process instance, so retries do not provide exactly-once delivery of the original outcome."
+    },
+    "c": {
+      "text": "Incorrect. PublishMessage does not have an awaitCompletion flag; awaiting completion and returning result variables is a property of CreateProcessInstanceWithResult, not of message publication."
+    },
+    "d": {
+      "text": "Correct. CreateProcessInstanceWithResult synchronously executes the process and returns the result variables together with the process instance key when execution is complete, which is the documented use case for short-running processes that collect information."
+    }
+  },
+  "explanation": "CreateProcessInstanceWithResult lets a client synchronously execute a process and receive the outcome variables on the same call that created the instance, sent only once execution finishes. It is documented as suited to short-running processes and processes that collect information, with retries warned to produce new instances.",
+  "docs": [
+    {
+      "title": "Process instance creation",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/"
+    }
+  ]
+}

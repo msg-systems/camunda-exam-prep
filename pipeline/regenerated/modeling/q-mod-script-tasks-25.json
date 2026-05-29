@@ -1,0 +1,50 @@
+{
+  "id": "mod-script-tasks-25",
+  "topic": "modeling",
+  "subtopic": "script-tasks",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "A fintech enriches transaction records via job worker implementation script tasks in Camunda 8.8 at 9000 jobs per hour, using the community Zeebe Script Worker to evaluate scripts. The platform team needs to confirm how Zeebe handles a job worker script task at runtime so they can size workers and decide which side owns script execution end to end.",
+  "question": "How does a job worker implementation script task get its work processed at runtime in Camunda 8.8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe executes the script itself using an embedded engine for the configured script language and writes the result of the evaluation back to a process variable directly on the script task"
+    },
+    {
+      "id": "b",
+      "text": "The script task behaves like a send task by publishing a message of the configured type and waits for an external worker to publish a reply message correlated by a configured key"
+    },
+    {
+      "id": "c",
+      "text": "A boundary script worker is attached to the script task and intercepts the job creation event so the process instance continues to the next element immediately after activation"
+    },
+    {
+      "id": "d",
+      "text": "Zeebe creates a job of the configured job type on entering the script task and a subscribing job worker picks up that job processes it and completes it so the process instance can continue"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The docs note explicitly that jobs for script tasks are not processed by Zeebe itself; a job worker must be provided, which is exactly the difference from the FEEL implementation evaluated by the engine."
+    },
+    "b": {
+      "text": "Incorrect. Job worker script tasks are based on jobs and job workers, not on BPMN message publication; they behave like service tasks rather than send tasks at runtime."
+    },
+    "c": {
+      "text": "Incorrect. Boundary events do not implement script task work; a job worker implementation script task creates a job and the process instance waits for the worker to complete that job."
+    },
+    "d": {
+      "text": "Correct. The docs state that on entering the script task Zeebe creates a corresponding job of the configured job type and waits for completion; a subscribing job worker processes the job and completes it, then the process instance continues."
+    }
+  },
+  "explanation": "Job worker implementation script tasks behave like service tasks: they require a configured job type, Zeebe creates a job on activation and waits, and a subscribing job worker is responsible for executing the script and completing the job so the process instance can continue.",
+  "docs": [
+    {
+      "title": "BPMN script tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/script-tasks/"
+    }
+  ]
+}

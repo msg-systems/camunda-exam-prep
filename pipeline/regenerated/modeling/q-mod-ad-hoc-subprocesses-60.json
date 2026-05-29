@@ -1,0 +1,50 @@
+{
+  "id": "mod-ad-hoc-subprocesses-60",
+  "topic": "modeling",
+  "subtopic": "subprocesses",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Stellar Manufacturer runs a Camunda 8.8 quality inspection workflow on 8000 records per day. An ad-hoc sub-process runs varied inspection steps; each inner flow writes a local result variable, and every inner result must be appended to one list that is propagated to the parent scope when the sub-process completes.",
+  "question": "Which configuration on the ad-hoc sub-process collects each inner flow's result into one list propagated to the parent scope?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Define an input variable mapping that copies result into a parent-scoped variable each time an inner flow completes inside the ad-hoc sub-process"
+    },
+    {
+      "id": "b",
+      "text": "Define a completionCondition with an append() call that pushes each inner flow's result onto a parent-scoped variable as inner flows finish one by one"
+    },
+    {
+      "id": "c",
+      "text": "Define a task definition with a custom job type and let the worker append result values into a parent-scoped variable after every inner flow completes"
+    },
+    {
+      "id": "d",
+      "text": "Define outputCollection with the list variable name and outputElement with an expression reading each inner flow's result variable to append on completion"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Input mappings run on activation and create local variables for the ad-hoc sub-process; they do not run on each inner flow completion or build a result list."
+    },
+    "b": {
+      "text": "Incorrect. The completionCondition is a boolean expression that decides when the ad-hoc sub-process is done; it is not the mechanism for collecting inner results into a list."
+    },
+    "c": {
+      "text": "Incorrect. A job worker implementation gives the worker control, but the documented way to collect inner outputs is the outputCollection and outputElement pair, not custom worker writes."
+    },
+    "d": {
+      "text": "Correct. outputCollection names the list variable and outputElement is evaluated on each inner flow completion to produce the value appended to that list; the list is propagated to the parent."
+    }
+  },
+  "explanation": "The ad-hoc sub-process appends each evaluated outputElement value into the outputCollection list as inner flows finish, and that local list is propagated to the parent scope when the sub-process completes.",
+  "docs": [
+    {
+      "title": "BPMN ad-hoc sub-processes",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/ad-hoc-subprocesses/"
+    }
+  ]
+}

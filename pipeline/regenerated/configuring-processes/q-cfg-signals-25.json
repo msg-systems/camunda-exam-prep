@@ -1,0 +1,50 @@
+{
+  "id": "cfg-signals-25",
+  "topic": "configuring-processes",
+  "subtopic": "signals",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas SaaS runs 2400 instances per day in Camunda 8.8 across a marketplace settlement process. A platform engineer is documenting how signal subscriptions appear when processes with signal catch events and signal start events are deployed across 6 tenants, so the operations team understands which broadcasts will start new instances and which will resume waiting ones.",
+  "question": "Which statement describes how the engine creates signal subscriptions in Camunda 8.8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Deploying a process with a signal catch event creates a subscription, and encountering a signal start event at runtime fires a matching broadcast across the cluster."
+    },
+    {
+      "id": "b",
+      "text": "Encountering a signal catch event publishes a signal that broadcasts to all process instances listening on that signal name across cluster partition leaders."
+    },
+    {
+      "id": "c",
+      "text": "Encountering a signal catch event creates a subscription that waits for a matching broadcast, and deploying a signal start event also creates a subscription that starts an instance."
+    },
+    {
+      "id": "d",
+      "text": "Deploying a process with a signal start event creates a subscription that only fires for already running process instances that wait on that signal name."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The subscription lifecycle is reversed here: catch events create subscriptions at runtime when the instance reaches the event, and start events create subscriptions at deployment time; encountering a start event at runtime does not occur."
+    },
+    "b": {
+      "text": "Incorrect. A catch event creates a subscription that waits for a broadcast; it does not publish a signal. Broadcasting is performed by throw or end events and by the broadcast API or RPC channels documented separately."
+    },
+    "c": {
+      "text": "Correct. A signal catch event creates a subscription at runtime that waits for a matching broadcast, and deploying a process with a signal start event creates a subscription that, when triggered, starts a new process instance."
+    },
+    "d": {
+      "text": "Incorrect. A signal start event subscription starts a new process instance when triggered; it does not target already running instances, which is the role of catch event subscriptions."
+    }
+  },
+  "explanation": "Signal subscriptions are created in two ways. Catch events create per-instance subscriptions at runtime that wait for a matching broadcast, and signal start events create deployment-time subscriptions that start a new process instance when triggered.",
+  "docs": [
+    {
+      "title": "Signals",
+      "url": "https://docs.camunda.io/docs/components/concepts/signals/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-22",
+  "topic": "connectors",
+  "subtopic": "connector-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Logistics, a logistics platform processing 4500 shipments per day, builds a custom Camunda 8.8 connector packaged as connector.jar and deploys the official camunda/connectors Docker image to run it as a long-running job worker against its Zeebe cluster.",
+  "question": "How should the team add their custom connector.jar to the camunda/connectors Docker runtime image at startup?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Mount the JAR as a volume with -v $PWD/connector.jar:/opt/app/connector.jar so the file lands on the runtime classpath when the camunda/connectors container starts up"
+    },
+    {
+      "id": "b",
+      "text": "Rebuild the camunda/connectors Docker image with a COPY step that bakes connector.jar into the image and republish a forked tag before running docker run with the new tag"
+    },
+    {
+      "id": "c",
+      "text": "Set CAMUNDA_CONNECTOR_POLLING_ENABLED=false at startup so the runtime fetches connector.jar from the Zeebe gateway over the configured Docker network bridge"
+    },
+    {
+      "id": "d",
+      "text": "Pass the JAR contents as a base64 environment variable through --env-file secrets.txt so the camunda/connectors image decodes and loads the file when it boots"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs show docker run mounting $PWD/connector.jar to /opt/app/connector.jar with -v, which adds the connector JAR to the classpath of the prebuilt camunda/connectors image when the container starts."
+    },
+    "b": {
+      "text": "Incorrect. The documented approach uses a volume mount, not a forked image rebuild; rebuilding is only described for the runtime image itself, not for loading a connector JAR."
+    },
+    "c": {
+      "text": "Incorrect. CAMUNDA_CONNECTOR_POLLING_ENABLED=false is the documented switch for disabling inbound connectors, not a mechanism that transports JAR bytes from Zeebe to the runtime container."
+    },
+    "d": {
+      "text": "Incorrect. The --env-file flag is documented for setting secrets as environment variables on the container; it does not ship a JAR payload into the runtime image."
+    }
+  },
+  "explanation": "The camunda/connectors Docker runtime image is started with docker run and a -v volume mount that places connector.jar into /opt/app/connector.jar, which is how the custom connector is added to the classpath of the prepackaged runtime.",
+  "docs": [
+    {
+      "title": "Connector SDK - Docker runtime image",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

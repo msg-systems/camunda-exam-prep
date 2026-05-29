@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-20",
+  "topic": "connectors",
+  "subtopic": "inbound-runtime",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Quickstop Retail, a retailer with 4000 inbound API requests per hour, builds a Camunda 8.8 inbound connector that subscribes to a message bus. For each of the 4000 requests per hour the onEvent callback must hand the event payload to the connector runtime so it can correlate against the matching waiting process instances across the retailer's order pipeline.",
+  "question": "Which InboundConnectorContext method does the documented onEvent callback use to forward an inbound event to the connector runtime?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The activate method on InboundConnectorContext, which the SDK guide invokes from the onEvent callback to forward the inbound event payload to the runtime"
+    },
+    {
+      "id": "b",
+      "text": "The correlateWithResult method on InboundConnectorContext, which the SDK guide invokes from the onEvent callback to forward the inbound event payload to the runtime"
+    },
+    {
+      "id": "c",
+      "text": "The bindProperties method on InboundConnectorContext, which the SDK guide invokes from the onEvent callback to forward the inbound event payload to the runtime"
+    },
+    {
+      "id": "d",
+      "text": "The deactivate method on InboundConnectorContext, which the SDK guide invokes from the onEvent callback to forward the inbound event payload to the runtime"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. activate is a method on InboundConnectorExecutable that the runtime calls once to start the subscription; it is not a forwarding method on InboundConnectorContext invoked per inbound event."
+    },
+    "b": {
+      "text": "Correct. The SDK guide shows the onEvent callback calling connectorContext.correlateWithResult(connectorEvent) to forward the inbound event payload to the runtime and obtain a CorrelationResult describing the outcome."
+    },
+    "c": {
+      "text": "Incorrect. bindProperties is used inside activate to deserialize the inbound connector configuration into a properties object; it does not forward inbound event payloads from onEvent."
+    },
+    "d": {
+      "text": "Incorrect. deactivate is a shutdown hook implemented on InboundConnectorExecutable to release subscription resources; it does not exist as an event-forwarding method on InboundConnectorContext."
+    }
+  },
+  "explanation": "The inbound connector uses correlateWithResult on the InboundConnectorContext from the onEvent callback to push each subscription event to the connector runtime. The returned CorrelationResult exposes the handling strategy so the executable can forward errors upstream or ignore them based on configuration.",
+  "docs": [
+    {
+      "title": "Connector SDK",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

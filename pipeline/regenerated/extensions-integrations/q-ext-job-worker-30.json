@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-30",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client-job-worker",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An airline running Camunda 8.8 handles 7500 jobs per hour through a fleet of Java job workers. During a backpressure event the cluster returns GRPC_STATUS_RESOURCE_EXHAUSTED on activation requests, and the platform team needs to confirm how the workers react out of the box and which builder method customises that reaction for their workload.",
+  "question": "How does a Camunda 8.8 Java job worker react to GRPC_STATUS_RESOURCE_EXHAUSTED on activation, and which builder method overrides that reaction?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The worker drops the activation attempt and raises a local exception immediately to the caller; the reaction is overridden by calling .errorHandler(new MyErrorHandler()) on the JobWorkerBuilder before opening the worker"
+    },
+    {
+      "id": "b",
+      "text": "The worker waits for a backoff delay before polling again, by default an exponential strategy from BackoffSupplier; the strategy is replaced by calling .backoffSupplier(supplier) on the JobWorkerBuilder before opening the worker"
+    },
+    {
+      "id": "c",
+      "text": "The worker reduces maxJobsActive by one each time the error is observed; the recovery slope is overridden by calling .activeJobsStep(1) on the JobWorkerBuilder so the worker can ramp back up to its original capacity"
+    },
+    {
+      "id": "d",
+      "text": "The worker tears down the active session and reconnects with new TLS credentials; the reconnect behaviour is overridden by calling .reconnectStrategy(strategy) on the JobWorkerBuilder before opening the worker for jobs"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The worker does not drop the job and raise an exception; it waits for a backoff delay and polls again, and the documented builder method is .backoffSupplier."
+    },
+    "b": {
+      "text": "Correct. On a polling error such as GRPC_STATUS_RESOURCE_EXHAUSTED the worker applies a backoff before the next poll, by default an exponential strategy from BackoffSupplier.newBackoffBuilder(), and the strategy is replaced through .backoffSupplier(supplier) on the JobWorkerBuilder."
+    },
+    "c": {
+      "text": "Incorrect. The Java client does not automatically shrink maxJobsActive on backpressure; backoff between polls is configured via .backoffSupplier on the JobWorkerBuilder."
+    },
+    "d": {
+      "text": "Incorrect. There is no .reconnectStrategy method on the worker builder; backoff after polling errors is configured via .backoffSupplier on the JobWorkerBuilder."
+    }
+  },
+  "explanation": "The Backoff-configuration section describes that on a polling error the worker waits a delay computed by a BackoffSupplier before polling again. The default is an exponential strategy from BackoffSupplier.newBackoffBuilder(), and a custom strategy is installed via .backoffSupplier(...) on JobWorkerBuilder. This is especially useful for GRPC_STATUS_RESOURCE_EXHAUSTED responses caused by Zeebe backpressure.",
+  "docs": [
+    {
+      "title": "Java client job worker backoff configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

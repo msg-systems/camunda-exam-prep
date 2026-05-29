@@ -1,0 +1,50 @@
+{
+  "id": "con-rest-16",
+  "topic": "connectors",
+  "subtopic": "rest",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Granite Insurance, a self-managed insurer running 24 hours per day, deploys Camunda 8.8 behind a corporate proxy. The platform team wants the proxy to be applied only to the connector runtime so the Zeebe broker and Operate keep using direct connections; the corporate proxy listens on host proxy at port 3128 for both HTTP and HTTPS traffic.",
+  "question": "Which proxy configuration scopes the proxy to the connector runtime only and not to the rest of the JVM?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set CONNECTOR_HTTP_PROXY_HOST=proxy and CONNECTOR_HTTP_PROXY_PORT=3128 as environment variables on the connector deployment so only the connector traffic is proxied"
+    },
+    {
+      "id": "b",
+      "text": "Set -Dhttp.proxyHost=proxy and -Dhttp.proxyPort=3128 as JVM properties on the connector deployment so only the connector traffic is proxied internally"
+    },
+    {
+      "id": "c",
+      "text": "Set CONNECTOR_HTTP_PROXY_HOST=proxy in the Helm chart values for Zeebe so the proxy applies to every Camunda component through the Zeebe broker process"
+    },
+    {
+      "id": "d",
+      "text": "Set http.proxyHost=proxy and CONNECTOR_HTTP_PROXY_PORT=3128, mixing JVM and environment variable names to keep the proxy scoped to the connector runtime"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The documented environment-variable configuration (CONNECTOR_HTTP_PROXY_HOST, CONNECTOR_HTTP_PROXY_PORT, plus their HTTPS counterparts) affects only the connector and REST-based connectors, which is exactly the scope the platform team needs for the corporate proxy."
+    },
+    "b": {
+      "text": "Incorrect. JVM properties such as -Dhttp.proxyHost apply to the whole JVM runtime, so any HTTP client running in that JVM (including the Zeebe client) might be affected, breaking the connector-only scope the team requires."
+    },
+    "c": {
+      "text": "Incorrect. CONNECTOR_HTTP_PROXY_HOST is a connector-runtime environment variable, not a Zeebe configuration setting; placing it in Zeebe values does not route Zeebe traffic through the proxy and misplaces the variable."
+    },
+    "d": {
+      "text": "Incorrect. A bare http.proxyHost (without the -D prefix on the JVM command line) is not picked up as a JVM property; mixing it with the connector environment variable leaves the proxy host unset for the connector runtime."
+    }
+  },
+  "explanation": "Camunda 8.8 self-managed supports two ways to configure an outbound proxy. JVM properties (http.proxyHost / http.proxyPort) apply to the whole JVM runtime, while CONNECTOR_HTTP_PROXY_HOST / PORT environment variables (and their HTTPS counterparts) scope the proxy to the connector runtime and REST-based connectors only.",
+  "docs": [
+    {
+      "title": "REST connector",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/"
+    }
+  ]
+}

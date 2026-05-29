@@ -1,0 +1,50 @@
+{
+  "id": "mod-script-tasks-23",
+  "topic": "modeling",
+  "subtopic": "script-tasks",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Bank computes a loan fee discount inside a Camunda 8.8 FEEL script task across 12000 loans per day. Operations must know what happens if the inline FEEL expression fails to evaluate at runtime, so the team can plan operator workflows for the resulting runtime state and recovery once the underlying data issue is fixed in the process instance.",
+  "question": "What happens at a FEEL-implementation script task when the inline FEEL expression evaluation is unsuccessful?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The script task is skipped silently and the process instance continues to the next BPMN element so downstream tasks can proceed without intervention by operators"
+    },
+    {
+      "id": "b",
+      "text": "An incident is raised at the script task and once the incident is resolved by operators the FEEL expression is evaluated again on the same script task instance"
+    },
+    {
+      "id": "c",
+      "text": "The script task is retried automatically up to three attempts and the process instance is terminated when the configured retries are exhausted on the script task"
+    },
+    {
+      "id": "d",
+      "text": "A job worker is invoked to evaluate the script on a JVM and the process instance waits for the worker to complete the corresponding script job successfully"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. A failed FEEL expression does not let the process instance silently move on; the docs are explicit that an incident is raised at the script task and the task is evaluated again after the incident is resolved."
+    },
+    "b": {
+      "text": "Correct. The docs state that if the FEEL expression evaluation is unsuccessful, an incident is raised at the script task, and when the incident is resolved the script task is evaluated again."
+    },
+    "c": {
+      "text": "Incorrect. FEEL-implementation script tasks do not use job retries to recover from FEEL evaluation failures; instead an incident is raised and reevaluation happens when the incident is resolved."
+    },
+    "d": {
+      "text": "Incorrect. The job worker option is a separate implementation of the script task; the FEEL implementation evaluates inline via the integrated FEEL Scala engine and raises an incident on failure rather than invoking a worker."
+    }
+  },
+  "explanation": "Under the FEEL implementation the integrated FEEL Scala engine evaluates the script task expression inline; a failed evaluation raises an incident at the script task, and resolving the incident triggers reevaluation of the same FEEL expression on that instance.",
+  "docs": [
+    {
+      "title": "BPMN script tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/script-tasks/"
+    }
+  ]
+}

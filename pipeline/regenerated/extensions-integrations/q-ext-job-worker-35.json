@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-35",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client-job-worker",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "A marketplace running Camunda 8.8 with 8000 jobs per hour wants to reduce activation latency on a critical Java worker. The lead engineer enables job streaming and must confirm how the stream interacts with maxJobsActive and the default stream timeout so the worker memory footprint stays bounded and the underlying stream refreshes on a known cadence.",
+  "question": "Which statement matches the Camunda 8.8 Java client documentation for job streaming on a worker builder?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Job streaming is enabled by calling .pushMode(true) on the worker builder; once enabled the worker accepts an unbounded number of jobs from the gateway until the application heap is exhausted at runtime"
+    },
+    {
+      "id": "b",
+      "text": "Job streaming is enabled by calling .streamEnabled(true) on the worker builder; once enabled the worker disables polling entirely and the streamTimeout defaults to 24 hours of refresh on the long-living stream"
+    },
+    {
+      "id": "c",
+      "text": "Job streaming is enabled by calling .streamEnabled(true) on the worker builder; the worker still buffers only up to maxJobsActive jobs at once and the streamTimeout defaults to one hour of refresh on the stream"
+    },
+    {
+      "id": "d",
+      "text": "Job streaming is enabled by calling .openStream() on the JobWorker after .open(); once enabled the maxJobsActive setting is ignored in favour of internal gRPC flow-control windows on the underlying transport"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The flag is .streamEnabled(true), and the worker still bounds buffered jobs by maxJobsActive rather than accepting an unbounded stream of jobs from the gateway."
+    },
+    "b": {
+      "text": "Incorrect. Streaming does not disable polling outright (polling still occurs for backfilling), and the documented default streamTimeout is one hour rather than 24 hours."
+    },
+    "c": {
+      "text": "Correct. The Job-streaming section explains that .streamEnabled(true) opens a long-living gRPC stream; the worker still buffers at most maxJobsActive jobs at once, and the default streamTimeout is one hour, configurable through .streamTimeout(...)."
+    },
+    "d": {
+      "text": "Incorrect. Streaming is configured before .open() through .streamEnabled(true); maxJobsActive continues to soft-bound the number of in-flight jobs even when streaming is enabled on the worker."
+    }
+  },
+  "explanation": "The Job-streaming section explains that calling .streamEnabled(true) on the worker builder opens a long-living gRPC stream over which jobs are pushed. The worker still buffers at most maxJobsActive jobs (soft-bounding memory), polling is reduced rather than removed, and the streamTimeout defaults to one hour and can be changed via .streamTimeout(...).",
+  "docs": [
+    {
+      "title": "Java client job worker job streaming",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

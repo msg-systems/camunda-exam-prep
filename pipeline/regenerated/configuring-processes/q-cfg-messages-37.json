@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-37",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Meridian Retail collects 8000 events per day in Camunda 8.8 from a customer notification stream and an architect must pick the documented message pattern that aggregates many messages with the same correlation key into a single ongoing process instance per customer entity.",
+  "question": "Which Camunda 8 message pattern aggregates multiple messages with the same correlation key into a single ongoing process instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Single instance pattern with TTL of zero and a correlation key per entity, which silently discards every message except the first one received per key on the broker"
+    },
+    {
+      "id": "b",
+      "text": "The Message aggregator pattern with TTL > 0 and a correlation key that groups messages per entity, where the first message creates the instance and the rest correlate to it"
+    },
+    {
+      "id": "c",
+      "text": "The Message buffering pattern with TTL of zero and no correlation key, which collects messages on the broker until the operator manually publishes them to a process instance"
+    },
+    {
+      "id": "d",
+      "text": "The Message uniqueness pattern with a message ID per event, which batches duplicate messages on the broker into a synthetic aggregate event for a single process instance"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Single instance pattern enforces exactly one instance and discards later messages with the same correlation key; it does not aggregate them into the ongoing instance at all."
+    },
+    "b": {
+      "text": "Correct. The Message aggregator pattern publishes messages with TTL > 0 and a correlation key that groups them per entity; the first message creates the instance and the following messages are correlated to that same instance."
+    },
+    "c": {
+      "text": "Incorrect. There is no documented pattern that buffers without a correlation key for later operator routing; buffering is a building block, not the aggregator pattern itself on the broker."
+    },
+    "d": {
+      "text": "Incorrect. Message uniqueness is a deduplication mechanism, not an aggregation pattern; it rejects duplicates rather than combining them into a single ongoing process instance."
+    }
+  },
+  "explanation": "The Message aggregator pattern is the documented solution for collecting and batching messages. Messages are published with TTL > 0 and a correlation key that groups them per entity. The first message creates a new process instance; later messages with the same key are correlated to that same instance until it ends.",
+  "docs": [
+    {
+      "title": "Messages",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

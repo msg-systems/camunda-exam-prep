@@ -1,0 +1,50 @@
+{
+  "id": "ext-configuration-35",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Tessera Insurance runs a Camunda 8.8 Spring Boot service that warms 250 records into a lookup cache the moment the Camunda client becomes available. The team wants to register the warm-up logic as a regular Spring listener that reacts to the lifecycle event published by the Camunda Spring Boot Starter once the underlying Camunda client has been created, instead of polling for readiness from its own startup code.",
+  "question": "Which Spring event signals that the Camunda Spring Boot Starter has created the Camunda client?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Annotate a method with @EventListener accepting CamundaClientCreatedEvent; Spring invokes the method once the Camunda Spring Boot Starter has created the Camunda client instance"
+    },
+    {
+      "id": "b",
+      "text": "Annotate a method with @EventListener accepting CamundaClientReadyEvent; Spring invokes the method once the Camunda Spring Boot Starter has finished registering all @JobWorker subscriptions"
+    },
+    {
+      "id": "c",
+      "text": "Annotate a method with @EventListener accepting CamundaClientStartedEvent; Spring invokes the method once the Camunda Spring Boot Starter has opened the first job subscription on the broker"
+    },
+    {
+      "id": "d",
+      "text": "Annotate a method with @EventListener accepting CamundaClientClosingEvent; Spring invokes the method once the Camunda Spring Boot Starter is about to close the Camunda client gracefully"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs list CamundaClientCreatedEvent as the event published when the Camunda client is created; a method annotated with @EventListener receiving that type runs once at that lifecycle moment."
+    },
+    "b": {
+      "text": "Incorrect. CamundaClientReadyEvent is not one of the lifecycle events the Spring Boot Starter publishes; the creation hook is CamundaClientCreatedEvent."
+    },
+    "c": {
+      "text": "Incorrect. CamundaClientStartedEvent is not one of the events documented for the Starter; the creation hook is named CamundaClientCreatedEvent."
+    },
+    "d": {
+      "text": "Incorrect. CamundaClientClosingEvent fires when the client is closing, not when it has been created, so it does not signal the start of the lifecycle the team needs."
+    }
+  },
+  "explanation": "The Camunda Spring Boot Starter publishes lifecycle events including CamundaClientCreatedEvent and CamundaClientClosingEvent; an @EventListener method that accepts CamundaClientCreatedEvent is invoked the moment the Camunda client has been created.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

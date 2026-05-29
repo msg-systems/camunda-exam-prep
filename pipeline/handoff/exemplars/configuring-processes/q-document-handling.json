@@ -1,0 +1,27 @@
+{
+  "id": "cp-document-handling",
+  "topic": "configuring-processes",
+  "subtopic": "documents",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Umbra Insurance attaches scanned PDF documents to 4000 claims per day in Camunda 8.8. The team must pass the document content across multiple service tasks without inflating process variables, using the platform's built-in document handling introduced for stream-oriented uploads of records of variable size.",
+  "question": "Which Camunda 8.8 mechanism passes a binary document through a process by reference rather than embedding bytes in process variables?",
+  "options": [
+    { "id": "a", "text": "Camunda 8.8 documents are stored in the document store; the process variable holds a reference and workers fetch the bytes by document id" },
+    { "id": "b", "text": "Documents are base64-encoded inside process variables; the broker compresses them on write so they remain small in the broker state machine" },
+    { "id": "c", "text": "Documents are stored in a per-instance Elasticsearch index; workers query the index using the process instance key as the lookup key" },
+    { "id": "d", "text": "Documents are passed as custom headers on every service task; the broker copies header bytes onto each job activation without overhead" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Camunda 8.8 introduced first-class document handling: documents live in the document store and process variables carry references for workers to dereference." },
+    "b": { "text": "Incorrect. Base64 in process variables is the legacy anti-pattern that document handling replaces; the broker does not auto-compress." },
+    "c": { "text": "Incorrect. Documents are not stored in the runtime Operate index; a dedicated document store is the documented mechanism." },
+    "d": { "text": "Incorrect. Custom headers are static text metadata; they are not the document-passing mechanism in Camunda 8." }
+  },
+  "explanation": "Camunda 8.8 documents live in the document store; process variables carry a reference object that workers and connectors use to read or write document bytes.",
+  "docs": [
+    { "title": "Document handling", "url": "https://docs.camunda.io/docs/components/concepts/document-handling/" }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-94",
+  "topic": "extensions-integrations",
+  "subtopic": "service-task-async",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lumen Brokerage runs a Camunda 8.8 quoting process with 9000 requests per day where downstream pricing returns responses in 200 ms after the request. The team keeps a single service task open during the round trip and must complete that service task from a job worker once the asynchronous pricing response message arrives back from the service.",
+  "question": "Which Zeebe identifier does the worker need in order to complete a service task that was held open for an asynchronous response?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The job instance key from Zeebe; the worker passes it to the pricing service or keeps it in a lookup table so it can complete the open service task once the response arrives back."
+    },
+    {
+      "id": "b",
+      "text": "The process instance key from Zeebe; the worker passes it to the pricing service so the gateway can locate and complete the open service task as soon as the response arrives at the gateway."
+    },
+    {
+      "id": "c",
+      "text": "The BPMN process ID from the diagram; the worker passes it to the pricing service so the workflow engine can match the open service task by its element identifier on the BPMN file."
+    },
+    {
+      "id": "d",
+      "text": "The element instance key of the activity; the worker passes it to the pricing service so the engine can resolve the open service task without relying on the internal job identifier scheme."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The page states that to complete the held open service task you need the job instance key from Zeebe and recommends either passing it through to the third party service or building a lookup table that maps your own correlation data to the right job key for completion."
+    },
+    "b": {
+      "text": "Incorrect. The page reserves the job instance key, not the process instance key, as the value needed to complete the open service task. The process instance key identifies the running process flow rather than the individual job awaiting completion in the engine."
+    },
+    "c": {
+      "text": "Incorrect. The BPMN process ID identifies the deployed process definition on the diagram, not a single open service task instance in the engine. The page specifies the internal job instance key as the value required to complete the held open service task."
+    },
+    "d": {
+      "text": "Incorrect. The page names the job instance key as the value the worker must hold to complete the open service task, not the element instance key of the activity. The element instance key is a different internal identifier in the workflow engine model."
+    }
+  },
+  "explanation": "To complete a service task held open for an asynchronous response, the worker needs the Zeebe job instance key; the page recommends either passing this internal ID to the third party service or maintaining a lookup table that maps user controlled correlation data to the job key.",
+  "docs": [
+    {
+      "title": "Service integration patterns",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

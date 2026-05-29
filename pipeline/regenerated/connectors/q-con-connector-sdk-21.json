@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-21",
+  "topic": "connectors",
+  "subtopic": "testing",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Riverwave Fintech, a fintech handling 25000 API requests per day, writes a JUnit test for its Camunda 8.8 outbound connector. The test must verify that the placeholder secrets.MY_TOKEN on the Authentication.token field is replaced with the literal value 'token value' when bindVariables runs, before any of the 25000 requests per day reach the external API.",
+  "question": "Which test setup produces the context that the documented secret-replacement test in the SDK uses?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use OutboundConnectorContextBuilder.create().build() and then call context.replaceSecrets with MY_TOKEN and token value before invoking bindVariables on the input class"
+    },
+    {
+      "id": "b",
+      "text": "Use OutboundConnectorRuntime.test().secret(MY_TOKEN, token value).build() to assemble a runtime harness and call execute on the connector function with the input class"
+    },
+    {
+      "id": "c",
+      "text": "Use OutboundConnectorContextBuilder.create().secret(MY_TOKEN, token value).build() to assemble the context and then invoke context.bindVariables on the MyConnectorType class"
+    },
+    {
+      "id": "d",
+      "text": "Use a real ZeebeClient test container with MY_TOKEN stored in the cluster secret store and rely on the deployed connector job worker to replace the secret in the input"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The SDK guide does not show a context.replaceSecrets call in the test; secret replacement is triggered automatically by bindVariables on a context that was seeded with the secret through the builder."
+    },
+    "b": {
+      "text": "Incorrect. The documented test harness is OutboundConnectorContextBuilder, not an OutboundConnectorRuntime.test entry point; the SDK provides a context builder rather than a full runtime harness for scoped tests."
+    },
+    "c": {
+      "text": "Correct. The SDK shows OutboundConnectorContextBuilder.create().secret(MY_TOKEN, token value).build() to construct the test context, after which bindVariables on the input class triggers secret replacement and validation for assertions."
+    },
+    "d": {
+      "text": "Incorrect. The SDK explicitly aims to test connectors without Camunda engine internals; spinning up a ZeebeClient container and the deployed worker is not the documented scoped-test approach for secret replacement."
+    }
+  },
+  "explanation": "Secret-replacement tests rely on OutboundConnectorContextBuilder to assemble a test OutboundConnectorContext seeded with secret values via .secret(name, value). Calling bindVariables on the input class then triggers the same replacement and validation routines used at runtime, allowing assertions on the resolved fields.",
+  "docs": [
+    {
+      "title": "Connector SDK",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

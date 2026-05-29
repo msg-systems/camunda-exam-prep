@@ -1,0 +1,50 @@
+{
+  "id": "dec-decision-literal-expression-73",
+  "topic": "decisions-business-rules",
+  "subtopic": "decision-literal-expression",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Bank, a retail bank running 9000 loan checks per day in Camunda 8.8, ships a DMN literal expression decision whose id attribute is set to risk-score-v2. Deployment is accepted but the dependent fraud decision can no longer read the upstream result by id.",
+  "question": "Why does the kebab-case decision ID risk-score-v2 break access from a dependent decision in DMN?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The hyphen is parsed as the FEEL subtraction operator in expressions, so the dependent decision cannot reference the result by that ID"
+    },
+    {
+      "id": "b",
+      "text": "The hyphen is reserved as the FEEL string-concatenation operator in expressions, so the dependent decision cannot reference the result by that ID"
+    },
+    {
+      "id": "c",
+      "text": "The hyphen is parsed as a path separator in FEEL expressions, so the dependent decision can only reference the substring after the last hyphen"
+    },
+    {
+      "id": "d",
+      "text": "The hyphen is interpreted as a wildcard match in FEEL expressions, so the dependent decision resolves the reference to multiple results"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Decision IDs may contain only alphanumerics and underscore; kebab-case is disallowed because the hyphen is the FEEL subtraction operator, so the ID cannot be referenced from a dependent decision."
+    },
+    "b": {
+      "text": "Incorrect. String concatenation in FEEL uses a different operator; the hyphen is the subtraction operator and that is why kebab-case decision IDs are disallowed."
+    },
+    "c": {
+      "text": "Incorrect. FEEL does not treat the hyphen as a path separator; the prohibition exists because the hyphen is the subtraction operator and would conflict with identifier parsing."
+    },
+    "d": {
+      "text": "Incorrect. FEEL has no wildcard semantics on hyphen; the hyphen is the subtraction operator, which is why kebab-case decision IDs are not allowed."
+    }
+  },
+  "explanation": "Decision IDs must be alphanumeric or underscore; kebab-case is rejected because the hyphen is the FEEL minus operator, which breaks references from dependent decisions.",
+  "docs": [
+    {
+      "title": "DMN decision literal expression",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-literal-expression/"
+    }
+  ]
+}

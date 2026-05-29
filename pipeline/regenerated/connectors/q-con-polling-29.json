@@ -1,0 +1,50 @@
+{
+  "id": "con-polling-29",
+  "topic": "connectors",
+  "subtopic": "polling",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Northwind Retail, an online retailer with 60,000 SKUs across 12 warehouses, watches stock levels of a popular Bluetooth-earbuds product (ID 12345) every hour with a Camunda 8.8 HTTP Polling intermediate catch event. The team wants the catch event to fire only when the polled stock level drops below 10 units so a replenishment process can react quickly.",
+  "question": "Which Interval and Activation Condition match the documented stock-monitoring polling example?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Interval=PT1H and Activation Condition==(body.stockLevel < 10), polling the stock endpoint every hour and firing only when stockLevel is below 10 units"
+    },
+    {
+      "id": "b",
+      "text": "Interval=P1H and Activation Condition==(body.stockLevel < 10), polling every hour using the ISO 8601 period-only format P1H without the time designator"
+    },
+    {
+      "id": "c",
+      "text": "Interval=PT60M and Activation Condition==(body.stock < 10), reading a body.stock field once per hour as the trigger for the replenishment process"
+    },
+    {
+      "id": "d",
+      "text": "Interval=PT1H and Activation Condition==(body.stockLevel <= 10), polling once an hour and firing at or below 10 units with a non-strict comparison"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The product-stock scenario in the docs configures Interval=PT1H to poll the inventory endpoint every hour, and uses Activation Condition==(body.stockLevel < 10) so the intermediate catch event only fires once stock drops below 10 units for the monitored product."
+    },
+    "b": {
+      "text": "Incorrect. ISO 8601 durations begin with PT for hour/minute/second components; P1H without the T designator denotes a period and is not the documented Interval format used by the HTTP Polling connector examples."
+    },
+    "c": {
+      "text": "Incorrect. The example response from the docs exposes stock as body.stockLevel, so reading body.stock dereferences a field the polled response does not include, and the Activation Condition would never fire."
+    },
+    "d": {
+      "text": "Incorrect. The documented Activation Condition uses a strict less-than (<), which fires only below 10; a non-strict comparison (<=) would also trigger at exactly 10 units, contradicting the example threshold."
+    }
+  },
+  "explanation": "The HTTP Polling docs include a stock-monitoring example with Interval=PT1H (every hour) and Activation Condition==(body.stockLevel < 10). Interval values use ISO 8601 duration syntax (PT prefix for time-of-day components like PT10M or PT1H), and Activation Condition is a FEEL expression evaluated against the polled body to decide when the catch event fires.",
+  "docs": [
+    {
+      "title": "HTTP Polling connector",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/polling/"
+    }
+  ]
+}

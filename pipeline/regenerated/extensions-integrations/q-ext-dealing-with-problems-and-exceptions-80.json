@@ -1,0 +1,50 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-80",
+  "topic": "extensions-integrations",
+  "subtopic": "saga-compensation",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Insurance models a customer onboarding business transaction in Camunda 8.8 that registers 8000 policies per day across a CRM and a billing system. When a downstream step fails after the CRM has already created the customer record, the team needs the process to undo the prior successful step instead of leaving stale data behind.",
+  "question": "Which Camunda 8.8 mechanism implements the Saga pattern for long-running business transactions?",
+  "options": [
+    {
+      "id": "a",
+      "text": "BPMN compensation events link each completed task with its undo task and trigger compensating activities when the process raises a compensation throw event"
+    },
+    {
+      "id": "b",
+      "text": "BPMN error boundary events on each service task roll back database changes through the orchestration cluster transaction coordinator within the broker"
+    },
+    {
+      "id": "c",
+      "text": "BPMN message boundary events publish rollback messages to every prior task and require the broker to acknowledge each compensating step as transactional"
+    },
+    {
+      "id": "d",
+      "text": "BPMN signal end events broadcast a global rollback signal that automatically reverts every external system call made during the completed business transaction"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda supports the Saga pattern through BPMN compensation events, which link tasks with their undo tasks; on a compensation throw, all compensating activities of previously completed tasks are executed, such as deactivating the customer in the CRM."
+    },
+    "b": {
+      "text": "Incorrect. Error boundary events catch failures during execution but do not invoke registered undo activities for already completed tasks; the Saga pattern relies on BPMN compensation, not transactional rollback."
+    },
+    "c": {
+      "text": "Incorrect. Message boundary events handle inter-process correlation and do not provide a mechanism to undo previously completed tasks; Camunda's Saga support is built on compensation events."
+    },
+    "d": {
+      "text": "Incorrect. Signal events broadcast notifications but do not run the per-task undo activities that the Saga pattern requires; the documented mechanism is BPMN compensation linked to each task."
+    }
+  },
+  "explanation": "The Saga pattern undoes completed work instead of rolling it back as a single distributed transaction. Camunda 8.8 supports Saga through BPMN compensation events that link each task to its undo task; throwing a compensation runs the compensating activities of all successfully completed tasks, for example deactivating a customer that the CRM cannot delete.",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

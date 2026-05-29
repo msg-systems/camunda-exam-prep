@@ -1,0 +1,50 @@
+{
+  "id": "mod-user-tasks-27",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Pioneer Bank maintains a legacy user task pattern in Camunda 8.8 that processes 5000 tasks per day. A modeler switches a user task to the job worker implementation and must register the right worker subscription on the right job type so the external service can take and complete the job.",
+  "question": "Which job type does an external worker subscribe to for a user task with the job worker implementation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The job type io.camunda.zeebe:userTask, created by Zeebe when the process instance reaches a user task that has the zeebe:userTask extension element removed"
+    },
+    {
+      "id": "b",
+      "text": "The job type io.camunda.zeebe:userTaskListener, created by Zeebe when the user task is activated and shared with all configured user task lifecycle listeners"
+    },
+    {
+      "id": "c",
+      "text": "The job type io.camunda.tasklist:userTask, created by Tasklist on activation of the user task and consumed by job workers that integrate with the Tasklist API"
+    },
+    {
+      "id": "d",
+      "text": "A custom job type derived from the taskDefinition type attribute of the user task, with job worker based user tasks defining their own type the same way service tasks do at runtime"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. To define a job worker implementation, the zeebe:userTask extension element is removed from the user task. When the process instance reaches the task, Zeebe creates a job and a job worker processes jobs of the type io.camunda.zeebe:userTask."
+    },
+    "b": {
+      "text": "Incorrect. The io.camunda.zeebe:userTaskListener job type is associated with lifecycle listeners on Camunda user tasks rather than with the job worker implementation of user tasks themselves."
+    },
+    "c": {
+      "text": "Incorrect. The documented job type for job worker-based user tasks is io.camunda.zeebe:userTask, created by the Zeebe engine, not a Tasklist-prefixed type."
+    },
+    "d": {
+      "text": "Incorrect. Job worker-based user tasks do not declare their own taskDefinition type; the engine uses the fixed job type io.camunda.zeebe:userTask for these tasks."
+    }
+  },
+  "explanation": "When a user task uses the job worker implementation, the zeebe:userTask extension element is removed. Zeebe creates a job on activation, a job worker processes jobs of the type io.camunda.zeebe:userTask, and the process continues after completion.",
+  "docs": [
+    {
+      "title": "BPMN user tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ]
+}

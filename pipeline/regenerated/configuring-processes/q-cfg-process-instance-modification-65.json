@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-65",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Sentinel Bank operates a Camunda 8.8 loan-origination process orchestrating 4,200 applications per day. An operator wants to terminate a call activity in one running instance to recover after the downstream credit-bureau service stayed down for PT3H, but the call activity has already produced a child process instance with two active jobs inside it.",
+  "question": "What does the modification command do to the child process instance when the operator terminates the parent call activity?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The engine terminates the child process instance entirely, including its currently active element instances, as part of terminating the call activity."
+    },
+    {
+      "id": "b",
+      "text": "The engine keeps the child running and only detaches it from the parent, so the child becomes an orphan that completes on its own schedule."
+    },
+    {
+      "id": "c",
+      "text": "The engine refuses to terminate the call activity until every active element inside the child process instance has finished or been terminated individually first."
+    },
+    {
+      "id": "d",
+      "text": "The engine terminates only the call activity boundary in the parent and leaves the child process instance untouched until its message subscription expires later."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs state that if the terminating element instance is a call activity, the engine terminates the child process instance, including any active element instances inside that child."
+    },
+    "b": {
+      "text": "Incorrect. Terminating the call activity does not detach the child; the child process instance is terminated as a direct consequence of terminating its parent call activity."
+    },
+    "c": {
+      "text": "Incorrect. Termination of a call activity does not require the child to be drained first; the engine cascades the termination into the child process instance automatically."
+    },
+    "d": {
+      "text": "Incorrect. There is no documented mode that leaves the child running after the parent call activity is terminated by a modification command on the parent instance."
+    }
+  },
+  "explanation": "When a modification terminates a call activity, the documented rule is that the child process instance is terminated along with it. This is also the recommended way to clear a child, because the child's own last active instance cannot be terminated directly by a modification command.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

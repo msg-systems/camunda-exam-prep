@@ -1,0 +1,50 @@
+{
+  "id": "ext-camunda8-sdk-63",
+  "topic": "extensions-integrations",
+  "subtopic": "typescript-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Insurer migrates a Node.js orchestrator that starts 9000 instances per day on Camunda 8.8. Engineers want to deploy a BPMN file from disk inside an async main function and log the deployed process definition identifier returned by the gateway before any process instances are created.",
+  "question": "Which TypeScript SDK call deploys a BPMN file from disk and returns the deployed process metadata in Camunda 8.8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Invoke camunda.uploadBpmn with the file path so the SDK reads the resource from disk and submits it synchronously to the Zeebe gateway"
+    },
+    {
+      "id": "b",
+      "text": "Invoke camunda.publishProcess with the bpmnProcessId so the SDK locates and uploads any matching file from a configured resources directory"
+    },
+    {
+      "id": "c",
+      "text": "Invoke camunda.deployFromGit with a repository URL so the SDK fetches the BPMN file from the configured git remote on application startup"
+    },
+    {
+      "id": "d",
+      "text": "Invoke camunda.deployResourcesFromFiles with an array of file paths and await the returned promise to receive the deployed process metadata"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. There is no uploadBpmn method documented for the SDK; the deployment entry point used in the guide is deployResourcesFromFiles, which takes an array of file paths."
+    },
+    "b": {
+      "text": "Incorrect. There is no publishProcess method that resolves files by bpmnProcessId; the documented call passes explicit file paths to deployResourcesFromFiles."
+    },
+    "c": {
+      "text": "Incorrect. The SDK does not document a deployFromGit method; the deploy step in the walkthrough reads the BPMN file from the local filesystem via deployResourcesFromFiles."
+    },
+    "d": {
+      "text": "Correct. The walkthrough deploys process.bpmn by awaiting camunda.deployResourcesFromFiles with the file path; the response exposes processes[0].processDefinitionId for logging."
+    }
+  },
+  "explanation": "Deploying a process model in the TypeScript SDK uses camunda.deployResourcesFromFiles, which is awaited inside an async function and returns a deployResponse exposing processes[0].processDefinitionId.",
+  "docs": [
+    {
+      "title": "Camunda 8 TypeScript SDK",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ]
+}

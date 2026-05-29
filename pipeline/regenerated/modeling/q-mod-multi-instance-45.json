@@ -1,0 +1,50 @@
+{
+  "id": "mod-multi-instance-45",
+  "topic": "modeling",
+  "subtopic": "multi-instance",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Bank runs 80 tasks per loan application as a parallel multi-instance subprocess in Camunda 8.8. The risk team wants to terminate any still-active instances and complete the multi-instance body as soon as 50% or more of the audit instances have finished, so they need a FEEL completionCondition that uses the BPMN multi-instance properties.",
+  "question": "Which FEEL completionCondition expresses 'complete when 50% or more of the instances already completed'?",
+  "options": [
+    {
+      "id": "a",
+      "text": "= numberOfActiveInstances / numberOfInstances >= 0.5 evaluates true once at least half of the originally created instances remain active in the multi-instance body"
+    },
+    {
+      "id": "b",
+      "text": "= numberOfTerminatedInstances / numberOfInstances >= 0.5 evaluates true once at least half of the created instances have been terminated by the engine at runtime"
+    },
+    {
+      "id": "c",
+      "text": "= numberOfCompletedInstances / numberOfActiveInstances >= 0.5 evaluates true once the completed count reaches half of the currently active instances at evaluation"
+    },
+    {
+      "id": "d",
+      "text": "= numberOfCompletedInstances / numberOfInstances >= 0.5 evaluates true once at least half of the originally created instances of the multi-instance body have completed"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. numberOfActiveInstances counts instances still running, not those that have completed, so this expression triggers on the active share and does not match the documented 50%-completed rule for the multi-instance body."
+    },
+    "b": {
+      "text": "Incorrect. numberOfTerminatedInstances counts instances ended early rather than those that completed successfully, so the ratio does not express the 'already completed' threshold the team wants to enforce."
+    },
+    "c": {
+      "text": "Incorrect. Dividing completed by active uses a moving denominator that shrinks as instances finish, so the ratio does not match 50% of the originally created instances defined by numberOfInstances."
+    },
+    "d": {
+      "text": "Correct. The docs give exactly this completionCondition as the example for 'complete the multi-instance body when 50% or more of the instances already completed', dividing numberOfCompletedInstances by numberOfInstances."
+    }
+  },
+  "explanation": "BPMN multi-instance bodies expose numberOfInstances, numberOfActiveInstances, numberOfCompletedInstances, and numberOfTerminatedInstances for use in the completionCondition, and the 50% threshold is expressed as numberOfCompletedInstances / numberOfInstances >= 0.5.",
+  "docs": [
+    {
+      "title": "BPMN multi-instance",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ]
+}

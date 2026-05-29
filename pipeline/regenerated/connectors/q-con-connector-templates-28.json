@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-templates-28",
+  "topic": "connectors",
+  "subtopic": "connector-templates",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "At carrier Polaris Logistics, an engineer configures the HTTP Webhook boundary event connector template on Camunda 8.8 and sets a 30 minutes Message TTL so late courier callbacks expire in the broker before they can interrupt a user task whose SLA window is 2 hours per delivery.",
+  "question": "Which value format does the boundary event webhook template require in the Message TTL property?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A FEEL number in seconds matching the regex pattern of the field, written as a plain integer such as 1800 for 30 minutes in the broker"
+    },
+    {
+      "id": "b",
+      "text": "A cron expression in the correlation group matching the pattern of the field so the broker schedules expiry inside the message subscription"
+    },
+    {
+      "id": "c",
+      "text": "An ISO-8601 duration string matching the pattern ^(PT.*|)$, written for example as PT30M for a 30 minutes time-to-live in the broker"
+    },
+    {
+      "id": "d",
+      "text": "A Java Duration literal matching the pattern of the field, written as java.time.Duration.ofMinutes(30) inside the messageTtl property value"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The constraint pattern on messageTtl requires PT-prefixed ISO-8601 durations or an empty string, so a plain numeric seconds value such as 1800 does not match the field pattern."
+    },
+    "b": {
+      "text": "Incorrect. messageTtl sits in the correlation group and represents a duration string, not a cron expression scheduled against the message subscription."
+    },
+    "c": {
+      "text": "Correct. The boundary template defines messageTtl with constraints pattern ^(PT.*|)$ and the message must be an ISO-8601 duration; the field is feel: optional and the description states Time-to-live for the message in the broker."
+    },
+    "d": {
+      "text": "Incorrect. The field holds a String value that matches the ISO-8601 duration pattern; the template does not accept Java Duration literals as the configured value type."
+    }
+  },
+  "explanation": "Message TTL on the boundary event webhook template is a String property in the correlation group with the pattern constraint ^(PT.*|)$, requiring an ISO-8601 duration such as PT30M or an empty value. It controls how long the broker keeps the correlated message available for the boundary event.",
+  "docs": [
+    {
+      "title": "Connector templates - Inbound boundary event",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-templates/"
+    }
+  ]
+}

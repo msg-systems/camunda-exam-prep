@@ -1,0 +1,50 @@
+{
+  "id": "cfg-expressions-11",
+  "topic": "configuring-processes",
+  "subtopic": "expressions",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Retailer configures a timer catch event on a Camunda 8.8 process that handles 1500 orders per day. A modeler enters PT2H in the timer definition field and wants to know how the engine decides whether the entered value is interpreted as a FEEL expression or as a static ISO-8601 duration string.",
+  "question": "How does the Camunda 8.8 engine distinguish a FEEL expression from a static value entered in a BPMN attribute?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Any value enclosed in double quotes is read as a FEEL expression while bare text is read as a static value; PT2H without quotes is therefore evaluated as a duration string"
+    },
+    {
+      "id": "b",
+      "text": "Any value beginning with an equals sign is read as a FEEL expression while text without that prefix is read as a static value; PT2H is therefore used as a duration string"
+    },
+    {
+      "id": "c",
+      "text": "Any value containing an arithmetic operator is read as a FEEL expression while plain literal text is read as a static value; PT2H is therefore used as a duration string"
+    },
+    {
+      "id": "d",
+      "text": "Any value referencing a process variable name is read as a FEEL expression while non-variable text is read as a static value; PT2H is therefore used as a duration string"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Quoting does not mark a field as an expression; in FEEL a literal string inside an expression is written like = \"foo\", so the marker is the leading equals sign rather than the quotes themselves."
+    },
+    "b": {
+      "text": "Correct. Per the Camunda 8 expressions docs, an expression must start with the equals sign prefix; without that prefix the entered value is treated as a static string or number such as a duration like PT2H."
+    },
+    "c": {
+      "text": "Incorrect. The presence of an arithmetic operator does not classify the field; the engine only recognises an expression when the value starts with an equals sign before any operator appears."
+    },
+    "d": {
+      "text": "Incorrect. A variable name on its own is not detected as an expression; FEEL still requires the equals-sign prefix even when the body is just a variable reference like = remainingTime."
+    }
+  },
+  "explanation": "Camunda 8 treats a BPMN attribute value as a FEEL expression only when it begins with the equals sign prefix (for example = order.amount > 100). Without that prefix the value is consumed as a static string or number, and a static string must not be enclosed in quotes.",
+  "docs": [
+    {
+      "title": "Expressions",
+      "url": "https://docs.camunda.io/docs/components/concepts/expressions/"
+    }
+  ]
+}

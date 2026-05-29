@@ -1,0 +1,50 @@
+{
+  "id": "mod-tasks-10",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Quantum Bank orchestrates a payment authorisation workflow in Camunda 8.8 that handles 9000 transactions per hour. The flow uses one service task per microservice invocation, and the architects need to confirm exactly how Zeebe coordinates the token, the job, and the registered worker around each task.",
+  "question": "What happens when the process token reaches a BPMN service task that represents a microservice invocation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The token stops at the task, Zeebe creates a job and notifies a registered worker, then the token continues on the outgoing sequence flow once the worker signals completion of that job"
+    },
+    {
+      "id": "b",
+      "text": "The token continues immediately on the outgoing sequence flow while Zeebe creates a job in the background and waits for a registered worker to signal completion of that job asynchronously"
+    },
+    {
+      "id": "c",
+      "text": "The token stops at the task while Zeebe directly invokes the target microservice over HTTP, then the token continues on the outgoing sequence flow when the HTTP call returns a success response"
+    },
+    {
+      "id": "d",
+      "text": "The token stops at the task while Zeebe polls a worker registry until a registered subscription is available, then continues on the outgoing sequence flow without producing a job for that worker"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. When a token reaches a task, Zeebe stops the token, creates a job, and notifies a registered worker; once the worker signals completion of that job, the token continues on the outgoing sequence flow."
+    },
+    "b": {
+      "text": "Incorrect. Tasks are synchronisation points: the token does not continue immediately, it waits until the worker signals completion before flow resumes on the outgoing sequence flow."
+    },
+    "c": {
+      "text": "Incorrect. Zeebe itself does not invoke microservices over HTTP; it creates a job that a registered job worker pulls and handles outside the engine before signalling completion back to Zeebe."
+    },
+    "d": {
+      "text": "Incorrect. The engine creates a job and notifies registered workers rather than polling a worker registry; the job is the artefact that the worker handles before completion advances the token."
+    }
+  },
+  "explanation": "BPMN tasks are atomic units of work. When a token reaches a task, Zeebe creates a job and notifies a registered worker; the token continues on the outgoing sequence flow only after the worker signals completion of that job back to the engine.",
+  "docs": [
+    {
+      "title": "BPMN tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/tasks/"
+    }
+  ]
+}

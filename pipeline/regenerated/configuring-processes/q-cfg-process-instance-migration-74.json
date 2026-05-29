@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-74",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Cobalt Energy, a utility, redesigned its Camunda 8.8 outage-response process across 600 incidents per day: the old exclusive gateway and service tasks A and B are removed and replaced by a single new service task C. The active instances are currently waiting on service task A and must continue on the new service task C.",
+  "question": "Which mapping instruction lets the active service task A continue on the new service task C after migration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A single mapping instruction from source element id A to target element id C, so that the active service task A is migrated onto the new service task C in the redesigned target process."
+    },
+    {
+      "id": "b",
+      "text": "A mapping instruction from source element id A to target element id C combined with one from element id B to element id C, in order to keep both source service tasks alive after migration."
+    },
+    {
+      "id": "c",
+      "text": "A mapping instruction from source element id B to target element id C; only the inactive sibling task may be remapped to a new replacement service task during a process instance migration."
+    },
+    {
+      "id": "d",
+      "text": "A mapping instruction from source element id A to target element id C_user_task; the migration tool will widen the type from service task to user task during the active instance migration."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. A single mapping instruction from source element id A to target element id C migrates the active service task A onto the new service task C in the target process, which is exactly the documented pattern for this redesign."
+    },
+    "b": {
+      "text": "Incorrect. Element B is inactive and is not present in the target; mapping it adds no value, and only the active element instance of A needs a mapping to C in this scenario."
+    },
+    "c": {
+      "text": "Incorrect. Mapping instructions migrate active element instances; the inactive sibling task B does not need a mapping, but the active task A does."
+    },
+    "d": {
+      "text": "Incorrect. Mapping cannot change the element type, so an active service task can only be mapped to another service task such as C; widening to a user task is not allowed."
+    }
+  },
+  "explanation": "Active element instances can be migrated to a new target element by providing a source-to-target mapping instruction, provided both elements are of the same type, so service task A maps cleanly to service task C.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

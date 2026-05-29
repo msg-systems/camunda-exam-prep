@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-creation-54",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-creation",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Driftwood Marketplace ingests 4500 messages per hour into Camunda 8.8 from its vendor pricing pipeline. Each update message should automatically create one instance of the price-sync process, without any external service explicitly calling the CreateProcessInstance command from a client.",
+  "question": "Which BPMN start event creates exactly one new process instance for each incoming pricing update message published to the cluster?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A message start event whose message name matches the published message name; for each new message a new process instance is created by the engine on receipt."
+    },
+    {
+      "id": "b",
+      "text": "A signal start event whose signal name matches the broadcast signal; all subscribed processes share a single instance created once per broadcast across the cluster."
+    },
+    {
+      "id": "c",
+      "text": "A timer start event configured with a 1-second interval; the engine creates one instance per tick and the worker correlates each pricing update message inside."
+    },
+    {
+      "id": "d",
+      "text": "A conditional start event referencing a process variable mutated by an inbound connector; the engine creates one instance per change event detected on the variable."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. A process with a message start event can be started by publishing a message whose name matches the start event name, and for each new message a new process instance is created on the cluster."
+    },
+    "b": {
+      "text": "Incorrect. Signals broadcast to subscribers and do not implement per-message one-instance semantics the way a message start event does for each published message name."
+    },
+    "c": {
+      "text": "Incorrect. A timer start event creates instances when the timer triggers, not per inbound message; correlation through a timer does not match the per-message semantics required here."
+    },
+    "d": {
+      "text": "Incorrect. The documented implicit-creation events are message and timer start events; a conditional start event is not the documented mechanism for per-message instance creation."
+    }
+  },
+  "explanation": "A message start event is the documented mechanism for implicit per-message instance creation in Camunda 8: each new message whose name matches the start event creates a new process instance.",
+  "docs": [
+    {
+      "title": "Process instance creation",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/"
+    }
+  ]
+}

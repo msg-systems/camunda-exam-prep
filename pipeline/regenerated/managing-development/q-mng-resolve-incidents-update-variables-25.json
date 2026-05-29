@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-25",
+  "topic": "managing-development",
+  "difficulty": "hard",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/guides/getting-started-orchestration-cluster/resolve-incidents-update-variables/"
+    }
+  ],
+  "subtopic": "Operate incidents",
+  "scenario": "During a Camunda 8.8 demo at Stellar Insurance covering 12 instances, the operator must recall the exact zbctl publish message command, including its correlationKey value, that the guide uses to drive an order-process instance past the Payment Received intermediate message catch event before the XOR gateway.",
+  "question": "Which zbctl publish message invocation does the guide use, and what correlationKey value does it pass?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The guide runs zbctl publish message payment-received with correlationKey 1234, which correlates against the orderId 1234 that was set in the variables payload when the order-process instance was created"
+    },
+    {
+      "id": "b",
+      "text": "The guide runs zbctl publish message order-confirmed with correlationKey orderValue, which correlates against the orderValue variable that drives the XOR gateway evaluation on the order-process model"
+    },
+    {
+      "id": "c",
+      "text": "The guide runs zbctl publish event payment-received with correlationKey order-process, which correlates against the bpmnProcessId of the order-process model rather than against an instance variable"
+    },
+    {
+      "id": "d",
+      "text": "The guide runs zbctl publish message payment-received with correlationKey orderInstanceKey, which the engine resolves to the broker-generated process instance key before correlating against the catch event"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The guide invokes zbctl publish message payment-received with correlationKey 1234 to correlate against the orderId 1234 set at instance creation time and clear the Payment Received intermediate message catch event before the XOR gateway."
+    },
+    "b": {
+      "text": "Incorrect. The guide publishes a payment-received message rather than an order-confirmed message, and the correlationKey is a literal 1234 value rather than the orderValue variable that drives the XOR gateway."
+    },
+    "c": {
+      "text": "Incorrect. The guide uses zbctl publish message rather than zbctl publish event, and the correlationKey is the orderId 1234 set on the instance, not the bpmnProcessId of the order-process model."
+    },
+    "d": {
+      "text": "Incorrect. The correlationKey value used by the guide is the literal orderId 1234, not a special orderInstanceKey value resolved to the broker-generated process instance key on the instance."
+    }
+  },
+  "explanation": "The guide uses zbctl publish message payment-received with correlationKey 1234. That value matches the orderId 1234 set on the order-process instance at creation time and clears the Payment Received intermediate message catch event."
+}

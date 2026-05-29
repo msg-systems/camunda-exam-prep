@@ -1,0 +1,50 @@
+{
+  "id": "ext-configuration-28",
+  "topic": "extensions-integrations",
+  "subtopic": "Spring Boot Starter authentication",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Healthcare runs a Camunda 8.8 Self-Managed cluster with 6 brokers and an external OIDC identity provider serving 250 users. The platform team needs the Spring Boot service to select OIDC client-credentials authentication explicitly rather than relying on implicit detection so that operators can reason about credential flow during quarterly security reviews of the deployment.",
+  "question": "Which property value explicitly selects OIDC authentication on the Camunda 8.8 Spring Boot Starter client according to the configuration page?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set camunda.client.auth.method to basic on the Spring Boot Starter so the client authenticates using a username and password pair on every gateway call as documented"
+    },
+    {
+      "id": "b",
+      "text": "Set camunda.client.auth.method to none on the Spring Boot Starter so the client skips authentication entirely and connects to the gateway with anonymous calls as documented"
+    },
+    {
+      "id": "c",
+      "text": "Set camunda.client.auth.method to oidc on the Spring Boot Starter so the client authenticates via OpenID Connect using a client ID and client secret pair as documented"
+    },
+    {
+      "id": "d",
+      "text": "Set camunda.client.auth.method to client-credentials on the Spring Boot Starter so the client authenticates via OpenID Connect using a client ID and client secret pair as documented"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The value basic selects Basic authentication with a username and password pair against a cluster configured for Basic, rather than OIDC client-credentials flow against an identity provider."
+    },
+    "b": {
+      "text": "Incorrect. The value none selects no authentication at all and leaves every gateway call anonymous; OIDC is selected with the value oidc on the auth.method property instead."
+    },
+    "c": {
+      "text": "Correct. The documented value for explicit OIDC selection is oidc; setting client-id or client-secret would also imply OIDC via detection, but explicit activation uses camunda.client.auth.method oidc."
+    },
+    "d": {
+      "text": "Incorrect. The documented enum value for the auth.method property is oidc; client-credentials is not the accepted value even though OIDC itself uses a client-credentials grant under the hood."
+    }
+  },
+  "explanation": "The Spring Boot Starter selects OIDC authentication explicitly when camunda.client.auth.method is set to the value oidc; setting either camunda.client.auth.client-id or camunda.client.auth.client-secret also implies OIDC via implicit detection of the configured properties.",
+  "docs": [
+    {
+      "title": "Spring Boot Starter configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

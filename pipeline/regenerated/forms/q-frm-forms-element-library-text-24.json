@@ -1,0 +1,50 @@
+{
+  "id": "frm-forms-element-library-text-24",
+  "topic": "forms",
+  "subtopic": "text element - rendering",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Granite SaaS embeds a Camunda 8.8 form into a self-service onboarding flow handling 7500 tenants per quarter. A developer wires a Text component whose Text property points to a FEEL expression that returns a string containing bold Markdown guidance plus an embedded promotional iframe sourced from a third-party host, gated by a Hide if expression when tenantTier equals free.",
+  "question": "How does the Camunda 8.8 Text element render that mixed Markdown and iframe content at runtime?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It evaluates the FEEL expression, passes the result through the Markdown renderer with basic HTML support, and strips the iframe as a potentially harmful HTML element before rendering"
+    },
+    {
+      "id": "b",
+      "text": "It evaluates the FEEL expression and renders the resulting string as raw HTML, embedding the iframe verbatim alongside the bold Markdown that the developer authored in the source"
+    },
+    {
+      "id": "c",
+      "text": "It evaluates the FEEL expression and renders the result as plain text only, ignoring the bold Markdown markup and stripping the iframe before displaying the result in the rendered form"
+    },
+    {
+      "id": "d",
+      "text": "It rejects the form at render time because Text components forbid expressions and only accept literal Markdown strings in the schema for the bound Text property at design time"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Text property accepts an expression and the evaluated result is processed by a Markdown renderer that supports basic HTML. To prevent cross-site scripting in Camunda Forms, potentially harmful HTML elements such as iframes are not rendered."
+    },
+    "b": {
+      "text": "Incorrect. The renderer does not pass arbitrary HTML through unfiltered; the documentation states that potentially harmful HTML elements are dropped before rendering to prevent cross-site scripting in Camunda Forms."
+    },
+    "c": {
+      "text": "Incorrect. Bold Markdown and other basic Markdown plus a subset of HTML are supported; the renderer does not downgrade the content to plain text, only filters out unsafe HTML such as iframes."
+    },
+    "d": {
+      "text": "Incorrect. The Text property accepts an expression, plain text, or templating syntax as its source; expressions are explicitly listed as a valid option in the Configurable properties section."
+    }
+  },
+  "explanation": "The Text component evaluates an expression, plain-text, or templating-syntax source, then runs the result through a Markdown renderer that also supports basic HTML. To prevent XSS, harmful elements such as iframes are stripped while safe formatting like bold and lists are kept.",
+  "docs": [
+    {
+      "title": "Forms element library - Text",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-text/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "mod-signal-events-95",
+  "topic": "modeling",
+  "subtopic": "events",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Solstice Retailer runs 8 processes in Camunda 8.8 that all need to react when a price-change announcement is broadcast platform-wide. About 300 instances may be waiting on a matching catch event at any moment, and any process with a matching start event should also create a new instance from the same broadcast.",
+  "question": "Which BPMN event family matches this single-broadcast-to-many-recipients communication pattern?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Signal events, where a broadcast triggers all matching catch events across processes and starts one new instance per process that has a matching signal start event"
+    },
+    {
+      "id": "b",
+      "text": "Message events, where a single publication is delivered to every matching catch event across processes and starts one new instance per process with a matching start event"
+    },
+    {
+      "id": "c",
+      "text": "Message events, where a single recipient process instance correlates to one published message and forms a one-sender to one-recipient collaboration relationship"
+    },
+    {
+      "id": "d",
+      "text": "Signal events, where a broadcast is delivered only to the single most recent matching catch event across processes and never starts new process instances from the same broadcast"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Broadcasting a signal triggers all signal events matching the broadcast name; for intermediate catch events every waiting token across processes is triggered, and for signal start events one new instance per matching process is created."
+    },
+    "b": {
+      "text": "Incorrect. Message events use a single-sender to single-recipient relationship, so a published message cannot have more than one recipient and cannot fan out the way the scenario requires."
+    },
+    "c": {
+      "text": "Incorrect. While this description of messages is accurate, the scenario explicitly requires fan-out to many catch events and many process starts, which is the role of signals rather than messages."
+    },
+    "d": {
+      "text": "Incorrect. Signals are not limited to a single most recent catch event; the documented behavior is that all matching catch events with a waiting token are triggered, and matching signal start events also create new instances."
+    }
+  },
+  "explanation": "Signals form a single-sender to several-recipients relationship: broadcasting one signal triggers every catch event with a waiting token across processes and starts one new instance per process with a matching signal start event. Messages, by contrast, are one-to-one.",
+  "docs": [
+    {
+      "title": "BPMN signal events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/signal-events/"
+    }
+  ]
+}

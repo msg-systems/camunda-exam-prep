@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-templates-47",
+  "topic": "connectors",
+  "subtopic": "connector-templates",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Bank, a bank making 14000 calls per hour to an outbound REST partner from Camunda 8.8 service tasks, ships a custom Conditional REST outbound connector template. A developer must wire the REST Endpoint URL into a task header and the Request Body into a connector input, while letting the body field only appear when the HTTP method is one of patch, post, or delete.",
+  "question": "Which binding configuration does the Conditional REST outbound connector template apply to the REST Endpoint URL and Request Body fields?",
+  "options": [
+    {
+      "id": "a",
+      "text": "REST Endpoint URL bound as zeebe:input name url and Request Body bound as zeebe:taskHeader key body, with the body shown unconditionally regardless of which HTTP method is chosen in the dropdown"
+    },
+    {
+      "id": "b",
+      "text": "REST Endpoint URL bound as zeebe:taskDefinition property url and Request Body bound as zeebe:taskHeader key body, with the body shown only when httpMethod equals get inside the property condition"
+    },
+    {
+      "id": "c",
+      "text": "REST Endpoint URL bound as zeebe:taskHeader key url and Request Body bound as zeebe:taskHeader key body, with no condition on the body field because the same header serves all four HTTP methods"
+    },
+    {
+      "id": "d",
+      "text": "REST Endpoint URL bound as zeebe:taskHeader key url and Request Body bound as zeebe:input name body, with the body shown only when httpMethod is one of patch, post, or delete via a condition"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The URL is bound as a zeebe:taskHeader key url, not a zeebe:input; and the body field is conditional on the HTTP method, not shown unconditionally."
+    },
+    "b": {
+      "text": "Incorrect. zeebe:taskDefinition holds the task type http, not the URL, and the condition on the body field selects patch, post, or delete, not get."
+    },
+    "c": {
+      "text": "Incorrect. The Request Body is bound as a zeebe:input name body, not a zeebe:taskHeader, and it is conditionally shown via a property condition on httpMethod."
+    },
+    "d": {
+      "text": "Correct. The template binds REST Endpoint URL as a zeebe:taskHeader with key url and Request Body as a zeebe:input with name body, and the body field is gated by a condition on the httpMethod property using oneOf [patch, post, delete]."
+    }
+  },
+  "explanation": "The Conditional REST outbound connector template uses zeebe:taskDefinition to set the task type to http, zeebe:taskHeader bindings for endpoint URL and method, a zeebe:input binding for the request body, and property conditions to show the body and authentication fields only for the appropriate HTTP methods and auth types.",
+  "docs": [
+    {
+      "title": "Connector templates - Outbound connector templates",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-templates/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-14",
+  "topic": "extensions-integrations",
+  "subtopic": "java-job-worker",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Logistics writes its first Camunda 8.8 Java job worker to process 9000 shipments per day across 12 microservices. A developer follows the Quick start example in the Java client docs and must pick the correct builder chain that opens a worker and hands each activated job to a JobHandler implementation.",
+  "question": "Which Camunda 8.8 Java client builder chain opens a job worker that delivers activated jobs to a JobHandler?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Invoke client.newJobWorker().jobType(type).handler(handler).start() and then call worker.poll() in a loop to manually fetch each batch of activated jobs from the broker on every iteration of the worker"
+    },
+    {
+      "id": "b",
+      "text": "Invoke client.subscribe().topic(type).handler(handler).open() and then await activated jobs delivered through a Tasklist topic subscription endpoint that the broker maintains for the Java client instance"
+    },
+    {
+      "id": "c",
+      "text": "Invoke client.newWorker().jobType(type).handler(handler).open() and the returned JobWorker handles polling automatically and submits each activated job to the provided JobHandler implementation"
+    },
+    {
+      "id": "d",
+      "text": "Invoke client.deployJobHandler(type, handler).build() and the Camunda runtime then registers the handler in Operate so that activated jobs are pushed directly to it without any further builder chain"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Quick start example uses .open() not .start(), and the JobWorker polls automatically; developers do not manually call a poll method on the returned worker instance."
+    },
+    "b": {
+      "text": "Incorrect. The Java client has no client.subscribe().topic() API; that shape comes from Camunda 7 topic subscriptions, not the Camunda 8.8 job worker."
+    },
+    "c": {
+      "text": "Correct. The Quick start shows client.newWorker().jobType(jobType).handler(new EmailJobHandler()).open(); the returned JobWorker handles polling and delivers each ActivatedJob to the JobHandler#handle method."
+    },
+    "d": {
+      "text": "Incorrect. There is no deployJobHandler API and Operate does not push jobs to handlers; workers are opened from the Java client using the newWorker builder chain."
+    }
+  },
+  "explanation": "The Camunda 8.8 Java client Quick start opens a job worker via client.newWorker().jobType(type).handler(handler).open(). The returned JobWorker manages polling and submits each ActivatedJob to the JobHandler#handle implementation provided by the developer.",
+  "docs": [
+    {
+      "title": "Java client job worker",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

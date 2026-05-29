@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-28",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client-job-worker",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "A retailer running Camunda 8.8 with 6500 orders per day implements a Java job worker for the BPMN service task labelled send-email. The lead engineer studies the quick-start example in the Java client guide before adding the worker to the existing application and verifying that the worker can complete activated jobs through the documented API.",
+  "question": "Which Camunda 8.8 Java job worker invocation matches the quick-start example for opening a worker on a specific job type?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Open the worker via client.newJobWorker().setType(jobType).setListener(new EmailJobHandler()).start(), then mark the job complete by calling jobClient.acknowledge(job.getKey()) inside the handler"
+    },
+    {
+      "id": "b",
+      "text": "Open the worker via client.subscribe(jobType, new EmailJobHandler()), then inside the handler invoke jobClient.publish(new CompleteJobEvent(job.getKey())) followed by jobClient.flush() to confirm"
+    },
+    {
+      "id": "c",
+      "text": "Open the worker via client.newWorker().jobType(jobType).onJob(new EmailJobHandler()).run(), then inside the handler call jobClient.success(job.getKey()).join() to confirm completion to the cluster"
+    },
+    {
+      "id": "d",
+      "text": "Open the worker via client.newWorker().jobType(jobType).handler(new EmailJobHandler()).open(), then inside the handler call client.newCompleteCommand(job.getKey()).variables(Map.of(...)).send().join()"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The documented fluent builder uses jobType(...) and handler(...) and the open call returns a JobWorker AutoCloseable; there is no setType, setListener, or acknowledge method in the Java client API."
+    },
+    "b": {
+      "text": "Incorrect. The Java client exposes an explicit JobWorker builder rather than a publish/subscribe API, and completing a job uses newCompleteCommand(job.getKey()) on the JobClient."
+    },
+    "c": {
+      "text": "Incorrect. The fluent builder method is handler(...) followed by open(), not onJob(...) and run(); completion uses newCompleteCommand rather than a success method."
+    },
+    "d": {
+      "text": "Correct. The quick-start example opens the worker with client.newWorker().jobType(jobType).handler(new EmailJobHandler()).open(), and inside the handler the job is completed via client.newCompleteCommand(job.getKey()).variables(...).send().join()."
+    }
+  },
+  "explanation": "The quick-start example in the Java client job-worker guide opens a JobWorker via client.newWorker().jobType(jobType).handler(handler).open() returned as an AutoCloseable. Inside the handler, jobs are completed through client.newCompleteCommand(job.getKey()).variables(...).send().join(), and failures are reported via newFailCommand.",
+  "docs": [
+    {
+      "title": "Java client job worker quick start",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

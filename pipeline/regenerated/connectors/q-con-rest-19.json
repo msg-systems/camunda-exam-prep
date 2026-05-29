@@ -1,0 +1,50 @@
+{
+  "id": "con-rest-19",
+  "topic": "connectors",
+  "subtopic": "rest",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aspen Health, a healthcare provider exchanging 1200 lab reports per day, calls a partner's intake API via a Camunda 8.8 outbound REST connector. Each call must upload a PDF report held as a Camunda document reference named labReport and also include a metadata JSON object {patient: \"P1\", facility: \"F2\"} in the same request. The partner expects multipart/form-data and a connection timeout of at most 5 seconds per call.",
+  "question": "Which Request configuration uploads the PDF as multipart and meets the partner's documented expectations?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Content-Type=multipart/form-data; body=a FEEL map binding the file field name to the document reference labReport; Connection timeout=5; the JSON metadata map will be silently dropped from the multipart request"
+    },
+    {
+      "id": "b",
+      "text": "Content-Type=multipart/form-data; body=a FEEL map containing both the labReport document reference and the metadata JSON map; Connection timeout=5; both fields will travel inside the same multipart request"
+    },
+    {
+      "id": "c",
+      "text": "Content-Type=application/json; body=a FEEL map binding the file field name to the document reference labReport; Connection timeout=5; the file is then sent as a base64-encoded binary attachment inside the JSON body"
+    },
+    {
+      "id": "d",
+      "text": "Content-Type=multipart/form-data; body=a FEEL map binding the file field name to the document reference labReport; Connection timeout=0; the JSON metadata is dropped and the connector waits without any time limit"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. With Content-Type set to multipart/form-data, only document or plain-string body fields are sent as multipart parts; any JSON object body field (such as the metadata map) is ignored by the connector, so the PDF document upload succeeds while the JSON stays out, and a 5-second connection timeout satisfies the partner constraint."
+    },
+    "b": {
+      "text": "Incorrect. The docs state that for multipart/form-data only documents and plain strings are uploaded; JSON object fields are silently ignored, so the metadata map will not travel alongside the document part in the multipart request."
+    },
+    "c": {
+      "text": "Incorrect. With application/json the file is sent base64-encoded inside the JSON body, not as a true multipart binary part, so the partner's multipart/form-data expectation is not satisfied by falling back to JSON."
+    },
+    "d": {
+      "text": "Incorrect. A connection timeout of 0 means waiting indefinitely, which contradicts the at-most 5-second requirement; the connection timeout must be set to 5 seconds to honor the partner constraint."
+    }
+  },
+  "explanation": "When the REST connector sends a request with Content-Type=multipart/form-data, only body fields that are document references or plain strings are uploaded as multipart parts; other fields, such as JSON objects, are ignored. With application/json (the default when Content-Type is unset), file references are base64-encoded into the JSON body. Connection timeout defaults to 20 seconds, and 0 means wait indefinitely.",
+  "docs": [
+    {
+      "title": "REST connector",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/"
+    }
+  ]
+}

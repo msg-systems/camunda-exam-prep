@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-72",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Meridian Capital is migrating 5000 instances of its Camunda 8.8 trade-settlement process where service task A exists in both the source and target process definitions. The team must explain to auditors why the active step remains on task A in the target model after the migration command completes.",
+  "question": "Why does an active service task remain on the same element after migration when a same-id mapping instruction is supplied?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Because the migration plan provides a mapping instruction from source element id A to target element id A, telling the engine to migrate active element instances of A to A in the target process."
+    },
+    {
+      "id": "b",
+      "text": "Because Camunda 8 always preserves active element instances by their internal element key, and the supplied mapping instructions are only consulted to migrate inactive elements in the target process."
+    },
+    {
+      "id": "c",
+      "text": "Because the engine performs a positional match on the BPMN diagram coordinates of each active element, and identical x and y positions in both definitions guarantee the active instance stays put."
+    },
+    {
+      "id": "d",
+      "text": "Because the migration command rolls each active element back to its preceding sequence flow and then re-enters element A in the target definition by default replay behavior."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The migration plan must provide mapping instructions; an instruction from source A to target A means any active element instances of A are expected to be migrated to A in the target, so the instance stays at service task A."
+    },
+    "b": {
+      "text": "Incorrect. Active element instances are migrated based on the supplied mapping instructions, not by an internal element key, and the plan governs both active and inactive remappings."
+    },
+    "c": {
+      "text": "Incorrect. Diagram coordinates do not drive migration; mapping instructions in the plan explicitly state which source element id maps to which target element id for active instances."
+    },
+    "d": {
+      "text": "Incorrect. The engine does not roll active elements back through their preceding sequence flow during migration; it applies the explicit mapping instructions in the plan."
+    }
+  },
+  "explanation": "Migration is driven by an explicit migration plan; a mapping instruction from source A to target A tells the engine to migrate active instances of element A onto element A in the target, so the active step stays where it is.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-20",
+  "topic": "managing-development",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/guides/getting-started-orchestration-cluster/resolve-incidents-update-variables/"
+    }
+  ],
+  "subtopic": "Operate incidents",
+  "scenario": "The Camunda 8.8 getting-started guide walks Aurora Retail through running the order-process.bpmn model for 600 orders. Every order-process instance is created with an orderValue variable that drives the XOR gateway, but on one run the orderValue arrives as a JSON string instead of an integer and the instance triggers an incident.",
+  "question": "Why does Operate raise an incident on this order-process instance when orderValue is supplied as a string?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The XOR gateway condition orderValue greater than or equal to 100 cannot compare values of different types, so the engine raises an incident reporting a comparison between STRING and INTEGER on the instance"
+    },
+    {
+      "id": "b",
+      "text": "The engine silently converts the orderValue string to an integer and routes the instance through the default flow, so an incident is raised only if the converted number falls below the gateway threshold"
+    },
+    {
+      "id": "c",
+      "text": "The engine rejects the create-instance call outright when orderValue is a string, so no process instance is ever created and no XOR gateway evaluation takes place at all for that order"
+    },
+    {
+      "id": "d",
+      "text": "The XOR gateway accepts the string value and treats it as zero, so the instance always takes the no-insurance branch and an incident is only raised when no branch matches the comparison rule"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs show the incident message Expected to evaluate condition orderValue greater than or equal to 100 successfully, but failed because cannot compare values of different types, STRING and INTEGER, raised at the XOR gateway evaluation on the order-process instance."
+    },
+    "b": {
+      "text": "Incorrect. The engine does not silently coerce orderValue from string to integer; the docs show the incident comes from a type mismatch at the XOR gateway, not from a converted value falling below a threshold."
+    },
+    "c": {
+      "text": "Incorrect. The docs show the instance is created with the string-typed orderValue and an incident appears later when the XOR gateway tries to evaluate; the create-instance call itself is not rejected."
+    },
+    "d": {
+      "text": "Incorrect. The docs show the XOR gateway raises an incident because of a type mismatch rather than treating the string as zero and routing the instance through a no-insurance default branch."
+    }
+  },
+  "explanation": "The XOR gateway in order-process.bpmn evaluates orderValue greater than or equal to 100, which the engine cannot evaluate when orderValue is a STRING and the threshold is an INTEGER. The mismatch raises an incident on the instance that must be resolved before progression."
+}

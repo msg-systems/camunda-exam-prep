@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-93",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A telecom operator with 1100 instances migrates each one to a new process definition that changes the bpmnProcessId and version. The platform team wants to understand precisely which top-level properties of the process instance itself are updated as part of the migration step that handles the outermost active element of the instance.",
+  "question": "Which properties on the process instance are updated when the engine migrates the outermost active element during a process instance migration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The processDefinitionKey, bpmnProcessId, and version properties of the process instance are updated to the target process definition, and global variables are migrated as well"
+    },
+    {
+      "id": "b",
+      "text": "Only the processDefinitionKey is updated on the process instance while bpmnProcessId and version are left untouched so external systems can still resolve the original definition lookup"
+    },
+    {
+      "id": "c",
+      "text": "The processDefinitionKey is updated and a new process instance key is generated so the migrated instance receives a fresh identifier across the Operate and Tasklist audit tables"
+    },
+    {
+      "id": "d",
+      "text": "The processDefinitionKey, bpmnProcessId, and version are updated and the global variables are reset to the target definition defaults so the migrated instance starts with clean data"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. After validation, the migration of the outermost active element updates the process instance's processDefinitionKey, bpmnProcessId, and version properties to the target process definition. The global variables of the process instance are migrated as part of this same step."
+    },
+    "b": {
+      "text": "Incorrect. All three properties processDefinitionKey, bpmnProcessId, and version are updated to the target definition; leaving bpmnProcessId or version untouched would leave the migrated instance pointing at the wrong definition for runtime resolution."
+    },
+    "c": {
+      "text": "Incorrect. The process instance key is a stable identifier that does not change during migration. Only the process definition properties are updated, so audit references to the same instance remain consistent across the migration."
+    },
+    "d": {
+      "text": "Incorrect. Global variables are migrated, not reset to target defaults. Existing variables continue to exist with the same values they had before migration, which is also true for any user tasks and jobs on active elements."
+    }
+  },
+  "explanation": "When the migration of the outermost active element runs, the engine updates the process instance's processDefinitionKey, bpmnProcessId, and version to the target definition. Global variables are migrated as part of the same step and keep their existing values.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "mod-multi-instance-44",
+  "topic": "modeling",
+  "subtopic": "multi-instance",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "An online retailer runs a parallel multi-instance call activity in Camunda 8.8 to fulfil 5000 orders per day. Each child process exposes a result variable x that should land in the parent outputCollection named output. Without restricting the merge, every completing child overwrites output and the outputCollection becomes corrupted by a race condition between the parallel instances.",
+  "question": "Which output mapping on the call activity prevents the merged child variables from overwriting the outputCollection?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Configuring an input mapping with source = x and target output on the call activity so the output value is created locally on each instance before the child runs"
+    },
+    {
+      "id": "b",
+      "text": "Configuring an output mapping with source = x and target output on the call activity so only the mapped value is merged into the multi-instance instance scope"
+    },
+    {
+      "id": "c",
+      "text": "Marking outputElement as = x and removing the outputCollection so the merged child variables never reach the multi-instance body of the call activity"
+    },
+    {
+      "id": "d",
+      "text": "Declaring x as a local variable in the called process so the variable propagation step skips it entirely when each child instance completes"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Input mappings on the call activity run on activation of each instance and are used to create local variables before the child runs, not to restrict which child variables are merged back into the parent scope when the child completes."
+    },
+    "b": {
+      "text": "Correct. The documented fix for the race condition is an output mapping on the call activity with source = x and target output, which restricts which child variables are merged into the multi-instance instance and therefore protects the outputCollection."
+    },
+    "c": {
+      "text": "Incorrect. The outputCollection is required to collect results from multi-instance bodies; removing it would discard all per-instance outputs rather than protect them from being overwritten by the merge."
+    },
+    "d": {
+      "text": "Incorrect. Local-variable scoping in the called process does not control how completed call activity variables merge back into the calling process; that is governed by the output mapping on the call activity."
+    }
+  },
+  "explanation": "On a parallel multi-instance call activity, an output mapping such as source = x with target output restricts the merge to the mapped variable, which prevents concurrently completing child instances from overwriting the shared outputCollection of the multi-instance body.",
+  "docs": [
+    {
+      "title": "BPMN multi-instance",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ]
+}

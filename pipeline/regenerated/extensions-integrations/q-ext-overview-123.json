@@ -1,0 +1,50 @@
+{
+  "id": "ext-overview-123",
+  "topic": "extensions-integrations",
+  "subtopic": "operate-api",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Zenith Retail purges old process instances from its Camunda 8.8 Operate environment, removing 3500 records per week for GDPR compliance. A scripted cleanup tool must call the documented Operate API endpoint to delete a process instance and its dependent data by key, for example 2251799813699213, then inspect the ChangeStatus response to confirm one object was removed.",
+  "question": "Which Camunda 8.8 Operate API call deletes a process instance and its dependent data by key?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Call DELETE /v1/process-instances/{key} on the same path as the GET, and a ChangeStatus body returns describing how many objects were deleted, for example {\"deleted\": 1}"
+    },
+    {
+      "id": "b",
+      "text": "Call POST /v1/process-instances/{key}/delete with an empty JSON body, and a ChangeStatus body returns describing how many objects were deleted, for example {\"deleted\": 1}"
+    },
+    {
+      "id": "c",
+      "text": "Call DELETE /v1/process-instances?key={key} on the search path, and a ChangeStatus body returns describing how many objects were deleted, for example {\"deleted\": 1}"
+    },
+    {
+      "id": "d",
+      "text": "Call PATCH /v1/process-instances/{key} with {\"state\": \"DELETED\"}, and a ChangeStatus body returns describing how many objects were deleted, for example {\"deleted\": 1}"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Change objects section states the endpoint is the same as getting the object but with HTTP DELETE instead of HTTP GET. The example DELETE /v1/process-instances/2251799813699213 returns a ChangeStatus body, for example {\"message\": \"1 process instance and dependant data was deleted\", \"deleted\": 1}."
+    },
+    "b": {
+      "text": "Incorrect. Deletion is performed by DELETE on the same path as the GET, not by a POST to a /delete subpath."
+    },
+    "c": {
+      "text": "Incorrect. The /search path is for queries, not for mutating individual objects; deletion uses DELETE on /v1/process-instances/{key}."
+    },
+    "d": {
+      "text": "Incorrect. The docs use HTTP DELETE, not a PATCH that flips a state field, and the response is a ChangeStatus envelope from the DELETE call."
+    }
+  },
+  "explanation": "To remove a process instance and its dependent data, send HTTP DELETE to the same path used for retrieval, for example DELETE /v1/process-instances/2251799813699213. The Operate API responds with a ChangeStatus body that describes how many objects were deleted, such as {\"message\": \"1 process instance and dependant data was deleted\", \"deleted\": 1}.",
+  "docs": [
+    {
+      "title": "Operate API overview",
+      "url": "https://docs.camunda.io/docs/apis-tools/operate-api/overview/"
+    }
+  ]
+}

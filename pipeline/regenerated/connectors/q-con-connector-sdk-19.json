@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-19",
+  "topic": "connectors",
+  "subtopic": "inbound-runtime",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Frontline Bank, a digital bank receiving 600 inbound API calls per hour, builds a Camunda 8.8 inbound connector that subscribes to a message bus. The team wants the activate hook to start the subscription so all 600 calls per hour reach their target processes without blocking the runtime thread that triggered activation across the bank's 5 production instances.",
+  "question": "What does the SDK require from the activate method implementation in InboundConnectorExecutable?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The activate implementation runs synchronously on the calling thread and returns only after the subscription has delivered its first inbound event to the runtime"
+    },
+    {
+      "id": "b",
+      "text": "The activate implementation must call deactivate at the end of its body to register a graceful shutdown hook before any subscription thread is started by the runtime"
+    },
+    {
+      "id": "c",
+      "text": "The activate implementation must register itself in META-INF/MANIFEST.MF before subscribing so the runtime can locate it during the activation handshake at startup"
+    },
+    {
+      "id": "d",
+      "text": "The activate implementation must be asynchronous so the runtime thread that invoked it is not blocked while the subscription stays active and forwards inbound events"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The SDK guide explicitly states the activate implementation must be asynchronous; a synchronous activate that waits for the first event would block the runtime thread and prevent further activations."
+    },
+    "b": {
+      "text": "Incorrect. The deactivate method is a separate graceful shutdown hook invoked by the runtime later; calling it at the end of activate would stop the subscription immediately after starting it."
+    },
+    "c": {
+      "text": "Incorrect. Discovery of the executable class uses the META-INF/services SPI, not the JAR manifest, and discovery is separate from the activate runtime contract documented in the SDK."
+    },
+    "d": {
+      "text": "Correct. The SDK guide states the activate method is the trigger to start listening for inbound events and that its implementation has to be asynchronous, so the calling runtime thread is not blocked while the subscription remains active."
+    }
+  },
+  "explanation": "The activate method on InboundConnectorExecutable starts the subscription that listens for inbound events. The SDK requires this implementation to be asynchronous so the runtime thread that triggered activation is not blocked, and the subscription stays alive until deactivate releases its resources.",
+  "docs": [
+    {
+      "title": "Connector SDK",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

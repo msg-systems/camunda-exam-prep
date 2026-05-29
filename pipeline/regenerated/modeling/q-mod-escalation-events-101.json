@@ -1,0 +1,50 @@
+{
+  "id": "mod-escalation-events-101",
+  "topic": "modeling",
+  "subtopic": "escalation-events",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Meridian Insurance models a Camunda 8.8 underwriting process where a long-running activity might raise an escalation that the parent scope must catch. The team handles 2400 claims per day and asks which catching configuration follows the documentation inside the same parent flow scope.",
+  "question": "Which escalation catch configuration is documented as allowed within the same parent flow scope in Camunda 8.8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Two escalation catch-all event subprocesses in the same parent flow scope so both react to every escalation that reaches the scope from a child activity at runtime"
+    },
+    {
+      "id": "b",
+      "text": "Two escalation boundary events on the same activity that both reference an escalation with the same escalationCode for redundant routing in the same parent flow scope"
+    },
+    {
+      "id": "c",
+      "text": "A non-interrupting escalation catch event together with an incident automatically raised by the engine whenever no escalation catch event matches the code in the same scope"
+    },
+    {
+      "id": "d",
+      "text": "One escalation catch event for a specific escalationCode together with one escalation catch-all event in the same parent flow scope, where the specific code wins on match"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Catching the escalation section states it is not permitted to have multiple escalation catch-all events in a single scope, so two catch-all event subprocesses cannot coexist there in the same parent."
+    },
+    "b": {
+      "text": "Incorrect. The page states it is not possible to define multiple escalation catch events with the same escalationCode in a single scope, so two boundary events with the same code are not allowed in the same parent."
+    },
+    "c": {
+      "text": "Incorrect. The page explicitly states that unlike error events, an uncaught escalation does not raise an incident; the process simply continues without escalating in the same parent flow scope."
+    },
+    "d": {
+      "text": "Correct. The Catching the escalation section allows a specific escalationCode catch event and an escalation catch-all event in the same scope; when both could match, the catch event referencing the matching escalationCode is prioritized."
+    }
+  },
+  "explanation": "Escalations are caught by boundary events or event subprocesses in the nearest parent flow scope. Within one scope you may pair one specific escalationCode catch with one catch-all; the specific code wins. If nothing matches, no incident is raised and the process continues.",
+  "docs": [
+    {
+      "title": "BPMN escalation events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/escalation-events/"
+    }
+  ]
+}

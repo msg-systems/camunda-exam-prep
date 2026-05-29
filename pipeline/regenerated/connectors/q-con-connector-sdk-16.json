@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-16",
+  "topic": "connectors",
+  "subtopic": "element-template",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Insurance, an insurer processing 12000 customer requests per day, is shipping a Camunda 8.8 custom outbound connector element template. The underwriting team wants the connector response mapped into 4 process variables via a FEEL expression on every invocation, with no extra Java glue code in the connector runtime.",
+  "question": "Which element template property binding exposes the documented Result Expression on the outbound connector?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A Text property with feel set to required, binding type zeebe:taskHeader, and key resultExpression on the element template"
+    },
+    {
+      "id": "b",
+      "text": "A Text property with feel set to required, binding type zeebe:input, and name resultExpression on the element template"
+    },
+    {
+      "id": "c",
+      "text": "A Text property with feel set to required, binding type zeebe:taskDefinition, and property resultExpression on the element template"
+    },
+    {
+      "id": "d",
+      "text": "A String property with feel set to optional, binding type zeebe:taskHeader, and key resultVariable on the element template"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Result Expression object in the outbound connector element template uses a Text property with feel required and a zeebe:taskHeader binding whose key is resultExpression. The connector runtime reads that custom job header and evaluates the FEEL expression to map the response into process variables."
+    },
+    "b": {
+      "text": "Incorrect. The zeebe:input binding creates a connector input variable consumed inside the connector function; it does not produce the result-mapping custom header that the runtime evaluates after the connector returns."
+    },
+    "c": {
+      "text": "Incorrect. The zeebe:taskDefinition binding is reserved for the connector type identifier such as io.camunda:template:1; the Result Expression is exposed through a custom job header, not the task definition property."
+    },
+    "d": {
+      "text": "Incorrect. The zeebe:taskHeader with key resultVariable stores the whole response under a single variable name; it is not the Result Expression and does not evaluate FEEL to map response fields into process variables."
+    }
+  },
+  "explanation": "Result Expression is defined in the element template as a Text property with feel required bound through zeebe:taskHeader using the key resultExpression. The connector runtime picks up this custom header and translates the FEEL expression into process variables. Result Variable is a separate header (resultVariable) that stores the raw response.",
+  "docs": [
+    {
+      "title": "Connector SDK",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

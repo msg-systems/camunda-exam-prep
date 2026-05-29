@@ -1,0 +1,50 @@
+{
+  "id": "ext-configuration-47",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Granite Bank runs a Camunda Spring Boot Starter worker on Camunda 8.8 that drives 6300 transactions per hour and must authenticate to a Keycloak identity provider using a client X.509 certificate instead of a client_credentials secret. The platform team wants an SSL context that applies only to the identity provider call, so they configure the documented camunda.client.auth.* keystore properties on the worker process.",
+  "question": "Which property set configures an exclusive SSL context for the identity provider call in the starter?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Configure javax.net.ssl.keyStore, javax.net.ssl.keyStorePassword, javax.net.ssl.trustStore, and javax.net.ssl.trustStorePassword under camunda.client.auth to scope the SSL context"
+    },
+    {
+      "id": "b",
+      "text": "Configure camunda.client.auth.keystore-path, keystore-password, keystore-key-password, truststore-path, and truststore-password to use an exclusive SSL context for the identity provider call"
+    },
+    {
+      "id": "c",
+      "text": "Configure camunda.client.ssl.client-keystore, client-keystore-password, client-truststore, and client-truststore-password to use an exclusive SSL context for the identity provider call"
+    },
+    {
+      "id": "d",
+      "text": "Configure spring.ssl.bundle.jks.identity.keystore-path, keystore-password, keystore-key-password, truststore-path, and truststore-password to scope the SSL context to the identity provider call"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. javax.net.ssl.* is the global JVM SSL context; the docs note it is applied as a fallback, while camunda.client.auth.* properties scope the SSL context exclusively to the identity provider call."
+    },
+    "b": {
+      "text": "Correct. The docs list keystore-path, keystore-password, keystore-key-password, truststore-path, and truststore-password under camunda.client.auth as the exclusive identity-provider SSL context properties, taking precedence over javax.net.ssl.* and spring.ssl.*."
+    },
+    "c": {
+      "text": "Incorrect. The starter property names are camunda.client.auth.keystore-path and similar, not camunda.client.ssl.client-keystore; the camunda.client.ssl prefix is not the documented one."
+    },
+    "d": {
+      "text": "Incorrect. spring.ssl.* is a generic Spring Boot SSL context the starter falls back to; the exclusive identity-provider context is configured under camunda.client.auth.* properties."
+    }
+  },
+  "explanation": "The docs list five properties under camunda.client.auth for an exclusive identity-provider SSL context: keystore-path, keystore-password, keystore-key-password, truststore-path, and truststore-password. When set, these take precedence over javax.net.ssl.* and spring.ssl.* configurations for the identity provider call.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

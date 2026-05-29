@@ -1,0 +1,50 @@
+{
+  "id": "ext-camunda8-sdk-103",
+  "topic": "extensions-integrations",
+  "subtopic": "typescript-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Bank operates a Camunda 8.8 service that processes 9500 jobs per day from a Node.js worker. The team wires camunda.createJobWorker with jobType service-task, workerName test-worker, maxParallelJobs 20, pollIntervalMs 1000, pollTimeoutMs 50000, and jobTimeoutMs 5000, and must ensure each invocation of jobHandler returns the correct completion shape required by the SDK type system.",
+  "question": "What must the jobHandler function return so that the TypeScript SDK type system is satisfied?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The jobHandler must return a Promise that resolves to a variables object, after which the SDK calls newCompleteCommand on the broker automatically using the resolved variables"
+    },
+    {
+      "id": "b",
+      "text": "The jobHandler must return a job completion call such as job.complete, job.fail, job.error, or job.ignore, which the type system enforces so every path responds to Zeebe"
+    },
+    {
+      "id": "c",
+      "text": "The jobHandler must return undefined and call the broker via the global jobClient instance; createJobWorker delegates completion to the surrounding worker loop after the handler exits"
+    },
+    {
+      "id": "d",
+      "text": "The jobHandler must return the original ActivatedJob object so that the polling loop can correlate the completion command with the original job key on the next tick"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The SDK does not call newCompleteCommand on the worker's behalf based on the handler return; the handler itself must return one of the documented completion calls."
+    },
+    "b": {
+      "text": "Correct. The docs state that the handler must return a job completion function such as fail, complete, error, or ignore, and the type system enforces that every code path responds to Zeebe."
+    },
+    "c": {
+      "text": "Incorrect. Returning undefined does not signal a completion to Zeebe; the type system requires the handler to return job.complete, job.fail, job.error, or job.ignore."
+    },
+    "d": {
+      "text": "Incorrect. Returning the ActivatedJob does not close the job on the broker; the handler must return a job completion call such as job.complete with optional variables."
+    }
+  },
+  "explanation": "The jobHandler passed to createJobWorker must return a job completion call (job.complete, job.fail, job.error, or job.ignore). The SDK type system enforces this so every code path responds to Zeebe after picking up a job.",
+  "docs": [
+    {
+      "title": "Camunda 8 TypeScript SDK",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ]
+}

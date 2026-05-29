@@ -1,0 +1,27 @@
+{
+  "id": "con-result-variable-vs-expression",
+  "topic": "connectors",
+  "subtopic": "variable mapping",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Logistics calls a weather API from Camunda 8.8 across 5000 requests per hour. The REST connector returns a large JSON document, and the team only needs 3 fields (temperature, windspeed, humidity) mapped into separate process variables that downstream FEEL gateways can compare in 30 seconds or less.",
+  "question": "Which connector output mapping should the team use for this requirement?",
+  "options": [
+    { "id": "a", "text": "Use Result Expression with a FEEL context like = { temp: response.body.main.temp, wind: response.body.wind.speed } to project specific fields into named process variables" },
+    { "id": "b", "text": "Use Result Variable named response and write a downstream service task that re-reads the full JSON document and extracts the 3 fields after the connector completes" },
+    { "id": "c", "text": "Use Result Variable with a comma-separated list of field paths such as response.body.main.temp,response.body.wind.speed so the runtime extracts each one" },
+    { "id": "d", "text": "Use both Result Variable and Result Expression on the same task to write the full response and the 3 named variables, doubling the FEEL evaluation cost per call" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Result Expression is a FEEL context expression that maps fields from the response into multiple named process variables, which is the documented approach for projection." },
+    "b": { "text": "Incorrect. Storing the whole response and re-parsing it in a downstream task adds an unnecessary step when Result Expression projects directly during the same task." },
+    "c": { "text": "Incorrect. Result Variable accepts a single variable name only; field projection is the job of Result Expression with a FEEL context." },
+    "d": { "text": "Incorrect. The two fields are not designed to be combined as a pair on the same task for this use case; Result Expression alone covers the projection requirement." }
+  },
+  "explanation": "Result Variable stores the full response under one variable name. Result Expression is a FEEL context expression that projects selected fields from the response into multiple named process variables.",
+  "docs": [
+    { "title": "How to use connectors - variable and response mapping", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/" }
+  ]
+}

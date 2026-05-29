@@ -1,0 +1,50 @@
+{
+  "id": "mod-compensation-events-109",
+  "topic": "modeling",
+  "subtopic": "compensation-events",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Bank models a Camunda 8.8 funds transfer process where two specific completed activities must be reverted in a strict order rather than in parallel, covering 750 transactions per day. The team adds compensation intermediate throw events to trigger each reversal one after the other.",
+  "question": "Which configuration on a compensation intermediate throw event restricts compensation to one specific activity?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The triggerScope property on the compensation intermediate throw event is set to the id of the activity that should have its compensation handler invoked in the scope"
+    },
+    {
+      "id": "b",
+      "text": "The activityRef property on the compensation intermediate throw event references the activity that has the compensation boundary event in the same scope of the throw"
+    },
+    {
+      "id": "c",
+      "text": "The compensationCode property on the compensation intermediate throw event is set to the id of the activity that should have its compensation handler invoked in the scope"
+    },
+    {
+      "id": "d",
+      "text": "The errorRef property on the compensation intermediate throw event references the activity that has the compensation boundary event in the same scope of the throw event"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Triggering compensation for a specific activity section names activityRef as the property to use; there is no triggerScope property defined for compensation throw events."
+    },
+    "b": {
+      "text": "Correct. The compensation events page states that on a compensation intermediate throw or end event the activityRef property identifies the specific activity to compensate, and that activity must have a compensation boundary event in the same scope."
+    },
+    "c": {
+      "text": "Incorrect. compensationCode is not the documented property; the property that targets a specific activity for compensation on the throw event is activityRef in the same scope."
+    },
+    "d": {
+      "text": "Incorrect. errorRef is used by error events, not by compensation events; targeted compensation uses activityRef on the compensation throw event in the same scope of the activity."
+    }
+  },
+  "explanation": "By default a compensation throw event broadcasts to all handlers in its scope. To target one activity, set activityRef on the throw event to the id of an activity in the same scope that carries a compensation boundary event.",
+  "docs": [
+    {
+      "title": "BPMN compensation events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ]
+}

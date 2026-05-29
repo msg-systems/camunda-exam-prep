@@ -1,0 +1,50 @@
+{
+  "id": "mod-compensation-events-108",
+  "topic": "modeling",
+  "subtopic": "compensation-events",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Sable Retailer runs a Camunda 8.8 batch refund process where a multi-instance activity creates one refund per item in an input collection, producing 1200 invoices per day across 6 merchants. Every line item must be individually reverted when a compensation throw event fires in this scope.",
+  "question": "How is compensation invoked for a multi-instance activity by default, and how can per-item reversal be achieved?",
+  "options": [
+    {
+      "id": "a",
+      "text": "By default the compensation handler of a multi-instance activity is invoked only once after all instances complete, and per-item reversal is achieved by also marking the compensation handler as multi-instance"
+    },
+    {
+      "id": "b",
+      "text": "By default the compensation handler of a multi-instance activity is invoked once per item in the input collection, and per-item reversal is the default behaviour for any compensation handler in this scope"
+    },
+    {
+      "id": "c",
+      "text": "By default the compensation handler of a multi-instance activity is invoked once per item that completed successfully, and per-item reversal of failed items needs an extra retry policy configured"
+    },
+    {
+      "id": "d",
+      "text": "By default the compensation handler of a multi-instance activity is invoked once per active instance, and per-item reversal is achieved by adding a parallel gateway in front of the handler activity"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Compensating multi-instance activities section states the handler is invoked only once for the multi-instance activity, and to revert each item separately the compensation handler itself should be marked as multi-instance as well."
+    },
+    "b": {
+      "text": "Incorrect. The default is a single invocation that reverts all instances together; per-item invocation requires marking the handler itself as multi-instance, not the original activity alone."
+    },
+    "c": {
+      "text": "Incorrect. The number of invocations does not depend on item success or failure; by default the handler is invoked exactly once after all instances of the multi-instance activity have completed."
+    },
+    "d": {
+      "text": "Incorrect. Per-item reversal is configured by marking the compensation handler as multi-instance, not by adding a parallel gateway in front of the handler activity in the scope."
+    }
+  },
+  "explanation": "A multi-instance activity invokes its compensation handler only once, after all its instances complete. To revert each item individually, mark the compensation handler itself as multi-instance, typically over the same input collection as the original activity.",
+  "docs": [
+    {
+      "title": "BPMN compensation events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ]
+}

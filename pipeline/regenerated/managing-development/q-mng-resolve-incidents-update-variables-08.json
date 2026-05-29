@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-08",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Junction Retail runs Camunda 8.8 on the order-process model with 9000 orders per day at the retailer. An operator created a fresh instance with zbctl and set orderValue to the string \"99\" instead of an integer, so the XOR gateway condition orderValue>=100 raised an incident in Operate within 3 minutes of activation on the broker.",
+  "question": "What did the operator do in Operate to clear the incident and let the XOR gateway evaluate correctly on that instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Replay the instance from the start event with the orderValue variable configured correctly, clearing the incident without deleting the instance"
+    },
+    {
+      "id": "b",
+      "text": "Edit the orderValue variable in Operate by removing the surrounding quotation marks so the value is stored as an integer, then initiate a retry of the process instance from the top right of the page"
+    },
+    {
+      "id": "c",
+      "text": "Delete the orderValue variable on the failed instance and create a fresh process instance with the orderValue variable correctly typed as an integer"
+    },
+    {
+      "id": "d",
+      "text": "Add a new variable named orderValueInt holding the integer 99 alongside the existing orderValue string variable while preserving both on the instance"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The documented resolution path is to edit the variable in place and retry the instance rather than replaying it; Operate exposes an edit icon and a retry action on the process instance page for exactly this case."
+    },
+    "b": {
+      "text": "Correct. The Operate guide instructs the operator to click the edit icon next to orderValue, remove the quotation marks so the value becomes an integer, save the change, and then initiate a retry of the process instance to clear the incident."
+    },
+    "c": {
+      "text": "Incorrect. Operate allows editing the existing variable on the failed instance; there is no requirement to delete the variable or create a fresh instance to resolve the type mismatch on the XOR gateway."
+    },
+    "d": {
+      "text": "Incorrect. Operate supports editing the existing orderValue variable; adding a parallel variable would not satisfy the XOR gateway condition orderValue>=100, which reads the same variable name on the instance."
+    }
+  },
+  "explanation": "Operate documents that a string-typed orderValue can be edited in place by removing the quotation marks so the value becomes an integer, saved with the checkmark icon, and the process instance can then be retried from the process instance page to clear the incident.",
+  "docs": [
+    {
+      "title": "Variables and incidents",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ]
+}

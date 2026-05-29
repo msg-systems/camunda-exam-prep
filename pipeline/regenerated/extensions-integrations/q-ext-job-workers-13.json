@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-13",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers-concept",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Quanta Bank runs a Camunda 8.8 deployment with 12 microservices opening identical streaming Java workers for the job type score-applicant. The platform team needs to confirm when the gateway aggregates separate worker connections into one logical job stream and how the broker distributes pushed jobs across the workers attached to that aggregated stream at runtime.",
+  "question": "When does the Camunda 8.8 gateway aggregate two streaming worker connections into a single logical job stream during activation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "When both workers belong to the same Camunda tenant and share the same client identifier on the gateway; differences in job type or fetchVariables are reconciled by the gateway before the stream is opened on the worker side"
+    },
+    {
+      "id": "b",
+      "text": "When both workers share the same job type, the same worker name, the same job activation timeout, and the same fetchVariables; the gateway then registers one aggregated stream per broker and picks a random worker per pushed job"
+    },
+    {
+      "id": "c",
+      "text": "When both workers share the same gRPC channel identifier and the same poll interval on the client; the gateway then registers one aggregated stream and pushes every job to both workers for redundancy on the cluster"
+    },
+    {
+      "id": "d",
+      "text": "When both workers are deployed in the same Kubernetes namespace and reuse the same client TLS certificate; the gateway then registers one aggregated stream that round-robins jobs across the workers attached to it"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Aggregation hinges on matching job type, worker name, activation timeout, and fetchVariables, not on tenant or client identifier; mismatching streams are kept separate by the gateway."
+    },
+    "b": {
+      "text": "Correct. The How-it-works section says two streams are logically equivalent when they target the same job type, have the same worker name, the same job activation timeout, and the same fetchVariables; the gateway aggregates them and the broker pushes each job to one randomly selected attached worker."
+    },
+    "c": {
+      "text": "Incorrect. Aggregation does not depend on gRPC channel identifiers or poll intervals, and the broker pushes each job to a single randomly selected worker rather than duplicating it for redundancy."
+    },
+    "d": {
+      "text": "Incorrect. Kubernetes namespaces and TLS certificates are not part of the equivalence criteria for streaming workers; matching job type, worker name, activation timeout, and fetchVariables are."
+    }
+  },
+  "explanation": "Streaming workers open a long-living gRPC stream from the client to the gateway. The gateway aggregates streams that are logically equivalent: same job type, same worker name, same job activation timeout, and same fetchVariables. Each aggregated stream is registered with every broker, and when a job becomes activate-able a matching stream is chosen at random and the gateway forwards the job to one of the connected clients.",
+  "docs": [
+    {
+      "title": "Job streaming how it works",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

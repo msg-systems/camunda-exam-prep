@@ -1,0 +1,50 @@
+{
+  "id": "ext-configuration-52",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Catalyst Bank runs a Camunda Spring Boot Starter worker on Camunda 8.8 that handles 8200 jobs per day. A developer wants to complete each job from a reactive whenComplete callback after a downstream HTTP call resolves, so the handler calls client.newCompleteCommand(job.getKey()).send() itself, and a reviewer wants the configuration that prevents the starter from also completing the same job.",
+  "question": "Which @JobWorker setting prevents the starter from auto-completing a job that the handler completes programmatically?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set autoComplete to false on @JobWorker so that the starter does not call complete itself, avoiding the race condition between programmatic completion and Spring integration completion of the same job"
+    },
+    {
+      "id": "b",
+      "text": "Set autoComplete to true on @JobWorker so that the starter waits for the handler method to return before sending complete, which is the documented setting for programmatic completion of jobs in reactive callbacks"
+    },
+    {
+      "id": "c",
+      "text": "Set fetchAllVariables to false on @JobWorker so that the starter skips its own completion path when the handler runs reactive callbacks that finish after the handler method returns to the worker pool"
+    },
+    {
+      "id": "d",
+      "text": "Set enabled to false on @JobWorker so that the starter does not run its own completion path when the handler calls newCompleteCommand on the JobClient from a reactive whenComplete callback"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs state that when completing jobs programmatically the developer must specify autoComplete = false, otherwise there is a race condition between the programmatic job completion and the Spring integration job completion, leading to unpredictable results."
+    },
+    "b": {
+      "text": "Incorrect. autoComplete = true is the default and triggers Spring integration to complete the job right after the handler returns, which is exactly the race condition with programmatic completion."
+    },
+    "c": {
+      "text": "Incorrect. fetchAllVariables controls variable fetching, not completion behaviour; auto-completion is controlled by the autoComplete attribute on @JobWorker."
+    },
+    "d": {
+      "text": "Incorrect. Setting enabled = false disables the worker entirely so it would not poll jobs; the documented setting to allow programmatic completion is autoComplete = false."
+    }
+  },
+  "explanation": "When the handler completes jobs programmatically via newCompleteCommand, the docs require autoComplete = false on @JobWorker. Otherwise a race condition arises between the programmatic completion and the Spring integration auto-completion that runs right after the handler returns.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

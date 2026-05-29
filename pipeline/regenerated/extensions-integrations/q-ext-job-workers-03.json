@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-03",
+  "topic": "extensions-integrations",
+  "subtopic": "Completing or failing jobs",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "NovaPay processes 4500 payment jobs per hour in Camunda 8.8. When the downstream card network is unreachable for 30 seconds, the worker must fail the job so it is retried only after a configurable delay rather than immediately, giving the external system time to recover before the 3 remaining retries are exhausted and an incident is raised.",
+  "question": "Which fail-job parameter delays the next retry of a Camunda 8.8 job for a configurable duration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The retry back off on the fail job command delays the next retry by the specified amount of time so the external system has a chance to recover before remaining retries are exhausted"
+    },
+    {
+      "id": "b",
+      "text": "The remaining retries on the fail job command delays the next retry by the specified amount of time so the external system has a chance to recover before remaining retries are exhausted"
+    },
+    {
+      "id": "c",
+      "text": "The activation Timeout on the fail job command delays the next retry by the specified amount of time so the external system has a chance to recover before remaining retries are exhausted"
+    },
+    {
+      "id": "d",
+      "text": "The variables payload on the fail job command delays the next retry by the specified amount of time so the external system has a chance to recover before remaining retries are exhausted"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda 8.8 documents that fail job commands may specify a retry back off which delays the retry by the specified duration; without it the job is retried immediately, which is fine when the external system is healthy but harmful when it is down."
+    },
+    "b": {
+      "text": "Incorrect. Remaining retries controls whether a retry occurs at all and triggers an incident at zero or negative values, but it does not delay the next retry; that delay is controlled by retry back off."
+    },
+    "c": {
+      "text": "Incorrect. The activation Timeout is set when the job is requested and bounds how long the job is assigned to a worker before reassignment; it does not delay retries after a fail job command."
+    },
+    "d": {
+      "text": "Incorrect. Variables on a fail job command are only created in the local scope of the task and provide additional context for incidents; they do not delay the next retry of the failed job."
+    }
+  },
+  "explanation": "On Camunda 8.8 a fail job command may include a retry back off that delays the next retry by the specified duration. Without it the job is retried immediately, which can exhaust remaining retries and raise an incident when the external system is temporarily unavailable.",
+  "docs": [
+    {
+      "title": "Job workers",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

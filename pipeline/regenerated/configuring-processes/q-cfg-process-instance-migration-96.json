@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-96",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A bank tries to migrate 12 loans from version 3 to version 4 of the same process definition so that a corrected end event configuration is applied retroactively. The operations team needs to confirm whether these terminal process instances are even eligible for the process instance migration command in Camunda 8.",
+  "question": "Which process instances can be migrated using the process instance migration command in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only active process instances that have not yet been completed, terminated, or banned can be migrated to another process definition with the migration command"
+    },
+    {
+      "id": "b",
+      "text": "Active and completed process instances can both be migrated as long as the target process definition is deployed and the source definition still exists in Zeebe"
+    },
+    {
+      "id": "c",
+      "text": "Only completed process instances can be migrated because the engine needs a known terminal state to verify that no further sequence flows will be taken during migration"
+    },
+    {
+      "id": "d",
+      "text": "Banned and terminated process instances can also be migrated as long as the migration plan provides mappings for every previously active element id at the time of termination"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Process instance migration can only migrate active process instances, that is, existing process instances that have not yet been completed, terminated, or banned. Already-finished instances cannot be migrated to a new definition for retroactive fixes."
+    },
+    "b": {
+      "text": "Incorrect. Completed process instances cannot be migrated; the migration command rejects them. The deployment status of source and target definitions is necessary but not sufficient on its own to make a terminal instance eligible."
+    },
+    "c": {
+      "text": "Incorrect. Completed instances are explicitly not eligible for migration. The active state of the instance, not a terminal state, is the prerequisite for the migration command to be accepted by the engine."
+    },
+    "d": {
+      "text": "Incorrect. Banned and terminated process instances are not eligible for migration regardless of how complete the mapping instructions are. The active state of the instance is checked up front during validation."
+    }
+  },
+  "explanation": "Process instance migration applies only to active process instances. Instances that are already completed, terminated, or banned cannot be migrated, even if the source and target process definitions are deployed and well-formed.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

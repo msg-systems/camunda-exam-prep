@@ -1,0 +1,50 @@
+{
+  "id": "mng-what-is-optimize-113",
+  "topic": "managing-development",
+  "subtopic": "Optimize",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "At Catalyst Bank, 200 analysts run ad-hoc reports against Optimize built on Camunda 8.8 while 5000 instances per hour execute on the cluster. The reliability engineer needs to confirm that running Optimize reports during business hours will not degrade runtime throughput on the brokers.",
+  "question": "Which property of the Optimize ingestion model lets analysts run reports without affecting the Camunda runtime?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Optimize stores collected historical data in its own Elasticsearch database and serves dashboards from that store, so analytical queries do not load the Camunda runtime broker layer"
+    },
+    {
+      "id": "b",
+      "text": "Optimize streams every event in real time from the Zeebe broker partitions directly into each dashboard, so analytical queries do hit the runtime store but are throttled by a quota"
+    },
+    {
+      "id": "c",
+      "text": "Optimize disables runtime queries while a dashboard is rendering and re-enables them once the report completes, so runtime impact is bounded by short query windows during the day"
+    },
+    {
+      "id": "d",
+      "text": "Optimize requires analysts to schedule queries during a nightly window when the runtime is paused, so reports cannot run concurrently with live process execution against the cluster"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs state Optimize collects historical data into its own Elasticsearch database, enabling users to analyze reports and dashboards independently without affecting runtime."
+    },
+    "b": {
+      "text": "Incorrect. The documented ingestion path is REST API collection of historical data with dashboards served from Elasticsearch; the runtime store is not queried for each dashboard render."
+    },
+    "c": {
+      "text": "Incorrect. There is no documented mechanism that pauses runtime queries while a dashboard renders; isolation comes from the separate Elasticsearch analytical store, not query throttling."
+    },
+    "d": {
+      "text": "Incorrect. The Camunda runtime does not need to be paused for Optimize reporting; isolation is achieved by storing collected data in Elasticsearch and serving reports from that store."
+    }
+  },
+  "explanation": "Because Optimize ingests data via REST API into its own Elasticsearch database, analysts can query reports and dashboards from that analytical store without putting load on the runtime brokers.",
+  "docs": [
+    {
+      "title": "What is Optimize",
+      "url": "https://docs.camunda.io/docs/components/optimize/what-is-optimize/"
+    }
+  ]
+}

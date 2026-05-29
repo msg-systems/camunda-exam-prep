@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-creation-48",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-creation",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Zenith Manufacturer routes 11000 orders per day in Camunda 8.8 through CreateProcessInstanceWithResult and an architect must enumerate the failure modes in the docs that can stop a result response from reaching the client even when the process execution has completed successfully on the broker.",
+  "question": "Which scenario can prevent a CreateProcessInstanceWithResult client from receiving a response even when the process has completed successfully?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A boundary error event raised on a service task inside the process instance, which forces the gateway to suppress the result payload before sending it back"
+    },
+    {
+      "id": "b",
+      "text": "A misconfigured timer cycle expression on an intermediate event, which silently rolls back the response before the gateway sends it back to the client"
+    },
+    {
+      "id": "c",
+      "text": "Failover of the broker node processing the process to another node, with the request registered on the first node and the new node not sending the response"
+    },
+    {
+      "id": "d",
+      "text": "A second client resending the same command, which makes the gateway respond on the duplicate call only and discard the original response back to the first client"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Boundary error events are part of normal BPMN flow and do not change whether the result response is sent; the documented failure modes are infrastructure-level events, not BPMN handling."
+    },
+    "b": {
+      "text": "Incorrect. A bad timer expression would cause an incident, not silently roll back the response; the docs list connection, network, failover and gateway failures as the response-blocking scenarios."
+    },
+    "c": {
+      "text": "Correct. The docs explicitly list failover, where the node processing the process crashes and another node continues processing without sending the response because the request is registered on the first node."
+    },
+    "d": {
+      "text": "Incorrect. Resending the command creates a new process instance, not a response swap; the docs treat a resend as a new instance creation, not as a way to recover the original response."
+    }
+  },
+  "explanation": "The Create and await results section enumerates four scenarios in which the client may not receive a response even though execution completed successfully: connection timeout against gRPC deadlines, network connection loss at any step in the chain, failover of the node processing the process and gateway failure between the cluster and the client.",
+  "docs": [
+    {
+      "title": "Process instance creation",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/"
+    }
+  ]
+}

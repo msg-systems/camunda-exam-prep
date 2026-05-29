@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-templates-45",
+  "topic": "connectors",
+  "subtopic": "connector-templates",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Sable Bank, a bank processing 26000 loans per month in Camunda 8.8, attaches an HTTP webhook to a user task so a partner-side cancellation event can interrupt the loan in flight. A modeler must choose a boundary event Webhook template that limits the binding to boundary events and uses a message event definition for correlation while still allowing HMAC scopes to be FEEL expressions.",
+  "question": "Which appliesTo and elementType configuration does the boundary event Webhook connector template specify?",
+  "options": [
+    {
+      "id": "a",
+      "text": "appliesTo [bpmn:StartEvent, bpmn:BoundaryEvent], with elementType value bpmn:StartEvent and eventDefinition bpmn:SignalEventDefinition for boundary attachment by the modeler"
+    },
+    {
+      "id": "b",
+      "text": "appliesTo [bpmn:IntermediateCatchEvent], with elementType value bpmn:BoundaryEvent and eventDefinition bpmn:MessageEventDefinition, so the template attaches to either intermediate catches or boundaries"
+    },
+    {
+      "id": "c",
+      "text": "appliesTo [bpmn:BoundaryEvent], with elementType value bpmn:BoundaryEvent and eventDefinition bpmn:MessageEventDefinition, and the inbound.hmacScopes property declared with feel required for FEEL expressions"
+    },
+    {
+      "id": "d",
+      "text": "appliesTo [bpmn:UserTask], with elementType value bpmn:BoundaryEvent and eventDefinition bpmn:ErrorEventDefinition, so the boundary handler attaches to a task host rather than the boundary element itself"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The boundary event template scopes appliesTo to [bpmn:BoundaryEvent] only and uses a MessageEventDefinition, not a SignalEventDefinition shared with start events."
+    },
+    "b": {
+      "text": "Incorrect. The appliesTo array contains bpmn:BoundaryEvent only; the template does not also attach to intermediate catch events through this same template definition."
+    },
+    "c": {
+      "text": "Correct. The boundary event Webhook template defines appliesTo as [bpmn:BoundaryEvent] with elementType value bpmn:BoundaryEvent and eventDefinition bpmn:MessageEventDefinition, and declares inbound.hmacScopes with feel required so HMAC scopes are configured as FEEL expressions."
+    },
+    "d": {
+      "text": "Incorrect. The template is scoped to bpmn:BoundaryEvent in appliesTo and the event definition is bpmn:MessageEventDefinition; the host element is the boundary event, not a user task, and the definition is not an ErrorEventDefinition."
+    }
+  },
+  "explanation": "The boundary event Webhook connector template restricts appliesTo to [bpmn:BoundaryEvent] and pairs elementType value bpmn:BoundaryEvent with eventDefinition bpmn:MessageEventDefinition. HMAC scopes are declared as a FEEL property (feel required) so users can supply an expression like =[\"URL\",\"PARAMETERS\"].",
+  "docs": [
+    {
+      "title": "Connector templates - Inbound boundary event connector templates",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-templates/"
+    }
+  ]
+}

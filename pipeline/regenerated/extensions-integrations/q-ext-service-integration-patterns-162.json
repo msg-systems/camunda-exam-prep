@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-162",
+  "topic": "extensions-integrations",
+  "subtopic": "Call activities",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Bank integrates a document storage service in Camunda 8.8 that cannot push callbacks because of firewall constraints, so the adapter polls every 60 seconds for 800 documents per day. The architect needs the main business process to stay clean of these technical details and only invoke the polling adapter as a single step in the main diagram.",
+  "question": "Which BPMN construct does the integration guidance recommend for hiding the polling adapter from the main process?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A call activity in the main process that invokes a separate adapter process model holding the polling and persistent waiting logic of the document storage integration in its own diagram"
+    },
+    {
+      "id": "b",
+      "text": "A multi-instance subprocess on the main process that performs the polling inline so the document storage integration logic stays visible in the main process diagram for reviewers"
+    },
+    {
+      "id": "c",
+      "text": "An event-based gateway in the main process that polls the document storage service in line and routes the flow based on the response message received from the storage service"
+    },
+    {
+      "id": "d",
+      "text": "A boundary timer event attached to the user task in the main process that fires every 60 seconds to poll the document storage service from inside the main business process model"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Hiding technical complexity behind call activities section recommends moving complicated service-integration technicalities into a separate process model and invoking it via a call activity from the main business process."
+    },
+    "b": {
+      "text": "Incorrect. A multi-instance subprocess keeps the polling logic inline and therefore does not hide the technical detail from the main business process."
+    },
+    "c": {
+      "text": "Incorrect. The chapter does not recommend an in-line event-based gateway for polling; in fact it recommends teams try to avoid event-based gateways in general."
+    },
+    "d": {
+      "text": "Incorrect. A boundary timer event keeps the polling on the main diagram and is not the documented pattern for isolating adapter technicalities."
+    }
+  },
+  "explanation": "When service-integration details such as periodic polling and persistent waiting get complicated, the integration patterns chapter recommends extracting them into their own process model and invoking it from the main business process via a call activity so the main diagram stays clean.",
+  "docs": [
+    {
+      "title": "Service integration patterns",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

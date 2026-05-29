@@ -1,0 +1,27 @@
+{
+  "id": "dec-any-hit-policy",
+  "topic": "decisions-business-rules",
+  "subtopic": "hit policy",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Delta Bank reviews 8000 requests per day in a Camunda 8.8 leave-application process. The DMN table refuses applications when the applicant has no vacation days left or is currently in probation. Both rules may match for one applicant, but the team wants the table to return a single refuse output without raising an error.",
+  "question": "Which hit policy is the correct choice for this rule overlap pattern, given the constraints?",
+  "options": [
+    { "id": "a", "text": "ANY hit policy returns one output when multiple rules match, on the condition that every satisfied rule produces the same output" },
+    { "id": "b", "text": "FIRST hit policy returns the first matched rule's output and does not depend on the equality of overlapping outputs" },
+    { "id": "c", "text": "UNIQUE hit policy returns one output and raises an evaluation incident whenever any two rules match the same applicant input" },
+    { "id": "d", "text": "COLLECT hit policy returns one output by definition whenever multiple satisfied rules produce the same refuse value" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The DMN docs describe ANY as allowing multiple rules to match if and only if they generate the same output, which the refuse use case satisfies." },
+    "b": { "text": "Incorrect. FIRST works regardless of output equality, but the question explicitly relies on the equal-output guarantee of ANY." },
+    "c": { "text": "Incorrect. UNIQUE raises an incident on any second match; the scenario explicitly expects overlapping rules without an error." },
+    "d": { "text": "Incorrect. COLLECT returns a list (or aggregated value) and never a single bare output without an aggregator definition." }
+  },
+  "explanation": "ANY allows multiple satisfied rules only when their outputs are identical and returns that common output once, matching the refuse decision scenario.",
+  "docs": [
+    { "title": "DMN hit policy", "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/" }
+  ]
+}

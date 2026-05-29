@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CamundaExamQuestion",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "topic",
+    "difficulty",
+    "style",
+    "camundaVersion",
+    "scenario",
+    "question",
+    "options",
+    "correctOptionId",
+    "optionExplanations",
+    "explanation",
+    "docs"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^(mod|cfg|dec|frm|con|ext|mng|dev)-[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Unique kebab-case id, prefixed by topic abbreviation."
+    },
+    "topic": {
+      "type": "string",
+      "enum": [
+        "modeling",
+        "configuring-processes",
+        "decisions-business-rules",
+        "forms",
+        "connectors",
+        "extensions-integrations",
+        "managing-development",
+        "dev-environment"
+      ]
+    },
+    "subtopic": {
+      "type": "string",
+      "description": "Optional fine-grained category, e.g. 'subprocesses'."
+    },
+    "difficulty": { "type": "string", "enum": ["easy", "medium", "hard"] },
+    "style": { "type": "string", "enum": ["scenario", "concept", "recall"] },
+    "camundaVersion": { "type": "string", "const": "8.8" },
+    "scenario": {
+      "type": "string",
+      "minLength": 80,
+      "maxLength": 800,
+      "description": "Concrete business situation with domain marker and measurable."
+    },
+    "question": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 300,
+      "pattern": "\\?\\s*$",
+      "description": "Interrogative sentence ending with '?'."
+    },
+    "options": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "text"],
+        "properties": {
+          "id": { "type": "string", "enum": ["a", "b", "c", "d"] },
+          "text": { "type": "string", "minLength": 30, "maxLength": 450 }
+        }
+      }
+    },
+    "correctOptionId": { "type": "string", "enum": ["a", "b", "c", "d"] },
+    "optionExplanations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["a", "b", "c", "d"],
+      "properties": {
+        "a": { "$ref": "#/definitions/explanation" },
+        "b": { "$ref": "#/definitions/explanation" },
+        "c": { "$ref": "#/definitions/explanation" },
+        "d": { "$ref": "#/definitions/explanation" }
+      }
+    },
+    "explanation": { "type": "string", "minLength": 80, "maxLength": 700 },
+    "docs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["title", "url"],
+        "properties": {
+          "title": { "type": "string", "minLength": 4, "maxLength": 120 },
+          "url": {
+            "type": "string",
+            "pattern": "^https://docs\\.camunda\\.io/docs/"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "explanation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["text"],
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 80,
+          "maxLength": 700,
+          "pattern": "^(Correct|Incorrect)\\."
+        }
+      }
+    }
+  }
+}

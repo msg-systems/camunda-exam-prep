@@ -1,0 +1,50 @@
+{
+  "id": "cfg-feel-built-in-functions-context-105",
+  "topic": "configuring-processes",
+  "subtopic": "feel",
+  "difficulty": "hard",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Helix Logistics tracks 15000 shipments in Camunda 8.8 and stores routing flags in a nested context. A FEEL expression in a DMN rule must add the nested entry y.z with value 2 to the context {x:1} in a single call, producing exactly {x:1, y:{z:2}} for the downstream decision input.",
+  "question": "Which FEEL call adds the nested entry y.z with value 2 to {x:1} and returns {x:1, y:{z:2}}?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Call context put({x:1}, \"y.z\", 2) and pass the path as a single dotted string with the new value as a number"
+    },
+    {
+      "id": "b",
+      "text": "Call context put({x:1}, [\"y\"], 2) and pass a single-key list with the new value as a number"
+    },
+    {
+      "id": "c",
+      "text": "Call context put({x:1}, [\"y\", \"z\"], 2) and pass the path as a list of strings with the new value as a number"
+    },
+    {
+      "id": "d",
+      "text": "Call context put({x:1}, [], 2) and pass an empty keys list with the new value as a number"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The keys overload of context put types its second argument as list<string>; passing the literal string \"y.z\" is treated as a single key named y.z rather than a nested path of two keys."
+    },
+    "b": {
+      "text": "Incorrect. With keys [\"y\"] and value 2, the documented result is {x:1, y:2}; the call sets the top-level entry y to 2 and does not create the nested y.z entry that the requirement demands."
+    },
+    "c": {
+      "text": "Correct. The docs show context put({x:1}, [\"y\", \"z\"], 2) returns {x:1, y:{z:2}}; with keys [k1, k2] the function adds the nested entry k1.k2 to the context and creates intermediate contexts as needed."
+    },
+    "d": {
+      "text": "Incorrect. The docs state that when keys are empty, context put returns null; no entry is added to the context, so the required {x:1, y:{z:2}} result cannot be produced this way."
+    }
+  },
+  "explanation": "context put(context, keys, value) sets a nested entry at the path defined by the keys list of strings and creates intermediate contexts as needed; with keys [\"y\", \"z\"] and value 2 it returns {x:1, y:{z:2}}, while empty keys yields null.",
+  "docs": [
+    {
+      "title": "FEEL built-in context functions",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-context/"
+    }
+  ]
+}

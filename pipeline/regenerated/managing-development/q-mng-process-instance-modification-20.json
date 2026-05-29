@@ -1,0 +1,50 @@
+{
+  "id": "mng-process-instance-modification-20",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Bank runs Camunda 8.8 with 750 active loanProcess instances. A routing issue earlier today sent 320 instances down a Manual review branch when the gateway should have steered them onto Auto approve. Each instance is otherwise healthy, and the operations team wants a single operation rather than 320 separate modifications.",
+  "question": "Which Operate feature is the documented remedy when many process instances share the same routing mistake?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Modification mode is applied to each of the 320 instances individually, processing them one by one through the modification editor on the instance header."
+    },
+    {
+      "id": "b",
+      "text": "A new deployment of the loanProcess model with a corrected gateway is published, and a follow-up migration moves the 320 instances onto the new process version."
+    },
+    {
+      "id": "c",
+      "text": "Process instance batch modification selects the 320 instances at once and moves them all to the correct flow node in a single operation against the cluster."
+    },
+    {
+      "id": "d",
+      "text": "The operator cancels the 320 instances from the list and starts fresh instances on the correct branch, carrying the original payload variables forward by hand."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Modification mode operates on one instance at a time and is intended for the single-instance case; for many instances stuck in the same branch the documented operation is batch modification."
+    },
+    "b": {
+      "text": "Incorrect. The mistake is a runtime routing issue rather than a model defect, so redeployment plus migration is not the documented remedy; batch modification relocates the existing instances directly."
+    },
+    "c": {
+      "text": "Correct. Process instance batch modification is the documented Operate operation for selecting multiple process instances and moving them all to the correct flow node in a single operation when they share the same routing mistake."
+    },
+    "d": {
+      "text": "Incorrect. Cancelling discards in-flight execution and history; batch modification preserves the 320 running instances and only relocates their active tokens to the correct flow node."
+    }
+  },
+  "explanation": "Operate's process instance batch modification is the documented path when many process instances share the same routing mistake. Rather than modifying each instance separately, the operator selects multiple instances and moves them all to the correct flow node in a single operation.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/process-instance-modification/"
+    }
+  ]
+}

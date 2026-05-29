@@ -1,0 +1,50 @@
+{
+  "id": "con-http-webhook-12",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Spring Bank, a digital bank processing 300000 transactions per hour, integrates a Slack notification webhook with a Camunda 8.8 HTTP Webhook connector. Slack sends a one-time verification challenge as {\"type\":\"url_verification\",\"challenge\":\"abc123\"} that must be echoed back without starting a process instance, while regular events shaped {\"type\":\"event_callback\", ...} should correlate to running cases as usual.",
+  "question": "Which Verification expression returns the documented response for the Slack challenge while letting regular events proceed?",
+  "options": [
+    {
+      "id": "a",
+      "text": "={\"body\": {\"challenge\": request.body.challenge}, \"statusCode\": 200} as the Verification expression so every inbound request echoes the challenge value back"
+    },
+    {
+      "id": "b",
+      "text": "=if request.body.type = \"event_callback\" then {\"body\": {\"challenge\": request.body.challenge}} else null as the Verification expression on the connector"
+    },
+    {
+      "id": "c",
+      "text": "=if request.body.type = \"url_verification\" then {\"body\": {\"challenge\": request.body.challenge}} else null as the Verification expression on the connector"
+    },
+    {
+      "id": "d",
+      "text": "={\"body\": {\"challenge\": request.body.challenge}} placed in the Response expression field instead of the Verification expression field on the connector"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Returning a non-null value unconditionally would skip activation conditions, HMAC validation, and correlation for every request, so the regular event_callback path would never reach a process instance."
+    },
+    "b": {
+      "text": "Incorrect. The guard is inverted; echoing the challenge on event_callback would short-circuit normal correlation for real events and would never satisfy the url_verification handshake."
+    },
+    "c": {
+      "text": "Correct. A non-null Verification expression returns the response immediately and skips correlation, so guarding the echo on the url_verification type lets challenge requests reply while event callbacks fall through with null and continue normal processing."
+    },
+    "d": {
+      "text": "Incorrect. The Response expression runs after correlation, so a process instance would still be created for the challenge; Verification expression is the field that returns a response before correlation."
+    }
+  },
+  "explanation": "Verification expression returns a custom HTTP response and skips correlation, HMAC validation, and activation conditions when its FEEL result is non-null; returning null lets the rest of the pipeline run, which is the documented pattern for one-time verification challenges from providers like Slack and GitHub.",
+  "docs": [
+    {
+      "title": "HTTP Webhook connector - Verification expression",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ]
+}

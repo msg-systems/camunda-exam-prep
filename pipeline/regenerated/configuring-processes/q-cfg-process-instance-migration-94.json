@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-94",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A fintech startup runs 250 instances that contain nested subprocesses with multiple active child instances inside them. The platform team needs to predict the traversal order the engine uses when migrating these active child elements during the execution step of a process instance migration command, so they can reason about audit logs.",
+  "question": "Which traversal order does the engine use when migrating active child instances within a process instance during the execution step of a migration command?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The engine migrates active child instances breadth-first, migrating each direct active child first before recursing into the active children of each child instance in turn"
+    },
+    {
+      "id": "b",
+      "text": "The engine migrates active child instances depth-first, descending the deepest active subprocess branch before backtracking and migrating sibling branches at the higher levels"
+    },
+    {
+      "id": "c",
+      "text": "The engine migrates active child instances in the random order produced by the underlying state store iterator because element ordering is not part of the public migration contract"
+    },
+    {
+      "id": "d",
+      "text": "The engine migrates active child instances in the lexicographic order of their elementId properties to provide a deterministic traversal that operators can correlate with audit logs"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The execution of the migration is performed in a breadth-first manner. The first active child instance of the process instance is migrated, followed by the next active child instance, before the active child instances of each child instance are migrated in turn."
+    },
+    "b": {
+      "text": "Incorrect. Depth-first traversal would descend the deepest branch first, which is not the documented behaviour. Migration handles all direct active children before recursing into the children of each child."
+    },
+    "c": {
+      "text": "Incorrect. The traversal order is documented and deterministic: a breadth-first walk of the active element tree. It is not delegated to a state store iterator with random ordering."
+    },
+    "d": {
+      "text": "Incorrect. The order is determined by the structure of the active element tree, not by lexicographic comparison of elementId values. Element ids do not influence traversal ordering during migration."
+    }
+  },
+  "explanation": "Migration of active child instances is breadth-first: the engine migrates direct active children of the process instance first, then descends one level and migrates the active children of each child instance, until the entire active subtree has been migrated.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

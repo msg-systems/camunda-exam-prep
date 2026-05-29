@@ -1,0 +1,50 @@
+{
+  "id": "ext-writing-good-workers-142",
+  "topic": "extensions-integrations",
+  "subtopic": "workers",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Maple Logistics implements job workers for 3 different service tasks in a Camunda 8.8 order fulfillment process that handles 1200 orders per day. A junior backend engineer asks how to structure the worker code at the application level before writing the first task handler.",
+  "question": "What does the Camunda 8.8 best practice tell Maple Logistics to do when organizing job workers for these service tasks?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Write all glue code in one application that contains separate classes or functions for the different task types, think about idempotency, read or write as little data as possible from or to the process"
+    },
+    {
+      "id": "b",
+      "text": "Write one dedicated application per service task with its own deployment pipeline, share a single class across task types inside each application, and read every available process variable for safety"
+    },
+    {
+      "id": "c",
+      "text": "Write all glue code in one application and one shared class for every task type, ignore idempotency considerations because Zeebe guarantees exactly-once execution of every job in Camunda 8"
+    },
+    {
+      "id": "d",
+      "text": "Write one application per service task, configure a dedicated thread pool for each application, and write all process variables back on every job completion so downstream tasks see the full state"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Writing good workers page tells you to write all glue code in one application with separate classes or functions per task type, to think about idempotency, and to read or write as little data as possible from or to the process."
+    },
+    "b": {
+      "text": "Incorrect. The best practice keeps all workers in one application, uses separate classes per task type rather than a shared one, and recommends reading as little data as possible."
+    },
+    "c": {
+      "text": "Incorrect. Idempotency is explicitly something workers must think about; Zeebe does not provide exactly-once worker execution, so the best practice lists idempotency as a rule."
+    },
+    "d": {
+      "text": "Incorrect. The best practice tells you not to configure thread pools yourself and to minimize the data written back on completion, the opposite of one app per task plus full-variable writeback."
+    }
+  },
+  "explanation": "Camunda 8.8 best practice puts all worker glue code in one application with separate classes per task type, requires workers to be designed for idempotency, and keeps reads and writes from process variables as small as possible.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-orchestration-cluster-api-rest-overview-71",
+  "topic": "extensions-integrations",
+  "subtopic": "Orchestration Cluster REST API",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Fintech drives 9000 requests per minute against the Camunda 8.8 Orchestration Cluster REST API from a payments microservice. During load tests the client receives sporadic responses that the platform team must classify so the resilience library applies a retry-after-backoff strategy only when the cluster is signalling backpressure to protect its compute resources.",
+  "question": "Which HTTP status code from the Camunda 8.8 Orchestration Cluster REST API signals backpressure and should be retried after a backoff?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Status code 412 Precondition failed signals that the client should check the cluster status before sending more requests of the same kind to the orchestration endpoints"
+    },
+    {
+      "id": "b",
+      "text": "Status code 409 Conflict signals that the request tries to modify a resource that is not in the correct state to accept the change on the orchestration endpoints"
+    },
+    {
+      "id": "c",
+      "text": "Status code 503 Service unavailable signals that the cluster is engaging backpressure and clients retry the request after a backoff period to ease load"
+    },
+    {
+      "id": "d",
+      "text": "Status code 401 Unauthorized signals that the client is not authenticated and should retry the request after attaching a modified authorization header to the call"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. 412 Precondition failed prompts the client to check the cluster status, not to back off and retry; backpressure is reported with a different status code on the Orchestration Cluster REST API."
+    },
+    "b": {
+      "text": "Incorrect. 409 Conflict reports that the target resource is not in the correct state for the requested change; it does not indicate backpressure or recommend a backoff and retry strategy."
+    },
+    "c": {
+      "text": "Correct. The overview documents 503 Service unavailable as the response used when the system signals backpressure to protect its compute resources, and explicitly recommends clients retry such requests after a backoff period."
+    },
+    "d": {
+      "text": "Incorrect. 401 Unauthorized is an authentication failure that asks the client to retry with a modified authorization header; it is not the backpressure signal on the Orchestration Cluster REST API."
+    }
+  },
+  "explanation": "Among common HTTP status codes returned by the Camunda 8.8 Orchestration Cluster REST API, 503 Service unavailable is the one tied to the broker backpressure mechanism that protects compute resources from exhaustion, and clients are recommended to retry such requests after a backoff period.",
+  "docs": [
+    {
+      "title": "Orchestration Cluster REST API overview",
+      "url": "https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/orchestration-cluster-api-rest-overview/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "cfg-feel-boolean-expressions-85",
+  "topic": "configuring-processes",
+  "subtopic": "feel-boolean-expressions",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Cobalt Bank uses FEEL conditions on exclusive gateways across 12000 requests per day in Camunda 8.8. A modeller wants to know how a conjunction behaves when one operand is the boolean true and the other operand is a non-boolean value, before relying on those guards in a production loan-origination flow.",
+  "question": "How does FEEL evaluate the conjunction true and \"otherwise\" when one operand is not a boolean value?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The engine returns true and treats the non-boolean operand as if it were the boolean value true so the conjunction succeeds at the gateway"
+    },
+    {
+      "id": "b",
+      "text": "The engine returns false and treats the non-boolean operand as if it were the boolean value false so the conjunction fails at the gateway"
+    },
+    {
+      "id": "c",
+      "text": "The engine returns null because the non-boolean operand has no boolean truth value under FEEL's ternary logic so the conjunction is neither true nor false"
+    },
+    {
+      "id": "d",
+      "text": "The engine raises an incident on the process instance because the operand type does not match the boolean expected by the FEEL conjunction operator"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL does not coerce a non-boolean operand to true inside a conjunction; the documented ternary truth table returns null whenever one operand is not a boolean and the other is not the value false."
+    },
+    "b": {
+      "text": "Incorrect. FEEL only returns false from a conjunction when one of the operands is the boolean value false; a non-boolean alongside true yields null under the documented ternary logic."
+    },
+    "c": {
+      "text": "Correct. Under FEEL's ternary logic, true and \"otherwise\" returns null because one operand is not a boolean and the other operand is not false, so the result is neither true nor false."
+    },
+    "d": {
+      "text": "Incorrect. A non-boolean operand does not raise an incident inside the FEEL conjunction itself; the operator simply yields null according to the documented ternary truth table for and."
+    }
+  },
+  "explanation": "FEEL conjunction follows three-valued logic. The result is true when all operands are true, false when any operand is the boolean false, and null otherwise. So true and \"otherwise\" evaluates to null because the second operand is not a boolean and the first operand is not false.",
+  "docs": [
+    {
+      "title": "FEEL boolean expressions",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-boolean-expressions/"
+    }
+  ]
+}

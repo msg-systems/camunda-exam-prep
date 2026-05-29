@@ -1,0 +1,50 @@
+{
+  "id": "dev-docker-compose-03",
+  "topic": "dev-environment",
+  "subtopic": "Docker Compose access components",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Pinecone Insurance has 5 developers running the lightweight Docker Compose configuration on macOS to evaluate Camunda 8.8 for 30 days. The team's first integration suite fires 200 requests against the Orchestration Cluster REST API at http://localhost:8088/v2 and must decide which authentication header to send so the calls are accepted by the local cluster.",
+  "question": "Which authentication method does the lightweight Orchestration Cluster use by default in this Docker Compose configuration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Keycloak-based OIDC bearer tokens issued by Management Identity for every REST and gRPC call made to the cluster"
+    },
+    {
+      "id": "b",
+      "text": "Basic authentication with the demo/demo credentials, while the full configuration uses Keycloak for Management Identity authentication"
+    },
+    {
+      "id": "c",
+      "text": "Mutual TLS client certificates that must be provisioned per developer laptop before the cluster will accept any v2 REST request"
+    },
+    {
+      "id": "d",
+      "text": "An embedded PostgreSQL identity store that issues JWT tokens against the local OpenID provider running inside the cluster"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Keycloak and Management Identity OIDC tokens are used by the full Docker Compose configuration, not by the lightweight Orchestration Cluster, which defaults to Basic authentication."
+    },
+    "b": {
+      "text": "Correct. The lightweight Orchestration Cluster defaults to Basic authentication using the demo/demo credentials, and the docs note that the full configuration uses Keycloak for Management Identity authentication instead."
+    },
+    "c": {
+      "text": "Incorrect. The Docker Compose docs do not require mutual TLS client certificates for the lightweight cluster; the default scheme is Basic authentication with the demo/demo credentials."
+    },
+    "d": {
+      "text": "Incorrect. The lightweight configuration does not bundle PostgreSQL or a local OIDC provider; PostgreSQL is part of the full configuration as the database for Management Identity only."
+    }
+  },
+  "explanation": "By default the lightweight Orchestration Cluster uses Basic authentication, accessible with demo/demo. The full Docker Compose configuration replaces this with Keycloak-backed Management Identity authentication for Console, Optimize, and Web Modeler.",
+  "docs": [
+    {
+      "title": "Developer quickstart with Docker Compose",
+      "url": "https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/docker-compose/"
+    }
+  ]
+}

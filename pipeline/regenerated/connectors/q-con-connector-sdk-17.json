@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-17",
+  "topic": "connectors",
+  "subtopic": "outbound-runtime",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Northwind Logistics, a 3PL handling 75000 shipments per day, builds a Camunda 8.8 outbound connector that calls a flaky carrier-tracking API. When the API times out, the connector must retry with a 10 second backoff and reduce the remaining retries on every attempt so that the 75000 shipments per day eventually flow through without exhausting the job worker.",
+  "question": "Who is responsible for decreasing the retries value when throwing ConnectorRetryException from an outbound connector function?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The connector runtime environment automatically decreases the retries value on each ConnectorRetryException using the job's prior retries count"
+    },
+    {
+      "id": "b",
+      "text": "The OutboundConnectorContext object decreases the retries value as part of the bindVariables call before the execute method returns a result"
+    },
+    {
+      "id": "c",
+      "text": "The connector developer must decrement the retries value passed to the ConnectorRetryExceptionBuilder, and the runtime uses the supplied value as is to override the job"
+    },
+    {
+      "id": "d",
+      "text": "The Zeebe broker subtracts one from the job retries automatically after the connector function rethrows the ConnectorRetryException to the runtime"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The SDK explicitly states the runtime uses the values supplied on ConnectorRetryException as is to override the job. It does not subtract one from the retries it sees on the exception."
+    },
+    "b": {
+      "text": "Incorrect. OutboundConnectorContext.bindVariables only handles secret replacement, JSON deserialization, and input validation; it does not manage job retries or mutate the retries field on a ConnectorRetryException."
+    },
+    "c": {
+      "text": "Correct. The SDK guide states the developer is responsible for decreasing the retries value on the ConnectorRetryExceptionBuilder and that the connector runtime applies the supplied retries and backoffDuration to the job as is."
+    },
+    "d": {
+      "text": "Incorrect. The Zeebe broker does not auto-decrement retries when the connector overrides them via ConnectorRetryException; the runtime forwards the explicit retries value from the exception to the job."
+    }
+  },
+  "explanation": "ConnectorRetryException lets the connector override the job's retries and backoffDuration values, but the runtime applies whatever values the developer supplies as is. The developer must therefore decrement the retries counter passed to the ConnectorRetryExceptionBuilder on each failed attempt so the job eventually stops being retried.",
+  "docs": [
+    {
+      "title": "Connector SDK",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

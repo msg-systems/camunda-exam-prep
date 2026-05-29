@@ -1,0 +1,50 @@
+{
+  "id": "con-use-connectors-03",
+  "topic": "connectors",
+  "subtopic": "error expression - temporary variables",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Bank, a retail bank handling 250000 transactions per day, configures a Camunda 8.8 REST outbound connector to call a fraud-screening service. The integration team needs to write an Error Expression that fails the job with one fewer retry on transient technical exceptions and raises a BPMN error when the response body status equals failed.",
+  "question": "Which set of temporary variables does the Error Expression provide for building this FEEL expression per the documentation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The HTTP body in body, the worker in worker with a retries field, the BPMN element in element, and the technical exception in exception with a message field and a mandatory code field"
+    },
+    {
+      "id": "b",
+      "text": "The connector input in request, the process variables in variables, the activity in activity with a retries field, and the technical exception in fault with a description field for diagnosis"
+    },
+    {
+      "id": "c",
+      "text": "The connector result in response, the deployment in deployment with a retries field, the tenant in tenant, and any unhandled exception in throwable with a stackTrace field for diagnosis"
+    },
+    {
+      "id": "d",
+      "text": "The connector result in response, the job in job with a retries field, any Result Variable or Result Expression outputs, and the technical exception in error with a message and an optional code"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. There is no documented body, worker, element, or exception temporary variable; the technical exception is exposed as error with a message and an optional code, and code is never required."
+    },
+    "b": {
+      "text": "Incorrect. The expression cannot access connector input or process variables directly; to ensure process isolation the documented names are response, job, the result variables, and error."
+    },
+    "c": {
+      "text": "Incorrect. There is no deployment, tenant, or throwable temporary variable in the Error Expression; the documented exception object is error with a message and an optional code."
+    },
+    "d": {
+      "text": "Correct. The Error Expression exposes response (connector result), job with a retries field, any Result Variable or Result Expression outputs, and error (technical exception with message and an optional code)."
+    }
+  },
+  "explanation": "Inside the Error Expression a FEEL expression can access response (the connector result), job (with field retries), any Result Variable or Result Expression outputs, and error (a technical exception with message and an optional code that is only present when the connector supplied one).",
+  "docs": [
+    {
+      "title": "How to use connectors - error expression",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ]
+}
