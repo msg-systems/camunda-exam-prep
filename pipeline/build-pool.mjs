@@ -13,10 +13,22 @@ import { lintQuestion } from './lib/content-lints.mjs';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = dirname(__dirname);
 const AUTHORED_DIR = join(__dirname, 'authored');
-const BLUEPRINT_FILE = join(__dirname, 'blueprint.json');
+const REGENERATED_DIR = join(__dirname, 'regenerated');
+const STAGING_DIR = join(__dirname, 'staging');
 const OUT_FILE = join(ROOT, 'src', 'data', 'questions', 'pool.json');
 
+const args = new Map(
+  process.argv.slice(2).map((a) => {
+    const m = a.match(/^--([^=]+)(?:=(.*))?$/);
+    return m ? [m[1], m[2] ?? 'true'] : [a, 'true'];
+  }),
+);
+const BLUEPRINT_FILE = args.has('blueprint')
+  ? (args.get('blueprint').startsWith('/') ? args.get('blueprint') : join(ROOT, args.get('blueprint')))
+  : join(__dirname, 'blueprint.json');
+
 const blueprint = JSON.parse(readFileSync(BLUEPRINT_FILE, 'utf8'));
+const minimums = blueprint.minimums || {};
 
 // ---------- deterministic option shuffle ----------
 function fnv1a(str) {
@@ -70,18 +82,18 @@ function shuffleOptions(q) {
 }
 
 // ---------- collect authored files ----------
-function listAuthored() {
+function listJsonFiles(rootDir) {
   const out = [];
   let topics = [];
   try {
-    topics = readdirSync(AUTHORED_DIR).filter((d) => {
-      try { return statSync(join(AUTHORED_DIR, d)).isDirectory(); } catch { return false; }
+    topics = readdirSync(rootDir).filter((d) => {
+      try { return statSync(join(rootDir, d)).isDirectory(); } catch { return false; }
     });
   } catch {
     topics = [];
   }
   for (const topic of topics) {
-    const dir = join(AUTHORED_DIR, topic);
+    const dir = join(rootDir, topic);
     let files = [];
     try { files = readdirSync(dir).filter((f) => f.endsWith('.json')); } catch { continue; }
     for (const f of files) {
@@ -98,54 +110,92 @@ function listAuthored() {
 }
 
 // ---------- main ----------
-const authored = listAuthored();
+const authored = listJsonFiles(AUTHORED_DIR);
+const regenerated = listJsonFiles(REGENERATED_DIR);
+const staged = listJsonFiles(STAGING_DIR);
 
 const accepted = [];
 const rejected = [];
 const seenIds = new Set();
 
-for (const { file, topic, data } of authored) {
-  if (data.topic !== topic) {
-    rejected.push({ file, reason: `file under authored/${topic}/ has topic="${data.topic}"` });
-    continue;
+function intake(items, { lintMode, source }) {
+  for (const { file, topic, data } of items) {
+    if (data.topic !== topic) {
+      rejected.push({ file, source, reason: `file under ${source}/${topic}/ has topic="${data.topic}"` });
+      continue;
+    }
+    if (seenIds.has(data.id)) {
+      rejected.push({ file, source, reason: `duplicate id "${data.id}"` });
+      continue;
+    }
+    // Strip transient debug fields that the importer writes.
+    const { _lint, ...clean } = data;
+    const findings = lintQuestion(clean, { mode: lintMode });
+    if (findings.length > 0) {
+      rejected.push({ file, source, reason: 'lint findings', findings });
+      continue;
+    }
+    seenIds.add(clean.id);
+    accepted.push({ ...shuffleOptions(clean), source });
   }
-  if (seenIds.has(data.id)) {
-    rejected.push({ file, reason: `duplicate id "${data.id}"` });
-    continue;
-  }
-  const findings = lintQuestion(data);
-  if (findings.length > 0) {
-    rejected.push({ file, reason: 'lint findings', findings });
-    continue;
-  }
-  seenIds.add(data.id);
-  accepted.push(shuffleOptions(data));
 }
+
+// Hand-authored is strict and counts against blueprint targets.
+intake(authored, { lintMode: 'strict', source: 'authored' });
+// Regenerated content (from the handoff brief) is strict; counts toward
+// blueprint as a peer of authored.
+intake(regenerated, { lintMode: 'strict', source: 'regenerated' });
+// Imported / staged content is lenient and tagged so the UI can filter it.
+intake(staged, { lintMode: 'lenient', source: 'imported' });
 
 // ---------- distribution check ----------
 const byTopic = {};
 for (const t of Object.keys(blueprint.topics)) byTopic[t] = 0;
-for (const q of accepted) byTopic[q.topic] = (byTopic[q.topic] || 0) + 1;
+const authoredAccepted = accepted.filter((q) => q.source === 'authored');
+const regeneratedAccepted = accepted.filter((q) => q.source === 'regenerated');
+const importedAccepted = accepted.filter((q) => q.source === 'imported');
+// Blueprint compliance counts authored + regenerated (both strict-linted).
+for (const q of [...authoredAccepted, ...regeneratedAccepted]) {
+  byTopic[q.topic] = (byTopic[q.topic] || 0) + 1;
+}
 
 let topicsShort = 0;
-console.log('--- Topic distribution ---');
+console.log(`--- Topic distribution (authored + regenerated, blueprint: ${BLUEPRINT_FILE}) ---`);
 for (const [t, target] of Object.entries(blueprint.topics)) {
   const have = byTopic[t] || 0;
-  const status = have >= target ? 'OK' : 'SHORT';
-  if (have < target) topicsShort++;
-  console.log(`  ${status.padEnd(5)} ${t.padEnd(28)} ${String(have).padStart(3)} / ${target}`);
+  const floor = minimums[t] ?? target;
+  let status;
+  if (have >= target) status = 'OK';
+  else if (have >= floor) status = 'FLOOR';
+  else { status = 'SHORT'; topicsShort++; }
+  const suffix = have < target && have >= floor ? ` (floor ${floor})` : '';
+  console.log(`  ${status.padEnd(5)} ${t.padEnd(28)} ${String(have).padStart(3)} / ${target}${suffix}`);
 }
-console.log(`Total accepted: ${accepted.length} / ${blueprint.targetPoolSize}`);
+console.log(`Authored accepted:    ${authoredAccepted.length}`);
+console.log(`Regenerated accepted: ${regeneratedAccepted.length}`);
+console.log(`Imported accepted:    ${importedAccepted.length}`);
+console.log(`Total in pool:        ${accepted.length}`);
 
 // ---------- rejected report ----------
+const rejectedAuthored = rejected.filter((r) => r.source === 'authored');
+const rejectedRegenerated = rejected.filter((r) => r.source === 'regenerated');
+const rejectedImported = rejected.filter((r) => r.source === 'imported');
 if (rejected.length > 0) {
-  console.error(`\n--- Rejected (${rejected.length}) ---`);
-  for (const r of rejected) {
-    console.error(`  ${basename(r.file)}: ${r.reason}`);
+  console.error(`\n--- Rejected (${rejected.length} total; ${rejectedAuthored.length} authored, ${rejectedRegenerated.length} regenerated, ${rejectedImported.length} imported) ---`);
+  for (const r of [...rejectedAuthored, ...rejectedRegenerated]) {
+    console.error(`  [${r.source}] ${basename(r.file)}: ${r.reason}`);
     if (r.findings) {
       for (const f of r.findings) {
         console.error(`    - [${f.code}] ${f.message} @ ${f.where}`);
       }
+    }
+  }
+  if (rejectedImported.length > 0) {
+    const codeCount = {};
+    for (const r of rejectedImported) for (const f of (r.findings || [])) codeCount[f.code] = (codeCount[f.code] || 0) + 1;
+    console.error(`  imported rejections by code:`);
+    for (const [code, n] of Object.entries(codeCount).sort((a, b) => b[1] - a[1])) {
+      console.error(`    ${String(n).padStart(5)}  ${code}`);
     }
   }
 }
@@ -156,12 +206,16 @@ writeFileSync(OUT_FILE, JSON.stringify(accepted, null, 2) + '\n', 'utf8');
 console.log(`\nWrote ${OUT_FILE}`);
 
 // ---------- exit ----------
-if (rejected.length > 0) {
-  console.error(`FAIL: ${rejected.length} question(s) rejected by lint.`);
+if (rejectedAuthored.length > 0) {
+  console.error(`FAIL: ${rejectedAuthored.length} authored question(s) rejected by strict lint.`);
+  process.exit(1);
+}
+if (rejectedRegenerated.length > 0) {
+  console.error(`FAIL: ${rejectedRegenerated.length} regenerated question(s) rejected by strict lint.`);
   process.exit(1);
 }
 if (topicsShort > 0) {
-  console.error(`FAIL: ${topicsShort} topic(s) below blueprint target.`);
+  console.error(`FAIL: ${topicsShort} topic(s) below blueprint floor (authored + regenerated).`);
   process.exit(1);
 }
 console.log('OK: pool meets blueprint targets.');
