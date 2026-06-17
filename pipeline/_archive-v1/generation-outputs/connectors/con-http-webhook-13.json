@@ -1,0 +1,27 @@
+{
+  "id": "con-http-webhook-13",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "A Camunda 8.8 fintech team building a notifications webhook for an upstream payments provider returns a custom HTTP 201 status and a JSON body that echoes part of the inbound payload back to the caller. The webhook handles roughly 5000 requests per minute, and the team wants to set the response status, the response body, and one Content-Type header from a single FEEL Response expression on the connector.",
+  "question": "Which FEEL Response expression sets the body, the status code 201, and a Content-Type header from one expression?",
+  "options": [
+    { "id": "a", "text": "={\"body\": {\"result\": \"ok\"}, \"status\": 201, \"headers\": {\"Content-Type\": \"application/json\"}} as the Response expression returned by the Webhook" },
+    { "id": "b", "text": "={\"response\": {\"body\": {\"result\": \"ok\"}, \"statusCode\": 201, \"headers\": {\"Content-Type\": \"application/json\"}}} as the Response expression on the Webhook" },
+    { "id": "c", "text": "={\"responseBody\": {\"result\": \"ok\"}, \"statusCode\": 201, \"responseHeaders\": {\"Content-Type\": \"application/json\"}} as the Response expression" },
+    { "id": "d", "text": "={\"body\": {\"result\": \"ok\"}, \"statusCode\": 201, \"headers\": {\"Content-Type\": \"application/json\"}} as the Response expression returned by the Webhook" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documented status field name is statusCode, not status, so the connector would fall back to the default HTTP 200 status code and ignore the value supplied under status." },
+    "b": { "text": "Incorrect. The Response expression reads body, statusCode, and headers directly from the returned object; wrapping them inside a response key prevents the connector from finding any of the three configured fields." },
+    "c": { "text": "Incorrect. The documented keys are body and headers, not responseBody and responseHeaders, so renamed keys are ignored and the default 200 status applies to every reply." },
+    "d": { "text": "Correct. A FEEL context with body, statusCode, and headers keys is the documented shape for the Response expression; statusCode defaults to 200 when omitted, and headers accepts a context map of name and value pairs." }
+  },
+  "explanation": "The Response expression returns a FEEL context where the body, statusCode, and headers keys control the response payload, HTTP status code, and response headers; key names other than these are ignored, and statusCode defaults to 200 when the key is omitted from the expression.",
+  "docs": [
+    { "title": "HTTP Webhook connector - Response expression", "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/" }
+  ]
+}

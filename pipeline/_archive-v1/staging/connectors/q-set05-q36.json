@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Outbound HTTP Connector occasionally returns transient HTTP 503. The team wants the Connector itself to retry with exponential backoff before the BPMN-level retry kicks in.",
+  "question": "Which approach fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Implement a manual retry loop by placing a Timer Boundary Event on the Connector Service Task that loops back after each failed attempt. A manual timer loop reinvents retry-with-backoff logic that the Connector Runtime already provides natively via the retryBackoff task header. The manual approach adds diagram complexity, bypasses Camunda's built-in job retry mechanism, and requires separate tracking of retry counts and error conditions."
+    },
+    {
+      "id": "b",
+      "text": "Transient HTTP 503 errors from the external service cannot be retried by the Connector Runtime; only permanent failures are handled. This is factually incorrect. Camunda 8 Connector Runtime supports configurable retry-with-backoff via the retryBackoff reserved task header (ISO 8601 duration). When set, the Runtime applies the specified backoff duration between each retry attempt, handling transient errors like HTTP 503 gracefully before escalating to a BPMN-level incident."
+    },
+    {
+      "id": "c",
+      "text": ", PT5S) as the retryBackoff task header value on the Connector Service Task. The Connector Runtime applies this backoff between retry attempts automatically. Pair with the standard Zeebe retries count for the activated job. Layer a BPMN Error Boundary Event for non-retryable terminal error handling on specific error codes."
+    },
+    {
+      "id": "d",
+      "text": "The Connector Runtime automatically reads the HTTP Retry-After response header and applies its value as the backoff duration without any configuration. No automatic Retry-After header processing is built into all Connectors. Retry backoff requires explicit configuration via the retryBackoff task header with an ISO 8601 duration value. Without this configuration, retries happen immediately without any backoff delay between attempts."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Connector runtime supports custom retry intervals via the reserved task header retryBackoff (ISO 8601 duration) per outbound.md:35-52 -- \"The connector runtime also supports custom intervals between retries (retry backoff). To configure a custom retry interval, you need to add a special property to the connector element template. The property must bind to the retryBackoff task header, and the value must be a valid ISO 8601 duration.\" retryBackoff is reserved and handled automatically by the runtime for all outbound connectors (:52). For deterministic error handling and routing, layer a BPMN Error Boundary catching Connector error codes (returned via FEEL bpmnError(code, msg) result mapping per use-connectors/index.md:315-343)."
+    },
+    "b": {
+      "text": "Incorrect. Timer + loop reinvents the wheel."
+    },
+    "c": {
+      "text": "Correct. Retries are supported."
+    },
+    "d": {
+      "text": "Incorrect. No automatic Retry-After honoring built-in to all Connectors."
+    }
+  },
+  "explanation": "Retries are supported.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/outbound/#connector-retries"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q36",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

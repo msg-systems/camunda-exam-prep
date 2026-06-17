@@ -1,0 +1,27 @@
+{
+  "id": "ext-writing-good-workers-90",
+  "topic": "extensions-integrations",
+  "subtopic": "Node.js worker client",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus SaaS runs 12000 jobs per day on Camunda 8.8 using the Camunda Node.js client to call a downstream REST API with Axios. The team is evaluating whether they must tune a worker thread pool size like the Java client to scale handler concurrency under load, or whether the Node.js runtime already takes care of parallelism on its own.",
+  "question": "Which statement matches how the Camunda 8 Node.js client achieves parallelism in worker handlers?",
+  "options": [
+    { "id": "a", "text": "The Node.js client requires a numJobWorkerExecutionThreads setting on the createWorker call to raise concurrency above one handler invocation at a time" },
+    { "id": "b", "text": "The Node.js client uses a fixed pool of 5 worker threads inside the SDK, so handlers run with up to five concurrent jobs once Axios calls return successfully" },
+    { "id": "c", "text": "The Node.js client relies on the Node.js event loop for parallelism, so no thread pool is defined and reactive handlers scale without extra tuning by the developer" },
+    { "id": "d", "text": "The Node.js client spins up one operating system thread per activated job and tears it down after job.complete returns to the broker over the gRPC connection" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. numJobWorkerExecutionThreads is a Java client builder option for the JVM-based SDK. The Node.js createWorker call has no thread pool size to set; parallelism comes from the event loop." },
+    "b": { "text": "Incorrect. The Node.js SDK does not define a fixed worker thread pool of 5. The documented model uses the Node.js event loop for parallelism, and the SDK itself is built around reactive programming." },
+    "c": { "text": "Correct. The page states the Node.js client uses the event loop for parallelism, that no specific thread pool is defined or necessary, and that the SDK uses reactive programming internally for its workers." },
+    "d": { "text": "Incorrect. The Node.js runtime does not spawn one OS thread per job. Concurrent handler invocations are scheduled cooperatively on the single event loop provided by Node.js." }
+  },
+  "explanation": "The Camunda 8 Node.js client takes advantage of the Node.js event loop and the reactive style of JavaScript. There is no worker thread pool to configure, and the page's recommendation for Node.js is to always use reactive code.",
+  "docs": [
+    { "title": "Writing good workers", "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/" }
+  ]
+}

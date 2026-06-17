@@ -1,0 +1,27 @@
+{
+  "id": "con-rest-09",
+  "topic": "connectors",
+  "subtopic": "REST connector - network timeouts",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Kestrel Logistics, a carrier handling 18000 shipments per day, configures a Camunda 8.8 REST outbound connector to call a slow customs API that sometimes takes 90 seconds to respond. The integration team must allow an unlimited read wait time for these responses but keep a fast 5 second connection timeout so the worker fails quickly when the host is unreachable.",
+  "question": "Which Connection timeout and Read timeout values satisfy these two requirements?",
+  "options": [
+    { "id": "a", "text": "Set Connection timeout to 0 and Read timeout to 5, where 0 disables the connect attempt entirely and 5 caps the read phase at 5 seconds for every customs API call" },
+    { "id": "b", "text": "Set Connection timeout to -1 and Read timeout to -1, where -1 is the documented sentinel for waiting indefinitely on either phase regardless of the default behaviour" },
+    { "id": "c", "text": "Set Connection timeout to 5 and Read timeout to 0, where 0 allows an unlimited wait time for slow responses on the read side and 5 caps the connect phase at 5 seconds" },
+    { "id": "d", "text": "Set Connection timeout to 5 and Read timeout to 90, matching the worst observed customs API response time so any longer call fails the job immediately at the read phase" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The roles are reversed: setting Connection timeout to 0 means an unlimited wait for the connection, not a disabled connect, and Read timeout 5 caps the read phase at 5 seconds." },
+    "b": { "text": "Incorrect. The documented sentinel for an unlimited wait time is 0, not -1; the default for both Connection timeout and Read timeout is 20 seconds when no value is specified." },
+    "c": { "text": "Correct. Read timeout 0 allows an unlimited wait for slow responses on the read side, and Connection timeout 5 caps the connection-establishment phase at 5 seconds so unreachable hosts fail fast." },
+    "d": { "text": "Incorrect. Read timeout 90 caps the read phase at 90 seconds and would fail any longer call; the requirement is an unlimited read wait, which the docs achieve only by setting the value to 0." }
+  },
+  "explanation": "Connection timeout and Read timeout default to 20 seconds. Setting either to 0 allows an unlimited wait. Connection timeout governs establishing the connection to the server; Read timeout governs reading data from the server once the connection is open.",
+  "docs": [
+    { "title": "REST connector - network communication timeouts", "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/" }
+  ]
+}

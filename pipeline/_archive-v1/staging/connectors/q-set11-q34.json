@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's Outbound HTTP Connector calls a slow partner API. Sometimes it takes 30+ seconds. They want to set timeouts at multiple levels and understand the relationship.",
+  "question": "What timeouts exist around a Connector call, and how do they interact?",
+  "options": [
+    {
+      "id": "a",
+      "text": "There is only one timeout layer for Connector calls -- this misses the multi-layer timeout architecture. Connector calls involve at least three distinct timeout contexts: the HTTP client-level timeout within the Connector implementation, the Zeebe job activation timeout at the worker level, and optionally a BPMN Timer Boundary Event at the process level. Each layer must be configured with awareness of the others to avoid duplicate job executions or orphaned workers. Without coordination, an HTTP timeout longer than the job activation timeout causes Zeebe to re-activate the job while the original worker still processes it."
+    },
+    {
+      "id": "b",
+      "text": "The three timeout layers automatically coordinate with each other without manual configuration -- this overstates the engine's automation capabilities. Each timeout layer is independently configured by different teams and mechanisms: the HTTP timeout in Connector properties, the job activation timeout in worker configuration, and the Timer Boundary in BPMN modelling. Without explicit coordination, the layers may conflict -- for example, an HTTP timeout longer than the job activation timeout causes Zeebe to re-activate the job while the original worker is still processing, producing duplicate executions."
+    },
+    {
+      "id": "c",
+      "text": "Connector calls have no timeout mechanisms and will wait indefinitely for external system responses -- this misrepresents the configurability of Connector runtimes and BPMN orchestration. Multiple timeout mechanisms exist: HTTP clients expose connectionTimeout and readTimeout settings, job workers have activation timeout configurations, and BPMN processes support Timer Boundary Events on Service Tasks for process-level time limits. Using all three appropriately protects against stuck Connector calls."
+    },
+    {
+      "id": "d",
+      "text": "Three timeout layers exist around a Connector call: (1) Connector-internal HTTP timeout -- how long the Connector waits for the external system before reporting failure; (2) Zeebe job activation timeout -- how long the worker can hold the job before Zeebe re-activates it; (3) BPMN Timer Boundary on the Service Task -- process-level time limit. Set them with increasing durations: HTTP timeout < job timeout < Timer Boundary, to prevent duplicate executions or orphaned workers."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Three timeout layers around a Connector call: 1. Connector-internal (HTTP client level) Where: configured in the Connector's properties (HTTP Connector: connectionTimeout, readTimeout; other Connectors: their own settings). Scope: how long the Connector waits for the external system to respond. On timeout: Connector reports failure to Zeebe. 2. Job activation timeout (Zeebe / Connector Runtime level) Where: Spring Zeebe @JobWorker(timeout = ...) or equivalent in the Connector Runtime. Scope: how long Zeebe waits for the worker to handle the job before re-activating. On timeout (worker not responding): Zeebe re-activates the job; if the original worker still processes when re-activated, you have duplicate execution. 3. Process-level (Timer Boundary on Service Task) Where: BPMN -- attach Interrupting Timer Boundary to the Service Task. Scope: how long the entire task is allowed before BPMN intervenes. On timeout: Boundary cancels the task; flow routes to handler. Correct ordering (to avoid issues): Connector HTTP timeout job activation: worker re-activated while still processing → duplicate. If Timer Boundary < job activation: task cancelled while worker still active → orphan worker. Tune based on expected response times + safety margins."
+    },
+    "b": {
+      "text": "Incorrect. Multiple."
+    },
+    "c": {
+      "text": "Incorrect. Manual."
+    },
+    "d": {
+      "text": "Correct. Available."
+    }
+  },
+  "explanation": "Available.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q34",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

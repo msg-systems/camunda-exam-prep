@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q08",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Parallel Multi-Instance Subprocess has inputCollection = [a, b, c, d, e] and outputCollection = results. The team wonders if the order of elements in results matches the order in inputCollection.",
+  "question": "Is outputCollection ordering preserved in Parallel Multi-Instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes -- outputCollection preserves the position correspondence with inputCollection. For Parallel MI: instances run concurrently, but the outputCollection is assembled with each instance's result at the position corresponding to its inputCollection index. So inputCollection[1] → outputCollection[1], inputCollection[2] → outputCollection[2], etc. The order matches inputCollection's order regardless of which instance finishes first. Downstream FEEL can reliably pair inputs and outputs by index position."
+    },
+    {
+      "id": "b",
+      "text": "The order of results in outputCollection depends on which instance finishes first -- this conflates execution order with the output assembly mechanism. Zeebe assembles the outputCollection based on index correspondence with inputCollection, not on completion timestamps. Even if the instance processing inputCollection[4] finishes before the one processing inputCollection[1], the result lands at outputCollection[4] regardless of which completed first."
+    },
+    {
+      "id": "c",
+      "text": "The order of outputCollection entries is random and unpredictable -- this misrepresents the deterministic position correspondence in Zeebe's Multi-Instance implementation. The engine maintains strict index alignment between input and output collections. Each inner instance writes its output to the position corresponding to its inputCollection index regardless of completion order. This position-correspondence rule is consistent and predictable for both parallel and sequential Multi-Instance variants, enabling reliable downstream index-based pairing."
+    },
+    {
+      "id": "d",
+      "text": "Position correspondence is preserved only in Sequential Multi-Instance, not in Parallel -- this misrepresents the rule by limiting it to sequential execution only. The position correspondence between inputCollection and outputCollection applies to both Sequential and Parallel Multi-Instance variants in Zeebe. Each inner instance, regardless of parallel or sequential execution mode, writes its output element to the slot corresponding to its input element's index position in the collection. The position-based assembly is a consistent engine behaviour for both MI types."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. BPMN MI semantics: outputCollection is position-correspondent with inputCollection: For each inputElement at index i in inputCollection, the inner instance's outputElement lands at index i in outputCollection. This holds regardless of completion order -- even if Parallel MI's instance for input[4] finishes before instance for input[1], the outputCollection is still ordered [result_of_input_1, ..., result_of_input_5]. This makes downstream processing predictable: outputCollection[i] always corresponds to inputCollection[i]. You can correlate them by index. Example: ` inputCollection = [{id: \"A\"}, {id: \"B\"}, {id: \"C\"}] → after MI, outputCollection might be: [{id: \"A\", processed: true}, {id: \"B\", processed: false}, {id: \"C\", processed: true}] Position 1 corresponds to input \"A,\" position 2 to \"B,\" etc., regardless of which instance finished first. Practical: downstream FEEL can pair them: =for i in 1..count(inputCollection) return {input: inputCollection[i], output: outputCollection[i]}`."
+    },
+    "b": {
+      "text": "Incorrect. Position correspondence."
+    },
+    "c": {
+      "text": "Incorrect. Deterministic order."
+    },
+    "d": {
+      "text": "Incorrect. Parallel also preserves via position."
+    }
+  },
+  "explanation": "BPMN MI semantics: outputCollection is position-correspondent with inputCollection: For each inputElement at index i in inputCollection, the inner instance's outputElement lands at index i in outputCollection. This holds regardless of completion order -- even if Parallel MI's instance for input[4] finishes before instance for input[1], the outputCollection is still ordered [result_of_input_1, ..., result_of_input_5]. This makes downstream processing predictable: outputCollection[i] always corresponds to inputCollection[i]. You can correlate them by index. Example: ` inputCollection = [{id: \"A\"}, {id: \"B\"}, {id: \"C\"}] → after MI, outputCollection might be: [{id: \"A\", processed: true}, {id: \"B\", processed: false}, {id: \"C\", processed: true}] Position 1 corresponds to input \"A,\" position 2 to \"B,\" etc., regardless of which instance finished first. Practical: downstream FEEL can pair them: =for i in 1..count(inputCollection) return {input: inputCollection[i], output: outputCollection[i]}`.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q08",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q32",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A bank's wire-transfer form needs to upload a supporting document (PDF of the transfer authorisation form). The PDF can be up to 20 MB. The team wants the upload to integrate with Camunda 8's Document Handling so that downstream Service Tasks can retrieve the PDF by reference.",
+  "question": "Which Forms feature handles document upload with Document Handling integration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use a standard Text Input field where the user enters the local file path, then have a downstream Service Task read from that path and upload the file to Document Handling. A text input for a file path is impractical for browser-based Tasklist users whose local paths are not accessible from the server side. A downstream upload Service Task would need filesystem access to the user's client machine, which is architecturally infeasible in a standard web-based workflow without additional infrastructure."
+    },
+    {
+      "id": "b",
+      "text": "js in a custom HTML form and pass the resulting document URL as a plain string variable that downstream Service Tasks can fetch from. Camunda 8 Forms supports file upload natively through the dedicated Filepicker form element, which integrates directly with the Document Handling service. No external widget or custom HTML is needed for standard document upload workflows."
+    },
+    {
+      "id": "c",
+      "text": "md). The form uploads files to Camunda's Document Handling service and stores the result as a process variable -- an array of file-metadata objects representing each uploaded file (single-file uploads access via value[1] since FEEL uses 1-based indexing). Downstream Service Tasks retrieve content via the Document API using the stored references without bloating the process variable store."
+    },
+    {
+      "id": "d",
+      "text": "Base64-encode the file contents in the form's hidden input field and pass the encoded string as a process variable so downstream tasks can decode and process the document without separate API calls. Base64-encoding a 20 MB PDF produces roughly 27 MB of encoded text. Zeebe's process variable size limit is 4 MB, tied to the broker's event log architecture. Any document over about 3 MB would immediately violate this hard limit, causing a runtime error when the variable is written."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 Forms ships a Filepicker element (per forms-element-library-filepicker.md) that natively integrates with Document Handling. The Filepicker's output variable is always an array of file-metadata objects (even for single-file uploads -- accessed as value[1] since FEEL is 1-based). Configurable properties include: Field label, Supported file formats (comma-separated MIME types per HTML5 input/file spec), Upload multiple files (boolean/expression), Key (variable binding), and Required validation. Downstream Service Tasks retrieve the document content via the Document API using the metadata references -- large files do not violate the Zeebe variable size budget because only metadata is stored as the variable, not the file content."
+    },
+    "b": {
+      "text": "Incorrect. Text input + downstream upload is DIY and doesn't leverage the integrated Document Handling."
+    },
+    "c": {
+      "text": "Correct. Forms DO support file upload via Document Upload component."
+    },
+    "d": {
+      "text": "Incorrect. Base64 in a variable would exceed the 4MB Zeebe variable limit for any non-trivial file."
+    }
+  },
+  "explanation": "Forms DO support file upload via Document Upload component.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-filepicker/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q32",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

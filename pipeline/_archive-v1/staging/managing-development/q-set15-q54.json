@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q54",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team plans Self-Managed cluster for 500 processes/sec, 50,000 active instances. Wonders sizing recommendations.",
+  "question": "Cluster sizing recommendations?",
+  "options": [
+    {
+      "id": "a",
+      "text": "All Camunda 8 clusters require the same sizing regardless of workload â€” a single standard configuration serves all deployment scenarios â€” this approach has limitations. Camunda 8 cluster sizing depends heavily on workload characteristics: process instance throughput (instances per second), process complexity (number of tasks and variables), variable payload sizes, retention requirements, and secondary storage selection. Camunda documentation provides sizing guidelines with starter, medium, and large cluster profiles. Over-sizing wastes resources; under-sizing causes latency and incident accumulation. Proper sizing analysis requires benchmarking with representative workloads."
+    },
+    {
+      "id": "b",
+      "text": "For Camunda SaaS, infrastructure sizing IS managed by Camunda -- customers select plan tiers and Camunda provisions/scales the clusters. For Self-Managed deployments (Kubernetes/Helm), the organization owns all sizing decisions: Zeebe broker replicas, partition count, Elasticsearch/OpenSearch cluster size, CPU/memory requests/limits per component, and storage volume sizing. Camunda provides sizing guidelines and benchmark tooling, but operational responsibility for infrastructure provisioning remains with the customer in Self-Managed deployments."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 Self-Managed only supports single-node deployments -- a distributed cluster is unsupported -- this approach has limitations. Camunda 8 Self-Managed is purpose-built for distributed Kubernetes deployments. md:53-58). Multiple partitions enable horizontal throughput scaling. The Helm chart supports multi-node deployments out of the box. , docker-compose for local dev) -- production deployments require distributed clusters for high availability and fault tolerance."
+    },
+    {
+      "id": "d",
+      "text": "8 Orchestration Cluster consolidates: Zeebe + Web Applications (Operate + Tasklist) + Identity -- sized per workload, deployed via Helm on Kubernetes typically. Throughput drivers: processes started/sec, jobs completed/sec (drives Zeebe broker + worker fleet sizing), decisions evaluated/sec. State drivers: active instances, variable size (≤1 MB headroom per Set 15 Q13), history retention window. Secondary storage choice (Q52) drives a separate sizing axis: ES/OS cluster (CPU + memory + disk) vs RDBMS (Postgres/MySQL/MariaDB/Oracle/MSSQL). md:53-58), partitions for sharding. Latency targets: P95 / P99 job + process-completion SLAs. md:94-97). Load..."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Cluster sizing factors: Workload factors: Throughput: Processes started per second: drives Zeebe load. Jobs completed per second: drives worker activity. Decisions evaluated per second: drives Zeebe + DMN engine. State: Active instances: in-flight processes consume resources. Variable size (per Set 15 Q13): large variables = more resources. History retention: how long data kept. Latency targets: P95 job latency: < 100 ms? < 1 s? P99 process duration: SLA requirements. Per-component sizing: Zeebe broker: CPU: high for throughput. Memory: for state. Disk: for journal (fast IOPS critical). Replicas: for HA. Partitions: for sharding. Zeebe gateway: CPU: handle client connections. Memory: connection pools. Less heavy than broker typically. Operate: CPU: query processing. Memory: for indices in memory. Elasticsearch: CPU: query + indexing. Memory: for indexed data. Disk: index storage. Replicas: HA + read parallelism. Identity: Modest: auth flows. Less critical for sizing. Camunda sizing references: Verify current published guides: Camunda 8 publishes sizing recommendations. Per cluster tier: small / medium / large with specs. Per use case: high-throughput vs many-state. For the scenario: 500 processes/sec → significant load. 50,000 active → moderate state. Likely: medium-to-large cluster. Reference architecture (example sizes): Zeebe: 3 brokers, 4 cores + 16 GB RAM each, NVMe SSD. Gateway: 2-3 instances. Operate: 2 instances + ES cluster. Elasticsearch: 3 nodes, 4 cores + 16 GB RAM, SSD. Verify with current Camunda guides + load test. Load testing: Approach: Synthetic workload: simulate prod traffic. Tools: Camunda Benchmark tool, JMeter, custom. Measure: latency, throughput, resource usage. Iterate: tune cluster; re-test. Capacity planning: Plan for growth: Year 1: current sizing. Year 2: projected growth + headroom. Headroom: 50%+ to handle spikes. Plan for HA: 3-broker cluster: tolerates 1 broker failure. Replication: across availability zones. Backup / restore (per Q55). For SaaS: Camunda manages cluster: select tier per plan. Less direct sizing: pick plan that matches needs. Scale up via plan upgrade. For Self-Managed: Full responsibility: sizing, monitoring, scaling. Kubernetes: typical deployment; auto-scale options. Cloud vs on-prem: different cost / scaling models. Monitoring sizing health: CPU saturation: scale CPU. Memory pressure: scale memory. Disk I/O: scale storage or use faster. Queue depth: scale workers / broker. Best practices: Start with Camunda's reference: don't reinvent. Load test before production: validate sizing. Plan for growth: avoid frequent re-sizing. Monitor + alert: react to issues. Iterate: re-size as patterns emerge. Anti-patterns: Single node prod: no HA; sized for low load. Mega cluster idle: over-provisioned. No load test: production surprises. For the scenario (500/sec, 50k active): Estimate: medium cluster (3+ brokers). Reference Camunda sizing guides. Load test in staging. Monitor in production: tune as needed."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/about-self-managed/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q54",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

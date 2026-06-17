@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q11",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Camunda Spring Boot Starter project: BPMN files in src/main/resources/processes/. Team wonders how to auto-deploy on app startup.",
+  "question": "Camunda Spring Boot Starter auto-deployment annotation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "bpmn\") public class MyApplication { ... } On startup, the starter deploys matching resources to Camunda. md:972-1015 (classpath patterns, ownJarOnly flag, tenantId). newDeployResourceCommand() in @PostConstruct`. Useful for: dev / staging environments; production typically uses CI/CD-driven deploys."
+    },
+    {
+      "id": "b",
+      "text": "The Camunda Spring Boot Starter provides no mechanism for automatic deployment of BPMN/DMN resources on application startup -- this approach has limitations. Deployment) enables auto-deployment by specifying classpath resource patterns. The starter scans for matching files on startup and deploys them to Zeebe automatically. md:243-251. bpmn\") for development convenience and controlled staging environments."
+    },
+    {
+      "id": "c",
+      "text": "newDeployResourceCommand() -- this partially describes one available approach but misses the @Deployment annotation feature. While programmatic deployment via @PostConstruct and CamundaClient is indeed supported and useful for complex deployment logic (conditional deploys, ordered deploys, error handling), the @Deployment annotation provides a simpler declarative alternative. Both mechanisms are available, and teams can choose based on their needs: declarative @Deployment for simple cases, programmatic CamundaClient for complex scenarios requiring more control."
+    },
+    {
+      "id": "d",
+      "text": "newDeployResourceCommand(). These run within the application JVM at startup, not via external REST calls. REST-based deployment is more typical for production CI/CD pipelines rather than application startup."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Auto-deployment patterns: Camunda Spring Boot Starter @Deployment annotation (verbatim form per getting-started.md:243-247): `java @SpringBootApplication @Deployment(resources = { \"classpath:processes/.bpmn\", \"classpath:decisions/.dmn\", \"classpath:forms/.form\" }) public class MyApplication { public static void main(String[] args) { SpringApplication.run(MyApplication.class, args); } } Behavior: On app startup, SDK scans for matching resources. Deploys each to Zeebe. Logs deployment status. Idempotent: re-deploying same content typically just bumps version (Zeebe handles versioning). Programmatic deployment (alternative): java @Component public class ProcessDeployer { @Autowired private CamundaClient camundaClient; @PostConstruct public void deploy() { camundaClient.newDeployResourceCommand() .addResourceFromClasspath(\"processes/order.bpmn\") .send() .join(); } } When to use which: @Deployment: Simple cases: deploy all matching files. Convention over configuration: minimal boilerplate. Pros: declarative. Cons: less control over timing / conditional deployment. Programmatic: Complex deployment logic: conditional, ordered, etc. Custom error handling: react to deployment results. Pros: full control. Cons: more code. For production: Auto-deployment from JAR: convenient for dev / small ops. CI/CD pipelines: typical for production. Build BPMN files. Test. Deploy via API or CLI. Separate from app deployment. Why production typically uses CI/CD: Decouple model deploy from app deploy: update process without app restart. Versioning control: deliberate version bumps. Approval workflows: prod deploys require sign-off. Rollback: revert process without rebuilding app. Resource types (typical): .bpmn: process models. .dmn: decision models. .form: forms (verify per version). Deployment idempotency: Same resource content: Zeebe may not bump version if content identical. Different content: new version deployed. For testing: convenient -- re-runs don't pollute version space. Configuration: yaml camunda: client: mode: self-managed zeebe: grpc-address: localhost:26500 auth: client-id: ${CLIENT_ID} client-secret: ${CLIENT_SECRET} spring: application: name: my-app Best practices: Dev / staging: @Deployment convenient. Production: CI/CD-driven deploys. Source-control processes: BPMN in Git. Validate before deploy: lint, test. Document deployment process: clear runbook. Anti-patterns: Embedding hot-fix BPMN in app deploys: tight coupling. No idempotency thought: re-deploying creates many versions. No tests before deploy: regressions slip in. For the scenario: Camunda Spring Boot Starter with files in processes/. @Deployment(resources = \"classpath:processes/.bpmn\") for auto-deploy. Or programmatic via CamundaClient` for more control. Move to CI/CD for production."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Auto-deployment patterns: Camunda Spring Boot Starter @Deployment annotation (verbatim form per getting-started.md:243-247): `java @SpringBootApplication @Deployment(resources = { \"classpath:processes/.bpmn\", \"classpath:decisions/.dmn\", \"classpath:forms/.form\" }) public class MyApplication { public static void main(String[] args) { SpringApplication.run(MyApplication.class, args); } } Behavior: On app startup, SDK scans for matching resources. Deploys each to Zeebe. Logs deployment status. Idempotent: re-deploying same content typically just bumps version (Zeebe handles versioning). Programmatic deployment (alternative): java @Component public class ProcessDeployer { @Autowired private CamundaClient camundaClient; @PostConstruct public void deploy() { camundaClient.newDeployResourceCommand() .addResourceFromClasspath(\"processes/order.bpmn\") .send() .join(); } } When to use which: @Deployment: Simple cases: deploy all matching files. Convention over configuration: minimal boilerplate. Pros: declarative. Cons: less control over timing / conditional deployment. Programmatic: Complex deployment logic: conditional, ordered, etc. Custom error handling: react to deployment results. Pros: full control. Cons: more code. For production: Auto-deployment from JAR: convenient for dev / small ops. CI/CD pipelines: typical for production. Build BPMN files. Test. Deploy via API or CLI. Separate from app deployment. Why production typically uses CI/CD: Decouple model deploy from app deploy: update process without app restart. Versioning control: deliberate version bumps. Approval workflows: prod deploys require sign-off. Rollback: revert process without rebuilding app. Resource types (typical): .bpmn: process models. .dmn: decision models. .form: forms (verify per version). Deployment idempotency: Same resource content: Zeebe may not bump version if content identical. Different content: new version deployed. For testing: convenient -- re-runs don't pollute version space. Configuration: yaml camunda: client: mode: self-managed zeebe: grpc-address: localhost:26500 auth: client-id: ${CLIENT_ID} client-secret: ${CLIENT_SECRET} spring: application: name: my-app Best practices: Dev / staging: @Deployment convenient. Production: CI/CD-driven deploys. Source-control processes: BPMN in Git. Validate before deploy: lint, test. Document deployment process: clear runbook. Anti-patterns: Embedding hot-fix BPMN in app deploys: tight coupling. No idempotency thought: re-deploying creates many versions. No tests before deploy: regressions slip in. For the scenario: Camunda Spring Boot Starter with files in processes/. @Deployment(resources = \"classpath:processes/.bpmn\") for auto-deploy. Or programmatic via CamundaClient` for more control. Move to CI/CD for production.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q11",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

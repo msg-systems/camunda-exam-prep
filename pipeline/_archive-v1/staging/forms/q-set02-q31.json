@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q31",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A tax-filing form has a numeric input \"annual_income\". The team wants to validate that the value is at least 0 and at most 10,000,000 -- values outside this range should show an inline error message and prevent form submission. The team is configuring this in Web Modeler Forms.",
+  "question": "Which Forms feature enables this validation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use the Number field's Validation group in the Web Modeler Forms editor: configure the Minimum property to 0 and the Maximum property to 10000000. md, both Minimum and Maximum accept either a literal numeric value or a FEEL expression (prefixed with =) for dynamic bounds. When a user submits a value outside this range, the Camunda 8 form runtime blocks submission and displays an inline error message adjacent to the field -- without requiring any server-side validation."
+    },
+    {
+      "id": "b",
+      "text": "Configure a FEEL Required if expression: =annual_income >= 0 and annual_income <= 10000000 so that the field is only required when the value is within the valid range, effectively making out-of-range values optional. The Required if property controls whether the field must have a value at all -- it toggles the required/optional status of the field. It does not validate the actual value against a numeric range or block form submission when the range constraint is violated. Range validation requires the dedicated Min/Max properties in the Validation group."
+    },
+    {
+      "id": "c",
+      "text": "Add a downstream Service Task after the User Task completes to validate the submitted annual_income value against the 0-10,000,000 range, and configure it to throw a BPMN error or loop back to the form if the value is outside bounds. Server-side validation in a Service Task provides defense-in-depth but should not be the primary validation layer -- the user submits invalid data, the form accepts it, and only after the task completes does the error surface. This produces poor user experience and unnecessary process state transitions."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 Forms do not have built-in validation for numeric ranges; the team must directly edit the form JSON schema to add HTML5-compatible min and max attributes that browser-native form validation will enforce. Camunda 8 Forms do have built-in validation through the Number field's dedicated Validation group, which includes Min, Max, and Required properties without requiring manual JSON schema editing or relying on browser-native HTML5 validation."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Per forms-element-library-number.md, the Number field has a dedicated Validation group with three properties: Required (must contain a value), Minimum (value must be at least n), Maximum (value must be no larger than n). Both Minimum and Maximum accept either a literal number or a FEEL expression (e.g. =annualMin). When the user submits an out-of-range value, the form blocks submission and shows an inline error. Note: regex Pattern validation is offered on text/textfield elements, not Number -- Number's validation is range-only."
+    },
+    "b": {
+      "text": "Incorrect. Required if controls whether the field is required, not value range validation. Different mechanism."
+    },
+    "c": {
+      "text": "Incorrect. Server-side validation in a Service Task is defense-in-depth but defeats the purpose of UI validation (poor UX -- user submits invalid data, then gets a downstream error after the task is done)."
+    },
+    "d": {
+      "text": "Incorrect. Forms do have built-in validation."
+    }
+  },
+  "explanation": "Per forms-element-library-number.md, the Number field has a dedicated Validation group with three properties: Required (must contain a value), Minimum (value must be at least n), Maximum (value must be no larger than n). Both Minimum and Maximum accept either a literal number or a FEEL expression (e.g. =annualMin). When the user submits an out-of-range value, the form blocks submission and shows an inline error. Note: regex Pattern validation is offered on text/textfield elements, not Number -- Number's validation is range-only.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-number/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q31",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

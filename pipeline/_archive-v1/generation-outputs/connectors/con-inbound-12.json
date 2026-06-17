@@ -1,0 +1,25 @@
+{
+  "id": "con-inbound-12",
+  "topic": "connectors",
+  "subtopic": "inbound",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Crestline Marketplace, an e-commerce marketplace processing 7,500 requests per day for partner price updates, uses a Camunda 8.8 HTTP Webhook to receive POSTs at /inbound/priceUpdate?source=feedA with header X-Partner-Id: partnerA and body {\"sku\":\"S1\",\"price\":12.50}. The Result expression must export the partner ID, the source query parameter, and the SKU as process variables.",
+  "question": "Which Result expression correctly extracts the partner ID, the source query parameter, and the SKU as process variables?",
+  "options": [
+    { "id": "a", "text": "={partner: request.headers.\"x-partner-id\", source: request.params.source, sku: request.body.sku} reading each value from its matching request context scope" },
+    { "id": "b", "text": "={partner: request.body.\"x-partner-id\", source: request.body.source, sku: request.body.sku} reading every value from the request body context for the inbound call" },
+    { "id": "c", "text": "={partner: request.headers.\"x-partner-id\", source: connectorData.source, sku: request.body.sku} pulling the source from the connectorData object on the request" },
+    { "id": "d", "text": "={partner: headers.\"x-partner-id\", source: params.source, sku: body.sku} dropping the request prefix when accessing headers, params, and body in the expression" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The inbound webhook context exposes request.body, request.headers, and request.params; the docs show headers arrive lower-cased (e.g. myheader), so the Result expression maps the partner from request.headers, the query parameter from request.params, and the SKU from request.body." },
+    "b": { "text": "Incorrect. Only the JSON payload appears under request.body, so headers and URL query parameters cannot be read from the body context; they live under request.headers and request.params respectively in the documented context shape." },
+    "c": { "text": "Incorrect. connectorData is documented as a special, usually empty object reserved for rare connector-specific cases; URL query parameters are exposed under request.params, not under connectorData." },
+    "d": { "text": "Incorrect. The webhook context is rooted at the request object, so dropping the request. prefix leaves the expressions unbound against the inbound webhook payload and the variables would resolve to nothing." }
+  },
+  "explanation": "In the Activation condition, Result expression, and Response body expression you can access the inbound request via the request object: request.body.<property> for parsed JSON fields, request.headers.<lowercased-header> for HTTP headers, and request.params.<name> for URL query parameters. A separate, usually empty connectorData object holds connector-specific data.",
+  "docs": [ { "title": "Inbound connectors", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/inbound/" } ]
+}

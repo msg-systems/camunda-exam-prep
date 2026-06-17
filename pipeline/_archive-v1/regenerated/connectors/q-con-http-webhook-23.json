@@ -1,0 +1,50 @@
+{
+  "id": "con-http-webhook-23",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Sentinel Bank, a digital bank with 250000 customers, deploys a Camunda 8.8 SaaS BPMN diagram that starts with an HTTP Webhook connector to receive transaction-approved callbacks from a fraud-screening vendor. After clicking Deploy in Web Modeler, the integration team opens the Webhooks tab in the properties panel to copy the URL the vendor must POST against.",
+  "question": "Which URL pattern does the activated HTTP Webhook expose on a Camunda 8.8 SaaS cluster?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The URL follows http(s)://<base URL>/inbound/<webhook ID>, where <base URL> contains the region Id and cluster Id from the API tab"
+    },
+    {
+      "id": "b",
+      "text": "The URL follows http(s)://<base URL>/<contextPath>/inbound/<webhook ID>, requiring a contextPath configured in the Helm chart"
+    },
+    {
+      "id": "c",
+      "text": "The URL follows http(s)://<base URL>/connectors/<webhook ID>, with a fixed connectors segment routed to the inbound runtime"
+    },
+    {
+      "id": "d",
+      "text": "The URL follows http(s)://<base URL>/<process ID>/<webhook ID>, embedding the BPMN process ID before the webhook path segment"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. SaaS webhook URLs match http(s)://<base URL>/inbound/<webhook ID>, and the base URL embeds the region Id and cluster Id available from the API tab of the cluster's client credentials."
+    },
+    "b": {
+      "text": "Incorrect. The <contextPath> segment only applies to self-managed installations where a contextPath is set in the Helm chart, and it must be omitted when no contextPath is configured; SaaS uses the simpler /inbound form."
+    },
+    "c": {
+      "text": "Incorrect. The activated path segment is /inbound, not /connectors; the webhook runtime exposes inbound endpoints under the fixed /inbound prefix in both SaaS and self-managed deployments."
+    },
+    "d": {
+      "text": "Incorrect. The URL does not embed the BPMN process ID; the path after /inbound is the webhook ID that was configured in the properties of the HTTP Webhook connector."
+    }
+  },
+  "explanation": "When the diagram is deployed, the HTTP Webhook becomes publicly available at http(s)://<base URL>/inbound/<webhook ID> in SaaS, where the base URL carries the region Id and cluster Id from the API tab. Self-managed installations add an optional Helm-configured <contextPath> segment between the base URL and /inbound.",
+  "docs": [
+    {
+      "title": "HTTP Webhook connector",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ]
+}

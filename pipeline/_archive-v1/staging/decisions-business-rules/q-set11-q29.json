@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team wants a curated public API around a subset of decisions -- invoke from BPMN, expose only certain decisions, hide internal helper decisions, validate inputs. In DMN-1.3 this is the Decision Service construct. They want to know how to model it in Camunda 8.",
+  "question": "Does Camunda 8 implement the DMN Decision Service element?",
+  "options": [
+    {
+      "id": "a",
+      "text": "3 specification pattern that Camunda 8's modeller and Zeebe DMN engine do not provide. md:23-28, the four supported DMN element types are Decision, Input data, Knowledge source, and Business knowledge model. Decision Service is absent from that list. The workaround is to use a top-level Decision as the BPMN entry point with informationRequirement edges to supporting decisions."
+    },
+    {
+      "id": "b",
+      "text": "No -- Decision Service is NOT in Camunda 8's DMN element coverage (Pattern #35). md:23-28 lists exactly four supported DMN elements: Decision (tables and literal expressions), Input data, Knowledge source, Business knowledge model. Decision Service is absent. Canonical C8 substitute: expose the desired top-level Decision as the BPMN-side entry point (Business Rule Task references the Decision's decisionId); the DRD's informationRequirement edges propagate internal-Decision evaluations transitively without exposing them to the BPMN side. The BPMN Business Rule Task acts as the public surface; internal Decisions are evaluated automatically as DRD dependencies of the top-level Decision."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 automatically generates a Decision Service element from the DRD graph structure without any modelling effort -- no such automatic Decision Service generation feature exists in Camunda 8's DMN modeller or engine. Teams must explicitly architect their DRD with designated entry-point decisions and informationRequirement edges to supporting decisions. The engine evaluates the graph transitively but there is no automatic service abstraction layer created on top of the DRD."
+    },
+    {
+      "id": "d",
+      "text": "BPMN Business Rule Tasks can reference any deployed Decision by decisionId, making each decision individually callable. The \"public API\" in Camunda 8 is implicit: whichever decisionId you reference in a Business Rule Task is the exposed entry point."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per dmn.md:23-28 verbatim: \"Modeler supports the following DMN elements: - Decision (tables and literal expressions) - Input data - Knowledge source - Business knowledge model\" Decision Service is not in that list (Pattern #35 -- confirmed 5th cumulative across audits). The DMN-1.3 spec's Decision Service element (with outputDecision / encapsulatedDecision / inputDecision / inputData sub-elements) is not implemented in Camunda 8's modeler nor in the Zeebe DMN engine. Canonical C8 substitute pattern: 1. Author the \"service entry point\" as a top-level Decision (Decision Table or Literal Expression body). 2. Other supporting Decisions become graph dependencies via informationRequirement edges (DRD arrows from supporting Decision → entry-point Decision). 3. From BPMN, place a Business Rule Task that references the entry-point Decision's decisionId per business-rule-tasks.md:25-44. 4. The Zeebe DMN engine evaluates the entry-point Decision; the engine automatically pulls in graph dependencies -- supporting Decisions evaluate first, results propagate via the edges, entry-point Decision evaluates last and returns to the BPMN. This achieves the public-API encapsulation the spec's Decision Service offers, modulo: No formal outputDecision curation list -- the BPMN picks the entry point by decisionId; whichever Decision is referenced is \"the public one.\" Other deployed Decisions remain callable on their own from any other BPMN unless you handle access control separately. No encapsulatedDecision curation list -- supporting Decisions are still individually deployable Decisions; they're \"internal\" only by convention. No formal inputDecision curation list -- inputs are the entry-point Decision's input data per the DRD. For stronger encapsulation in C8: deploy supporting decisions in a separate DMN file and don't reference them from any BPMN process -- they evaluate only as DRD dependencies. Resource-level Decision deletion/lifecycle per resource-deletion.md plus authorization on BPMN Business Rule Tasks is the closest C8 has to \"public API\" curation."
+    },
+    "b": {
+      "text": "Correct. DMN-1.3 Decision Service element not in C8 modeler per dmn.md:23-28."
+    },
+    "c": {
+      "text": "Incorrect. No auto-generation feature."
+    },
+    "d": {
+      "text": "Incorrect. Each deployed Decision is callable from any BPMN by decisionId -- there's no service-level curation construct, so \"publicly callable\" is implicit (no enforcement). Authorization on BPMN side per business-rule-tasks.md is the gating mechanism."
+    }
+  },
+  "explanation": "DMN-1.3 Decision Service element not in C8 modeler per dmn.md:23-28.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/dmn/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q29",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

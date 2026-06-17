@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q55",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A CI pipeline deploys BPMN to a SaaS cluster. After the zbctl deploy command, the pipeline wants to verify programmatically that the deployment succeeded and that the latest version is now the one referenced -- for audit and to gate downstream pipeline steps.",
+  "question": "Which API approach lets the CI verify the deployment?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Query the Orchestration Cluster REST API -- search for process definitions filtered by processDefinitionId to retrieve the list of deployed versions. Check that the latest version's key or timestamp matches the deployment metadata returned by the zbctl deploy command. The deployment response from zbctl includes the deployed definition's key and version number, which the CI pipeline can compare against the API query result to confirm the expected version is active. This programmatic verification provides auditable, structured evidence suitable for CI gate conditions and compliance records."
+    },
+    {
+      "id": "b",
+      "text": "Take a screenshot of the Operate UI after running zbctl deploy to visually confirm the new process definition version appears in the process definitions list. Screenshots are human-readable artefacts that cannot be automatically verified, stored in structured logs, compared against expected values, or integrated into CI pipeline gate conditions. A CI pipeline requires machine-readable, structured responses that scripts can inspect. Furthermore, screenshots do not constitute audit evidence in any meaningful compliance framework -- the Orchestration REST API's response provides structured, loggable, parseable proof of deployment success."
+    },
+    {
+      "id": "c",
+      "text": "Send an HTTP GET to the cluster's /actuator/health or /health endpoint to confirm the cluster is alive and responsive, using the health status as a proxy for deployment success. A cluster health check confirms liveness (the cluster is running) and readiness (the cluster can accept requests), but provides no information about whether a specific BPMN file was successfully deployed or what version is currently active. A healthy cluster could have deployed the old version just as easily as the new one. Deployment-specific verification requires querying the process definitions API, not the generic health endpoint."
+    },
+    {
+      "id": "d",
+      "text": "There is no programmatic way to verify a BPMN deployment in Camunda 8 -- teams must either trust the zbctl deploy exit code (0 = success) or manually check Operate. The Orchestration Cluster REST API provides exactly this capability: after deployment, query /v2/process-definitions/search filtered by process ID to retrieve the list of deployed versions and their keys. The response can be compared against the deployment metadata returned by zbctl deploy to confirm the expected version is live."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Orchestration REST API exposes process-definition queries. Post-deployment, the CI can query the API: filter by processId, get back the version list, compare the latest version's timestamp/key to what zbctl deploy returned. If they match, deployment is confirmed; if not, alert. This pattern is auditable, scriptable, and idempotent."
+    },
+    "b": {
+      "text": "Incorrect. Screenshots are for humans."
+    },
+    "c": {
+      "text": "Incorrect. Health checks cluster liveness, not deployment status."
+    },
+    "d": {
+      "text": "Incorrect. Verification is straightforward."
+    }
+  },
+  "explanation": "The Orchestration REST API exposes process-definition queries. Post-deployment, the CI can query the API: filter by processId, get back the version list, compare the latest version's timestamp/key to what zbctl deploy returned. If they match, deployment is confirmed; if not, alert. This pattern is auditable, scriptable, and idempotent.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q55",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

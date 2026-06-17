@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team handles 10 MB PDF documents in their process. They're choosing between base64-encoded process variables and Document Handling references. They want a quantitative sense of the trade-offs.",
+  "question": "Quantitative trade-offs: base64 in variables vs Document Handling references for 10 MB binaries?",
+  "options": [
+    {
+      "id": "a",
+      "text": "3 MB string. 3 MB per instance; multiplied across instances, broker storage / replication bandwidth balloons. Operate UI / API responses include the variable -- slow to load, fragile network calls. Document Handling: process variable holds only a reference (small JSON object -- few hundred bytes); binary is in configurable storage backend (in-memory dev, S3 / Azure Blob / GCS prod). Broker state stays small; queries / Operate / replication remain fast. For 10 MB binaries, Document Handling is strongly preferred."
+    },
+    {
+      "id": "b",
+      "text": "Both approaches are equivalent in terms of broker state impact, storage costs, and operational characteristics -- this description does not reflect the actual behaviour. 3 MB per instance due to base64 encoding overhead. With many concurrent instances, this significantly increases broker state size, replication bandwidth, and Operate UI rendering costs. Document Handling references are small JSON objects of a few hundred bytes, keeping broker state minimal regardless of document size."
+    },
+    {
+      "id": "c",
+      "text": "Storing documents as base64-encoded variables is faster because it avoids extra network round-trips to external storage -- this overlooks the systemic performance costs. While base64 avoids one external storage hop, it severely degrades broker performance for large documents. 3 MB via base64 occupies broker memory, consumes replication bandwidth across broker nodes, slows Operate UI rendering, and increases REST API response times. The one avoided hop is offset by system-wide throughput degradation."
+    },
+    {
+      "id": "d",
+      "text": "Document Handling does require one additional HTTP request to retrieve the binary from the storage backend, adding latency for that specific operation."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Quantitative comparison: Base64 in process variables: Storage: 10 MB binary → ~13.3 MB base64 string (33% inflation per RFC 4648). Broker state: each instance carries this variable; with 1000 instances, ~13.3 GB. Replication: every state change replicates across broker nodes; large variables increase replication bandwidth. Operate / Tasklist UI: variable shown in lists / details; rendering / scrolling slow. API responses: variable returned in instance API calls; large payloads, slow responses. Memory: workers loading variables hold them in memory. Document Handling references: Variable: small JSON reference (~200-500 bytes), e.g., {\"camunda.document.type\": \"...\", \"storeId\": \"...\", \"documentId\": \"...\", \"metadata\": {...}}. Binary in storage backend: cloud object store (S3, Azure, GCS) or filesystem; designed for binaries. Broker state stays light; Operate fast. Trade-off: one extra HTTP call to fetch the binary when needed (typically from worker to S3). For binaries > ~100 KB, Document Handling is strongly preferred. For tiny configuration values that happen to be binary (< 1 KB), variables can work."
+    },
+    "b": {
+      "text": "Incorrect. Major difference."
+    },
+    "c": {
+      "text": "Incorrect. Base64 slows broker."
+    },
+    "d": {
+      "text": "Incorrect. One extra hop but huge state-side savings."
+    }
+  },
+  "explanation": "Quantitative comparison: Base64 in process variables: Storage: 10 MB binary → ~13.3 MB base64 string (33% inflation per RFC 4648). Broker state: each instance carries this variable; with 1000 instances, ~13.3 GB. Replication: every state change replicates across broker nodes; large variables increase replication bandwidth. Operate / Tasklist UI: variable shown in lists / details; rendering / scrolling slow. API responses: variable returned in instance API calls; large payloads, slow responses. Memory: workers loading variables hold them in memory. Document Handling references: Variable: small JSON reference (~200-500 bytes), e.g., {\"camunda.document.type\": \"...\", \"storeId\": \"...\", \"documentId\": \"...\", \"metadata\": {...}}. Binary in storage backend: cloud object store (S3, Azure, GCS) or filesystem; designed for binaries. Broker state stays light; Operate fast. Trade-off: one extra HTTP call to fetch the binary when needed (typically from worker to S3). For binaries > ~100 KB, Document Handling is strongly preferred. For tiny configuration values that happen to be binary (< 1 KB), variables can work.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/getting-started/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q15",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

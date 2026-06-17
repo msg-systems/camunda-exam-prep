@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q51",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team deploys a BPMN file via zbctl deploy and receives an error: \"no executable process: the process is not marked as executable\". The team is unsure why a deployable BPMN is rejected.",
+  "question": "What does this error mean and how is it fixed?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The <bpmn:process> element in the BPMN XML must have the attribute isExecutable=\"true\". Without it, the BPMN process is treated as a descriptive model intended for documentation purposes only, and Zeebe refuses to deploy it because there is nothing to execute. The BPMN specification distinguishes between executable models (for engine runtime) and descriptive models (for human communication and documentation). The fix is straightforward: in Web Modeler, toggle the \"Executable\" property on the process element in the property panel; or if editing XML directly, add isExecutable=\"true\" to the <bpmn:process> opening tag. After making the change, re-deployment succeeds."
+    },
+    {
+      "id": "b",
+      "text": "Re-deploy the BPMN file without making any changes -- the deployment error may be transient and retrying might succeed. This approach will fail identically every time until the underlying structural problem is addressed. The error \"no executable process\" is a deterministic validation check applied by Zeebe to every deployment attempt. A BPMN file missing isExecutable=\"true\" on the bpmn:process element will always fail this check regardless of how many times it is re-deployed. The fix requires editing the BPMN definition and setting the attribute, after which re-deployment will succeed."
+    },
+    {
+      "id": "c",
+      "text": "Add a job worker that subscribes to the appropriate task type for the service tasks in the BPMN -- perhaps a missing worker is what prevents the process from being marked as executable. This diagnosis is at the wrong layer. Worker subscriptions are a runtime concern that happens after deployment. The \"no executable process\" error occurs at deployment time before any runtime execution begins. Workers have no bearing on whether a BPMN file can be deployed; deployment validation checks the BPMN's structural attributes (including isExecutable), not runtime worker availability."
+    },
+    {
+      "id": "d",
+      "text": "Restart the Zeebe broker -- the deployment rejection might be caused by a transient broker state issue that a restart would resolve. Restarting Zeebe has no effect on BPMN attribute validation. The isExecutable=\"true\" check is deterministic and based entirely on the BPMN file's content, not on the broker's runtime state. Even after a full broker restart, deploying the same BPMN file without the isExecutable=\"true\" attribute would produce the identical error. This is a model authoring problem, not a broker problem."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. BPMN distinguishes executable processes (intended for engine execution) from descriptive models (modelling artefacts used for documentation, design discussion, governance, etc.). The isExecutable attribute marks the distinction. Zeebe refuses to deploy non-executable processes because there's nothing to execute. Fix: enable the toggle in Web Modeler, or edit ``. After that, redeploy succeeds."
+    },
+    "b": {
+      "text": "Incorrect. Re-deploying the same broken file fails identically. The model itself needs the attribute."
+    },
+    "c": {
+      "text": "Incorrect. Worker subscription is a runtime concern (after deployment); deployment fails before that."
+    },
+    "d": {
+      "text": "Incorrect. Restart doesn't fix BPMN attributes."
+    }
+  },
+  "explanation": "BPMN distinguishes executable processes (intended for engine execution) from descriptive models (modelling artefacts used for documentation, design discussion, governance, etc.). The isExecutable attribute marks the distinction. Zeebe refuses to deploy non-executable processes because there's nothing to execute. Fix: enable the toggle in Web Modeler, or edit ``. After that, redeploy succeeds.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/bpmn-primer/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q51",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-writing-good-workers-146",
+  "topic": "extensions-integrations",
+  "subtopic": "workers",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Quartz Bank notices that its Camunda 8.8 job workers see an extra 2 seconds of activation delay on a large cluster during quiet periods, even with long polling enabled across 8 worker instances. A senior engineer wants the official recommendation for cutting this delay.",
+  "question": "Which Camunda 8.8 worker performance best practice does the page recommend to reduce job activation latency?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Enable job streaming so workers no longer have to balance aggressive polling of every partition against minimizing cluster impact, which on large clusters can otherwise add a noticeable delay in the order of seconds"
+    },
+    {
+      "id": "b",
+      "text": "Disable long polling on all workers and shorten the poll interval to 10 ms; long polling forces every worker to wait for the full server-side timeout before receiving newly activated jobs from the broker"
+    },
+    {
+      "id": "c",
+      "text": "Increase the broker partition count to one partition per active worker; job activation delay is caused by partitions being assigned to multiple workers and is independent of the polling mechanism used"
+    },
+    {
+      "id": "d",
+      "text": "Switch workers to short polling and disable batched activation; fetching one job per request reduces the per-job activation overhead and is the recommended Camunda 8.8 performance pattern"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Performance best-practices section recommends enabling job streaming to reduce latency to a maximum, since with long polling workers must periodically poll every partition and balance aggression against cluster load, which on large clusters can add a noticeable delay in the order of seconds."
+    },
+    "b": {
+      "text": "Incorrect. The best practice keeps long polling as a baseline and adds job streaming on top of it; tightening short-polling intervals is not the documented fix."
+    },
+    "c": {
+      "text": "Incorrect. Job activation delay on large clusters is described as a polling-pattern problem solved by streaming, not a partition-to-worker mapping problem."
+    },
+    "d": {
+      "text": "Incorrect. The best practice does not recommend disabling batched activation or moving to short polling for performance."
+    }
+  },
+  "explanation": "Camunda 8.8 best practice recommends enabling job streaming on workers to cut job activation latency, since long polling on large clusters forces a tradeoff between polling aggression and cluster load that can add seconds of delay.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

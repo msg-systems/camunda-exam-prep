@@ -1,0 +1,27 @@
+{
+  "id": "mod-event-based-gateways-78",
+  "topic": "modeling",
+  "subtopic": "event-based-gateways",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lumen SaaS uses a Camunda 8.8 onboarding process where the next step depends on whichever event arrives first for 4000 customers per day. The team adds an event-based gateway after a user action so the flow waits for either a message correlation or a timer in the same scope.",
+  "question": "Which behaviour does the event-based gateway exhibit when the process instance waits at it in Camunda 8.8?",
+  "options": [
+    { "id": "a", "text": "The gateway evaluates a conditionExpression on each outgoing sequence flow and takes the first one whose condition evaluates to true at the time of activation in the same scope" },
+    { "id": "b", "text": "The gateway invokes every intermediate catch event after it in parallel and merges all received events at a downstream parallel join gateway in the same flow scope of the model" },
+    { "id": "c", "text": "The gateway waits until one of the connected intermediate catch events is triggered, then takes the outgoing sequence flow of that event so no other events of the gateway can be triggered afterward" },
+    { "id": "d", "text": "The gateway must have exactly one outgoing sequence flow connected to one intermediate catch event of type timer that decides whether the process continues or terminates the scope" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The event-based gateway routes by which event triggers first, not by evaluating sequence-flow conditionExpressions; the gateway has no condition expressions on its outgoing flows in this model." },
+    "b": { "text": "Incorrect. The gateway does not run all events in parallel; it waits for the first triggered event and then disables the others, so there is no parallel join behind it in the diagram of the model." },
+    "c": { "text": "Correct. The event-based gateways page states the process instance waits until one of the events is triggered, then takes that event's outgoing sequence flow, and no other events of the gateway can be triggered afterward." },
+    "d": { "text": "Incorrect. The page states an event-based gateway must have at least two outgoing sequence flows, each connected to an intermediate catch event of type timer, message, or signal in the same scope." }
+  },
+  "explanation": "An event-based gateway has at least two outgoing flows, each ending in a timer, message, or signal intermediate catch event. The process instance waits at the gateway; the first event to trigger wins, its outgoing flow is taken, and the others become inactive.",
+  "docs": [
+    { "title": "BPMN event-based gateways", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-based-gateways/" }
+  ]
+}

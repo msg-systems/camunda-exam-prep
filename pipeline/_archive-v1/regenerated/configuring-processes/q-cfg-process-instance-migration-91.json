@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-91",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Apex Logistics migrates 900 instances. Each instance currently has a service task with an active job whose job type is send_mail. The target process definition changes the job type expression to = order.next_step, and the platform team expects the worker pool listening for the new job type to start picking up jobs immediately after the migration command completes.",
+  "question": "What happens to the active job's properties when the process instance is migrated to a target process definition that defines a different job type expression?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The job retains its original properties including the job type send_mail because expressions are not reevaluated and jobs are not recreated during process instance migration"
+    },
+    {
+      "id": "b",
+      "text": "The job type expression is reevaluated against the current process variables during migration so the active job picks up the new job type from order.next_step automatically"
+    },
+    {
+      "id": "c",
+      "text": "The active job is canceled and a fresh job with the new job type is created on the migrated service task so the worker pool listening for the new type starts picking up jobs immediately"
+    },
+    {
+      "id": "d",
+      "text": "The job type is updated in place but the existing job remains queued so the original worker keeps processing it until completion before any worker for the new job type takes over"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Migration does not recreate jobs, reevaluate expressions, or reapply input mappings for active elements. The active job keeps all its properties, including the job type send_mail, after the migration completes on the target definition."
+    },
+    "b": {
+      "text": "Incorrect. Expressions on active elements are not reevaluated during migration. The job type that was resolved at activation time is preserved across the migration, regardless of the target definition's expression."
+    },
+    "c": {
+      "text": "Incorrect. Migration explicitly does not cancel and recreate active jobs. Recreating the job would require process instance modification to terminate and reactivate the service task, not migration."
+    },
+    "d": {
+      "text": "Incorrect. The job is not updated in place; it keeps all its original properties. There is no transitional state where the job type changes but the existing job continues to drain through its original worker."
+    }
+  },
+  "explanation": "Process instance migration does not recreate jobs, reevaluate expressions, or reapply input mappings for active elements. Existing jobs and variables continue with the same values, so changing a job type expression in the target definition does not affect already-active jobs.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

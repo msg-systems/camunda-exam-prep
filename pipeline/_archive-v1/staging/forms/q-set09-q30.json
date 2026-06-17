@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q30",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Form has a \"Bulgarian VAT number\" field. Bulgarian VAT format: 9 or 10 digits. The team wants to validate this. They're choosing between regex pattern and length range.",
+  "question": "Which validation pattern fits \"exact 9 or 10 digit format\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "maxLength: 10 handles the length requirement but fails to enforce that the characters are digits. A string like \"abcdefghi\" (9 alphabetic characters) would pass this validation even though it is not a valid Bulgarian VAT number. For accurate VAT number validation, both the length range and the digit-only constraint must be enforced simultaneously, which requires a regex pattern rather than simple length bounds."
+    },
+    {
+      "id": "b",
+      "text": "Some Bulgarian VAT numbers may start with a zero digit, and a Number field would strip that leading zero, corrupting the value. Additionally, a Number field exposes stepper controls and numeric keyboard on mobile, which is semantically incorrect for an identifier that is not a mathematical quantity. VAT numbers should be captured as text fields with pattern validation."
+    },
+    {
+      "id": "c",
+      "text": "Validating the VAT number in a Service Task after the form is submitted means the user submits the task, the process proceeds to a Service Task, the validation runs, and only then is the error discovered. This creates a poor user experience because the feedback is delayed rather than immediate."
+    },
+    {
+      "id": "d",
+      "text": "md:26) with regex ^[0-9]{9,10}$ -- enforces both digits-only AND length range 9-10 in a single validation. The ^ and $ anchors ensure full-string matching, [0-9] restricts characters to digits only, and {9,10} enforces the 9-or-10 length constraint simultaneously. No separate length properties are needed. 164) presets; for VAT number format, select Custom and provide the regex."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Regex ^[0-9]{9,10}$ enforces both constraints in one validation: ^ and $ anchor to start/end of string. [0-9] matches a digit. {9,10} quantifier: between 9 and 10 occurrences inclusive. Form submit rejects strings that don't match (e.g., \"12345678\" -- 8 digits, \"12345678901\" -- 11 digits, \"abc123def4\" -- contains non-digits). Single property handles the joint constraint cleanly."
+    },
+    "b": {
+      "text": "Incorrect. minLength/maxLength handle range but not type; allows non-digits."
+    },
+    "c": {
+      "text": "Incorrect. Number field loses leading zeros (some IDs start with 0); also semantically VAT is an identifier, not a quantity."
+    },
+    "d": {
+      "text": "Correct. Catching at form level gives immediate UX feedback; Service Task is reactive."
+    }
+  },
+  "explanation": "Catching at form level gives immediate UX feedback; Service Task is reactive.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-textfield/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q30",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

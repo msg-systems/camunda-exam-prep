@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q37",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL variable data = [[1, 2], [3, 4], [5]] is a list of lists. Team wants a flat [1, 2, 3, 4, 5]. FEEL flatten for nested lists?",
+  "question": "FEEL flatten for nested lists?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL does include a built-in flatten function. md and recursively flattens nested lists to a single-level list regardless of nesting depth. For example, flatten([[1,2],[3,[4,5]]]) returns [1,2,3,4,5]. The function handles arbitrarily deep nesting in a single call. This is a standard Camunda 8 FEEL built-in with no additional import or configuration required."
+    },
+    {
+      "id": "b",
+      "text": "\" It flattens all nesting levels recursively in one call -- example flatten([[1,2],[[3]], 4]) → [1, 2, 3, 4] per doc :500-501 (note the doubly-nested [[3]] flattens to 3). Signature: flatten(list: list): list. For the scenario flatten([[1,2], [3,4], [5]]) → [1, 2, 3, 4, 5]."
+    },
+    {
+      "id": "c",
+      "text": "The flatten function handles recursive multi-level nesting in a single call, producing a flat list in one expression. For-loop accumulation requires writing a recursive for-expression or a context function, adding significant complexity and verbosity for a task that the built-in function handles natively."
+    },
+    {
+      "id": "d",
+      "text": ") function joins multiple lists end-to-end into one flat list at the top level, but it does not recursively flatten nested lists. If the input contains a nested list like [[1,2],[3]], concatenate would still preserve the inner list structure. For recursive flattening of arbitrary nesting depth, flatten(list) is the correct function. Using concatenate for nested list flattening produces incorrect results when the nesting is more than one level deep."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL flatten: Signature per Camunda doc: flatten(list: list): list -- flattens all nesting levels recursively per feel-built-in-functions-list.md:489. No depth parameter; one call removes every nested-list layer. Examples: `feel flatten([[1, 2], [3, 4], [5]]) → [1, 2, 3, 4, 5] flatten([[\"a\", \"b\"], [\"c\"]]) → [\"a\", \"b\", \"c\"] flatten([]) → [] Multi-level (Camunda FEEL): flatten([[[1, 2]], [[3]]]) → [1, 2, 3] -- fully flattened, since flatten is recursive (doc example flatten([[1,2],[[3]], 4]) → [1,2,3,4] proves doubly-nested layers collapse). Use cases: Use case 1: Aggregating MI outputs: MI subprocess where each iteration returns a list. outputCollection becomes list of lists. flatten(outputCollection) produces flat list. Use case 2: Combining lookups: For each customer, lookup their orders → list of orders per customer. flatten(allCustomerOrders) → flat list of all orders. Use case 3: Multiple search results: Multi-page API results: each page = list. All pages = list of pages. flatten(pages) → all items. Compare with concatenate: concatenate(list1, list2, list3) joins explicit lists. flatten(listOfLists) flattens a single list of lists. Concatenate when you know the lists; flatten when you have a nested structure. Compare with for-loop: feel for inner in nested return inner This actually produces a flat list too (FEEL for returns list; inner being a list each yields the inner; result is concatenation of inner lists when used appropriately). Defensive null handling: flatten(null) may error. =if data != null then flatten(data) else []. Empty inner lists: flatten([[1,2], [], [3]]) → [1, 2, 3] (empty contributes nothing). Mixed types in inner lists: flatten([[1, \"a\"], [true]]) → [1, \"a\", true]`. Type-agnostic; preserves inner element types."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Overcomplicated."
+    },
+    "c": {
+      "text": "Incorrect. overcomplicated."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Overcomplicated.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-list/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q37",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q35",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team built a Custom Outbound Connector in 2024 against Camunda 8.5 SDK. They're now upgrading to Camunda 8.8 SaaS. They want to know if the existing Connector JAR can be uploaded to the 8.8 cluster's Connector Runtime, or if it needs rebuilding.",
+  "question": "What is the correct understanding of Connector SDK version compatibility?",
+  "options": [
+    {
+      "id": "a",
+      "text": "8 SDK and test thoroughly. md lines 26-40 -- only Orchestration Cluster REST API, Camunda Process Test, Java client, and Spring Boot Starter are SemVer-stable). Internal SDK interfaces and the bundled connector-runtime may change between minor versions; binary-recompiling the JAR against connector-core matching the cluster version is the safe path."
+    },
+    {
+      "id": "b",
+      "text": "8 without recompilation. md:39. The public API covers only four components: Orchestration Cluster REST API, Camunda Process Test, Java client, and Spring Boot Starter. 8 minor releases."
+    },
+    {
+      "id": "c",
+      "text": "Custom Connectors built with the Connector SDK are forever compatible with any future Camunda 8 version -- no testing is needed when upgrading between any version combinations because the SDK guarantees permanent backward compatibility. md:39), and the bundled connector-runtime evolves with each cluster release. A zero-test upgrade policy ignores real compatibility risks and violates basic change management practices for production systems."
+    },
+    {
+      "id": "d",
+      "text": "Custom Connectors built with the Connector SDK are not portable across different Camunda 8 clusters -- each cluster version requires a complete rewrite from scratch because there is no shared connector interface. The Connector SDK does provide portability in principle: Connectors implement stable SDK interfaces and can be redeployed to different clusters of compatible versions. The constraint is not cluster identity but SDK and runtime version alignment."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Per reference/public-api.md (the SemVer contract for 8.8+), the public API is a closed list: Orchestration Cluster REST API, Camunda Process Test, Camunda Java client, Camunda Spring Boot Starter (lines 30-33). The Connector SDK is not listed -- and public-api.md line 39 makes the rule explicit: \"All others are considered outside the public API.\" The SDK therefore has no SemVer guarantee across versions. Safe procedure: bump the version.connectors Maven/Gradle property to the 8.8-matching version, recompile, run the SDK's own validation, and exercise the Connector against the 8.8 cluster in staging before promoting to production."
+    },
+    "b": {
+      "text": "Incorrect. The SDK is explicitly outside the public API (public-api.md:39 + omission from lines 30-33). The premise of \"minor-version SemVer guarantees\" doesn't apply to the SDK at all."
+    },
+    "c": {
+      "text": "Incorrect. Forever-compatible is doubly wrong: the SDK has no SemVer contract, and the bundled connector-runtime evolves with cluster releases."
+    },
+    "d": {
+      "text": "Incorrect. Connectors are portable in principle -- the constraint is matching SDK + runtime version, not cluster identity."
+    }
+  },
+  "explanation": "Per reference/public-api.md (the SemVer contract for 8.8+), the public API is a closed list: Orchestration Cluster REST API, Camunda Process Test, Camunda Java client, Camunda Spring Boot Starter (lines 30-33). The Connector SDK is not listed -- and public-api.md line 39 makes the rule explicit: \"All others are considered outside the public API.\" The SDK therefore has no SemVer guarantee across versions. Safe procedure: bump the version.connectors Maven/Gradle property to the 8.8-matching version, recompile, run the SDK's own validation, and exercise the Connector against the 8.8 cluster in staging before promoting to production.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/reference/public-api/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q35",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

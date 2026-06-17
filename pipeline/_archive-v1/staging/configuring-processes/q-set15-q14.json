@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Operate shows a process variable customer as JSON. Team wonders if Operate can visualise nested JSON structure or shows raw text.",
+  "question": "Operate JSON variable visualisation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Operate displays process variables as raw unformatted text only, with no structured view for complex objects â€” this approach has limitations. Camunda Operate renders JSON object variables using an interactive tree view that allows expanding and collapsing nested properties. Arrays are displayed with indexed elements, objects with key-value pairs, and nested structures are fully navigable. This structured visualization makes it straightforward to inspect complex process variables such as order objects, customer records, or API responses directly within the Operate interface without external JSON formatting tools."
+    },
+    {
+      "id": "b",
+      "text": "Camunda Operate provides no JSON variable visualization and displays all variables as raw text strings -- this approach has limitations. Operate explicitly supports formatted JSON display for variable values. When a process variable contains a JSON object or array, Operate renders it with proper indentation, syntax highlighting, and expand/collapse navigation for nested structures. The variables panel in Operate also includes an inline JSON editor for modifying variables directly in the UI. md and is a standard feature used by operations teams for debugging and incident resolution."
+    },
+    {
+      "id": "c",
+      "text": "Truncation occurs for very large variable values that exceed the display threshold in the variables panel UI. For typical-sized JSON variables (up to a few KB), Operate displays the complete formatted JSON without truncation. When truncation does occur for very large values, the full content remains accessible via the Orchestration Cluster REST API (POST /v2/process-instances/{key}/variables/search). Claiming truncation always occurs misrepresents normal Operate behavior for reasonably-sized variables."
+    },
+    {
+      "id": "d",
+      "text": "md:149-155: nested objects render with indentation and syntax highlighting; arrays display with element enumeration; nested structures are navigable with expand/collapse. The inline editor in the variables panel allows direct JSON modification for incident resolution. Very large values may be truncated in the panel display; full content is available via the Orchestration Cluster REST API v2 (POST /v2/process-instances/{key}/variables/search). Current values only are shown -- runtime evolution history requires Elasticsearch/OpenSearch exporters or the Audit Log API."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate variable display: JSON formatting: In variable panel: Variables listed with name + value. JSON values: formatted with indentation. Syntax highlighting (typical). Collapsible sections. For structured JSON: `json customer: { \"id\": \"C-100\", \"name\": \"Acme Corp\", \"address\": { \"street\": \"123 Main\", \"city\": \"Sofia\", \"country\": \"BG\" }, \"tags\": [\"enterprise\", \"premium\"] } Operate displays with nesting visible; expand/collapse address, tags, etc. Truncation: Very large values: may be truncated in UI display. Full content via API: GET variable details. Threshold: configurable / version-specific. Searching: Variable name filter: List variables by name pattern. Find specific variable quickly. Value search: Some versions: search within JSON values. Useful for finding instances by deeply-nested data. For diagnostics: Use case 1: Verify input mapping: Check variables after Input Mapping. Ensure expected structure. Use case 2: Debug worker output: See what worker returned. Check for expected fields. Use case 3: Audit data: At specific point, what was the state? Editing variables per operate/userguide/resolve-incidents-update-variables.md:149-155: Inline editor in Operate Variables panel: formatted JSON editor; supports primitive + JSON edits. Modify API: PATCH variable via orchestration cluster REST API for programmatic edits. For stuck instances: edit + retry job; the incident auto-resolves on successful job completion. Anti-patterns to avoid: Storing sensitive data in plain variables: visible in Operate. Stringified JSON: less readable; let engine handle as JSON. Huge nested objects: hard to navigate. Best practices: Use proper JSON typing: store as object, not stringified. Reasonable structure: nested but not overly deep. Document variable schemas: clarify expected shape. Don't store sensitive data: redact / encrypt. For sensitive variables: Redaction: don't store credit card / SSN in clear. Encryption: if needed; decrypt at boundaries. Audit access: log who viewed sensitive data. Variable history (Pattern #46): Operate Variables panel shows current values only (basic-operate-navigation.md:25 -- no time-series UI). Manual Create / Update Variable actions are recorded in the Operations Log / Audit Log per operate/userguide/audit-log/overview/recorded-operations.md:87-88 -- but runtime broker-driven changes (worker output mappings, FEEL evaluations) are NOT. For full runtime evolution: Audit Log REST API or Elasticsearch/OpenSearch exporters. Compare with Tasklist: Tasklist: shows variables relevant to assignee. Operate: shows all variables (admin-level visibility). For programmatic access (Orchestration Cluster REST API): POST /v2/process-instances/{processInstanceKey}/variables/search Returns variables with values (filterable). Older /v1/... paths are legacy; v2 is the canonical Camunda 8.8 REST surface (per apis-tools/orchestration-cluster-api-rest/`). Best practices for variable design: Flat or nested: balance per use case. Consistent naming: camelCase or snake_case consistently. Document schemas: types, required fields. Versioning: when schemas change, plan migration."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q14",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team has DMN file A with decisions; wants DMN file B to reference / use decisions from A. Team wonders if DMN supports imports.",
+  "question": "DMN model imports across files (Camunda 8)?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Each DMN file in Camunda 8 is completely isolated â€” decisions in one file can reference decisions in another file â€” this describes a limitation that Camunda 8 imposes. dmn files. dmn file. This is a documented constraint, not a capability. Teams needing cross-file decision reuse must consolidate decisions into a single file or duplicate logic."
+    },
+    {
+      "id": "b",
+      "text": "md:23-28 lists only Decision / Input data / Knowledge source / BKM as supported elements (no cross-file import element). C8 canonical alternatives: Single DMN file: combine related decisions in one file as a DRG. md:64 (Pattern #34). BPMN-level orchestration: two Business Rule Tasks in a process, each referencing a separate DMN file's top-level decision by decisionId; pass A's output as B's input via Output/Input Mapping."
+    },
+    {
+      "id": "c",
+      "text": "3 specification -- this claim does not fully apply. 8 components/modeler/dmn/ documentation corpus returns zero occurrences of <import>, importType, or locationURI. md:23-28 list of supported element kinds (Decision, Input data, Knowledge source, BKM) does not include any cross-file import mechanism. Attempting to use DMN <import> in a Camunda 8 deployment will result in an unsupported construct that the engine ignores or rejects -- not cross-file decision reuse."
+    },
+    {
+      "id": "d",
+      "text": "The recommended approach for cross-DMN-file logic sharing in Camunda 8 is to duplicate BKMs across files -- this approach has limitations and unmaintainable. md:64. Duplicating BKM definitions across files creates maintenance burden: changes must be synchronized manually across all copies. The correct alternatives are: (1) consolidate related decisions into a single DMN file as one DRG so BKMs are naturally shared; or (2) use BPMN-level orchestration with two Business Rule Tasks, passing the first decision's output as input variables to the second Business Rule Task."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. DMN imports in Camunda 8: DMN-1.3 spec import (illustrative -- NOT executable in C8): `xml modelA.calculateTax(amount, rate) The Camunda 8 modeler/runtime does NOT recognize -- empirical Grep across components/modeler/dmn/ returns 0 hits for , importType, or locationURI. Deploying such a file will either fail validation or ignore the element. Camunda 8 reality: DMN : not supported (0 doc occurrences). Decision Service: not supported (dmn.md:23-28, Pattern #35). BKM scope: same-decision-only (dmn.md:64, Pattern #34). Workaround = combine into single DMN file or orchestrate at BPMN level. Alternative: single-file: Combine related decisions in one DMN file. Use DRG to organise. All decisions / BKMs visible to each other within file. Alternative: separate deployment + standalone invocation: Deploy file A: its decisions become invocable standalone. File B's decisions: invoke A's decisions via API (less typical from within DMN). For the scenario (file B uses A's decisions) -- two valid C8 options: Option 1: Merge into single DMN file (canonical): Combine A + B into one DMN file with DRG. All decisions/BKMs visible to each other within the file. Simpler deployment (one resource). Option 2: Process-level orchestration: BPMN process invokes A as one Business Rule Task; B as another. Pass A's output to B as input via Output/Input Mapping or process variables. Useful when A and B have separate ownership/lifecycle. Trade-offs: | Approach | Pros | Cons | |----------|------|------| | Single DMN file | Works in C8; one deploy | Large files; less modular | | Process orchestration | Works in C8; separate lifecycles | Two BPMN tasks per use; variable plumbing | | DMN | (spec only) | NOT supported in C8 | Best practices: Default to single DMN file for tightly-coupled decision sets (DRG-organised). Use BPMN orchestration when files have separate ownership or lifecycles. Do not author in DMN files for C8 -- it will not work. Anti-patterns: Authoring thinking it works in C8: deployment ignores it / validation fails. Duplicating BKMs across files: drift risk + BKMs are same-decision-scoped per dmn.md:64. Cross-file references via shared file paths: no such resolver in C8. DMN-1.3 spec terms (for context only -- not honoured by C8): importType: declares what's being imported (typically DMN-MODEL). namespace: each DMN file has its own namespace. locationURI: file path / URL of the imported model. Tooling: Web Modeler: no DMN import UI (not in dmn.md:23-28 element list). Desktop Modeler: same -- only Decision / Input data / Knowledge source / BKM. Camunda DMN engine: does not resolve references. For multi-tenant / multi-team DMN: Each team's DMN as a separate file deployed independently. Share common logic by publishing standalone Decisions invoked from BPMN orchestrator processes. No cross-file DMN reuse mechanism in C8. Pre-deployment validation: Do not assume ` works -- it won't in C8. For shared logic, design via single-file DRG or BPMN orchestration up-front."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. wrong; `` is not honoured by C8."
+    },
+    "d": {
+      "text": "Incorrect. wrong; BKMs are same-decision-scoped per dmn.md:64."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q29",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

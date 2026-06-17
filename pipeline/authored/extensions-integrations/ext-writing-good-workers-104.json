@@ -1,0 +1,50 @@
+{
+  "id": "ext-writing-good-workers-104",
+  "topic": "extensions-integrations",
+  "subtopic": "scaling-workers",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A worker invokes 20 REST requests of ~100ms each per job. With one thread, throughput tops out at ~10 jobs/s. Which approach does the docs recommend when developers are comfortable with it?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use reactive (non-blocking) programming so the runtime overlaps I/O across many jobs without you sizing thread pools."
+    },
+    {
+      "id": "b",
+      "text": "Process jobs strictly sequentially — the docs argue this is the most scalable approach for I/O-bound workers."
+    },
+    {
+      "id": "c",
+      "text": "Configure your own bespoke thread pool with one thread per expected concurrent job and keep the code blocking."
+    },
+    {
+      "id": "d",
+      "text": "Lower the broker's polling interval to zero so the client receives jobs faster — this on its own removes the per-thread cap."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs prefer reactive programming in most situations where parallel processing matters: the runtime/framework manages thread utilisation and you do not block a thread for the duration of each I/O call. This lifts the per-thread throughput ceiling."
+    },
+    "b": {
+      "text": "Sequential processing is fine for low-volume use cases, but the docs explicitly position it as not enough when you need to scale past the per-thread cap."
+    },
+    "c": {
+      "text": "Thread pools are described as workable but the docs say they typically do not recommend you configure them yourself and prefer reactive code when you need to scale past linear execution."
+    },
+    "d": {
+      "text": "Activation latency does not change the fact that one blocking thread can only do one REST call at a time. Polling tuning alone does not lift the 10-jobs/s ceiling in this example."
+    }
+  },
+  "explanation": "The docs' explicit recommendation is reactive (non-blocking) programming for I/O-bound workers when developers are comfortable with it. Thread pools work but require careful sizing and library knowledge; the reactive model lets the framework/runtime overlap many in-flight I/O calls without blocking threads.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

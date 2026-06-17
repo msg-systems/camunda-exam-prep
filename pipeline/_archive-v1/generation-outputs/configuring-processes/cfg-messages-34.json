@@ -1,0 +1,27 @@
+{
+  "id": "cfg-messages-34",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Junction Bank starts 8000 transactions per day in Camunda 8.8 from a start event configured with an empty correlation key and a TTL of zero on the publish-message command, and an architect must confirm the documented behavior in this configuration on the broker.",
+  "question": "Which behavior does the correlation overview document for a message with an empty correlation key, no message ID and TTL of zero on a start event?",
+  "options": [
+    { "id": "a", "text": "The message is rejected because an empty correlation key implies a missing field and the broker refuses any publish-message command without a populated key value" },
+    { "id": "b", "text": "The message is buffered indefinitely until an operator routes it manually to a matching start event subscription on the relevant process definition from Operate" },
+    { "id": "c", "text": "A new instance is started without any uniqueness or buffering constraints, with the table entry simply recording that a new instance is started in this configuration" },
+    { "id": "d", "text": "The message is correlated to the oldest active instance of the same process across all versions, regardless of the correlation key being the empty string here" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The overview explicitly allows an empty string correlation key as a documented value, with rows describing the resulting behavior; the publish-message command does not reject it on the broker." },
+    "b": { "text": "Incorrect. With TTL of zero the message is not buffered; the overview row says a new instance is started without any buffering, uniqueness check or operator routing step." },
+    "c": { "text": "Correct. The overview row for empty correlation key, message ID not set and TTL of zero on a start event states simply that a new instance is started, with no uniqueness or buffering condition listed." },
+    "d": { "text": "Incorrect. Intermediate-event semantics that correlate to active instances do not apply to start-event rows; the row for a start event always creates a new instance instead of correlating." }
+  },
+  "explanation": "The Message correlation overview row for an empty correlation key, message ID not set and TTL of zero on a start event documents the simplest behavior: a new instance is started, with no buffering or uniqueness condition required on the publish or the broker side.",
+  "docs": [
+    { "title": "Messages", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+  ]
+}

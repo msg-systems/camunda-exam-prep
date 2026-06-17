@@ -1,0 +1,27 @@
+{
+  "id": "con-connector-sdk-32",
+  "topic": "connectors",
+  "subtopic": "connector-sdk",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "At Zenith Telco, a telco managing 3000 microservices, a connector author writes an outbound element template for Camunda 8.8. The author needs to map a user-supplied Result Expression into process variables and an Error Expression into BPMN errors using exactly 2 reserved task header keys defined by the SDK.",
+  "question": "Which binding does the SDK specify for the Result Expression and Error Expression fields in an outbound connector element template?",
+  "options": [
+    { "id": "a", "text": "Bind Result Expression as a zeebe:taskHeader with key resultExpression and Error Expression as a zeebe:taskHeader with key errorExpression so the runtime can read both as custom headers" },
+    { "id": "b", "text": "Bind Result Expression as a zeebe:input with name resultExpression and Error Expression as a zeebe:input with name errorExpression, evaluated against process variables at job activation" },
+    { "id": "c", "text": "Bind Result Expression as a zeebe:taskDefinition with property resultExpression and Error Expression as a zeebe:property with name errorExpression scoped to the inbound subtype" },
+    { "id": "d", "text": "Bind Result Expression as a zeebe:output with source resultExpression and Error Expression as a zeebe:output with source errorExpression so the FEEL engine writes them into the audit log" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The SDK shows that Result Expression and Error Expression are bound as zeebe:taskHeader entries with keys resultExpression and errorExpression. The connector runtime picks up these custom headers and translates them into process variables and BPMN errors accordingly." },
+    "b": { "text": "Incorrect. zeebe:input bindings produce ordinary connector input variables, not the reserved header keys the runtime uses to drive result mapping and BPMN error handling." },
+    "c": { "text": "Incorrect. zeebe:taskDefinition only carries the task type, and zeebe:property scoped to an inbound subtype is used by inbound connector templates, not for outbound result and error mapping." },
+    "d": { "text": "Incorrect. There is no zeebe:output binding for these fields; the SDK explicitly uses zeebe:taskHeader with the resultExpression and errorExpression keys." }
+  },
+  "explanation": "In outbound connector element templates, Result Variable, Result Expression, and Error Expression are exposed as zeebe:taskHeader bindings with the reserved keys resultVariable, resultExpression, and errorExpression. The connector runtime reads these headers and applies result mapping and BPMN error translation.",
+  "docs": [
+    { "title": "Connector SDK - Outbound connector element template", "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/" }
+  ]
+}

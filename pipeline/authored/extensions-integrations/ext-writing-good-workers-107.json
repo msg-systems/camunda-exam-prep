@@ -1,0 +1,53 @@
+{
+  "id": "ext-writing-good-workers-107",
+  "topic": "extensions-integrations",
+  "subtopic": "java-worker",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "In the Java client, why does the reactive worker example chain `.thenApply(...)` and `.exceptionally(...)` on `client.newCompleteCommand(job.getKey()).send()` instead of calling `.join()`?",
+  "codeBlocks": {
+    "stem": "client.newCompleteCommand(job.getKey()).send()\n  .thenApply(jobResponse -> { counter.inc(); return jobResponse; })\n  .exceptionally(t -> { throw new RuntimeException(\"Could not complete job: \" + t.getMessage(), t); });"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "`.join()` blocks the worker thread until the broker acknowledges completion; chaining callbacks keeps the thread free so jobs can proceed without growing the thread pool."
+    },
+    {
+      "id": "b",
+      "text": "`.join()` only works inside the Spring Boot Starter; the pure Java client always requires callbacks."
+    },
+    {
+      "id": "c",
+      "text": "`.join()` skips the broker's retry handling, so a job is never retried after a network blip."
+    },
+    {
+      "id": "d",
+      "text": "`.thenApply()` is required to deserialize variables into POJOs; `.join()` returns only raw JSON."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs note that `.join()` blocks to wait for the response, holding the worker thread for the network round-trip. Registering callbacks via `.thenApply(...)` / `.exceptionally(...)` keeps the reactive pipeline non-blocking so the framework can overlap many in-flight completions without you sizing a thread pool."
+    },
+    "b": {
+      "text": "`.join()` is the same `CompletionStage` API regardless of how the worker is registered; it is available in both the plain Java client and the Spring Boot Starter."
+    },
+    "c": {
+      "text": "`.join()` only changes when the calling thread proceeds; retries are a separate concept driven by the broker's job activation logic, not by which terminal operator you use on the future."
+    },
+    "d": {
+      "text": "Variable deserialization is independent of `.join()` vs `.thenApply()`; both eventually expose the same response payload through the SDK's models."
+    }
+  },
+  "explanation": "`.join()` is a blocking terminal operator on the SDK's future — it pins the worker thread until the broker acknowledges completion. Chaining `.thenApply(...)` and `.exceptionally(...)` lets the reactive code register callbacks instead, so the thread is released immediately and the framework can keep many job completions in flight without growing a thread pool.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

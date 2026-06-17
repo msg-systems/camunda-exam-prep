@@ -1,0 +1,50 @@
+{
+  "id": "ext-handling-data-in-processes-101",
+  "topic": "extensions-integrations",
+  "subtopic": "external-data",
+  "difficulty": "hard",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A team adopts the 'complex data as entities' (externalized process context) pattern. What is stored as the actual process variable inside Camunda?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only a reference to the entity's primary key, typically an artificial UUID."
+    },
+    {
+      "id": "b",
+      "text": "The entire entity, serialised to JSON, on every process step."
+    },
+    {
+      "id": "c",
+      "text": "The DDL of the relational table that holds the entity."
+    },
+    {
+      "id": "d",
+      "text": "A signed pointer that Zeebe automatically dereferences when a task activates."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs say you will only store a reference to the entity's primary key (typically an artificial UUID) as the real process variable; the complex business data lives in custom tables alongside the process."
+    },
+    "b": {
+      "text": "Serializing the full entity into process variables defeats the purpose of the pattern, which is precisely to keep heavy data out of process variables and avoid variable size limits."
+    },
+    "c": {
+      "text": "DDL describes the table schema, not runtime payload, and nothing in the docs says the schema is held as a process variable."
+    },
+    "d": {
+      "text": "Zeebe has no built-in 'signed pointer' construct that auto-dereferences external entities; worker code is responsible for loading the entity by the stored key."
+    }
+  },
+  "explanation": "In the 'complex data as entities' (or 'externalized process context') pattern, only a reference — typically an artificial UUID primary key — lives in Camunda as a process variable, while the complex business data lives in custom relational tables. Workers load entities by that key. This unlocks rich SQL queries, custom data-migration strategies, and proper data modeling at the cost of an extra database and access code.",
+  "docs": [
+    {
+      "title": "Handling data in processes",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/handling-data-in-processes/"
+    }
+  ]
+}

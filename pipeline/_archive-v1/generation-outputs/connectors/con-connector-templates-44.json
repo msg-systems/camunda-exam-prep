@@ -1,0 +1,27 @@
+{
+  "id": "con-connector-templates-44",
+  "topic": "connectors",
+  "subtopic": "connector-templates",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Quanta Insurance, an insurer correlating 18000 messages per day to in-flight claims in Camunda 8.8, ships an inbound intermediate catch event Webhook template. A reviewer needs to confirm that the template carries two distinct correlation key fields plus a hidden generated message name, because intermediate catch events require both a subscription correlation key and a payload extraction expression.",
+  "question": "Which pair of correlation-related bindings does the inbound intermediate catch event connector template define?",
+  "options": [
+    { "id": "a", "text": "A Correlation key (process) bound as bpmn:Message#zeebe:subscription#property with name correlationKey, plus a Correlation key (payload) bound as zeebe:property with name correlationKeyExpression" },
+    { "id": "b", "text": "A single Correlation key field bound as bpmn:Message#property with name correlationKey, and a Variables field bound as zeebe:taskHeader with key payloadExpression for the payload mapping" },
+    { "id": "c", "text": "A Correlation key (process) bound as zeebe:property with name correlationKey, and a Correlation key (payload) bound as bpmn:Message#property with name correlationKeyExpression on the same message" },
+    { "id": "d", "text": "A Webhook ID bound as bpmn:Message#zeebe:subscription#property with name correlationKey, and a Variables field bound as zeebe:property with name correlationKeyExpression for the payload" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The template binds Correlation key (process) as type bpmn:Message#zeebe:subscription#property with name correlationKey, and Correlation key (payload) as type zeebe:property with name correlationKeyExpression. Together they define the subscription key and the FEEL expression that extracts it from the incoming payload." },
+    "b": { "text": "Incorrect. There are two correlation key fields, not one, and the payload extraction is not bound to a taskHeader key called payloadExpression." },
+    "c": { "text": "Incorrect. The process correlation key uses the bpmn:Message subscription binding, not a plain zeebe:property, and the payload extraction is a zeebe:property called correlationKeyExpression, not a bpmn:Message#property." },
+    "d": { "text": "Incorrect. The Webhook ID field is a separate zeebe:property called inbound.context; it is not the correlation key binding used for message subscription." }
+  },
+  "explanation": "Intermediate catch event templates need two correlation values. The subscription side uses bpmn:Message#zeebe:subscription#property with name correlationKey, while the payload extraction uses a zeebe:property with name correlationKeyExpression. The template also carries a hidden bpmn:Message#property name with a generated uuid so the message has a unique identifier.",
+  "docs": [
+    { "title": "Connector templates - Inbound intermediate catch event connector templates", "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-templates/" }
+  ]
+}

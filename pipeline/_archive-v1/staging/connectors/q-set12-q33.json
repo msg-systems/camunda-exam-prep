@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's process needs to cache pricing data -- write/read from Redis. They wonder if there's a Redis Connector or how to integrate.",
+  "question": "How does a team integrate with Redis from BPMN?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Several integration paths exist. If a dedicated OOB Redis Connector is available in the target Camunda 8 version, it can be configured as an Element Template directly in the modeler. js). Alternatively, a standard Zeebe job worker can handle Redis operations by subscribing to a specific task type and executing Redis commands inline."
+    },
+    {
+      "id": "b",
+      "text": "Whether a dedicated out-of-the-box Redis Connector exists depends on the specific Camunda 8 version being used. The Connector library evolves across releases. js; implement a standard Zeebe job worker that subscribes to a specific task type and handles Redis operations directly; or use an HTTP-based Redis proxy such as Webdis if HTTP Connector routing is preferred. Checking the Camunda Marketplace and the version-specific Connector documentation determines what is available before committing to a build approach."
+    },
+    {
+      "id": "c",
+      "text": "Suggesting the HTTP Connector as the primary integration path for Redis is only partially applicable. Redis uses the Redis Serialization Protocol (RESP) over TCP by default, not HTTP. The HTTP Connector communicates with HTTP/HTTPS endpoints. For the HTTP Connector to reach Redis, a Redis HTTP proxy such as Webdis would need to sit in front of the Redis instance, adding an extra network hop and a component to maintain. This is a workable workaround in some infrastructure setups but is not the recommended primary approach. A dedicated Redis Connector or a job worker using a native Redis client library is more direct and efficient."
+    },
+    {
+      "id": "d",
+      "text": "Claiming that Camunda 8 has comprehensive built-in Redis support regardless of version overstates what is guaranteed. Whether a dedicated out-of-the-box Redis Connector exists in a specific Camunda 8 release depends on the version and the connector library included with that release. If a dedicated Redis Connector is present, it simplifies integration significantly. If it is absent, teams must implement a custom Connector using the Connector SDK or build a Zeebe job worker. Checking the release notes and connector documentation for the target version is the correct first step."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Redis integration paths depend on Camunda 8 version + OOB Connector availability: Path 1: Dedicated Redis Connector (if available): Configure as Element Template; properties for connection URL, credentials, operation (GET / SET / etc.), key, value. Most ergonomic. Path 2: Custom Connector (if no OOB): Implement Java Connector using Jedis library; expose properties for typical Redis ops. Deploy to Connector Runtime. Use across all BPMN processes. Path 3: Job Worker (alternative): Write a regular worker (not a Connector) using Spring Zeebe or @camunda8/sdk. Worker subscribes to e.g., redis-get, redis-set task types. Embeds Redis client; handles operations. Slightly less integrated than Connector but simpler to develop. Path 4: HTTP via Redis HTTP proxy: Some setups front Redis with an HTTP API (Webdis, custom proxy). HTTP Connector calls the proxy. Suboptimal: extra hop; only if no choice. For production Redis caching: dedicated Connector (build / find) is best long-term; Job Worker is good interim."
+    },
+    "b": {
+      "text": "Correct. Achievable."
+    },
+    "c": {
+      "text": "Incorrect. Redis is TCP; HTTP needs proxy."
+    },
+    "d": {
+      "text": "Incorrect. verify."
+    }
+  },
+  "explanation": "Achievable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q33",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

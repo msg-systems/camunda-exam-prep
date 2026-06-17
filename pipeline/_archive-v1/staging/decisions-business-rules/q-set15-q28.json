@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q28",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team's DMN has 10 decisions. They want one of them invokable from BPMN as the \"entry point\"; others are dependencies. Team wonders modeling.",
+  "question": "DMN entry point -- which decision invoked from BPMN?",
+  "options": [
+    {
+      "id": "a",
+      "text": "All decisions in a deployed DMN file are exposed as separate entry points callable from BPMN â€” this approach has limitations. Camunda 8 calls a specific decision by its decision ID specified in the zeebe:calledDecision element on the Business Rule Task. Only the targeted decision is evaluated as the entry point. If the targeted decision has dependencies on other decisions (via Information Requirements), those are evaluated automatically as part of the chain. dmn file that are not depended upon are not evaluated."
+    },
+    {
+      "id": "b",
+      "text": "The Business Rule Task uses the zeebe:calledDecision decisionId attribute to specify exactly which decision to invoke. The engine evaluates that specific decision (the \"entry decision\") and automatically resolves and evaluates all decisions it depends on via information requirements. Only the entry decision's output is returned to the process scope. Multiple decisions in the same DRG file can each serve as entry points by configuring separate Business Rule Tasks with different decisionId values."
+    },
+    {
+      "id": "c",
+      "text": "\" in the BPMN XML. The engine evaluates the named decision as the \"entry decision\" and auto-resolves all information-requirement dependencies (other decisions it depends on) within the DRG. Only the entry decision's output lands in process scope -- intermediate dependency outputs are not directly exposed. For multiple independent DRG entry points, use separate Business Rule Tasks each with a different decisionId. md:23-28) -- do not attempt to reference it. Result is mapped to process variables via resultVariable and optionally shaped via resultExpression (FEEL)."
+    },
+    {
+      "id": "d",
+      "text": "A Decision Service in the DMN file exposes all decisions simultaneously to the Business Rule Task -- this claim does not apply for Camunda 8. md:23-28 (only four element kinds are supported: Decision, Input data, Knowledge source, BKM). Even if Decision Service were supported, it would expose a specific subset of decisions, not all of them. Using Decision Service references in Camunda 8 BPMN will cause deployment or evaluation errors."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Decision invocation from BPMN: Business Rule Task: Reference: `xml Engine flow: 1. Process reaches Business Rule Task. 2. Input Mapping applied (variables prepared). 3. Engine evaluates approveLoanApplication decision. 4. DRG evaluation: engine determines dependencies via information requirements. 5. Topological order: evaluates dependencies first, then dependents. 6. Entry decision's result: returned to BPMN. 7. Output Mapping applies. Information requirements in DMN: xml Dependency chain: approveLoanApplication ├─ calculateRiskScore │ └─ getCustomerHistory └─ checkCreditHistory └─ getCustomerHistory (shared dependency) Engine evaluates: 1. getCustomerHistory (no deps). 2. calculateRiskScore + checkCreditHistory (both depend on above). 3. approveLoanApplication (entry; depends on both). Result: only approveLoanApplication's output returned. DRD (Decision Requirements Diagram) (per Set 13 Q27): Visualises decision dependencies. Single file can contain multiple decisions + dependencies. For the scenario (10 decisions, 1 entry): DMN file: includes all 10 with dependency relationships. Business Rule Task: references the entry decision's ID. Engine handles dependency evaluation. For multiple entry points: Multiple BPMN tasks, each with different decisionId. Each entry decision triggers its sub-graph evaluation. Shared dependencies: evaluated each time they're needed (potentially re-computed). vs Decision Service (DMN-1.3 spec construct -- NOT supported in Camunda 8 per dmn.md:23-28, Pattern #35): DMN spec: declaratively exposes one or more decisions as a \"service.\" Camunda 8 modeler does NOT offer the Decision Service element; the engine does NOT invoke Decision Services. C8 substitute: zeebe:calledDecision decisionId=\"...\" (Business Rule Task) or EvaluateDecision REST (POST /decision-definitions/evaluation) / gRPC. Each call targets a single decision ID; the engine resolves DRG dependencies via informationRequirement`. Variable handling: Input variables: Available to all decisions in DRG. Process variables → DRG inputs (per Set 14 Q25). Intermediate decisions: Compute values used by entry decision. Not exposed to BPMN unless entry decision's output includes them. Output variables: Entry decision's output → process scope. Other decisions' outputs internal. Best practices: Design clean entry decision: aggregates relevant outputs. Keep dependencies internal: don't expose all 10 to BPMN. Single Business Rule Task per logical decision: clear process flow. For accessing intermediate outputs: If BPMN needs intermediate values: structure entry decision to include them. Or: invoke intermediate as separate Business Rule Task. Anti-patterns: All 10 decisions as Business Rule Tasks: overcomplicates BPMN. Decision dependencies via BPMN flow: should be DMN-internal."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong. Decision Service is not a Camunda 8 element (dmn.md:23-28)."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q28",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

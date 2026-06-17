@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q26",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "DMN has Decision A depending on Decision B + Decision C. Team wonders evaluation order.",
+  "question": "Chained decisions execution order?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Random -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Chained DMN decisions in Camunda 8 are executed in alphabetical order of their decision IDs -- this does not accurately reflect the behavior. Decision execution order in a chained DMN model is determined by the dependency graph, not alphabetical ordering. When one decision references another as a required input, the referenced decision executes first. The Camunda 8 engine analyzes all dependency relationships and computes a topological execution order that respects all input requirements before each decision evaluates."
+    },
+    {
+      "id": "c",
+      "text": "The calling BPMN process specifies the execution order of chained DMN decisions through an explicit sequence -- this does not accurately reflect the behavior. In a DMN decision requirements graph, execution order is determined entirely by the dependency relationships modeled between decisions. The Business Rule Task in BPMN invokes only the top-level decision. The DMN engine then resolves dependencies automatically. The calling process has no mechanism to override the internal decision execution sequence."
+    },
+    {
+      "id": "d",
+      "text": "Topological order based on dependencies: in a DMN Decision Requirements Graph, Camunda 8 evaluates decisions in topological order determined by their dependency arrows. A decision that requires input from another decision cannot execute until its prerequisite decisions have produced their outputs. The engine automatically traverses the dependency graph, evaluates leaf decisions first, and propagates results upward to dependent decisions. This dependency-driven evaluation order ensures consistency and correctness without requiring the modeler to manually specify execution sequence."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. DRG topological evaluation: Dependency representation: In DMN: `xml ... ... ... Decision A depends on B + C. Evaluation order: B + C evaluated first (in any order; independent) │ ▼ A evaluated using B + C outputs Topological sort: 1. Leaves: B, C (no dependencies). 2. Dependent: A (depends on B, C). For deeper hierarchies: D ← C ← B ← A Order: D, C, B, A. For diamonds: A / \\ B C \\ / D ` Order: D first, then B + C (either), then A. D evaluated once even though referenced twice (B and C). For circular dependencies: Invalid: BPMN/DMN spec rejects. Engine validates: at deployment. Error: deployment fails. For BPMN invocation: Business Rule Task references entry decision (e.g., A). Engine evaluates DRG: handles all dependencies. Returns entry decision's output. For Camunda 8 implementation: Sequential evaluation typical: per partition. No explicit parallel decisions within DRG. Optimization possible in future versions. For evaluation context: Variables / inputs: available to all decisions in DRG. Each decision sees: required inputs + dependencies' outputs. For shared dependencies: Decision D used by both B and C. Evaluated once: cached for DRG evaluation. Same result for both consumers. For caching across DRG evaluations: Within single evaluation: shared dependencies single-evaluated. Across evaluations: typically not cached. For partial DRG: Some decisions not needed for current call. Engine evaluates only needed. Optimisation: skip irrelevant. For decision instance recording (per Set 13 Q29): Each evaluated decision: separate instance recorded. Audit chain: see full evaluation path. For testing chained decisions: Test each decision independently: with mocked dependencies. Integration test: full chain. For Camunda 8 Decision Service (per Set 15 Q25): Encapsulates DRG: as service. External callers: see service signature. For BKM (per Set 14 Q25): BKM in DRG: invoked by decisions. Knowledge requirement vs information requirement. Different relationship type. For performance: Sequential evaluation: latency = sum of dependencies. Parallel: theoretically faster; not always implemented. For complex DRGs: Many decisions: slower evaluation. Profile: identify bottlenecks. Refactor: simplify hot decisions. Anti-patterns: Deep dependency chains: slow. Circular dependencies: invalid. Unnecessary dependencies: tighter coupling. Best practices: Design DRG carefully: clear dependencies. Test full chain: end-to-end. Document: visually + textually. For the scenario (A depends on B + C): B + C first: in any order. A last: uses their outputs. For Operate decision instances: See each evaluated decision. Trace dependencies. For DMN modelling: DRD visualises: dependency arrows. Web Modeler: shows DRG. For evaluation context per evaluation: Inputs at top. Dependencies feed into dependents. All in one evaluation call."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q26",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 16 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 36.7 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

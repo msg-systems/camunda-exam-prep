@@ -1,0 +1,63 @@
+{
+  "id": "imp-set08-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Node.js Job Worker using @camunda8/sdk handles compute-tax and returns the computed tax amount as a process variable tax. The team is reviewing the handler code: should they return { tax: 42.50 } from the handler, or call job.complete({tax: 42.50}) explicitly?",
+  "question": "What's the canonical Node SDK completion pattern?",
+  "options": [
+    {
+      "id": "a",
+      "text": "complete() explicitly in the worker handler -- there is no other supported completion mechanism -- this description does not reflect the actual behaviour. js SDK supports multiple job completion patterns. When a job worker handler is configured with autoComplete: true, returning a value from the handler function automatically triggers job completion with the returned variables. Explicit complete() calls are also supported for cases where auto-completion timing must be controlled precisely or where completion should happen asynchronously after the handler returns."
+    },
+    {
+      "id": "b",
+      "text": "complete() calls are deprecated and should not be used -- this description does not reflect the actual behaviour. Both completion mechanisms are valid and supported. Returning from the handler with autoComplete: true triggers automatic completion using the return value as output variables. complete(variables) explicitly is also fully supported and is the appropriate choice when completion must happen asynchronously, conditionally, or at a specific moment after additional processing beyond the handler return."
+    },
+    {
+      "id": "c",
+      "text": "js SDK API. variables as a completion mechanism. complete({result: 42}) explicitly. Assigning to a variables property has no effect on job completion."
+    },
+    {
+      "id": "d",
+      "text": "}) call. , conditional return, async completion)."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda's Node SDK supports both completion styles for ergonomic flexibility: Return-based (concise): async function handle(job) { return { tax: 42.50 }; } -- the SDK auto-completes the job with the returned variables. Cleanest for simple cases. Explicit-call (controlled): async function handle(job) { ... await job.complete({tax: 42.50}); } -- useful when completion is conditional or in a complex flow. For async work that completes from a different code path (long-running operations), explicit complete is mandatory. For simple synchronous compute-and-return, the return-based form is more idiomatic."
+    },
+    "b": {
+      "text": "Incorrect. Both supported."
+    },
+    "c": {
+      "text": "Incorrect. Both supported."
+    },
+    "d": {
+      "text": "Correct. Not the API; use return value or explicit complete()."
+    }
+  },
+  "explanation": "Not the API; use return value or explicit complete().",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q42",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 11.6 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

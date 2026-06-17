@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q16",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's BPMN process has nested subprocesses: an outer Embedded Subprocess containing an inner Embedded Subprocess. The inner subprocess sets a variable intermediateResult via Service Task output mapping. The outer subprocess wants to read intermediateResult after the inner subprocess completes. The parent process should NOT see intermediateResult -- it's an internal computation.",
+  "question": "How does variable scope work in nested Embedded Subprocesses?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Variables created in the inner subprocess automatically promote one scope level up when the subprocess completes, so the outer subprocess can see intermediateResult without any explicit configuration, while the parent process cannot access it. Zeebe does not auto-promote variables across scope boundaries. Variables live in the scope where they were created and are discarded when that scope ends unless explicitly promoted via output mapping."
+    },
+    {
+      "id": "b",
+      "text": "Both the outer subprocess and the parent process can see all variables created at any inner scope because Zeebe scope boundaries are informational labels only and do not enforce variable visibility restrictions. Zeebe enforces strict variable scoping -- variables are bound to the scope in which they were created. Outer and parent scopes have no visibility into inner-scope variables unless an output mapping explicitly promotes them."
+    },
+    {
+      "id": "c",
+      "text": "Variables created inside the inner Subprocess are scoped to the inner Subprocess only. After the inner Subprocess ends, those variables are discarded -- the outer Subprocess cannot see them unless the inner Subprocess's output mapping explicitly promotes them to outer's scope. The outer-to-parent boundary works identically: the outer subprocess's output mapping controls what the parent sees. This gives precise selective visibility control."
+    },
+    {
+      "id": "d",
+      "text": "Variables in Camunda 8 are globally accessible to the entire process instance regardless of which subprocess or scope created them, and subprocess variable scoping is a deprecated feature from earlier versions no longer enforced by Zeebe. Zeebe enforces strict hierarchical variable scoping and this mechanism is actively used in production. All variables are scoped to their creation context. There is no global variable namespace in Zeebe."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe variable scoping is strict: variables live in the scope they were created in and are discarded when that scope ends. To make a variable available in an enclosing scope, the inner scope's output mapping must explicitly promote it (source = intermediateResult, target = same or different name). Without explicit promotion, the inner variable is invisible outside. The outer-to-parent boundary works the same way: outer's output mapping must promote anything it wants the parent to see."
+    },
+    "b": {
+      "text": "Incorrect. No auto-promotion; explicit output mapping is required."
+    },
+    "c": {
+      "text": "Correct. Scope is enforced -- not informational."
+    },
+    "d": {
+      "text": "Incorrect. Variables are not global; subprocess scoping is active."
+    }
+  },
+  "explanation": "Scope is enforced -- not informational.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q16",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

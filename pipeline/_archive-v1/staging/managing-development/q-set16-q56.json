@@ -1,0 +1,69 @@
+{
+  "id": "imp-set16-q56",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Multi-tenant cluster. Need per-tenant metrics -- how many instances, errors, throughput per tenant. Wonders setup.",
+  "question": "Per-tenant metrics?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Per-tenant metrics are achievable through multiple mechanisms. increment()), enabling PromQL queries like sum by (tenant) (process_instances_total). Camunda's built-in Zeebe metrics may include tenant context in Self-Managed deployments with multi-tenancy enabled. The Operate REST API supports per-tenant filtering for process instance counts, incident counts, and other aggregates. Grafana dashboards with tenant variable selectors provide self-service per-tenant visibility."
+    },
+    {
+      "id": "b",
+      "text": "Cluster-wide only -- this is only partially correct for default configurations. Without additional setup, Camunda's Prometheus metrics are cluster-wide aggregates. Custom workers and Connectors can emit tenant-labeled metrics using Micrometer or Prometheus client libraries. The Operate REST API also supports per-tenant queries that can be scraped by a metrics pipeline. Claiming metrics are cluster-wide only overlooks these tenant-aware patterns."
+    },
+    {
+      "id": "c",
+      "text": "Per-tenant metrics via label dimensions: Prometheus-compatible metrics (emitted by custom workers or Connectors) can include a tenant label, enabling Grafana queries like sum by (tenant) (process_instances_total) to break down throughput, error rates, and active instances per tenant. Camunda's built-in Zeebe metrics may or may not include tenant labels by default (verify per version); custom worker code can emit supplemental metrics with tenant context using Micrometer tags. The Operate API supports per-tenant filters for programmatic aggregation."
+    },
+    {
+      "id": "d",
+      "text": "Aggregate manually -- this is only partially workable as a one-off approach. Manually querying the Operate API for each tenant and summing counts is feasible for infrequent reporting but cannot provide real-time dashboards, does not integrate with alerting pipelines, and scales poorly with the number of tenants and metrics required. The recommended approach is systematic label-based metric emission (tenant as a Prometheus label) combined with Grafana dashboards, which enables continuous, automated per-tenant visibility without manual aggregation steps."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per-tenant metrics: Prometheus labels: Standard label dimension: ` process_instances_total{tenant=\"A\", process=\"order\"} 1234 process_instances_total{tenant=\"B\", process=\"order\"} 567 Query: promql sum by (tenant) (process_instances_total) Aggregate per tenant. Camunda built-in metrics: Verify per version: Some metrics include tenant label: e.g., zeebe_process_instances_created_total{tenant=...}. Verify Camunda 8 emits: per metric type. Worker / Connector custom metrics: java // Pseudocode Counter ordersProcessed = Counter.builder(\"orders.processed\") .tag(\"tenant\", tenant) .register(registry); ordersProcessed.increment(); Workers emit with tenant tag. For dashboards: Grafana: Variable for tenant: dropdown selection. Filter queries: by selected tenant. Per-tenant view: same dashboard, different tenant. Multi-tenant SaaS dashboard: Tenant compares. Top tenants by usage. Anomaly detection. For Orchestration Cluster REST API (8.8 canonical): POST /process-instances/search Body: {\"filter\": {\"tenantId\": \"A\"}} Legacy GET /v1/process-instances/statistics` (Operate v1) is deprecated in 8.8. For business metrics: Worker emits: tenant-tagged counters. Per-tenant: order count, revenue, etc. Aggregate: per BI tool. For SLA per tenant: SLA breach rate: per tenant. Compliance per tenant. For billing: Per-tenant usage: metering. Cost allocation. For capacity planning: Per-tenant trends: growth. Resource consumption per tenant. For alerting: Per-tenant alerts: e.g., tenant A errors high. Don't alert globally when one tenant has issue. Implementation considerations: High cardinality: Many tenants = many label combinations. Prometheus performance: heavy. Cardinality bombs: avoid unbounded labels. For 100+ tenants: Aggregation strategies: top-N reporting. Sampling: not every tenant in every dashboard. For tenant-scoped queries: Tenant ID always in queries: enforce. Aggregations per tenant: standard. For audit + compliance: Per-tenant audit trail. Compliance reports per tenant. For chargeback: Tenant pays for usage. Metering: detailed. Invoicing: based on metrics. For Camunda 8 Self-Managed: Enable tenant labels if not default. Configure Prometheus scrape. Build Grafana dashboards. For SaaS: Per-cluster metrics: typically. Tenant within cluster: verify support. Limitations: Metric cardinality: limit tenants per label. Storage: more dimensions = more storage. Best practices: Label metrics with tenant: from start. Monitor cardinality: avoid bombs. Per-tenant alerts: don't drown signal. Aggregate views + drilldowns. Anti-patterns: No tenant label: can't filter. Tenant + many other labels: cardinality explosion. Cluster-only metrics: blind to per-tenant issues. For the scenario (per-tenant metrics): Enable tenant labels. Workers emit with tenant. Dashboards: filter by tenant. Alerts: per-tenant scoped. For multi-cluster multi-tenant: Combine cluster + tenant labels. Federated dashboards. For privacy: Tenant metrics don't leak data: just counts / aggregates. Compliance considerations: per regulation."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/about-self-managed/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q56",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-question-too-short",
+        "severity": "block",
+        "message": "question length 19 < 20 (catastrophically short)",
+        "where": "question"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[1]"
+      }
+    ]
+  }
+}

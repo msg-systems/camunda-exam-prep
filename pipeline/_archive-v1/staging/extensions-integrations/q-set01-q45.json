@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team builds a Node.js-based microservice that needs to handle Camunda 8 Service Tasks via a job worker. The team chooses the official Camunda 8 TypeScript SDK (@camunda8/sdk, available via npm). They want to register a worker that: Subscribes to job type \"send-email\" Has a 30-second job timeout Processes max 10 jobs concurrently Calls SendGrid API to send the email Reports success or failure back to Zeebe",
+  "question": "Which TypeScript SDK pattern is correct?",
+  "options": [
+    {
+      "id": "a",
+      "text": "js HTTP server on port 8081 that Camunda's broker calls via webhook for each job. This reverses the connection direction. In Camunda 8, workers initiate outbound connections to the broker -- they poll or stream jobs from Zeebe via gRPC. The Zeebe broker never calls out to worker endpoints. There is no webhook delivery mechanism where the broker pushes jobs to an HTTP endpoint on the worker. This misconception may come from Inbound Connector architecture where external systems send webhooks to Camunda, but for job workers, the worker always connects outbound to the broker."
+    },
+    {
+      "id": "b",
+      "text": "createJobWorker({ jobType: \"send-email\", workerName: \"email-worker\", maxParallelJobs: 10, jobTimeoutMs: 30000, jobHandler: (job) => { ... ignore() } }) -- declarative worker registration on the Orchestration Cluster API client. ) or from an explicitly provided CamundaEnvironmentConfigurator. The getOrchestrationClusterApiClient() returns the unified client for both gRPC streaming and REST operations. The createJobWorker call registers the subscription, manages back-pressure via maxParallelJobs, and handles the job completion acknowledgement lifecycle."
+    },
+    {
+      "id": "c",
+      "text": "subscribeToJobs(\"send-email\", function callback(jobs) { ... }) -- synchronous callback registration on a legacy ZBClient. The method subscribeToJobs() is absent from the @camunda8/sdk. The legacy ZBClient from the older zeebe-node package had a createWorker() method (not subscribeToJobs()). getOrchestrationClusterApiClient(), and the method for creating a worker is createJobWorker(). 8 SDK."
+    },
+    {
+      "id": "d",
+      "text": "activateJobs(\"send-email\") in a setInterval loop. ), no concurrency limiting to maxParallelJobs, no automatic timeout monitoring to renew job leases, and no structured error handling for the ACK lifecycle. The SDK's createJobWorker() encapsulates all of this correctly, making the manual setInterval approach error-prone and inappropriate for production use."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Camunda 8 TypeScript SDK (@camunda8/sdk) exposes createJobWorker(...) on the Orchestration Cluster API client (obtained via new Camunda8().getOrchestrationClusterApiClient()). The configuration object includes jobType (NOT taskType), workerName, maxParallelJobs (NOT maxJobsToActivate), jobTimeoutMs as a plain millisecond number, pollIntervalMs, pollTimeoutMs, and a jobHandler callback. The handler must return one of the four completion functions enforced by the type system: job.complete({variables}), job.fail(errorMessage), job.error(errorCode, errorMessage), or job.ignore() per apis-tools/typescript/camunda8-sdk.md:234-256. This shape replaces the legacy Zeebe-only ZBClient.createWorker API."
+    },
+    "b": {
+      "text": "Correct. Camunda's broker does not call workers via webhook. Workers initiate the connection (poll, or stream via gRPC) to the broker."
+    },
+    "c": {
+      "text": "Incorrect. zbc.subscribeToJobs(...) is invented -- the SDK has no such method."
+    },
+    "d": {
+      "text": "Incorrect. Direct activate-jobs polling in setInterval bypasses the SDK's worker infrastructure (back-pressure, retry semantics, ACK lifecycle, timeout handling)."
+    }
+  },
+  "explanation": "Camunda's broker does not call workers via webhook. Workers initiate the connection (poll, or stream via gRPC) to the broker.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q45",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "id": "imp-set14-q18",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team upgrades a process definition V1 → V2. In-flight V1 instances need to migrate to V2. V2 added a new variable regionCode. Team wonders how variable schema changes are handled during migration.",
+  "question": "Process migration + variable schema changes?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Migration impossible with schema changes -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Process instance migration does not automatically populate new variables added in the target process version. When a V1 instance migrates to V2, all existing V1 variables are preserved at their current scopes, but V2-specific variables like regionCode are simply absent from the migrated instance. V2 process logic must handle their absence defensively using null checks in FEEL expressions, or new variables must be set explicitly via the Modify Process Instance API before or after migration."
+    },
+    {
+      "id": "c",
+      "text": "Waiting for all V1 instances to complete naturally before deploying V2 is a valid but unnecessarily restrictive strategy called cohabitation. This enables faster adoption of the new version without waiting for the full V1 instance drain. Cohabitation is simpler operationally but takes longer and is not the only available approach."
+    },
+    {
+      "id": "d",
+      "text": "Existing V1 variables are preserved in migrated instances; new V2 variables like regionCode are absent until explicitly set. g. =if regionCode = null then \"UNKNOWN\" else regionCode), or use the Modify Process Instance API to set required values before migration. The Operate UI and REST/gRPC APIs both support migration operations."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Process instance migration concepts: Migration plan: Defines mapping from V1 process definition to V2. Element mappings: which V1 element corresponds to which V2 element. For unchanged elements: typically auto-mapped by ID. For renamed / replaced elements: explicit mapping required. Migration process: 1. Define migration plan (programmatically via API). 2. Apply to one / batch / all in-flight V1 instances. 3. Engine moves tokens from V1 elements to mapped V2 elements. 4. Variables preserved. Variable handling: Preserved variables: All V1 variables remain at their current scopes. V2 process logic uses them as before. New variables in V2: Not auto-populated: simply absent in migrated instances. V2 logic must handle: Defensive FEEL: null checks, default values. Or set explicitly before migration via Modify API. Removed variables in V2: Still present in instance: not auto-deleted. V2 ignores: doesn't reference them. For cleanup: explicit Modify API call to remove. Renamed variables in V2: Migration plan may include variable rename mapping (verify support). Else: manual scripting before migration (rename via API). For the scenario (V2 adds regionCode): Migrate V1 instances; regionCode absent. V2 logic referencing regionCode: Best: defensive =if regionCode = null then \"UNKNOWN\" else regionCode. Alternative: pre-migration script sets regionCode based on other variables (e.g., infer from country). Migration constraints: Active wait states: tokens at User Tasks, Receive Tasks, Timer Catches typically migratable. In-flight activities: depends on element type and migration plan. Process state compatibility: drastic structural changes (e.g., removing entire branches with active tokens) may not migrate cleanly. Migration alternative: Cohabitation: V1 + V2 coexist: new instances start on V2; old V1 instances finish naturally. No migration needed: simpler operationally; takes longer for V1 to drain. Trade-off: split logic in two versions; longer transition. Best practices: For minor changes (adding optional variables, new optional steps): Defensive V2 logic: handle absent / new fields gracefully. Cohabitation often easiest. For major changes (restructured flow, removed steps): Explicit migration plan. Test in dev: validate token movement. Coordinate with stakeholders. Variable migration tooling: Modify Process Instance API: set / unset variables before migration. Migration API: applies plan to instances. Operate UI: may offer migration features (verify per version)."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. Alternative is cohabitation."
+    }
+  },
+  "explanation": "Alternative is cohabitation.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q18",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 9.9 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

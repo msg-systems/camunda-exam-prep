@@ -1,0 +1,50 @@
+{
+  "id": "ext-routing-events-to-processes-117",
+  "topic": "extensions-integrations",
+  "subtopic": "process-to-process-messages",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Marketplace runs Camunda 8.8 with two processes called order and invoice that exchange 3000 messages per day across the workflow engine. A sending job worker named routeInput must start a new invoice process instance from Java code for every order and pass an invoiceId variable taken from the running order instance into the new flow.",
+  "question": "Which Zeebe Java API call does the routeInput job worker invoke to start a new invoice process instance with an invoiceId variable?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Call newCreateInstanceCommand with bpmnProcessId invoice, latestVersion, and variables holding invoiceId to start a fresh invoice process instance carrying the routed payload."
+    },
+    {
+      "id": "b",
+      "text": "Call newPublishMessageCommand with messageName invoice and correlationKey invoiceId to publish a message that the workflow engine routes into a new invoice process instance."
+    },
+    {
+      "id": "c",
+      "text": "Call newCorrelateMessageCommand with messageName invoice and correlationKey invoiceId to correlate the order message directly into a new instance of the invoice process."
+    },
+    {
+      "id": "d",
+      "text": "Call newPublishMessageCommand with messageName invoice and variables holding invoiceId to instruct the order process to spawn a new invoice instance via the message broker."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The routeInput job worker example in the best practice routes the order to a new invoice process instance by calling newCreateInstanceCommand with bpmnProcessId invoice, latestVersion, and a variables map containing invoiceId, matching the Atlas Marketplace integration described."
+    },
+    "b": {
+      "text": "Incorrect. The page reserves newPublishMessageCommand and correlationKey for the second callout where notifyOrder correlates a payment notification to a running order instance, not for starting a new invoice process instance from the routeInput worker."
+    },
+    "c": {
+      "text": "Incorrect. There is no newCorrelateMessageCommand entry in the example. The page uses newCreateInstanceCommand to start a fresh invoice process instance from sending side code that already has the invoiceId variable in scope."
+    },
+    "d": {
+      "text": "Incorrect. The page does not show newPublishMessageCommand starting an invoice flow from the order side without a correlationKey. The documented sending side code for routing to a new invoice instance is newCreateInstanceCommand instead."
+    }
+  },
+  "explanation": "The sending side code example in the routing events best practice calls newCreateInstanceCommand with bpmnProcessId invoice, latestVersion, and a variables map carrying invoiceId; newPublishMessageCommand is reserved for correlating a message to a running instance like notifyOrder in the same example.",
+  "docs": [
+    {
+      "title": "Routing events to processes",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/routing-events-to-processes/"
+    }
+  ]
+}

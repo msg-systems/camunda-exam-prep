@@ -1,0 +1,50 @@
+{
+  "id": "ext-testing-process-definitions-132",
+  "topic": "extensions-integrations",
+  "subtopic": "mocking",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "In a Camunda Process Test for an invoice-approval flow, the `ArchiveInvoiceWorker` runs as part of the test but the underlying `ArchiveService` is mocked with `@MockitoBean`. Why this split?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Worker code is part of the process test scope, but workflow-engine-independent business services should be mocked so the test exercises the model, glue code, and data flow without calling external systems."
+    },
+    {
+      "id": "b",
+      "text": "Job workers cannot run inside `@CamundaSpringProcessTest` and must always be replaced by a mock job worker."
+    },
+    {
+      "id": "c",
+      "text": "Mocking the worker would skip the FEEL gateway expressions, which only evaluate when the worker is mocked out."
+    },
+    {
+      "id": "d",
+      "text": "`@MockitoBean` cannot be applied to worker classes, only to non-`@Component` service interfaces."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Per the docs: the process test should include the executable BPMN plus the glue code that logically belongs to it (workers, FEEL, client glue). Workflow-engine-independent business code such as `ArchiveService` should not run in the test, so it is mocked while the worker continues to handle input mapping and BPMN error translation."
+    },
+    "b": {
+      "text": "The docs show the worker is explicitly executed as part of the test — it does input data mapping and translates a `WiredLegacyException` into a `BpmnError`. Mocking the worker entirely is a separate option only when no clean service interface exists (e.g. connectors)."
+    },
+    "c": {
+      "text": "FEEL gateway expressions run inside the engine regardless of whether workers are mocked; they are not gated on the worker behavior."
+    },
+    "d": {
+      "text": "`@MockitoBean` works on any Spring bean, including `@Component`-annotated workers. The split here is a deliberate test-scope decision, not a Spring/Mockito limitation."
+    }
+  },
+  "explanation": "The docs draw the line at workflow-engine-independent business code. Workers, FEEL, and client glue belong inside the process test; remote service calls (here `ArchiveService`) should be mocked. That is why the worker runs and verifies its data-mapping and error-translation logic, while the archive backend is faked out with Mockito.",
+  "docs": [
+    {
+      "title": "Testing process definitions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/testing-process-definitions/"
+    }
+  ]
+}

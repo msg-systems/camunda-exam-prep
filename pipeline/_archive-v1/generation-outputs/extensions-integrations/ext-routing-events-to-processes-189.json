@@ -1,0 +1,50 @@
+{
+  "id": "ext-routing-events-to-processes-189",
+  "topic": "extensions-integrations",
+  "subtopic": "routing events user-triggered messages",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A bank's accounts team checks new payments on a Camunda 8.8 order process handling 8000 orders per day. The accountant actively monitors the bank account rather than waiting for a Tasklist entry, and the modeler needs to decide how to involve the accountant for the order-paid signal.",
+  "question": "Which design matches the documented guidance for handling messages sent by a user when the user actively monitors an external system?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Model an intermediate message catch event waiting for an order-paid message, build a custom search screen outside Tasklist, and call the message-correlation API from custom code when the accountant hits Paid"
+    },
+    {
+      "id": "b",
+      "text": "Model a standard Camunda user task for the accountant in Tasklist, then let the Tasklist completion automatically publish the order-paid message to all waiting process instances at once with no extra code"
+    },
+    {
+      "id": "c",
+      "text": "Model a signal intermediate event waiting for an order-paid signal, with Tasklist broadcasting the signal to every waiting order instance when the accountant marks payments as received in a Tasklist view"
+    },
+    {
+      "id": "d",
+      "text": "Model a conditional intermediate event watching a paid process variable and let the accountant change the variable directly through Operate, relying entirely on the Operate UI without any custom screen or correlation code"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Handling messages sent by a user section says the process should wait for a message rather than model a user task because the user is not actively triggered. The accountant uses a custom search screen built outside Tasklist to find orders waiting for payment, and on Paid, custom API code must correlate the user's message to the affected process instances."
+    },
+    "b": {
+      "text": "Incorrect. The section explicitly states that a Camunda user task is not appropriate here because the user does not want to observe a task in Tasklist; instead the process waits for a user-generated message."
+    },
+    "c": {
+      "text": "Incorrect. The documented design uses a message intermediate event with manual correlation, not a signal intermediate event broadcast from Tasklist."
+    },
+    "d": {
+      "text": "Incorrect. The page does not recommend a conditional intermediate event combined with Operate variable edits; it describes a message catch event correlated by custom code from a custom screen."
+    }
+  },
+  "explanation": "When the human user wants to actively trigger an event from an external view rather than work a Tasklist entry, the process should use an intermediate message catch event. A custom search screen lets the user find waiting instances, and custom API code must correlate the user's message to the affected process instances.",
+  "docs": [
+    {
+      "title": "Routing events to processes",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/routing-events-to-processes/"
+    }
+  ]
+}

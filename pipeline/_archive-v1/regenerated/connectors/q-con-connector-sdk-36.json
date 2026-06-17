@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-36",
+  "topic": "connectors",
+  "subtopic": "connector-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Kestrel Marketplace, a marketplace receiving 7000 messages per minute from an external publisher, implements a custom inbound connector in Camunda 8.8. A developer must wire the executable so that the activate method starts an asynchronous subscription and the deactivate method releases all the resources used by that subscription when the connector instance is shut down.",
+  "question": "Which pair of responsibilities does the InboundConnectorExecutable interface define for the activate and deactivate methods?",
+  "options": [
+    {
+      "id": "a",
+      "text": "activate triggers asynchronous listening for inbound events using the InboundConnectorContext, and deactivate is a graceful shutdown hook that must release all resources used by the subscription"
+    },
+    {
+      "id": "b",
+      "text": "activate validates the connector input against the Jakarta Bean Validation API only, and deactivate publishes a final correlation result back to Zeebe before the subscription thread is terminated"
+    },
+    {
+      "id": "c",
+      "text": "activate spawns a synchronous polling loop that returns once the first event has been correlated, and deactivate forces a one-time replay of any unhandled events from the subscription buffer"
+    },
+    {
+      "id": "d",
+      "text": "activate registers the executable class via the OutboundConnectorFunction SPI, and deactivate removes that registration so the same class can be reactivated under a different connector type"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs say the activate method is a trigger function to start listening to inbound events and its implementation has to be asynchronous, while the deactivate method is a graceful shutdown hook that must release all resources used by the subscription."
+    },
+    "b": {
+      "text": "Incorrect. Validation can happen via bindProperties but is not the sole job of activate, and deactivate does not publish a final correlation result; it just releases subscription resources."
+    },
+    "c": {
+      "text": "Incorrect. activate is asynchronous and does not return after the first event; deactivate is a shutdown hook, not a replay mechanism for unhandled events."
+    },
+    "d": {
+      "text": "Incorrect. SPI registration lives in META-INF/services for the InboundConnectorExecutable interface and is not the runtime job of activate or deactivate."
+    }
+  },
+  "explanation": "The InboundConnectorExecutable interface defines activate(context) as an asynchronous trigger that begins listening for inbound events and using the context to correlate them, and deactivate() as a graceful shutdown hook that must release all subscription resources.",
+  "docs": [
+    {
+      "title": "Connector SDK - Inbound connector runtime logic",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

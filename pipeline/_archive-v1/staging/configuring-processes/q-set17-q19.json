@@ -1,0 +1,56 @@
+{
+  "id": "imp-set17-q19",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Single Service Task takes 30 minutes (heavy computation). Activation timeouts complicated. Team wonders pattern.",
+  "question": "Long-running Service Task pattern?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Split into smaller tasks for long-running operations: - Submit task: external system starts long operation. - Wait pattern: Receive Task / Timer to poll. - Result task: retrieve result. - For 30-min task as one Service Task: activation timeout must be > 30 min; risky. - Better: async pattern with progress reports. - Or: external long-running with callback (webhook → Message Catch)."
+    },
+    {
+      "id": "b",
+      "text": "Setting a long timeout prevents premature re-activation but means the job remains locked for 30+ minutes if the worker crashes. Recovery time grows proportionally with timeout. This approach also blocks the worker thread for the full duration. Asynchronous patterns with submit-and-callback are more resilient."
+    },
+    {
+      "id": "c",
+      "text": "Long-running operations exceeding a few minutes are impossible to model reliably in Camunda 8 -- this does not accurately reflect the behavior. The submit-and-poll pattern uses a Service Task to initiate the operation, followed by a timer loop to check status. The callback pattern uses a Receive Task or Intermediate Message Catch Event to await a completion webhook. These patterns are standard in Camunda 8 best-practice documentation."
+    },
+    {
+      "id": "d",
+      "text": "A 30-minute operation should be modeled as a User Task rather than a Service Task -- this does not accurately reflect the behavior. User Tasks represent work performed by human participants through a task management interface. A 30-minute automated computation is an automated service operation, not human work. Replacing it with a User Task would require human intervention where none is needed and would not address the underlying challenge of managing long-running automated operations within activation timeout constraints."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Long-running task patterns: Why 30-min Service Task is risky: Activation timeout (per Set 13 Q10): broker re-activates on timeout. If timeout 30 min: long block; worker resources tied. Worker crash mid-task: 30 min lost. Pattern 1: Submit + Poll: ` [Service Task: Submit Long Operation] │ ▼ [Wait State (Timer Cycle: every 5 min)] │ ▼ [Service Task: Check Status] │ ├─ Status = \"completed\" → [Service Task: Get Result] → continue └─ Status = \"running\" → loop back to wait Pros: Each task short. Visible progress in Operate. Survives crashes. Cons: More BPMN complexity. Polling overhead. Pattern 2: Submit + Webhook callback: [Service Task: Submit Long Operation] │ submits, gets operation ID ▼ [Message Catch: \"OPERATION_COMPLETED\"] │ external system webhooks when done ▼ [Continue with result] Pros: No polling. Event-driven. Lower overhead. Cons: External system must support callbacks. Webhook infrastructure. Pattern 3: Long activation timeout + idempotent: [Service Task: Long Operation (timeout: 1h)] Pros: Simple BPMN. Cons: 30 min worker block. Worker crash = lose progress. Idempotency critical. Pattern 4: Async job worker: Worker side: java @JobWorker(type = \"long-op\", autoComplete = false) public void start(ActivatedJob job, JobClient client) { // Start operation async; remember job key operationManager.start(job.getKey(), input); // Return immediately; don't complete job } // Separate process to check ops + complete jobs @Scheduled public void checkOperations() { for (CompletedOp op : completedOps) { client.newCompleteCommand(op.jobKey) .variables(op.result) .send(); } } Worker doesn't block; separate thread completes. For chunking: Pattern 5: Process the work in chunks: [Submit job to chunker] Loop: [Process Chunk N] [Update progress] [If more chunks: loop; else: done] ` Each chunk small; progress visible. For idempotency (critical): Re-activation may cause duplicate work: design safe. Operation tracking: external state. For monitoring: Operation duration metrics: avg, P95. Track in-progress operations. For SLA: Long ops affect process SLA: bound expectations. For user experience: Show progress: in Tasklist / external UI. Notify on completion: email, message. For BPMN visibility: Split task pattern: each step in Operate. Single long task: less granular. For cancellation: Long task hard to cancel: external system may not support. Submit + poll: easier to cancel between checks. For fault tolerance: Worker crash with single long task: lose progress. Chunked: resume from last chunk. For different external systems: Some have native polling APIs: submit + check. Some have webhooks: callback. Some just block: hardest. For Camunda 8: Default activation timeout: typically 5 min. For long ops: must override OR redesign. Best practices: Avoid long sync tasks: use async patterns. Bounded chunks: 5-15 min max per task. Idempotent: critical. Visible progress: process variables. Anti-patterns: Hour-long Service Tasks: brittle. No progress visibility: black box. Non-idempotent long ops: corrupted state on retry. For the scenario (30-min computation): Recommended: Split into submit + poll OR webhook callback. 30-min as single task is anti-pattern. For specific external systems: Cloud rendering (long video): webhook callback. Batch DB: polling or chunking. ML training: submit + status checks. For testing: Test long operations in dev: realistic. Simulate crashes: verify recovery."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Long-running task patterns: Why 30-min Service Task is risky: Activation timeout (per Set 13 Q10): broker re-activates on timeout. If timeout 30 min: long block; worker resources tied. Worker crash mid-task: 30 min lost. Pattern 1: Submit + Poll: ` [Service Task: Submit Long Operation] │ ▼ [Wait State (Timer Cycle: every 5 min)] │ ▼ [Service Task: Check Status] │ ├─ Status = \"completed\" → [Service Task: Get Result] → continue └─ Status = \"running\" → loop back to wait Pros: Each task short. Visible progress in Operate. Survives crashes. Cons: More BPMN complexity. Polling overhead. Pattern 2: Submit + Webhook callback: [Service Task: Submit Long Operation] │ submits, gets operation ID ▼ [Message Catch: \"OPERATION_COMPLETED\"] │ external system webhooks when done ▼ [Continue with result] Pros: No polling. Event-driven. Lower overhead. Cons: External system must support callbacks. Webhook infrastructure. Pattern 3: Long activation timeout + idempotent: [Service Task: Long Operation (timeout: 1h)] Pros: Simple BPMN. Cons: 30 min worker block. Worker crash = lose progress. Idempotency critical. Pattern 4: Async job worker: Worker side: java @JobWorker(type = \"long-op\", autoComplete = false) public void start(ActivatedJob job, JobClient client) { // Start operation async; remember job key operationManager.start(job.getKey(), input); // Return immediately; don't complete job } // Separate process to check ops + complete jobs @Scheduled public void checkOperations() { for (CompletedOp op : completedOps) { client.newCompleteCommand(op.jobKey) .variables(op.result) .send(); } } Worker doesn't block; separate thread completes. For chunking: Pattern 5: Process the work in chunks: [Submit job to chunker] Loop: [Process Chunk N] [Update progress] [If more chunks: loop; else: done] ` Each chunk small; progress visible. For idempotency (critical): Re-activation may cause duplicate work: design safe. Operation tracking: external state. For monitoring: Operation duration metrics: avg, P95. Track in-progress operations. For SLA: Long ops affect process SLA: bound expectations. For user experience: Show progress: in Tasklist / external UI. Notify on completion: email, message. For BPMN visibility: Split task pattern: each step in Operate. Single long task: less granular. For cancellation: Long task hard to cancel: external system may not support. Submit + poll: easier to cancel between checks. For fault tolerance: Worker crash with single long task: lose progress. Chunked: resume from last chunk. For different external systems: Some have native polling APIs: submit + check. Some have webhooks: callback. Some just block: hardest. For Camunda 8: Default activation timeout: typically 5 min. For long ops: must override OR redesign. Best practices: Avoid long sync tasks: use async patterns. Bounded chunks: 5-15 min max per task. Idempotent: critical. Visible progress: process variables. Anti-patterns: Hour-long Service Tasks: brittle. No progress visibility: black box. Non-idempotent long ops: corrupted state on retry. For the scenario (30-min computation): Recommended: Split into submit + poll OR webhook callback. 30-min as single task is anti-pattern. For specific external systems: Cloud rendering (long video): webhook callback. Batch DB: polling or chunking. ML training: submit + status checks. For testing: Test long operations in dev: realistic. Simulate crashes: verify recovery.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q19",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q27",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A health-claims processor uses a DMN to determine reimbursement based on patient age. The Decision Table has rows like: Age 0-17 → \"pediatric_plan\" Age 18-64 → \"adult_plan\" Age 65+ → \"senior_plan\" The developer writes the input cell for the first row as [0..17]. For boundary cases -- a child exactly 18 years old -- the developer needs the engine to NOT match the \"0-17\" row. They want the boundary to be exclusive at the upper end.",
+  "question": "Which FEEL range notation expresses \"0 inclusive, 17 inclusive, but 18 exclusive\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "17] -- in FEEL interval notation, square brackets on both ends ([ and ]) mean inclusive on both bounds. 17] therefore matches any age value from 0 through 17, including both endpoints. Age 17 matches; age 18 does not because 18 is greater than the inclusive upper bound of 17. 17] already correctly excludes 18 by virtue of 18 being outside the stated range. This is the simplest canonical notation for the first age tier."
+    },
+    {
+      "id": "b",
+      "text": "18) -- left square bracket makes the lower bound inclusive (0 is included); right parenthesis makes the upper bound exclusive (18 is excluded). This means ages 0 through 17 match while age 18 does not. 17], though it expresses the boundary intent differently by naming the exclusive upper bound as 18 rather than the inclusive upper bound as 17."
+    },
+    {
+      "id": "c",
+      "text": "<18] -- uses the < operator inside the range brackets as a special FEEL notation to indicate strict-less-than semantics for the upper bound, equivalent to exclusive. This is not standard FEEL or DMN range syntax. FEEL ranges use [ and ] for inclusive bounds and ( and ) for exclusive bounds. The < operator inside a range literal is not a defined notation in the DMN or FEEL specification."
+    },
+    {
+      "id": "d",
+      "text": "17] -- left parenthesis makes the lower bound exclusive (0 is excluded from matching); right square bracket makes the upper bound inclusive (17 is included). This range matches ages 1 through 17 but excludes age 0, which is flawed for a pediatric plan that should cover newborns. A patient aged 0 (born today) would not match the pediatric row despite being clearly within the intended age group."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. [0..17] with square brackets on both ends is inclusive on both bounds: matches ages 0, 1, 2, ..., 16, 17. Age 18 is outside the range (> 17), so does NOT match -- exactly the desired semantics. The team's interpretation that they need a special \"exclusive at 18\" syntax is unnecessary -- [0..17] already excludes 18 because 18 is greater than 17."
+    },
+    "b": {
+      "text": "Incorrect. [0..18) means \"0 inclusive, 18 exclusive\" -- same effective semantics for integer ages but expresses the boundary intent differently (upper bound is 18 exclusive). Both options yield identical behaviour for integer inputs."
+    },
+    "c": {
+      "text": "Incorrect. [0..<18] is not standard FEEL/DMN range syntax."
+    },
+    "d": {
+      "text": "Incorrect. (0..17] excludes 0, which is wrong for \"pediatric starts at birth\"."
+    }
+  },
+  "explanation": "[0..17] with square brackets on both ends is inclusive on both bounds: matches ages 0, 1, 2, ..., 16, 17. Age 18 is outside the range (> 17), so does NOT match -- exactly the desired semantics. The team's interpretation that they need a special \"exclusive at 18\" syntax is unnecessary -- [0..17] already excludes 18 because 18 is greater than 17.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q27",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

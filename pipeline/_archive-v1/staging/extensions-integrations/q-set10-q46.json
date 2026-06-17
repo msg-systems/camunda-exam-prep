@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has 3 different processes that all need to listen for the same external event (e.g., OrderShipped from a partner). They wonder if one Inbound Webhook Connector can trigger multiple processes.",
+  "question": "Can a single Inbound Connector trigger multiple processes?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An Inbound Connector instance is tied to a specific BPMN Start or Catch Event during deployment. It does not automatically broadcast to all processes. Multiple processes receiving the same external event requires explicit architectural patterns such as multiple Connectors or a Signal-based fan-out."
+    },
+    {
+      "id": "b",
+      "text": "Multi-process triggering from a single external event source is architecturally impossible in Camunda 8 -- this is too restrictive. While a single Inbound Connector instance connects to one specific BPMN target, multi-process triggering is achievable through architectural patterns. Fan-out via Signal events is a clean approach: one Connector triggers a dispatch process that throws a Signal, which multiple process definitions with Signal Start Events receive simultaneously. Multiple Connector instances per process is another valid approach."
+    },
+    {
+      "id": "c",
+      "text": "Always deploy a separate Inbound Connector instance for every process that needs to receive external events, even when the events come from the same source -- this overstates the multiple-Connector approach. While deploying one Connector per process is a valid architecture, it requires the external system to publish to multiple endpoint URLs, which may not always be practical. Fan-out via Signal broadcast is a cleaner pattern for single-source to multiple-consumer scenarios, requiring only one external endpoint while distributing to multiple processes internally."
+    },
+    {
+      "id": "d",
+      "text": "Each Inbound Connector instance is tied to a specific BPMN Start / Catch Event -- one Connector → one BPMN target. For multiple processes to react to the same external event: (1) deploy one Inbound Connector per process (each with its own webhook URL / subscription); the external system publishes to multiple URLs; OR (2) use a fan-out pattern: one Inbound Connector starts a \"dispatch\" process that fires Signal Throw events; multiple processes have Signal Start / Catch Events subscribed to the same Signal."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Inbound Connectors are tied to specific BPMN target events. For \"one external event → multiple processes\": Pattern 1: Multiple Connectors (one per process) Each process has its own Inbound Webhook Connector with its own URL. External system publishes to all URLs (multi-target webhook configuration on their end). Each Connector triggers its process. Trade-off: external system manages multiple URLs. Pattern 2: Fan-out via Signal One Inbound Connector wired to a \"dispatch\" process (single URL). Dispatch process throws a Signal (OrderShippedReceived) via Signal Throw Event. 3 target processes have Signal Start Events (or Signal Catch in running instances) subscribed to the same Signal. Single external endpoint; internal Signal broadcast fans out. Trade-off: extra dispatch hop; cleaner external integration. Pattern 3: Message correlation to multiple instances (if processes are running, not starting) One Inbound Connector publishes a Message. Multiple Message Catch Events in different process instances correlate. Pick based on whether you're starting new processes (pattern 1 or 2) or correlating to running ones (pattern 3)."
+    },
+    "b": {
+      "text": "Incorrect. Depends on target setup."
+    },
+    "c": {
+      "text": "Incorrect. Fan-out enables."
+    },
+    "d": {
+      "text": "Correct. Signal fan-out cleaner."
+    }
+  },
+  "explanation": "Signal fan-out cleaner.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q46",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

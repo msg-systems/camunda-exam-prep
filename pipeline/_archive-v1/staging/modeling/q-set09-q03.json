@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team is choosing between Sequential and Parallel Multi-Instance for processing 1000 customer records. Each record processing takes 100ms-1s. The team is weighing the trade-offs.",
+  "question": "Which captures the Sequential vs Parallel Multi-Instance trade-off?",
+  "options": [
+    {
+      "id": "a",
+      "text": "This overstates the case significantly. Parallel execution can overwhelm downstream systems, violate rate limits on external APIs, exhaust worker thread pools, and cause cascading failures. For constrained workloads such as rate-limited partner APIs or systems requiring strict ordering, Parallel mode can cause more harm than good. The correct choice depends on the specific constraints of the workload."
+    },
+    {
+      "id": "b",
+      "text": "Sequential Multi-Instance is always the safer option, so prefer Sequential by default for all batch processing scenarios. This overstates the caution needed. For workloads without ordering requirements, rate limits, or downstream constraints, Sequential offers no safety advantage but does impose significant throughput penalties. For 1000 independent records on unconstrained infrastructure, Sequential processing could take many minutes while Parallel completes in seconds. Throughput-sensitive applications should use Parallel when constraints allow."
+    },
+    {
+      "id": "c",
+      "text": "Sequential and Parallel Multi-Instance are functionally identical -- both process items from the inputCollection in the same way, they just display differently in the modeler. This difference has major implications for throughput, ordering, and downstream load."
+    },
+    {
+      "id": "d",
+      "text": "Sequential runs one instance at a time → predictable order, lower concurrent load on downstream systems (ideal for rate-limited APIs), but longer total time (~minutes for 1000 records at 100ms-1s each). Parallel runs all instances concurrently → much faster total time but higher peak load on worker pools and downstream services (may overwhelm external systems), with indeterminate processing order. Choose based on constraints: rate limits or strict ordering → Sequential; speed with no constraints → Parallel."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The trade-off is predictability + load management (Sequential) vs throughput (Parallel). Concrete factors: Sequential: one inner instance at a time. Next starts only after previous completes. Predictable order. Downstream load = 1× per-record. Total time = sum of per-record times. For 1000 records at 100ms-1s each: 100s-1000s. Parallel: all inner instances activated together; Zeebe spawns 1000 jobs. Downstream load = up to 1000× per-record (until worker pool / downstream limits constrain). Total time = max of per-record times. For 1000 records at 100ms-1s each, with sufficient worker concurrency: ~1s. With limited workers, time approaches Sequential. Practical guidance: Strict ordering / rate-limited downstream → Sequential. Many independent records, no order, throughput-sensitive → Parallel. Bursty load: Parallel may overwhelm; combine Parallel with explicit rate limiting in workers, or use Sequential with worker-pool-managed concurrency."
+    },
+    "b": {
+      "text": "Incorrect. Parallel isn't universally better; can break things downstream."
+    },
+    "c": {
+      "text": "Incorrect. Sequential isn't universally safer when throughput matters."
+    },
+    "d": {
+      "text": "Correct. Distinct semantics."
+    }
+  },
+  "explanation": "Distinct semantics.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

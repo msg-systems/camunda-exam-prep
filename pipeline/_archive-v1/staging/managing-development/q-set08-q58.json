@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A SaaS cluster experiences a partial outage -- one broker node is temporarily unreachable. The team wonders about impact on running processes and recovery.",
+  "question": "How does Camunda 8 handle partial cluster failure?",
+  "options": [
+    {
+      "id": "a",
+      "text": "All process execution pauses and no jobs are processed during a Zeebe broker failure -- the cluster enters a frozen state and resumes only after the failed broker is fully restored -- this description does not reflect the actual behaviour. Zeebe's replication and partition model enables continued operation during single broker failures. When a broker fails, Zeebe's Raft consensus protocol elects a new partition leader from the remaining replicas within seconds. Process execution continues on the surviving brokers without interruption for partitions where the failed broker was not the only copy. Replication factor 3 ensures continued operation with one broker failure."
+    },
+    {
+      "id": "b",
+      "text": "All in-flight process instances and their variable state are permanently lost when a Zeebe broker fails -- Camunda 8 does not persist process state durably enough to survive broker failures -- this description does not reflect the actual behaviour. Zeebe uses a durable event log with replication to preserve process state. Every state change is written to the broker's local storage and replicated to follower brokers before being acknowledged. When a broker fails, the replicated state on surviving brokers contains the complete process history. After leader election or broker restart, process execution resumes from the persisted state with no data loss."
+    },
+    {
+      "id": "c",
+      "text": "The partitioned, replicated broker cluster provides fault tolerance through Raft consensus replication. A three-broker cluster with replication factor 3 can tolerate one broker failure without service interruption. Camunda 8 SaaS is deployed in multi-region configurations for maximum availability. Self-Managed Kubernetes deployments support horizontal scaling and automatic pod restart for HA configurations."
+    },
+    {
+      "id": "d",
+      "text": "md:27-51: data is divided into partitions (shards); each partition has a number of replicas with one leader + others followers (Raft consensus). The leader handles writes; before commit, a record must be replicated to a quorum (majority) of followers per :47-51. Recommended replication factors per :53-58: 3 (1 leader + 2 followers, tolerates 1 broker loss) or 5 (tolerates 2). When a broker fails, partitions where it was leader trigger Raft re-election among surviving followers; reads/writes route to the new leader transparently. Recovery: returned broker catches up by replicating from the current leader."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe's HA architecture is built on the Raft consensus protocol per clustering.md:27-51: Partitions: process state is sharded across partitions (shards); each partition is independent per :31. Replication + Raft: each partition has a configurable set of replicas; among them Raft elects a leader that handles writes; the rest are passive followers maintaining copies. Quorum: before a record commits, the leader must replicate it to a majority of followers; quorum of confirmations = durability guarantee per :47-51. Common factors per :53-58: factor 3 (1 leader + 2 followers, tolerates 1 broker down -- single region, 3 AZs); factor 5 (tolerates 2). Odd factors recommended per :51. Recovery: failed broker returns → catches up by replicating from current leader. SaaS clusters extend this with multi-region replication (e.g., dual-region setup per :62-68 using replication factor 4 across regions). Operators / clients see minimal interruption; some requests may briefly fail over to other nodes / regions during Raft re-election."
+    },
+    "b": {
+      "text": "Incorrect. Continued operation via replicas."
+    },
+    "c": {
+      "text": "Incorrect. Durable + replicated state."
+    },
+    "d": {
+      "text": "Correct. HA is core."
+    }
+  },
+  "explanation": "HA is core.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/zeebe/technical-concepts/clustering/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q58",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

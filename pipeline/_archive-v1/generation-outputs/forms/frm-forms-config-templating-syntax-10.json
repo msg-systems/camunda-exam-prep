@@ -1,0 +1,27 @@
+{
+  "id": "frm-forms-config-templating-syntax-10",
+  "topic": "forms",
+  "subtopic": "feelers - underscore accessors",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Cartography exports 6000 nodes per release into a Camunda 8.8 Feelers template that renders documentation URLs. Each node has an id and a parent property pointing to its tree parent, while the top-level root field holds the shared URL prefix. The template loops over nodes and must include the top-level root in every URL, not the per-node parent value.",
+  "question": "How must the loop body reference the top-level root so the per-node parent property does not shadow the outer scope accessor?",
+  "options": [
+    { "id": "a", "text": "The loop body references the top-level value as parent.root, treating a single parent accessor as a walk one level up from the current node in the data" },
+    { "id": "b", "text": "The loop body references the top-level value as this.root, treating this as a synonym for the enclosing data when no explicit scope is set in the loop" },
+    { "id": "c", "text": "The loop body references the top-level value as _parent_.root, using the documented underscore form to bypass the per-node parent property of each item" },
+    { "id": "d", "text": "The loop body references the top-level value as parent.parent.root, chaining two parent accessors to traverse past the node's own parent property safely" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Because the current node already has its own parent property, the bare parent accessor resolves to that property value rather than to the outer scope, breaking the URL." },
+    "b": { "text": "Incorrect. The this accessor refers to the current loop item, not to the enclosing data, so this.root would look for a root property on the node and not find one." },
+    "c": { "text": "Correct. When the data already uses the parent or this keyword, the documented alternative is to wrap the accessor with underscores as _parent_ or _this_ so the scope accessor wins over the property." },
+    "d": { "text": "Incorrect. Chaining parent twice does not address the shadowing problem and is not the documented remedy; the first parent still resolves to the node property." }
+  },
+  "explanation": "When the data already contains keys named parent or this, the bare accessors collide with those properties. The documented alternative form surrounds the accessor with underscores, so _parent_.root reaches the top-level field even when each node carries its own parent value.",
+  "docs": [
+    { "title": "Forms templating - parent and this accessors", "url": "https://docs.camunda.io/docs/components/modeler/forms/configuration/forms-config-templating-syntax/" }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "con-inbound-11",
+  "topic": "connectors",
+  "subtopic": "inbound",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Insurance, an insurer settling 4500 claims per month, models a Camunda 8.8 claim process with an intermediate catch event that uses the HTTP Webhook connector. Each running instance holds the claim's external reference in a process variable named claimRef, and the partner's settlement callback arrives with body {\"claim\":{\"ref\":\"X9\"}} at the configured webhook ID claim-settled.",
+  "question": "Which Correlation key configuration matches each settlement callback to its waiting process instance?",
+  "options": [
+    { "id": "a", "text": "Correlation key (process) = =claimRef and Correlation key (payload) = =request.body.claim.ref, with both FEEL expressions yielding the same external claim reference value" },
+    { "id": "b", "text": "Correlation key (process) = =request.body.claim.ref and Correlation key (payload) = =claimRef, swapping the two FEEL expressions so the payload side reads the variable" },
+    { "id": "c", "text": "Correlation key (process) = =claimRef and Correlation key (payload) = =claim.ref, omitting the request.body prefix when reading from the inbound webhook payload" },
+    { "id": "d", "text": "Correlation key (process) = =claimRef with Activation condition = =(request.body.claim.ref = claimRef) and no separate Correlation key (payload) expression configured" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The process correlation key is a FEEL expression that resolves the subscription key from the running instance (=claimRef), and the payload correlation key extracts the same value from the inbound body via FEEL using the request.body prefix (=request.body.claim.ref), as the docs show with =requestIdValue and =request.body.request.id." },
+    "b": { "text": "Incorrect. The two correlation expressions are swapped; the process side must evaluate against process variables and the payload side must evaluate against the inbound request, not the other way around, or the correlation will not find the waiting instance." },
+    "c": { "text": "Incorrect. Inbound payload references must use the request.body prefix to reach the parsed request body; a bare claim.ref expression does not resolve against the incoming webhook payload context." },
+    "d": { "text": "Incorrect. The Activation condition only decides whether the webhook fires, and the docs note it cannot access process variables; intermediate catch events still need both Correlation key (process) and Correlation key (payload) to route the message to its instance." }
+  },
+  "explanation": "For an HTTP Webhook on an intermediate catch event, Correlation key (process) is a FEEL expression returning the subscription key from process variables, and Correlation key (payload) is a FEEL expression that extracts the matching value from the incoming request body using the request.body prefix. Both expressions must resolve to the same value for the runtime to deliver the message.",
+  "docs": [ { "title": "Inbound connectors", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/inbound/" } ]
+}

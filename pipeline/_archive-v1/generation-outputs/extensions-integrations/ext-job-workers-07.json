@@ -1,0 +1,27 @@
+{
+  "id": "ext-job-workers-07",
+  "topic": "extensions-integrations",
+  "subtopic": "Job workers",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lumen Banking runs a Camunda 8.8 cluster that streams 12000 jobs per hour to a fleet of payment workers. The SRE team suspects the broker is the throughput bottleneck and asks which job stream metric exposes the rate at which a single broker pushes jobs out across all aggregated streams, so they can plot it against gateway-side push rates and confirm where the queue is building up.",
+  "question": "Which job stream metric derives the rate at which a Camunda 8.8 broker pushes jobs out to all streams?",
+  "options": [
+    { "id": "a", "text": "The metric zeebe_gateway_job_stream_push_total derives the rate at which a gateway pushes jobs out to clients and helps compare gateway throughput with broker push counts" },
+    { "id": "b", "text": "The metric zeebe_broker_open_job_stream_count reports the count of job streams registered on the broker and should equal the sum of all gateway aggregated streams" },
+    { "id": "c", "text": "The metric zeebe_broker_jobs_pushed_count_total derives the rate at which a broker pushes jobs out to all streams and helps identify when the broker is the throughput bottleneck" },
+    { "id": "d", "text": "The metric zeebe_gateway_job_stream_servers reports the number of known broker stream servers per gateway and should equal the total brokers in the cluster" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. zeebe_gateway_job_stream_push_total is a gateway-side metric for the rate of pushes from a gateway to its connected clients, not the broker-side push rate to all streams." },
+    "b": { "text": "Incorrect. zeebe_broker_open_job_stream_count is a count of registered streams on the broker, not a push-rate metric, so it cannot show whether the broker itself is the throughput bottleneck." },
+    "c": { "text": "Correct. zeebe_broker_jobs_pushed_count_total lets operators derive the rate at which a broker pushes jobs out to all streams, which is the metric used to detect a broker-side throughput bottleneck." },
+    "d": { "text": "Incorrect. zeebe_gateway_job_stream_servers reports how many broker stream servers a gateway sees and is used to detect clustering issues, not to derive broker push rates." }
+  },
+  "explanation": "The job streams troubleshooting metrics on Camunda 8.8 separate broker push counters from gateway push counters. zeebe_broker_jobs_pushed_count_total exposes the per-broker push rate to all streams and is the right metric to check when looking for a broker-side throughput bottleneck.",
+  "docs": [
+    { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+  ]
+}

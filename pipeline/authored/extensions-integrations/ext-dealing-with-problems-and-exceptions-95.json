@@ -1,0 +1,50 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-95",
+  "topic": "extensions-integrations",
+  "subtopic": "eventual-consistency",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "During customer onboarding, the CRM call commits a new customer but the subsequent billing call fails permanently. Per the eventual-consistency guidance, what action restores a consistent state?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Deactivate the customer in the CRM system so they are not visible in either system."
+    },
+    {
+      "id": "b",
+      "text": "Keep retrying the billing call forever — eventual consistency means the process never gives up."
+    },
+    {
+      "id": "c",
+      "text": "Mark the customer `billing-pending` in CRM and leave the state inconsistent — eventual consistency does not require reconciliation."
+    },
+    {
+      "id": "d",
+      "text": "Roll back the entire process instance with a technical ACID transaction across CRM and billing."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs give exactly this example: if adding the customer to billing fails, you deactivate them in the CRM system so they appear in neither system — the consistent state."
+    },
+    "b": {
+      "text": "Eventual consistency requires you to _take measures_ to reach a consistent state; infinite blind retries against a permanently failing call is not the strategy the docs describe."
+    },
+    "c": {
+      "text": "Leaving the state inconsistent is exactly what eventual consistency tries to avoid. \"Eventually\" implies a deliberate reconciling action."
+    },
+    "d": {
+      "text": "A joined technical ACID transaction across CRM and billing is impossible in a distributed system — that is the reason eventual consistency exists in the first place."
+    }
+  },
+  "explanation": "Temporary inconsistencies are unavoidable when orchestrating multiple services. Eventual consistency is not just \"hope it sorts itself out\" — it requires a deliberate reconciling action. The onboarding example uses a deactivate-in-CRM step to roll the state back to consistent (customer present in neither system) when the billing call fails.",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Multi-Instance Subprocess processes 100 items. The team needs overall timeout of 1 hour for the entire MI (not per-iteration). After 1 hour, cancel everything and route to a timeout handler.",
+  "question": "How is overall MI timeout modelled?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Setting the Multi-Instance completionCondition to a time-based check is technically workable, using a FEEL expression such as =now() - startTime > duration(\"PT1H\"). However this approach is more complex than attaching a Timer Boundary Event directly to the MI subprocess element. It requires tracking the start timestamp as a variable, re-evaluating the condition on each iteration completion, and cannot preemptively cancel iterations already in progress when the time elapses. The Timer Boundary approach is cleaner, more readable, and natively supported."
+    },
+    {
+      "id": "b",
+      "text": "Placing a Timer Boundary Event inside the inner activity of a Multi-Instance subprocess caps the timeout per individual iteration, not for the entire MI operation as a whole. For 100 items each with a 1-hour per-iteration timer, the total maximum runtime could be 100 hours rather than 1 hour. To cap the total duration of the entire multi-instance operation, the timer must be attached as a Boundary Event on the outer MI subprocess element itself."
+    },
+    {
+      "id": "c",
+      "text": "Claiming that overall Multi-Instance timeout is unsupported is factually incorrect. Camunda 8 Zeebe fully supports attaching an Interrupting Timer Boundary Event to the Multi-Instance subprocess element to enforce a total duration cap. When the timer fires, it cancels all remaining inner instances and the MI subprocess as a whole, routing flow via the Boundary's outgoing sequence flow to the timeout handler. This is the standard documented approach for capping MI execution time."
+    },
+    {
+      "id": "d",
+      "text": "Attach an Interrupting Timer Boundary Event to the MI subprocess element, configured with duration PT1H. The Timer starts when MI activates; if 1 hour elapses before MI completes, the Timer fires, cancelling all remaining inner instances and the MI as a whole. Flow routes via the Boundary's outgoing arrow to the timeout handler. Distinct from per-iteration timeout (which would be a Timer Boundary on the inner activity)."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. \"Overall MI timeout\" is achieved with a Timer Boundary on the MI subprocess element (not on inner activities): Timer starts when MI activates: at the moment the subprocess scope begins, the timer's clock starts. Duration: PT1H for 1-hour cap. Interrupting: cancels MI on fire -- all running inner instances cancelled, MI completed via the Boundary's path. Flow continues via the Boundary's outgoing arrow to the timeout handler. Contrast with per-iteration Timer Boundary (inside the inner activity): That would cap each individual iteration at 1 hour. 100 iterations × 1 hour each = up to 100 hours overall; per-iteration timer doesn't cap that. For \"overall 1 hour for the entire MI\": Timer Boundary on the MI subprocess element. Same pattern works for any subprocess (Embedded too) -- Boundary on the scope element caps the scope's duration. Alternative considerations: completionCondition with time check: theoretically possible (=now() - startTime > duration(\"PT1H\")) but more complex; Boundary is cleaner. Combined: Timer Boundary + completionCondition for \"complete when N done OR 1 hour elapsed\" composite."
+    },
+    "b": {
+      "text": "Incorrect. Boundary cleaner."
+    },
+    "c": {
+      "text": "Incorrect. Per-iteration."
+    },
+    "d": {
+      "text": "Correct. Supported."
+    }
+  },
+  "explanation": "Supported.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q50",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's gRPC worker needs to log every gRPC call to Zeebe (request, response, latency) for audit / debugging. They wonder about gRPC interceptors.",
+  "question": "Can gRPC interceptors be used to instrument Camunda 8 SDK gRPC calls?",
+  "options": [
+    {
+      "id": "a",
+      "text": "js (grpc-js), and Go (grpc-go). js SDKs is built on these gRPC client libraries, making interceptors available for instrumenting all gRPC calls to the Zeebe gateway. Common uses include logging request/response pairs with latency, injecting distributed trace context headers, adding custom authentication tokens, and implementing retry or circuit-breaker patterns at the channel level."
+    },
+    {
+      "id": "b",
+      "text": "Claiming that gRPC interceptors are only available in the Java SDK is only partially correct. Java does have comprehensive interceptor support through grpc-java, allowing both client-side and server-side interceptors. WithStreamInterceptor dial options. All three languages that have Camunda 8 gRPC-based SDKs support interceptors through their respective gRPC client libraries. The interceptor API surface differs across languages in style but the core capability is broadly available."
+    },
+    {
+      "id": "c",
+      "text": "gRPC interceptors are specifically designed as a non-destructive extensibility mechanism. They wrap the underlying call chain transparently -- the interceptor sees the request, can observe or modify metadata, and then must invoke the next step in the chain for the call to proceed. Properly implemented interceptors do not modify the request payload or response semantics, and they do not interfere with the SDK's internal state management. The SDK itself is unaware of the interceptors; they operate at the gRPC channel layer, making them safe to add without SDK changes."
+    },
+    {
+      "id": "d",
+      "text": "gRPC client libraries support interceptors across all three major languages used with Camunda 8 SDKs. Java uses grpc-java's ClientInterceptor interface, which intercepts unary and streaming calls before they are sent to the Zeebe gateway. js (grpc-js) supports interceptors via the InterceptingCall API. WithStreamInterceptor dial options. Common use cases include logging every request with response status and latency, injecting distributed trace headers for OpenTelemetry integration, adding custom authentication metadata, and implementing circuit-breaker or retry patterns at the channel level. Interceptors operate transparently without requiring changes to the SDK itself."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. gRPC interceptors are a standard mechanism for cross-cutting concerns on gRPC calls. All major gRPC client libraries support them: Java: `java ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port) .intercept(new LoggingInterceptor()) .intercept(new TracingInterceptor()) .build(); Node.js: javascript const interceptor = (options, nextCall) => { return new InterceptingCall(nextCall(options), { start: (metadata, listener, next) => { // log / modify metadata next(metadata, listener); } }); }; client = new ServiceClient(address, credentials, { interceptors: [interceptor] }); Go: go conn, err := grpc.Dial(address, grpc.WithUnaryInterceptor(loggingInterceptor)) For Camunda 8 SDKs: Java Zeebe client: built on grpc-java; interceptors apply. Camunda Spring Boot Starter (formerly Spring Zeebe): provides configuration hooks for interceptors per apis-tools/camunda-spring-boot-starter/configuration.md. @camunda8/sdk (Node, TypeScript) per apis-tools/typescript/camunda8-sdk/`: built on grpc-js; interceptors apply (verify exact config in SDK docs). Use cases: Audit logging: every call logged with timestamp, method, args (excluding secrets), result. Distributed tracing: inject trace context; correlate Camunda's calls with downstream service traces. Custom auth: in addition to Bearer token, add custom headers (e.g., correlation IDs). Metrics: histogram of call latencies per method. Retry / circuit-breaker: wrap calls with resilience patterns. Performance impact: Each interceptor adds processing per call. Lightweight interceptors (logging, header injection) negligible. Heavy interceptors (synchronous external calls) can dominate latency."
+    },
+    "b": {
+      "text": "Incorrect. Supported."
+    },
+    "c": {
+      "text": "Incorrect. Most languages."
+    },
+    "d": {
+      "text": "Correct. Designed for it."
+    }
+  },
+  "explanation": "Designed for it.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/zeebe-api/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q50",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[1]"
+      }
+    ]
+  }
+}

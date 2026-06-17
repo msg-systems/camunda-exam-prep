@@ -1,0 +1,63 @@
+{
+  "id": "imp-set17-q39",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL needs ternary-like: condition ? a : b. Wonders syntax.",
+  "question": "FEEL ternary-style alternative?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL uses if-then-else expressions (not ternary syntax): - Syntax: if condition then a else b. - Inline: just an expression; can be used anywhere expression accepted. : ternary: not in FEEL. - Compact for simple cases: if x > 0 then \"positive\" else \"negative\". - Nestable: if a then 1 else if b then 2 else 3."
+    },
+    {
+      "id": "b",
+      "text": ": ternary operator syntax -- this does not accurately reflect the behavior. : ternary operator. The language was designed to be readable and human-friendly, favoring prose-like constructs over symbol-heavy syntax. The ternary conditional in C, Java, and JavaScript uses condition ? trueValue : falseValue, but FEEL instead provides if condition then trueValue else falseValue. The else branch is always required in FEEL and cannot be omitted, unlike some optional forms in other languages."
+    },
+    {
+      "id": "c",
+      "text": "FEEL has no conditional expression constructs -- this does not accurately reflect the behavior. md:7-22 as the standard conditional mechanism. It can be used inline anywhere an expression is accepted, including inside arithmetic expressions, string concatenations, list comprehensions, and context entries. The expression is nestable for multi-branch logic. When the condition evaluates to null rather than a boolean, the else branch is executed per the specification."
+    },
+    {
+      "id": "d",
+      "text": "FEEL does not have a dedicated switch-case construct. The closest equivalent for multiple cases is either nested if-then-else expressions or a Decision Table with multiple rows. For two-branch conditional logic the if condition then a else b form is idiomatic and complete. For many cases, a Decision Table is the recommended pattern in Camunda 8 as it provides better readability and maintainability than deeply nested conditionals."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. FEEL if-then-else: Syntax: `feel if condition then trueExpression else falseExpression Always requires else branch. Examples: feel if x > 0 then \"positive\" else \"non-positive\" if isPremium then 0.20 else 0.10 if user.tier in [\"VIP\", \"Gold\"] then \"premium\" else \"standard\" Inline usage: As expression, can be anywhere expression accepted: feel total: amount + (if hasDiscount then -discountAmount else 0) Embedded in arithmetic. feel greeting: \"Hello, \" + (if name != null then name else \"guest\") Embedded in string concat. Nested: feel category: if amount > 1000 then \"high\" else if amount > 100 then \"medium\" else \"low\" Multiple branches via nesting. Boxed Conditional NOT in C8 Modeler (Pattern #41 -- per dmn.md:23-28 4-element coverage list + :48-52 Decision body types limited to Decision Table + Literal Expression): No visual boxed-conditional form in C8 DMN modeler -- inline FEEL if-then-else inside a Literal Expression Decision is the canonical replacement. For Decision Table alternative: Multiple rules in table: Each row: condition + output. Cleaner for many cases (per Set 17 Q29). Compared to C/Java ternary: | Language | Syntax | |----------|--------| | C/Java/JS | condition ? a : b | | Python | a if condition else b | | FEEL | if condition then a else b | FEEL like prose; not symbol-heavy. For boolean output: feel isValid: if amount > 0 and amount 0 and amount 1000 then \"fast-track\" else if customer.tier = \"VIP\" then \"priority\" else if order.amount > 5000 then \"high-value\" else \"standard\" Cascading. For business rules: Decision Table preferred when many cases (per Q29). if-then-else fine for 2-3 cases. For maintainability: Avoid deep nesting: hard to read. Extract logic to BKM: if complex. For testing: Test all branches. Edge cases. Use cases: Use case 1: Default value: feel port: if env.PORT != null then env.PORT else 8080 Use case 2: Branching computation: feel discount: if amount > 1000 then 0.20 else 0.10 Use case 3: Conditional aggregation: feel taxedAmount: if isTaxable then amount 1.20 else amount Inside a FEEL context literal {} (per feel-context-expressions.md:11-43 -- Boxed Context body type is NOT in C8 Modeler per Pattern #41; the FEEL context literal is the C8 surface): feel { base: amount, multiplier: if isPremium then 1.5 else 1.0, final: base multiplier } Conditional within context entry. For FEEL functions returning conditional: feel function(x) if x > 0 then \"positive\" else \"non-positive\" Function body is conditional expression. For DMN cells: Output entries: conditional FEEL. For variations by inputs. For complex cascades: 3+ branches: consider Decision Table. 2 branches: if-then-else fine. Anti-patterns: Deep nesting: 5+ levels. if true then ... else ...: useless. Boolean direct as ternary result: simplify. Best practices: Use if-then-else for 2 cases. Nest for cascades but keep shallow. Refactor to DT when many cases. Test all branches. For the scenario (ternary alternative): feel if condition then a else b Standard FEEL conditional; no ?:` syntax. For consistency: Use if-then-else throughout. Avoid mixing with other patterns. For evolution: Single conditional → multiple: refactor to DT. Complex conditional: extract to function / BKM."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "FEEL if-then-else: Syntax: `feel if condition then trueExpression else falseExpression Always requires else branch. Examples: feel if x > 0 then \"positive\" else \"non-positive\" if isPremium then 0.20 else 0.10 if user.tier in [\"VIP\", \"Gold\"] then \"premium\" else \"standard\" Inline usage: As expression, can be anywhere expression accepted: feel total: amount + (if hasDiscount then -discountAmount else 0) Embedded in arithmetic. feel greeting: \"Hello, \" + (if name != null then name else \"guest\") Embedded in string concat. Nested: feel category: if amount > 1000 then \"high\" else if amount > 100 then \"medium\" else \"low\" Multiple branches via nesting. Boxed Conditional NOT in C8 Modeler (Pattern #41 -- per dmn.md:23-28 4-element coverage list + :48-52 Decision body types limited to Decision Table + Literal Expression): No visual boxed-conditional form in C8 DMN modeler -- inline FEEL if-then-else inside a Literal Expression Decision is the canonical replacement. For Decision Table alternative: Multiple rules in table: Each row: condition + output. Cleaner for many cases (per Set 17 Q29). Compared to C/Java ternary: | Language | Syntax | |----------|--------| | C/Java/JS | condition ? a : b | | Python | a if condition else b | | FEEL | if condition then a else b | FEEL like prose; not symbol-heavy. For boolean output: feel isValid: if amount > 0 and amount 0 and amount 1000 then \"fast-track\" else if customer.tier = \"VIP\" then \"priority\" else if order.amount > 5000 then \"high-value\" else \"standard\" Cascading. For business rules: Decision Table preferred when many cases (per Q29). if-then-else fine for 2-3 cases. For maintainability: Avoid deep nesting: hard to read. Extract logic to BKM: if complex. For testing: Test all branches. Edge cases. Use cases: Use case 1: Default value: feel port: if env.PORT != null then env.PORT else 8080 Use case 2: Branching computation: feel discount: if amount > 1000 then 0.20 else 0.10 Use case 3: Conditional aggregation: feel taxedAmount: if isTaxable then amount 1.20 else amount Inside a FEEL context literal {} (per feel-context-expressions.md:11-43 -- Boxed Context body type is NOT in C8 Modeler per Pattern #41; the FEEL context literal is the C8 surface): feel { base: amount, multiplier: if isPremium then 1.5 else 1.0, final: base multiplier } Conditional within context entry. For FEEL functions returning conditional: feel function(x) if x > 0 then \"positive\" else \"non-positive\" Function body is conditional expression. For DMN cells: Output entries: conditional FEEL. For variations by inputs. For complex cascades: 3+ branches: consider Decision Table. 2 branches: if-then-else fine. Anti-patterns: Deep nesting: 5+ levels. if true then ... else ...: useless. Boolean direct as ternary result: simplify. Best practices: Use if-then-else for 2 cases. Nest for cascades but keep shallow. Refactor to DT when many cases. Test all branches. For the scenario (ternary alternative): feel if condition then a else b Standard FEEL conditional; no ?:` syntax. For consistency: Use if-then-else throughout. Avoid mixing with other patterns. For evolution: Single conditional → multiple: refactor to DT. Complex conditional: extract to function / BKM.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-control-flow/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q39",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-scenario-too-short",
+        "severity": "block",
+        "message": "scenario length 59 < 80 (catastrophically short)",
+        "where": "scenario"
+      }
+    ]
+  }
+}

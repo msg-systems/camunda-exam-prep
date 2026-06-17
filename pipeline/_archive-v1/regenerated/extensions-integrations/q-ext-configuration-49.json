@@ -1,0 +1,50 @@
+{
+  "id": "ext-configuration-49",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Echo Bank runs a Camunda Spring Boot Starter worker on Camunda 8.8 that activates 5400 jobs per hour. A developer sets @JobWorker(type = \"foo\", fetchVariables = {\"v1\"}) on the handler and at the same time configures camunda.client.worker.override.foo.fetch-variables with v2 and v3 in application.yaml. A reviewer wants to know which variables the worker will actually fetch when it activates a job.",
+  "question": "Which variables does the worker fetch when both the @JobWorker annotation and the override properties list fetch-variables?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The worker merges the values from the annotation and the properties, so it fetches v1, v2, and v3 from every activated job in the worker thread pool during normal operation"
+    },
+    {
+      "id": "b",
+      "text": "The worker honours only the @JobWorker(type, fetchVariables) annotation values, so it fetches v1 because the annotation takes precedence over the overrides in application.yaml"
+    },
+    {
+      "id": "c",
+      "text": "The worker honours only the properties-defined fetch-variables list, so it fetches v2 and v3 because the properties form overrides all other detection strategies for that worker"
+    },
+    {
+      "id": "d",
+      "text": "The worker activates jobs without any variables because the conflict between the annotation and the properties disables the variable fetching feature for the affected worker handler"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The docs note that the properties-defined fetch-variables list does not merge with the annotation; it overrides all other detection strategies for that worker."
+    },
+    "b": {
+      "text": "Incorrect. The annotation does not win over the property override; the properties-defined fetch-variables list overrides all other detection strategies including the annotation."
+    },
+    "c": {
+      "text": "Correct. The docs explicitly caution that using the properties-defined way of fetching variables will override all other detection strategies, so the override.foo.fetch-variables list wins over the annotation."
+    },
+    "d": {
+      "text": "Incorrect. There is no documented behaviour that disables variable fetching when the annotation and properties disagree; the properties simply override the annotation list."
+    }
+  },
+  "explanation": "The variable-fetching section warns that the properties-defined fetch-variables list overrides all other detection strategies for that worker. With override.foo.fetch-variables set, that list wins over fetchVariables on the @JobWorker annotation.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

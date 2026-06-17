@@ -1,0 +1,27 @@
+{
+  "id": "mod-message-events-82",
+  "topic": "modeling",
+  "subtopic": "events",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Pinnacle Bank publishes 15000 messages per day to a Kafka topic from an intermediate message throw event inside a Camunda 8.8 settlement flow. The integration team needs the runtime behavior so they can stand up the right job worker.",
+  "question": "How does the Camunda 8 engine execute an intermediate message throw event in a process?",
+  "options": [
+    { "id": "a", "text": "An intermediate message throw event publishes the message internally through Zeebe message correlation to whichever catching event matches the configured name in the BPMN model" },
+    { "id": "b", "text": "An intermediate message throw event creates a job with the configured job type and waits for a job worker to complete the job before the process continues to the next flow node" },
+    { "id": "c", "text": "An intermediate message throw event evaluates a FEEL expression to render the message body and continues immediately without ever creating a job for an external job worker" },
+    { "id": "d", "text": "An intermediate message throw event opens a long lived outbound subscription and waits for an acknowledgement from the external system before continuing the process flow" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documentation explicitly states that message throw events are not processed by Zeebe itself to correlate to a catch event; they instead create jobs for an external worker to handle." },
+    "b": { "text": "Correct. The documentation states that an intermediate message throw event creates a corresponding job with the configured job type and waits for its completion before the instance continues." },
+    "c": { "text": "Incorrect. The behavior is job based and matches send tasks and service tasks; the engine does not bypass the job worker by rendering the body inline through FEEL alone." },
+    "d": { "text": "Incorrect. The documented mechanism is job and job worker based with the standard job properties, not a custom long lived outbound subscription owned by the engine." }
+  },
+  "explanation": "Intermediate message throw events behave like service or send tasks: the engine creates a job with the configured type and waits for a job worker to complete it before the process continues.",
+  "docs": [
+    { "title": "BPMN message events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/" }
+  ]
+}

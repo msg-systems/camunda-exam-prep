@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q24",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN decision table cell needs to call a custom FEEL function (e.g., a function defined elsewhere in the DMN model). The team wonders how / whether DMN supports custom-function references.",
+  "question": "Can DMN cells call FEEL functions defined elsewhere in the DMN model?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only built-in FEEL functions can be called in DMN decision cells -- this is a misreading of the DMN specification. While Camunda 8 does include all standard FEEL built-in functions (string, numeric, date, list, context categories), the DMN standard also provides a reuse mechanism called Business Knowledge Model (BKM) that allows logic defined in the same diagram to be referenced by name from decision cells. Built-in functions handle common operations but cannot encapsulate custom business logic reuse, which is what BKM elements are specifically designed for."
+    },
+    {
+      "id": "b",
+      "text": "FEEL function logic can only be defined inline within a single cell expression, with no option to define reusable named functions outside individual cells -- this understates what DMN provides. The Business Knowledge Model (BKM) element in a DMN diagram allows logic to be defined once with a named identifier and then referenced from multiple decision cells in the same decision. BKM effectively externalises function logic from individual cell expressions into a dedicated reusable element, reducing duplication and improving maintainability across complex DMN models."
+    },
+    {
+      "id": "c",
+      "text": "md:23-28 (Decision / Input data / Knowledge source / Business knowledge model). md:62-74; the BKM's name becomes the result variable and appears in autosuggestions in other decisions' literal expressions. ). md). md:23-28. 3 spec but absent from C8 Modeler coverage."
+    },
+    {
+      "id": "d",
+      "text": "Java methods or external service calls can be invoked directly from inside DMN decision table cells -- this conflates DMN evaluation with external service calls. DMN decision tables and Business Knowledge Models operate purely in the FEEL expression language domain. To incorporate Java-based logic into a DMN evaluation, you would need to expose it as a process variable or use a separate Service Task upstream of the Business Rule Task, not by calling Java from within the DMN cell itself. FEEL has no foreign-function interface for JVM calls."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 DMN logic-reuse mechanisms (verified against dmn.md:23-75): Built-in FEEL functions (always available inline): contains, substring, number, date, etc. -- per the FEEL built-in catalogs (feel-built-in-functions-string.md, feel-built-in-functions-numeric.md, etc.). Called inline in cells: =contains(name, \"Smith\"). Business Knowledge Model (BKM) -- the canonical C8 reuse construct: First-class DMN element in C8 Modeler per dmn.md:23-28 (one of exactly 4 supported element kinds). Body = literal expression in FEEL per dmn.md:62-74 (NOT a separate \"boxed function expression\" element type). Optional named parameters per :72 (configure via edit button on the () placeholder). Result variable name = BKM element name per :69. Once defined, appears in autosuggestion when authoring literal expressions in other decisions per :62. knowledgeRequirement edge in the DRD links the consuming decision to the BKM. Caveat per dmn.md:56-58: \"Viewing the result of BKM evaluation is currently not supported in Operate\" -- BKM intermediate results don't surface in the audit UI. Same-decision-only constraint per dmn.md:64: \"Currently, you can only reuse BKMs within the same decision\" -- for cross-decision reuse, factor out as a separate Decision (Pattern #34). Cross-decision reuse via separate Decision: Author the shared logic as its own Decision (Literal Expression). Each consuming decision declares an informationRequirement edge to it (per decision-requirements-graph.md). Decision result is computed once per evaluation and reused by all dependents in the same DRD evaluation. This pattern handles the cross-decision case that BKM cannot. NOT exposed in C8 Modeler (despite DMN-1.3 spec presence): \"Function Definitions\" / \"Boxed Function Expression\" element type -- dmn.md:23-28 lists only Decision, Input data, Knowledge source, BKM. \"Decision Service\" -- not in C8 modeling surface (DMN-1.3 spec only). DMN cross-file reuse -- not part of C8's documented modeler coverage. Best practices for DMN reuse in C8: BKM: small reusable computation within a single decision. Separate Decision: cross-decision reuse OR audit visibility (BKM evaluation not visible in Operate per :56-58). Inline FEEL: one-off intermediate computations."
+    },
+    "b": {
+      "text": "Incorrect. BKM supported."
+    },
+    "c": {
+      "text": "Correct. BKM externalises."
+    },
+    "d": {
+      "text": "Incorrect. FEEL only."
+    }
+  },
+  "explanation": "BKM externalises.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q24",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

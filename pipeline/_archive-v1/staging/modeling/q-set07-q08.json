@@ -1,0 +1,63 @@
+{
+  "id": "imp-set07-q08",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A document-publishing process has a None Intermediate Event placed between two activities on the happy path. The event is unconnected to messages, timers, errors, or signals -- just a plain circle. A new team member asks: \"What does this empty circle do? Does the process pause?\"",
+  "question": "What does a None Intermediate Event signify in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": ", \"document approved\", \"data validated\", \"payment received\"). There is no engine action: execution passes through the None Intermediate Event without pause, error, wait state, or any external interaction. Its purpose is purely documentary -- giving readers a clear visual marker showing where the process has reached notable milestones. Operate and Optimize may record the passage in audit history, but the engine itself takes no action beyond flowing through to the next element."
+    },
+    {
+      "id": "b",
+      "text": "Pauses execution until the user manually clicks a \"continue\" button in Tasklist or a similar interface, serving as a user-driven checkpoint in the workflow. This is an incorrect characterization of None Events, which have no interaction model whatsoever and create no wait state. User-driven pauses and task completion are the domain of User Tasks, not None Events. A None Intermediate Event is a passive element that execution simply flows through without any wait state, user action, or external trigger required."
+    },
+    {
+      "id": "c",
+      "text": "Generates a structured audit log event automatically, writing a record to the application log or Operate history each time execution passes through the element. This is only partially correct; Operate and the engine event stream may record the passage as part of the audit history as a side-effect of the event stream, but generating a custom application log is not the None Event''s defined semantic purpose. Its primary role is providing visual clarity in the BPMN diagram, not triggering any logging action."
+    },
+    {
+      "id": "d",
+      "text": "Splits the flow into parallel execution branches so that multiple paths proceed concurrently from that milestone point, similar to how a Parallel Gateway operates but with a simpler visual notation. None Intermediate Events have absolutely no splitting behaviour of any kind; they are single-input, single-output flow elements that simply pass execution forward without forking. Splitting concurrent execution paths is exclusively the role of Parallel Gateways, Inclusive Gateways, or Multi-Instance subprocess constructs."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. A None Intermediate Event is a passive landmark. Execution flows through it without any side effect: no pause, no error, no message, no timer. Its purpose is documentary -- to give readers a clear visual marker of progress milestones. Examples: after a \"validate\" task, place a None Intermediate Event labelled \"Data Validated\" so downstream readers see this state was achieved. Operate / Optimize may show passage through it in instance history, but the engine doesn't take any action."
+    },
+    "b": {
+      "text": "Incorrect. Pause-for-user-click would be a User Task or, more generally, a wait state (Receive Task, Message Catch Event). None Events don't wait."
+    },
+    "c": {
+      "text": "Incorrect. Event passage may appear in instance audit / history, but generating a log is a side-effect of the audit system, not the event's defined semantic. The event isn't \"for logging\"; it's for visual clarity."
+    },
+    "d": {
+      "text": "Incorrect. Splitting is the job of Parallel / Inclusive / Exclusive / Event-Based Gateways. None has no such role."
+    }
+  },
+  "explanation": "A None Intermediate Event is a passive landmark. Execution flows through it without any side effect: no pause, no error, no message, no timer. Its purpose is documentary -- to give readers a clear visual marker of progress milestones. Examples: after a \"validate\" task, place a None Intermediate Event labelled \"Data Validated\" so downstream readers see this state was achieved. Operate / Optimize may show passage through it in instance history, but the engine doesn't take any action.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/none-events/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q08",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[2]"
+      }
+    ]
+  }
+}

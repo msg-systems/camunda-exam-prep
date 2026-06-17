@@ -1,0 +1,69 @@
+{
+  "id": "imp-set17-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Webhook receives same event twice (partner retried). Wonders deduplication.",
+  "question": "Webhook deduplication patterns?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Auto-dedupe -- wrong typically (must configure Message ID expression)."
+    },
+    {
+      "id": "b",
+      "text": "Trust the partner to never send duplicate events -- this does not accurately reflect the behavior. Network reliability means that webhook delivery guarantees are typically at-least-once. Partners implement retry logic when they receive no acknowledgment, or when their request times out. Both the original and the retry may succeed from the partner's perspective, resulting in duplicate events arriving at the Camunda webhook endpoint. Trusting the partner to never retry is an incorrect architectural assumption that leads to duplicate process instances being created. Deduplication must be handled on the receiver side regardless of partner intent."
+    },
+    {
+      "id": "c",
+      "text": "Duplicate webhook events are harmless and require no deduplication -- this does not accurately reflect the behavior. Creating duplicate process instances from the same business event causes real problems: double processing of orders, duplicate notifications sent to customers, double charges or inventory adjustments, and audit trail inconsistencies. In business processes orchestrated by Camunda, idempotency must be designed in deliberately. The HTTP Webhook Connector provides the Message ID expression mechanism specifically to enable Zeebe broker-level deduplication within the configured Message TTL window, preventing duplicate correlations for the same logical event."
+    },
+    {
+      "id": "d",
+      "text": "transactionId. md:126-129. Duplicate Message IDs within the TTL window are not re-correlated -- the correlation object is empty for duplicates. Fallback strategies when the partner provides no idempotency key include external Redis or database tracking, or worker-computed content hashes (FEEL has no built-in hash function)."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Webhook deduplication: Why dedupe matters: Partner retries: network failure → retry; original may have succeeded. At-least-once delivery: most webhooks. Without dedupe: process triggered multiple times. Strategy 1: Idempotency key in event: Partner provides: `json { \"eventId\": \"evt-123\", \"type\": \"order_placed\", ... } Camunda tracks eventId: First seen: process. Already seen: ignore. Implementation: External cache (Redis): SET if not exists. DB: insert eventId; fail on duplicate. Camunda Message correlation: per Set 13 Q20. Strategy 2: Message correlation key: feel correlationKey: =event.eventId Camunda Message correlation: One process per correlationKey: deduped at engine level. Subsequent same key: TTL-based; may correlate or fail. Caveat: depends on Camunda Message TTL + dedup behavior (per Set 14 Q13). Strategy 3: Content hash (requires worker -- NOT available in FEEL): FEEL has NO hash() / sha256() built-in -- Grep across components/modeler/feel/ for ## hash|## sha returns 0 hits. Compute hash inside a Java/TypeScript worker (e.g., MessageDigest.getInstance(\"SHA-256\")) and store as a process variable for downstream dedup checks. Same hash within window = duplicate. Different content with same intent: detected. Strategy 4: Time-window dedup: If event from partner P in last 5 sec with same key: dedupe External tracking + time check. Useful for: imprecise dedup. Strategy 5: Database constraint: Process worker: sql INSERT INTO processed_events (event_id, ...) VALUES (?, ...); -- ON CONFLICT DO NOTHING (PostgreSQL) -- Or unique constraint Unique constraint enforces dedup. Strategy 6: Activation condition (per Set 16 Q17): feel =not(processedEvents contains event.eventId) Check against tracking variable (limited; in-Camunda state). For partner-side idempotency: Partner sends idempotency key: standard practice. Camunda uses key: dedupe. For HTTP idempotency: Idempotency-Key` header: industry convention. Server returns same response: for same key. For at-least-once vs exactly-once: Webhook at-least-once: typical. Exactly-once via dedup: target. Hard guarantee: requires coordination. For partner retries: Partner times out → retry: original may complete. Both succeed at partner: duplicate at Camunda. Dedup prevents duplicate process. For idempotency window: Short: 5 min; small dedup table. Long: 24h+; larger table. Trade-off: dedup reliability vs storage. For dedup at activation: Pattern: Inbound Webhook receives event. Activation condition checks dedup table. If new: process; record. If duplicate: ignore; log. For activation condition with external state: FEEL can't access external DB: in expression. Workaround: pre-check via Connector Inbound logic (custom Connector). For more sophisticated dedup: Custom Webhook Inbound Connector: Receives event. Checks dedup cache (Redis). Correlates only if new. For monitoring dedup: Track duplicate rate: per partner. High rate: investigate. For audit: Log all received events: even duplicates. Mark deduped vs processed. Trail. For TTL on dedup: Records expire after partner unlikely to retry. Garbage collection: prevent unbounded growth. For multi-instance: Dedup cache shared across Camunda instances. External cache (Redis) preferred. For testing: Send same event twice: verify deduped. Edge cases: timing of duplicates. For replay scenarios: Replaying past events for testing: would trigger dedup. Distinct test event IDs: avoid. For partner contract: Document idempotency expectation: partner must send keys. Or: Camunda dedupe by other criteria. Best practices: Always dedupe webhooks. Idempotency key preferred. External state for cross-instance dedup. Monitor. Anti-patterns: Trust no duplicates: incorrect for at-least-once. Dedup in-Camunda only: limited. No TTL: storage bloat. For the scenario (partner retried): Idempotency key: ideal. Or content hash: fallback. External cache: for cross-instance. For high-throughput: Redis dedup: low-latency. Bloom filter: probabilistic; lower memory."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/#message-id-expression"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q46",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-scenario-too-short",
+        "severity": "block",
+        "message": "scenario length 75 < 80 (catastrophically short)",
+        "where": "scenario"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 9.6 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

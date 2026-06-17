@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q07",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A finance-processing workflow has a critical transactional section of 3 Service Tasks: reserve-funds, transfer-funds, confirm-transfer. The team needs strict transactional semantics: either all 3 succeed and the section commits, or all 3 are rolled back via compensation if any fails. The team is considering using the BPMN Transaction Subprocess construct.",
+  "question": "Which BPMN construct expresses transactional semantics?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A Transaction Subprocess (a specific Subprocess type rendered with a double border) containing the 3 tasks. Inside the transaction, each reversible task has a Compensation Boundary Event with its handler. A Cancel End Event inside the transaction triggers a Cancel Boundary Event on the transaction; the cancel propagates compensation to all attached handlers. md:47 48, 570 577 (none of the three symbols carries className=\"implemented\"). The construct is modeler visible only and Zeebe rejects it at deployment."
+    },
+    {
+      "id": "b",
+      "text": "Three separate Service Tasks wired with explicit reverse path flows -- each reversible task has a dedicated rollback task connected via conditional sequence flows. Workable in theory: if reserve funds fails, route to release funds; if transfer funds fails, route to reverse transfer. \" The BPMN compensation event family exists precisely to handle this pattern idiomatically."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 has no mechanism for transactional rollback of any kind -- teams must handle rollback entirely through application code outside the BPMN model. Teams regularly use this pattern for saga style rollback orchestration."
+    },
+    {
+      "id": "d",
+      "text": "md:32 34). md:73 83. This is the canonical C8 \"saga / transactional rollback\" pattern in absence of Transaction Subprocess."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Transaction Subprocess, Cancel End, and Cancel Boundary are BPMN-spec elements but not implemented in Camunda 8 per bpmn-coverage.md:47-48, 570-577. They are modeler-visible only (you can draw them, but Zeebe rejects them at deployment / does not execute them). Selecting this construct gives an unrunnable model."
+    },
+    "b": {
+      "text": "Incorrect. Per bpmn-coverage.md the Transaction Subprocess symbol (line 48) has no className=\"implemented\"; same for Cancel Boundary (line 570) and Cancel End (line 577). The C8-supported way to express \"all 3 succeed or all rolled back via compensation\" is therefore: wrap the 3 tasks in an Embedded Subprocess; attach a Compensation Boundary Event + handler to each reversible inner task; on the failure path, place a Compensation End Event (or Compensation Intermediate Throw). Per compensation-events.md:26-29, the throw invokes \"all compensation handlers of completed activities\" and remains active until all handlers complete. By default they run \"at once without any specific order\" (:32-34); for strict per-activity order, use multiple throws each with activityRef (:73-83)."
+    },
+    "c": {
+      "text": "Incorrect. Wiring 3 reverse paths manually loses the BPMN compensation abstraction (Compensation Boundary + Throw). Each path needs explicit conditional flow; readers must reverse-engineer the intent. Reuse of the same activity by both happy path and rollback is also error-prone."
+    },
+    "d": {
+      "text": "Correct. The Compensation event family is fully implemented (compensation-events.md is the spec page), so transactional-style rollback IS supported -- just via Embedded + Compensation, not Transaction Subprocess."
+    }
+  },
+  "explanation": "The Compensation event family is fully implemented (compensation-events.md is the spec page), so transactional-style rollback IS supported -- just via Embedded + Compensation, not Transaction Subprocess.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q07",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

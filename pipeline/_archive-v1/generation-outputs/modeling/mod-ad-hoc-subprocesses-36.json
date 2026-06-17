@@ -1,0 +1,27 @@
+{
+  "id": "mod-ad-hoc-subprocesses-36",
+  "topic": "modeling",
+  "subtopic": "subprocesses",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Logistics processes 3000 shipments per day through Camunda 8.8. A dispatcher subprocess models exception-handling steps (reweigh, reroute, notify carrier, refund) that an operator may invoke in any order or skip entirely depending on the situation. The modeler wants to use an ad-hoc subprocess marked with the tilde marker and needs to validate it against the BPMN constraints before deploying it to Zeebe.",
+  "question": "Which structural constraint applies to the inner elements of an ad-hoc subprocess in Camunda 8?",
+  "options": [
+    { "id": "a", "text": "The ad-hoc subprocess must contain at least one activity, and start events and end events are not permitted inside its inner element set" },
+    { "id": "b", "text": "The ad-hoc subprocess must contain exactly one start event and at least one end event, mirroring how a regular embedded subprocess is structured" },
+    { "id": "c", "text": "The ad-hoc subprocess must declare an event subprocess as the first inner element to bind ad-hoc execution semantics to a defined trigger" },
+    { "id": "d", "text": "The ad-hoc subprocess must be marked as multi-instance and supply a completionCondition expression that covers the full inner activity set" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The docs state an ad-hoc subprocess must have at least one activity and must not have start events or end events; inner elements are otherwise free to execute multiple times, in any order, or be skipped." },
+    "b": { "text": "Incorrect. Requiring exactly one start event and an end event describes a regular embedded subprocess; the ad-hoc variant explicitly forbids both event kinds inside its body." },
+    "c": { "text": "Incorrect. There is no requirement that an event subprocess opens the ad-hoc body; the docs only specify the activity minimum and the absence of start and end events." },
+    "d": { "text": "Incorrect. Ad-hoc subprocesses do not require a multi-instance marker or a completionCondition; the multi-instance loop is a separate BPMN construct from the ad-hoc marker." }
+  },
+  "explanation": "An ad-hoc subprocess relaxes execution order on its inner activities: each one can run multiple times or be skipped, and elements may be connected by sequence flows when dependencies exist. The structural constraints are simply that at least one activity is present and that no start or end events appear inside the body.",
+  "docs": [
+    { "title": "BPMN ad-hoc subprocesses", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/ad-hoc-subprocesses/" }
+  ]
+}

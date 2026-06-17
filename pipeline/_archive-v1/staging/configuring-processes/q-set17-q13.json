@@ -1,0 +1,82 @@
+{
+  "id": "imp-set17-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "User Task in Tasklist. User clicks \"claim.\" Wonders flow + unclaim option.",
+  "question": "Tasklist claim / unclaim flow?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No claim -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "md:13-14 verbatim \"User tasks can be automatically assigned to users and groups in the BPMN process, or they must be self-assigned from Tasklist. Once assigned to a user, the task can be completed. \" :"
+    },
+    {
+      "id": "c",
+      "text": "Tasks can be automatically assigned if the BPMN element has an explicit assignee expression in zeebe:assignmentDefinition. Automatic assignment is a configurable capability, not a universal default. Many organizations require explicit self-assignment to distribute work and track accountability."
+    },
+    {
+      "id": "d",
+      "text": "Once a User Task is claimed in Tasklist it can never be unclaimed or reassigned -- this does not accurately reflect the behavior. Camunda 8 Tasklist explicitly supports unassigning a task, which releases it back to the candidate pool for another eligible user to claim. Administrators and authorized users can also reassign tasks via the API or UI. Unclaiming is a documented workflow step that enables task redistribution when the originally assigned user is unavailable."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Tasklist claim flow: States: Available (Unclaimed): Listed in candidate group: members see in \"Available Tasks\". Anyone in group: can claim. Claimed: Assigned to specific user: that user's \"My Tasks\". Others can't access: until unclaimed. Completed: Task done: removed from active. Claim flow: ` Task created │ ├─ Assignee set explicitly → Claimed (assignee) │ └─ candidateGroups → Available │ ├─ User claims → Claimed (user) │ │ │ ├─ User completes → Completed │ │ │ └─ User unclaims → Available again │ └─ Timer / escalation → ... Claim API: Tasklist UI: \"Claim\" button. Tasklist API: explicit claim call. Unclaim: Release back to candidate pool. Useful if: user can't complete, going off duty. Auto-unclaim patterns: at end of day (custom). Reassign: Manager / admin can reassign. Override current claim. Use case: assignee unavailable. For tasks with explicit assignee: assignee` set in BPMN (per Set 14 Q22). Task created already claimed by that user. No further claim needed. For dynamic assignment: FEEL expression for assignee at task creation. Based on variable: dynamic. For multi-tasking: User can have multiple claimed: not exclusive. Limited by attention: not engine. For workload distribution: Round-robin (custom): rotate among candidates. Load-based: assign least busy. Skill-based: match expertise. For audit: Claim events: who, when. Unclaim events: tracked. Visible in audit log. For collaboration: Comments: per Tasklist version, on tasks. Sub-tasks: not standard BPMN. For mobile: Tasklist mobile: claim on go. Notifications: new available tasks. For SLA monitoring (per Set 16 Q52): Claim time: tracked. From assignment to claim: SLA1. From claim to complete: SLA2. For automation: Auto-claim via worker: User Task with no human interaction (verify pattern). System tasks typically Service Tasks; not User. For permission: Claim permission: typically same as task visibility. Reassign: typically admin. For Tasklist customisation: Custom UI: full flow control. Default Tasklist: standard flow. For batch claim: Multiple tasks at once (verify support). Useful for bulk processing. Anti-patterns: Claim and forget: blocking other candidates. No SLA: stale claims. No reassign mechanism: stuck if user absent. Best practices: Educate users on claim semantics. Monitor stale claims: aged + claimed. Auto-unclaim policies: at end of shift. Reassign admin powers: for outages. For the scenario (claim flow): User claims: task becomes theirs. Can unclaim: back to pool. Other candidates: re-eligible after unclaim. For testing: Test claim / unclaim: verify state transitions. Test permission: claim only if in group. For metrics: Claim time per task type: identify slow. Unclaim rate: high may indicate issues."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/tasklist/userguide/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q13",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-scenario-too-short",
+        "severity": "block",
+        "message": "scenario length 74 < 80 (catastrophically short)",
+        "where": "scenario"
+      },
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 18 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 26.2 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

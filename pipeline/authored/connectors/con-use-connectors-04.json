@@ -1,0 +1,58 @@
+{
+  "id": "con-use-connectors-04",
+  "topic": "connectors",
+  "subtopic": "error-handling",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A REST connector's `errorExpression` header should raise a BPMN error with code `404` only when the HTTP request returns status 404, and otherwise let the connector complete normally. Which FEEL fragment matches the docs' BPMN-error example?",
+  "options": [
+    {
+      "id": "a",
+      "text": "First fragment"
+    },
+    {
+      "id": "b",
+      "text": "Second fragment"
+    },
+    {
+      "id": "c",
+      "text": "Third fragment"
+    },
+    {
+      "id": "d",
+      "text": "Fourth fragment"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "This matches the docs' \"HTTP errors to BPMN errors\" example, which guards on `error.code = \"404\"` and returns `bpmnError(\"404\", \"Got a 404\")`, falling through to `null` when the condition does not hold."
+    },
+    "b": {
+      "text": "HTTP errors are exposed via the `error` context (with a `code` and `message`), not via `response.status`. `response.status` would not resolve for a request that returned an HTTP error."
+    },
+    "c": {
+      "text": "The docs use string literals: `error.code = \"404\"` and `bpmnError(\"404\", \"Got a 404\")`. Comparing to the numeric `404` would mistype the comparison, and `bpmnError` expects string `code`."
+    },
+    "d": {
+      "text": "Returning the bare string `\"404\"` does not produce a BPMN error object. The expression must call `bpmnError(code, message)` so the engine raises a BPMN error."
+    }
+  },
+  "explanation": "The docs' \"HTTP errors to BPMN errors\" example uses an `errorExpression` header to convert HTTP failure codes into BPMN errors. The pattern is `if error.code = \"404\" then bpmnError(\"404\", \"Got a 404\") else null` — `error.code` is the string exposed when the connector throws a technical exception, and `bpmnError(code, message)` is the FEEL function that creates the BPMN error object the engine then raises.",
+  "docs": [
+    {
+      "title": "Use connectors",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "codeBlocks": {
+    "perOption": {
+      "a": "if error.code = \"404\" then bpmnError(\"404\", \"Got a 404\") else null",
+      "b": "if response.status = 404 then bpmnError(\"404\", \"Got a 404\") else null",
+      "c": "if error.code = 404 then bpmnError(404, \"Got a 404\") else null",
+      "d": "if error.code = \"404\" then \"404\" else null"
+    }
+  }
+}

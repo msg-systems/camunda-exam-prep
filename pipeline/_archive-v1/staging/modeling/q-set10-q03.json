@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's BPMN has a Parallel Gateway split with two outgoing branches. The team accidentally used an Inclusive Gateway join to converge them. They wonder what happens at the join.",
+  "question": "What happens when a Parallel split is joined by an Inclusive join (mismatched gateway pair)?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Works fine -- Inclusive join just waits for any token -- this misunderstands Inclusive gateway convergence semantics. The Inclusive converging gateway uses a specific algorithm: it completes when all incoming sequence flows that were activated have arrived, or when no active flow node can still reach it via any path. This is not the same as waiting for any single token. Mismatched gateway pairs produce defined but potentially confusing behaviour that BPMN best practice discourages."
+    },
+    {
+      "id": "b",
+      "text": "Both gateways are equivalent -- no problem -- this is factually incorrect. Parallel and Inclusive gateways have different splitting and joining semantics. A Parallel split unconditionally activates all outgoing branches, while an Inclusive split activates branches based on evaluated conditions. A Parallel join waits for all incoming tokens, while an Inclusive join uses OR-completion semantics. These differences are significant for model correctness, and mixing them without understanding the implications can produce unexpected token behaviour."
+    },
+    {
+      "id": "c",
+      "text": "The Inclusive join cancels both incoming branches and terminates the tokens early -- this describes behaviour that has no basis in BPMN semantics or Camunda 8 implementation. Converging gateways in BPMN do not cancel or terminate branches; they synchronise or merge token flows. Cancellation semantics in BPMN apply only to Cancel Events within Transaction Subprocesses. This option invents a gateway behaviour that has no runtime implementation in Camunda 8 in any BPMN-compliant engine."
+    },
+    {
+      "id": "d",
+      "text": "\" Since a Parallel split activates ALL outgoing branches unconditionally, the Inclusive join sees every incoming flow taken -- effectively behaves like a Parallel join (waits for all). The result is deterministic, but the model is unusual and harder to read; BPMN best practice is to pair gateway types (Parallel split + Parallel join, Inclusive split + Inclusive join)."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN's gateway semantics in Camunda 8: Parallel split + Parallel join: AND-AND. Both branches activated; join waits for all incoming. Inclusive split + Inclusive join: OR-OR. Branches activated by condition; converging join completes when either all incoming flows taken OR no active flow can still reach it (per inclusive-gateways.md:31-34). Exclusive split + Exclusive join: XOR-XOR. One branch activated; join passes through any single token. Mismatched pairs in Camunda 8: Parallel split + Inclusive join: deterministic -- Parallel activates all outgoing branches; all incoming flows of the Inclusive join become \"taken\"; the join completes after all arrive (effectively an AND-join). The model is unusual and harder to read, not undefined. Parallel split + Exclusive join: tokens arriving on different branches each independently pass through the Exclusive join -- this is the most dangerous mismatch because it can produce multiple downstream activations (one per branch), not the intended single-merge semantic. Best practice: always match gateway types in split/join pairs for diagram readability and to avoid token-multiplication anti-patterns like Parallel-split + Exclusive-join."
+    },
+    "b": {
+      "text": "Incorrect. Inclusive join has specific semantics."
+    },
+    "c": {
+      "text": "Incorrect. Distinct semantics."
+    },
+    "d": {
+      "text": "Correct. No cancel behaviour."
+    }
+  },
+  "explanation": "No cancel behaviour.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/inclusive-gateways/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

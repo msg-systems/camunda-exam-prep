@@ -1,0 +1,76 @@
+{
+  "id": "imp-set14-q24",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN expression needs to check if all items in a list meet a condition (e.g., all order items priced > 0). Team wonders if FEEL supports every/some quantifiers. FEEL every and some quantifiers?",
+  "question": "FEEL every and some quantifiers?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No quantifiers -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "price > 0]) returns the matching elements as a list. While filter is related to checking conditions on list elements, it is not the same as quantifier expressions. The every and some keywords are distinct built-in FEEL language constructs that return boolean values rather than filtered lists. Treating filter as the only list condition mechanism misses the more readable and short-circuiting quantifier expressions."
+    },
+    {
+      "id": "c",
+      "text": "FEEL supports quantifier expressions: every x in list satisfies condition returns true only when all elements satisfy the condition; some x in list satisfies condition returns true when at least one element satisfies it. These are standard DMN FEEL quantifiers for universal and existential list predicates, enabling concise decision table conditions without manual looping. For example, every amount in amounts satisfies amount > 0 validates that all entries are positive."
+    },
+    {
+      "id": "d",
+      "text": "FEEL natively provides every x in list satisfies condition and some x in list satisfies condition built-in quantifier expressions that are more concise, more readable, and short-circuit on the first satisfying or falsifying element. For-loops are for producing transformed lists, not for boolean existence or universal checks."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL quantifier expressions: Syntax: every variable in list satisfies condition: universal quantifier (∀). some variable in list satisfies condition: existential quantifier (∃). Examples: every: `feel every item in items satisfies item.price > 0 every order in orders satisfies order.status = \"PAID\" every customer in customers satisfies customer.kycVerified some: feel some item in items satisfies item.flagged some order in orders satisfies order.totalAmount > 1000 some risk in riskFactors satisfies risk.severity = \"HIGH\" Empty list edge cases: every on empty list: Returns true (vacuous truth). \"All zero elements satisfy the condition\" → trivially true. Watch out: business logic might want false for empty. Defensive: count(items) > 0 and every item in items satisfies .... some on empty list: Returns false. \"No element to satisfy\" → false. More intuitive for \"are there any matching\" queries. Use cases: Validation: every field in requiredFields satisfies field != null and field != \"\". Eligibility checks: every check in complianceChecks satisfies check.passed. Aggregate conditions: some order in customer.orders satisfies order.disputeOpen. Combination patterns: Mixed conditions: feel every item in items satisfies ( item.price > 0 and item.quantity > 0 and item.sku != null ) Negation: feel not(some item in items satisfies item.outOfStock) Equivalent to every item in items satisfies not(item.outOfStock). Multi-variable quantifier: feel every order in orders, item in order.items satisfies item.priceCheck = true Iterates over Cartesian product of orders × their items. Performance: every short-circuits on first false. some short-circuits on first true. Efficient for large lists with early termination. Compare with filter: filter(items, item.flagged) returns the matching elements. some item in items satisfies item.flagged returns just true/false. Use filter when need the matches; quantifiers when need boolean answer. Compare with count: count(items[item.flagged = true]) > 0 is equivalent to some ... satisfies item.flagged`. Quantifier expressions are more readable and short-circuit faster. In DMN tables: Quantifiers usable in input expressions, input entries, output entries. Powerful for list-aware decision logic. Best practices: Prefer quantifiers over manual loops / filter+count for boolean queries. Be aware of empty-list semantics: combine with count check if business requires non-empty. Use parentheses for clarity in complex satisfies expressions."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. overcomplicated."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-list-expressions/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q24",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 24 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 19.7 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

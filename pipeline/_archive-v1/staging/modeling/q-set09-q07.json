@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q07",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A BPMN has an Intermediate Throw Message Event firing message \"OrderShipped\" to notify downstream systems, and elsewhere an Intermediate Catch Message Event waiting for \"PaymentReceived\". The team is confused by the throw/catch distinction.",
+  "question": "What's the distinction between Intermediate Throw and Intermediate Catch Message Events?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Both Intermediate Throw and Intermediate Catch Message Events fire messages outward to other participants or systems -- they are both active, outbound event types that publish messages into the BPMN collaboration channel. These two events have precisely opposite semantics. The Throw event is active and outbound, publishing a message and continuing flow immediately. The Catch event is passive and inbound, pausing flow while waiting for a message to arrive with a matching correlation key."
+    },
+    {
+      "id": "b",
+      "text": "Both Intermediate Throw and Intermediate Catch Message Events wait for incoming messages before continuing -- they are both passive, inbound blocking events that pause the flow token until a correlating message arrives. Only the Catch event waits for incoming messages. The Throw event is active and publishes a message outward, then immediately continues flow without waiting for any response or acknowledgment from any receiver."
+    },
+    {
+      "id": "c",
+      "text": "Intermediate Throw and Intermediate Catch Message Events are functionally identical in Camunda 8 -- they both process messages in the same way and the difference is only a visual convention in the diagram. They are functionally distinct with opposite execution semantics. Throw events actively publish messages and continue flow; Catch events passively wait for messages and block flow. Confusing them leads to broken process designs with stuck tokens or missed events."
+    },
+    {
+      "id": "d",
+      "text": "Intermediate Throw Message Event (filled envelope marker) -- fires (publishes) a message at this point in the flow and continues immediately. Outbound. Intermediate Catch Message Event (empty envelope outline) -- waits at this point for a matching message to arrive using a correlation key matched against active subscriptions. Inbound, blocking. Visual cue: filled marker = throw (active, outbound), empty marker = catch (passive, inbound)."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The throw/catch distinction is fundamental in BPMN's event model: Throw (active, outbound, filled marker): \"I'm firing this event.\" Fires the event into the engine, continues flow immediately. Examples: Message Throw fires a message (often via a Connector); Error Throw signals an error; Signal Throw broadcasts. Catch (passive, inbound, empty marker): \"I'm waiting for this event.\" Pauses flow until a matching event arrives. Examples: Message Catch waits for a published message (correlation-key-matched); Signal Catch waits for a broadcast Signal; Error Catch (in Event Subprocess) waits for an error to bubble up. For Messages specifically: Throw publishes (often integrated with a Connector for the actual external delivery); Catch creates a subscription waiting for matching message arrival."
+    },
+    "b": {
+      "text": "Incorrect. Opposite semantics."
+    },
+    "c": {
+      "text": "Incorrect. Only Catch waits."
+    },
+    "d": {
+      "text": "Correct. Functionally distinct."
+    }
+  },
+  "explanation": "Functionally distinct.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q07",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team uses Timer Cycle R5/PT1H for a Boundary on a User Task -- wants 5 reminders every hour, non-interrupting. They wonder how this differs from a single-shot Timer Duration PT1H.",
+  "question": "Cycle vs Duration in Timer Boundaries: key differences?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Timer Cycle R5/PT1H and Timer Duration PT1H behave identically -- this conflates two fundamentally different timer types. A Cycle timer fires repeatedly at the configured interval up to the specified repetition count, enabling recurring boundary events like reminders. A Duration timer fires exactly once after the elapsed period. R5/PT1H fires five times, once per hour, while PT1H fires once after one hour. Choosing incorrectly means either too many firings or a missed recurrence."
+    },
+    {
+      "id": "b",
+      "text": "Cycle timers can only be used on Timer Start Events and are unavailable on Timer Boundary Events -- this understates the placement options for Cycle timers. Timer Boundary Events on User Tasks support all three timer types: Date, Duration, and Cycle. A non-interrupting Timer Boundary with a Cycle timer is the canonical pattern for recurring reminders, where the boundary fires repeatedly without cancelling the host User Task. Start Events also support Cycle for periodic process instantiation."
+    },
+    {
+      "id": "c",
+      "text": "Cycle vs Duration timer types have distinct semantics: Cycle (R[n]/[interval]) fires repeatedly at the specified interval up to n times -- R5/PT1H fires 5 times, one hour apart. Duration (PT[n]H) fires exactly once after the elapsed period. For deadline timeouts, Duration (interrupting) is appropriate. These two types cannot be substituted for each other when recurrence is the requirement."
+    },
+    {
+      "id": "d",
+      "text": "Duration type PT1H is semantically equivalent to Cycle type R1/PT1H -- while a single-repetition Cycle and a Duration produce one firing each, they are distinct timer types with different semantic intent. \" Using the explicit Duration type for single-shot timers is clearer for readers and modellers than using a single-repetition Cycle notation."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Cycle and Duration are distinct Timer types: Cycle (R[n]/[interval] or R/[interval] unbounded): Fires repeatedly at the specified interval. R5/PT1H: 5 fires total, 1 hour apart. R/PT1H: unbounded -- fires every hour indefinitely. Each fire either continues the host (non-interrupting) or cancels (interrupting; first fire only, since subsequent fires can't occur on a cancelled host). Common use: recurring reminders on User Tasks (non-interrupting). Duration (PT[n]H / P[n]D etc.): Fires once after the specified duration. Single-shot. Common use: deadlines / timeouts. Date (``): Fires once at the specified absolute moment. Single-shot. Common use: specific moment / launch / scheduled event. Choose based on: One-time fire → Duration or Date. Recurring → Cycle. Non-interrupting recurrence: Cycle + non-interrupting boundary; classic pattern for \"remind every X without cancelling task.\" Interrupting single timeout: Duration + interrupting boundary."
+    },
+    "b": {
+      "text": "Incorrect. Distinct."
+    },
+    "c": {
+      "text": "Correct. Cycle on Boundaries too."
+    },
+    "d": {
+      "text": "Incorrect. Semantic difference; Duration explicit."
+    }
+  },
+  "explanation": "Cycle on Boundaries too.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q20",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

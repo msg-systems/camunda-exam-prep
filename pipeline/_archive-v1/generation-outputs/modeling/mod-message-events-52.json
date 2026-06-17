@@ -1,0 +1,27 @@
+{
+  "id": "mod-message-events-52",
+  "topic": "modeling",
+  "subtopic": "message-events",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Stellar Bank ingests 3000 transactions per hour in Camunda 8.8 with a message start event keyed by accountId, and the architects must decide what happens when a second transaction message arrives for an accountId that already drives an active instance, given that the new message is published with a time-to-live of 600 seconds.",
+  "question": "What does Zeebe do with the new message when an instance triggered by the same correlationKey is still active?",
+  "options": [
+    { "id": "a", "text": "Zeebe correlates the new message immediately and starts a second concurrent process instance alongside the active one" },
+    { "id": "b", "text": "Zeebe correlates the new message only after the BPMN process ID version has been incremented by redeploying the model" },
+    { "id": "c", "text": "Zeebe discards the new message at once without buffering even when its time-to-live exceeds zero on the publish call" },
+    { "id": "d", "text": "Zeebe does not correlate the new message and buffers it until the active instance completes when its time-to-live exceeds zero" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The message start events section states that when an instance triggered by the same correlationKey is active, the message is not correlated and no new instance is created, so a second concurrent instance is not started." },
+    "b": { "text": "Incorrect. Redeploying a new process version does not change how an in-flight correlationKey collision is handled; the buffering rule depends on the message time-to-live, not on the process version." },
+    "c": { "text": "Incorrect. The documentation explicitly states that the message is buffered when its time-to-live is greater than zero, so discarding it at once contradicts the documented behaviour." },
+    "d": { "text": "Correct. The message start events section says the new message is not correlated and is buffered when time-to-live exceeds zero; once the active instance ends, the buffered message starts a new instance of the latest version." }
+  },
+  "explanation": "On a correlationKey collision the engine suppresses correlation for the new message and buffers it if time-to-live is greater than zero, then correlates the buffered message once the active instance completes or terminates.",
+  "docs": [
+    { "title": "BPMN message events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/" }
+  ]
+}

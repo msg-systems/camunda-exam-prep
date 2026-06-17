@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A retail process sends Slack notifications for high-value orders. The team adds a Slack Outbound Connector to a Service Task. They're configuring authentication -- Slack offers several mechanisms.",
+  "question": "Which authentication methods does the Slack Outbound Connector typically support?",
+  "options": [
+    {
+      "id": "a",
+      "text": "0-based application tokens. ) through the app installation flow. Attempting to use username/password in the Slack Outbound Connector's authentication field would fail at runtime since Slack's API no longer accepts this authentication mode."
+    },
+    {
+      "id": "b",
+      "text": "SLACK_OAUTH_TOKEN}} placeholder). The token's scope (Bot vs User) is governed by the Slack app installation, not by the connector."
+    },
+    {
+      "id": "c",
+      "text": "Anonymous access -- sending messages to Slack without any authentication credentials by relying on Slack's public message endpoint. Slack's API does not support anonymous access for any message-posting operation. Every API call that writes to Slack (posting to channels, sending direct messages, uploading files) requires a valid OAuth token with appropriate permission scopes. Even read-only public channel operations require authentication on modern Slack API tiers. The Slack Outbound Connector always requires an OAuth token stored as a Camunda cluster secret."
+    },
+    {
+      "id": "d",
+      "text": "md:37); Incoming Webhook URLs are a different Slack feature (one way posting endpoints) and are NOT a documented outbound connector auth mode. )"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Slack's outbound-connector auth in Camunda 8 uses an OAuth token issued by an installed Slack app. The token (Bot or User scope, depending on the Slack-app config) is referenced from cluster secrets via {{secrets.SLACK_OAUTH_TOKEN}} (per slack.md:37). Both Bot and User OAuth tokens fit the same Authentication property -- only the Slack-side permission scope differs."
+    },
+    "b": {
+      "text": "Correct. Slack removed password-based API access for security."
+    },
+    "c": {
+      "text": "Incorrect. Slack APIs require auth."
+    },
+    "d": {
+      "text": "Incorrect. Slack Incoming Webhook URLs are not exposed by the Camunda outbound Slack connector's Authentication property (the doc lists OAuth token only on slack.md:37). Don't conflate with Camunda's inbound webhook URLs."
+    }
+  },
+  "explanation": "Slack removed password-based API access for security.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/slack/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q33",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

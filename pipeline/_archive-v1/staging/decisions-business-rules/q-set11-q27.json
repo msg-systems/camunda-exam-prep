@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q27",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A BPMN Business Rule Task invokes a DMN. The DMN evaluation throws an error -- e.g., FEEL expression error in an output entry, type mismatch, no-match with UNIQUE policy.",
+  "question": "How does a DMN evaluation error propagate to the BPMN?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The error surfaces as a BPMN Incident on the Business Rule Task. Ops sees the incident in Operate with details (which DMN, which rule / entry erred, error message). The instance pauses at the task awaiting resolution. Options to resolve: 1. Fix the underlying issue (DMN logic, data, or coverage); resolve the incident → re-evaluate. 2. Update process variables (if data issue); resolve incident → re-evaluate. 3. Modify the instance to skip the Business Rule Task."
+    },
+    {
+      "id": "b",
+      "text": "The process instance automatically cancels itself when a DMN evaluation error occurs at a Business Rule Task -- this misrepresents how Zeebe handles evaluation failures. Rather than auto-cancelling, the engine pauses the process instance at the failing task and creates an Incident visible in Operate. This preserves the instance for operational intervention, allowing ops to fix the underlying cause (data issue or DMN logic) and resolve the Incident to resume execution without losing process state."
+    },
+    {
+      "id": "c",
+      "text": "DMN evaluation errors are silently swallowed and the Business Rule Task returns a null result -- this mischaracterises Zeebe's error surfacing behaviour. DMN errors are not silently swallowed; they surface as visible Incidents on the Business Rule Task in Operate with detailed error messages describing which evaluation step failed. Silent null returns would mask critical decision logic failures from operators, so Zeebe surfaces them explicitly for intervention."
+    },
+    {
+      "id": "d",
+      "text": "The Business Rule Task converts DMN evaluation errors into BPMN Error events that trigger Error Boundary Events -- while some DMN-side patterns may translate to BPMN Errors in specific configurations, typical DMN evaluation errors (no matching rule, type mismatch, FEEL expression failure) become Incidents rather than BPMN Error events. BPMN Error event propagation requires explicit error-throwing code rather than being an automatic side-effect of DMN evaluation failure."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. DMN evaluation errors at a Business Rule Task surface as BPMN Incidents: The Business Rule Task pauses (it didn't complete successfully). An Incident appears in Operate, attached to the task instance. Incident details include: error message, DMN involved, which evaluation step failed. Typical error causes: No-match with strict policy (UNIQUE / FIRST / PRIORITY with no rule matching, no default output): \"no matching rule.\" FEEL evaluation error in an output entry: type mismatch, division by zero, etc. Multi-match with UNIQUE: violates single-match contract. Type mismatch between input value and column type. Resolution path: Fix the data: update the variable causing the issue; resolve incident → re-evaluate. Fix the DMN: deploy a fixed DMN (catch-all rule, default output, type-safe expressions); for running instances, the running evaluation uses the originally-deployed DMN; mitigate via \"modify instance\" or wait for next instance. Skip the task: modify the instance to bypass the Business Rule Task -- only when the decision is dispensable for this specific instance. Best practice prevention: Design with coverage: catch-all rule + default output for UNIQUE / FIRST / PRIORITY. Validate input ranges: ensure callers pass values within input column expectations. Test DMN extensively before production: edge cases, no-match scenarios."
+    },
+    "b": {
+      "text": "Incorrect. Incident."
+    },
+    "c": {
+      "text": "Incorrect. Surfaces as incident."
+    },
+    "d": {
+      "text": "Incorrect. Some scenarios; typical is Incident."
+    }
+  },
+  "explanation": "DMN evaluation errors at a Business Rule Task surface as BPMN Incidents: The Business Rule Task pauses (it didn't complete successfully). An Incident appears in Operate, attached to the task instance. Incident details include: error message, DMN involved, which evaluation step failed. Typical error causes: No-match with strict policy (UNIQUE / FIRST / PRIORITY with no rule matching, no default output): \"no matching rule.\" FEEL evaluation error in an output entry: type mismatch, division by zero, etc. Multi-match with UNIQUE: violates single-match contract. Type mismatch between input value and column type. Resolution path: Fix the data: update the variable causing the issue; resolve incident → re-evaluate. Fix the DMN: deploy a fixed DMN (catch-all rule, default output, type-safe expressions); for running instances, the running evaluation uses the originally-deployed DMN; mitigate via \"modify instance\" or wait for next instance. Skip the task: modify the instance to bypass the Business Rule Task -- only when the decision is dispensable for this specific instance. Best practice prevention: Design with coverage: catch-all rule + default output for UNIQUE / FIRST / PRIORITY. Validate input ranges: ensure callers pass values within input column expectations. Test DMN extensively before production: edge cases, no-match scenarios.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q27",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

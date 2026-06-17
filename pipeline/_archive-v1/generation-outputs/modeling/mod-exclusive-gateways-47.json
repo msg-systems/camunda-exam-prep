@@ -1,0 +1,27 @@
+{
+  "id": "mod-exclusive-gateways-47",
+  "topic": "modeling",
+  "subtopic": "gateways",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Apex Retail routes 25000 orders per day through Camunda 8.8. An exclusive gateway directs each order to a domestic or express handler based on conditionExpressions. During a configuration change, both outgoing conditionExpressions evaluate to false for some orders and no default flow is configured on that gateway.",
+  "question": "What does the engine do at the exclusive gateway when none of the outgoing conditionExpressions evaluate to true and no default flow is defined?",
+  "options": [
+    { "id": "a", "text": "The exclusive gateway forks the unsatisfied flows into a single concurrent token that continues into the next downstream activity." },
+    { "id": "b", "text": "The process instance proceeds along the first outgoing sequence flow defined in the BPMN XML, ignoring the unsatisfied conditions." },
+    { "id": "c", "text": "The process instance ends silently at the exclusive gateway and the parent scope completes without an error indication for the operator." },
+    { "id": "d", "text": "An incident is created at the exclusive gateway because no outgoing sequence flow can be taken and no default flow exists to absorb the token." }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. An exclusive gateway selects exactly one outgoing flow when entered; it never forks tokens onto multiple branches, which is the role of an inclusive or parallel gateway." },
+    "b": { "text": "Incorrect. The engine selects the first flow whose conditionExpression is fulfilled, not simply the first flow in XML order; with all conditions false there is no flow to take and no fall-through behaviour." },
+    "c": { "text": "Incorrect. The engine does not silently end the process at a stuck exclusive gateway; the documented behaviour is to raise an incident so the situation can be investigated and resolved." },
+    "d": { "text": "Correct. The documentation states that when no conditionExpression is fulfilled and the gateway has no default flow, the engine creates an incident at the exclusive gateway because no outgoing path can be taken." }
+  },
+  "explanation": "Exclusive gateways select the first outgoing flow whose conditionExpression is fulfilled, falling back to the default flow when no condition matches. If there is no default flow and no condition is fulfilled, the engine raises an incident at the gateway.",
+  "docs": [
+    { "title": "BPMN exclusive gateway", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/exclusive-gateways/" }
+  ]
+}

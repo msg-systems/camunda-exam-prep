@@ -1,0 +1,50 @@
+{
+  "id": "ext-properties-reference-39",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A Spring Boot worker publishes a message to Camunda without setting a TTL on the publish command and without overriding any `camunda.client.*` property. How long does the message remain buffered, per the starter defaults?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`PT1H` — the default of `camunda.client.message-time-to-live`."
+    },
+    {
+      "id": "b",
+      "text": "`PT10S` — the default of `camunda.client.request-timeout`."
+    },
+    {
+      "id": "c",
+      "text": "`PT5M` — the default job timeout."
+    },
+    {
+      "id": "d",
+      "text": "Indefinitely, until a process instance correlates with it."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The properties reference lists `camunda.client.message-time-to-live` with a default value of `PT1H`, which is the default TTL used when no value is supplied on the publish command."
+    },
+    "b": {
+      "text": "`PT10S` is the default `camunda.client.request-timeout` — the gRPC/REST request timeout, not the message TTL."
+    },
+    "c": {
+      "text": "`PT5M` is the default job-worker `timeout` (`camunda.client.worker.defaults.timeout`), unrelated to message TTL."
+    },
+    "d": {
+      "text": "Messages do not buffer indefinitely; without an explicit TTL the starter applies `camunda.client.message-time-to-live`, which defaults to `PT1H`."
+    }
+  },
+  "explanation": "The Spring Boot starter property `camunda.client.message-time-to-live` provides the default TTL for messages published without an explicit value, and its default is `PT1H`. The request timeout (`PT10S`) and the worker timeout (`PT5M`) are different concerns.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot starter properties reference",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/properties-reference/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q32",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "After a User Task completes, the team wants to show the same Form in read-only mode later (e.g., in a \"view past tasks\" dashboard) -- display the values without allowing edits.",
+  "question": "How can a completed task's Form be shown read-only?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The form-js library, which underlies all Camunda Form rendering, provides a readOnly: true initialization option that renders the form with all fields in a non-editable display mode. This option is specifically designed for viewing completed task data, auditing past submissions, or showing reference information to downstream process participants. Custom dashboards can embed form-js, load the original form schema alongside the completed task's variable data, set readOnly: true, and render a full visual representation of the submitted form without any editing capability."
+    },
+    {
+      "id": "b",
+      "text": "Modifying the form schema to disable all individual fields is technically possible but creates a maintenance burden. Teams must maintain two parallel versions of the same form schema: one with editable fields for task completion and one with all fields disabled for read-only viewing. Any changes to the form's structure require updates in both schemas. The form-js readOnly: true rendering option achieves the same read-only effect using a single schema, eliminating the need for a separate disabled-fields version and reducing the risk of the two schemas drifting apart over time."
+    },
+    {
+      "id": "c",
+      "text": "The form-js library, which underlies all Camunda Form rendering, provides a readOnly: true initialization option that renders the entire form in a non-editable display mode. Custom dashboards can embed form-js, load the original form schema together with the completed task's variable data, and set readOnly: true to render a full visual representation of the submitted form without allowing any editing. This approach is specifically designed for viewing completed task data, auditing past submissions, or displaying form results to downstream participants. The same form schema used for task completion is reused for read-only display, eliminating any need to maintain a separate schema."
+    },
+    {
+      "id": "d",
+      "text": "Claiming there is no way to view completed task forms after submission does not reflect the actual behavior. Completed task variable data is retained and accessible via the Operate API and Tasklist history APIs. By fetching this data alongside the original form schema, a custom dashboard can render the form in read-only mode using form-js with readOnly: true. Additionally, the Operate platform's decision and process history views provide some inspection capability. Teams building audit trail or reference dashboard features can fully reconstruct the visual representation of a submitted form using the combination of stored variable data and the original form schema."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. form-js supports a readOnly mode for rendering forms without editing: Implementation: `javascript import { FormViewer } from '@bpmn-io/form-js-viewer'; const formViewer = new FormViewer({ schema: originalFormSchema, data: completedTaskVariables, readOnly: true }); formViewer.render(targetElement); Custom dashboard workflow: 1. Fetch completed task's variables (from Operate API or Tasklist history). 2. Fetch the original Form schema (associated with the task's form ID). 3. Render form-js with readOnly: true` + the variables. 4. User sees the form's structure + the values they / others submitted; can't edit. Use cases: Audit trail: review past task completions. Reference: customer service viewing past customer interactions. Compliance: read-only access to historical decisions. Tasklist's built-in completed-task UI: Verify per Tasklist version what it shows for completed tasks. May provide some readonly view; custom embedding gives full control. Alternatives: Plain HTML rendering of variables: simpler but loses form's visual structure. PDF generation: render to PDF at completion; archive PDF; show later."
+    },
+    "b": {
+      "text": "Incorrect. Supported."
+    },
+    "c": {
+      "text": "Correct. Option d) -- Wrong. Achievable."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option d) -- Wrong. Achievable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q32",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q16",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An IDP Application extracts data from invoices. Each extracted field comes with a confidence score (0.0 to 1.0). The team wants a downstream gateway to route to human review if ANY field has confidence below 0.85, otherwise continue automated processing.",
+  "question": "Which BPMN routing approach fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Configure the IDP Application itself to automatically route to human review when any extracted field falls below the confidence threshold -- IDP does not provide a built-in routing decision knob of this kind. IDP is responsible for document extraction and confidence scoring; it produces results and scores but does not orchestrate the downstream business process flow. Routing logic -- including confidence threshold checks -- belongs in the BPMN model using gateway conditions. Embedding routing decisions inside IDP would tightly couple the extraction tool to business rules and make process changes harder."
+    },
+    {
+      "id": "b",
+      "text": "Set a global minConfidence threshold attribute on the IDP Application configuration, so IDP automatically fails or reroutes when any field falls below that threshold. While IDP may surface per-field confidence scores, a single global threshold attribute that auto-fails the extraction is not the design pattern. 80), and the threshold logic belongs in the BPMN gateway conditions where it can be business-rule-driven and separately maintainable."
+    },
+    {
+      "id": "c",
+      "text": "85 for the automated branch (true = all high confidence), default flow → human review. 85 true → human review. md:22 (\"Receive confidence scores for each extracted value\")."
+    },
+    {
+      "id": "d",
+      "text": "FEEL expressions cannot check per-field confidence values -- there is no FEEL syntax capable of iterating over a collection of fields and checking a property like confidence score on each one. This claim is inaccurate. FEEL includes powerful quantified expressions: the every quantifier checks whether a predicate holds for all items in a collection, and the some quantifier checks whether it holds for at least one item. Applied to a list of extracted fields, these quantifiers directly express the \"any field below threshold\" requirement without custom code or external routing tools."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. IDP exposes extracted fields with per-field confidence in the result. FEEL's every (universal quantifier) and some (existential quantifier) operate on lists/collections. For the \"any field below threshold → human review\" requirement, the natural expression is either every confidence >= threshold (for the all-good path) or some confidence < threshold (for the needs-review path). Use one or the other on the Exclusive Gateway's outgoing arrows."
+    },
+    "b": {
+      "text": "Incorrect. IDP's job is extraction, not orchestration. Routing decisions belong in BPMN. (Some IDP integrations may bundle simple rules, but the canonical separation is: IDP extracts, BPMN routes.)"
+    },
+    "c": {
+      "text": "Correct. Even if you could set a global confidence threshold in IDP, the team often wants different thresholds per field (vendorName requires 0.9, invoiceDate requires 0.85). BPMN-level routing is more flexible."
+    },
+    "d": {
+      "text": "Incorrect. FEEL's quantifiers (every, some, any) work over lists."
+    }
+  },
+  "explanation": "Even if you could set a global confidence threshold in IDP, the team often wants different thresholds per field (vendorName requires 0.9, invoiceDate requires 0.85). BPMN-level routing is more flexible.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-list-expressions/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q16",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

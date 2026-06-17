@@ -1,0 +1,50 @@
+{
+  "id": "con-http-webhook-21",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "NovaPay, a fintech receiving 15000 requests per hour on an HTTP webhook from a payment partner on Camunda 8.8, configures an HMAC-protected inbound webhook. The partner sends GET requests to a URL like https://example.com/webhook?id=123456&name=John%20Doe and signs them using HMAC scopes URL and PARAMETERS, expecting the signature data to be derived from the URL plus the query parameters.",
+  "question": "Which HMAC strategy does the HTTP Webhook connector apply for this GET request with scopes URL and PARAMETERS?",
+  "options": [
+    {
+      "id": "a",
+      "text": "URL and Parameters Encoding Strategy, where the query parameters are sorted alphabetically and concatenated with the URL to build the signature data used to compute the HMAC signature with the secret key and hash algorithm"
+    },
+    {
+      "id": "b",
+      "text": "Body Encoding Strategy, applied as the default whenever the HTTP method is GET, with the signature data computed from an empty request body since GET requests do not carry a body payload"
+    },
+    {
+      "id": "c",
+      "text": "URL and Body Encoding Strategy, where the URL is concatenated with the raw JSON body even for GET requests, ensuring a uniform signature data shape across all HTTP method types used by the partner"
+    },
+    {
+      "id": "d",
+      "text": "Path-only Encoding Strategy, where only the URL path component is hashed without query parameters because PARAMETERS is treated as an authorization hint rather than as a signature scope by the connector"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The HTTP Webhook docs state that when HMAC scopes include URL and PARAMETERS and the HTTP method is GET, the URL and Parameters Encoding Strategy is used: query parameters are URL-encoded, sorted alphabetically, concatenated with the URL, and the resulting Signature Data is used with the secret key and hash algorithm."
+    },
+    "b": {
+      "text": "Incorrect. Body Encoding Strategy is selected when scopes are only BODY or empty, not when URL and PARAMETERS are set, and GET does not force a Body Encoding default."
+    },
+    "c": {
+      "text": "Incorrect. The URL and Body Encoding Strategy specifically falls back to URL and Parameters Encoding when the HTTP method is GET; it does not concatenate URL with body for GET."
+    },
+    "d": {
+      "text": "Incorrect. There is no Path-only Encoding Strategy in the docs; PARAMETERS is a first-class HMAC scope that contributes the query string to the signature data."
+    }
+  },
+  "explanation": "The HTTP Webhook connector picks an HMAC strategy from the configured scopes and the HTTP method. Scopes BODY or empty trigger Body Encoding. URL and PARAMETERS on a GET trigger URL and Parameters Encoding, where sorted query parameters are concatenated with the URL. URL and BODY trigger URL and Body Encoding, except on GET which falls back to URL and Parameters.",
+  "docs": [
+    {
+      "title": "HTTP Webhook connector - Make your HTTP Webhook connector executable",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ]
+}

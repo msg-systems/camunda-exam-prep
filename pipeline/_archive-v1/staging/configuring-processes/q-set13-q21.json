@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Embedded Subprocess creates a local variable tempData via Input Mapping. Another inner Service Task references it. The team wonders if the second task can read tempData.",
+  "question": "Are local variables created in a subprocess scope visible to its inner activities?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Variables created by subprocess Input Mapping are not visible to inner activities and remain isolated to the subprocess scope boundary -- wrong; scope inheritance works in the inward direction. Inner activities can read variables from all ancestor scopes including the subprocess scope where Input Mapping created the variables. The subprocess Input Mapping creates variables in the subprocess scope, which is the parent scope for all inner activities. When an inner Service Task needs a variable, Zeebe walks up the scope hierarchy from innermost to outermost, finding the variable at the subprocess scope level. Visibility flows inward, not outward."
+    },
+    {
+      "id": "b",
+      "text": "Yes -- local variables created at the subprocess scope are visible to inner activities within that subprocess. The scope hierarchy: subprocess scope → inner activities. Variables created in the outer scope (subprocess Input Mapping, or process root) are visible to descendants. The reverse isn't true: variables created strictly inside one inner activity (local to that task only) aren't visible to siblings unless propagated up."
+    },
+    {
+      "id": "c",
+      "text": "Variables created at the subprocess scope are visible only to the first inner activity and become inaccessible to subsequent inner tasks -- wrong; all inner activities within the subprocess can read variables at the subprocess scope throughout the subprocess's lifetime. Scope visibility is not consumed or used-up by the first activity that accesses it. The subprocess scope persists for all inner activities from when the subprocess starts until it ends. Each inner task can independently read the same subprocess-scope variables without any ordering restrictions or limitations based on execution sequence within the subprocess."
+    },
+    {
+      "id": "d",
+      "text": "Embedded Subprocesses have no ability to create local variables and everything goes to the process root scope -- wrong; subprocess Input Mapping explicitly creates variables at the subprocess scope level, not the root scope. This is the entire purpose of subprocess-scoped variables: to create temporary or intermediate variables that are relevant only within the subprocess context. After the subprocess completes, its scope-level variables are not automatically propagated to the parent scope unless Output Mapping explicitly maps them outward. This scoping mechanism enables clean isolation of intermediate computation state."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Variable scope hierarchy in Camunda 8: Scope levels (outermost to innermost): 1. Process root: variables visible everywhere. 2. Subprocess scope: variables visible to all inner activities of this subprocess. 3. Activity-local scope (e.g., Input Mapping on a Service Task): visible only to that activity. Visibility rule: inner can read outer. Inner activity reads: own scope → enclosing subprocess scope → process root → ... up the chain. First match wins (shadowing: if inner has same name, it shadows outer). Visibility rule: outer cannot read inner (without propagation). Outer scope doesn't see inner activity's locals unless they're propagated via Output Mapping (writing to outer scope). For the scenario: Subprocess Input Mapping creates tempData at the subprocess scope. Inner Service Tasks: can read tempData (visible via scope inheritance). Can each inner task modify tempData? Yes, via their own Output Mapping back to subprocess scope (where the variable lives). Practical pattern: Set common context at subprocess scope: variables computed once at subprocess Input Mapping, used by multiple inner activities. DRY. Per-activity locals: each inner task has its own Input Mapping for activity-specific variables; these stay local. Use scopes to control visibility -- outer for shared context, inner for activity-specific."
+    },
+    "b": {
+      "text": "Correct. Visible via inheritance."
+    },
+    "c": {
+      "text": "Incorrect. All inner."
+    },
+    "d": {
+      "text": "Incorrect. Incorrect."
+    }
+  },
+  "explanation": "Visible via inheritance.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/#variable-scopes"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q21",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

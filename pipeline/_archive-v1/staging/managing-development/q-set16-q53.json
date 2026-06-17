@@ -1,0 +1,56 @@
+{
+  "id": "imp-set16-q53",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Audit requires \"who deployed process X version 5 on date Y.\" Team wonders deployment history.",
+  "question": "Deployment history / audit?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 retains complete deployment history with metadata for each deployment event. Each deployment records: timestamp (when it occurred), deployer identity (which user or API client triggered it), deployed resources (BPMN, DMN, Form file names), and the resulting version number per resource. This history is accessible through Operate's deployments view, the Operate REST API, and Console. For Self-Managed, audit log retention must be configured according to compliance requirements. For SaaS, Camunda manages audit trail storage. \""
+    },
+    {
+      "id": "b",
+      "text": "Deployment metadata typically tracked: each deployment to a Camunda 8 cluster records the timestamp, the deploying identity (user or API client), the deployed resources (BPMN files, DMN files, Forms), and the resulting version numbers per resource. This information is accessible through Operate's deployments view, the Operate REST API for programmatic queries, and Console for SaaS clusters. For audit purposes like \"who deployed process X version 5 on date Y,\" teams can query the deployment records to identify the exact deployment event, its timestamp, and the authenticated identity. For Self-Managed, configure audit log retention to meet compliance requirements."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 retains deployment history for all versions of deployed resources, not only the latest. Each deployment creates a new version of the BPMN, DMN, or Form resource, and all previous versions remain queryable. Process instances running on version 3 continue to run on that version even after version 5 is deployed. Operate's deployment view shows all past deployments with their timestamps and resources. This version history is essential for understanding which version was active for a given process instance and for audit trail purposes."
+    },
+    {
+      "id": "d",
+      "text": "Manual logging -- this is only partially workable as a supplementary practice. While maintaining a CHANGELOG or deployment log in Git or a wiki is good practice, relying solely on manual records is error-prone: teams may forget to update the log, manual entries may lack precision (exact timestamp, exact deployer identity), and they cannot be correlated programmatically with runtime data. Camunda's built-in deployment tracking provides authoritative, system-recorded data. Manual logs supplement (documenting business rationale for a deployment) but should not replace the platform's own audit trail."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Deployment audit: Tracked information: Per deployment: Timestamp: when deployed. Identity: user / client ID. Resources: BPMN / DMN / Forms. Versions: per resource. Source: Web Modeler / API / CLI. Operate visibility: Deployments view (verify per version): List of deployments. Per deployment: resources + versions. Filter by date, deployer. Orchestration Cluster REST API (8.8 canonical per apis-tools/orchestration-cluster-api-rest/specifications/search-process-definitions.api.mdx:32-36 and get-process-definition.api.mdx): ` POST /process-definitions/search GET /process-definitions/{processDefinitionKey} GET /process-definitions/{processDefinitionKey}/xml Returns metadata including deployment time. Legacy GET /v1/process-definitions (Operate v1 API) is deprecated in favor of the V2 Orchestration Cluster endpoints. For \"who\" information: Auth context: user / client ID at deploy time. Logged: per deployment record. Operate may display: name from identity. For Self-Managed: Audit log: configured retention. Standard logs: timestamp + user. Integration: SIEM if regulated. For SaaS: Console operations log: deployments tracked. Audit per cluster. For compliance: Regulatory: SOX, HIPAA, etc.: change tracking. Retain audit: years per regulation. Audit fields: Timestamp (precise). User identity (immutable). Resource details (what changed). Source (where deployed from). For CI/CD deploys (per Set 14 Q56): Service account identity: shows as deployer. CI pipeline metadata: in logs. Trace to commit: link git SHA. For manual deploys (Web Modeler): User identity: from session. Visible in audit: who initiated. For programmatic deploys (zbctl, API): Client identity: OAuth client ID. Logged. Audit log retention: Configured: per Camunda 8 version. Self-Managed: typically ES retention. SaaS: per plan. Audit log access: Operators: standard access. Auditors: read-only access. Per-role permissions. For deployment rollback: Audit: who initiated rollback. What was rolled back: which versions. For deletion / cleanup: Audit: who deleted. What was deleted. For Web Modeler integration (per Set 13 Q57): File version history: who edited. Deployment history: who deployed. Combined: full chain. For 3rd-party audit tools: Camunda emit events: webhooks / Kafka. Audit tools subscribe: independent record. Compliance-grade: typically. For the scenario (who deployed X version 5): Approach: 1. Open Operate: deployments view. 2. Filter by process X version 5. 3. See deployment metadata: user, timestamp. Or via Orchestration Cluster REST API: POST /process-definitions/search Body: {\"filter\": {\"processDefinitionId\": \"X\", \"version\": 5}} ` Returns: process definition metadata (deploy key, version, resource name). For historic / archived data: Audit log: long-term. Cold storage if old. Best practices: Document deploy process: who can deploy. Service accounts for CI: not personal credentials. Periodic audit review: identify anomalies. Backup audit logs: per Set 14 Q55. Anti-patterns: Shared deploy credentials: lose identity. No retention: lose history. No external backup: single point of failure. For SOX / regulatory: Segregation of duties: developers don't deploy to prod. Approval workflows: deploys require sign-off. Audit immutable: write-once. For change management: Link deploy to ticket: e.g., Jira reference. CI metadata: build number, commit SHA."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q53",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

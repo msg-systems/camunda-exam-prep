@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Business Rule Task in a pricing process must invoke a deployed DMN decision with the ID discount-calculator and return the result into variable discountPct.",
+  "question": "Which configuration is correct?",
+  "options": [
+    {
+      "id": "a",
+      "text": "zeebe:taskDefinition with type equal to dmn-eval and passing the decision ID as a job header is a Camunda 7 reflex pattern where a custom DMN evaluation worker receives the job and evaluates the decision. No Job Worker is needed for standard DMN evaluation. This adds operational overhead with no benefit over the native binding."
+    },
+    {
+      "id": "b",
+      "text": "zeebe:calledDecision with decisionId set to discount-calculator and resultVariable set to discountPct is the canonical native DMN binding for Business Rule Tasks in Camunda 8. This Zeebe extension element specifies the decision to evaluate by its deployed decision ID. Zeebe evaluates the DMN decision inline â€” no separate Job Worker is needed. The result is stored in the named process variable. This is pure model-time configuration requiring no custom worker code for standard DMN decision evaluation."
+    },
+    {
+      "id": "c",
+      "text": "Call Activity invokes another deployed BPMN process definition, not a DMN decision. Call Activity is used for synchronously invoking reusable BPMN subprocesses with their own lifecycle. dmn files) accessed via Business Rule Task with zeebe:calledDecision binding. Using a Call Activity to invoke a DMN file would fail because DMN decisions are not BPMN process definitions and cannot be started as process instances by the Zeebe engine."
+    },
+    {
+      "id": "d",
+      "text": "Service Task with a FEEL invoke function is not a valid Camunda 8 construct. FEEL does not have an invoke() built-in function for calling deployed DMN decisions. DMN decisions are invoked from BPMN through Business Rule Tasks with the zeebe:calledDecision extension element, not through FEEL expressions in Service Tasks. An invented invoke() function would cause a FEEL evaluation error at runtime when the task activates and the expression fails to resolve against any known FEEL built-in functions. ###"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. zeebe:calledDecision extension on Business Rule Task is the canonical native binding. Specifies decisionId and resultVariable; Zeebe evaluates the DMN inline (no separate worker needed)."
+    },
+    "b": {
+      "text": "Correct. Service-Task-with-DMN-worker is C7 reflex; C8 has native binding."
+    },
+    "c": {
+      "text": "Incorrect. Call Activity invokes BPMN processes, not DMN decisions."
+    },
+    "d": {
+      "text": "Incorrect. No invoke() FEEL built-in."
+    }
+  },
+  "explanation": "Service-Task-with-DMN-worker is C7 reflex; C8 has native binding.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q13",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

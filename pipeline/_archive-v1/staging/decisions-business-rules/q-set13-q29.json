@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process is heavy-DMN -- invokes 50+ decisions per process instance for compliance checks. The team wonders if decision instances are retained for audit and how to query / clean up.",
+  "question": "Decision instance retention + audit query?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Decision invocations are not retained in Camunda 8 at all; each decision evaluation is stateless and leaves no persistent record that can be queried or audited later. This misrepresents the documented behavior. Camunda 8 records each decision invocation as a decision instance in Operate, capturing the evaluated inputs, matched rules, and outputs. Decision instances are queryable via the Operate UI and REST API. SaaS retention defaults to 30 days for Operate data; Self-Managed retention is configurable via Elasticsearch or OpenSearch index lifecycle management policies."
+    },
+    {
+      "id": "b",
+      "text": "Decision instances are recorded in Operate's secondary-storage / decision-instances data set for audit / replay. md:9-17): Operate = 30 days, Optimize = 180 days, Tasklist = 30 days, Zeebe = 7 days, Usage metrics = 730 days. Decision-instance data inherits Operate's 30-day default in SaaS. md. 8); programmatic search via Operate API for evaluation trace (inputs, matched rules, outputs). Cleanup: automatic per ILM policy on the secondary store (Elasticsearch/OpenSearch in SM); SaaS managed by Camunda Cloud. For heavy-DMN processes: monitor storage growth via Console/Operate metrics; for long-term regulatory audit (7+ years), pipeline decision-instance data to external warehouse (S3, data lake, BI tool) via Operate REST API export before retention purge -- engine retention is short-term by design."
+    },
+    {
+      "id": "c",
+      "text": "Decision instances are retained in Camunda 8 indefinitely with no automatic cleanup; storage grows unboundedly and must be manually managed by operators. This overstates retention. Camunda 8 has configurable retention policies. For SaaS, Operate data including decision instances is retained for 30 days by default. For Self-Managed deployments, retention is configured via the underlying secondary storage (Elasticsearch or OpenSearch) index lifecycle policies. Indefinite retention requires explicit configuration and storage planning, including allocation of sufficient disk resources for high-volume DMN workloads."
+    },
+    {
+      "id": "d",
+      "text": "Decision instance data can be queried using standard SQL against Camunda's embedded relational database, making it accessible to any SQL-capable reporting tool. This mischaracterizes the actual behavior. Decision instance data is stored in the secondary store (Elasticsearch or OpenSearch for Self-Managed, or Camunda-managed storage for SaaS). Querying is done via the Operate UI, the Operate REST API, or the Orchestration Cluster v2 API -- not through SQL. Reporting integrations require exporting data from the Operate API to an external tool."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Decision instance lifecycle in Camunda 8: Recording: Each decision invocation is recorded as a \"decision instance.\" Captured data: Decision ID + version invoked. Inputs at evaluation time. Outputs produced. Evaluation trace: which rules matched, intermediate outputs. Timestamp, parent process instance reference. Stored in Operate / dedicated decision data store. Retention: SaaS: retention policies per plan; defaults retain for a period (verify per plan tier). Self-Managed: configurable via Operate / Tasklist / data store config. Variable: ranges from days to indefinite based on config. Querying: Operate UI: decision-instances view; filter by decision, by process, by date range, by status. Operate REST API: programmatic queries; export to external systems. Direct database: for Self-Managed deployments, can query underlying store directly (but typically discouraged -- use APIs). For heavy-DMN processes: Storage growth: 50 decisions × thousands of process instances = large data volume. Tune retention: balance audit requirements with cost / performance. Archive strategy: export old instances to cheaper storage (S3, data warehouse) before purge. Sampling: if full retention is too expensive, sample instances for audit; full retention only for flagged / high-value processes. Audit requirements: Regulatory: financial / healthcare may require 7+ years retention. Engine retention is short-term: typically design for cold-storage archive for long-term audit. Pipeline: Camunda → S3 / data lake → BI / audit tools. Cleanup options: Automatic per retention policy. Manual via API for bulk operations (verify per Camunda 8 version's available APIs)."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. Partially correct."
+    },
+    "d": {
+      "text": "Incorrect. Partially correct."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/basic-operate-navigation/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q29",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

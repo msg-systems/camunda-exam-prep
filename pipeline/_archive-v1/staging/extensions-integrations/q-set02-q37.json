@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q37",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A scheduling process computes the next business day given an arbitrary date. The team needs to skip weekends -- given a Friday, return Monday; given a Saturday or Sunday, also return Monday. The team writes a FEEL expression but struggles with the date arithmetic.",
+  "question": "Which FEEL expression correctly computes \"next business day\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "if day of week(date) = \"Friday\" then date + duration(\"P3D\") else if day of week(date) in [\"Saturday\",\"Sunday\"] then date + duration(\"P3D\") - duration(\"P\" + string(day of week(date) = \"Saturday\" then 1 else 2) + \"D\") else date + duration(\"P1D\") -- inline conditional branching with explicit duration arithmetic for each weekday case. This verbose expression works mechanically: Friday gets +3 days to land on Monday, Saturday and Sunday also resolve to Monday via their respective adjustments, and all other weekdays get +1 day. However the nested string-concatenation inside the duration literal and the deeply-nested conditionals make the expression hard to read, audit, and maintain compared to the cleaner let-in decomposition."
+    },
+    {
+      "id": "b",
+      "text": "Decompose with helper FEEL: let dow = day of week(date), inc = if dow = \"Friday\" then 3 else if dow = \"Saturday\" then 2 else if dow = \"Sunday\" then 1 else 1 in date + duration(\"P\" + string(inc) + \"D\") -- the let-in expression binds intermediate values for readability. The variable dow captures day of week(date) once, and inc encodes the day-offset as a clean branching expression. The result computes the correct next business day for any input date by adding the right number of days as a FEEL ISO 8601 duration, without any external worker."
+    },
+    {
+      "id": "c",
+      "text": "Use the FEEL business day(date) built-in function, which returns the next business day from a given date by skipping weekends and public holidays according to the locale configured in the Camunda cluster, without requiring any custom branching logic. There is no business day() built-in function in the FEEL standard library or in Camunda 8's FEEL implementation. Business-day arithmetic must be expressed manually using day of week() and date addition with duration expressions."
+    },
+    {
+      "id": "d",
+      "text": "DayOfWeek and return the result as a process variable, treating the FEEL expression approach as impractical for calendar-aware date manipulation. FEEL handles date arithmetic natively through day of week(), duration() with ISO 8601 period syntax, and date addition. No Java Service Task is needed for this calculation -- a let-in FEEL expression handles it concisely."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Inline branching works but is hard to read and maintain. Same logic, worse form."
+    },
+    "b": {
+      "text": "Correct. FEEL's let-in expression provides a clean way to bind intermediate values for readability. day of week() returns the weekday as a string; we compute the day-increment based on weekday, then add a P{N}D duration. The expression is readable, FEEL-native, and doesn't need a worker."
+    },
+    "c": {
+      "text": "Incorrect. No business day() built-in in FEEL."
+    },
+    "d": {
+      "text": "Incorrect. FEEL handles this fine; worker is overkill."
+    }
+  },
+  "explanation": "FEEL's let-in expression provides a clean way to bind intermediate values for readability. day of week() returns the weekday as a string; we compute the day-increment based on weekday, then add a P{N}D duration. The expression is readable, FEEL-native, and doesn't need a worker.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-temporal/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q37",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

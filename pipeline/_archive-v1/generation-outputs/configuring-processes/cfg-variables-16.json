@@ -1,0 +1,27 @@
+{
+  "id": "cfg-variables-16",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Northstar Insurance defines a Camunda 8.8 service task with three sequential input mappings for an intake step that handles 12,000 claims per day. The second mapping's source expression references the target variable that the first mapping created, and the third mapping has no source provided at all in the ioMapping configuration of the element.",
+  "question": "Which behaviour does Camunda 8.8 produce for these three input mappings as configured?",
+  "options": [
+    { "id": "a", "text": "The engine evaluates the mappings in the defined order, lets the second source access the first target, and assigns null as the value of the third target because no source was supplied." },
+    { "id": "b", "text": "The engine evaluates the three mappings in parallel, so the second source sees the source state from before the first mapping ran, and the third mapping is skipped silently with no effect." },
+    { "id": "c", "text": "The engine evaluates the mappings in alphabetical order by target name, lets each later source see all earlier targets, and raises an incident on the third mapping because the source was omitted." },
+    { "id": "d", "text": "The engine evaluates the mappings in reverse order to optimise reuse, lets the second source see the third target's value, and assigns an empty string default to the third target variable." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The docs state mappings are evaluated in their defined order, that later source expressions can access earlier target variables, and that an omitted source resolves to null for the target." },
+    "b": { "text": "Incorrect. Mappings are evaluated sequentially in the defined order, not in parallel, and an omitted source maps the target to null rather than being skipped silently by the engine." },
+    "c": { "text": "Incorrect. The evaluation order is defined by the mapping order in the model, not by alphabetical target name, and a missing source resolves to null without raising any incident on the element." },
+    "d": { "text": "Incorrect. The engine evaluates mappings in their defined order rather than in reverse, and a missing source resolves to null, not to an empty string default for the target variable." }
+  },
+  "explanation": "Variable mappings consist of paired source and target expressions evaluated in the order declared in ioMapping. A later source can read a target created by an earlier mapping, and any unresolved source - including an omitted one - resolves to null for the corresponding target variable.",
+  "docs": [
+    { "title": "Variables", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+  ]
+}

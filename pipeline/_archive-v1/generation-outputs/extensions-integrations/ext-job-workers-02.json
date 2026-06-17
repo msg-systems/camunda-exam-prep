@@ -1,0 +1,27 @@
+{
+  "id": "ext-job-workers-02",
+  "topic": "extensions-integrations",
+  "subtopic": "Requesting jobs",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Logistics scales 6 workers for the ship-parcel job type in a Camunda 8.8 cluster that processes 9000 shipments per day. The platform engineer wants to stop the workers from sending empty activation requests every 100 ms when there is no work, and instead keep one request open until at least one job of the type arrives at the gateway.",
+  "question": "Which Zeebe activation parameter keeps a job request open until at least one job becomes available?",
+  "options": [
+    { "id": "a", "text": "Setting the Worker parameter on the activation request keeps the request open until at least one job of the requested type becomes available for activation in the cluster" },
+    { "id": "b", "text": "Setting the Timeout parameter on the activation request keeps the request open until at least one job of the requested type becomes available for activation in the cluster" },
+    { "id": "c", "text": "Setting the MaxJobsToActivate parameter on the activation request keeps the request open until at least one job of the requested type becomes available for activation in the cluster" },
+    { "id": "d", "text": "Setting the request-timeout parameter on the activation request keeps the request open until at least one job of the requested type becomes available for activation in the cluster" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The Worker parameter is the identifier of the worker used for auditing purposes and does not control long polling on activation requests in Camunda 8.8." },
+    "b": { "text": "Incorrect. Timeout is the duration a job is assigned to the worker before Zeebe may reassign it; it does not control whether the activation request waits for jobs." },
+    "c": { "text": "Incorrect. MaxJobsToActivate caps how many jobs a single activation request may return; it does not keep the request open while no jobs are available." },
+    "d": { "text": "Correct. Camunda 8.8 documents long polling for ActivateJobs as the request-timeout parameter, which keeps the activation request open until at least one job becomes available." }
+  },
+  "explanation": "Long polling in Zeebe is enabled via the request-timeout parameter on the ActivateJobs RPC. With long polling the activation request stays open while no jobs are available and completes when at least one job becomes available, reducing resource use compared to repeated empty polls.",
+  "docs": [
+    { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+  ]
+}

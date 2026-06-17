@@ -1,0 +1,25 @@
+{
+  "id": "con-use-connectors-07",
+  "topic": "connectors",
+  "subtopic": "use-connectors",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Helix Health, a healthcare provider running 700 calls per hour to a partner lab over outbound REST, configures the Error Expression field in a Camunda 8.8 connector's Error Handling section. The team wants to understand which return values from the FEEL expression are accepted so the BPMN error boundary event behaves predictably across thousands of daily connector invocations.",
+  "question": "Which return value from an Error Expression is documented as valid for the Error Handling section?",
+  "options": [
+    { "id": "a", "text": "Null, an empty context, or a context with at least a non-empty errorType and a non-empty code when the errorType value is bpmnError, as documented" },
+    { "id": "b", "text": "Any FEEL value (a string, a number, or a list), as long as the BPMN element has a matching errorCode attribute set on its boundary event element" },
+    { "id": "c", "text": "Only a context that contains errorType, errorMessage, retries, and retryBackoff because every Error Expression must produce a job-error structure to the runtime" },
+    { "id": "d", "text": "A throw of a ConnectorException directly from the FEEL expression so the connector runtime converts the Java exception into the matching BPMN boundary event" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The docs state that the Error Expression must yield a BPMN error object that is null, an empty context, or a context with at least a non-empty errorType and a non-empty code when the errorType is bpmnError; the runtime uses this shape to decide whether to raise a BPMN error." },
+    "b": { "text": "Incorrect. Arbitrary FEEL scalars (strings, numbers, lists) are not the documented shape; the expression must yield null, an empty context, or a structured BPMN error object with the required fields." },
+    "c": { "text": "Incorrect. errorType, errorMessage, retries, and retryBackoff describe the jobError context (a failing-job shape); the Error Expression accepts either bpmnError or jobError outcomes, so the jobError fields are not always mandatory." },
+    "d": { "text": "Incorrect. FEEL Error Expressions cannot throw Java exceptions; the documented helpers are the bpmnError and jobError FEEL functions, which return context values that the connector runtime interprets afterward." }
+  },
+  "explanation": "The Error Expression is a FEEL expression in the Error Handling section that must yield a BPMN error object. Allowed return values are null, an empty context, or a context containing at least a non-empty errorType and a non-empty code (when errorType is bpmnError). The bpmnError and jobError FEEL helpers construct these contexts.",
+  "docs": [ { "title": "How to use connectors", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/" } ]
+}

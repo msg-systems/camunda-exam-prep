@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q40",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Java application uses Spring Zeebe and hosts many workers handling many small jobs. The team observes underutilisation -- the workers seem to wait for jobs instead of running them concurrently. They want intra-JVM parallelism -- multiple threads handling jobs concurrently within one process.",
+  "question": "Which Spring Zeebe configuration tunes intra-JVM concurrency?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Camunda Spring Boot Starter is fundamentally single-threaded within a JVM, and achieving parallelism requires spawning multiple JVM processes or Docker containers, each running a separate Spring Boot instance. This claim is inaccurate. md), allowing multiple worker threads to process activated jobs concurrently within a single JVM. The default value of 1 thread creates the false impression of single-threaded-only operation, but increasing this value enables intra-JVM parallelism without requiring additional JVM instances."
+    },
+    {
+      "id": "b",
+      "text": "Spawn multiple JVM instances (Docker containers) to achieve parallelism, distributing the job workload across multiple separate processes -- each container subscribes to the same task types and receives an equal share of activated jobs from Zeebe. While horizontal scaling is a valid production strategy for handling high job volumes, it addresses a different concern than the question asks: intra-JVM parallelism means improving utilisation within a single running process. Multiple containers without intra-JVM tuning leave each container underutilised. Both strategies are complementary, but the question specifically targets the intra-JVM configuration."
+    },
+    {
+      "id": "c",
+      "text": "max jobs active (or per worker override) so the threads have jobs to process (per :780 795). The thread pool processes activated jobs concurrently; max jobs active controls how many jobs each worker holds at once. Note: the docs caution at :722 724 that the team generally recommends async code over a large thread pool -- see \"writing good workers\" guidance before scaling threads aggressively."
+    },
+    {
+      "id": "d",
+      "text": "The Camunda Spring Boot Starter has no configurable concurrency parameters -- worker execution is entirely self-managed by the framework and teams cannot tune thread counts or job activation limits. This claim is inaccurate. max jobs active (maximum concurrent jobs per worker subscription), and per-worker timeout settings. The configuration documentation explicitly covers these properties and provides guidance on appropriate values for different workload characteristics."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Intra-JVM parallelism in the Camunda Spring Boot starter is controlled by two related knobs: (1) executor thread pool (camunda.client.execution-threads, default 1) -- how many threads in the JVM process activated jobs in parallel; (2) camunda.client.worker.defaults.max-jobs-active (or per-worker override) -- how many jobs each worker subscription activates at a time. For full utilisation, threads × workers ≥ summed max-jobs-active. Tune based on workload: CPU-bound → match thread count to CPU cores; I/O-bound → consider whether async code is a better fit than a wider pool (per the doc's note at configuration.md:722-724). Note on Pattern #18: the legacy spring-zeebe-sdk artifact is being removed in Camunda 8.10 -- replacement is the Camunda Spring Boot starter at apis-tools/camunda-spring-boot-starter/. Any doc link to apis-tools/spring-zeebe-sdk/... is stale."
+    },
+    "b": {
+      "text": "Incorrect. The Camunda Spring Boot starter is multi-threaded; default execution-threads is 1, but configurable."
+    },
+    "c": {
+      "text": "Correct. Multiple JVMs adds horizontal scaling but doesn't address intra-JVM efficiency. Best to tune both."
+    },
+    "d": {
+      "text": "Incorrect. Tuning is explicitly supported."
+    }
+  },
+  "explanation": "Multiple JVMs adds horizontal scaling but doesn't address intra-JVM efficiency. Best to tune both.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q40",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

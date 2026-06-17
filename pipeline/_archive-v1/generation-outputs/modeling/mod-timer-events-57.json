@@ -1,0 +1,27 @@
+{
+  "id": "mod-timer-events-57",
+  "topic": "modeling",
+  "subtopic": "timer-events",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Insurance issues 7000 policies per day in Camunda 8.8 and each quote carries its own expirationDate and creationDate process variables. An intermediate timer catch event must fire after the per instance remaining time has elapsed, computed from those two variables when the catch event is activated.",
+  "question": "Which timer expression configuration on the intermediate catch event computes the remaining time per instance and yields a valid timer value?",
+  "options": [
+    { "id": "a", "text": "A FEEL expression of = date and time(expirationDate) - date and time(creationDate) on the timer catch event that is evaluated on activation and returns a duration temporal value" },
+    { "id": "b", "text": "A FEEL expression of = date and time(expirationDate) - date and time(creationDate) on the timer catch event that is evaluated on deployment and returns a duration temporal value" },
+    { "id": "c", "text": "A static ISO 8601 duration of PT24H on the timer catch event that the engine adjusts on activation using the expirationDate and creationDate variables per process instance at runtime" },
+    { "id": "d", "text": "A FEEL expression of = expirationDate on the timer catch event that is evaluated on activation and returns a number representing the milliseconds remaining until the timer fires" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. For a timer catch event the expression is evaluated on activating the catch event and must yield either an ISO 8601 string or an equivalent temporal value; a FEEL difference between two date and time values returns a duration that satisfies the contract." },
+    "b": { "text": "Incorrect. Only timer expressions on timer start events are evaluated on deploying the process; for an intermediate catch event the expression is evaluated when the catch event is activated." },
+    "c": { "text": "Incorrect. Static values are taken literally as ISO 8601 timer values; the engine does not adjust them per instance using process variables at activation time." },
+    "d": { "text": "Incorrect. The timer evaluation must produce an ISO 8601 string or an equivalent temporal value; a bare number is not a valid timer definition recognised by the engine." }
+  },
+  "explanation": "Timer expressions for non-start timer events are evaluated on activating the timer catch event and must produce either an ISO 8601 string or an equivalent temporal value such as a date-time, a duration, or a cycle. FEEL arithmetic on date and time values returns a duration that satisfies that contract per process instance.",
+  "docs": [
+    { "title": "BPMN timer events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/" }
+  ]
+}

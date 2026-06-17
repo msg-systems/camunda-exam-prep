@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A custom Outbound Connector receives Element Template properties as inputs -- including a URL and a numeric timeout value. The team wants to validate that the URL has the expected https:// prefix and that timeout is in range [100, 30000] ms. Where in the Connector code should validation happen?",
+  "question": "Where should Connector input validation happen?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Design-time validation through Element Template JSON schemas catches obvious configuration errors like missing required fields and type mismatches before deployment. Runtime validation at job activation time is also important for catching issues with dynamically computed values that could not be validated at design time."
+    },
+    {
+      "id": "b",
+      "text": ", variable substitution producing an invalid value). Design-time validation prevents bad configs from reaching production; runtime validation guards against dynamic values."
+    },
+    {
+      "id": "c",
+      "text": "Runtime validation is important for dynamic FEEL expressions that depend on process variable values that cannot be known until execution. Design-time validation through Element Template schemas provides early error detection for static configuration issues."
+    },
+    {
+      "id": "d",
+      "text": "The Camunda Connector framework provides no input validation capabilities -- developers must implement all input validation logic manually inside the Connector handler method before processing -- this description does not reflect the actual behaviour. The Connector framework supports input validation at multiple levels. Element Template JSON schemas provide design-time validation in Camunda Modeler, highlighting configuration errors before deployment. Both layers work together to provide comprehensive validation coverage from design time through runtime execution."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Defence in depth: Design-time (Element Template constraints): static literals can be validated against regex / min / max before deployment. Catches typos like \"htpp://...\" or timeout = \"abc\". Modeler shows errors in the property panel. Runtime (Connector code): when values come from FEEL expressions evaluating against process variables, the resulting value might not be valid (e.g., FEEL returns null, or returns a value outside the expected range). Java validation (Bean Validation annotations like @Pattern, @Min, @Max, or explicit checks) catches these at execution. On invalid input, throw a clear exception that translates to a BPMN incident with a meaningful message. Together they cover: static configuration typos AND dynamic value validation."
+    },
+    "b": {
+      "text": "Correct. Misses runtime issues from FEEL evaluation."
+    },
+    "c": {
+      "text": "Incorrect. Misses catching design-time typos early."
+    },
+    "d": {
+      "text": "Incorrect. Validation supported at both layers."
+    }
+  },
+  "explanation": "Misses runtime issues from FEEL evaluation.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q45",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

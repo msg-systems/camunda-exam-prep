@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q16",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Sequential Multi-Instance Subprocess iterates over customers. Each instance does account-validation. The team wants only one instance at a time because the back-end API has a 1-request-per-second limit.",
+  "question": "Which Multi-Instance configuration fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Parallel Multi-Instance with loopCardinality equal to 1 creates exactly one instance in total â€” loopCardinality specifies the total number of instances to create, not the concurrency level. This misinterprets the attribute: one parallel instance means one instance runs once, not that the full customer list is processed one at a time. To iterate over the customer collection one-at-a-time, Sequential mode with inputCollection is the correct configuration, not Parallel mode with a cardinality of one."
+    },
+    {
+      "id": "b",
+      "text": "Parallel Multi-Instance combined with sleep(1) in the worker is a fragile timing hack. Worker sleep introduces artificial delay but does not guarantee a 1-request-per-second rate limit because all parallel instances activate and acquire jobs roughly simultaneously regardless of individual worker sleep times. Sleep also wastes thread resources. Sequential Multi-Instance is the correct architecture â€” it serialises iteration at the BPMN level, enforcing one active instance at a time without any worker-side timing workarounds."
+    },
+    {
+      "id": "c",
+      "text": "Sequential Multi-Instance with inputCollection equal to customers and inputElement equal to customer runs exactly one subprocess instance at a time â€” each instance completes before the next starts. Sequential mode inherently satisfies a 1-request-per-second rate limit because only one instance runs concurrently. As long as each instance takes approximately 1 second to complete, the downstream API receives at most one request per second. This is the canonical Camunda 8 configuration for serialised iteration."
+    },
+    {
+      "id": "d",
+      "text": "Multi-Instance can serve as a rate-limiting mechanism by choosing Sequential mode, which runs one instance at a time naturally. The claim that Multi-Instance cannot be rate-limited reflects a misunderstanding of Sequential versus Parallel modes. Sequential mode is precisely designed for serialised iteration. For a simple 1-per-second rate limit, Sequential MI combined with each instance taking approximately one second of processing time provides adequate rate control without external queue infrastructure. ###"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Sequential mode runs instances one at a time -- natural fit for serialised work. The 1-RPS limit is satisfied if each instance completes in ≥ 1 sec."
+    },
+    "b": {
+      "text": "Incorrect. loopCardinality = 1 means one instance total, not rate-limited."
+    },
+    "c": {
+      "text": "Correct. Combining Parallel with worker sleeps creates fragile timing; sequential mode is canonical."
+    },
+    "d": {
+      "text": "Incorrect. Sequential mode addresses this natively."
+    }
+  },
+  "explanation": "Combining Parallel with worker sleeps creates fragile timing; sequential mode is canonical.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q16",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

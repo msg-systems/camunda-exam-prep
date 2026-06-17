@@ -1,0 +1,50 @@
+{
+  "id": "mod-event-subprocesses-42",
+  "topic": "modeling",
+  "subtopic": "event subprocesses",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A timer-triggered event subprocess inside an embedded subprocess writes to `orderStatus`, a variable declared in the embedded subprocess scope. A teammate asks whether a boundary timer event attached to the same subprocess could equally modify `orderStatus`. What's the correct distinction?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only the event subprocess can directly read and modify `orderStatus`, because it is inside the scope; a boundary event is outside the scope."
+    },
+    {
+      "id": "b",
+      "text": "Both can modify `orderStatus` because they share identical scope semantics."
+    },
+    {
+      "id": "c",
+      "text": "Neither can modify `orderStatus`; only the original embedded subprocess's tasks may write scope-local variables."
+    },
+    {
+      "id": "d",
+      "text": "A boundary event can modify the variable; the event subprocess cannot, because event subprocesses operate in an isolated child scope."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Per the docs, an event subprocess is inside the scope and can access and modify all local variables; this is not possible with a boundary event, which is outside the scope."
+    },
+    "b": {
+      "text": "The docs explicitly contrast the two: boundary events are outside the scope and cannot access its local variables the way event subprocesses can."
+    },
+    "c": {
+      "text": "Activities and event subprocesses inside the containing scope can read and modify its local variables; the docs say so directly for event subprocesses."
+    },
+    "d": {
+      "text": "The relationship is inverted. The event subprocess is inside the scope; the boundary event is outside and cannot reach scope-local variables."
+    }
+  },
+  "explanation": "Because an event subprocess sits inside its containing scope, it can read and modify all of that scope's local variables. A boundary event lives outside the activity it is attached to, so it cannot reach those local variables.",
+  "docs": [
+    {
+      "title": "BPMN event subprocesses",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/"
+    }
+  ]
+}

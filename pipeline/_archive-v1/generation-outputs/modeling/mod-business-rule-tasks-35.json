@@ -1,0 +1,25 @@
+{
+  "id": "mod-business-rule-tasks-35",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "hard",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Umbra Bank pins a DMN decision in its Camunda 8.8 mortgage scoring process, handling 4000 loans per day, to the latest decision version annotated with the version tag v1.0, so the risk policy stays reproducible during a regulator audit window of 12 months.",
+  "question": "Which XML configuration on a business rule task pins the called DMN decision to the latest version annotated with the version tag v1.0?",
+  "options": [
+    { "id": "a", "text": "A zeebe:calledDecision element with decisionId and resultVariable but no bindingType attribute pins the called decision to the latest version annotated with v1.0" },
+    { "id": "b", "text": "A zeebe:taskDefinition element with type set to the decision ID and a task header carrying the version tag v1.0 pins the called decision to the v1.0 version" },
+    { "id": "c", "text": "A zeebe:calledDecision element with decisionId, resultVariable, bindingType set to versionTag, and a versionTag attribute holding v1.0 pins the decision to that tag" },
+    { "id": "d", "text": "A zeebe:calledDecision element with decisionId, resultVariable, and bindingType set to deployment with a versionTag attribute holding v1.0 pins the decision to v1.0" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Omitting bindingType defaults to latest, which always evaluates the latest deployed version of the decision regardless of any version tag annotation." },
+    "b": { "text": "Incorrect. zeebe:taskDefinition with task headers configures a job worker implementation; it does not call the DMN engine or pin a decision version through the versionTag mechanism." },
+    "c": { "text": "Correct. zeebe:calledDecision with bindingType set to versionTag plus a versionTag attribute holding v1.0 pins the call to the latest decision version annotated with v1.0." },
+    "d": { "text": "Incorrect. The deployment binding pins the decision to the version deployed alongside the process; a versionTag attribute on that binding is not how the documentation pins to v1.0." }
+  },
+  "explanation": "The XML pattern for pinning to a tagged decision is zeebe:calledDecision with decisionId, resultVariable, bindingType set to versionTag, and a versionTag attribute holding the tag name like v1.0.",
+  "docs": [ { "title": "BPMN business rule tasks", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/" } ]
+}

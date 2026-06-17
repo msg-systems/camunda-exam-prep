@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-40",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "HelixHealth, a fintech-style insurer, runs 5000 claims per day in Camunda 8.8. A claims triage process uses an embedded subprocess containing an interrupting timer event subprocess; the engine completed task A and triggered the event subprocess. A message boundary event activated task D, and the event subprocess waits on task C. The worker for task C failed after 8 hours of retries, so operations wants to skip task C without affecting task D or restarting the process instance.",
+  "question": "Which modification action skips task C and lets task D continue, per the documented rules?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Terminate only task C and leave the event subprocess active; the engine waits for another event before continuing the embedded subprocess."
+    },
+    {
+      "id": "b",
+      "text": "Terminate the event subprocess element instance; the engine ends task C inside it and ends the embedded subprocess if no active instances remain."
+    },
+    {
+      "id": "c",
+      "text": "Terminate the embedded subprocess and the event subprocess together; the engine then activates a compensation flow that skips task C automatically."
+    },
+    {
+      "id": "d",
+      "text": "Terminate the entire process instance and reactivate it from a snapshot; the engine reapplies all completed activities up to but excluding task C."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The documented example terminates the event subprocess element instance, not task C in isolation; targeting only task C does not match the rules covered in the example, which describes the operator skipping the failed task by terminating its parent event subprocess."
+    },
+    "b": {
+      "text": "Correct. Terminating the event subprocess element instance cancels task C inside it under the subprocess rule, and the embedded subprocess is also terminated because it no longer contains active element instances, leaving task D free to continue."
+    },
+    "c": {
+      "text": "Incorrect. The engine does not synthesize a compensation flow as part of a termination instruction; subprocess termination follows the documented cascade rules and does not invent additional activations."
+    },
+    "d": {
+      "text": "Incorrect. The modification command does not restart the process instance from a snapshot; it applies activation and termination instructions to the live instance and never replays completed activities."
+    }
+  },
+  "explanation": "When a failed task sits inside a nested event subprocess, the documented technique is to terminate the event subprocess element instance. Subprocess termination cascades to active children, and the surrounding embedded subprocess ends when it has no active instances left.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

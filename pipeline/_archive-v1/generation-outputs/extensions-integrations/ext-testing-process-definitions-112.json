@@ -1,0 +1,27 @@
+{
+  "id": "ext-testing-process-definitions-112",
+  "topic": "extensions-integrations",
+  "subtopic": "integration tests",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Tessera Insurance runs a Camunda 8.8 invoice approval process that sends 3200 rejections per day through an outbound HTTP REST connector. The team wants an integration test that exercises the real connector input and output mapping but does not call the live rejection endpoint, and the test must run inside the existing TestContainers-based Spring Boot harness.",
+  "question": "How does the documented integration test expose a mocked REST endpoint to the connector running inside TestContainers?",
+  "options": [
+    { "id": "a", "text": "Mock the job worker for io.camunda:http-json:1 with processTestContext.mockJobWorker so the REST connector itself never executes and no HTTP traffic leaves the integration test JVM at all" },
+    { "id": "b", "text": "Replace the connector URL with a literal localhost address at deploy time and run an embedded Netty server bound to that address before the integration test method begins running" },
+    { "id": "c", "text": "Stub the endpoint with WireMock, configure the connector secret to host.testcontainers.internal with the WireMock port, and call Testcontainers.exposeHostPorts on that port before the test" },
+    { "id": "d", "text": "Disable the connector runtime in test properties and call the rejection service class directly from the test method to verify the input and output mapping logic of the connector" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Mocking the job worker bypasses the connector itself; integration tests should exercise the real connector and only mock the remote REST endpoint." },
+    "b": { "text": "Incorrect. The docs configure the URL through a Camunda secret resolving to host.testcontainers.internal with the WireMock port, not a hard-coded localhost literal." },
+    "c": { "text": "Correct. The documented integration test stubs the endpoint with WireMock, sets the connector secret to http://host.testcontainers.internal:${wiremock.server.port}, and calls Testcontainers.exposeHostPorts in @BeforeEach." },
+    "d": { "text": "Incorrect. The integration test enables camunda.process-test.connectors-enabled=true so the real REST connector executes against the WireMock stub instead of bypassing the runtime." }
+  },
+  "explanation": "Camunda 8.8 integration tests mock REST endpoints with WireMock, expose the WireMock port via Testcontainers.exposeHostPorts, and resolve the connector URL through a process-test secret pointing at host.testcontainers.internal so the real connector runtime drives the stubbed endpoint.",
+  "docs": [
+    { "title": "Testing process definitions", "url": "https://docs.camunda.io/docs/components/best-practices/development/testing-process-definitions/" }
+  ]
+}

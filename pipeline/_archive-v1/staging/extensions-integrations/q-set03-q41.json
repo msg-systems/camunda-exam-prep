@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A TypeScript Job Worker (using @camunda8/sdk) handles image-thumbnail Service Tasks. The Service Task expects two outputs: thumbnailUrl and width. The handler computes these and wants to return them to Zeebe.",
+  "question": "Which return shape from the handler function is correct?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Return an object { thumbnailUrl, width } directly from the handler function -- the @camunda8/sdk serializes the returned object as the job's complete-payload and Zeebe merges the object's properties into process variables, subject to the Service Task's Output Mapping configuration. This ergonomic return-object style is one of the two valid completion patterns supported by the SDK. It is the simpler approach when no custom complete options are needed."
+    },
+    {
+      "id": "b",
+      "text": "The @camunda8/sdk supports both ergonomic handler styles simultaneously. Return an object { thumbnailUrl, width } from the handler function -- the SDK auto-completes the job with those properties as Zeebe variables. complete({ variables: { thumbnailUrl, width } }) explicitly for fine-grained control over completion options. Either style is valid; option b correctly identifies that the SDK does not force one approach over the other."
+    },
+    {
+      "id": "c",
+      "text": "complete({ variables: { thumbnailUrl, width } }) explicitly and do not return a value from the handler. This explicit completion style passes the output variables in the variables field of the complete options object. The SDK sends the complete command to Zeebe with those variables. This is the second valid completion pattern in the @camunda8/sdk, used when fine-grained control over complete options or error handling is needed."
+    },
+    {
+      "id": "d",
+      "text": "The handler function should call the Orchestration Cluster REST API separately to update process variables (PUT /v2/process-instances/{key}/variables), and the handler's return value is ignored by the SDK because variable updates go through the API directly. The Job Worker handler is the mechanism for completing jobs and returning output variables -- calling a separate API to set variables while ignoring the handler return would leave the job activated indefinitely, eventually causing a job-activation timeout and re-activation loop in Zeebe."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Return-object style works, but explicit complete() also works."
+    },
+    "b": {
+      "text": "Correct. Explicit complete() works, but return-object also works."
+    },
+    "c": {
+      "text": "Incorrect. Worker handler is the completion mechanism."
+    },
+    "d": {
+      "text": "Incorrect. @camunda8/sdk supports both ergonomic styles. Return an object → SDK auto-completes the job with those as variables. Or call job.complete({variables: {...}}) explicitly for fine control (e.g., custom complete options). Both are documented and supported."
+    }
+  },
+  "explanation": "Explicit complete() works, but return-object also works.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q41",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

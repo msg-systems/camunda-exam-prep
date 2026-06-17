@@ -1,0 +1,53 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-90",
+  "topic": "extensions-integrations",
+  "subtopic": "retries",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "In the Java fail-job snippet above, what value should replace `???` so the worker correctly leverages Zeebe's built-in retry mechanism on a caught exception?",
+  "codeBlocks": {
+    "stem": "@JobWorker(type = \"retrieveMoney\", autoComplete = false)\npublic void retrieveMoney(JobClient client, ActivatedJob job) {\n  try {\n    // your code\n  } catch (Exception ex) {\n    client.newFailCommand(job)\n      .retries(???)\n      .errorMessage(\"Could not retrieve money: \" + ex.getMessage())\n      .send();\n  }\n}"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "`job.getRetries() - 1`"
+    },
+    {
+      "id": "b",
+      "text": "`0`"
+    },
+    {
+      "id": "c",
+      "text": "`job.getRetries()`"
+    },
+    {
+      "id": "d",
+      "text": "`job.getRetries() + 1`"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Zeebe does not auto-decrement; the worker must decrement the retry counter itself when failing. The docs snippet shows `.retries(job.getRetries()-1)` for exactly this reason."
+    },
+    "b": {
+      "text": "Passing `0` raises an incident immediately and skips any remaining retries — useful for unrecoverable errors, but it does not _leverage_ the retry mechanism."
+    },
+    "c": {
+      "text": "Passing the unchanged count keeps retrying forever; the worker would never exhaust the budget and never reach an incident."
+    },
+    "d": {
+      "text": "Incrementing retries on each failure resets and inflates the budget set on the BPMN service task, breaking the bounded-retry contract."
+    }
+  },
+  "explanation": "The retry count on the BPMN service task (e.g. `<zeebe:taskDefinition retries=\"5\" />`) is the _initial_ value. Each fail-job call from the worker must decrement it, as Zeebe does not do so automatically. When the count reaches `0`, Zeebe raises an incident that requires human intervention in Operate.",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

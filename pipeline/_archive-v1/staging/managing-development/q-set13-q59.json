@@ -1,0 +1,63 @@
+{
+  "id": "imp-set13-q59",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process has many BPMN errors with codes ERR_001, ERR_002, ..., ERR_050. Team wonders if there are naming conventions for error codes -- e.g., readable names vs numeric IDs.",
+  "question": "BPMN error code naming conventions?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:13-23). The errorCode attribute on throw events can be a static value or FEEL expression; catch events require static values only (:22). A catch event with no errorCode matches all errors (:23). Naming conventions: - Readable, semantic codes: INSUFFICIENT_FUNDS, INVALID_VAT_NUMBER -- self-documenting in logs and BPMN models. - UPPER_SNAKE_CASE: standard for error codes; distinct from camelCase variables. - Domain prefix: BILLING_INSUFFICIENT_FUNDS, KYC_DOCUMENT_EXPIRED -- groups codes by business area. - Avoid pure numerics: ERR_001 requires a lookup table; readable names are preferable. - Stable once published: external Error Boundary Events, Operate filters, and dashboards reference codes. - Documented catalog: maintain an org-wide registry of codes, descriptions, and recovery actions."
+    },
+    {
+      "id": "b",
+      "text": "BPMN error codes should always be numeric identifiers (such as ERR_001, ERR_050, 1001) because numeric codes are stable, sorting-friendly, and match common error numbering conventions used in REST APIs and HTTP status codes. While numeric error codes are technically supported by Camunda 8, the recommended convention is readable UPPER_SNAKE_CASE semantic names. Numeric codes like ERR_001 are opaque without a separate lookup table; INSUFFICIENT_FUNDS is self-documenting. Readable names improve operational visibility in Operate, logs, and BPMN diagrams."
+    },
+    {
+      "id": "c",
+      "text": "There are no established naming conventions for BPMN error codes in Camunda 8; any string can be used freely without any guidelines, and teams should define their own entirely ad-hoc approach based on personal preference. While the BPMN specification and Camunda 8 do not enforce a specific naming format, the Camunda community and best-practice documentation recommend UPPER_SNAKE_CASE with domain prefixes, stable codes, and a documented catalog. Following conventions significantly improves operability, code review, and long-term maintainability."
+    },
+    {
+      "id": "d",
+      "text": "Using empty or null BPMN error codes on throw events is perfectly acceptable; the engine routes errors based on the parent scope hierarchy regardless of code value, and specifying an explicit code is optional for proper error routing. This misrepresents the documented behavior. Error codes are essential for precise routing in Camunda 8. While a catch event with no errorCode does match all thrown errors (acting as a catch-all), using specific error codes on both throw and catch events is critical for routing different error types to the appropriate boundary events. Empty codes on throw events reduce routing precision."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Error code naming best practices: Why naming matters: In logs: readable name surfaces the issue immediately. In Error Boundary Events: BPMN model self-documents via error name. In worker code: throw new BpmnError(\"INSUFFICIENT_FUNDS\", \"...\") -- intent clear. In Operate: filter / search by error code; readable improves discoverability. In audits / compliance: stable, meaningful codes for evidence. Recommended conventions: Convention 1: UPPER_SNAKE_CASE: INSUFFICIENT_FUNDS, INVALID_VAT, PAYMENT_DECLINED. Distinguishes from variables (camelCase) and English text. Industry standard for error codes. Convention 2: Domain prefix: BILLING_INSUFFICIENT_FUNDS, BILLING_INVALID_VAT. KYC_DOCUMENT_EXPIRED, KYC_NAME_MISMATCH. Group by business domain. Easier to scan / filter. Convention 3: Severity prefix (less common): RETRYABLE_TIMEOUT, FATAL_DATA_CORRUPTION. Telegraphs handling strategy. Convention 4: Numeric + name (hybrid): ERR_001_INSUFFICIENT_FUNDS. Numeric ID for stable reference; name for readability. Overkill for most uses; useful in heavily-regulated domains. Anti-conventions (avoid): Generic: ERROR, FAIL, OOPS. Implementation-leaking: NPE (NullPointerException), 500_ERROR. Ambiguous: BAD_DATA -- too vague. Cryptic numerics: ERR_001 without name. Inconsistent casing: insufficient_funds mixed with INVALID_VAT. Catalog / registry: Maintain a doc: list of all error codes + descriptions + recovery actions. Versioned: track new codes, deprecated codes. Linked from BPMN docs: developers / ops reference. Stability: Once published, don't rename: external systems / dashboards may filter on codes. For evolution: introduce new codes; deprecate old gradually. Mappings for renaming: maintain mapping during transition. In worker code: Constants for codes: avoid magic strings. `java public static final String INSUFFICIENT_FUNDS = \"INSUFFICIENT_FUNDS\"; ` Enum: even better for type safety. In BPMN modelling: Error Code Variable: dynamic codes via FEEL expression. Static codes: explicit in Error Boundary config."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. Partially correct."
+    },
+    "d": {
+      "text": "Incorrect. Incorrect."
+    }
+  },
+  "explanation": "Error code naming best practices: Why naming matters: In logs: readable name surfaces the issue immediately. In Error Boundary Events: BPMN model self-documents via error name. In worker code: throw new BpmnError(\"INSUFFICIENT_FUNDS\", \"...\") -- intent clear. In Operate: filter / search by error code; readable improves discoverability. In audits / compliance: stable, meaningful codes for evidence. Recommended conventions: Convention 1: UPPER_SNAKE_CASE: INSUFFICIENT_FUNDS, INVALID_VAT, PAYMENT_DECLINED. Distinguishes from variables (camelCase) and English text. Industry standard for error codes. Convention 2: Domain prefix: BILLING_INSUFFICIENT_FUNDS, BILLING_INVALID_VAT. KYC_DOCUMENT_EXPIRED, KYC_NAME_MISMATCH. Group by business domain. Easier to scan / filter. Convention 3: Severity prefix (less common): RETRYABLE_TIMEOUT, FATAL_DATA_CORRUPTION. Telegraphs handling strategy. Convention 4: Numeric + name (hybrid): ERR_001_INSUFFICIENT_FUNDS. Numeric ID for stable reference; name for readability. Overkill for most uses; useful in heavily-regulated domains. Anti-conventions (avoid): Generic: ERROR, FAIL, OOPS. Implementation-leaking: NPE (NullPointerException), 500_ERROR. Ambiguous: BAD_DATA -- too vague. Cryptic numerics: ERR_001 without name. Inconsistent casing: insufficient_funds mixed with INVALID_VAT. Catalog / registry: Maintain a doc: list of all error codes + descriptions + recovery actions. Versioned: track new codes, deprecated codes. Linked from BPMN docs: developers / ops reference. Stability: Once published, don't rename: external systems / dashboards may filter on codes. For evolution: introduce new codes; deprecate old gradually. Mappings for renaming: maintain mapping during transition. In worker code: Constants for codes: avoid magic strings. `java public static final String INSUFFICIENT_FUNDS = \"INSUFFICIENT_FUNDS\"; ` Enum: even better for type safety. In BPMN modelling: Error Code Variable: dynamic codes via FEEL expression. Static codes: explicit in Error Boundary config.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q59",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

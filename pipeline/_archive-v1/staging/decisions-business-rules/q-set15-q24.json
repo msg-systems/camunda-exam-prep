@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q24",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A COLLECT decision table has 3 output columns: discount, fee, priority. Team wonders what the result structure looks like for COLLECT.",
+  "question": "COLLECT multi-output result structure?",
+  "options": [
+    {
+      "id": "a",
+      "text": "COLLECT with multiple output columns produces a single flat list merging all output values -- this approach has limitations. With multiple output columns, COLLECT produces a list of objects where each object represents one matching rule''s complete set of output values. For example, two matching rules with outputs discount, fee, priority produce [{discount:5, fee:10, priority:\"low\"}, {discount:10, fee:0, priority:\"high\"}]. A flat list merging all values would lose the association between output columns within each rule. , [5, 10, 15])."
+    },
+    {
+      "id": "b",
+      "text": "The COLLECT hit policy in Camunda 8 only supports single-output-column decision tables -- this approach has limitations. COLLECT supports both single and multiple output columns. With multiple output columns and no aggregator, COLLECT returns a list of objects (one per matching rule), each containing all output column values. The single-output constraint applies specifically to COLLECT with aggregators (SUM, MIN, MAX, COUNT): aggregation requires a single numeric output column to aggregate over. \" Without aggregator, multiple columns are fully supported."
+    },
+    {
+      "id": "c",
+      "text": "For COLLECT with multiple output columns: result is a list of objects, each object representing one matching rule''s complete output set. Example: three output columns discount, fee, priority with two matching rules yields [{discount:10, fee:0, priority:\"high\"}, {discount:20, fee:0, priority:\"urgent\"}]. discount)), or count (count(result)). md:126. 3 spec are not supported in Camunda 8; only UNIQUE, ANY, FIRST, RULE ORDER, and COLLECT are implemented."
+    },
+    {
+      "id": "d",
+      "text": "COLLECT with multiple output columns returns one result object per output column rather than per rule -- this inverts the actual structure. The COLLECT result is a list where each element corresponds to one matching RULE (not one column). Each rule-element is an object containing all the output column values for that rule as key-value pairs. If three rules match and there are three output columns, the result is a list of three objects each with three properties. The \"object per column\" interpretation would lose the per-rule context that makes COLLECT useful for multi-attribute decision results."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. COLLECT result structures: Single output column, COLLECT (no aggregator): Result: list of scalar values. Example: [5, 10, 15] for 3 matching rules. Single output column, COLLECT with aggregator (aggregation=\"SUM|MIN|MAX|COUNT\" per decision-table-hit-policy.md:139-170 -- Camunda XML attribute, NOT the DMN-spec shorthand C+/C/C#): Result: aggregated scalar (per Set 14 Q23). Example: 30 (SUM of 5+10+15). Single-output constraint verbatim per decision-table-hit-policy.md:126: \"If the Collect hit policy is used with an aggregator, the decision table can only have one output.\" Multiple output columns, COLLECT (no aggregator): Result: list of objects (one per matching rule). Each object has fields per output column. Example: Table: | Input: customerTier | Output: discount | Output: fee | Output: priority | |---------------------|------------------|-------------|------------------| | \"basic\" | 0 | 5 | \"low\" | | \"premium\" | 10 | 0 | \"high\" | | \"VIP\" | 20 | 0 | \"urgent\" | For input \"premium\" + \"VIP\" (if both matched somehow with different inputs): `json [ {discount: 10, fee: 0, priority: \"high\"}, {discount: 20, fee: 0, priority: \"urgent\"} ] Multiple output columns, COLLECT with aggregator: NOT supported in Camunda 8 per decision-table-hit-policy.md:126 (\"…the decision table can only have one output\"). To aggregate multi-output rules, COLLECT without aggregator → list of objects → FEEL post-processing in Output Mapping (e.g. =sum(rules.discount)). Result variable name: resultVariable on Business Rule Task: name for the whole result. Output Mapping: shape into specific variables. Downstream FEEL on COLLECT result: Filter list: feel result[priority = \"high\"] Returns matching items. Aggregate: feel sum(result[].discount) Total discount across all matching rules. Count: feel count(result) Number of matching rules. For single output column (C without aggregator): json [5, 10, 15] Downstream: feel sum(result) → 30 Compare with other hit policies (the only 5 supported in C8 per decision-table-hit-policy.md:26-53 -- Pattern #7 10th cumulative: PRIORITY + OUTPUT ORDER from DMN-1.3 spec are NOT supported in Camunda 8): UNIQUE (default per :11-12): Result: single object (or scalar for single column) -- expects exactly one match; violated if multiple satisfied. ANY: Result: single object -- multiple may match but all must yield same output. FIRST: Result: single object -- first satisfied rule by XML/row order. RULE ORDER: Result: list -- all satisfied rules in rule order. COLLECT: Result: list (no aggregator) or scalar (with SUM/MIN/MAX/COUNT aggregator, single-output only). NOT supported in C8 (despite DMN-1.3 spec): PRIORITY, OUTPUT ORDER. Canonical workaround for \"single highest-priority output\": order rules top-to-bottom by priority + hitPolicy=\"FIRST\". Decision Service is NOT a Camunda 8 element per dmn.md:23-28 (modeler supports only Decision / Input data / Knowledge source / BKM -- Decision Service absent). All decision invocation in C8 happens via Business Rule Task zeebe:calledDecision or REST/gRPC EvaluateDecision against a single decision ID -- same result shape semantics as above. Anti-patterns: Assuming single result on COLLECT: it's a list. Forgetting to handle empty list: no matches → empty list. Best practices: Document expected result shape: in BPMN or external doc. Test no-match scenario: empty list handling. Use Output Mapping to shape result into process variables. For the scenario (3 output columns, COLLECT): Result: list of objects. Each object: {discount, fee, priority}`. Downstream: filter / aggregate as needed."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q24",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

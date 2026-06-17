@@ -1,0 +1,27 @@
+{
+  "id": "ext-handling-data-in-processes-81",
+  "topic": "extensions-integrations",
+  "subtopic": "process-variables",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon marketplace runs a social post approval process on Camunda 8.8 that handles 1800 messages per day. A worker completes the Review task by passing a structured payload via the Tasklist API, and the team needs to confirm how Camunda 8.8 stores the resulting variable values internally before integrating with the audit pipeline.",
+  "question": "How does Camunda 8.8 store process variable values internally?",
+  "options": [
+    { "id": "a", "text": "Variable values are stored as typed Java objects in the broker memory model and serialized only when an external client requests them via the API" },
+    { "id": "b", "text": "Variable values are stored as XML fragments within the BPMN element of the running activity and the engine validates them against an XSD on completion" },
+    { "id": "c", "text": "Variable values are stored as plain key value strings and complex objects must be flattened by the worker before completing a job through the client API" },
+    { "id": "d", "text": "Variable values are stored as JSON in Camunda 8 which is a key difference from Camunda 7 where supported value types and serialization differ" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The page states that in Camunda 8 values are stored as JSON; the broker does not keep variables as typed Java objects deferred to API serialization." },
+    "b": { "text": "Incorrect. There is no XML or XSD storage path for variables; Camunda 8 stores process variable values as JSON inside the engine." },
+    "c": { "text": "Incorrect. Variables are stored as JSON and the engine accepts structured objects directly, for example a Map of String to Object when completing a task." },
+    "d": { "text": "Correct. The handling data page states that in Camunda 8 values are stored as JSON and explicitly cautions that Camunda 7 handles variables differently with a different set of supported value types." }
+  },
+  "explanation": "Camunda 8.8 stores all process variable values as JSON, which the handling data page calls out as a key difference from Camunda 7 where variables are not handled as JSON and the set of supported value types differs. Workers can pass structured payloads such as a Map when completing tasks.",
+  "docs": [
+    { "title": "Handling data in processes", "url": "https://docs.camunda.io/docs/components/best-practices/development/handling-data-in-processes/" }
+  ]
+}

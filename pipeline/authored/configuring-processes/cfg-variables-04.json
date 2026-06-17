@@ -1,0 +1,50 @@
+{
+  "id": "cfg-variables-04",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A `CreateProcessInstance` command carries a large variable payload. Per the Camunda 8.8 docs, what payload size is considered the safe rule of thumb for commands or events that include variables, such as starting a process instance or completing a job?",
+  "options": [
+    {
+      "id": "a",
+      "text": "~4 MB, matching the hard process-instance payload limit."
+    },
+    {
+      "id": "b",
+      "text": "~1.5 MB, with headroom because the engine may append follow-up records that temporarily duplicate the variable payload within the same batch."
+    },
+    {
+      "id": "c",
+      "text": "~10 MB, with multi-part chunking applied transparently by the gateway."
+    },
+    {
+      "id": "d",
+      "text": "Unlimited — only the persistent storage backend imposes a practical limit."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "4 MB is the total process-instance payload limit, not the safe size for a single command — leaving no headroom risks rejection when the engine writes follow-up records."
+    },
+    "b": {
+      "text": "The docs state that ~1.5 MB is considered safe for commands or events that include variables, because the engine may append follow-up records that temporarily duplicate the variable payload within the same batch."
+    },
+    "c": {
+      "text": "Camunda 8 does not chunk variable payloads transparently; oversized commands are rejected, not split."
+    },
+    "d": {
+      "text": "The docs explicitly cap the process-instance payload at 4 MB and recommend leaving headroom; there is no unlimited path."
+    }
+  },
+  "explanation": "The Variable size limitation section sets the hard process-instance payload limit at 4 MB (including engine-internal data), but recommends ~1.5 MB as the safe rule of thumb for commands or events that include variables, because follow-up records can temporarily duplicate the payload within the same batch. The docs further suggest targeting ≤1 MB and validating with a production-like test case.",
+  "docs": [
+    {
+      "title": "Variables",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ]
+}

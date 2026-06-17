@@ -1,0 +1,50 @@
+{
+  "id": "ext-properties-reference-95",
+  "topic": "extensions-integrations",
+  "subtopic": "spring boot starter properties reference",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Apex Health migrates a Spring Boot job worker to the Camunda 8.8 starter for 6000 jobs per day across an HTTPS Self-Managed Orchestration Cluster. The team finds 3 deprecated zeebe.client.security properties in their application.yaml and needs to know how each one maps to the replacement camunda.client.* properties or hints.",
+  "question": "Which migration matches what the zeebe.client.security deprecation table documents for these three properties?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Move cert-path to camunda.client.ca-certificate-path, move override-authority to camunda.client.override-authority, and drop plaintext because it is now determined by the URL protocol (HTTP or HTTPS)"
+    },
+    {
+      "id": "b",
+      "text": "Move cert-path to camunda.client.security.ca-certificate-path, move override-authority to camunda.client.security.override-authority, and keep plaintext as camunda.client.security.plaintext for explicit control"
+    },
+    {
+      "id": "c",
+      "text": "Move cert-path to camunda.client.auth.ca-certificate-path, move override-authority to camunda.client.auth.override-authority, and convert plaintext to camunda.client.auth.plaintext for OAuth token endpoints"
+    },
+    {
+      "id": "d",
+      "text": "Move cert-path to camunda.client.cloud.ca-certificate-path, move override-authority to camunda.client.cloud.override-authority, and drop plaintext because Camunda 8 SaaS always uses HTTPS endpoints by default"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The zeebe.client.security table lists camunda.client.ca-certificate-path as the replacement for cert-path and camunda.client.override-authority as the replacement for override-authority. The plaintext row has no replacement and the Hint states plaintext is now determined by the URL protocol (HTTP or HTTPS)."
+    },
+    "b": {
+      "text": "Incorrect. The replacement properties live directly under camunda.client, not under a camunda.client.security subgroup, and plaintext has no replacement at all in the new namespace."
+    },
+    "c": {
+      "text": "Incorrect. camunda.client.auth holds OAuth-related properties such as token-url, client-id, and client-secret; certificate path and override authority do not live under camunda.client.auth."
+    },
+    "d": {
+      "text": "Incorrect. The TLS properties move to camunda.client.ca-certificate-path and camunda.client.override-authority directly, not under camunda.client.cloud."
+    }
+  },
+  "explanation": "The zeebe.client.security deprecation table renames cert-path to camunda.client.ca-certificate-path and override-authority to camunda.client.override-authority. The plaintext property has no direct replacement and the Hint clarifies that plaintext is determined by the URL protocol (HTTP or HTTPS).",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot starter properties reference",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/properties-reference/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team wants to fetch all completed process instances of a particular process definition for an export job. They have OAuth2 credentials and want to use a single REST endpoint with pagination.",
+  "question": "Which Orchestration Cluster API endpoint fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "GET /v2/process-instances returns a list of instances but without the filtering flexibility of the search endpoint. The list endpoint may not support all filter combinations needed to isolate completed instances for a specific process definition. The POST /v2/process-instances/search endpoint is the correct approach for filtered, paginated queries with multiple criteria including state and process definition -- the search endpoint is purpose-built for programmatic reporting queries."
+    },
+    {
+      "id": "b",
+      "text": "Querying Operate Elasticsearch directly bypasses the official API contract and creates direct coupling to the internal data store schema, which is not guaranteed stable across Camunda 8 versions. Elasticsearch schema changes between releases could break direct queries without any API version warning. The Orchestration Cluster REST API provides a stable, versioned interface for process instance queries -- using the internal Elasticsearch storage directly is an unsupported and fragile integration pattern."
+    },
+    {
+      "id": "c",
+      "text": "Optimize is a separate analytical reporting tool in the Camunda platform for business intelligence dashboards, process performance analysis, and KPI reporting. Its export endpoints are designed for Optimize-internal reporting workflows, not for integration API access to raw process instance data. The Orchestration Cluster REST API is the correct interface for programmatic access to process instance state from external reporting systems."
+    },
+    {
+      "id": "d",
+      "text": "POST /v2/process-instances/search with filter body containing state = \"COMPLETED\" and the target processDefinitionId, plus pagination parameters (page and pageSize), retrieves completed instances matching the criteria. The search endpoint supports filtering by state, process definition, start date range, and other attributes. Results are paginated with cursor-based navigation for large result sets. This is the appropriate Camunda 8 REST API pattern for programmatic completed instance queries. ###"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Orchestration Cluster REST API exposes search endpoints (POST .../search with filter body + pagination) for various entities -- instances, decisions, tasks, etc. The canonical way to query."
+    },
+    "b": {
+      "text": "Incorrect. No bulk GET; filtered queries use POST search."
+    },
+    "c": {
+      "text": "Incorrect. Direct ES queries are not the supported API surface; breaks on version upgrades."
+    },
+    "d": {
+      "text": "Correct. Optimize is analytics, not transactional listing."
+    }
+  },
+  "explanation": "Optimize is analytics, not transactional listing.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q46",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

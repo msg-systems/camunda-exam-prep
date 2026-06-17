@@ -1,0 +1,25 @@
+{
+  "id": "con-rest-20",
+  "topic": "connectors",
+  "subtopic": "rest",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lyra Insurance, an insurer pricing 8,000 transactions per day for fresh quotes, calls a partner's risk API via a Camunda 8.8 outbound REST connector. When the partner returns HTTP 400 with body.temperature = 36, Lyra wants to raise a BPMN error called 'Too hot' that carries the partner's response body to a manual-review user task downstream so the reviewer can inspect the message, temperature, and booleanField values.",
+  "question": "Which Error Expression raises the 'Too hot' BPMN error and forwards the partner's response body to the boundary event?",
+  "options": [
+    { "id": "a", "text": "=if matches(error.code, \"400\") and error.variables.response.body.temp = 36 then bpmnError(\"Too hot\", error.variables.response.body.message, error.variables.response.body) else null" },
+    { "id": "b", "text": "=if error.code = 400 and error.body.temperature = 36 then bpmnError(\"Too hot\", error.body.message, error.body) else null, reading the body directly from the error context root" },
+    { "id": "c", "text": "=if matches(error.code, \"400\") and error.variables.response.body.temp = 36 then bpmnError(\"Too hot\", error.variables.response.body.message) else null, dropping the third bpmnError argument" },
+    { "id": "d", "text": "=if matches(error.code, \"400\") and response.body.temp = 36 then bpmnError(\"Too hot\", response.body.message, response.body) else null, using the response variable instead of error.variables" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. On a connector failure the Operate error variable exposes the HTTP code as a string and the partner response under error.variables.response.body; matches(error.code, \"400\") tests the code, and the third bpmnError argument forwards the full response body so the boundary event can read message, temperature, and booleanField downstream." },
+    "b": { "text": "Incorrect. The error context is structured as error.code and error.variables.response.body per the documentation; there is no error.body shortcut, so neither the temperature nor the message fields resolve under that path." },
+    "c": { "text": "Incorrect. Omitting the third argument means no variables travel with the BPMN error, so the boundary event cannot access message, temperature, or booleanField for the reviewer's manual-review task." },
+    "d": { "text": "Incorrect. On a failure the partner reply sits under error.variables.response, not under a top-level response variable; the bare response.body path would not resolve in the failure Error Expression scope." }
+  },
+  "explanation": "When a REST connector call fails, Operate's error variable contains code (a string), variables.response.headers and variables.response.body, message, and type. The Error Expression can match on error.code and reach into error.variables.response.body, and the third argument to bpmnError attaches extra variables (such as the response body) to the BPMN error so a boundary handler can read them.",
+  "docs": [ { "title": "REST connector", "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/" } ]
+}

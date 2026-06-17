@@ -1,0 +1,70 @@
+{
+  "id": "imp-set17-q53",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Cluster generates 100 GB of data per month. Backups accumulate. Wonders retention policy.",
+  "question": "Backup retention policy?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Keep forever -- wrong; cost."
+    },
+    {
+      "id": "b",
+      "text": "Retention policy considerations: Camunda 8 Self-Managed backup retention is not automatically managed by the engine. Organizations must establish and enforce their own retention policies based on compliance requirements, storage costs, and recovery objectives. Backups consist of Zeebe broker snapshots and Elasticsearch or OpenSearch index snapshots. Each component's backup must be taken in a coordinated manner to ensure consistency. Retention periods should be aligned with process instance lifetime, audit requirements, and regulatory obligations. Automated retention management should be implemented through the backup infrastructure layer."
+    },
+    {
+      "id": "c",
+      "text": "While a 7-day retention is reasonable for recent backups used to recover from operational errors, it ignores compliance and regulatory requirements that mandate much longer retention periods. Financial regulations typically require 5-7 years of records. Healthcare regulations require 6 years. GDPR requires keeping data only as long as necessary. A single week retention would leave the organization exposed to compliance violations and unable to recover from discovered data corruption that predates the retention window."
+    },
+    {
+      "id": "d",
+      "text": "In Camunda 8 Self-Managed deployments, backup retention policy is entirely the customer's responsibility. Camunda provides the APIs and procedures for taking backups (Zeebe broker snapshots + Elasticsearch/OpenSearch index snapshots), but the scheduling, storage, lifecycle management, and deletion of old backups must be implemented by the operations team using infrastructure tools like S3 lifecycle rules, cron jobs, or backup management platforms."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Backup retention: Factors driving retention: Recovery scenarios: Recent data loss: hours-to-days. Older data recovery: weeks-to-months. Audit / compliance: years. Cost: Each backup = N GB. Retention × backup count × size = total. Cloud storage: per GB-month. Compliance: Financial: typically 7 years. Healthcare: per HIPAA (6 years). GDPR: don't retain personal data unnecessarily. Tiered retention: Hot: Recent: daily, last 7-30 days. Frequently accessible. Higher cost storage: SSD / standard S3. Warm: Older: weekly, 1-12 months. Less frequent access. Mid-tier storage: S3 Standard-IA. Cold: Old: monthly / yearly archives, years. Rarely accessed. Low-cost storage: S3 Glacier. S3 lifecycle rules example: `json { \"Rules\": [ { \"Id\": \"TransitionToIA\", \"Filter\": {}, \"Status\": \"Enabled\", \"Transitions\": [ {\"Days\": 30, \"StorageClass\": \"STANDARD_IA\"}, {\"Days\": 90, \"StorageClass\": \"GLACIER\"} ], \"Expiration\": {\"Days\": 2555} // 7 years } ] } ` Automated tiering + expiration. For Camunda specifically: Daily backups: Operate / Tasklist data. Zeebe state. 30 days retention typical. Weekly backups: Same components. 3-12 months. Monthly archives: For compliance. 7 years if regulated. For SaaS: Camunda manages: per plan. Customer may not control: directly. For Self-Managed: Customer responsibility: full. Configure storage policies. For cost optimization: Calculate: 100 GB / month generated. Daily backup: 100 GB × 30 days = 3 TB. Weekly: 100 GB × 12 weeks = 1.2 TB. Monthly archives: 100 GB × 12 = 1.2 TB. Annual: 100 GB × 7 = 700 GB. Total: ~6 TB. At S3 prices: $0.023/GB-month (standard) = $138/month. For tiered storage: significantly less. For compression: Backup compression: reduces size. gzip / lz4: standard. For incremental backups: Only changes: smaller. Less storage. For full + incremental: Weekly full + daily incremental. Restore: combine. For point-in-time recovery: Log shipping: transaction logs. Restore to specific moment. For testing backups: Periodic restore drills (per Set 14 Q55). Verify integrity. For audit retention: Separate audit logs: from backups. Long-term immutable storage. For GDPR considerations: Personal data: minimize retention. Right to be forgotten: may require selective deletion. For financial regulations: SOX: 7 years typical. MiFID: 5-7 years. For healthcare: HIPAA: 6 years. Patient records: longer per jurisdiction. For internal policy: Company retention policy: usually documented. Camunda backups: follow company policy. For multi-region backups: Cross-region replication: DR scenarios. Extra cost: but resilience. For encryption: At rest: per storage. In transit: TLS. For access control: Limit who can access backups. Audit access. For automation: Scheduled backups: cron / orchestrator. Lifecycle rules: storage-managed. Alerts: backup failures. For backup monitoring: Success rate: track. Time to complete: trend. Storage usage: growth. Anti-patterns: Backups same hardware as primary: not resilient. No expiration: cost explodes. No testing: untested = unreliable. Best practices: Define RPO + RTO explicitly. Tiered storage: cost optimization. Automation: lifecycle rules. Test restores. Document: retention rationale. Compliance review: regular. For the scenario (100 GB / month): Recommended retention: Daily: 30 days hot. Weekly: 12 weeks warm. Monthly: 12 months warm / cold. Yearly: 7 years cold. For dev / staging: Less retention needed: weeks. Cost-conscious. For prod: Full retention: per policy. For backup validation: Restore samples: periodically. Verify integrity."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/operational-guides/backup-restore/backup-and-restore/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q53",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 28 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 23.1 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A KYC verification process has a mandatory ESCALATE path when an automated check returns \"suspicious.\" The team wants to leave the main flow continuing (parallel audit), but immediately throw a non-blocking escalation upward to a parent enclosing scope (Event Subprocess in parent).",
+  "question": "Which BPMN event fires this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Throw Error End Event signals an exceptional condition but uses End Event semantics â€” it terminates the current scope and does not allow the throwing flow to continue. The scenario requires the main flow to continue (parallel audit) while propagating notification upward. Error events are designed for fault signalling that terminates the current path. An Error End Event propagates to Error Boundary Events with interrupting semantics by default â€” different from the non-blocking upward escalation the scenario requires."
+    },
+    {
+      "id": "b",
+      "text": "Send Task with a message to the parent is an inter-process messaging mechanism designed for communication between separate process participants across Pool boundaries or for correlating with waiting Message Catch Events in other process instances. Messages are not the mechanism for intra-process scope propagation. For notifying a parent scope Event Subprocess within the same process hierarchy without interrupting the current flow, Escalation events are the appropriate scoped propagation construct in BPMN."
+    },
+    {
+      "id": "c",
+      "text": "Signal Throw Event broadcasts a signal to all matching Signal Catch Events across all process instances system-wide â€” it is not scope-limited. This broadcast mechanism suits system-level notifications reaching multiple listeners. The scenario requires targeted notification to the enclosing parent scope only, not a broadcast to every process in the system. Escalation events propagate strictly up the scope hierarchy of a single process instance, providing the scoped, non-blocking notification the KYC scenario requires."
+    },
+    {
+      "id": "d",
+      "text": "Throw Escalation Intermediate Event propagates an escalation code upward in scope without interrupting the throwing flow. In Camunda 8, Escalation events are designed for non-blocking notification of higher-level process scopes. The KYC verification process throws the escalation and continues its own execution while the parent scope receives the notification via a matching Escalation Catch Event â€” either a non-interrupting Boundary Event on a subprocess or an Escalation Start Event in an Event Subprocess. ###"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Escalation Throw Intermediate Event propagates an escalation code upward in scope without interrupting the throwing flow. Matched by an Escalation Catch (Boundary or Start in Event Subprocess) in the enclosing scope. Designed for non-blocking notification of higher-level handlers."
+    },
+    "b": {
+      "text": "Incorrect. Error End terminates the throwing flow and is for errors not escalations."
+    },
+    "c": {
+      "text": "Incorrect. Messages are inter-process, not intra-process scope propagation."
+    },
+    "d": {
+      "text": "Correct. Signal is broadcast to all listeners across processes; Escalation is scope-local."
+    }
+  },
+  "explanation": "Signal is broadcast to all listeners across processes; Escalation is scope-local.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/escalation-events/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q22",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

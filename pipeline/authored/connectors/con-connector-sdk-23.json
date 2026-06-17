@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-23",
+  "topic": "connectors",
+  "subtopic": "outbound-runtime",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Inside an `OutboundConnectorFunction.execute(...)` implementation, what does throwing a `ConnectorRetryException` (instead of a plain `ConnectorException`) achieve?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It silently swallows the error; the job completes successfully with a `null` result."
+    },
+    {
+      "id": "b",
+      "text": "It lets the connector override the job's `retries` and `backoffDuration`; if either is not set on the exception, the runtime falls back to the job values."
+    },
+    {
+      "id": "c",
+      "text": "It immediately raises a process-instance incident without consuming any of the job's remaining retries."
+    },
+    {
+      "id": "d",
+      "text": "It always raises the BPMN error whose code equals the exception's `errorCode`, regardless of the model's Error Expression."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Throwing any connector exception does not silently complete the job; the SDK propagates the failure to the runtime, which then handles retries or raises an incident."
+    },
+    "b": {
+      "text": "The docs state that `ConnectorRetryException` enables the connector to override the job's retries and backoff values, and that if `retries` or `backoffDuration` are not set on the exception the runtime uses the job values as a fallback. The developer is responsible for decrementing the retry count."
+    },
+    "c": {
+      "text": "Incidents are raised after retries are exhausted; `ConnectorRetryException` is explicitly designed to signal a retryable error and control retries, not to bypass them."
+    },
+    "d": {
+      "text": "BPMN errors are raised via the connector's **Error Expression** (typically from a `ConnectorException` with a `code`), not unconditionally by `ConnectorRetryException`, whose purpose is retry control."
+    }
+  },
+  "explanation": "A `ConnectorRetryException` signals a retryable failure (such as a transient external-API error) and lets the connector override the job's `retries` and `backoffDuration` values. The SDK applies those overrides as-is, so the developer must remember to decrement the retry count themselves. If `retries` or `backoffDuration` is left unset on the exception, the runtime keeps whatever the job already has.",
+  "docs": [
+    {
+      "title": "Connector SDK",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

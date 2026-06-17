@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-migration-76",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Halcyon Investments, a broker, has Camunda 8.8 instances stuck at user task A because a gateway condition mistakenly uses a string variable instead of the boolean one, generating an incident across 80 instances in production. The team wants the documented recovery sequence using process instance migration.",
+  "question": "What is the documented sequence for correcting the mistake using process instance migration?",
+  "options": [
+    { "id": "a", "text": "Fix the model in Modeler by creating a new version, deploy the new process version, migrate the stuck instance to the new version, and finally resolve the incident on the migrated process instance." },
+    { "id": "b", "text": "Resolve the incident first to unblock the instance, then fix the model in Modeler, deploy the new process version, and let the existing instance pick up the fix automatically on the next retry attempt." },
+    { "id": "c", "text": "Cancel the stuck instance, fix the model in Modeler, deploy a new process version, and create a fresh process instance against the corrected definition with the same variables as the original instance." },
+    { "id": "d", "text": "Delete the deployed process definition, fix the model in Modeler, redeploy under the same process id, and let the engine retroactively rebind the stuck process instance on the next scheduled retry." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The documented steps are to correct the mistake in Modeler with a new version, deploy that version, migrate the stuck process instance to the new version, and then resolve the incident on the migrated instance." },
+    "b": { "text": "Incorrect. Resolving the incident first does not change the broken condition in the deployed model; the documented order is to deploy the fixed version and migrate the instance, then resolve the incident." },
+    "c": { "text": "Incorrect. The documented approach is to migrate the existing process instance to the corrected version, not to cancel and recreate it, so that the in-progress execution state is preserved." },
+    "d": { "text": "Incorrect. Deleting a deployed process definition is not part of the documented sequence; the fix uses a new process version and process instance migration to apply it." }
+  },
+  "explanation": "Process instance migration can correct incidents caused by a mistake in the model: deploy a new corrected version, migrate the stuck instance to it, then resolve the incident so the instance can continue.",
+  "docs": [
+    { "title": "Process instance migration", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/" }
+  ]
+}

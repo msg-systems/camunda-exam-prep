@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A backend service must publish a Message to correlate with a waiting process instance (e.g., to release an Intermediate Message Catch Event). The correlation key is orderId = \"ORD-9876\".",
+  "question": "Which Orchestration Cluster REST API endpoint fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "POST /v2/process-instances starts a brand new process instance from a deployed process definition -- it does not correlate a message to an existing waiting instance. Using this endpoint for message correlation would create duplicate instances instead of advancing the paused instance past its Message Catch Event. Message correlation and process start are distinct operations served by different API endpoints with different request payloads and semantic outcomes."
+    },
+    {
+      "id": "b",
+      "text": "POST /v2/signals/broadcast broadcasts a signal to all process instances with a matching Signal Catch Event -- it is a fanout mechanism reaching every waiting receiver. Signals are not correlated to a specific instance by a correlation key. Using a signal endpoint for a targeted PaymentReceived message intended for one specific order instance (ORD-9876) would incorrectly activate all instances waiting for a signal with that name, not only the intended one."
+    },
+    {
+      "id": "c",
+      "text": "PATCH on instance variables updates process variable values for a specific instance but does not trigger message correlation or advance the process token from a Message Catch Event. A waiting Message Intermediate Catch Event only advances when a message with the matching name and correlation key is published via the messages API. Patching variables directly does not fire correlation logic -- the instance remains paused at the catch event regardless of variable updates."
+    },
+    {
+      "id": "d",
+      "text": "The Camunda 8 Orchestration Cluster REST API endpoint POST /v2/messages/publication correlates an inbound message to a waiting process instance. , \"PaymentReceived\"), the correlationKey matching the process variable used in the Message Catch Event correlation key expression, and optionally variables to merge into the instance. The API returns 200 on successful correlation or 404 if no matching waiting instance is found. ###"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. POST /v2/messages/publication publishes a Message; Zeebe correlates by name + correlationKey to a waiting Message Catch / Receive Task / Boundary subscription."
+    },
+    "b": {
+      "text": "Incorrect. Starts new instance; doesn't correlate to waiting one."
+    },
+    "c": {
+      "text": "Incorrect. Signal broadcast fires Signal Catch Events (different from Message), and broadcasts to all listeners, not correlation-key targeted."
+    },
+    "d": {
+      "text": "Correct. Variables PATCH doesn't trigger Message Catch."
+    }
+  },
+  "explanation": "Variables PATCH doesn't trigger Message Catch.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/orchestration-cluster-api-rest-overview"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q42",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

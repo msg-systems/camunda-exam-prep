@@ -1,0 +1,27 @@
+{
+  "id": "ext-job-worker-20",
+  "topic": "extensions-integrations",
+  "subtopic": "Job worker streaming",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Logistics processes 24000 jobs per hour through a Java worker pool in Camunda 8.8 and the platform team wants to remove the polling round trip to cut activation latency for shipment dispatch. The architect must change exactly one builder option so the worker opens a long-living gRPC stream to the gateway and has activated jobs pushed downstream without an extra poll request.",
+  "question": "Which builder configuration enables job streaming on a Java job worker in Camunda 8.8?",
+  "options": [
+    { "id": "a", "text": "Call streamEnabled(true) on the JobWorkerBuilderStep3 so the worker opens a long-living stream to a gateway and activated jobs are pushed without an extra poll round trip" },
+    { "id": "b", "text": "Call pollInterval(Duration.ZERO) on the JobWorkerBuilderStep3 so the worker polls the gateway continuously and activated jobs arrive without any waiting period between requests" },
+    { "id": "c", "text": "Call maxJobsActive(0) on the JobWorkerBuilderStep3 so the broker pushes every newly created job directly into the worker without buffering inside the gateway during activation" },
+    { "id": "d", "text": "Call streamTimeout(Duration.ZERO) on the JobWorkerBuilderStep3 so the worker keeps a permanent stream open and activated jobs are pushed without any polling round trip at all" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Camunda 8.8 documents enabling job streaming as toggling streamEnabled(true) on JobWorkerBuilderStep3; this opens a long-living stream between the worker and a gateway through which activated jobs are pushed, removing the poll round trip." },
+    "b": { "text": "Incorrect. The Java job worker builder does not have a pollInterval setting that enables streaming; the documented switch is streamEnabled(true), and zero-duration polling would only intensify polling." },
+    "c": { "text": "Incorrect. The maxJobsActive parameter bounds how many jobs a worker handles concurrently for backpressure and does not enable streaming; the documented streaming flag is streamEnabled(true) on the builder." },
+    "d": { "text": "Incorrect. streamTimeout sets when an underlying long-living stream is refreshed for load balancing, not whether streaming is enabled; the documented switch to enable streaming is streamEnabled(true)." }
+  },
+  "explanation": "Camunda 8.8 documents that enabling job streaming consists of toggling a single flag, streamEnabled(true), on the JobWorkerBuilderStep3. The worker then opens a long-living gRPC stream to a gateway through which activated jobs are pushed, eliminating the activation poll round trip.",
+  "docs": [
+    { "title": "Job worker", "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/" }
+  ]
+}

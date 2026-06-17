@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Partner system exposes GraphQL API. Team wonders if Camunda has a GraphQL Connector or to use generic REST.",
+  "question": "GraphQL Connector availability?",
+  "options": [
+    {
+      "id": "a",
+      "text": "8. The Camunda Connector Hub includes a GraphQL Connector that enables process models to invoke GraphQL APIs directly from BPMN Service Tasks without writing custom worker code. The connector handles HTTP transport, GraphQL query formatting, variable injection, and response mapping. Teams can use it to query and mutate GraphQL-based APIs including GitHub, Shopify, and other GraphQL-native services."
+    },
+    {
+      "id": "b",
+      "text": "md). } }. Single, stable canonical pattern. md) for repeated team-wide GraphQL use -- wrap the REST call + add error-field unwrapping. md:14-15) may have a Partner/Community GraphQL Connector -- not part of the bundled set, install separately if used."
+    },
+    {
+      "id": "c",
+      "text": "} }. This requires no custom code, only REST Connector configuration. errors response pattern, and creating a reusable Element Template."
+    },
+    {
+      "id": "d",
+      "text": "The REST Connector cannot be applied for GraphQL because GraphQL uses a different protocol than REST -- this claim does not fully apply. GraphQL APIs are typically served over HTTP using POST requests -- the same transport that the Camunda 8 REST Connector uses. A GraphQL request is an HTTP POST with Content-Type: application/json and a body containing the query string and optional variables object. The REST Connector handles this natively: configure the URL, set the method to POST, add the Content-Type header, and provide the GraphQL query in the request body as a FEEL expression."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. GraphQL integration with Camunda 8: GraphQL basics: POST request to single endpoint typically. Body: JSON with query (or mutation) string and optional variables. Response: JSON with data and errors fields. Canonical 8.8 approach: REST Connector (no dedicated OOTB GraphQL Connector exists): Configuration: URL: GraphQL endpoint. Method: POST. Headers: Content-Type: application/json, auth as needed. Body: `json { \"query\": \"query GetUser($id: ID!) { user(id: $id) { name email } }\", \"variables\": {\"id\": \"100\"} } Result expression: extract from data (per Set 15 Q17). Pros: Always available: REST Connector exists in any C8 version. Maximum flexibility. Cons: No GraphQL-specific validation. Manual query construction. Example REST + GraphQL: xml GraphQL features to consider: Mutations: Modify data via mutations. Same POST pattern. Subscriptions (WebSocket-based): Not REST-friendly: long-lived connection. For subscriptions: external gateway → push to Camunda Webhook (per Set 14 Q34). Errors: GraphQL returns errors in response body, not HTTP status. Custom error handling: check errors field in response. REST Connector may treat HTTP 200 as success even if errors present. Solution: result expression checks errors. feel ={ user: if response.body.errors != null and count(response.body.errors) > 0 then null else response.body.data.user, hasError: response.body.errors != null and count(response.body.errors) > 0 } Auth patterns: API Key: header. OAuth Bearer: standard. Custom: depends on partner. Best practices: Define queries: maintain query strings separately if reused. Use variables: don't string-concat into query (injection risk). Error handling: check both HTTP status AND errors field. Pagination: GraphQL uses cursor-based; handle in BPMN loop (per Set 13 Q43). For the scenario: No built-in GraphQL Connector in 8.8 -- use the REST Connector with the GraphQL JSON body pattern above. Add a result-expression branch that checks response.body.errors` (GraphQL returns HTTP 200 even on query errors). If GraphQL use is repeated across many tasks, wrap in a custom Connector for cleaner UX + central error-field handling. Document the chosen approach in the Element Template / project README."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial (custom Connector is one of three valid paths but not the only one -- REST Connector usually suffices)."
+    },
+    "d": {
+      "text": "Incorrect. wrong (REST is exactly the right protocol for GraphQL -- GraphQL is just JSON-over-HTTP-POST)."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q33",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

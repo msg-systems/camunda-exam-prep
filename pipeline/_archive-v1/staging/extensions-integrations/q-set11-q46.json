@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Ops wants to monitor an Inbound Connector's health -- verify it's still listening for events, has correct subscription state, recent error rate. They want metrics / observability.",
+  "question": "Where does Inbound Connector observability come from?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Inbound Connectors have no monitoring or observability capabilities -- this misrepresents the observability stack available. Connector Runtimes expose Prometheus-compatible metrics that include subscription health, event throughput, correlation success and failure rates, and latency. These metrics integrate with Grafana dashboards and alerting. Additionally, Operate shows process instances triggered by Inbound Connectors with their trigger source in the instance history, providing per-instance operational visibility."
+    },
+    {
+      "id": "b",
+      "text": "Inbound Connector health can only be monitored through the Operate UI -- this understates the available observability surfaces. While Operate provides useful visibility into process instances triggered by Inbound Connectors, the primary source of Connector-specific metrics is the Connector Runtime itself, which exposes Prometheus-compatible metrics for subscription state, event throughput, correlation rates, and error counts. These metrics can be scraped and visualised in Grafana dashboards for subscription-level monitoring that goes well beyond what Operate provides for process-instance-level visibility."
+    },
+    {
+      "id": "c",
+      "text": "Teams must build entirely custom monitoring systems to observe Inbound Connector health -- this ignores the built-in observability provided by the Connector Runtime. Prometheus metrics are exposed out-of-the-box by the Connector Runtime and can be scraped directly without custom instrumentation. Standard Grafana dashboards can visualise these built-in metrics for subscription health, throughput, and error rates. Custom monitoring is needed only for specific business-level metrics that go beyond what the runtime exposes, not as a wholesale replacement for the built-in observability stack."
+    },
+    {
+      "id": "d",
+      "text": "Connector Runtime exposes metrics and logs for Inbound Connectors through multiple observability layers: Prometheus-compatible metrics covering subscription health (active/failed/restarting), event throughput per Connector, correlation success and failure rates, and latency from external event receipt to BPMN trigger; structured logs for per-event debugging with full event payloads and error stack traces; and Operate for per-process-instance visibility of instances triggered by Inbound Connectors including the trigger source in the instance history. These integrate with Grafana for dashboards and alerting."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Inbound Connector observability comes from multiple layers: Connector Runtime metrics (Prometheus): Subscription count + health: how many Inbound Connectors are subscribed; their state (active / failed / restarting). Event throughput: events received per second per Connector. Correlation success / failure rate: of received events, how many correlated successfully to BPMN. Latency: external event → BPMN trigger latency. Errors: auth failures, parse errors, downstream Zeebe errors. Connector Runtime logs: Detailed events for debugging (event payloads, correlation attempts, errors with stack traces). Operate: Process instances started by Inbound Connectors show in Operate. The instance's history shows the trigger source. Use Operate's filters to find Inbound-triggered instances. Monitoring stack: Prometheus scrapes Connector Runtime metrics. Grafana visualises dashboards (per-Connector throughput, subscription staleness, error rates). Alerts on thresholds (subscription dropped > 5 min, error rate > 5%). Log aggregation (ELK / Loki) for detailed debugging."
+    },
+    "b": {
+      "text": "Incorrect. Observable."
+    },
+    "c": {
+      "text": "Incorrect. Multiple layers."
+    },
+    "d": {
+      "text": "Correct. Built-in available."
+    }
+  },
+  "explanation": "Built-in available.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q46",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

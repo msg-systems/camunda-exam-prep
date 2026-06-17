@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's custom Connector has 5 deployed versions in their cluster's Connector Runtime. Different BPMN processes use different versions. They wonder how Connector versioning works.",
+  "question": "How are Connector versions managed across deployments?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only one version of a custom Connector can be active in a Connector Runtime at a time -- this misrepresents the multi-version coexistence capability. Connector Runtimes support hosting multiple versions of the same Connector simultaneously, enabling gradual rollout strategies. Different BPMN processes can reference different Connector versions via their Element Templates, and the runtime routes job activations to the appropriate version based on the template-embedded version metadata."
+    },
+    {
+      "id": "b",
+      "text": "When a new Connector version is deployed, all existing BPMN processes automatically upgrade to use the new version -- this describes an auto-upgrade behaviour that would break controlled rollout strategies. Connector version selection is explicit: it is embedded in the BPMN via Element Template metadata at modelling time. Existing BPMN processes continue using the version referenced by their template until a modeller explicitly applies a newer template version and redeploys the process."
+    },
+    {
+      "id": "c",
+      "text": "Connector versioning operates across three layers: (1) the Connector Runtime hosts multiple Connector version artifacts simultaneously; (2) Element Templates embed a specific Connector identifier and version in their JSON metadata; (3) when a BPMN process is modelled with a template, that version metadata is embedded in the BPMN XML. At runtime, when the task activates, the Connector Runtime routes the job to the matching Connector version. This enables coexistence of v1 and v2, gradual rollout, A/B testing across process variants, and rollback without redeploying all processes."
+    },
+    {
+      "id": "d",
+      "text": "Connectors have no versioning capability and all deployments replace the single active version -- this misrepresents the Connector lifecycle model. Connector versioning is a supported practice spanning three layers: the Connector Runtime hosting multiple version artifacts, Element Templates embedding version references in BPMN metadata, and process deployments carrying those version references. This multi-layer architecture enables coexistence, gradual rollout, A/B testing, and rollback without forcing all processes onto the same version simultaneously."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Connector versioning involves multiple layers: Connector Runtime level: The Runtime can host multiple versions of the same Connector simultaneously (where supported). Each version has its own implementation JAR / package. Element Template level: Each version of a Connector typically has its own Element Template (or template versions). The template's JSON metadata includes the Connector identifier + version. BPMN model level: When a modeler applies a template to a Service Task, the template's metadata is embedded in the BPMN. The BPMN at deployment carries the Connector + version reference. Runtime resolution: When a Service Task with this metadata activates, Connector Runtime routes to the matching Connector version. Versioning enables: Coexistence: deploy v2 alongside v1; modelers continue using v1 templates until ready to switch. Gradual rollout: new templates use v2; old ones continue on v1. A/B testing: different processes use different versions. Rollback: switch back to v1 if v2 has issues. Camunda's specific Connector versioning semantics vary by SDK / Runtime version; verify the docs."
+    },
+    "b": {
+      "text": "Incorrect. Multiple supported."
+    },
+    "c": {
+      "text": "Correct. Explicit references."
+    },
+    "d": {
+      "text": "Incorrect. Supported."
+    }
+  },
+  "explanation": "Explicit references.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q36",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

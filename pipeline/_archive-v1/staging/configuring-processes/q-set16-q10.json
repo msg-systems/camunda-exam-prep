@@ -1,0 +1,76 @@
+{
+  "id": "imp-set16-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task references a Form. Two patterns: embedded (JSON inline in BPMN) vs referenced (separate deployed Form via formId). Team wonders trade-offs.",
+  "question": "Form embedded vs referenced (formId)?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Always embedded -- partial."
+    },
+    {
+      "id": "b",
+      "text": "Always referenced -- this is only partially correct. For one-off forms specific to a single User Task, embedded forms are simpler and eliminate the coordination overhead. A blanket \"always referenced\" rule ignores valid scenarios where embedded forms reduce operational complexity."
+    },
+    {
+      "id": "c",
+      "text": "Embedded forms and referenced forms have fundamentally different deployment models and lifecycle implications. Embedded forms store the JSON form definition inline within the BPMN XML, so the form is versioned and deployed together with the process. Referenced forms are deployed independently via the Forms API and referenced by a stable formId. Changes to a referenced form affect all processes that reference it; changes to an embedded form require redeploying the BPMN. These are distinct patterns with different reuse, versioning, and operational characteristics."
+    },
+    {
+      "id": "d",
+      "text": "Two patterns with trade-offs: Embedded forms store the JSON schema inline inside the BPMN XML, making the form and process co-versioned in a single deployment artifact -- no external dependency, but changes require redeploying the BPMN. \"/>, enabling reuse across multiple User Tasks and independent form versioning. Choose embedded for one-off single-use forms; choose referenced for shared forms that appear in multiple tasks or processes. Mismatching the pattern leads to either unwanted duplication or unnecessary deployment coordination overhead."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Form linkage patterns: Embedded Form: `xml Verify exact embedding syntax per version. Pros: Single deployment: BPMN includes form. No external dependency: self-contained. Versioning together: form version = BPMN version. Cons: Duplication: same form in multiple BPMN = repeated. No reuse: can't share across processes. Larger BPMN: file size grows. Referenced Form (via formId): xml ` Pros: Reusable: one form, multiple User Tasks. Independent versioning: form evolves separately. Cleaner BPMN: no inline JSON. Cons: Two deploys: form + BPMN; coordinate. Reference integrity: ensure form exists. When to use which: Embedded: One-off form: used only by this User Task. Self-contained deployment: simpler operations. Tightly coupled to process: form changes when process changes. Referenced: Shared form: used across multiple User Tasks / processes. Independent evolution: form / process change separately. Modular design: forms as reusable assets. For form versioning: Embedded: form version = BPMN version. Referenced: each deploys independently; binding semantics (latest typical). Migration considerations (per Set 13 Q31): Embedded: each User Task's form independent. Referenced: change form → affects all referencing tasks. For Web Modeler: Modeler may prefer referenced: better organisation. Tooling: link User Task to existing Form. For Desktop Modeler: Both supported. Embedded simpler for single-file. For the scenario (trade-offs): Reference for reuse. Embed for one-off / self-contained. Best practices: Default to referenced: reusability, modularity. Use embedded sparingly: for genuinely one-off forms. Document Form-BPMN coupling: clarify. CI/CD: deploy both atomically when related. Anti-patterns: Copy-paste embedded forms: drift risk. Generic shared forms misused: complex with many context-specific variations."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q10",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 27 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[1]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 21.0 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

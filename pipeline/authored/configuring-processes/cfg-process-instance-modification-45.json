@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-45",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An embedded subprocess currently has two active instances. An operator submits a modification command to activate task `C`, which is nested inside that subprocess. What happens?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Task `C` is activated inside the first active instance of the subprocess."
+    },
+    {
+      "id": "b",
+      "text": "Task `C` is activated inside every active instance of the subprocess."
+    },
+    {
+      "id": "c",
+      "text": "The command is rejected because the process instance cannot decide in which subprocess instance to activate `C`."
+    },
+    {
+      "id": "d",
+      "text": "A brand new instance of the subprocess is created to host the activation of `C`."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "There is no \"first instance\" tie-breaker. With more than one active subprocess instance, the engine has no rule to pick one."
+    },
+    "b": {
+      "text": "Activation targets a single subprocess instance, not all of them. The engine does not fan an activation out across multiple instances."
+    },
+    "c": {
+      "text": "Per the \"Activate a nested element\" note, when the subprocess has more than one active instance, the engine cannot decide in which subprocess instance to activate the element, so the activation instruction is not applied and the command is rejected."
+    },
+    "d": {
+      "text": "A new subprocess instance is only created when there is no active instance of the subprocess at all, not when there are several."
+    }
+  },
+  "explanation": "When activating a nested element, the engine always activates it inside an existing instance of its enclosing subprocess. If there is no active instance, a new one is created (without running the start event or input mappings). If there is more than one active instance, the engine cannot decide which one to use, so it rejects the activation instruction.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

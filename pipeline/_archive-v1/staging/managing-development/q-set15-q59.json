@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q59",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Ops team needs alerts when: incidents spike, broker CPU > 80%, jobs backlog > 1000. Team wonders alert setup.",
+  "question": "Monitoring alerts setup?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Standard alerting via Prometheus + Alertmanager: Camunda exposes Prometheus metrics via Spring Boot Actuator at management port :9600/actuator/prometheus for Orchestration Cluster components. Prometheus scrapes that endpoint; alert rules defined in Prometheus config (groups → rules → expr/for/labels/annotations) fire when thresholds are crossed; Alertmanager routes alerts to email, Slack, or PagerDuty with deduplication and silencing. md -- use Optimize Alerts for process-level alerting rather than re-deriving in Prometheus. Verify metric names against your build''s /actuator/prometheus output -- names follow zeebe_*_total Prometheus conventions."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 Self-Managed provides no alerting capability -- operators must build custom monitoring from scratch -- this approach has limitations. Camunda 8 integrates with the standard Prometheus + Alertmanager stack via the Spring Boot Actuator /actuator/prometheus endpoint on port 9600. This exposes Zeebe engine metrics (job processing rates, partition health, backpressure indicators) for use in Prometheus alert rules. , SLA compliance rates, instance throughput). Both infrastructure-level (Prometheus) and process-level (Optimize) alerting are documented and supported features."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 Self-Managed is designed for automated monitoring integration: Prometheus scrapes metrics from the /actuator/prometheus endpoint continuously; Alertmanager sends automated notifications when alert conditions are met; Optimize monitors process KPIs and sends alerts automatically when thresholds are breached. Manual log checking and dashboard reviews are supplementary practices for incident investigation, not the primary monitoring approach for production deployments at scale."
+    },
+    {
+      "id": "d",
+      "text": "While Prometheus + Alertmanager are external infrastructure-monitoring tools, Camunda Optimize provides native process-level alerting built into the product: report-threshold alerts configured directly in the Optimize UI send notifications when defined KPI thresholds are exceeded. This does not require any external tool setup beyond Optimize itself. The correct picture is: infrastructure alerting (Prometheus/Alertmanager -- external) plus process-KPI alerting (Optimize Alerts -- Camunda-native)."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Monitoring + alerting setup: Architecture: ` Camunda → metrics → Prometheus → Alertmanager → notifications ↓ Grafana (visualization) Components: Prometheus: Scrapes metrics endpoints (per Set 13 Q56). Stores time-series. Evaluates alert rules. Alertmanager: Receives alerts from Prometheus. Routes to channels. De-duplicates, groups, silences. Grafana: Visualises metrics. Can also send alerts (alternative to Alertmanager). Alert rules examples (Prometheus): yaml groups: name: camunda-alerts rules: alert: HighIncidentRate expr: rate(zeebe_incidents_created_total[5m]) > 0.1 for: 5m labels: severity: warning annotations: summary: \"High incident rate: {{ $value }} per second\" alert: BrokerCPUHigh expr: avg(node_cpu_seconds_total{instance=~\"zeebe-broker.*\"}) > 0.8 for: 10m labels: severity: critical annotations: summary: \"Broker CPU > 80%\" alert: JobBacklogHigh expr: zeebe_jobs_pending > 1000 for: 5m labels: severity: warning annotations: summary: \"Job backlog: {{ $value }}\" Verify exact metric names per Camunda version. Alertmanager routing: yaml route: receiver: 'default' routes: match: severity: critical receiver: 'pagerduty' match: severity: warning receiver: 'slack' receivers: name: 'pagerduty' pagerduty_configs: service_key: 'xxx' name: 'slack' slack_configs: api_url: 'xxx' channel: '#ops-alerts' Alert categories: Critical (immediate action): Broker down. Cluster split-brain. Auth failures (per Set 15 Q44). Data loss imminent. Warning (investigate): High latency. Resource saturation. High error rates. Backlog growth. Info (awareness): Deployments. Scheduled events. Capacity milestones. For the scenario (incidents spike, CPU, backlog): All warning-level typically: Incidents spike: needs ops attention; not always critical. CPU > 80%: warning; scale before saturation. Backlog > 1000: investigate why; scale workers. Alert design principles: Actionable: Every alert should have an action. Runbook reference: what to do. Threshold tuning: Too low: alert fatigue; ignored. Too high: miss issues. Test thresholds: calibrate to real patterns. Time windows: for: 5m`: alert if condition persists 5 min. Avoids transient spikes. Severity levels: Critical: page someone now. Warning: investigate during business hours. Info: visibility, no action. For SaaS: Camunda Console may provide built-in dashboards / alerts: Cluster health. Plan-level metrics. Verify per plan. External integration: Export metrics from SaaS via Console (if supported). Feed into own Prometheus / Grafana / etc. For application-level alerts: Worker health: Heartbeat metric. Alert if worker missing. Process-level KPIs: SLA breach rate: business metric. Completion rate: per process. Custom metrics: Workers emit custom metrics. Alert on business-specific thresholds. Alert response: Runbooks: Per alert type. Steps to investigate / fix. Escalation path. On-call rotation: PagerDuty / Opsgenie: scheduling. Escalation: if primary doesn't respond. Post-incident: Review: what happened, why, prevention. Tune alerts: based on learnings. Best practices: Alert on symptoms: user-impacting issues. Avoid alert fatigue: every alert matters."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Monitoring + alerting setup: Architecture: ` Camunda → metrics → Prometheus → Alertmanager → notifications ↓ Grafana (visualization) Components: Prometheus: Scrapes metrics endpoints (per Set 13 Q56). Stores time-series. Evaluates alert rules. Alertmanager: Receives alerts from Prometheus. Routes to channels. De-duplicates, groups, silences. Grafana: Visualises metrics. Can also send alerts (alternative to Alertmanager). Alert rules examples (Prometheus): yaml groups: name: camunda-alerts rules: alert: HighIncidentRate expr: rate(zeebe_incidents_created_total[5m]) > 0.1 for: 5m labels: severity: warning annotations: summary: \"High incident rate: {{ $value }} per second\" alert: BrokerCPUHigh expr: avg(node_cpu_seconds_total{instance=~\"zeebe-broker.*\"}) > 0.8 for: 10m labels: severity: critical annotations: summary: \"Broker CPU > 80%\" alert: JobBacklogHigh expr: zeebe_jobs_pending > 1000 for: 5m labels: severity: warning annotations: summary: \"Job backlog: {{ $value }}\" Verify exact metric names per Camunda version. Alertmanager routing: yaml route: receiver: 'default' routes: match: severity: critical receiver: 'pagerduty' match: severity: warning receiver: 'slack' receivers: name: 'pagerduty' pagerduty_configs: service_key: 'xxx' name: 'slack' slack_configs: api_url: 'xxx' channel: '#ops-alerts' Alert categories: Critical (immediate action): Broker down. Cluster split-brain. Auth failures (per Set 15 Q44). Data loss imminent. Warning (investigate): High latency. Resource saturation. High error rates. Backlog growth. Info (awareness): Deployments. Scheduled events. Capacity milestones. For the scenario (incidents spike, CPU, backlog): All warning-level typically: Incidents spike: needs ops attention; not always critical. CPU > 80%: warning; scale before saturation. Backlog > 1000: investigate why; scale workers. Alert design principles: Actionable: Every alert should have an action. Runbook reference: what to do. Threshold tuning: Too low: alert fatigue; ignored. Too high: miss issues. Test thresholds: calibrate to real patterns. Time windows: for: 5m`: alert if condition persists 5 min. Avoids transient spikes. Severity levels: Critical: page someone now. Warning: investigate during business hours. Info: visibility, no action. For SaaS: Camunda Console may provide built-in dashboards / alerts: Cluster health. Plan-level metrics. Verify per plan. External integration: Export metrics from SaaS via Console (if supported). Feed into own Prometheus / Grafana / etc. For application-level alerts: Worker health: Heartbeat metric. Alert if worker missing. Process-level KPIs: SLA breach rate: business metric. Completion rate: per process. Custom metrics: Workers emit custom metrics. Alert on business-specific thresholds. Alert response: Runbooks: Per alert type. Steps to investigate / fix. Escalation path. On-call rotation: PagerDuty / Opsgenie: scheduling. Escalation: if primary doesn't respond. Post-incident: Review: what happened, why, prevention. Tune alerts: based on learnings. Best practices: Alert on symptoms: user-impacting issues. Avoid alert fatigue: every alert matters.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/optimize/userguide/additional-features/alerts/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q59",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

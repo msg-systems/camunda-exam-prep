@@ -1,0 +1,27 @@
+{
+  "id": "ext-job-workers-15",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Retail runs a Camunda 8.8 self-managed cluster handling 4500 order-fulfillment jobs per hour. A worker for the type packPallet is registered but no jobs of that type are being activated. The on-call SRE wants to inspect the registered job streams from the broker and gateway monitoring port (localhost:9600) before restarting any pods.",
+  "question": "Which actuator endpoint exposes the registered job streams on a Camunda 8.8 broker or gateway?",
+  "options": [
+    { "id": "a", "text": "/actuator/jobstreams returns the current view of registered job streams, with client referring to streams opened on the gateway and remote referring to aggregated gateway streams on each broker" },
+    { "id": "b", "text": "/actuator/jobs returns the current view of registered job streams, with client referring to streams opened on the broker and remote referring to aggregated broker streams on each gateway" },
+    { "id": "c", "text": "/actuator/streams returns the current view of registered job streams, with client referring to streams opened on the gateway and remote referring to aggregated gateway streams on each broker" },
+    { "id": "d", "text": "/actuator/health/jobstreams returns the current view of registered job streams, with both client and remote sections listed only on the broker actuator port" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Each broker and gateway exposes /actuator/jobstreams on the monitoring port. The response separates client (streams opened on the gateway) from remote (aggregated gateway streams as opened on each broker), which is exactly what the SRE needs to trace a missing stream." },
+    "b": { "text": "Incorrect. /actuator/jobs is not the documented endpoint; the docs specify /actuator/jobstreams as the actuator for job stream inspection." },
+    "c": { "text": "Incorrect. /actuator/streams is not the documented endpoint; the docs name /actuator/jobstreams as the actuator that returns registered job streams." },
+    "d": { "text": "Incorrect. The actuator is /actuator/jobstreams (not nested under /health), and it is exposed on both broker and gateway monitoring ports, not only on the broker." }
+  },
+  "explanation": "Both brokers and gateways expose /actuator/jobstreams on the monitoring port. The payload distinguishes client streams (opened on the gateway) from remote (aggregated streams seen on each broker), which lets operators trace where a registered stream is missing before restarting anything.",
+  "docs": [
+    { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Sequential MI Subprocess has completionCondition. The team wonders when exactly the engine evaluates the condition -- after each iteration? At specific points? When is completionCondition evaluated during MI execution?",
+  "question": "When is completionCondition evaluated during MI execution?",
+  "options": [
+    {
+      "id": "a",
+      "text": "completionCondition is evaluated continuously in a polling loop while instances are running -- wrong; it is evaluated discretely per-instance-completion. Continuous polling would be inefficient and create performance issues for large MI configurations with many parallel instances. The engine operates event-driven: each time an inner instance completes, the engine updates the accumulated state (outputCollection, completion counters) and then evaluates the condition exactly once for that completion event. This event-driven model ensures efficient evaluation without unnecessary repeated processing between completion events."
+    },
+    {
+      "id": "b",
+      "text": "Evaluated after each inner instance completes -- the engine updates state (outputCollection accumulates, completion counters increment), then re-evaluates completionCondition. If true → MI completes (remaining instances cancelled or no more started for sequential). If false → next iteration starts (or current parallel instances continue). Not evaluated mid-iteration: the condition can't preempt a currently-running inner instance based on external changes (other than the iteration's own completion)."
+    },
+    {
+      "id": "c",
+      "text": "completionCondition is evaluated only once at Multi-Instance start, before any instances run -- wrong; if it were evaluated only at start, the accumulated output collection would be empty and the condition could never reflect success counts from completed instances. The entire purpose of completionCondition is early termination based on accumulated results, which requires per-iteration evaluation as the state evolves. Evaluating at start with empty state would either always be false (no premature stop) or require a condition that works without any input, defeating the feature's purpose."
+    },
+    {
+      "id": "d",
+      "text": "completionCondition is evaluated only after all instances complete, at the end of the MI body -- wrong; this interpretation would make the feature useless for early termination. If the condition were only checked after all instances finish, there would be no opportunity to cancel remaining running instances based on accumulated results. The feature's value is precisely the ability to stop early when enough successes accumulate (for example, stopping after 3 approvals in a parallel approval flow), saving time and resources by not waiting for all remaining instances."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. MI completionCondition evaluation timing: Per-iteration-completion: After each inner instance completes (success or failure), state updates: numberOfCompletedInstances increments. numberOfActiveInstances decrements. outputCollection (if configured) updated with this instance's result. Engine re-evaluates completionCondition with the new state. If true: MI completes. Sequential MI: no more inner instances will start. Parallel MI: remaining active instances are cancelled. If false: iteration continues. Sequential MI semantics (with completionCondition): Instance N completes → check condition → if true, stop (no instance N+1). Useful for \"process items until condition met.\" Parallel MI semantics (with completionCondition): All instances spawn at start; each completes asynchronously. As each completes, condition re-evaluated. On first true: remaining instances cancelled; MI completes. Useful for \"first N successes wins\" patterns. Important: completionCondition can't preempt a running instance based on external state (e.g., another process publishing a Message). It's only evaluated at instance-completion boundaries. For external-triggered MI termination: use Boundary Event on MI subprocess (e.g., Message Boundary listening for cancel signal)."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. Incorrect."
+    },
+    "d": {
+      "text": "Incorrect. Incorrect."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q13",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

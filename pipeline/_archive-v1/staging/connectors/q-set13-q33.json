@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team consumes events from a Kafka topic + needs to react in BPMN. They wonder if Camunda provides a Kafka Connector out-of-the-box.",
+  "question": "Kafka Connector availability + use?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 has no Kafka integration capabilities; teams needing to consume Kafka events must build entirely custom Java workers that consume topics and submit job completions via the Zeebe API independently. This misrepresents the documented behavior. These Connectors are configurable directly in Web Modeler."
+    },
+    {
+      "id": "b",
+      "text": "md:11-19: Kafka Producer connector (outbound, publish to topic -- Service Task type) and Kafka Consumer connector (inbound, consume topic events -- Message Start / Boundary / Intermediate Catch element). Configuration (outbound): bootstrap server, topic, key, value, security (SASL_PLAINTEXT / SASL_SSL credentials via Camunda secrets per :25-27), headers. Configuration (inbound, Consumer): bootstrap server + topic + consumer group ID for offset tracking, activation condition (FEEL filter), correlation key expression (extracts the message correlation key for routing to existing process instances), variable extraction. Outbound completion: process continues once message accepted by broker. md). Security best practice: never inline credentials; use `{{secrets."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 also provides a Kafka Consumer inbound Connector that listens on a Kafka topic and correlates received messages to BPMN Message elements (Start Events, Boundary Events, or Intermediate Catch Events) using a configurable correlation key expression. Both outbound and inbound Connectors are included in the standard catalog."
+    },
+    {
+      "id": "d",
+      "text": "There are no standard Kafka Connectors included with Camunda 8; teams must always build custom Connector implementations using the Connector SDK to handle Kafka integration. This overstates the need for custom development. Camunda 8 ships Kafka integration as part of its out-of-the-box Connector catalog, covering both producing to and consuming from Kafka topics. Custom Connector development is only necessary for advanced scenarios not covered by the standard Connector configuration options, such as custom serialization formats or complex authentication schemes."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Kafka Connector ecosystem in Camunda 8: Out-of-the-box Connectors (typical): Kafka Outbound Connector: Service Task publishes a message to a Kafka topic. Kafka Inbound Connector: Receives messages from a topic and correlates to process instances (via Message Start, Boundary, Catch). Outbound configuration: Bootstrap servers: Kafka broker addresses. Topic: target topic name. Key: optional partition key (for ordering / partitioning). Value: message payload (string, JSON, etc.). Security: SASL_PLAINTEXT, SASL_SSL credentials. Headers: custom message headers. Inbound configuration: Bootstrap servers + topic: source. Consumer group ID: for tracking offset. Activation condition (FEEL): filter messages. Correlation key expression: extract correlation key from message. Variable mapping: extract fields from message body to process variables. Use cases: Event-driven BPMN: process reacts to events on shared topics (order events, payment events, etc.). Asynchronous fan-out: process publishes events for other consumers. Cross-system integration: Kafka as integration backbone. Operational considerations: Consumer group: dedicated group per Inbound Connector to avoid offset conflicts. Backpressure: high-throughput topics need careful tuning. Schema management: typically pair with Schema Registry (Avro / Protobuf) for typed messages. Security: Credentials via Camunda secrets ({{secrets.KAFKA_PASSWORD}}). Never inline credentials in BPMN. If unavailable in your version / plan: Build custom Connector via Connector SDK. Use external worker pattern: external service consumes Kafka + publishes Camunda Messages via REST API. Verify exact availability + capabilities per Camunda 8 version."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. Partially correct."
+    },
+    "d": {
+      "text": "Incorrect. Overstates."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/kafka/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q33",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

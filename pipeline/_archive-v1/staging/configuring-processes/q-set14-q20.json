@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task has a Compensation Boundary Event. The boundary handler (separate Service Task) is the compensation. Team wonders how compensation is triggered.",
+  "question": "Boundary Compensation Event semantics?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Compensation events in BPMN do not trigger automatically on failure. A Compensation Throw Event or Compensation End Event must be explicitly placed in the process flow -- typically on an error exit path -- to trigger compensation. md:31-35, when a compensation throw is reached, all compensation handlers for completed activities in scope are invoked concurrently without a specific order. Handlers for active or terminated activities are skipped. Scope is bounded by the enclosing subprocess or process root."
+    },
+    {
+      "id": "b",
+      "text": "Triggering compensation via manual API calls from outside the process is an unconventional workaround. BPMN compensation is designed as a process-internal mechanism triggered by Compensation Throw or End Events within the model. While Camunda's API can modify process state, using it to externally simulate compensation bypasses the BPMN compensation semantics, loses scope isolation guarantees, and requires custom coordination logic. The proper approach is to model the compensation flow explicitly using BPMN compensation boundary events and throw events."
+    },
+    {
+      "id": "c",
+      "text": "md:26-35): the engine searches for all completed activities in scope that have a Compensation Boundary Event attached and invokes their handlers concurrently in no defined order. Handlers of active or not-yet-started activities are skipped. md:47-49) -- use Embedded Subprocess with Compensation Throw on the failure path as the saga pattern."
+    },
+    {
+      "id": "d",
+      "text": "Compensation Events and Error Events serve completely different purposes in BPMN. Error Events signal exceptional conditions that propagate up the process hierarchy to be caught by Error Boundary Events or Error Event Subprocesses, often aborting the current path. Compensation Events trigger rollback handlers for already-completed activities, enabling business-level undo operations. The two mechanisms have different visual notation, different triggering semantics, and different scoping rules."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Compensation event mechanics: Setup: Activity A (e.g., \"Charge Card\"): completes; has a Compensation Boundary Event attached. Boundary Event → connected to compensation handler (e.g., \"Refund Card\" Service Task). Handler waits dormant until compensation thrown. Triggering compensation: Trigger 1: Compensation Throw Event: Intermediate Throw Event or End Event with Compensation marker. Placed in the same scope (or parent) as the activities with Compensation Boundaries. When reached: engine searches for completed activities in scope with Compensation Boundaries; runs their handlers. Trigger 2 -- NOT AVAILABLE in Camunda 8: Cancel End Event + Transaction Subprocess are BPMN constructs that are NOT implemented in Camunda 8.8 (per bpmn-coverage.md:47-49 no className=\"implemented\"). Canonical C8 substitute: Embedded Subprocess + Compensation Boundary Events; on failure path use a Compensation Intermediate Throw Event to fire all handlers in the subprocess scope. Execution order (per compensation-events.md:31-35): Unordered (concurrent invocation) -- \"The process instance invokes all compensation handlers at once without any specific order.\" Do NOT assume LIFO or reverse-completion ordering. For explicit ordering: use multiple Compensation Throws (Intermediate Throw events) each carrying an activityRef pointing to a specific completed activity (:73-83). Each throw fires synchronously and completes before the next one runs. Example flow: ` [Start] → [A: Charge Card] → [B: Update Inventory] → [C: Send Email] → [Some condition] ↓ comp ↓ comp ↓ comp ↓ [Refund Card] [Restore Inventory] [Send Cancellation] [Compensation Throw] When the broadcast compensation throw fires: Handlers for A (Refund Card), B (Restore Inventory), C (Send Cancellation) start concurrently in NO defined order. To enforce sequence \"undo C, then B, then A\", model three separate throws in sequence: throw with activityRef=C → throw with activityRef=B → throw with activityRef=A. Activity must have completed: Compensation only for COMPLETED activities. Activities still in-flight: not compensated (just cancel them via normal cancellation). Activities never reached: nothing to compensate. Use case: Saga pattern: Long-running business transaction across multiple services. Each step has a compensation action (the \"undo\"). On error: trigger compensation; engine unwinds completed steps. In Transaction Subprocess -- NOT AVAILABLE in C8 8.8: Transaction Subprocess and Cancel End Event are not implemented (bpmn-coverage.md:47-49`). Use Embedded Subprocess scope + Compensation Throw on the error-handling exit path. Compensation handler can fail: Per Set 13 Q5: compensation failure → Incident. Compensation isn't infinite-retry; design handlers to be robust. Compensation can't compensate compensation: Handlers themselves don't have Compensation Boundaries typically. Avoid recursive complexity. Best practices: Idempotent handlers: compensation may be invoked multiple times in some scenarios. Log compensation actions: audit trail of what was undone. Test compensation paths: harder than happy path; often neglected."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial. Via API typically not standard."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/compensation-events/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q20",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

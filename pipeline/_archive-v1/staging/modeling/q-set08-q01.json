@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q01",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A B2B supply-chain workflow involves three independent organisations: a Buyer, a Seller, and a 3PL (third-party logistics provider). Each organisation runs its own internal process -- they share information only at specific handover points (purchase order sent, shipment dispatched, delivery confirmed). The team is designing a single BPMN diagram to document the cross-organisational interaction for governance review (not for execution by any single Zeebe deployment).",
+  "question": "Which BPMN collaboration construct fits this multi-org documentation use case?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A single Pool with three Lanes -- one per organisation. Lanes represent internal organisational units within a single process participant, not separate organisations with independent processes. All three Lanes would share one Zeebe process definition and one process instance, which directly contradicts the requirement for three independent organisations each running their own internal process."
+    },
+    {
+      "id": "b",
+      "text": "Three Pools -- one per organisation -- connected by Message Flows at handover points. Each Pool independently describes that organisation's internal process. Message Flows (dashed arrows) cross Pool boundaries to represent the inter-organisation exchanges at purchase-order, shipment-dispatch, and delivery-confirmation points. This is BPMN's standard collaboration diagram pattern for multi-party workflows where each participant owns its own process. md, both Pool and Lane constructs are implemented in Camunda Modeler."
+    },
+    {
+      "id": "c",
+      "text": "Three separate BPMN files, one per organisation, with no visual connection between them. This approach loses the primary cross-organisational documentation value entirely. Governance reviewers would need to mentally cross-reference three independent diagrams to understand interaction points. The BPMN collaboration diagram exists precisely to provide a single view of all participants and their message exchanges."
+    },
+    {
+      "id": "d",
+      "text": "A single Pool with text annotations referencing the other organisations. Annotations are non-executable documentary text elements that carry no formal BPMN semantics. They cannot represent message exchanges, timing relationships, or interaction protocols. Using annotations instead of Message Flows leaves the inter-organisational exchanges undefined in the formal model. Readers cannot determine which messages are sent, which are received, or what data crosses organisational boundaries from annotations alone."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Multiple Pools represent separate participants / organisations. Each Pool is its own contained process; the Pool boundary is the trust boundary. Message Flows (dashed-line connectors with envelope marker) cross Pool boundaries to show that one org sends a message and another receives it. Both Pool and Lane are implemented per bpmn-coverage.md:22-25. For documentation-grade BPMN of multi-org workflows, this is the canonical construct: each Pool can be left as a \"collapsed\" external participant (descriptive only) or expanded with isExecutable=\"true\" if a specific org's deployment owns that pool's process definition."
+    },
+    "b": {
+      "text": "Correct. Lanes are intra-Pool divisions for sub-teams or roles within one organisation. Three Lanes for three orgs misuses the construct: it implies the three orgs share one process definition, which is exactly what cross-org workflows don't do."
+    },
+    "c": {
+      "text": "Incorrect. Three disconnected files defeat the documentation purpose. The whole point is showing how the orgs talk to each other."
+    },
+    "d": {
+      "text": "Incorrect. Annotations are documentation comments, not formal model elements. They don't carry Message Flow semantics, so the inter-org exchanges remain undefined."
+    }
+  },
+  "explanation": "Lanes are intra-Pool divisions for sub-teams or roles within one organisation. Three Lanes for three orgs misuses the construct: it implies the three orgs share one process definition, which is exactly what cross-org workflows don't do.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/bpmn-coverage/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q01",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "cfg-incidents-33",
+  "topic": "configuring-processes",
+  "subtopic": "incidents",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A job worker exhausts its retries because the variables were in the wrong format, raising an incident. Per the docs, which sequence of operations resolves this job-related incident?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Update the process instance variables, increase the remaining retries of the job, then mark the incident as resolved."
+    },
+    {
+      "id": "b",
+      "text": "Mark the incident as resolved first, then update the variables and increase the retries afterwards."
+    },
+    {
+      "id": "c",
+      "text": "Increase the retries only; the incident auto-resolves on the next successful job activation."
+    },
+    {
+      "id": "d",
+      "text": "Cancel the process instance and start a fresh one with corrected variables."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs list exactly three numbered steps when the variables are causing a job incident: update the variables, increase the remaining retries, then mark the incident as resolved. Resolving the incident triggers a retry, and the job can then be activated by a worker again."
+    },
+    "b": {
+      "text": "Marking the incident as resolved is the last step, not the first. The docs' note that resolving triggers a retry only works if the variables and retries have already been fixed; otherwise a new incident is created immediately."
+    },
+    "c": {
+      "text": "Increasing retries alone does not requeue the job — the incident itself blocks further activation. The docs require explicitly marking the incident as resolved to trigger retry execution."
+    },
+    "d": {
+      "text": "Cancelling and restarting is destructive and discards state. The supported resolution path is the three-step `setVariables` → `updateRetries` → `resolveIncident` sequence, not a process restart."
+    }
+  },
+  "explanation": "Per the docs' \"Resolving a job-related incident\" section, when variables are at fault you update them, increase the job's remaining retries, and then mark the incident as resolved. The Java client illustration combines `newSetVariablesCommand`, `newUpdateRetriesCommand`, and `newResolveIncidentCommand`. Resolving the incident triggers retry execution.",
+  "docs": [
+    {
+      "title": "Incidents",
+      "url": "https://docs.camunda.io/docs/components/concepts/incidents/"
+    }
+  ]
+}

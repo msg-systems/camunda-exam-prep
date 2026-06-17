@@ -1,0 +1,63 @@
+{
+  "id": "imp-set06-q56",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team must audit historical variable values of a process instance -- what orderStatus was set to at various points during execution.",
+  "question": "Which feature fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An interrupting Timer Boundary Event attached to the service task fires after the configured ISO 8601 duration, immediately cancels the active job, and routes the token exclusively to the escalation sequence flow. This provides a hard deadline enforcement pattern where the original task is terminated, making it the correct choice when the process must stop the task and follow an exclusive alternative path rather than running both paths in parallel."
+    },
+    {
+      "id": "b",
+      "text": "A Message Boundary Event attached to the service task listens for an externally published timeout message. A dedicated scheduler service publishes the correlation message after the deadline expires, triggering the boundary event and routing the token to the reminder path. While flexible in terms of dynamic deadline changes, this pattern requires an additional external scheduler process, adding operational complexity compared to a native BPMN timer element."
+    },
+    {
+      "id": "c",
+      "text": "A non-interrupting Timer Boundary Event attached to the service task fires after the configured ISO 8601 duration without cancelling the running job. The process forks a new token to the reminder notification path while the original service task token continues execution in parallel. This is the standard BPMN pattern for soft deadlines and escalation notifications where the task must continue alongside the triggered reminder flow."
+    },
+    {
+      "id": "d",
+      "text": "An Error Boundary Event attached to the service task catches application-level errors thrown explicitly by the worker. When the worker detects that processing is taking too long, it throws a BPMN error that triggers the boundary event, forking the token to the reminder path. This pattern allows parallel execution if the boundary event is configured as non-interrupting, but it requires the worker implementation to include its own internal deadline monitoring logic."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate's per-instance Operations Log (audit log) captures user/client manual variable Create/Update actions per audit-log/overview/recorded-operations.md:87-88. Caveat: Operate's Variables panel shows only the current value (per basic-operate-navigation.md:25); broker-driven changes (worker output mappings, FEEL evaluations) are NOT in the audit log -- only explicit user/client API operations are. For full runtime variable evolution, use the Audit Log REST API (search-audit-logs.api.mdx) or external Elasticsearch/OpenSearch exporters."
+    },
+    "b": {
+      "text": "Incorrect. Operations Log captures manual edits even if Variables panel shows only current."
+    },
+    "c": {
+      "text": "Correct. Optimize is analytics -- useful for trends across instances but not for \"what was orderStatus at point X in instance Y\"."
+    },
+    "d": {
+      "text": "Incorrect. Broker logs aren't a structured audit; the audit log is."
+    }
+  },
+  "explanation": "Optimize is analytics -- useful for trends across instances but not for \"what was orderStatus at point X in instance Y\".",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/bpmn-coverage/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q56",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-question-too-short",
+        "severity": "block",
+        "message": "question length 19 < 20 (catastrophically short)",
+        "where": "question"
+      }
+    ]
+  }
+}

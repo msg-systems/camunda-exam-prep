@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Receive Task waits for a message named OrderShipped with correlation key FEEL expression =orderId. When the task activates, the process variable orderId happens to be null (it wasn't set upstream due to a data issue).",
+  "question": "What happens at the moment of Receive Task activation with a null correlation key?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Receive Task activates and then waits indefinitely in a silent wait state -- Zeebe creates the message subscription without any error, the task shows as \"active\" in Operate, and no notification is given to operators about the underlying data problem. This scenario would be the worst possible failure mode: teams would see the process appear to be running normally while the subscription would never correlate because the null key matches nothing. Fortunately, Zeebe does not accept null correlation keys silently. Instead, the engine immediately surfaces an Incident so the operations team is alerted and can intervene."
+    },
+    {
+      "id": "b",
+      "text": "When the FEEL expression evaluates to null, Zeebe automatically substitutes an empty string as the correlation key, creating a subscription for \"\". This claim is inaccurate and describes a dangerous implicit coercion: a subscription with an empty-string key would match any published message with an empty-string correlation key, potentially correlating with messages from entirely different process instances or processes that happen to share the same empty key. Zeebe has no such default substitution behaviour. Null is treated as an error condition requiring explicit operator intervention, not as a valid fallback value."
+    },
+    {
+      "id": "c",
+      "text": "The activation fails and creates an Incident -- Zeebe requires the correlation key value to be non-null (and typically non-empty for strings) at the moment the message subscription is created. When the FEEL expression evaluates to null, the engine raises an Incident with a descriptive error message identifying the problem. Operations teams see this incident in Operate, can navigate to the process instance, update the variable orderId with the correct value, and then resolve the incident. Once resolved, Zeebe creates the subscription and the Receive Task proceeds to wait for matching incoming messages."
+    },
+    {
+      "id": "d",
+      "text": "Zeebe generates a random UUID or unique identifier as the correlation key when the configured FEEL expression evaluates to null -- this would make it impossible for any published message to correlate with this subscription, since the publisher has no way to predict the randomly generated key. Random key generation would make the message correlation system fundamentally non-deterministic and unusable. Zeebe does not generate random fallback keys under any circumstances. Null correlation keys are treated as a configuration error requiring operator intervention rather than a scenario warranting silent fallback behaviour."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe's contract for Message correlation: at the moment a subscription is created (Receive Task activated or Message Catch Event reached), the correlation key value must be defined and non-null. If the FEEL expression evaluates to null, Zeebe creates an Incident with a clear error message (\"correlation key is null\" or similar). Ops sees this in Operate, updates the variable, resolves the incident, and the subscription is then created. This guard prevents silent miscorrelation issues."
+    },
+    "b": {
+      "text": "Incorrect. Silent waiting would be the worst outcome -- the team wouldn't know anything's wrong until a published message inexplicably fails to correlate. Operate's incident-on-null is the right design."
+    },
+    "c": {
+      "text": "Correct. Empty string would correlate to \"\" message keys, which is also dangerous. Null is an error case, not a default case."
+    },
+    "d": {
+      "text": "Incorrect. Random correlation would mismatch published messages; defeats the purpose."
+    }
+  },
+  "explanation": "Empty string would correlate to \"\" message keys, which is also dangerous. Null is an error case, not a default case.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q20",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

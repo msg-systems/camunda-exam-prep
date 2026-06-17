@@ -1,0 +1,50 @@
+{
+  "id": "cfg-signals-40",
+  "topic": "configuring-processes",
+  "subtopic": "signals",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helio Travel runs a Camunda 8.8 booking platform that needs to inform 7,500 instances of the in-flight booking process about a partner-airline outage. The integration team prefers to broadcast the outage from an external monitoring system rather than embedding it inside any of the existing BPMN models in the catalogue.",
+  "question": "Which Camunda 8.8 mechanism listed in the docs satisfies this requirement to broadcast the signal from an external system?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Call the Orchestration Cluster REST API Broadcast signal endpoint or invoke Zeebe's BroadcastSignal RPC from the external monitoring system to broadcast the signal."
+    },
+    {
+      "id": "b",
+      "text": "Configure a signal start event in every booking process and rely on Operate's incident UI to publish the signal across all running instances at once from the console."
+    },
+    {
+      "id": "c",
+      "text": "Insert a signal catch event into each booking process so the external system can correlate against it the way it would correlate a message by correlation key."
+    },
+    {
+      "id": "d",
+      "text": "Issue a Zeebe job-batch activation command targeting every running booking process so the worker can throw the signal back into the engine through its own response."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs list the Orchestration Cluster REST API Broadcast signal endpoint and Zeebe's BroadcastSignal RPC as two of the documented ways to broadcast a signal from outside a running process."
+    },
+    "b": {
+      "text": "Incorrect. A signal start event creates new process instances when triggered; Operate's incident UI is not a documented mechanism for broadcasting signals across running instances."
+    },
+    "c": {
+      "text": "Incorrect. Signal catch events subscribe to broadcasts but do not themselves broadcast a signal, and correlation by key is the mechanism for messages rather than for signals."
+    },
+    "d": {
+      "text": "Incorrect. Job activation is for retrieving and completing jobs and is not a documented way to broadcast a signal into the engine from an external system or worker."
+    }
+  },
+  "explanation": "The docs enumerate three broadcast paths for signals: a signal throw event or signal end event inside a process, the Orchestration Cluster REST API Broadcast signal endpoint, and Zeebe's BroadcastSignal RPC. The latter two are the natural fit when an external system needs to broadcast.",
+  "docs": [
+    {
+      "title": "Signals",
+      "url": "https://docs.camunda.io/docs/components/concepts/signals/"
+    }
+  ]
+}

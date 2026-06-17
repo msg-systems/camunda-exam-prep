@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q16",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An IDP-based invoice-processing flow has extraction confidence around 92% across fields. The team wants a human-in-the-loop validation step for edge cases -- when confidence is low, route to a User Task showing the extracted data + original document for review, allowing the human to correct any field before continuing.",
+  "question": "Which BPMN pattern implements \"IDP → conditional human review → continue\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "IDP processes all documents fully automatically with no mechanism to route borderline cases to human reviewers -- human-in-the-loop review is not possible -- this description does not reflect the actual behaviour. Human-in-the-loop review is one of the primary design patterns for IDP integration in Camunda 8. Low-confidence extraction results are routed to a User Task where a human operator reviews and corrects extracted data. The IDP connector exposes confidence scores per extracted field, enabling conditional routing in the BPMN gateway based on whether confidence meets the threshold required for automated processing."
+    },
+    {
+      "id": "b",
+      "text": "Route every single document through human review regardless of how high the IDP extraction confidence score is -- this completely defeats the automation purpose of Intelligent Document Processing. The business value of IDP is high-volume automated extraction for clear high-confidence documents, combined with targeted human review only for borderline low-confidence results. Routing everything to human review produces the same operational cost as fully manual processing with additional IDP processing overhead. The confidence threshold pattern exists precisely to maximise automation throughput while preserving accuracy for borderline cases."
+    },
+    {
+      "id": "c",
+      "text": "confidence >= threshold) → if all-confident, automated path; if any low, User Task displaying the extracted fields (via a Camunda Form bound to the IDP result) and the document (via Document Handling reference), letting the human edit fields, then continue. The corrected values overwrite the IDP results downstream."
+    },
+    {
+      "id": "d",
+      "text": "While routing based on confidence scores is the correct IDP pattern, the threshold configuration is more granular than one global value. Different document fields may have different confidence requirements depending on their business importance. The routing decision is made in the BPMN process using gateway conditions that evaluate the confidence scores returned by the IDP Connector, giving full flexibility to implement per-field threshold logic."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Human-in-the-loop IDP is a canonical BPMN pattern. IDP extracts → confidence evaluation at gateway → if all confident, fully automated; if any low, User Task for review. The User Task's Camunda Form is bound to the extracted fields (pre-populated from IDP result); the form lets the human inspect and correct. The Form also shows the original document (via Document Handling reference / file picker preview). On task complete, the corrected values write back to process scope; downstream continues with the human-verified data. Design refinements: per-field confidence thresholds (different fields need different sensitivity); audit logging of human corrections (for training future IDP iterations); analytics on which fields get corrected most often (informing IDP model retraining)."
+    },
+    "b": {
+      "text": "Incorrect. Human review is achievable via BPMN-level pattern."
+    },
+    "c": {
+      "text": "Correct. All-human defeats IDP's value."
+    },
+    "d": {
+      "text": "Incorrect. IDP extracts; BPMN routes."
+    }
+  },
+  "explanation": "All-human defeats IDP's value.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/idp/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q16",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

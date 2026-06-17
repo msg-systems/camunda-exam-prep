@@ -1,0 +1,50 @@
+{
+  "id": "mod-user-tasks-26",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Catalyst Bank handles 7000 user tasks per day in Camunda 8.8 and must run custom validation just before each task is completed. The modeler adds a user task listener so an external worker can react to the completing lifecycle event with a job type derived at activation from a priorityGroup variable, and retries default if omitted.",
+  "question": "How should the zeebe:taskListener entry be configured to meet this requirement?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set eventType to completing and set type to a FEEL expression equals quote order- end quote concatenated with priorityGroup, and omit retries so the listener job defaults to three retries"
+    },
+    {
+      "id": "b",
+      "text": "Set eventType to completed and set type to a FEEL expression equals quote order- end quote concatenated with priorityGroup, and omit retries so the listener job defaults to one retry"
+    },
+    {
+      "id": "c",
+      "text": "Set eventType to completing and set type to a literal string order-group resolved at deployment time, with FEEL expressions treated as disallowed on the listener type attribute itself"
+    },
+    {
+      "id": "d",
+      "text": "Set eventType to completing and set retries to zero so the listener does not block completion, with the type attribute treated as optional and omittable on the listener entry definition"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The documented eventType values include completing, and type is required and may be a static string or a FEEL expression that evaluates to a string at activation. The retries attribute is optional and defaults to three when omitted."
+    },
+    "b": {
+      "text": "Incorrect. The documented eventType values are creating, assigning, updating, completing, and canceling, so completed is not a valid value, and the documented default for retries is three rather than one."
+    },
+    "c": {
+      "text": "Incorrect. The type attribute can be a static value or a FEEL expression prefixed by equals, evaluated to a string at activation, so FEEL expressions on the type attribute are explicitly supported."
+    },
+    "d": {
+      "text": "Incorrect. The type attribute is required on a zeebe:taskListener entry, so it cannot be omitted, and retries is independent of whether the listener blocks completion."
+    }
+  },
+  "explanation": "A zeebe:taskListener entry requires eventType chosen from creating, assigning, updating, completing, or canceling, and a required type that can be static or a FEEL expression evaluated to a string. Retries is optional and defaults to three when omitted.",
+  "docs": [
+    {
+      "title": "BPMN user tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ]
+}

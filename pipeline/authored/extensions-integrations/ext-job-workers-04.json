@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-04",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A worker activated a job with a configured activation timeout and crashed before completing it. The timeout elapses. What does Zeebe do with the job and its remaining retries?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe reassigns the job to another worker without decrementing `remaining retries`."
+    },
+    {
+      "id": "b",
+      "text": "Zeebe decrements `remaining retries` by one and reassigns the job to another worker."
+    },
+    {
+      "id": "c",
+      "text": "Zeebe creates an incident on the job; it stays unactivated until an operator resolves it."
+    },
+    {
+      "id": "d",
+      "text": "Zeebe completes the job with an empty payload so the process can continue."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Per the docs: if a job is not completed or failed within the configured activation timeout, Zeebe reassigns it to another worker. This does not affect the number of `remaining retries`."
+    },
+    "b": {
+      "text": "Retries decrement on fail commands, not on activation timeouts. A timeout-driven reassignment leaves `remaining retries` unchanged."
+    },
+    "c": {
+      "text": "Timeouts cause silent reassignment, not an incident. Incidents arise when retries are exhausted via fail commands or other errors."
+    },
+    "d": {
+      "text": "Zeebe never auto-completes a job on timeout; that would skip the worker's actual work and break process semantics."
+    }
+  },
+  "explanation": "Activation timeouts make Zeebe an at-least-once system: when a job is not completed or failed in time, the broker simply reassigns it to another worker, and `remaining retries` is untouched. Workers must therefore be idempotent because two workers can briefly process the same job, with the second `complete job` rejected with a `NOT FOUND` error.",
+  "docs": [
+    {
+      "title": "Job workers",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

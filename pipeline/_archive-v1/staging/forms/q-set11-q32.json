@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q32",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Form has a Number Input for amount in cents. When the user submits, the process variable should store the amount in dollars (divided by 100). The team wonders if there's a way to transform on submit without a Service Task after.",
+  "question": "Can Form data be transformed via FEEL before writing to process variables?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Forms always store only the raw submitted values directly to process variables with no transformation mechanism -- this understates the available data transformation options. Transformations between form field values and process variables can be applied through Output Mapping on the User Task, which executes FEEL expressions at task completion time. Form field expressions where supported provide another layer of value transformation. Raw storage is the default only when no mapping is configured."
+    },
+    {
+      "id": "b",
+      "text": "A Service Task after the User Task is the only way to transform form data before it reaches process scope -- this ignores the Output Mapping capability that is directly available on User Tasks. Output Mapping allows FEEL expressions to transform form-submitted values at completion time without requiring any additional flow elements. For a simple transformation like cents-to-dollars division, Output Mapping is the lightweight, no-extra-element approach: Target: amountDollars, Source: =amountCents / 100."
+    },
+    {
+      "id": "c",
+      "text": "Yes -- Form fields can have FEEL expressions in their binding that transform the value on read / write. The specifics vary by Form element library -- some components support a valueExpression or output FEEL that transforms the field's value before it lands in the process variable. Alternative: write the raw field to a local Form variable, then use Output Mapping on the User Task to transform to the desired process variable shape: Target: amountDollars, Source: =amountCents / 100. The User Task's Output Mapping happens on complete; transforms the form data before it reaches process scope."
+    },
+    {
+      "id": "d",
+      "text": "Document Handling is designed for managing binary file uploads and downloads such as PDFs, images, and attachments. It has no role in transforming scalar values like dividing a number field from cents to dollars. FEEL expressions in Output Mapping or form field bindings are the correct mechanisms for this type of value transformation at task completion."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Transformations between form inputs and process variables can happen at multiple layers: Option 1: Form field expression (where supported): Some components / form-js versions support a value expression that transforms the displayed / submitted value. Example: a Number Input could expose displayExpression (for display) and valueExpression (for the underlying value). Verify your element library's specific capabilities. Option 2: User Task Output Mapping (always available): The form writes raw values to local task variables. Output Mapping on the User Task transforms: Target: amountDollars, Source: =amountCents / 100. The transformed value lands in process scope; original raw stays local. Option 3: Service Task after the User Task: Heavier; an extra task to do trivial transformation. Use when transformation is complex / requires external lookups. Best practice: Output Mapping is the canonical, lightweight transformation point. Forms themselves are best kept as data-collection surfaces; transformation logic lives in BPMN / process configuration where it's easier to manage."
+    },
+    "b": {
+      "text": "Incorrect. Transformation possible."
+    },
+    "c": {
+      "text": "Correct. Lighter alternatives."
+    },
+    "d": {
+      "text": "Incorrect. Document Handling for binaries."
+    }
+  },
+  "explanation": "Lighter alternatives.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/#inputoutput-variable-mappings"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q32",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

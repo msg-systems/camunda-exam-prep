@@ -1,0 +1,69 @@
+{
+  "id": "imp-set16-q60",
+  "topic": "dev-environment",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Developer working locally; Connectors use {{secrets.NAME}}. Wonders how to emulate secrets in local dev environment.",
+  "question": "Local secrets emulation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use production secrets -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Hardcode in BPMN -- this is a security anti-pattern that must be avoided even in local development. Hardcoding secrets in BPMN XML creates risk that the values will be committed to source control, shared via pull requests, or accidentally deployed to higher environments. API_KEY}} from the environment variable. This way, no secrets appear in BPMN or code."
+    },
+    {
+      "id": "c",
+      "text": "md:271-321: by default, all environment variables on the Connector Runtime host are available as secrets. SMTP_PASSWORD}} resolves automatically. An optional prefix can be configured via CAMUNDA_CONNECTOR_SECRETPROVIDER_ENVIRONMENT_PREFIX to scope which environment variables are treated as secrets. env files (gitignored) to provide dev secrets without hardcoding."
+    },
+    {
+      "id": "d",
+      "text": "The Connector Runtime's default secret provider reads from environment variables by default, specifically enabling local development without any external secrets infrastructure. SECRET_NAME}} to resolve. env files, the environment prefix configuration, or implementing a custom secret provider backed by Vault or AWS Secrets Manager. Local testing with secrets emulation is fully supported and documented."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Local secrets management: Approach 1: Env vars on Connector Runtime (default secret provider per connectors-configuration.md:285-321): `bash # When running Connector Runtime locally -- any env var name matches the {{secrets.X}} placeholder by default export SMTP_PASSWORD=\"dev-password\" export API_KEY=\"dev-api-key\" ./connector-runtime start BPMN's {{secrets.SMTP_PASSWORD}} resolves to the env var SMTP_PASSWORD. Optional prefix to scope env vars (recommended in shared environments): bash export CAMUNDA_CONNECTOR_SECRETPROVIDER_ENVIRONMENT_PREFIX='SUPER_SECRETS_' export SUPER_SECRETS_SMTP_PASSWORD='dev-password' # resolved as {{secrets.SMTP_PASSWORD}} Approach 2: .env file: bash # .env (NEVER commit to Git) SMTP_PASSWORD=dev-password API_KEY=dev-api-key Source / load before running Runtime: bash source .env ./connector-runtime start Or via Docker Compose: yaml services: connector-runtime: env_file: .env .gitignore: .env *.env.local Critical: never commit secrets. Approach 3: Local Vault: bash # Vault dev mode vault server -dev vault kv put secret/myapp SMTP_PASSWORD=dev-pwd Configure Runtime to fetch from Vault. Pros: matches production architecture. Cons: more setup. Approach 4: Mock services: WireMock: fake API; no auth needed. Smtpdev / MailHog: fake SMTP; any password works. Test credentials: not real production. No real secrets needed for development. Approach 5: Camunda 8 Run (per Set 13 Q60): Bundled dev environment. Configure secrets in config file. Quick start. For different developers: Each dev has own .env: personal credentials. Or shared dev cluster: cluster-level secrets. Don't share via chat / email: insecure. For onboarding new devs: .env.example: template with placeholder values."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q60",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 12.7 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q35",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team uses the Email Outbound Connector to send order-confirmation emails. The SMTP server password is sensitive. The cluster is Self-Managed.",
+  "question": "Where should the password be stored?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Cluster secrets are the Camunda 8 mechanism for securely managing sensitive configuration values like API credentials, tokens, and passwords. Secrets are stored in the secrets provider -- environment variables, Kubernetes Secrets, HashiCorp Vault, or AWS Secrets Manager for Self-Managed deployments. MY_SECRET_NAME}} syntax. The value is resolved at runtime and never exposed in the BPMN XML or version history."
+    },
+    {
+      "id": "b",
+      "text": "Hardcoding credentials directly in BPMN XML embeds sensitive values in the process definition stored in the Zeebe broker, exported via the API, visible in Web Modeler version history, and potentially logged. This violates every principle of credential security: least privilege, secret rotation without BPMN redeployment, audit trail, and access control separation. Credentials in BPMN XML are exposed to anyone with read access to the process definition or its version history."
+    },
+    {
+      "id": "c",
+      "text": "Hardcoding credentials in a Connector docker-compose file stores sensitive values in a deployment configuration file that is typically committed to version control, visible to engineers with repository access, and difficult to rotate without redeployment. Docker compose files are infrastructure configuration, not a secrets management solution. Environment variables in compose should reference secrets managers or inject from CI/CD pipelines rather than containing literal credential values."
+    },
+    {
+      "id": "d",
+      "text": "Passing credentials as process variables from a Start Form requires users to manually enter credential values at every process start. This exposes sensitive values in the process instance variable scope visible in Operate, logged in audit trails, and returned by the API. Process variables are designed for business data, not operational credentials. Cluster secrets handle credential management at the deployment configuration level, completely decoupled from process instance data. ###"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. SM clusters get cluster secrets from the configured provider (env, K8s Secret, Vault). Referenced in Connector config with {{secrets.NAME}} placeholder. BPMN stays clean."
+    },
+    "b": {
+      "text": "Incorrect. BPMN XML leaks via Git."
+    },
+    "c": {
+      "text": "Incorrect. Hardcoding in compose works but ties to deployment; secrets-provider pattern is more portable."
+    },
+    "d": {
+      "text": "Incorrect. Passwords as process variables leak to audit logs."
+    }
+  },
+  "explanation": "SM clusters get cluster secrets from the configured provider (env, K8s Secret, Vault). Referenced in Connector config with {{secrets.NAME}} placeholder. BPMN stays clean.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q35",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

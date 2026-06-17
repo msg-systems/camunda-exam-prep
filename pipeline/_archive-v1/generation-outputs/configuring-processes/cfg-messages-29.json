@@ -1,0 +1,27 @@
+{
+  "id": "cfg-messages-29",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Orion Carrier publishes 7000 events per day in Camunda 8.8 from a shipping platform and developers need to allow these messages to arrive before the matching catch event activates by configuring the time-to-live on the publish-message command in the v2 messages endpoint.",
+  "question": "Which behavior does setting a positive time-to-live on a published message enable in Camunda 8 message buffering?",
+  "options": [
+    { "id": "a", "text": "The message is delivered repeatedly every TTL milliseconds until a subscription accepts it, simulating an at-least-once notification pattern between systems" },
+    { "id": "b", "text": "The message is buffered for the TTL duration and can be correlated to a subscription that opens later within that window on the same broker node" },
+    { "id": "c", "text": "The message is broadcast to every active process instance with a matching definition once the TTL expires at the end of the buffering window on the broker" },
+    { "id": "d", "text": "The message is held in a transactional outbox on the publisher and resent on each timer tick of the TTL until the broker acknowledges it back to the caller" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. TTL does not trigger periodic redelivery; it specifies a window during which the buffered message can be correlated to a subscription that opens later." },
+    "b": { "text": "Correct. The Message buffering section states a message has a TTL that specifies for how long it is buffered, and within this time the message can be correlated to a process instance." },
+    "c": { "text": "Incorrect. Messages are not broadcast at TTL expiry; the buffer is polled when a subscription opens, and the first published matching message is correlated in FIFO order." },
+    "d": { "text": "Incorrect. The TTL governs broker-side buffering, not publisher retransmission; there is no documented outbox-based resend mechanism inside the messages page on TTL." }
+  },
+  "explanation": "Message buffering lets the broker hold a published message for the supplied TTL. When a matching subscription opens within that window, it polls the buffer and the first published matching message (FIFO order) is correlated. A TTL of zero disables buffering and discards unmatched messages immediately.",
+  "docs": [
+    { "title": "Messages", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+  ]
+}

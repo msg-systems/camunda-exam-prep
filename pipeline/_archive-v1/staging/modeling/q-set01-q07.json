@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q07",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team migrating from Camunda 7 to Camunda 8 has a complex process containing 15 Script Tasks. In the original Camunda 7 design, these Script Tasks execute embedded JavaScript snippets. During the migration to Camunda 8 SaaS, the team imports the BPMN XML into Web Modeler and deploys the process; deployment succeeds but every Script Task fails at runtime with an incident. A senior developer reviews the situation and explains that Camunda 8 Script Tasks have two implementation modes -- the broker-evaluated FEEL expression mode and the job worker implementation mode which can run any language including JavaScript via a community Zeebe Script Worker.",
+  "question": "Which approach is correct to migrate the existing JavaScript Script Tasks?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Rewrite each Script Task's logic as a FEEL expression using the zeebe:script extension element with expression (FEEL) and resultVariable attributes. This runs inside the Zeebe broker without an external worker, making it the lightest-weight execution option for script logic. The FEEL expression is evaluated synchronously within the broker's execution thread, meaning no job activation, no external worker heartbeat, and no job timeout to manage. The resultVariable attribute specifies which process variable receives the expression result. FEEL supports arithmetic, string manipulation, date/time operations, list functions, and context access, covering a wide range of transformation and calculation use cases that previously required JavaScript."
+    },
+    {
+      "id": "b",
+      "text": ", then deploy the community Zeebe Script Worker to actually execute the script jobs. In this mode the Script Task behaves like a Service Task -- Zeebe creates a job of the specified type, and the external script worker activates the job, reads the language and script task headers, executes the script using the configured runtime (GraalVM Polyglot for JavaScript or other engines), and completes the job with the result. The script receives access to all job variables and can set output variables. This mode requires running and maintaining an additional worker process but supports full JavaScript including npm libraries and complex imperative logic."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 has no script task execution support at all; Script Tasks must be converted to Service Tasks with custom job workers. A Service Task in Camunda 8 uses a zeebe:taskDefinition to declare a job type, and the job is executed by an external worker that subscribes to that type. The worker can be implemented in any language using the Zeebe client APIs, execute any business logic, and report the result back via completeJob. Converting Script Tasks to Service Tasks is always a valid implementation choice, providing full flexibility in execution environment, language, and libraries without any constraints imposed by the FEEL expression engine or a specific script worker runtime."
+    },
+    {
+      "id": "d",
+      "text": "Both (a) and (b) are valid migration strategies depending on script complexity: short calculations and FEEL-expressible logic → FEEL expression mode; complex JavaScript with libraries → job worker implementation. 8 documentation explicitly describes both modes for Script Tasks under the same BPMN element. The FEEL expression mode uses zeebe:script with an expression attribute evaluated broker-side; the job worker mode uses zeebe:taskDefinition with language and script task headers consumed by an external worker such as the community Zeebe Script Worker. The choice is made per Script Task based on whether the logic can be expressed in FEEL or requires the full capabilities of an external scripting engine."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL is the broker-native option but doesn't cover scenarios where the original JavaScript uses libraries or imperative constructs FEEL can't express. Pure-FEEL-only is too restrictive as a universal migration path."
+    },
+    "b": {
+      "text": "Incorrect. Job worker implementation works but ignores that for pure expressions, FEEL is simpler and broker-native (no extra worker to deploy/maintain)."
+    },
+    "c": {
+      "text": "Incorrect. The Camunda 8.8 docs explicitly describe both modes: (1) FEEL expression mode with zeebe:script extension -- evaluated in the broker, no external worker needed; (2) job worker implementation -- Script Task behaves like a Service Task with zeebe:taskDefinition type=\"...\" and task headers passing the script + language; an external job worker (e.g., community Zeebe Script Worker) executes the actual script. Migration choice depends on whether the logic is FEEL-expressible (simpler, broker-side) or requires a full scripting language (community worker)."
+    },
+    "d": {
+      "text": "Correct. Script Tasks are absolutely supported in Camunda 8 -- the BPMN coverage page marks them as implemented and there are two execution modes documented."
+    }
+  },
+  "explanation": "Script Tasks are absolutely supported in Camunda 8 -- the BPMN coverage page marks them as implemented and there are two execution modes documented.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/script-tasks/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q07",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set16-q50",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "App shuts down -- workers should complete in-flight jobs before stopping. Team wonders graceful shutdown.",
+  "question": "SDK graceful shutdown?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Force-killing a worker application (SIGKILL, kill -9) causes all in-flight job handlers to terminate immediately without completing. The engine's job timeout clock continues running, and when the timeout expires the engine creates an incident or makes the job available for retry. This wastes the work done so far and may cause external side effects (partial API calls, incomplete data writes) without compensation. close() or relying on @PreDestroy lifecycle hooks stops new job polling while allowing active handlers to complete within a configured timeout."
+    },
+    {
+      "id": "b",
+      "text": "Auto-graceful -- this is only partially accurate. Spring Boot's auto-configuration for the Camunda Spring Boot Starter may register lifecycle hooks that attempt graceful shutdown, but the behavior depends on configuration (timeout settings, whether the worker is registered as a Spring bean with proper lifecycle). Without explicit configuration of a graceful shutdown timeout and ensuring the CamundaClient bean is closed properly during application context shutdown, jobs may be abandoned mid-execution."
+    },
+    {
+      "id": "c",
+      "text": "The Camunda Java SDK's worker implementation does not ignore JVM shutdown signals. The client's close() method (called via try-with-resources or @PreDestroy) signals workers to stop accepting new jobs. In-flight handlers are allowed to complete up to a configured timeout before the client terminates. In Spring Boot applications, the Camunda Spring Boot Starter registers appropriate shutdown lifecycle hooks. Ignoring shutdown would cause job timeouts, incident creation, and data inconsistency for every in-flight process instance at shutdown time."
+    },
+    {
+      "id": "d",
+      "text": "close(), try-with-resources, or Spring @PreDestroy) stops workers from polling for new jobs and waits for active handler executions to complete before the client terminates. The shutdown wait timeout is configurable. In Spring Boot applications, the Starter's lifecycle integration handles this automatically when the application context closes. For forceful shutdown (SIGKILL), in-flight jobs miss their completion window, the engine marks them as timed out, and workers retry on restart. Always configure an appropriate timeout and ensure the Spring application graceful shutdown setting matches the job processing time."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Graceful shutdown patterns: Standard pattern: Phase 1: Stop accepting new jobs: Worker stops polling. No new jobs activated. Phase 2: Drain in-flight: Workers complete jobs they have. Bounded by shutdown timeout. Phase 3: Close client: Release resources. Disconnect from broker. Spring Boot integration: @PreDestroy: `java @Component public class WorkerManager { @Autowired private CamundaClient client; // 8.8 unified client per camunda-spring-boot-starter/getting-started.md:223-225 @PreDestroy public void shutdown() { log.info(\"Shutting down workers...\"); try { // Workers stop polling client.close(); } catch (Exception e) { log.error(\"Shutdown error\", e); } log.info(\"Shutdown complete\"); } } DisposableBean: java public class WorkerManager implements DisposableBean { @Override public void destroy() throws Exception { // Cleanup } } Spring Boot graceful shutdown: yaml server: shutdown: graceful spring: lifecycle: timeout-per-shutdown-phase: 30s Container-level graceful. For Kubernetes: Signals: SIGTERM: K8s sends; app should drain. Grace period: e.g., 30s. SIGKILL: forced. K8s yaml: yaml terminationGracePeriodSeconds: 60 Time for graceful shutdown before SIGKILL. Worker behavior during shutdown: On signal: Stop polling. In-flight: complete or fail per state. For in-flight jobs: Complete normally: if within timeout. Beyond timeout: activation timeout fires (per Set 13 Q10); broker re-activates. Code-level: Java SDK try-with-resources (8.8 CamundaClient per java-client/getting-started.md:93-95): java try (CamundaClient client = CamundaClient.newClientBuilder() .grpcAddress(URI.create(\"https://...\")) .restAddress(URI.create(\"https://...\")) .build()) { // run workers } // auto-close on exit Auto-close handles cleanup. For long-running workers: java CamundaClient client = ...; JobWorker worker = client.newWorker() .jobType(\"...\") .handler(...) .open(); Runtime.getRuntime().addShutdownHook(new Thread(() -> { worker.close(); client.close(); })); // keep running Shutdown hook for non-Spring. For TypeScript SDK (Camunda 8 TS SDK -- Node SDK renamed): ts import { Camunda8 } from \"@camunda8/sdk\"; const c8 = new Camunda8(); const zbc = c8.getCamundaRestClient(); // or getZeebeGrpcApiClient() process.on('SIGTERM', async () => { console.log('Graceful shutdown...'); await c8.close(); process.exit(0); }); ` Signal handling. For different shutdown reasons: Deployment update: Old version graceful shutdown. New version starts. Coordination: rolling deploy. Crash: No graceful: forced. In-flight jobs: activation timeout; broker re-activates. Manual stop: Graceful: typical. For monitoring: Track shutdown duration: how long to drain. Force-stops: alert. For testing: Test graceful shutdown: integration tests. Inject SIGTERM: verify behavior. For database / external resources: Release connections: pool close. Flush buffers: write pending data. Close transactions: commit or rollback. For BPMN process during worker shutdown: Worker stops processing: jobs pile up. Process stuck: at Service Tasks. Restart workers: pick up backlog. For idempotent workers: Critical: in-flight may be re-activated. Same work may run twice: handle gracefully. Best practices: Always implement graceful shutdown: not abrupt. Bound timeout: 30-60s typical. Idempotent code: handle re-activation. Test shutdown paths: not just startup. Coordinate with deploys: rolling update strategy. Log shutdown events: audit + debugging. Anti-patterns: No graceful shutdown: lose in-flight work. Too long timeout: K8s force-kills anyway. No idempotency: re-activation chaos. No monitoring: silent failures. For the scenario (complete in-flight before stop): Implement @PreDestroy (Spring) or shutdown hook. Call client.close(). Bound timeout: e.g., 30s. Idempotent workers: handle re-activation. For zero-downtime deploys: Multiple worker instances: roll one at a time. K8s rolling update: graceful per instance. Maintain capacity: never zero workers."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q50",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

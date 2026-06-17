@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q40",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A SaaS cluster operator wants their tenant acme to be isolated from tenant globex. Workers should only pick up jobs for their tenant. A Java Job Worker uses Spring Zeebe. Which @JobWorker parameter handles tenant scoping?",
+  "question": "Which @JobWorker parameter handles tenant scoping?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No tenant scoping is available in Job Workers; the application must implement its own filtering logic after receiving jobs. Relying on application-level filtering is fragile and brittle -- a bug in the filter could cause a worker to process another tenant's jobs, violating data isolation."
+    },
+    {
+      "id": "b",
+      "text": "Set tenantId as a FEEL expression pointing to a process variable value. Process variables in Camunda 8 are instance-level data that changes with each process execution. Tenant identity is a broker-level and worker-level configuration concern, not an instance variable. Setting tenant isolation through a process variable expression would not restrict which jobs the worker activates from the broker job stream at the subscription level."
+    },
+    {
+      "id": "c",
+      "text": "PROVIDED policy. The worker's job subscription is restricted to the specified tenant namespaces at the broker level, ensuring no cross-tenant job activation. Multiple tenant IDs can be specified as a comma-separated list or configured globally via YAML."
+    },
+    {
+      "id": "d",
+      "text": "The Camunda Spring Boot Starter provides tenant-scoped job activation via the tenantIds attribute on @JobWorker annotations. Workers configured with tenantIds restrict their job polling to specific tenant namespaces, ensuring data isolation across tenant boundaries. Multi-tenancy is a first-class feature in Camunda 8 Self-Managed, not an experimental add-on, and tenant isolation is enforced at the job-activation layer by Zeebe."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per apis-tools/camunda-spring-boot-starter/configuration.md:884-887, the @JobWorker annotation supports the tenantIds attribute: @JobWorker(tenantIds=\"myOtherTenant\"). Default policy is TenantFilter.PROVIDED (worker retrieves jobs only for explicitly configured tenant IDs -- :872). Global worker defaults via camunda.client.worker.defaults.tenant-ids (YAML, lines 877-880). Note: spring-zeebe-sdk is being removed in 8.10 (Pattern #18) -- use camunda-spring-boot-starter instead."
+    },
+    "b": {
+      "text": "Incorrect. Tenant filtering at app level is brittle; broker-side scoping is authoritative."
+    },
+    "c": {
+      "text": "Correct. Process variables are instance-level; tenant is broker/job-level."
+    },
+    "d": {
+      "text": "Incorrect. Multi-tenancy is supported."
+    }
+  },
+  "explanation": "Process variables are instance-level; tenant is broker/job-level.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/#multi-tenancy"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q40",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

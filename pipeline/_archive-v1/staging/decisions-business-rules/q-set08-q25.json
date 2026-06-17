@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q25",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN decision needs to compute a derived value via several named intermediate steps (base price → tax → discount → total) within a single decision body. The team has seen DMN-1.3 \"Boxed Context\" in literature and wants to know how to do this in Camunda 8.",
+  "question": "Which approach implements \"named intermediate steps in one decision body\" in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use a Boxed Context body type on the Decision to return a structured record of named fields as the decision output -- Camunda 8 supports this body type natively without any restrictions. md. Only Decision Table and Literal Expression body types are supported for Decision elements. A Boxed Context definition would fail deployment validation. Equivalent structured output can be achieved using a Literal Expression body type that returns a FEEL context literal like {severity: \"HIGH\", action: \"escalate\"}."
+    },
+    {
+      "id": "b",
+      "text": "md:23-28 lists Camunda-8 DMN coverage as \"Decision (tables and literal expressions), Input data, Knowledge source, Business knowledge model\"; only Decision Table and Literal Expression body types are supported. FEEL contexts ({ key1: expr1, key2: expr2 }) provide the named-intermediate-step semantic inside* a Literal Expression body."
+    },
+    {
+      "id": "c",
+      "text": "Use a Boxed Invocation body type to call a named Business Knowledge Model with structured parameter bindings as the decision body -- the DMN specification defines Boxed Invocation for invoking Business Knowledge Models with explicit parameter mapping. md. Deploying a decision with a Boxed Invocation body fails validation. Business Knowledge Model invocations can be expressed through FEEL function calls within a supported Literal Expression body type instead."
+    },
+    {
+      "id": "d",
+      "text": "Use a Boxed List body type to return an ordered list of values as the primary decision output -- the DMN specification includes Boxed List as a valid body type that produces list results. md. A decision definition with a Boxed List body type fails deployment validation in Camunda 8. To return a list from a DMN decision, use a Literal Expression body type containing a FEEL list literal such as [\"option1\", \"option2\", \"option3\"] or a dynamically constructed FEEL list expression."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Boxed Context is in the DMN-1.3 spec but absent from Camunda 8's supported DMN element list at dmn.md:23-28."
+    },
+    "b": {
+      "text": "Correct. Camunda-8 DMN coverage at dmn.md:23-28 enumerates only four element kinds -- Decision (tables and literal expressions), Input data, Knowledge source, BKM. No Boxed Context, no Boxed Invocation, no Boxed List body types. To achieve \"named intermediate steps in a single decision body,\" use a Decision Literal Expression body containing a FEEL context expression: ={ basePrice: 100, tax: basePrice * 0.2, total: basePrice + tax }. FEEL context expressions support self-reference (later entries can reference earlier ones, e.g., tax referencing basePrice). The decision result is the context value (a map); to return one scalar instead, write the final entry as the named result and reference it as the decision variable. (Pattern #41 -- 2nd cumulative; same constraint flagged at S6 Q27 for Boxed Invocation.)"
+    },
+    "c": {
+      "text": "Incorrect. Boxed Invocation absent from dmn.md:23-28. BKMs are invoked via FEEL function-call syntax inside a Literal Expression, not via a Boxed Invocation body."
+    },
+    "d": {
+      "text": "Incorrect. Boxed List absent from dmn.md:23-28. Return a list with FEEL =[\"a\", \"b\", \"c\"] inside a Literal Expression body."
+    }
+  },
+  "explanation": "Camunda-8 DMN coverage at dmn.md:23-28 enumerates only four element kinds -- Decision (tables and literal expressions), Input data, Knowledge source, BKM. No Boxed Context, no Boxed Invocation, no Boxed List body types. To achieve \"named intermediate steps in a single decision body,\" use a Decision Literal Expression body containing a FEEL context expression: ={ basePrice: 100, tax: basePrice * 0.2, total: basePrice + tax }. FEEL context expressions support self-reference (later entries can reference earlier ones, e.g., tax referencing basePrice). The decision result is the context value (a map); to return one scalar instead, write the final entry as the named result and reference it as the decision variable. (Pattern #41 -- 2nd cumulative; same constraint flagged at S6 Q27 for Boxed Invocation.)",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-literal-expression/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q25",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

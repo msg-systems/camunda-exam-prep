@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Multi-Instance Subprocess has inputCollection = [] (empty) AND completionCondition = =numberOfCompletedInstances >= 5. The team wonders what happens.",
+  "question": "What happens with empty inputCollection AND a completionCondition expecting >= 5 completions?",
+  "options": [
+    {
+      "id": "a",
+      "text": "MI hangs indefinitely waiting for 5 completions that can never occur -- this misunderstands the empty-collection short-circuit behaviour. Zeebe evaluates the inputCollection first; when it resolves to an empty list, the engine immediately completes the Multi-Instance activity without spawning any inner instances. The deadlock scenario described here does not arise because the runtime detects zero iterations before any waiting state is entered."
+    },
+    {
+      "id": "b",
+      "text": "MI raises an Incident because the completionCondition cannot be satisfied -- this confuses constraint validation with runtime execution. An empty inputCollection is a fully valid scenario in Zeebe's Multi-Instance implementation. The engine treats it as zero iterations and completes the activity immediately rather than flagging an impossible-condition incident. No Incident is created for logically unsatisfiable conditions of this type."
+    },
+    {
+      "id": "c",
+      "text": "MI spawns placeholder inner instances just to satisfy the completionCondition threshold value -- this behaviour is entirely invented and does not appear in any Zeebe or BPMN specification. The engine performs no artificial iteration creation to meet a numeric threshold. An empty inputCollection means zero instances are spawned regardless of what the completionCondition specifies. The two configurations are orthogonal: empty collection determines instance count (zero); completionCondition is evaluated per-completion, which never happens with zero instances."
+    },
+    {
+      "id": "d",
+      "text": "MI completes immediately with zero inner instances -- the completionCondition is irrelevant because there are no inner instances to complete. The empty-collection rule short-circuits MI activation: when inputCollection = [], Zeebe determines there are zero iterations, completes the MI activity immediately, and sets outputCollection = []. The condition's \"expect 5 completions\" is never evaluated because evaluation only happens after each inner instance finishes, and none are started."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN MI semantics for the empty-collection edge case: zero iterations, immediate completion. The completionCondition is only evaluated after each inner instance completes -- with zero inner instances, it's never triggered. Execution flow: 1. MI activates; engine evaluates inputCollection → empty. 2. Engine determines: 0 instances to spawn. 3. Engine completes the MI activity immediately (no instances, nothing to wait for). 4. outputCollection (if configured) is set to []. 5. Flow continues via MI's outgoing arrow. The completionCondition's \"expect 5\" doesn't conflict -- it's simply not checked when there are no inner instances. This avoids the deadlock that \"wait for 5 of 0 to complete\" would otherwise cause. Downstream activities should handle the empty-result case: FEEL checks like =count(outputCollection) > 0 before processing the collection."
+    },
+    "b": {
+      "text": "Incorrect. Empty short-circuits."
+    },
+    "c": {
+      "text": "Incorrect. Empty is valid; no impossible condition flagged."
+    },
+    "d": {
+      "text": "Correct. No placeholder spawning."
+    }
+  },
+  "explanation": "No placeholder spawning.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

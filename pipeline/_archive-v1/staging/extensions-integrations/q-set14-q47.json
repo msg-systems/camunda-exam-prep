@@ -1,0 +1,63 @@
+{
+  "id": "imp-set14-q47",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team's RPA bot pool has 5 bots; demands fluctuate (some hours need 1 bot, peak hours need 5). Team wonders about bot orchestration patterns.",
+  "question": "RPA bot orchestration patterns?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:133-175: Each machine hosts one RPA worker (:133). Multiple worker hosts register against Zeebe; Camunda routes RPA jobs to available workers using the standard job-worker activation model. max-concurrent-jobs only for parallel-safe scripts (:76). Tag-based routing (worker-tags=default,accounting-system :36-54) directs specific scripts to capable workers. To scale out, provision new VMs from a template; monitor queue depth in Operate and Optimize to decide when to add capacity."
+    },
+    {
+      "id": "b",
+      "text": "Assigning a dedicated bot to each specific task type limits pool utilization. The Camunda RPA worker model supports flexible routing via worker tags, where a single worker can accept multiple task types. Reserving one bot exclusively per task means most bots sit idle during off-peak hours. The recommended approach is a shared pool where workers use tags to advertise their capabilities, and Camunda routes each job to any available compatible worker."
+    },
+    {
+      "id": "c",
+      "text": "RPA bots in Camunda 8 are orchestrated as first-class job workers. The Camunda Orchestration Cluster activates RPA tasks, routes them to registered workers, tracks completion, and handles retries and incidents through the same mechanisms used for all service tasks. Each RPA worker registers with Zeebe and long-polls for jobs matching its configured tags. Calling RPA unorchestrated describes a standalone RPA approach that contradicts the entire purpose of integrating RPA with a process orchestration platform."
+    },
+    {
+      "id": "d",
+      "text": "Camunda's job-worker activation model automatically distributes RPA jobs across all registered, available workers matching the required tags. Manual assignment would require constant human intervention as bots go offline or demand changes. Tag-based routing handles specialization elegantly without hard-wiring tasks to particular bot instances."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. RPA worker orchestration patterns per rpa/production.md: Worker pool model (:103-138): \"An RPA worker is a specialized job worker that runs outside the main Camunda Orchestration Cluster.\" (:103) Multiple worker hosts (Windows / Linux / macOS / Docker for headless :107) run the RPA worker standalone binary. \"Each machine hosts one RPA worker.\" (:133) All register against Zeebe; Camunda activates jobs across available workers (standard job-worker pool). Job distribution: Job activation: worker long-polls Zeebe; gets next available RPA task matching its tags. Concurrency: default 1 (RPA tasks need exclusive desktop typically); enable camunda.rpa.zeebe.max-concurrent-jobs only if scripts are parallel-safe (:76). Load balancing: implicit -- busy workers don't activate new jobs; idle ones do. For fluctuating demand: Pattern 1: Fixed pool, queue-based: 5 bots always running. Off-peak: most idle. Peak: queue forms naturally; bots handle as available. Pros: simple; predictable cost. Cons: paying for idle capacity. Pattern 2: VM-template provisioning (manual / orchestrated scale-out) per :144-165: Configure a template Windows VM (clean OS + RPA worker + apps + autologon + screen-saver-off + boot-on-startup). Provision new VMs from template when queue grows; deprovision when idle. Pros: cost-efficient; reproducible. Cons: no built-in Camunda auto-scaler -- orchestrate via your own platform (vCenter / cloud-init / Ansible). Pattern 3: Tag-based routing for tiered workers per :36-54: Workers with camunda.rpa.zeebe.worker-tags=default,accounting-system accept both unlabeled and accounting-system-labeled scripts. Workers with worker-tags=accounting-system only (no default) accept only labeled scripts. Routing based on worker capabilities (OS, installed apps, licensed automation tools). Pattern 4: Scheduled scaling: Known peak times (e.g., end-of-month batch). Scale up before; scale down after. Pros: simple; predictable. Cons: requires knowing patterns. Bot health monitoring: Heartbeat: bots periodically check in. Dead bot detection: missed heartbeats → remove from pool. Failed jobs: bot reports failure; standard retry / Incident logic. Bot-specific failures: bot down vs all-bots-down distinguished. Configuration considerations: Activation timeout: RPA tasks can be slow (browser navigation, etc.). Set generous activation timeout. Per Set 13 Q10: balance against duplicate execution risk. Concurrency per bot: One concurrent job per bot: typical for desktop automation (RPA bots need exclusive desktop). Multiple concurrent: only if bot handles parallel-safe tasks. Camunda 8 RPA editions: Verify exact orchestration features per edition. Some editions integrate with specific RPA platforms (UiPath, Blue Prism, etc.). For the scenario (5 bots, fluctuating demand): Approach A: Fixed 5 bots, queue-based: All bots always available. Peak: queue forms; bots process as available. Off-peak: most idle (cost-inefficient). Approach B: Auto-scaling: Min 1 bot off-peak. Up to 5 at peak. Trigger on Camunda job queue depth metric. Approach C: Mixed task assignment: 5 bots handle multiple task types. Camunda routes; bots handle whichever they get. Better utilisation. Operational practices: Monitor bot pool: health, throughput, latency. Alert on bot failures: detect issues quickly. Capacity planning: model peak vs off-peak. Test failover: kill a bot; verify others handle load. Best practices: Idempotent bot scripts: re-execution safe (per Set 13 Q10). Snapshot / screenshot on failure: debugging (per Set 13 Q47). Avoid long-running bot tasks: break into smaller sub-tasks if possible. Document bot capabilities: which bots can do what."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. overcomplicated."
+    }
+  },
+  "explanation": "RPA worker orchestration patterns per rpa/production.md: Worker pool model (:103-138): \"An RPA worker is a specialized job worker that runs outside the main Camunda Orchestration Cluster.\" (:103) Multiple worker hosts (Windows / Linux / macOS / Docker for headless :107) run the RPA worker standalone binary. \"Each machine hosts one RPA worker.\" (:133) All register against Zeebe; Camunda activates jobs across available workers (standard job-worker pool). Job distribution: Job activation: worker long-polls Zeebe; gets next available RPA task matching its tags. Concurrency: default 1 (RPA tasks need exclusive desktop typically); enable camunda.rpa.zeebe.max-concurrent-jobs only if scripts are parallel-safe (:76). Load balancing: implicit -- busy workers don't activate new jobs; idle ones do. For fluctuating demand: Pattern 1: Fixed pool, queue-based: 5 bots always running. Off-peak: most idle. Peak: queue forms naturally; bots handle as available. Pros: simple; predictable cost. Cons: paying for idle capacity. Pattern 2: VM-template provisioning (manual / orchestrated scale-out) per :144-165: Configure a template Windows VM (clean OS + RPA worker + apps + autologon + screen-saver-off + boot-on-startup). Provision new VMs from template when queue grows; deprovision when idle. Pros: cost-efficient; reproducible. Cons: no built-in Camunda auto-scaler -- orchestrate via your own platform (vCenter / cloud-init / Ansible). Pattern 3: Tag-based routing for tiered workers per :36-54: Workers with camunda.rpa.zeebe.worker-tags=default,accounting-system accept both unlabeled and accounting-system-labeled scripts. Workers with worker-tags=accounting-system only (no default) accept only labeled scripts. Routing based on worker capabilities (OS, installed apps, licensed automation tools). Pattern 4: Scheduled scaling: Known peak times (e.g., end-of-month batch). Scale up before; scale down after. Pros: simple; predictable. Cons: requires knowing patterns. Bot health monitoring: Heartbeat: bots periodically check in. Dead bot detection: missed heartbeats → remove from pool. Failed jobs: bot reports failure; standard retry / Incident logic. Bot-specific failures: bot down vs all-bots-down distinguished. Configuration considerations: Activation timeout: RPA tasks can be slow (browser navigation, etc.). Set generous activation timeout. Per Set 13 Q10: balance against duplicate execution risk. Concurrency per bot: One concurrent job per bot: typical for desktop automation (RPA bots need exclusive desktop). Multiple concurrent: only if bot handles parallel-safe tasks. Camunda 8 RPA editions: Verify exact orchestration features per edition. Some editions integrate with specific RPA platforms (UiPath, Blue Prism, etc.). For the scenario (5 bots, fluctuating demand): Approach A: Fixed 5 bots, queue-based: All bots always available. Peak: queue forms; bots process as available. Off-peak: most idle (cost-inefficient). Approach B: Auto-scaling: Min 1 bot off-peak. Up to 5 at peak. Trigger on Camunda job queue depth metric. Approach C: Mixed task assignment: 5 bots handle multiple task types. Camunda routes; bots handle whichever they get. Better utilisation. Operational practices: Monitor bot pool: health, throughput, latency. Alert on bot failures: detect issues quickly. Capacity planning: model peak vs off-peak. Test failover: kill a bot; verify others handle load. Best practices: Idempotent bot scripts: re-execution safe (per Set 13 Q10). Snapshot / screenshot on failure: debugging (per Set 13 Q47). Avoid long-running bot tasks: break into smaller sub-tasks if possible. Document bot capabilities: which bots can do what.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/rpa/production/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q47",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

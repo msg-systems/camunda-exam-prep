@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A document-publishing process contains an Embedded Subprocess (\"Approve Document\") with three inner User Tasks: legal review, marketing review, compliance review. The team is drawing the subprocess and wonders whether the inner flow needs its own Start Event, or whether execution simply begins at the leftmost inner activity automatically.",
+  "question": "Does an Embedded Subprocess require an explicit Start Event inside it?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No -- execution starts at the leftmost activity automatically based on diagram layout. This claim misrepresents BPMN execution semantics; Start Events are required structural elements that explicitly mark entry points in every executable scope. Visual position in the diagram editor does not determine execution order; BPMN is defined as a directed graph where the Start Event is the unambiguous entry node. A subprocess without a Start Event is structurally incomplete and would be rejected at deployment by Zeebe's validator."
+    },
+    {
+      "id": "b",
+      "text": "Optional -- if the Start Event is missing, Camunda's deployment pipeline auto infers the entry point from the subprocess structure. This is inaccurate; neither the Zeebe deployment validator nor the Modeler bpmnlint engine auto infers entry points. The model must be structurally complete and explicit. Web Modeler and Desktop Modeler both surface validation errors when a Start Event is absent. Zeebe rejects deployment of subprocesses lacking a None Start Event. The BPMN spec requires every scope to declare its start explicitly."
+    },
+    {
+      "id": "c",
+      "text": "Yes -- an Embedded Subprocess must contain exactly one None Start Event (a plain circle with no event marker) that defines where the inner flow begins. This Start Event is the unambiguous entry point for the subprocess scope. Event Subprocesses additionally use typed Start Events such as Message, Error, Signal, or Timer Start Events to define their trigger conditions. Without a None Start Event, the BPMN model is structurally invalid; Zeebe's deployment validator will reject it. Web Modeler and Desktop Modeler both flag this as a validation error before deploy."
+    },
+    {
+      "id": "d",
+      "text": "Start Event is required only on the top level process definition, not on embedded subprocesses, which can inherit their entry point from the parent scope automatically. This claim misunderstands BPMN's scope rules: every executable scope -- the top level process, each Embedded Subprocess, each Event Subprocess -- requires its own explicitly defined start. Subprocesses are first class scopes in BPMN, not implicit continuations of the parent flow. Each must independently declare where execution begins within it."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN's structural rules require every scope to declare its entry point via a Start Event. For an Embedded Subprocess, that's a None Start Event -- a circle with no marker. Exactly one is required. The outgoing arrow of the Start Event defines which inner activity is the first to run. This is enforced both by BPMN validators (in Modeler) and by Zeebe at deployment time."
+    },
+    "b": {
+      "text": "Incorrect. \"Leftmost wins\" is a visual heuristic that doesn't apply to BPMN execution semantics. The model is a directed graph; entry must be explicit. A diagram with two ungrouped activities and no Start Event is ambiguous to the engine."
+    },
+    "c": {
+      "text": "Correct. Web Modeler / Desktop Modeler validate the model and surface errors when Start Events are missing. Zeebe's deployment validator does the same. No auto-inference happens."
+    },
+    "d": {
+      "text": "Incorrect. Every scope is independent: the top-level process needs a None or Message Start; each Embedded Subprocess needs a None Start; each Event Subprocess needs a typed Start; each Call Activity references an external process which has its own Start. Subprocesses are first-class scopes, not implicit extensions of the parent."
+    }
+  },
+  "explanation": "Web Modeler / Desktop Modeler validate the model and surface errors when Start Events are missing. Zeebe's deployment validator does the same. No auto-inference happens.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/embedded-subprocesses/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q05",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

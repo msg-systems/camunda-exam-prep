@@ -1,0 +1,50 @@
+{
+  "id": "mng-process-instance-modification-53",
+  "topic": "managing-development",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/process-instance-modification/"
+    }
+  ],
+  "subtopic": "Operate",
+  "scenario": "Sable Logistics runs Camunda 8.8 with a multi-instance body that has 2200 active child tokens on one flow node instance. Working around the documented 500 token per operation limit, the operator wants to know the supported alternatives to handle individual element instances rather than repeating the bulk modification many times.",
+  "question": "Which alternatives are documented for handling individual element instances around the 500 token per operation cap on this multi-instance scope?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The operator may use single-instance modification by selecting the relevant instances in the instance history, or use the Orchestration Cluster API endpoint where a custom filter can be specified for affected instances"
+    },
+    {
+      "id": "b",
+      "text": "The operator must scale the broker partition count to lift the cap;  the 500 token limit comes from a per-partition setting on the cluster rather than from a documented modification rule on the body itself"
+    },
+    {
+      "id": "c",
+      "text": "The operator must split the multi-instance body into two BPMN tasks and redeploy the process definition;  the docs state that modification mode does not support multi-instance bodies of any kind at all"
+    },
+    {
+      "id": "d",
+      "text": "The operator may temporarily disable Operate write protection from the Console settings to bypass the cap, after which a single modify-all-tokens action affects every running child token on the body in one step"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs say that to modify individual element instances instead, the operator can use single-instance modification by selecting the relevant instances in the instance history, or use the Orchestration Cluster API to specify a custom filter on the affected instances."
+    },
+    "b": {
+      "text": "Incorrect. The 500 token cap is a per-operation modification limit documented for this version, not a partition setting on the cluster; scaling broker partitions is not listed as a workaround."
+    },
+    "c": {
+      "text": "Incorrect. The docs do support modification on multi-instance bodies up to 500 tokens per operation, so splitting the body into two BPMN tasks is not the documented alternative for individual element instances."
+    },
+    "d": {
+      "text": "Incorrect. There is no documented Operate write-protection toggle in Console that lifts the 500 token per operation cap on this kind of multi-instance modification."
+    }
+  },
+  "explanation": "Around the 500 token per operation limit, the docs let the operator either pick relevant instances in the instance history via single-instance modification, or call the Orchestration Cluster API with a custom filter to target individual element instances."
+}

@@ -1,0 +1,27 @@
+{
+  "id": "cfg-feel-built-in-functions-conversion-87",
+  "topic": "configuring-processes",
+  "subtopic": "feel",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helix Insurance validates filing dates on 7000 claims per day in Camunda 8.8. An incoming claim has a filedOn string of \"2024-06-31\" and a FEEL expression in a DMN rule evaluates date(filedOn) to convert the value before a downstream age-of-claim comparison. The DMN team needs to know how that conversion behaves for an invalid calendar date.",
+  "question": "What does the FEEL expression date(\"2024-06-31\") return for this invalid calendar string?",
+  "options": [
+    { "id": "a", "text": "It returns date(\"2024-06-30\") and clamps the day to the last valid day of June before completing the conversion" },
+    { "id": "b", "text": "It returns null because the string is not a valid calendar date and June only has 30 days, so parsing fails" },
+    { "id": "c", "text": "It returns date(\"2024-07-01\") and rolls the day forward into the next month before completing the conversion" },
+    { "id": "d", "text": "It returns date(\"2024-06-31\") and stores the literal string in the resulting value without calendar validation" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The date(from) function does not clamp invalid days to the last valid day of the month; the documentation states that an invalid calendar date such as 2024-06-31 yields null." },
+    "b": { "text": "Correct. The docs state that date(from: string) returns null when the string is not a valid calendar date and cite 2024-06-31 as the example because June has only 30 days." },
+    "c": { "text": "Incorrect. The date(from) function does not roll an invalid day forward into the next month; the documented behavior for an invalid calendar date is to return null." },
+    "d": { "text": "Incorrect. The function parses the string into a date and validates it as a calendar date; an invalid string such as 2024-06-31 yields null, not an unchecked literal value." }
+  },
+  "explanation": "date(from: string) parses a string into a date and returns null when the string is not a valid calendar date; the docs cite 2024-06-31 as an invalid example because June has only 30 days.",
+  "docs": [
+    { "title": "FEEL built-in conversion functions", "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-conversion/" }
+  ]
+}

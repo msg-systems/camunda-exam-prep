@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q06",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A loan-application process must wait for either a credit-check response message OR a 48-hour timeout -- whichever arrives first. Only one path should execute.",
+  "question": "Which BPMN construct fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Exclusive Gateway with FEEL condition evaluates process variable values that are already known at that point in the flow. It routes based on data conditions immediately â€” it does not pause and wait for external events to arrive. In the loan-application scenario, the credit-check response has not arrived yet; the process must wait and react to whichever trigger fires first. Exclusive Gateway is mismatched because it evaluates existing data rather than competing for incoming events to determine routing."
+    },
+    {
+      "id": "b",
+      "text": "Event-Based Gateway with two outgoing paths â€” one to Intermediate Message Catch Event (credit-check) and one to Intermediate Timer Catch Event (PT48H) â€” is the canonical BPMN first-event-wins construct. The process pauses at the gateway; downstream catch events compete; the first to trigger activates its path while the other is cancelled atomically by Zeebe. This precisely models wait-for-either-response-or-timeout with exactly one path executing, the canonical race-condition construct in BPMN."
+    },
+    {
+      "id": "c",
+      "text": "Parallel Gateway splits flow into all outgoing branches simultaneously, with the joining gateway waiting for all branches to complete. Using a Parallel Gateway here would activate both the credit-check-wait path and the 48-hour timeout path simultaneously, meaning both would eventually complete and converge. This does not model first-event-wins semantics. Both paths always execute regardless of which fires first â€” the opposite of the desired exclusive single-path routing required by the scenario."
+    },
+    {
+      "id": "d",
+      "text": "Two parallel Boundary Events on a placeholder User Task is a workaround that achieves similar runtime semantics through a non-interrupting Message Boundary and Timer Boundary on a placeholder. ###"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Event-Based Gateway is purpose-built for \"first event wins\" pattern. Process pauses at the gateway; downstream Intermediate Catch Events compete; first triggered event proceeds, others are cancelled atomically. This is the canonical race-condition construct."
+    },
+    "b": {
+      "text": "Correct. Exclusive Gateway evaluates data conditions, not waits for events."
+    },
+    "c": {
+      "text": "Incorrect. Parallel runs all branches; doesn't model \"first wins.\""
+    },
+    "d": {
+      "text": "Incorrect. Boundary Events on a placeholder task technically works but the placeholder pollutes the diagram; Event-Based Gateway is purpose-built."
+    }
+  },
+  "explanation": "Exclusive Gateway evaluates data conditions, not waits for events.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-based-gateways/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q06",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

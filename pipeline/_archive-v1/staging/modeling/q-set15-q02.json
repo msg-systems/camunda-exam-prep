@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process waits for whichever event happens first -- Timer (10 minutes) OR Message (partner response). Whichever fires first wins; other is discarded. Team wonders modeling pattern.",
+  "question": "Event-Based Gateway for racing events?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use Parallel Gateway -- this approach activates ALL outgoing branches simultaneously rather than implementing a race-to-first pattern. A Parallel (AND) split fires every branch; both the Timer branch and the Message branch would execute concurrently. The join gateway would then wait for ALL branches to complete. This is the opposite of the desired race semantics where only the first-to-fire event wins. For racing events, the Event-Based Gateway is purpose-built: it waits at the gateway, activates only the first triggered event branch, and cancels all remaining subscriptions automatically."
+    },
+    {
+      "id": "b",
+      "text": "Boundary Event -- this is a partially valid approach but semantically different from an Event-Based Gateway race. , Timer Boundary on a Receive Task for timeout). An Event-Based Gateway is purpose-built for racing between independent events at a gateway point, offering cleaner semantics for the Timer-vs-Message race scenario described."
+    },
+    {
+      "id": "c",
+      "text": "Event-Based Gateway is designed precisely for racing between alternative events in Camunda 8. The gateway acts as a wait state: each outgoing path connects to a different event type (Timer Catch, Message Catch, Signal Catch). All event subscriptions are active simultaneously. The first event to fire activates its path; all remaining subscriptions are immediately cancelled by the engine. For the scenario -- Timer (10 minutes) OR Message (partner response) -- whichever arrives first wins. The gateway enforces exactly-one activation with automatic cleanup of losing branches."
+    },
+    {
+      "id": "d",
+      "text": "0 capabilities. 0 specification explicitly defines the Event-Based Gateway for exactly this race-to-first pattern, and Camunda 8 fully implements it. Teams using Camunda regularly model timeout-vs-response races, multi-channel response alternatives, and other racing event patterns using the Event-Based Gateway. Claims that such patterns require custom coding or workarounds indicate unfamiliarity with standard BPMN constructs available in production Camunda 8 deployments."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Event-Based Gateway semantics: Visual notation: Pentagon (diamond) shape with concentric circles inside (event marker). Specifically distinct from XOR / OR / Parallel. Behavior: Process flow arrives at gateway. Gateway \"listens\" for events on its outgoing branches. First event to trigger: its branch activates. Other branches: cancelled / discarded. Only one path proceeds beyond the gateway. Allowed outgoing events (per BPMN spec): Message Catch Event. Timer Catch Event. Signal Catch Event. Conditional Catch Event (verify support). Receive Task (in some implementations). Example: ` [Send Request to Partner] → [Event-Based Gateway] ├─ [Timer Catch (PT10M)] → [Timeout Handler] └─ [Message Catch (Response)] → [Process Response] ` Race outcomes: Partner responds within 10 min: Message branch activates; Timer cancelled. No response in 10 min: Timer branch activates; Message subscription cancelled. For the scenario (Timer 10min OR Message): Exactly this pattern. Event-Based Gateway is the right BPMN construct. Use cases: Use case 1: Timeout pattern: Wait for response with deadline. Most common usage. Use case 2: Multi-channel response: Customer can respond via email, SMS, or web form. Event-Based Gateway with multiple Message Catches. Use case 3: External event vs system event: Wait for either user action or system-triggered event. Differences from Boundary Events: Boundary Event (on an activity): Attached to a specific activity. Interrupts activity (or non-interrupting fires alongside). Activity does work; Boundary handles secondary event. Event-Based Gateway: Doesn't have an \"activity\" -- just waits. Race between multiple events. Whichever wins, that's the only path. When to use Boundary vs Event-Based: Activity with timeout / cancel: Boundary Event on the activity. Pure wait state with race: Event-Based Gateway. Example with Boundary Event (alternative pattern): User Task with Timer Boundary (PT10M). User completes task → continue. Timer fires → cancel task; continue alternative path. Different semantic: there's an activity (User Task) being worked on. vs Event-Based Gateway: No activity; just waiting for race. Cancellation semantics: When first event fires: Other event subscriptions are cancelled. Engine cleans up state. For Timer: cancellation just stops the scheduled timer. For Message: subscription removed; if message arrives later, no correlation. Best practices: Always include Timer in event-based gateways: provides bounded wait. Without Timer: process could wait forever. Document the race: comment in BPMN clarifying the alternatives. Anti-patterns: Event-Based Gateway with no Timer: unbounded wait. XOR Gateway after Catch Events: wrong -- XOR evaluates conditions; doesn't race."
+    },
+    "b": {
+      "text": "Incorrect. Parallel fires all."
+    },
+    "c": {
+      "text": "Correct. Different semantic."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Different semantic.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-based-gateways/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q02",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

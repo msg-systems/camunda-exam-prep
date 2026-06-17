@@ -1,0 +1,53 @@
+{
+  "id": "ext-writing-good-workers-109",
+  "topic": "extensions-integrations",
+  "subtopic": "nodejs-worker",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A Node.js worker uses `zbc.createWorker({ taskType, taskHandler })` with `axios.get(...).then(...)` inside the handler. A teammate proposes rewriting it with `const r = await axios.get(...)` to \"block on the response\". What does the docs say will happen?",
+  "codeBlocks": {
+    "stem": "zbc.createWorker({\n  taskType: \"rest\",\n  taskHandler: (job) => {\n    axios.get(PAYMENT_URL)\n      .then((response) => job.complete().then(incCounter))\n      .catch((error) => job.fail(\"Could not invoke REST API: \" + error.message));\n  },\n});"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "Even the seemingly blocking `await` form is still executed in a non-blocking fashion — JavaScript cannot truly block — so the worker scales the same way."
+    },
+    {
+      "id": "b",
+      "text": "The `await` form will block Node.js's only thread and serialize jobs to one at a time."
+    },
+    {
+      "id": "c",
+      "text": "The Node.js SDK refuses to register a handler that uses `async/await`; the test will throw at startup."
+    },
+    {
+      "id": "d",
+      "text": "It only works if you also configure a thread pool, because Node.js requires one for concurrent job activation."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs make this explicit: reactive programming is so deep in JavaScript that it is impossible to write truly blocking code, and code that looks blocking is still executed non-blockingly. Node.js workers scale well via the event loop."
+    },
+    "b": {
+      "text": "`await` does not block the Node.js event loop; it suspends the async function and lets the loop service other callbacks. The docs note JavaScript cannot really block."
+    },
+    "c": {
+      "text": "The SDK accepts ordinary `async` handlers; there is no such restriction described in the docs."
+    },
+    "d": {
+      "text": "Node.js needs no specific worker thread pool — the Camunda 8 Node.js client itself uses reactive programming internally and relies on the event loop."
+    }
+  },
+  "explanation": "The Node.js section is unequivocal: JavaScript cannot really block, so even a `await axios.get(...)` style handler is still executed by the event loop and the worker scales without any thread-pool tuning. The Camunda 8 Node.js client itself is reactive internally.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

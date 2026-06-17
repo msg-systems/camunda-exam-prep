@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q35",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A custom Connector occasionally has issues (transient errors, slow responses). The team wants the Connector to emit telemetry / custom log events to their observability stack (Datadog, OpenTelemetry, etc.) -- for debugging.",
+  "question": "How can a custom Connector emit telemetry?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Custom Connector code uses standard observability libraries: - Logging: SLF4J / Logback (Java); standard logger (Node). - Metrics: Micrometer / Prometheus client (Java); equivalent in other langs. - Tracing: OpenTelemetry SDK; emit spans for Connector executions; correlate with downstream service spans. - Custom events: emit structured logs with relevant context (job key, BPMN element, inputs hash). Integrate with the team's observability stack via standard exporters. Connector Runtime can configure logging / metrics export."
+    },
+    {
+      "id": "b",
+      "text": "js, or other supported languages. They can incorporate any standard observability library available in the host runtime environment. Java Connectors can use SLF4J for logging, Micrometer for metrics, and the OpenTelemetry SDK for distributed tracing. js SDK. Standard exporters then forward telemetry data to Prometheus, Datadog, Grafana, or other observability backends that the team uses."
+    },
+    {
+      "id": "c",
+      "text": "Operate is a process-level monitoring tool that provides visibility into BPMN process instances, incidents, and variable data -- it does not receive custom Connector telemetry. Custom logging, metrics, and distributed traces from Connector code flow through the observability libraries embedded in the Connector implementation, not through Operate. These signals reach standard observability backends like Prometheus, Datadog, or Jaeger via their respective exporters, independent of Operate's data model and ingestion pipeline."
+    },
+    {
+      "id": "d",
+      "text": "Adding a dedicated Service Task after a Connector task solely for logging purposes is an ineffective design pattern. It would require an additional Zeebe job worker, an extra network round-trip, and coupling between the BPMN model structure and the logging concern. Observability belongs inside the Connector's own implementation code, not in separate BPMN elements."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Custom Connectors are standard application code; integrate observability with standard libraries: Logging: Java: SLF4J facade + Logback / Log4j2 backend. Configure log levels per package; structured JSON logs for log aggregation. Node: standard console or winston / pino for structured. What to log: Connector activation, execution start / end, errors with stack traces, key inputs (excluding secrets). Metrics: Counters: total invocations, errors per type. Histograms: execution time distribution. Gauges: in-flight count. Tools: Micrometer (Java) → Prometheus / Datadog / etc. Tracing (OpenTelemetry): Spans: each Connector execution becomes a span. Attributes: BPMN element ID, process instance key, input hash. Trace propagation: pass trace context to downstream API calls (W3C trace context headers). End-to-end visibility: trace a request from BPMN start → Connector → external service → back. Best practices: Structured logs: JSON for machine parsing; include correlation IDs. Don't log secrets: filter / mask sensitive fields. Sampling: in high-throughput scenarios, sample traces to balance cost vs visibility. Alerting: thresholds on metrics (error rate > X%, latency > Y). Integration with team's stack: standard exporters (Prometheus scraper, Datadog agent, OTel collector) pull / receive from Connector Runtime."
+    },
+    "b": {
+      "text": "Incorrect. Standard libs."
+    },
+    "c": {
+      "text": "Incorrect. Operate process-level."
+    },
+    "d": {
+      "text": "Incorrect. workable but heavier."
+    }
+  },
+  "explanation": "Custom Connectors are standard application code; integrate observability with standard libraries: Logging: Java: SLF4J facade + Logback / Log4j2 backend. Configure log levels per package; structured JSON logs for log aggregation. Node: standard console or winston / pino for structured. What to log: Connector activation, execution start / end, errors with stack traces, key inputs (excluding secrets). Metrics: Counters: total invocations, errors per type. Histograms: execution time distribution. Gauges: in-flight count. Tools: Micrometer (Java) → Prometheus / Datadog / etc. Tracing (OpenTelemetry): Spans: each Connector execution becomes a span. Attributes: BPMN element ID, process instance key, input hash. Trace propagation: pass trace context to downstream API calls (W3C trace context headers). End-to-end visibility: trace a request from BPMN start → Connector → external service → back. Best practices: Structured logs: JSON for machine parsing; include correlation IDs. Don't log secrets: filter / mask sensitive fields. Sampling: in high-throughput scenarios, sample traces to balance cost vs visibility. Alerting: thresholds on metrics (error rate > X%, latency > Y). Integration with team's stack: standard exporters (Prometheus scraper, Datadog agent, OTel collector) pull / receive from Connector Runtime.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q35",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

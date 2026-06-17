@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A travel-booking process has an Embedded Subprocess \"Book Flight\" that internally throws an Escalation Event with code \"FLIGHT_PRICE_INCREASED\" when the airline's price has changed since quote. The team wants the parent process to continue normal flow but also notify the customer of the price change via a parallel side-flow.",
+  "question": "Which BPMN construct routes the Escalation to the parent for notification while keeping main flow active?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Attach an Interrupting Error Boundary Event to the Embedded Subprocess instead -- Error events are the standard BPMN mechanism for inter-scope notification and exception handling. Using an Interrupting Error Boundary Event would cancel the inner \"Book Flight\" subprocess as soon as the error fires, terminating its execution before it can complete the booking flow. This directly violates the requirement that the main booking flow must continue normally alongside the customer notification."
+    },
+    {
+      "id": "b",
+      "text": "Use a Signal Throw Event inside the subprocess to broadcast the price-change notification, and a Signal Catch Event in the parent process to receive it and trigger the customer notification flow. Signal events are global broadcasts that reach all subscribers across all active process instances -- not a scoped, typed notification mechanism. This introduces incorrect abstraction: Escalation events provide the scoped, typed inter-scope notification pattern that BPMN defines specifically for this use case, while Signal adds unnecessary global broadcast semantics."
+    },
+    {
+      "id": "c",
+      "text": "Throw the price-change notification as an Error event with isInterrupting=false configured on the Error Boundary Event in the parent. BPMN Error events do not have a non-interrupting mode -- Error Boundary Events are always interrupting by specification, which means they cancel the activity they are attached to. Only Escalation Boundary Events support the non-interrupting configuration that allows the subprocess to continue executing while the parent spawns a parallel notification token."
+    },
+    {
+      "id": "d",
+      "text": "Attach a Non-interrupting Escalation Boundary Event to the Embedded Subprocess \"Book Flight\" in the parent process, configured with code \"FLIGHT_PRICE_INCREASED\". When the subprocess throws this escalation internally, the non-interrupting boundary event fires: it spawns a new parallel token following its outgoing flow (the customer notification path) while the \"Book Flight\" subprocess continues executing normally. The main booking flow proceeds to completion; the parallel notification side-flow runs concurrently."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Escalation Events are BPMN's mechanism for non-blocking notifications between scopes -- different from Error events which are interrupting. A Non-interrupting Escalation Boundary Event on the parent matches the inner-thrown escalation and spawns a parallel token (notify customer flow) while leaving the inner subprocess running. The main flow continues, the parallel flow handles notification."
+    },
+    "b": {
+      "text": "Incorrect. Interrupting Error Boundary cancels the inner subprocess -- wrong, the scenario wants to continue."
+    },
+    "c": {
+      "text": "Incorrect. Signal events are global broadcasts; Escalation is the typed scope-bubble construct. Wrong abstraction."
+    },
+    "d": {
+      "text": "Correct. Error events don't have \"non-interrupting\" mode in BPMN spec; Escalation is the non-interrupting equivalent."
+    }
+  },
+  "explanation": "Error events don't have \"non-interrupting\" mode in BPMN spec; Escalation is the non-interrupting equivalent.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/escalation-events/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q22",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

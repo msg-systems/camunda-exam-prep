@@ -1,0 +1,63 @@
+{
+  "id": "imp-set14-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Webhook Inbound Connector exposes an HTTP endpoint to receive partner events. Team wonders about auth modes -- HMAC signature, basic auth, no auth.",
+  "question": "Webhook Connector authentication modes?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Webhook Inbound Connector does not operate as an unauthenticated open endpoint by default and has multiple security options. md:65-78 supports Basic auth, API Key (extracted via FEEL locator from any request location), and JWT (Bearer token with JWK URL and required-role validation). Separately, HMAC authentication (:22-50) validates body integrity by signature -- it can run alongside Authorization for defense in depth. An unauthenticated endpoint is a configuration choice, not the standard behavior, and is strongly discouraged for production."
+    },
+    {
+      "id": "b",
+      "text": "The HTTP Webhook Inbound Connector supports more than just Basic authentication. md:65-78. In addition, HMAC signature authentication provides body-integrity verification independently of the Authorization section. Configuring Basic auth alone misses the stronger alternatives. Teams choosing Basic auth should combine it with HTTPS and consider rotating credentials regularly."
+    },
+    {
+      "id": "c",
+      "text": "IP-based restriction is an infrastructure-level control applied at the Ingress, API gateway, or firewall layer -- it is separate from the Webhook Connector's own authentication options. The connector itself provides Authorization modes (Basic, API Key, JWT) and HMAC signature validation. IP filtering can complement connector-level auth for additional defense in depth, but it does not replace it. Restricting only to IP ranges with no connector-level auth still leaves the endpoint open if partner IPs change."
+    },
+    {
+      "id": "d",
+      "text": "md:22-78: HMAC signature authentication validates request body integrity using a shared secret and configurable algorithm and scope; the Authorization section provides Basic, API Key (via FEEL locator), or JWT (Bearer plus JWK URL plus required roles). These two mechanisms are independent and can be combined. For maximum security, use HMAC plus JWT or API Key, over HTTPS, with infrastructure-layer IP filtering added on top."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Webhook auth modes: No authorization (leave Authorization unset): Open endpoint unless HMAC is enabled. Risk: anyone can trigger process instances. Use case: only for completely public / safe webhooks (rare in production). Better: at minimum, require API key. Basic (per http-webhook.md:67-69): Header: Authorization: Basic . Set Username + Password on the connector (plain text, NOT base64-encoded -- connector does the encoding match). Pros: simple; widely supported. Cons: credentials in every request; need HTTPS. Use case: partners that prefer simple auth. API Key (per http-webhook.md:71-73, :210-248): API key can be anywhere in the request (header, body, etc.) -- extract via FEEL API Key locator, e.g. =request.headers[\"x-api-key\"] or =split(request.headers.authorization, \" \")[2] to strip Bearer prefix. API Key property holds expected value; locator result is string-compared. Pros: flexible placement; one credential to manage. Cons: same key used by all callers; rotation impacts everyone. HMAC authentication (per http-webhook.md:22-50) -- separate from Authorization, can run alongside: Partner signs configured scope (BODY default / URL / PARAMETERS) with shared secret + algorithm (SHA-256 typical). Includes signature in configured HMAC header (e.g., X-Hub-Signature-256 for GitHub). Camunda re-computes signature; validates match. Pros: cryptographically secure; secret never sent; body integrity verified. Cons: more setup; partner must implement signing. Use case: high-security webhooks (e.g., GitHub events, financial events). JWT (per http-webhook.md:75-78): Partner sends JWT in Authorization: Bearer . Set JWK URL to fetch public keys; JWT role property expression + required roles for role-based authorization. Pros: rich claims; expiry; revocation. Cons: complex setup; requires JWT issuer. Use case: enterprise integrations. IP allowlist -- infrastructure layer, NOT a connector property: Enforce at Ingress / API gateway / WAF in front of Camunda. Pros: additional layer; restricts to known partners. Cons: IPs change; cloud providers use dynamic IPs. Use case: combined with connector auth modes. Multi-layered: HMAC + Basic/API Key/JWT + HTTPS + infra-layer IP allowlist: defense in depth. Each layer independent. Configuration in Element Template: `json { \"label\": \"Auth Type\", \"type\": \"Dropdown\", \"choices\": [ {\"value\": \"NONE\", \"name\": \"None\"}, {\"value\": \"BASIC\", \"name\": \"Basic Auth\"}, {\"value\": \"API_KEY\", \"name\": \"API Key\"}, {\"value\": \"HMAC\", \"name\": \"HMAC Signature\"} ] } HMAC signature setup: Shared secret: store as Camunda secret ({{secrets.PARTNER_HMAC_KEY}}`). Algorithm: HMAC-SHA256 typical. Body: signed. Header name: depends on partner spec. For the scenario: Choose strongest auth partner supports. For payment / sensitive events: HMAC ideal. For status updates: Basic / API Key may suffice. Always: HTTPS. Best practices: Never expose unauthenticated webhooks for sensitive operations. HTTPS always: encrypt in transit. Rotate secrets: periodic rotation. Validate body integrity: HMAC verifies body wasn't tampered. Rate limit: prevent abuse. Logging: log authentication events; alert on failures. Anti-patterns: No auth in production: exposes process triggers. HTTP (not HTTPS): credentials in cleartext. Reusing secrets across partners: compromise of one affects all. Long-lived shared secrets without rotation."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q46",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

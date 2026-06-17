@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A subscription-renewal process must wait for a customer-payment confirmation message before proceeding. The message is sent asynchronously by the payment gateway. The process should pause at this point until the message arrives.",
+  "question": "Which BPMN construct fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Receive Task (or Intermediate Message Catch Event) configured with the message name and a correlation key expression such as =subscriptionId. The process instance pauses at this element and subscribes to Zeebe's message buffer. When an external system publishes a message with the matching name and correlation key value, Zeebe correlates and resumes the waiting instance automatically using its internal message subscription buffer."
+    },
+    {
+      "id": "b",
+      "text": "Service Task that polls the payment gateway every minute using a timer-driven loop. Active polling via a Job Worker consumes cluster resources continuously even when no payment has arrived. This pattern introduces unnecessary load on both the gateway and the Zeebe broker, produces slow reaction times between poll intervals, and does not leverage Zeebe's native message-correlation capability designed for exactly this scenario."
+    },
+    {
+      "id": "c",
+      "text": "User Task waiting for a human acknowledgement. User Tasks are designed for human work items surfaced in Tasklist, requiring a person to claim and complete them. A payment-confirmation message originates from the payment gateway system, not from a human reviewer. Routing an automated system event through a human-facing task introduces unnecessary manual steps and is architecturally inappropriate for this integration scenario."
+    },
+    {
+      "id": "d",
+      "text": "Timer Event configured with a PT24H (24 hour) wait duration. Timer Events fire after a fixed duration regardless of any external input or payment status. A timer-based wait cannot respond to the actual arrival of a payment confirmation message; it will always advance after 24 hours whether or not the customer has paid, making it unsuitable for event-driven payment waiting."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Receive Task and Intermediate Message Catch Event are BPMN's wait-for-message constructs. Configure message name + correlation key (FEEL expression matching process variable). When matching message is published, Zeebe correlates and resumes."
+    },
+    "b": {
+      "text": "Incorrect. Polling burns worker capacity for hours."
+    },
+    "c": {
+      "text": "Incorrect. User Tasks are for human work; this is a system message."
+    },
+    "d": {
+      "text": "Incorrect. Timer fires after a fixed duration regardless of payment status."
+    }
+  },
+  "explanation": "Receive Task and Intermediate Message Catch Event are BPMN's wait-for-message constructs. Configure message name + correlation key (FEEL expression matching process variable). When matching message is published, Zeebe correlates and resumes.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/receive-tasks/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q17",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A company has four BPMN processes that all call the same internal \"Send Notification\" REST API. Currently each process has its own Service Task with hardcoded URL, headers, auth config. When the API's authentication scheme changed last quarter, the team had to update all four processes individually and missed two. The architect wants a single point of change for future API config changes. The team considers Element Templates. The senior developer cautions: \"Element Templates aren't a magic 'update everywhere' button -- understand what they actually do.\"",
+  "question": "What is the correct understanding of Element Templates' scope of effect?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Element Templates create a runtime binding between the template definition and deployed processes -- when the template is updated in Web Modeler, all deployed processes that use the template automatically pick up the new configuration at runtime without redeployment. Element Templates are design-time tools. Their properties are written into the BPMN XML at the moment the designer applies or re-applies the template. Once deployed, the BPMN contains static values; the runtime broker has no connection to the template source."
+    },
+    {
+      "id": "b",
+      "text": "Element Templates standardise the design-time configuration of BPMN elements such as Service Task URL, authentication headers, and request body structure. When a designer selects the template in Web Modeler, the template's properties are inlined into the BPMN XML as extension elements. Updating the template and publishing a new version affects processes that are re-edited and re-deployed with the new version -- it does not retroactively update already-deployed processes or change the configuration of in-flight instances."
+    },
+    {
+      "id": "c",
+      "text": "Element Templates are runtime Connectors that execute API calls inside the Zeebe broker -- the template definition includes the execution logic and authentication flow that runs within the engine. Element Templates are purely a design-time UI and configuration tool. They define the configuration shape of BPMN elements for Web Modeler designers. Connectors are separate runtime components that actually execute API calls; Templates configure how those Connectors are presented and parameterised."
+    },
+    {
+      "id": "d",
+      "text": "8 and the documentation recommends migrating all template-based configurations to Custom Connectors built with the Connector SDK. 8. They continue to be the standard mechanism for configuring Connector-based Service Tasks in Web Modeler and integrate tightly with the full Connector ecosystem."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Element Templates are design-time tools that define reusable configuration for BPMN elements. When a designer applies the template, the template's properties are written into the BPMN XML as extension elements at design time. Updating the template (publishing a new version) affects processes that adopt the new version when they are re-edited and re-deployed -- it does NOT retroactively change already-deployed processes or in-flight instances. \"Single point of change\" works prospectively, not retroactively."
+    },
+    "b": {
+      "text": "Correct. Templates are design-time, not runtime. No runtime binding from template to deployed processes -- the template's properties are inlined into the XML at deployment time."
+    },
+    "c": {
+      "text": "Incorrect. Element Templates are not Connectors. Connectors are runtime components; Templates define configuration shape."
+    },
+    "d": {
+      "text": "Incorrect. Templates are not deprecated; active in 8.8 and integrate with Connectors."
+    }
+  },
+  "explanation": "Templates are design-time, not runtime. No runtime binding from template to deployed processes -- the template's properties are inlined into the XML at deployment time.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/desktop-modeler/element-templates/using-templates/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q17",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

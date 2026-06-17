@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team deploys a BPMN and a DMN together in one deployment. The BPMN's Business Rule Task references the DMN's decision. The team wonders about atomic deployment.",
+  "question": "Are BPMN and DMN deployed atomically when packaged together?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Each resource in a deployment request is validated and deployed independently, so a BPMN file and a DMN file submitted together might succeed or fail independently -- this description does not reflect the actual behaviour. If any resource fails validation, the entire deployment is rejected and no resources are deployed. This prevents partial deployment states where a BPMN references a DMN that was not successfully deployed."
+    },
+    {
+      "id": "b",
+      "text": "Yes -- Zeebe supports atomic deployment of multiple resources in a single deployment request. Submit BPMN + DMN + Forms + other resources together via the deployment API; Zeebe deploys them as a unit. Either all succeed or all are rolled back (validation failure on any resource cancels the deployment). After successful deployment, instance-creation can immediately use both BPMN and DMN -- no separate deployment sequencing concerns."
+    },
+    {
+      "id": "c",
+      "text": "BPMN and DMN must be deployed in a specific order -- BPMN first, then DMN -- to ensure the Business Rule Task reference resolves correctly -- this is a sequencing concern that atomic deployment eliminates. When both resources are submitted in a single deployment request, Zeebe validates and deploys them simultaneously as an atomic unit. There is no requirement to sequence separate deployments; the atomic deployment model guarantees all referenced resources are available together after a successful deployment."
+    },
+    {
+      "id": "d",
+      "text": "Atomic deployment guarantees apply only to BPMN files; DMN files, Forms, and other resource types are deployed with best-effort semantics that may succeed partially -- this description does not reflect the actual behaviour. Zeebe's atomic deployment applies to all resource types in a single deployment request, including BPMN, DMN, Form, and other supported formats. The all-or-nothing guarantee covers every resource in the request. Either all resources pass validation and deploy together, or none are deployed."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe's deployment API accepts multiple resources in a single request and processes them as an atomic transaction: Validation: each resource is validated (BPMN structural checks, DMN well-formedness, etc.). If any fails, the deployment is rejected; no resources are deployed. Atomicity: on success, all resources become available simultaneously. The BPMN can immediately reference the DMN; both are queryable. Versioning: each resource gets its version (separately tracked per resource type). Practical benefits: No partial deployments: avoid the \"BPMN deployed but DMN not yet\" race condition. CI/CD simplicity: one deployment command for related resources. Atomic rollback: if any resource has issues, none deploy -- you fix and re-deploy. zbctl example: ` zbctl deploy --resourceFile order.bpmn --resourceFile pricing.dmn --resourceFile form.form ` All deploy atomically."
+    },
+    "b": {
+      "text": "Correct. Atomic."
+    },
+    "c": {
+      "text": "Incorrect. Atomic, no sequence needed."
+    },
+    "d": {
+      "text": "Incorrect. Multi-resource atomic."
+    }
+  },
+  "explanation": "Atomic.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-applications/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q29",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

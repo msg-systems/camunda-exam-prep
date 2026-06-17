@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q52",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN decision evaluation failed mid-flight (incident raised). Operator wonders if they can retry the decision evaluation without re-running the whole process.",
+  "question": "Decision instance retry from Operate?",
+  "options": [
+    {
+      "id": "a",
+      "text": "DMN decisions in Camunda 8 can never fail at evaluation time; any incorrectly structured or mismatched input simply produces a null output without raising an incident or pausing the process. This misrepresents the documented behavior. Decision evaluation failures do surface as Incidents on the Business Rule Task in Operate. , null input where a value is expected), type mismatches, and PRIORITY hit policy with no matching rule. When an incident is raised, the operator can fix the root cause (edit variables or redeploy a fixed DMN version) and retry the decision via the Operate Retry button."
+    },
+    {
+      "id": "b",
+      "text": "When a DMN decision evaluation fails and raises an incident, the only option is to cancel the entire process instance and restart from the beginning with corrected input data; Operate provides no mechanism to retry just the failing decision step while preserving the rest of the process state. This overstates the severity. Operate provides a Retry mechanism specifically for resolving incidents on individual tasks without cancelling the process. After fixing the variable values or redeploying a corrected DMN version, clicking Retry in Operate re-evaluates the decision and resumes the process from where it paused."
+    },
+    {
+      "id": "c",
+      "text": "md); the process token pauses at the Business Rule Task. md:134-159): inspect the incident error message in the Incidents tab, correct the root cause (edit variable values in the Variables panel or redeploy a fixed DMN version), then click Retry to re-evaluate the decision with updated state. With bindingType=latest, retrying after redeployment automatically picks up the new decision version."
+    },
+    {
+      "id": "d",
+      "text": "When a DMN decision evaluation raises an incident, Camunda 8 automatically retries the evaluation in an infinite loop at regular intervals until the decision eventually succeeds; no operator intervention is required. This misrepresents the documented behavior. Decision evaluation incidents in Camunda 8 pause the process token and wait for operator action. Unlike job worker failures (which have configurable retry counts), decision incidents do not automatically retry. An operator must diagnose the failure in Operate, fix the underlying cause, and manually trigger the retry."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Decision retry semantics: In-process decision (Business Rule Task): Process flow reaches Business Rule Task. Task evaluates referenced decision; uses process variables as inputs. Failure cases: Input type mismatch (per Q26). Output validation failure. FEEL evaluation error (e.g., null pointer in expression). PRIORITY hit policy with no matching rule (depending on table config). On failure: Incident raised on the Business Rule Task; process pauses. Retry from Operate: Increment retries on the task: triggers re-evaluation with current variables. If process variables can be modified: edit variables → re-evaluate. If decision needs to be fixed: deploy new decision version; re-evaluate uses latest. Modify Process Instance API: Power-user move: directly jump past the decision; provide outputs manually via variables. Use sparingly; audit trail important. Standalone decision evaluation (via API, no process): Camunda 8 supports evaluating decisions directly via API. Failure: returns error to caller. Retry: caller decides (re-invoke API). Decision instance retention (per Q29): Failed evaluations also recorded in decision-instances log. Query in Operate to inspect inputs / partial evaluation trace. Useful for diagnosing failure pattern. Common failure causes + fixes: | Cause | Fix | |---|---| | Input type mismatch | Convert at process level; deploy V2 decision | | Missing input variable | Set variable; retry | | Hit policy error (no match) | Add default rule; redeploy | | FEEL bug in cell | Fix; deploy V2; retry | | Stale data in inputs | Update variables; retry | Best practices: Defensive FEEL in cells: handle null / missing inputs gracefully. Test decisions before deployment: catch issues in dev. Monitor decision failures: alert on high failure rate."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Overstates."
+    },
+    "c": {
+      "text": "Correct. Overstates."
+    },
+    "d": {
+      "text": "Incorrect. Incorrect."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q52",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

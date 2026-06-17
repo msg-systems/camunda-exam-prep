@@ -1,0 +1,27 @@
+{
+  "id": "mod-message-events-55",
+  "topic": "modeling",
+  "subtopic": "message-events",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Orion Insurance models 1500 policies per day in Camunda 8.8 and reviewers must validate the BPMN XML of an intermediate message catch event named Money collected attached to a collect-money task, ensuring the correlationKey orderId is declared at the documented place inside the model before the next deployment.",
+  "question": "Where is the correlationKey for an intermediate message catch event declared in the BPMN XML?",
+  "options": [
+    { "id": "a", "text": "Inside bpmn:messageEventDefinition directly on the catch event element under a correlationKey attribute of the definition" },
+    { "id": "b", "text": "Inside zeebe:taskDefinition placed under extensionElements of the intermediateCatchEvent element with a correlation job type" },
+    { "id": "c", "text": "Inside zeebe:subscription nested under extensionElements of the bpmn:message element referenced by the catch event" },
+    { "id": "d", "text": "Inside a bpmn:correlationProperty declared at the definitions root and referenced through a correlationPropertyRef key" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The XML representation in the Additional resources section does not place a correlationKey attribute on bpmn:messageEventDefinition; the messageEventDefinition only carries a messageRef pointing at the message element." },
+    "b": { "text": "Incorrect. zeebe:taskDefinition declares the job type for job-worker tasks and is not the carrier of the message correlation key in the documented XML for message catch events." },
+    "c": { "text": "Correct. The XML sample shows the bpmn:message element carrying a bpmn:extensionElements block with zeebe:subscription correlationKey, and the intermediate catch event references that message through messageRef." },
+    "d": { "text": "Incorrect. The Additional resources XML does not use a bpmn:correlationProperty at the definitions root; Camunda 8 expresses the correlation key through the zeebe:subscription extension on the message element." }
+  },
+  "explanation": "Camunda 8 BPMN encodes the message correlation key on the bpmn:message element via a zeebe:subscription extension carrying the correlationKey expression, while the catch event itself only references the message through messageRef.",
+  "docs": [
+    { "title": "BPMN message events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/" }
+  ]
+}

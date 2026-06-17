@@ -1,0 +1,63 @@
+{
+  "id": "imp-set10-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's external system publishes the same OrderShipped message twice due to a network retry -- they want Camunda to deduplicate so the process correlates only once.",
+  "question": "Which message attribute enables deduplication of duplicate messages?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda automatically deduplicates messages by comparing their full content hash -- no additional configuration is needed -- this description does not reflect the actual behaviour. Content-based deduplication is not a feature of Camunda 8 message correlation. Deduplication requires the publisher to explicitly include a messageId value in the publish request. Without an explicit messageId, every published message is treated as a distinct new message regardless of identical content."
+    },
+    {
+      "id": "b",
+      "text": "Use a preceding Service Task that queries a separate deduplication store before the message correlation step -- this is a workable but unnecessarily complex workaround. Using a Service Task for deduplication adds latency, requires maintaining external state, and introduces additional failure points. The messageId attribute is specifically designed for idempotent message publishing and should be the primary solution."
+    },
+    {
+      "id": "c",
+      "text": ", the order's orderId). e. idempotency)... \" The dedup key is the composite (name, correlationKey, messageId) -- not messageId alone. The buffer window is governed by the message's timeToLive; once the message is discarded from the buffer (TTL expired or correlated), a new publish with the same triple is accepted again. The uniqueness check is disabled when no messageId is set (:97)."
+    },
+    {
+      "id": "d",
+      "text": "Message deduplication has no supported mechanism in Camunda 8 and duplicate messages will always correlate multiple times -- this description does not reflect the actual behaviour. When a message is published with a messageId, Zeebe checks whether a message with the same name, correlationKey, and messageId is already buffered within the timeToLive window and rejects the duplicate if found."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe's publishMessage command supports messageId for deduplication: Set messageId: when the publisher knows a unique identifier for the logical message, include it in the publish call. E.g., the external system uses the order ID, so messageId = \"order-shipped-ORD-12345\". Deduplication window: configured by timeToLive. Within this window, duplicates with the same messageId are recognised and ignored. Behaviour: first message with that messageId correlates (or buffers waiting for subscription); subsequent duplicates within the TTL window are discarded silently. This shifts deduplication responsibility from each consumer to the broker: external systems can retry safely, knowing Zeebe deduplicates. Without messageId, every publish is treated as a new message and could correlate multiple times. Best practice: in any \"at-least-once delivery\" integration (which most networked publishers are), use messageId for safety."
+    },
+    "b": {
+      "text": "Incorrect. Requires explicit messageId."
+    },
+    "c": {
+      "text": "Correct. messageId is built-in."
+    },
+    "d": {
+      "text": "Incorrect. Supported."
+    }
+  },
+  "explanation": "messageId is built-in.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q20",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[2]"
+      }
+    ]
+  }
+}

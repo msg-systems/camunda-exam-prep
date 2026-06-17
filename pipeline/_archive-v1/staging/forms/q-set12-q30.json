@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q30",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Form has 10 fields. Some are temporary calculations / scratch values; others should land in process scope on completion. The team wonders how to control which Form values become process variables.",
+  "question": "How does the team control which Form values become process variables?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only fields that have a key attribute defined write their values to process scope on task completion. Display-only components such as Text View, Spacer, Separator, Image, and HTML do not have a key attribute and do not write to process variables. Additionally, even fields with keys can be filtered through User Task Output Mapping to prevent certain values from landing in the process scope. The form-to-variable flow requires explicit key configuration, not automatic propagation."
+    },
+    {
+      "id": "b",
+      "text": "Using a Service Task after the User Task to read and filter form output variables is technically workable but unnecessarily complex. It requires an additional element in the BPMN diagram, a custom job worker, and extra network round-trips. The cleaner approach is to use User Task Output Mapping directly on the Human Task element to declare which form-written variables should propagate to process scope, optionally with FEEL transformation expressions. Output Mapping is evaluated inline during task completion and does not require spawning a separate service task or worker."
+    },
+    {
+      "id": "c",
+      "text": "Form fields with a key attribute write their values to process scope on task completion; fields without a key, such as display-only components, do not. Additionally, User Task Output Mapping provides a second layer of control: it can selectively allow, filter, rename, or transform the values written by keyed form fields before they land in the broader process variable scope. Together, key and Output Mapping give teams precise, layered control over the form-to-process data contract."
+    },
+    {
+      "id": "d",
+      "text": "Form field key attribute determines the variable name in process scope on completion. All fields with a key write their values; fields without a key (display-only components like Text View) don't write. For \"scratch\" intermediate calculations: use display-only components (no key) or fields without persistence intent. For final outputs: declare clear keys. Plus User Task Output Mapping: filter / transform what the form wrote before it lands in process scope -- give finer control."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Form-to-process variable flow: 1. Field-level key: Each editable Form field has a key attribute (path / variable name). On task completion, fields with key write their values to process scope at the specified path. Display-only components don't have key and don't write -- these are Text view (forms-element-library-text.md, supports Markdown + feelers templating), Spacer (-spacer.md), Separator (-separator.md), Image (-image.md), HTML (-html.md), iframe (-iframe.md), and the Group layout container (-group.md). (Note: there is no \"Heading\" component in the Camunda Forms element library -- for headings use Text view with Markdown # syntax per forms-config-templating-syntax.md.) 2. Strategy for \"scratch\" values: Use display-only / computed components for values you don't want persisted (e.g., a Text View showing a computed total derived from other fields -- not a separate field with key). Truly editable scratch values: create them, but exclude via Output Mapping (next layer). 3. User Task Output Mapping: Layer between Form data and process scope. Declare which Form values propagate: Target: customerEmail, Source: =email. Filter / transform / rename before writing. Example: Form has fields: firstName, lastName, ageRaw, ageRoundedDisplay. Output Mapping keeps: firstName, lastName, transforms ageRaw to customer.age. ageRoundedDisplay stays in form local scope; not in process scope. This layered approach (Form keys → Output Mapping) gives clean control over the data contract."
+    },
+    "b": {
+      "text": "Incorrect. Depends on key."
+    },
+    "c": {
+      "text": "Incorrect. Option d) -- Wrong. Controls available."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q30",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

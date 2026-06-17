@@ -1,0 +1,82 @@
+{
+  "id": "imp-set16-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process has an Event Subprocess. Team wonders which Start Event types are allowed inside an Event Subprocess.",
+  "question": "Event Subprocess Start Event types?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only None Start -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Only Message Start -- this is only partially accurate. While Message Start Events are indeed one of the valid trigger types for an Event Subprocess in Camunda 8, they are not the only allowed type. Event Subprocesses also support Timer, Signal, Error, and Escalation Start Events. Each type handles a different category of event: timers for time-based interruption, signals for broadcast-triggered handling, errors for BPMN error propagation, and escalation for non-fatal alerts. Limiting consideration to Message Start only ignores the full breadth of event-driven process handling patterns available in the specification and Camunda 8 runtime."
+    },
+    {
+      "id": "c",
+      "text": "md:11-17 -- five allowed types only: Message, Timer, Signal, Error, and Escalation. Each type supports interrupting (solid border) and non-interrupting (dashed border) variants. Interrupting variants cancel the parent scope; non-interrupting variants run alongside it and can fire multiple times. Compensation Start and Conditional Start Events are absent from Camunda 8 event subprocess support. The typed Start Event defines what triggers this subprocess and is mandatory -- a None Start Event inside an Event Subprocess has no valid trigger semantics."
+    },
+    {
+      "id": "d",
+      "text": "Any Start Event -- this is only partially correct and misleading. Not every Start Event type is valid inside an Event Subprocess. The None Start Event is unsuitable because it lacks a trigger mechanism; Event Subprocesses are inherently event-driven and require a typed Start Event. Furthermore, not all typed events are supported: Compensation Start and Conditional Start Events are absent from Camunda 8's Event Subprocess implementation. Only the five supported types (Message, Timer, Signal, Error, Escalation) are applicable. Using an unsupported type would result in a modeling validation error or unexpected runtime behavior."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Event Subprocess Start Event taxonomy per event-subprocesses.md:11-17: Purpose of Event Subprocess: Handles events occurring within parent scope (per Set 14 Q2). Triggered when its Start Event fires. Behaves like a boundary event but is INSIDE the scope (per :19). Required: exactly ONE typed Start Event: Must be an event-triggered start, not None. Defines WHAT triggers this subprocess. Allowed types (exactly 5): Message Start Event: Triggered by correlated Message. Interrupting: kills parent flow. Non-interrupting: parent continues. Timer Start Event: Triggered after Timer fires. Within parent scope's active state. Both interrupting / non-interrupting variants. Signal Start Event: Triggered by matching Signal (per Set 14 Q6). Broadcast semantics. Error Start Event: Triggered when BPMN error occurs in parent scope. Typically interrupting: handle error then end / continue per defined flow. Escalation Start Event: Triggered by escalation throw in parent scope. Non-interrupting typical for \"alert + continue.\" NOT allowed in C8 event subprocesses (per event-subprocesses.md:11-17 list is closed): Compensation Start: not in the event-subprocess allowed list (compensation is triggered via compensation throw on the boundary event, see compensation-events.md). Conditional Start: Conditional events not implemented in Camunda 8 at all per bpmn-coverage.md. Visual markers: Solid border circle: interrupting. Dashed border circle: non-interrupting. For Event Subprocess specifically: Subprocess body with dashed border (whole Event Subprocess). Start Event inside: typed. Behavior: Interrupting: Parent scope cancelled. Event Subprocess runs. Subprocess exit → parent scope ends. Non-interrupting: Parent continues. Event Subprocess runs in parallel. Can run multiple times (if event fires multiple times). Example: ` [Parent Subprocess] │ └─ [Event Subprocess -- Message Start \"CANCEL\", interrupting] └─ [Cleanup] → [End] ` When \"CANCEL\" Message arrives: parent cancelled; Cleanup runs. Differences from Boundary Events: Event Subprocess: Inside the parent scope. Triggered by events within scope. Boundary Event: Outside the parent activity. Triggered by events during activity. Choice: Event Subprocess: event handling for whole parent scope. Boundary Event: event handling for one specific activity. For multiple Event Subprocesses: One per event type: each handles its trigger. Coexist in same parent: legal. For embedded vs Event Subprocess: Embedded Subprocess: regular sequential flow; just inline grouping. Event Subprocess: event-triggered handler. Common patterns: Error Event Subprocess: handle BPMN errors at scope level. Timer Event Subprocess: SLA enforcement non-interruptively. Message Event Subprocess: external cancel signals."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. None doesn't fit."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q02",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 25 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[3]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 25.8 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

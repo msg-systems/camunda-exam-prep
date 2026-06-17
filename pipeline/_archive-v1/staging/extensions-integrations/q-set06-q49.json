@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q49",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Java Job Worker (Camunda Spring Boot starter) handles process-payment jobs. The worker doesn't need all process variables -- just amount and currency. Activating with all variables would waste bandwidth on large state.",
+  "question": "Which Camunda Spring Boot Starter option fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "yaml configuration file, limiting variables sent to all workers based on a server-side allowlist. This reduces payload on the broker side before transmission, but the filter applies globally to all job types without per-worker granularity, making it unsuitable for selective per-service-task variable scoping. This characteristic distinguishes Camunda 8 from earlier Camunda Platform 7 approaches and reflects the Zeebe-based architecture's unique properties."
+    },
+    {
+      "id": "b",
+      "text": "The fetchVariables property on a job worker subscription specifies an explicit list of variable names to be included in the job activation payload. When set, Zeebe only returns the named variables in each activated job, significantly reducing network transfer and worker memory usage. If fetchVariables is omitted, all in-scope variables are returned by default. This is the standard pattern for optimizing worker payload in Camunda 8."
+    },
+    {
+      "id": "c",
+      "text": "Variable scoping in Camunda 8 is controlled solely through BPMN data input/output associations defined in the Modeler. The associations restrict which variables flow into a sub-process or task scope, but the full set of in-scope variables is still transmitted to the worker runtime; payload filtering at the worker subscription level is handled separately and is not configurable via BPMN data associations alone."
+    },
+    {
+      "id": "d",
+      "text": "The maxJobsActive setting on the job worker controls the maximum number of concurrent activated jobs but has no effect on which variables are included in the activation payload. Increasing or decreasing this value affects throughput and back-pressure behaviour, not variable selection, so it is a concurrency tuning parameter rather than a payload filtering mechanism. This behaviour reflects Camunda 8's core design principles around reliable and scalable process execution in cloud-native environments."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. fetchVariables whitelist on @JobWorker (or property-form camunda.client.worker.override..fetch-variables) limits activation payload to specified vars -- saves bandwidth. Note: Spring Zeebe SDK is being removed in 8.10 per camunda-spring-boot-starter/getting-started.md:21-22; canonical artifact is Camunda Spring Boot starter."
+    },
+    "b": {
+      "text": "Correct. Default may fetch all; whitelist optimises."
+    },
+    "c": {
+      "text": "Incorrect. Spring Boot starter has implicit detection via @Variable/@VariablesAsType parameters per configuration.md:344-346, but explicit fetchVariables is safest and overrides implicit detection."
+    },
+    "d": {
+      "text": "Incorrect. Defeats the optimisation."
+    }
+  },
+  "explanation": "Default may fetch all; whitelist optimises.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q49",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

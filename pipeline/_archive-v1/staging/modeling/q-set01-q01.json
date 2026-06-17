@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q01",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A European travel platform orchestrates package bookings -- airline ticket (Sabre), hotel (Booking.com), car rental (Hertz) -- in a Camunda 8 Self-Managed process handling about 8,000 packages per day. Each external API has its own failure profile (~0.5% / 2% / 0.8%), and the three calls are currently modeled as three sequential Service Tasks. Last month the operations team identified a recurring failure: when the car rental call fails after airline and hotel have already succeeded, the rollback path (an Error Boundary Event leading to \"Cancel Airline\" → \"Cancel Hotel\" Service Tasks) sometimes leaves the customer with orphaned bookings. If \"Cancel Airline\" itself fails -- Sabre temporarily down -- \"Cancel Hotel\" still runs but the airline remains valid, with no retry, no audit trail of which compensations succeeded, and no way to resume rollback cleanly without manual Operate intervention. The architecture team wants a robust compensation pattern where rollback ordering, per-step retry, and audit trail are handled by the BPMN engine itself rather than ad-hoc error logic.",
+  "question": "Which BPMN pattern should the developer use to model this compensation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Wrap the three bookings in a regular subprocess and add an Event Subprocess with a non-interrupting Error Start Event that runs all three cancellation Service Tasks in parallel via a Parallel Gateway. The Event Subprocess fires when an error propagates into the enclosing scope, spawning a new parallel token without interrupting the parent flow. Each cancellation runs as a separate branch in the Parallel Gateway, meaning all three cancel steps start simultaneously regardless of which bookings actually completed. This approach does not register individual compensation handlers per booking activity -- the cancellation logic is hardcoded in the Event Subprocess branches rather than tied to individual task completion state."
+    },
+    {
+      "id": "b",
+      "text": "Place all three booking Service Tasks inside an Embedded Subprocess. Attach a Compensation Boundary Event with a dedicated Compensation Handler Service Task to each booking, then throw a Compensation End Event (or Compensation Intermediate Throw Event) when any booking fails. To enforce a specific cancellation order, use the activityRef property on the compensation throw to compensate one activity at a time."
+    },
+    {
+      "id": "c",
+      "text": "Replace the booking Service Tasks with Send Tasks and add matching Receive Tasks for cancellation acknowledgements, correlating each pair via order_id so the engine waits for explicit cancellation responses from the airline, hotel, and car rental systems respectively. Each Send Task publishes a cancellation request to the external partner, and the corresponding Receive Task blocks until that partner sends back a confirmation message correlated by the shared order_id. This creates a choreography-style integration pattern where each external system must actively respond before the process advances, introducing additional network round-trips and dependency on partner message delivery reliability."
+    },
+    {
+      "id": "d",
+      "text": "Place the three bookings inside a Transactional Subprocess with a Cancel End Event and Cancel Boundary Event to trigger automatic compensation rollback. 0 specification as a subprocess that participates in a two-phase commit protocol; the Cancel End Event within it triggers the Cancel Boundary Event on the outer boundary, which in turn invokes all registered compensation handlers. This pattern would provide the desired rollback semantics in a fully compliant BPMN engine, making it visually clear that the subprocess has transactional atomicity guarantees."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Embedded Subprocess with Compensation Boundary Events on each booking is the BPMN-standard compensation pattern supported by Camunda 8. Each completed booking has its compensation handler associated with the boundary event. When the Compensation Intermediate Throw or Compensation End Event is reached, the engine invokes all compensation handlers of completed activities within the same scope -- per the docs, \"at once without any specific order\". To enforce ordering (e.g., cancel hotel before airline), specify the activityRef property on the compensation throw event to trigger compensation for one specific activity at a time. Audit trail appears per-handler in Operate."
+    },
+    "b": {
+      "text": "Correct. Event Subprocess with non-interrupting Error Start handles error notification, NOT compensation rollback. No engine-managed compensation handler registration, no automatic invocation of completed-activity handlers, no per-activity audit linkage as compensation activities. Running cancellations through a Parallel Gateway also produces gateway-branch audit entries, not named compensation activities."
+    },
+    "c": {
+      "text": "Incorrect. Send/Receive correlation is a real Camunda 8 feature for async message-based integration, NOT transactional rollback. The engine waits for explicit response messages, adding latency without delivering BPMN compensation semantics. Audit appears as message events, not registered compensations."
+    },
+    "d": {
+      "text": "Incorrect. Transactional Subprocess, Cancel End Event, and Cancel Boundary Event are NOT supported for execution in Camunda 8 -- per the BPMN coverage page, these elements are visible in the modeler palette but lack the green \"implemented\" marker. Camunda 8 implements compensation via Embedded Subprocess + Compensation Boundary + Compensation Throw/End -- not via Transactional Subprocess semantics."
+    }
+  },
+  "explanation": "Event Subprocess with non-interrupting Error Start handles error notification, NOT compensation rollback. No engine-managed compensation handler registration, no automatic invocation of completed-activity handlers, no per-activity audit linkage as compensation activities. Running cancellations through a Parallel Gateway also produces gateway-branch audit entries, not named compensation activities.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q01",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q39",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression navigates deeply nested: customer.orders[1].lineItems[3].product.specs.color. The team wonders about syntax limits and readability.",
+  "question": "Recommendations for FEEL deep nested navigation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL supports arbitrary nesting -- dot navigation works for any depth. 3 let-in expression; that construct exists in the spec but Camunda's engine omits it. color\" mapped to productColor). An alternative is a FEEL context expression used as an intermediate: bind names locally inside a context literal and project the final value in one expression. When deep paths are accessed frequently, restructuring data upstream in an earlier Service Task reduces repetition. Null safety is important: long chains amplify null risk, and FEEL's . and [] propagate null tolerantly but consumers must still null-check."
+    },
+    {
+      "id": "b",
+      "text": "FEEL's dot notation and list index access syntax support arbitrary depth without a documented hard limit. color is syntactically and semantically valid in FEEL. The real constraint is not a language-imposed depth limit but rather readability and maintainability -- deeply nested paths in FEEL expressions become difficult to review, debug, and maintain."
+    },
+    {
+      "id": "c",
+      "text": "FEEL fully supports multi-level context and list navigation via chained dot notation and bracket index access. color evaluates correctly as long as the data structure is as expected. FEEL's null-tolerant design means that if any intermediate element in the chain resolves to null, the entire expression returns null gracefully rather than throwing a runtime error. The only concern with deep paths is readability and potential null propagation when data is absent, not a fundamental evaluation failure."
+    },
+    {
+      "id": "d",
+      "text": "Suggesting JSONPath as the syntax for navigating nested structures in FEEL does not reflect the actual behavior. FEEL uses its own native path navigation syntax based on dot notation for context field access and bracket notation for list indexing. lineItems) is a distinct query language used in JSON tools, REST APIs, and some scripting contexts. FEEL does not support or recognize JSONPath syntax. Developers migrating from JSON API testing tools or JavaScript environments must adapt to FEEL's own navigation syntax rather than attempting to apply JSONPath patterns within FEEL expressions."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. FEEL navigation supports arbitrary depth, but readability suffers with long chains. Recommendations: 1. Project to top-level via Input Mapping (canonical Camunda approach -- let-in is NOT in Camunda FEEL): Camunda FEEL does not support DMN-1.3 let ... in ... (zero matches in components/modeler/feel/ corpus). Use Input Mappings on the task instead: 2. Project to top-level via Input Mapping: `xml Worker just reads productColor; the nesting concern is in BPMN-side mapping, not worker code. 3. Context expression as intermediate (supported): ={ order: customer.orders[1], item: order.lineItems[3], color: item.product.specs.color }.color Each name bound locally inside the context literal; final dot-access projects the value. This is the closest idiomatic Camunda-FEEL substitute for the absent let-in. 4. Restructure data upstream: If many tasks need deep paths, consider an earlier Service Task that flattens / restructures into more accessible shape. 5. Null safety with deep paths: FEEL null-tolerant: null.anything returns null without exception. But the result is null; downstream must handle. Defensive: =if customer.orders[1] != null and customer.orders[1].lineItems[3] != null then customer.orders[1].lineItems[3].product.specs.color else null`. Verbose; Input Mappings + context-expression intermediates help here too. 6. Performance: FEEL evaluation of deep paths is fast; not a concern. Readability + maintainability are the real concerns. Treat deep navigation as a smell -- consider data restructuring if it's pervasive."
+    },
+    "b": {
+      "text": "Incorrect. No depth limit."
+    },
+    "c": {
+      "text": "Incorrect. Supported."
+    },
+    "d": {
+      "text": "Incorrect. No JSONPath."
+    }
+  },
+  "explanation": "FEEL navigation supports arbitrary depth, but readability suffers with long chains. Recommendations: 1. Project to top-level via Input Mapping (canonical Camunda approach -- let-in is NOT in Camunda FEEL): Camunda FEEL does not support DMN-1.3 let ... in ... (zero matches in components/modeler/feel/ corpus). Use Input Mappings on the task instead: 2. Project to top-level via Input Mapping: `xml Worker just reads productColor; the nesting concern is in BPMN-side mapping, not worker code. 3. Context expression as intermediate (supported): ={ order: customer.orders[1], item: order.lineItems[3], color: item.product.specs.color }.color Each name bound locally inside the context literal; final dot-access projects the value. This is the closest idiomatic Camunda-FEEL substitute for the absent let-in. 4. Restructure data upstream: If many tasks need deep paths, consider an earlier Service Task that flattens / restructures into more accessible shape. 5. Null safety with deep paths: FEEL null-tolerant: null.anything returns null without exception. But the result is null; downstream must handle. Defensive: =if customer.orders[1] != null and customer.orders[1].lineItems[3] != null then customer.orders[1].lineItems[3].product.specs.color else null`. Verbose; Input Mappings + context-expression intermediates help here too. 6. Performance: FEEL evaluation of deep paths is fast; not a concern. Readability + maintainability are the real concerns. Treat deep navigation as a smell -- consider data restructuring if it's pervasive.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q39",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

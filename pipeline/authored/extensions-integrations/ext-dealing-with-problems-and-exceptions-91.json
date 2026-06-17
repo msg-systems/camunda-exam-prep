@@ -1,0 +1,58 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-91",
+  "topic": "extensions-integrations",
+  "subtopic": "bpmn-errors",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A service task `Purchase` calls a supplier API; when the SKU is unavailable, the worker should hand control to a matching boundary error event with `errorCode=GOOD_UNAVAILABLE`, as if an error end event had been reached. Which command does the worker send?",
+  "codeBlocks": {
+    "perOption": {
+      "a": "jobClient.newThrowErrorCommand(job)\n   .errorCode(\"GOOD_UNAVAILABLE\")\n   .send();",
+      "b": "jobClient.newFailCommand(job)\n   .retries(0)\n   .errorMessage(\"GOOD_UNAVAILABLE\")\n   .send();",
+      "c": "jobClient.newCompleteCommand(job)\n   .variables(Map.of(\"errorCode\", \"GOOD_UNAVAILABLE\"))\n   .send();",
+      "d": "throw new RuntimeException(\"GOOD_UNAVAILABLE\");"
+    }
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "Send a `ThrowError` command with the matching error code."
+    },
+    {
+      "id": "b",
+      "text": "Fail the job with `0` retries and put the error code in the error message."
+    },
+    {
+      "id": "c",
+      "text": "Complete the job and pass `errorCode` as a process variable."
+    },
+    {
+      "id": "d",
+      "text": "Throw a Java `RuntimeException` and let the SDK translate it into a BPMN error."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state that `ThrowError` lets a worker mimic a BPMN error end event from a service task — the consequences for the process are the same, and a matching boundary error event will catch it."
+    },
+    "b": {
+      "text": "Failing with `0` retries raises an _incident_ requiring human resolution in Operate; it does not trigger any boundary error event."
+    },
+    "c": {
+      "text": "Completing the job advances the normal outgoing flow; the process never sees a BPMN error regardless of what variables are attached."
+    },
+    "d": {
+      "text": "An uncaught Java exception is interpreted by the SDK as a job failure (decrementing retries), not as a BPMN error catchable by a boundary event."
+    }
+  },
+  "explanation": "`ThrowError` is the worker-side counterpart of a BPMN error end event. The worker provides an `errorCode` (e.g. `GOOD_UNAVAILABLE`) that a matching boundary error event catches, routing the process down its alternate path. `FailJob` is for technical retries / incidents and is a different mechanism entirely.",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

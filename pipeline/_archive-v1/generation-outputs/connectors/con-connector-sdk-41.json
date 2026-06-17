@@ -1,0 +1,27 @@
+{
+  "id": "con-connector-sdk-41",
+  "topic": "connectors",
+  "subtopic": "connector-sdk",
+  "difficulty": "easy",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Junction Bank, a bank running 4 custom connectors across 8000 transactions per day in Camunda 8.8 Self-Managed, builds a custom runtime environment because its serverless platform does not match the pre-packaged options. A developer wires the connector into a Zeebe worker and wants to confirm which class the SDK exposes to wrap a connector function as a job handler with built-in secret management and result mapping.",
+  "question": "Which SDK class does the Custom runtime environment guide recommend wrapping the connector function with?",
+  "options": [
+    { "id": "a", "text": "DefaultValidationProvider, used as the job handler entry point because it validates input data first and then delegates the actual job acknowledgement back to the Zeebe Java client at the end" },
+    { "id": "b", "text": "OutboundConnectorContextBuilder, instantiated for each job and registered as the handler so it can supply secrets and a fresh OutboundConnectorContext to the connector function on every invocation" },
+    { "id": "c", "text": "ConnectorJobHandler, wrapped around the connector function and registered as the handler on a Zeebe worker for the job type defined by the element template" },
+    { "id": "d", "text": "AbstractConnectorContext, subclassed directly as the job handler so the custom runtime inherits the SDK's variable, secret, and result mapping behaviour without any further wrapping required" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. DefaultValidationProvider is an SDK validation provider passed into the job handler, not the wrapper class itself, and it does not own the job acknowledgement loop." },
+    "b": { "text": "Incorrect. OutboundConnectorContextBuilder is a test helper that builds a context for unit tests; it is not the production wrapper used to register a Zeebe worker." },
+    "c": { "text": "Correct. The Custom runtime environment guide explains that the SDK provides the ConnectorJobHandler wrapper class to expose a connector function as a job worker, registered on a Zeebe worker for the job type defined by the element template." },
+    "d": { "text": "Incorrect. AbstractConnectorContext is meant to be extended when implementing your own context, not as a job handler in itself; the documented wrapper is ConnectorJobHandler." }
+  },
+  "explanation": "The Custom runtime environment guide tells authors to wrap connector functions in ConnectorJobHandler and register the handler on a Zeebe worker for the connector's job type. The wrapper provides an OutboundConnectorContext with secret management, result mapping, and BPMN error handling.",
+  "docs": [
+    { "title": "Connector SDK - Custom runtime environment", "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/" }
+  ]
+}

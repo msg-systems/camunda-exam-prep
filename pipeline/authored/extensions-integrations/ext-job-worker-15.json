@@ -1,0 +1,53 @@
+{
+  "id": "ext-job-worker-15",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "In the Java client `JobHandler` shown above, which call signals to the broker that the job finished successfully and forwards `emailSent: true` into the process instance?",
+  "codeBlocks": {
+    "stem": "client.newCompleteCommand(job.getKey())\n        .variables(Map.of(\"emailSent\", true))\n        .send()\n        .join();"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "The `newCompleteCommand(...).variables(...).send()` chain on `JobClient`, optionally followed by `.join()` to block until the broker acknowledges."
+    },
+    {
+      "id": "b",
+      "text": "Returning a `Map<String, Object>` from `JobHandler.handle()`, which the Java client auto-completes for you."
+    },
+    {
+      "id": "c",
+      "text": "Calling `client.newFailCommand(job.getKey()).retries(0).send()` — zero remaining retries is the standard happy-path completion."
+    },
+    {
+      "id": "d",
+      "text": "Closing the `JobWorker` via the try-with-resources — that flushes the active job back to the broker as completed."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The Quick start example uses `client.newCompleteCommand(job.getKey()).variables(Map.of(\"emailSent\", true)).send().join()`. `send()` issues the gRPC complete command, and the variables are merged into the process instance."
+    },
+    "b": {
+      "text": "Returning a map from `handle()` does nothing in the bare Java client — completion is explicit. (Auto-completion from a return value exists in the Spring SDK with `autoComplete = true`, not here.)"
+    },
+    "c": {
+      "text": "`newFailCommand` is used when work fails; with zero remaining retries it raises an incident rather than signalling success."
+    },
+    "d": {
+      "text": "Closing the `JobWorker` only shuts the worker down; it does not complete individual jobs. Activated-but-unfinished jobs simply time out on the broker side."
+    }
+  },
+  "explanation": "In the bare Java client there is no auto-complete. The handler must call `client.newCompleteCommand(job.getKey()).variables(...).send()` (typically with `.join()`) to mark the job successful and merge variables into the process instance; the corresponding `newFailCommand(...)` is used when something goes wrong.",
+  "docs": [
+    {
+      "title": "Job worker",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

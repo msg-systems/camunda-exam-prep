@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team needs a custom Inbound Connector for a niche protocol -- they're implementing it in Java using the Connector SDK. They want to know the main interface and lifecycle.",
+  "question": "What's the main Java interface for a custom Inbound Connector, and what lifecycle methods does it expose?",
+  "options": [
+    {
+      "id": "a",
+      "text": "While the @InboundConnector annotation provides metadata for discovery and registration, the InboundConnectorExecutable interface defines the contract for the two lifecycle methods that the Connector Runtime invokes. Without implementing this interface, the runtime has no standardised mechanism to call activate and deactivate at the appropriate times."
+    },
+    {
+      "id": "b",
+      "text": "Implement OutboundConnectorFunction for custom Inbound Connectors -- this uses the wrong interface direction. OutboundConnectorFunction is the interface for outbound Connectors that execute when a Service Task activates in a process, performing work and completing the job. Inbound Connectors use InboundConnectorExecutable because they initiate process instances or correlate messages from external events arriving from outside Camunda. The activation direction is reversed: outbound responds to the process, inbound triggers the process."
+    },
+    {
+      "id": "c",
+      "text": "md:390-455. Lifecycle: activate(InboundConnectorContext context) -- called when the Connector should start listening (process deployed / instance ready to receive); start your protocol listener. deactivate() -- called when subscription is removed (process undeployed); release all resources. correlateWithResult(event) (per :425) -- the method returns a CorrelationResult (Success or Failure with handling strategy ForwardErrorToUpstream / Ignore). class) per :410. ) per :402."
+    },
+    {
+      "id": "d",
+      "text": "Implementing a custom Inbound Connector requires extending Zeebe core engine classes or modifying the Connector Runtime source code -- this description does not reflect the actual behaviour. The Camunda Connector SDK provides InboundConnectorExecutable as a clean public interface specifically to avoid this. The SDK manages the activation lifecycle, threading, secret resolution, and BPMN correlation on behalf of the connector implementation. Developers focus only on the protocol-specific listening logic in activate and the resource cleanup in deactivate."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Inbound Connector contract: Interface: InboundConnectorExecutable (or specialised variants for specific patterns -- e.g., webhook-typed). Verify the current SDK version's interface hierarchy. Lifecycle: activate(InboundConnectorContext context): called by the Connector Runtime when the Connector should start listening. Inside this method: Read configuration via context.bindProperties(MyConnectorProperties.class) (Element Template properties auto-bind with secrets resolved per connector-sdk.md:558-568). Start your protocol listener (open a queue connection, register a callback, etc.). The implementation must be asynchronous per :449-450. When events arrive that should trigger BPMN, call context.correlateWithResult(event) (per :425) -- returns a CorrelationResult (Success or Failure(handlingStrategy)); handle ForwardErrorToUpstream vs Ignore strategies as configured. deactivate(): called when the Connector should stop listening (process undeployed). Release all resources used by the subscription per :454-455. Annotations: @InboundConnector on the class typically declares metadata. Example use cases: custom message broker integration (proprietary protocol), email IMAP polling, FTP file-arrival triggers, etc. The SDK manages the activation lifecycle, threading, and BPMN correlation -- your Java code focuses on the protocol-specific listening."
+    },
+    "b": {
+      "text": "Incorrect. Annotations + interface together; interface gives the contract."
+    },
+    "c": {
+      "text": "Correct. Outbound vs Inbound interfaces."
+    },
+    "d": {
+      "text": "Incorrect. SDK abstracts."
+    }
+  },
+  "explanation": "Outbound vs Inbound interfaces.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q36",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

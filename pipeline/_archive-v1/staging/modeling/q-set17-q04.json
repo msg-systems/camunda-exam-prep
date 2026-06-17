@@ -1,0 +1,63 @@
+{
+  "id": "imp-set17-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process has multiple parallel branches via Parallel Gateway. Team wonders execution order -- sequential or truly concurrent.",
+  "question": "BPMN concurrent execution semantics?",
+  "options": [
+    {
+      "id": "a",
+      "text": "BPMN parallel branches execute \"logically concurrently\": - Engine may execute sequentially internally (per partition). - Order of branch completion: undefined; not guaranteed. - Tokens at parallel diverge: multiple, independent. - No specified ordering: don't rely on order. - Synchronisation: at Parallel Join (waits for all). - Practical: workers may pick up in any order; race conditions possible if branches share resources."
+    },
+    {
+      "id": "b",
+      "text": "BPMN parallel branches always execute in strict sequential order -- this does not accurately reflect the behavior. BPMN Parallel Gateways are designed specifically to express logical concurrency. When the parallel diverge gateway fires, multiple tokens are created for each outgoing branch. The Zeebe engine may process these branches in sequence within a partition, but no guaranteed execution order exists across branches. Relying on sequential ordering between parallel branches is an anti-pattern and a source of bugs in production processes."
+    },
+    {
+      "id": "c",
+      "text": "BPMN defines parallel semantics as logically concurrent, but the physical execution depends on the engine implementation. Zeebe processes events within a partition sequentially, so true multi-threaded parallelism within a single process instance is not guaranteed. Workers for separate branches may run concurrently if enough workers are available, but this is incidental rather than a specification guarantee."
+    },
+    {
+      "id": "d",
+      "text": "0 does not provide any ordering attribute on Parallel Gateways. The specification intentionally leaves execution order unspecified to allow engine flexibility. There is no modeler property, XML attribute, or extension element that enforces a specific branch execution sequence. If ordering between branches matters, a sequential design using exclusive gateways or sequential activities should be used instead."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. BPMN concurrency semantics: Logical concurrency: BPMN spec: parallel branches \"may execute concurrently.\" No ordering between branches at same level. Engine free to implement: sequentially or concurrently. Engine implementation: Zeebe: Per-partition processing: events within partition serial. Cross-partition: concurrent. Worker activation: depends on workers + load. Practical concurrency: For Service Tasks in parallel: Both jobs created: at parallel diverge. Workers pick up: independent. Completion order: depends on worker speed + load. For Timer events: Independent schedules: in parallel branches. Different fire times even if same delay (small variance). For User Tasks: Both in Tasklist: assignees can do either order. No engine-imposed order. For race conditions: Same data accessed: Concurrent variable updates: race condition risk. External resources: same DB row updated concurrently. Mitigations: Avoid shared mutable state: between parallel branches. Idempotent operations. Explicit serialisation via process design (sequential where needed). For ordering requirements: If order matters: Don't use Parallel Gateway: use sequential. Or: synchronisation explicit: messages between branches. For Parallel Join: Waits for ALL incoming flows: per BPMN spec. Synchronisation point. Token combined: into one outgoing. For execution order observation: In Operate: Timestamps per element: see when activated. Order may vary across instances. For testing: Don't assert order between branches: brittle. Assert post-join state: after sync. For deterministic order: Use sequential design: Activity A → Activity B → ... . Or: explicit gateways with conditions. For partition assignment: Process instance: assigned to partition (per Zeebe). Within instance: per-partition processing. Concurrent across instances: many partitions = much concurrency. For scaling: More partitions: more concurrency. More workers: process backlog faster. Per-instance parallelism: limited by partition. For BPMN spec: Doesn't mandate concurrency: logical concept. Engine implementations vary. Anti-patterns: Relying on order between parallel branches: bug. Shared mutable state in parallel: race condition. No idempotency: surprises. Best practices: Design for \"any order\" execution: don't assume sequence. Idempotent workers: handle re-execution. Synchronisation via Parallel Join: explicit. Test order-independent: branches. For the scenario (parallel branches): No guaranteed order. Logically concurrent. Engine implementation choice."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "BPMN concurrency semantics: Logical concurrency: BPMN spec: parallel branches \"may execute concurrently.\" No ordering between branches at same level. Engine free to implement: sequentially or concurrently. Engine implementation: Zeebe: Per-partition processing: events within partition serial. Cross-partition: concurrent. Worker activation: depends on workers + load. Practical concurrency: For Service Tasks in parallel: Both jobs created: at parallel diverge. Workers pick up: independent. Completion order: depends on worker speed + load. For Timer events: Independent schedules: in parallel branches. Different fire times even if same delay (small variance). For User Tasks: Both in Tasklist: assignees can do either order. No engine-imposed order. For race conditions: Same data accessed: Concurrent variable updates: race condition risk. External resources: same DB row updated concurrently. Mitigations: Avoid shared mutable state: between parallel branches. Idempotent operations. Explicit serialisation via process design (sequential where needed). For ordering requirements: If order matters: Don't use Parallel Gateway: use sequential. Or: synchronisation explicit: messages between branches. For Parallel Join: Waits for ALL incoming flows: per BPMN spec. Synchronisation point. Token combined: into one outgoing. For execution order observation: In Operate: Timestamps per element: see when activated. Order may vary across instances. For testing: Don't assert order between branches: brittle. Assert post-join state: after sync. For deterministic order: Use sequential design: Activity A → Activity B → ... . Or: explicit gateways with conditions. For partition assignment: Process instance: assigned to partition (per Zeebe). Within instance: per-partition processing. Concurrent across instances: many partitions = much concurrency. For scaling: More partitions: more concurrency. More workers: process backlog faster. Per-instance parallelism: limited by partition. For BPMN spec: Doesn't mandate concurrency: logical concept. Engine implementations vary. Anti-patterns: Relying on order between parallel branches: bug. Shared mutable state in parallel: race condition. No idempotency: surprises. Best practices: Design for \"any order\" execution: don't assume sequence. Idempotent workers: handle re-execution. Synchronisation via Parallel Join: explicit. Test order-independent: branches. For the scenario (parallel branches): No guaranteed order. Logically concurrent. Engine implementation choice.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/parallel-gateways/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q04",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[2]"
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "ext-writing-good-workers-87",
+  "topic": "extensions-integrations",
+  "subtopic": "job streaming",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Logistics runs a parcel routing process on Camunda 8.8 across a large Zeebe cluster that handles 45000 jobs per day. The platform team sees activation delays in the order of seconds during off-peak hours and needs to cut job activation latency to a minimum without aggressively raising poll frequency against every partition.",
+  "question": "Which Camunda 8.8 worker-side feature does the performance guide recommend to reduce job activation latency to a maximum?",
+  "options": [
+    { "id": "a", "text": "Enable job streaming on the worker so jobs are pushed from the partitions as they become available and the poll-induced activation delay no longer dominates worker latency" },
+    { "id": "b", "text": "Raise the worker long-poll interval against every Zeebe partition to a much higher rate so jobs are picked up faster even in idle clusters during low-traffic off-peak windows" },
+    { "id": "c", "text": "Subscribe the worker directly to the Operate jobs WebSocket so the workflow engine pushes activations through Operate instead of through the worker long-polling Zeebe gateway path" },
+    { "id": "d", "text": "Replace the worker with a Camunda Connector worker so the connector runtime takes over the activation polling loop entirely and bypasses the partition-level long polling completely" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The performance best-practices guide recommends enabling job streaming so workers do not periodically poll every partition; this reduces activation delay that can otherwise reach the order of seconds in large clusters." },
+    "b": { "text": "Incorrect. The guide warns that polling more aggressively raises cluster load even when no jobs are available; job streaming is the recommended remedy for activation delay." },
+    "c": { "text": "Incorrect. Operate does not expose a jobs WebSocket for activation; the guide recommends Zeebe job streaming directly between workers and partitions." },
+    "d": { "text": "Incorrect. Connectors run on top of the same job activation mechanism; the guide recommends enabling job streaming itself to cut activation latency for any worker." }
+  },
+  "explanation": "Camunda 8.8 recommends enabling job streaming to minimize activation latency: it removes the periodic per-partition polling that, in large clusters, can introduce delays in the order of seconds before a worker sees a newly available job.",
+  "docs": [
+    { "title": "Writing good workers", "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/" }
+  ]
+}

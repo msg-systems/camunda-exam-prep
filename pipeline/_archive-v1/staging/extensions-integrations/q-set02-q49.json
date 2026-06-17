@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q49",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An RPA worker automates a legacy Windows accounting application. The RPA script logs into the app with credentials (username/password). The team wants the credentials handled securely -- not embedded in the RPA script visible to all developers.",
+  "question": "Which Camunda 8.8 RPA approach handles credentials securely?",
+  "options": [
+    {
+      "id": "a",
+      "text": "robot file) and rely on version-control repository access permissions and file-system ACLs to ensure that only authorized developers can view the credentials embedded in the script. Hardcoding credentials in script source is a well-known security anti-pattern: the credentials are visible to anyone with repository read access, get captured in version-control history, and are difficult to rotate without modifying and redeploying every script that references them. Camunda's Connector Secrets integration exists precisely to avoid this pattern."
+    },
+    {
+      "id": "b",
+      "text": "RPA workers integrate with the cluster Connector Secrets store. properties at the cluster's secrets endpoint. LEGACY_APP_PASSWORD} -- resolved at execution time, never written into the script source."
+    },
+    {
+      "id": "c",
+      "text": "Pass the credentials as plaintext values in process variables -- set username and password as variables on the process instance before the RPA task activates, and configure the RPA worker to read these variables from the job activation payload. Storing credentials as plaintext process variables makes them visible in the Operate audit log to anyone with Operate access, leaks them to all downstream Service Tasks and User Tasks in the same instance scope, and violates secrets management best practices. The Connector Secrets integration resolves credentials securely at execution time without exposing them as process state."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 RPA does not provide any mechanism for securely handling authentication credentials within an RPA script; the team must perform a manual pre-execution login step outside the BPMN workflow to establish an authenticated session in the legacy application before the RPA worker activates. Camunda 8 RPA does support credentials handling through the Connector Secrets integration. NAME} placeholder syntax, eliminating the need for manual pre-execution login steps."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per rpa/production.md lines 19-32, RPA workers running against Camunda SaaS can access Connector Secrets from the cluster's secrets store. Setup: (1) create client credentials in Console with both Orchestration Cluster API AND Administration API - Resource: Secrets scopes; (2) configure camunda.rpa.zeebe.secrets.secrets-endpoint=https://cluster-api.cloud.camunda.io in rpa-worker.properties. In the RPA script, secrets are exposed as the ${secrets} map and referenced like ${secrets.MY_API_KEY} (Robot Framework / Spring placeholder syntax -- note the ${...} form, NOT the {{...}} form used in Connector element template fields). The runtime substitutes the secret at execution time; the script source never embeds the credential."
+    },
+    "b": {
+      "text": "Correct. Hardcoding credentials is anti-pattern; defeats secrets management."
+    },
+    "c": {
+      "text": "Incorrect. Plaintext in process variables leaks to Operate audit, downstream tasks, etc."
+    },
+    "d": {
+      "text": "Incorrect. RPA does support credentials."
+    }
+  },
+  "explanation": "Hardcoding credentials is anti-pattern; defeats secrets management.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/rpa/production/#use-secrets"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q49",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

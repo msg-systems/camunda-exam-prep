@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-25",
+  "topic": "connectors",
+  "subtopic": "inbound-runtime",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An inbound connector implements `InboundConnectorExecutable`. What does the SDK say about how the `activate(InboundConnectorContext)` method must behave?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It must complete synchronously; the runtime blocks on `activate` returning before treating the connector as active."
+    },
+    {
+      "id": "b",
+      "text": "Its implementation has to be asynchronous; once activated, the inbound connector is considered active and uses `InboundConnectorContext` to communicate with the runtime (for example to correlate events)."
+    },
+    {
+      "id": "c",
+      "text": "It is invoked only once at JVM startup; configuration changes require a runtime restart to take effect."
+    },
+    {
+      "id": "d",
+      "text": "It receives a `MessageCorrelationContext` distinct from `InboundConnectorContext`, and may only be used to correlate messages."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state the opposite: the implementation of `activate` has to be asynchronous, so the runtime does not block on it returning before treating the connector as active."
+    },
+    "b": {
+      "text": "Per the SDK docs, `activate` is the trigger function that starts listening for inbound events, its implementation has to be asynchronous, and once activated the inbound connector execution is considered active and running and uses `InboundConnectorContext` (for example to correlate inbound events or signal an interrupt)."
+    },
+    "c": {
+      "text": "The lifecycle is `activate` + `deactivate`; the runtime can deactivate and reactivate an instance, for example when configuration changes — not only at JVM startup."
+    },
+    "d": {
+      "text": "The method signature receives an `InboundConnectorContext`, not a separate `MessageCorrelationContext`. Correlation is one of several things the context lets you do, not the entire API."
+    }
+  },
+  "explanation": "`InboundConnectorExecutable` has two lifecycle methods, `activate` and `deactivate`. `activate` is the trigger that starts listening for inbound events; its implementation has to be asynchronous, and once it has been called the connector is considered active and uses the supplied `InboundConnectorContext` to communicate with the runtime (for example via `correlateWithResult`). `deactivate` is the graceful shutdown hook that must release the subscription's resources.",
+  "docs": [
+    {
+      "title": "Connector SDK",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN decision is invoked from a BPMN Business Rule Task. The decision evaluates and returns the output eligibilityStatus which is \"APPROVED\" or \"REJECTED\". The team wants this result available as a process variable.",
+  "question": "Which Business Rule Task configuration captures the result?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The DMN result is not automatically mapped to process variables -- the resultVariable configuration on zeebe:calledDecision is required to persist the output. Skipping resultVariable configuration means the decision result is evaluated and immediately discarded, making it unavailable to any downstream process elements. No automatic variable matching by name exists in the Zeebe DMN integration."
+    },
+    {
+      "id": "b",
+      "text": "The resultVariable attribute on zeebe:calledDecision specifies the process variable name where the DMN decision output will be stored when evaluation completes. Without it, the decision output is discarded and no process variable receives the result. Setting resultVariable to a meaningful name like discountResult makes the DMN output immediately available to downstream tasks and FEEL expressions in the process. This is mandatory configuration for consuming DMN outputs in subsequent flow elements."
+    },
+    {
+      "id": "c",
+      "text": "Output Mapping via FEEL to fetch from internal DMN storage is not a valid Camunda 8 configuration pattern. DMN results are not stored in any internal storage accessible via FEEL fetch expressions -- they are placed directly into the process variable scope via the resultVariable attribute. There is no secondary internal DMN result store or retrieval API. The result is either captured in a process variable at evaluation time or lost; no deferred retrieval mechanism exists."
+    },
+    {
+      "id": "d",
+      "text": "DMN decision results are fully accessible as process variables in Camunda 8 when resultVariable is configured on the zeebe:calledDecision element. The claim that results are inaccessible and require an Event trigger is factually incorrect. Results are synchronously returned when the Business Rule Task completes and placed into the named process variable immediately, making them available to all subsequent flow elements, FEEL expressions, gateways, and output mappings without any additional event-based retrieval. ###"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. zeebe:calledDecision extension has resultVariable attribute -- names the process variable that receives the decision result."
+    },
+    "b": {
+      "text": "Correct. No auto-population mechanism."
+    },
+    "c": {
+      "text": "Incorrect. Output Mapping is for transforming variables, not fetching from internal storage."
+    },
+    "d": {
+      "text": "Incorrect. Results are accessible via resultVariable."
+    }
+  },
+  "explanation": "No auto-population mechanism.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q29",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

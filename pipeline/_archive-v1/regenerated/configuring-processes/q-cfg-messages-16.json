@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-16",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Catalyst Payments publishes 3000 settlement messages per hour in Camunda 8.8 with a default time-to-live of 3600000 ms. For one synchronous integration the team wants the message to be correlated only if a matching subscription already exists, otherwise the message must be dropped right away without sitting in the buffer.",
+  "question": "What does setting the timeToLive on a published message to zero do in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It enables buffering indefinitely so the published message stays in the buffer until any matching subscription opens later for it"
+    },
+    {
+      "id": "b",
+      "text": "It disables buffering of the published message so it is discarded immediately if no proper subscription is open at publish time"
+    },
+    {
+      "id": "c",
+      "text": "It schedules a delayed publication so the broker holds the message for the default buffering window before any correlation attempt"
+    },
+    {
+      "id": "d",
+      "text": "It promotes the published message to a priority lane so the broker correlates it ahead of any earlier published matching messages"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. A TTL of zero turns off buffering; indefinite buffering is not the documented behavior. Buffering only applies while the TTL is positive, and the message is discarded once the TTL elapses or if no subscription is open."
+    },
+    "b": {
+      "text": "Correct. The docs state buffering is disabled when TTL is set to zero, and if no proper subscription is open the message is discarded. There is no waiting window for a future subscription to open."
+    },
+    "c": {
+      "text": "Incorrect. timeToLive controls how long the message is buffered for correlation, not a delayed publication time. The broker does not delay publishing the message."
+    },
+    "d": {
+      "text": "Incorrect. timeToLive does not affect ordering or priority; ordering among buffered messages follows FIFO based on publish time, not on the TTL value."
+    }
+  },
+  "explanation": "A message TTL specifies how long the broker buffers the message for correlation. Setting TTL to zero disables buffering, so the message is correlated only to a subscription already open at publish time; otherwise it is discarded. Buffered messages match subscriptions in FIFO order based on publish time.",
+  "docs": [
+    {
+      "title": "Messages",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

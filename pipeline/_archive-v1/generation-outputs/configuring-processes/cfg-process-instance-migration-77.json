@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-migration-77",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Magnolia Retail, a retailer, wants to migrate 700 instances of its Camunda 8.8 returns-handling process. Service task A inside Subprocess A must move to service task B inside Subprocess B in the new model. The team is writing the migration plan and wants to know which mapping instructions are required.",
+  "question": "Which mapping instructions are required to migrate the active service task located inside the subprocess?",
+  "options": [
+    { "id": "a", "text": "A mapping instruction from element id A to element id B, plus a mapping instruction from subprocess id A to subprocess id B, both provided in the same migration plan for the running instance." },
+    { "id": "b", "text": "A mapping instruction from element id A to element id B only; the engine derives the subprocess mapping automatically from the BPMN parent relationship between source and target elements." },
+    { "id": "c", "text": "A mapping instruction from subprocess id A to subprocess id B only; the engine then migrates the contained active service task by matching its source id to a target id of the same shape." },
+    { "id": "d", "text": "A mapping instruction from element id A to element id B and a parent mapping from subprocess id A to an event subprocess id B; the scope must broaden during migration of active elements." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. To migrate an active element inside a subprocess, the migration plan must contain mappings for both the inner element and the containing subprocess, here A to B and Subprocess A to Subprocess B." },
+    "b": { "text": "Incorrect. The engine does not derive subprocess mappings from BPMN parentage; the migration plan must explicitly map the source subprocess id to the target subprocess id." },
+    "c": { "text": "Incorrect. Mapping only the subprocess does not move the active inner element to its new id; both the element and subprocess mappings are required." },
+    "d": { "text": "Incorrect. You cannot migrate an active embedded subprocess to an event subprocess; the scope cannot change in this way during process instance migration." }
+  },
+  "explanation": "Migrating an active element inside a subprocess requires both an element-to-element mapping and a subprocess-to-subprocess mapping in the migration plan so the engine can move the inner active step onto its new container.",
+  "docs": [
+    { "title": "Process instance migration", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/" }
+  ]
+}

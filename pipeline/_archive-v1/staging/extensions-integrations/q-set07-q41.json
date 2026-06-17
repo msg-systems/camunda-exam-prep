@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A TypeScript Job Worker using @camunda8/sdk handles a validate-vat task. The validator throws custom error classes like InvalidVatError, RegionMismatchError, ExternalApiTimeoutError. The team wants each custom error class to be mapped to a specific BPMN error code so the BPMN can route appropriately via Error Boundary Events.",
+  "question": "Which pattern in the handler maps JS errors to BPMN errors with error codes?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The @camunda8/sdk automatically converts any thrown JavaScript Error into a BPMN error, using the error's class name as the errorCode -- for example, an InvalidVatError thrown in the handler automatically produces a BPMN error with errorCode: \"InvalidVatError\". While some SDK versions may implement heuristic auto-mapping behaviour, relying on it creates fragile implicit coupling between error class names and BPMN error codes. error() calls puts the error code mapping logic in code that is readable, testable, and not dependent on SDK version-specific behaviours."
+    },
+    {
+      "id": "b",
+      "text": "error({ errorCode, errorMessage }) with the appropriate code based on the error class. , InvalidVatError → errorCode: \"INVALID_VAT\". The BPMN's Error Boundary catches by errorCode. error({ errorCode, errorMessage? }) per apis tools/typescript/api reference/index/... (note: doc path is apis tools/typescript/, NOT apis tools/node js sdk/ which is 404 -- Pattern #36)."
+    },
+    {
+      "id": "c",
+      "text": "Configure a global error mapper in the @camunda8/sdk client initialization options -- define a mapping function that receives any thrown error and returns the corresponding BPMN error code and message. This centralises the mapping logic across all workers rather than duplicating try/catch blocks in every handler. Some SDK versions may expose this configuration option; verify the current SDK's documentation and API before relying on it. For applications with many worker handlers and many error classes, a global mapper reduces code duplication, but requires all workers to accept the same mapping strategy."
+    },
+    {
+      "id": "d",
+      "text": "Do not catch errors in the handler -- let exceptions propagate freely out of the worker function, causing Zeebe to automatically fail the job with the exception details. When an unhandled exception propagates, Zeebe creates a generic job failure (and eventually an Incident when retries run out) rather than a BPMN error event. The BPMN's Error Boundary Events require a BPMN error signal with a specific errorCode to route correctly; generic job failures do not carry error codes and bypass Error Boundary routing entirely. error() calls."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Explicit try/catch + job.error({...}) mapping is the canonical, reliable pattern. Inside the handler, wrap the logic; in catch, inspect error instanceof InvalidVatError, build the right errorCode/message, call job.error(). This produces a BPMN error event in Zeebe that propagates to a matching Error Boundary Event with that errorCode. Result: BPMN-level routing by error type."
+    },
+    "b": {
+      "text": "Correct. Even if some SDK versions auto-map, explicit mapping is more maintainable -- the mapping is visible in code, doesn't depend on undocumented behaviour."
+    },
+    "c": {
+      "text": "Incorrect. A global error mapper (configured at SDK init) centralises the JS-error-to-BPMN-error mapping for all workers. Useful when you have many error classes and many handlers; reduces duplication. Verify your SDK version supports this."
+    },
+    "d": {
+      "text": "Incorrect. Unhandled errors become generic Zeebe job failures (Incident with stack trace), not BPMN errors. BPMN can't route by code; ops must intervene manually."
+    }
+  },
+  "explanation": "Even if some SDK versions auto-map, explicit mapping is more maintainable -- the mapping is visible in code, doesn't depend on undocumented behaviour.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q41",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

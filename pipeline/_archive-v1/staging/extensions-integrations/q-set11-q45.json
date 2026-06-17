@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team builds a custom Connector. They want to write unit tests for the Connector's execute() method -- verify behaviour given various inputs without needing a live Zeebe cluster.",
+  "question": "Does the Connector SDK provide test utilities?",
+  "options": [
+    {
+      "id": "a",
+      "text": "\" Builder-style test-context helpers in the SDK's test-jar enable unit-testing Connector execute methods directly with simulated input variables and secrets, without any cluster dependency. This enables fast feedback loops during development."
+    },
+    {
+      "id": "b",
+      "text": "Yes -- the Connector SDK supports unit testing of Connectors without a live Zeebe cluster. connector:connector-runtime-core test-jar -- typical names are OutboundConnectorContextBuilder and InboundConnectorContextBuilder, not a class literally called MockOutboundConnectorContext). The pattern: build a test context, call your Connector's @Operation-annotated method directly, assert outputs / thrown exceptions. JUnit (Java) / Spring Boot Test apply."
+    },
+    {
+      "id": "c",
+      "text": "Connector behaviour can only be verified through integration tests against a running Camunda 8 cluster -- this understates the unit testing capabilities. While integration tests provide valuable end-to-end validation of Connector + BPMN integration, unit tests using the SDK's test-context builders are faster, cheaper, and capable of covering edge cases and mocked external service responses that are difficult to replicate in a full cluster environment. A combined strategy of unit tests plus integration tests provides the best coverage."
+    },
+    {
+      "id": "d",
+      "text": "Test utilities in the Connector SDK are provided only for Inbound Connectors and outbound Connector testing requires a live cluster -- this misrepresents the SDK's testing support by limiting it to one direction. Both Outbound and Inbound Connector types have test-context builder utilities in the SDK's test artifact. Outbound Connectors use OutboundConnectorContextBuilder style helpers to simulate variable inputs and secret resolution; Inbound Connectors have analogous helpers for testing their activate lifecycle and correlation logic."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Connector SDK supports unit-testing Connectors without a live Zeebe cluster. Per connector-sdk.md:26 the SDK explicitly markets \"convenient testing\" alongside the runtime APIs (caveat: the doc anchor #testing is broken in 8.8 and the canonical test-helper builders ship in the SDK's test-jar -- exact class names are versioned in the camunda/connectors GitHub repo, not the 8.8 docs). The canonical pattern uses builder-style test-context helpers, not a class called MockOutboundConnectorContext. Typical Java pattern (illustrative -- adjust class names to whichever the SDK version exposes): `java // Illustrative -- actual builder class lives in connector-runtime-core test artifact @Test void testHttpConnectorExecute() { var context = OutboundConnectorContextBuilder.create() .variables(\"{\\\"url\\\":\\\"https://example.com/api\\\",\\\"method\\\":\\\"POST\\\"}\") .secret(\"API_KEY\", \"test-secret-value\") .build(); var connector = new MyHttpConnector(); var result = connector.execute(context); assertThat(result).isNotNull(); } Benefits: Fast feedback during development. Coverage: test edge cases (invalid input, mocked partner failures, etc.). CI: integrate into normal test pipeline. No cluster required: unit-level isolation. Combine with integration tests (against a real Camunda cluster) for end-to-end verification of Connector + BPMN integration. For Inbound Connectors, similar test utilities exist for testing the activate` lifecycle and event correlation."
+    },
+    "b": {
+      "text": "Correct. Test utilities exist."
+    },
+    "c": {
+      "text": "Incorrect. Integration tests valuable; unit tests faster."
+    },
+    "d": {
+      "text": "Incorrect. Both directions."
+    }
+  },
+  "explanation": "Test utilities exist.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q45",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

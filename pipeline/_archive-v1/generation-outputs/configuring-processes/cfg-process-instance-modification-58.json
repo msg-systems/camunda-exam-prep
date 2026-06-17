@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-modification-58",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Bank has 75 loan approval process instances stuck on message catch event B after 2 hours of downtime in an external publishing system. The team must repair the stuck instances using the modification command to advance execution past the catch event onto the next service task C without waiting for the missing message correlation to arrive.",
+  "question": "Which pair of modification instructions repairs a process instance stuck on a message catch event B by moving execution to the next task C?",
+  "options": [
+    { "id": "a", "text": "Terminate the active instance of the catch event B and activate the element C so the process instance leaves the stuck catch event and continues on the next task in the same scope" },
+    { "id": "b", "text": "Activate the element C and leave the catch event B subscription open so the instance proceeds along the new branch while still listening for the missing message in the background" },
+    { "id": "c", "text": "Republish the missing message correlation through the modification command so the catch event B fires immediately and the regular sequence flow advances to the next task C" },
+    { "id": "d", "text": "Terminate the entire process instance and recreate it starting at element C using the create-and-start-at-user-defined-element API to bypass the stuck catch event entirely" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Process instance modification moves the token from the stuck catch event B to the next task C by issuing two instructions in one command: terminate the active instance of catch event B and activate element C. The process instance can then continue along the regular flow." },
+    "b": { "text": "Incorrect. Leaving the catch event B subscription open would let a late message still trigger the original branch, doubling the work. The documented repair is to terminate the catch event instance and activate the next element together." },
+    "c": { "text": "Incorrect. The modification command does not republish messages. Repair is performed by terminate and activate instructions, not by injecting a message correlation into the stuck catch event from the modification command itself." },
+    "d": { "text": "Incorrect. Cancel and recreate works as a fallback for unsupported cases of migration, but for an in-flight instance stuck on a catch event the documented repair is the terminate-plus-activate modification pair, which preserves the instance key." }
+  },
+  "explanation": "To repair a process instance stuck on a message catch event, modification combines two instructions in one command: terminate the active catch event instance and activate the next element. The token effectively moves past the stuck point and the instance can continue.",
+  "docs": [
+    { "title": "Process instance modification", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/" }
+  ]
+}

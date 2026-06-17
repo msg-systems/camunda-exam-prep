@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team migrating from Camunda 7 is unsure of the relationship between Zeebe's zeebe:taskDefinition extension and Camunda 7's various Task Listeners (assignment-listener, completion-listener, etc.) attached to a User Task. How does Zeebe's zeebe:taskDefinition relate to Camunda 7 Task Listeners?",
+  "question": "How does Zeebe's zeebe:taskDefinition relate to Camunda 7 Task Listeners?",
+  "options": [
+    {
+      "id": "a",
+      "text": "zeebe:taskDefinition and Camunda 7 Task Listeners are the same concept under a different name -- Camunda 8 simply renamed the Task Listener extension when rebranding Zeebe. The two are entirely different concepts serving different purposes. zeebe:taskDefinition declares how the engine activates jobs for a task, specifying the task type and retry count. Camunda 7 Task Listeners were lifecycle hooks that fired at specific User Task lifecycle moments."
+    },
+    {
+      "id": "b",
+      "text": "zeebe:taskDefinition is a superset of Camunda 7 Task Listeners and includes the same lifecycle hook semantics in addition to job activation configuration. The zeebe:taskDefinition extension does not include listener-style lifecycle hooks. It solely declares how the engine activates and retries jobs via the type and retries attributes. 7."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 7 Task Listeners migrate automatically to zeebe:taskDefinition during the migration process. Tools like the migration assistant convert each listener to the equivalent Camunda 8 construct. No automatic migration from C7 listeners to zeebe:taskDefinition exists. Listeners need manual re-modelling as explicit BPMN elements, such as Service Tasks before or after the main task, or zeebe:taskListeners for User Tasks with appropriate lifecycle eventType settings."
+    },
+    {
+      "id": "d",
+      "text": "They're different concepts. zeebe:taskDefinition declares how the engine activates jobs (the task type for worker subscription, retries count, optional retryBackoff). C7 Task Listeners were lifecycle hooks firing at specific points (on create, on assignment, on completion). md:151-161. For Service / Business-Rule tasks, no direct listener equivalent; cross-cutting concerns are modelled as explicit BPMN (Service Tasks before/after, Event Subprocesses, FEEL in assignmentDefinition)."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Two distinct concepts: zeebe:taskDefinition (Zeebe BPMN extension): declares how a Service Task / Business Rule Task / User Task with job-worker implementation is executed by the engine. Key attributes: type (the task type workers subscribe to), retries (initial retry count), retryBackoff (task header, ISO 8601 duration). Applied per task. C7 Task Listeners: lifecycle hooks invoked at specific moments (User Task on-create, on-assignment, on-complete; etc.). They allowed Java code or expressions to run at those moments -- for audit, dynamic assignment, validation. C8 has User Task Listeners since 8.7 (zeebe:taskListeners extension element on a User Task using zeebe:userTask implementation -- NOT the legacy job-worker implementation) per user-tasks.md:151-161. Each zeebe:taskListener specifies eventType (creating/assigning/updating/completing/canceling), type (worker subscription string, can be FEEL = \"order-\" + priorityGroup), and optional retries (defaults 3). A worker subscribes to the listener type and gets a job at each lifecycle event. For Service / Business Rule / non-user tasks, no listener equivalent -- migration path for those cross-cutting concerns: pre-task logic → a Service Task immediately before. on-assignment logic → assignmentDefinition with FEEL (dynamic assignment) or a zeebe:taskListener of eventType=assigning. post-task logic → a Service Task immediately after. Cross-cutting audit/validation → Event Subprocess listening for relevant events. This makes most behaviours visible in the BPMN rather than hidden in listener code, while user-task listeners cover the lifecycle-hook use case explicitly."
+    },
+    "b": {
+      "text": "Incorrect. Different concepts."
+    },
+    "c": {
+      "text": "Incorrect. Doesn't include lifecycle hooks."
+    },
+    "d": {
+      "text": "Correct. Re-modelling required."
+    }
+  },
+  "explanation": "Re-modelling required.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

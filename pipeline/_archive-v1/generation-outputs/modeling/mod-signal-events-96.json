@@ -1,0 +1,27 @@
+{
+  "id": "mod-signal-events-96",
+  "topic": "modeling",
+  "subtopic": "events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Logistics runs the order-fulfillment process in Camunda 8.8 with a signal start event named order placed. After version 4 has been live for 2 weeks and started 18000 process instances, the team deploys version 5 of the same BPMN process ID with the same signal start event and now wonders which version will be started by future broadcasts of the order placed signal.",
+  "question": "Which subscription behavior applies to the signal start event after the new version is deployed?",
+  "options": [
+    { "id": "a", "text": "The signal subscription for version 4 is deleted on deployment and a fresh subscription is opened for version 5, so future broadcasts start only version 5 of the process" },
+    { "id": "b", "text": "Subscriptions for both version 4 and version 5 stay active in parallel, so each broadcast of the order placed signal starts one instance of each deployed version of the process" },
+    { "id": "c", "text": "The signal subscription stays bound to version 4 until that version is undeployed, so future broadcasts continue to start version 4 instances even after version 5 is deployed" },
+    { "id": "d", "text": "The signal subscription is reopened against the oldest deployed version of the process ID, so future broadcasts start version 1 of the process instead of the newly deployed version 5" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Signal subscriptions only exist for the latest version of a process definition. Deploying a new version of the same BPMN process ID deletes the old signal subscription and opens a new one for the newly deployed version." },
+    "b": { "text": "Incorrect. Signal subscriptions do not coexist across versions; only the latest version of the BPMN process ID holds an active signal start subscription at any time." },
+    "c": { "text": "Incorrect. The subscription does not remain bound to the older version once a newer one is deployed; the older subscription is deleted in favor of the latest version." },
+    "d": { "text": "Incorrect. Subscriptions track the latest deployed version, not the oldest, so version 1 would not receive new signal-triggered starts after version 5 is deployed." }
+  },
+  "explanation": "Signal start event subscriptions only exist for the latest version of a process definition. Deploying a new version of the same BPMN process ID deletes the previous signal subscription and opens a new subscription for the new version.",
+  "docs": [
+    { "title": "BPMN signal events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/signal-events/" }
+  ]
+}

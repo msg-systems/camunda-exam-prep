@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q08",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A data-import process has a single Task that retries until success: read from an external system, if data isn't ready (returns 404), wait and try again. The retry should continue indefinitely until data is available. The team is considering BPMN's \"Standard Loop\" marker (a small circular arrow on the Task) as an alternative to Multi-Instance.",
+  "question": "What is the BPMN Standard Loop marker, and how does it differ from Multi-Instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Standard Loop repeatedly executes the activity while a loop condition is true. Like a while loop in code -- fundamentally different from Multi-Instance (which iterates over a known count/collection). Standard Loop checks the condition before/after each iteration. md:138-140 (the LoopSvg has no className=\"implemented\"). The canonical Camunda-8 pattern for \"retry until success\" is an Exclusive Gateway + back-edge sequence flow to the Task with a condition expression checking the retry predicate, OR Multi-Instance with inputCollection derived from a FEEL for-loop."
+    },
+    {
+      "id": "b",
+      "text": "Standard Loop and Multi-Instance are identical BPMN constructs with different visual markers but the same runtime behaviour -- this description does not reflect the actual behaviour. The two looping primitives have fundamentally distinct semantics. Standard Loop implements condition-based repetition similar to a while loop: the activity repeats as long as the loop condition evaluates to true, maintaining a single execution context throughout. Multi-Instance implements collection-based iteration: one inner instance per element, each with its own independent execution context and input/output variable bindings."
+    },
+    {
+      "id": "c",
+      "text": "Standard Loop iterates over an input collection, creating one execution per collection element -- this describes Multi-Instance semantics, not Standard Loop. The Standard Loop marker represents condition-based repetition where the activity executes repeatedly while a boolean loop condition remains true, similar to a while-do or do-while construct. There is no collection input binding in Standard Loop. Multi-Instance is the construct that binds to an inputCollection variable and creates parallel or sequential inner instances for each collection element."
+    },
+    {
+      "id": "d",
+      "text": "Standard Loop is purely a visual annotation marker placed on an activity to indicate intent, with no defined runtime behaviour in BPMN -- this description does not reflect the actual behaviour. The BPMN specification defines Standard Loop with explicit while-condition semantics: the loop condition expression is evaluated before or after each execution, and the activity repeats until the condition evaluates to false or the optional loopMaximum count is reached. md, requiring alternative modelling patterns."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. BPMN spec distinguishes two looping markers: Standard Loop (small circular arrow): \"while-loop\" semantics -- repeat the activity while a loop condition is true. Single execution context maintained across iterations. Multi-Instance (parallel bars ‖ or sequential bars =): instance-per-element over a known collection; each instance is its own execution context. In Camunda 8, only Multi-Instance is implemented (bpmn-coverage.md:131-137); Standard Loop is NOT implemented (:138-140, no className=\"implemented\" on the marker). The canonical implementation of \"retry until success\" is Exclusive Gateway with a back-edge sequence flow to the Task, with a condition expression checking the retry predicate (= readyToProceed). This is more verbose but unambiguous and well-supported. For \"iterate over a collection\" use Multi-Instance with inputCollection."
+    },
+    "b": {
+      "text": "Incorrect. Distinct semantics (condition-based vs collection-based)."
+    },
+    "c": {
+      "text": "Incorrect. That's Multi-Instance specifically."
+    },
+    "d": {
+      "text": "Incorrect. Standard Loop has spec-defined behavioural semantics; just not implemented in Camunda 8."
+    }
+  },
+  "explanation": "BPMN spec distinguishes two looping markers: Standard Loop (small circular arrow): \"while-loop\" semantics -- repeat the activity while a loop condition is true. Single execution context maintained across iterations. Multi-Instance (parallel bars ‖ or sequential bars =): instance-per-element over a known collection; each instance is its own execution context. In Camunda 8, only Multi-Instance is implemented (bpmn-coverage.md:131-137); Standard Loop is NOT implemented (:138-140, no className=\"implemented\" on the marker). The canonical implementation of \"retry until success\" is Exclusive Gateway with a back-edge sequence flow to the Task, with a condition expression checking the retry predicate (= readyToProceed). This is more verbose but unambiguous and well-supported. For \"iterate over a collection\" use Multi-Instance with inputCollection.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/bpmn-coverage/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q08",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

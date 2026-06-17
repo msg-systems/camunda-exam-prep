@@ -1,0 +1,27 @@
+{
+  "id": "mod-error-events-91",
+  "topic": "modeling",
+  "subtopic": "error-events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Payments models a Camunda 8.8 settlement process that handles 8000 transactions per day. Inside one embedded subprocess the team needs to catch a specific business error from a service task while also providing a fallback handler for any other thrown error in the same scope.",
+  "question": "Which catch event configuration is allowed inside the same embedded subprocess in Camunda 8.8 error events?",
+  "options": [
+    { "id": "a", "text": "Two boundary events that both reference the same specific errorCode, attached to the same service task in the embedded subprocess for redundant routing of the same error" },
+    { "id": "b", "text": "Two catch-all error event subprocesses inside the embedded subprocess, both with no errorRef so that any thrown error matches either one of the two catch-all subprocesses" },
+    { "id": "c", "text": "One boundary event on the service task referencing the specific errorCode together with one catch-all error event subprocess inside the same embedded subprocess scope" },
+    { "id": "d", "text": "One non-interrupting boundary error event on the service task together with one interrupting boundary error event on the same task for the same matching errorCode value" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The Catching the error section states it is not possible to define multiple error catch events with the same errorCode in a single scope, so two boundary events with the same code are not allowed." },
+    "b": { "text": "Incorrect. The page states it is not permitted to have multiple error catch-all events in a single scope, so two catch-all event subprocesses cannot coexist inside the same embedded subprocess." },
+    "c": { "text": "Correct. The Catching the error section allows a specific errorCode catch event and an error catch-all event to coexist in the same scope; when both could match, the specific errorCode catch event is prioritized." },
+    "d": { "text": "Incorrect. The page states that error boundary events and error event subprocesses must be interrupting, so a non-interrupting boundary error event is not a supported configuration in Camunda 8.8." }
+  },
+  "explanation": "In a single scope you may pair one error catch event for a specific errorCode with one error catch-all event; the specific match wins when both could fire. All error boundary events and error event subprocesses must be interrupting.",
+  "docs": [
+    { "title": "BPMN error events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/" }
+  ]
+}

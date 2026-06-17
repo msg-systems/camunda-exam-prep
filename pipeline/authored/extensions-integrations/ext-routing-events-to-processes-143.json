@@ -1,0 +1,50 @@
+{
+  "id": "ext-routing-events-to-processes-143",
+  "topic": "extensions-integrations",
+  "subtopic": "events",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Following the Camunda BPMN Framework convention, an `invoice` process has exactly one start event and it is modelled as a message start event so the diagram can show the collaboration with the surrounding human flow. How can clients start an instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Either via `CreateProcessInstance` against the BPMN process ID or by publishing the named message — both APIs work."
+    },
+    {
+      "id": "b",
+      "text": "Only by publishing the named message; `CreateProcessInstance` is rejected because the process has no none start event."
+    },
+    {
+      "id": "c",
+      "text": "You must add an explicit none start event in parallel — the engine cannot start a process whose only start event is a message event."
+    },
+    {
+      "id": "d",
+      "text": "The engine starts a new instance on every deployment because there is only one start event."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state that if there is exactly one message start event for the whole process definition, it can also be treated as if it were a none start event when starting an instance — so both `CreateProcessInstance` by BPMN ID and `PublishMessage` work."
+    },
+    "b": {
+      "text": "`CreateProcessInstance` against the BPMN process ID is explicitly allowed in this single-message-start case; it is not rejected."
+    },
+    "c": {
+      "text": "The engine has no problem with a sole message start event; no parallel none start event is required for clients to start the process."
+    },
+    "d": {
+      "text": "Deployment never auto-starts process instances in Zeebe; start events are triggered by API calls, messages, timers or signals, not by deployment events."
+    }
+  },
+  "explanation": "The Camunda BPMN Framework convention is to use message start events even when a process has only one start, so the diagram can communicate the collaboration with the surrounding human flow. To avoid burdening clients, the engine treats a sole message start event as equivalent to a none start event for instantiation — so either API works.",
+  "docs": [
+    {
+      "title": "Routing events to processes - best practices",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/routing-events-to-processes/"
+    }
+  ]
+}

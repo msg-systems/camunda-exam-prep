@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A national payroll processor runs monthly batch payroll for 50,000 employees per company-batch through a Parallel Multi-Instance Subprocess. Each iteration computes one employee's net pay (calls tax service, deducts contributions, computes net). The business wants to capture per-employee net pay totals in an aggregated output collection so the parent process can produce a summary report (total payroll, total tax, etc.) without making 50,000 separate database lookups after MI completes.",
+  "question": "Which Multi-Instance configuration captures per-iteration outputs into an aggregated collection?",
+  "options": [
+    {
+      "id": "a",
+      "text": "id, net_pay: computed_net} as a FEEL expression. Each iteration evaluates the FEEL expression in its own variable scope and appends the result object to the accumulator list. After MI completes, the parent process sees netPayResults as a list of 50,000 objects. net_pay) in FEEL to compute totals without any external queries."
+    },
+    {
+      "id": "b",
+      "text": "Output collection is automatic -- Zeebe collects every variable created in each iteration into a unified collection automatically named mi_outputs, accessible in the parent scope after MI completes without any explicit configuration. No automatic output collection exists in Zeebe. The developer must explicitly configure the outputCollection name and the outputElement FEEL expression. Without this configuration, iteration-scope variables are discarded when each iteration ends."
+    },
+    {
+      "id": "c",
+      "text": "Use a downstream Script Task that calls the Operate API to query all completed MI iterations, reads their output variables, and aggregates the totals in FEEL. The Operate API is eventually consistent -- it reflects process state with a processing lag and is designed for operational monitoring, not real-time in-process aggregation. Using it for runtime control flow introduces latency, dependency on Operate availability, and complexity that outputCollection eliminates entirely."
+    },
+    {
+      "id": "d",
+      "text": "Place a Service Task inside each MI iteration that writes the computed net pay to an external database keyed on employee ID. After all iterations complete, the parent process executes another Service Task that queries the database for all entries in this batch."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Multi-Instance supports outputCollection to name a list-shaped accumulator + outputElement to specify what each iteration contributes (FEEL expression evaluated in iteration scope). After MI completes, the parent process has access to netPayResults as a list of objects -- one per iteration. Used together they let the parent compute summary metrics natively in FEEL without external queries."
+    },
+    "b": {
+      "text": "Incorrect. No automatic mi_outputs collection; the developer must configure outputCollection + outputElement explicitly."
+    },
+    "c": {
+      "text": "Incorrect. Operate API is for operational queries, not real-time aggregation in process flow; eventually-consistent and wrong layer."
+    },
+    "d": {
+      "text": "Incorrect. External database round-trip works but adds infrastructure and latency; outputCollection is built-in."
+    }
+  },
+  "explanation": "Multi-Instance supports outputCollection to name a list-shaped accumulator + outputElement to specify what each iteration contributes (FEEL expression evaluated in iteration scope). After MI completes, the parent process has access to netPayResults as a list of objects -- one per iteration. Used together they let the parent compute summary metrics natively in FEEL without external queries.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q15",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

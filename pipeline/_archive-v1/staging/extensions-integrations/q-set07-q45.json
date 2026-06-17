@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A data team has Python scripts for analytics. They want to integrate with Camunda 8 -- start process instances, query state, publish messages. They're looking for a Python SDK.",
+  "question": "What's the canonical integration approach for Python?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use the Orchestration Cluster REST API directly from Python with libraries like requests or httpx -- workable fallback, but no longer the canonical first choice now that an official Python SDK ships. For production Python services with job workers, the REST approach requires manually implementing the long-poll activation loop, OAuth token management, retry logic, and DTO typing -- all of which the official SDK provides out of the box."
+    },
+    {
+      "id": "b",
+      "text": "typed marker, zero-configuration environment variable loading using CAMUNDA_* env vars, pluggable OAuth and Basic authentication with automatic token refresh, and long-polling job workers supporting thread, process, and async execution strategies. The SDK is generated from the upstream OpenAPI specification with hand-written runtime infrastructure for production-grade reliability. It covers all major Camunda 8 operations: starting process instances, deploying resources, publishing messages, managing jobs, and error handling."
+    },
+    {
+      "id": "c",
+      "text": "Run the Camunda Java SDK through Jython (a Python implementation that runs on the JVM) -- this would allow Python code to call Java SDK classes directly. 7 and has minimal Python 3 support), is largely unmaintained by its community, and would introduce significant JVM bootstrap overhead and interoperability friction. This is not a recommended production integration path. The official Python SDK provides a modern, native Python integration with proper async support, type hints, and no JVM dependency."
+    },
+    {
+      "id": "d",
+      "text": "NET (via the C# SDK), leaving Python teams to use unsupported community projects. This claim is inaccurate. Camunda 8 officially supports Python through both a dedicated Python SDK (documented at apis tools/python sdk/) with sync and async clients, and the language-agnostic Orchestration REST API. The Python SDK is a first-class official SDK generated from the upstream OpenAPI specification."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The REST API works from Python via requests / httpx (handle OAuth2 token exchange, call /v2/process-instances, /v2/messages/publication, etc.) -- but for production job workers, scripting the long-poll activation loop, retries, OAuth caching, and DTO typing by hand duplicates what the official SDK provides out-of-the-box. Use REST for trivial one-off integrations; use the SDK for sustained Python services."
+    },
+    "b": {
+      "text": "Correct. Camunda 8 ships a fully-typed official Python SDK (camunda-orchestration-python-sdk, documented at apis-tools/python-sdk/). Features per python-sdk.md:14-21: sync CamundaClient + async CamundaAsyncClient, pyright-strict typing with PEP 561 py.typed marker, 12-factor CAMUNDA_* env var configuration, pluggable OAuth & Basic auth with automatic token management, long-poll job workers with thread/process/async execution strategies. Full sub-section docs cover authentication, configuration, creating process instances, deploying resources, error handling, job workers, logging."
+    },
+    "c": {
+      "text": "Incorrect. Jython hasn't kept pace with modern Python; avoid."
+    },
+    "d": {
+      "text": "Incorrect. Python is officially supported via both the SDK and REST API."
+    }
+  },
+  "explanation": "Camunda 8 ships a fully-typed official Python SDK (camunda-orchestration-python-sdk, documented at apis-tools/python-sdk/). Features per python-sdk.md:14-21: sync CamundaClient + async CamundaAsyncClient, pyright-strict typing with PEP 561 py.typed marker, 12-factor CAMUNDA_* env var configuration, pluggable OAuth & Basic auth with automatic token management, long-poll job workers with thread/process/async execution strategies. Full sub-section docs cover authentication, configuration, creating process instances, deploying resources, error handling, job workers, logging.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/python-sdk/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q45",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

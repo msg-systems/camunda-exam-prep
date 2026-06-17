@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-17",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Which strategy does the Java client's default `BackoffSupplier` use, and which gRPC error response is it specifically designed to soak up?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Exponential backoff, applied after error responses such as `GRPC_STATUS_RESOURCE_EXHAUSTED` from the Zeebe cluster."
+    },
+    {
+      "id": "b",
+      "text": "Linear backoff, applied only when a long-polling request times out."
+    },
+    {
+      "id": "c",
+      "text": "A fixed delay equal to `pollInterval`, applied after every successful poll."
+    },
+    {
+      "id": "d",
+      "text": "No backoff by default — the worker re-polls immediately and relies entirely on the cluster's backpressure."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state the default `BackoffSupplier` is an exponential backoff (configurable via `BackoffSupplier.newBackoffBuilder()`), and that it is especially useful for soaking up `GRPC_STATUS_RESOURCE_EXHAUSTED` responses when the cluster is under too much load."
+    },
+    "b": {
+      "text": "The default is exponential, not linear, and it applies to failed polls in general — not specifically to long-polling timeouts."
+    },
+    "c": {
+      "text": "Backoff is triggered by failed polls, not successful ones, and it is independent of `pollInterval`."
+    },
+    "d": {
+      "text": "The Java client ships with a default exponential backoff; without one the worker would hammer an already-overloaded cluster."
+    }
+  },
+  "explanation": "When a poll fails with an error response, the worker waits for the delay supplied by its `BackoffSupplier` before polling again. The default is an exponential backoff (replaceable via `.backoffSupplier(...)` on the builder), and the docs explicitly call out `GRPC_STATUS_RESOURCE_EXHAUSTED` — emitted by Zeebe's backpressure mechanism under high load — as the canonical case the backoff is designed to handle.",
+  "docs": [
+    {
+      "title": "Job worker",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

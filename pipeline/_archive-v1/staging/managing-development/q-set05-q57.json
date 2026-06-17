@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q57",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's Job Worker for send-email was scheduled to run with at-least-once delivery. Zeebe re-activates a job after timeout; the worker may receive the same job twice. The team wants to ensure emails aren't sent twice to the customer.",
+  "question": "Which best practice fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Increase the job timeout duration so the worker always completes before the timeout expires and Zeebe never re-activates the job. Increasing timeout to avoid retries hides the underlying delivery guarantee issue and creates slow incident detection when a worker genuinely fails. Very long timeouts mean stuck jobs stay invisible in monitoring for extended periods. At-least-once delivery is inherent in Zeebe's design regardless of timeout configuration."
+    },
+    {
+      "id": "b",
+      "text": ", the job's elementInstanceKey) when calling the email API. The email service deduplicates requests with the same key within a time window, ensuring that even if the worker receives the job twice, only one email is sent to the customer. Idempotency is the canonical pattern for at-least-once delivery systems."
+    },
+    {
+      "id": "c",
+      "text": "Configure Zeebe for exactly-once delivery semantics by setting an engine configuration flag that prevents duplicate job activations. Zeebe provides at-least-once delivery as an architectural invariant; there is no configuration option to change this to exactly-once delivery. The distributed nature of Zeebe's job activation mechanism means that under timeout or network scenarios, a job may be activated more than once, requiring workers to implement idempotency."
+    },
+    {
+      "id": "d",
+      "text": "Configure the worker to not retry on failure -- set job retries to zero so Zeebe never attempts re-activation after an initial failure. Disabling retries eliminates the duplicate delivery risk but destroys the reliability guarantees that make at-least-once delivery valuable. Any transient failure -- network blip, service restart, or temporary API unavailability -- would immediately create an incident, degrading the system's fault tolerance and operational resilience."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe's at-least-once semantics mean workers must be idempotent. Use a unique key per job (e.g., elementInstanceKey or a business-level id) when calling external systems; the system deduplicates."
+    },
+    "b": {
+      "text": "Correct. Long timeouts hide the issue and create slow incident detection."
+    },
+    "c": {
+      "text": "Incorrect. Zeebe is at-least-once by design; no \"exactly-once\" config flag."
+    },
+    "d": {
+      "text": "Incorrect. Disabling retries undermines reliability guarantees."
+    }
+  },
+  "explanation": "Long timeouts hide the issue and create slow incident detection.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q57",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

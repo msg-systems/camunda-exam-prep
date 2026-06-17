@@ -1,0 +1,70 @@
+{
+  "id": "imp-set16-q16",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "AI Agent Connector has conversational interface -- multiple back-and-forth exchanges. Team wonders if Camunda supports multi-turn conversations.",
+  "question": "AI Agent multi-turn conversations?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Single-turn only -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Auto-managed -- this is only partially accurate. The Camunda AI Agent Connector does not automatically manage conversation history across invocations by itself. LLMs are stateless: each API call is independent and has no memory of previous exchanges unless the full conversation history is provided. The process designer is responsible for maintaining the history in a process variable, appending each user message and assistant response, and passing the accumulated history to the Connector with every subsequent AI call. Saying it is \"auto-managed\" overstates what the Connector handles without explicit configuration."
+    },
+    {
+      "id": "c",
+      "text": "Multi-turn conversations require state management: the process must maintain conversation history (list of role/content pairs) in a process variable, pass the full history to the AI Agent Connector on each call, append the assistant's response, and loop back for the next user input. This pattern implements the stateless LLM API's context window by providing the entire conversation context on every request. Token budget must be managed by truncating or summarizing older messages when the conversation grows long. Each process instance represents one conversation session, scoped naturally by Camunda's instance lifecycle."
+    },
+    {
+      "id": "d",
+      "text": "External chat needed -- this overstates the complexity. Multi-turn AI conversations can be fully orchestrated within Camunda 8 using the AI Agent Connector combined with process variables for history storage and BPMN loops for turn-taking. There is no requirement for a separate external chat platform or service. The process itself acts as the conversation orchestrator: User Tasks collect human input, Service Tasks invoke the AI, and variables store the exchange history. External chat systems could optionally be integrated for UI purposes, but they are not a prerequisite for multi-turn AI conversation patterns in Camunda."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Multi-turn conversation patterns: LLM stateless model: Each API call independent: LLM doesn't remember between calls. For conversation continuity: caller maintains history. Pass entire conversation each turn: full context. Conversation history structure (typical): `feel ={ history: [ {role: \"system\", content: \"You are a helpful assistant.\"}, {role: \"user\", content: \"What's the order status?\"}, {role: \"assistant\", content: \"I can help. What's the order ID?\"}, {role: \"user\", content: \"ORD-100\"} ] } Each LLM API call: send full history; LLM responds based on context. Process pattern: [Init: history = [systemPrompt]] │ ▼ [User Task: User input] │ output: userMessage ▼ [Append: history = history + [{role: \"user\", content: userMessage}]] │ ▼ [AI Agent Connector with history] │ output: response ▼ [Append: history = history + [{role: \"assistant\", content: response}]] │ ▼ [Decision: continue conversation?] ├─ Yes → loop back to User input └─ No → end In FEEL (append): feel newHistory: history + [{role: \"user\", content: userMessage}] ` For Connector input: Pass entire history as conversation parameter. Verify exact field name per Connector / version. Token budget considerations: Problem: long conversations → many tokens → expensive + slow. Mitigations: Mitigation 1: Summarisation: After N turns, summarise older history. Replace with summary + recent N turns. Mitigation 2: Truncation: Keep last K messages. Drop oldest beyond K. Trade-off: lose long-term context. Mitigation 3: Token limit handling: Track cumulative tokens: per response usage field. Alert / cap: when approaching limit. For session management: Process instance = session: history scoped to instance. Resume: process pauses (Receive Task), resumes on next input. End session: process completes. For multi-user: Each user own process instance: per-user conversation. Tenant isolation: per-customer. For state persistence: Process variables: history persisted with process. Survives restart: as long as process active. For error handling: LLM API errors: retry / fallback (per Set 15 Q16). Conversation corruption: validation, reset. For human-in-the-loop: Combine User Task + AI Agent: human input → AI response → human review. Approval gates: human approves AI suggestions. For testing: Mock LLM: return canned responses. Replay conversations: ensure consistent behavior. Best practices: System prompt clarity: set context at start. History format consistency: use same structure. Token budget monitoring: per Set 13 Q17. Validation: parse LLM responses; handle malformed. Fallback: graceful degradation on LLM issues. Anti-patterns: Unbounded history growth: token explosion. No summarisation: stale context dominates. Mixed conversations: cross-pollination. For the scenario (multi-turn): Maintain history in process variable. Pass to AI Agent each call. Append response. Manage tokens. For Camunda 8 specifically: Verify AI Agent Connector supports conversation parameter. Verify per provider (OpenAI, Anthropic, etc.)."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/agentic-orchestration/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q16",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 26 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 24.2 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

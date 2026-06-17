@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-158",
+  "topic": "extensions-integrations",
+  "subtopic": "Tasks vs. events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Apex Marketplace models a Camunda 8.8 order flow that waits up to PT2H for a fraud-check reply. The fraud team must be able to cancel the wait if the customer cancels their order during that 2 hours, so the modeller has to choose between a receive task and a receive intermediate event for the wait step, knowing both share execution semantics.",
+  "question": "Which capability is available on a receive task that is not available on a receive intermediate event?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The ability to attach boundary events such as a cancellation message catch, which let the modeller cancel the wait when the customer cancels their order during the fraud check"
+    },
+    {
+      "id": "b",
+      "text": "The ability to participate in message correlation against a buffered message in Zeebe, which the receive intermediate event variant cannot do in Camunda 8.8 environments"
+    },
+    {
+      "id": "c",
+      "text": "The ability to run with identical execution semantics to a send/receive task pair, which is reserved for tasks only and not available on receive events under Camunda 8.8"
+    },
+    {
+      "id": "d",
+      "text": "The ability to be invoked by the Zeebe message API in the first place; receive intermediate events cannot be triggered by published messages in Camunda 8.8 deployments at all today"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Tasks vs. events section states that only tasks can carry boundary events; this is the one functional difference and it is what enables the cancel-during-wait pattern shown."
+    },
+    "b": {
+      "text": "Incorrect. Message correlation and buffering work for both receive tasks and receive intermediate events; this is not what distinguishes them."
+    },
+    "c": {
+      "text": "Incorrect. The docs explicitly state the execution semantics of send and receive events are identical to send and receive tasks."
+    },
+    "d": {
+      "text": "Incorrect. Receive events can absolutely be triggered by message correlation in Zeebe; they just cannot carry boundary events."
+    }
+  },
+  "explanation": "Send/receive events and send/receive tasks share execution semantics in Camunda 8. The single documented difference is that only tasks can carry boundary events, which lets you model cancellation of the wait without restructuring the diagram.",
+  "docs": [
+    {
+      "title": "Service integration patterns",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

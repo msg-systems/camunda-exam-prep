@@ -1,0 +1,63 @@
+{
+  "id": "imp-set13-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Node.js worker using @camunda8/sdk processes jobs. Handler is async function returning a Promise. Team wonders if SDK properly waits for the Promise to resolve before considering the job complete.",
+  "question": "Node.js SDK + async handlers -- does Promise resolution dictate job completion?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No -- fire-and-forget -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "The Camunda 8 TypeScript SDK handles async job handlers correctly only when the developer explicitly calls await inside the handler function; if the developer forgets to await a call inside the async function, the SDK cannot detect the Promise and marks the job complete prematurely. While it is true that not using await for internal calls causes fire-and-forget bugs, the statement misrepresents where the SDK acts. The SDK itself awaits the Promise returned by the handler function; the developer must return awaited results from the handler, but the SDK handles the returned Promise automatically."
+    },
+    {
+      "id": "c",
+      "text": "complete(variables) called manually inside the handler after awaiting async operations); the SDK does not automatically detect Promises -- it relies solely on explicit completion callbacks. fail() on rejection without requiring manual callback invocations."
+    },
+    {
+      "id": "d",
+      "text": "js client) handles async handlers correctly: when taskHandler is an async function, the SDK awaits the returned Promise. complete() with the resolved variables. fail() to trigger a retry. error() to route to a BPMN Error Boundary Event. This means properly structured async handlers require no manual completion callbacks."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Node.js Camunda SDK handles async handlers properly: Handler pattern (idiomatic): `js zbc.createWorker({ taskType: \"process-payment\", taskHandler: async (job) => { const result = await callPaymentAPI(job.variables); return { paymentId: result.id, status: \"completed\" }; } }); SDK behavior: Awaits the returned Promise. On resolve: takes the resolved value; calls job.complete(value) (or equivalent auto-complete). On reject: catches the error; calls job.fail(error) (or maps BPMN errors). On thrown BpmnError-like: maps to job.error(errorCode, errorMessage). Without async (callback / sync pattern): Older Node SDKs may have used callback patterns. Modern SDKs typically support async/await. Sync handlers: SDK awaits the returned value (resolved Promise wraps). Common pitfalls: Pitfall 1: Not returning the Promise: js taskHandler: async (job) => { callPaymentAPI(job.variables); // fire-and-forget -- BAD return \"ok\"; // returns before API call completes } SDK sees handler complete; calls job.complete prematurely. API call may complete much later (or fail silently). Fix: await the call. Pitfall 2: Unhandled rejection: js taskHandler: async (job) => { Promise.reject(new Error(\"fail\")); // unhandled rejection -- BAD } Promise rejection not awaited; SDK may not see it. Fix: await or return the Promise. Pitfall 3: Handling errors manually: js taskHandler: async (job) => { try { await callAPI(); return \"ok\"; } catch (e) { // swallows error -- SDK sees success -- BAD } } Caught error hides failure from SDK. Fix: re-throw or explicitly call job.fail`. Best practices: Let the SDK handle errors: rethrow to let SDK call fail/error. Use BpmnError class for business errors (if SDK supports). autoComplete defaults: SDK auto-completes on resolve; opt-out for manual control. Verify SDK version's exact API and behavior."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. Partially correct."
+    },
+    "d": {
+      "text": "Correct. Partially correct."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q42",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 19.4 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q07",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process has a step where a human performs work outside Camunda (e.g., physical inspection of a warehouse). No form, no system interaction -- just \"do it and confirm.\" Team wonders if this is a Manual Task or User Task.",
+  "question": "Manual Task vs User Task?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Manual Task and User Task have fundamentally different engine behaviors in Camunda 8. A User Task creates an entry in Tasklist, waits for a human to claim and complete it via UI or API, and holds the process token until explicit completion. md:13 -- the engine automatically advances the token the moment it arrives, with no wait state, no Tasklist entry, and no human action required by the engine itself. They model opposite interaction patterns."
+    },
+    {
+      "id": "b",
+      "text": "md lists it with className=\"implemented\". The clarification needed is what \"supported\" means for Manual Task in Camunda 8: the engine treats it as a pass-through activity, automatically continuing when the token arrives, without creating any wait state or Tasklist entry. It is supported as a modeling element but never blocks the process for human input. Claiming it is unsupported misrepresents its availability in the platform."
+    },
+    {
+      "id": "c",
+      "text": "A Service Task requires a job worker to activate it, execute automated logic, and complete the job programmatically via the Zeebe API. Physical warehouse inspection is human work with no automated system performing the inspection on behalf of the process -- there is no service or API call that can complete this task autonomously. Using a Service Task would require an artificial worker adding unnecessary complexity. For human confirmation of physical work, a User Task with a simple completion form is the appropriate choice."
+    },
+    {
+      "id": "d",
+      "text": "md:7-15) is a pass-through activity in Camunda 8 -- the engine automatically advances the token upon arrival, creating no wait state and no Tasklist entry. It provides diagram documentation value but the engine never blocks for human confirmation. User Task, by contrast, creates a Tasklist entry, assigns to a user, and waits for explicit completion via UI or API. For the warehouse inspection scenario requiring engine-tracked human confirmation, use a User Task with a minimal confirmation form."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Task types comparison: Manual Task (per manual-tasks.md:7-15): BPMN spec: a Task done outside the BPMN engine's control. Notation: Task with hand icon. Semantic: human work happens outside system; no engine involvement during execution. In practice: documentation only (shows \"here's a manual step\" in the diagram) without engine enforcement. Engine behavior in Camunda 8 is DEFINITIVE -- pass-through: \"handled as a pass-through activity, automatically continuing the process at the moment the process instance arrives.\" No wait state; no Tasklist entry; no API call needed. This is NOT version-dependent. User Task: BPMN spec: human work with system interaction. Notation: Task with person icon. Semantic: assignee uses Tasklist; engine tracks task state. Engine behavior: creates task in Tasklist; waits for claim/complete via UI/API. For the scenario (physical warehouse inspection): If the inspection process should appear in Tasklist with a \"Complete\" button: User Task with minimal/no form -- assignee clicks done after physical work. If the inspection happens completely outside Camunda and process should just move forward (Camunda is purely documentation): Manual Task (or arguably no element at all -- just a sequence flow). Most practical pattern: User Task with simple form: \"Confirm inspection complete; signature; date\" -- engineer-friendly, auditable. Manual Task: rare in modern Camunda 8 due to lack of engine integration for tracking. Camunda 8 implementation specifics (manual-tasks.md:13): Always pass-through -- the engine continues automatically when the token arrives. NEVER a wait state in C8. Choose User Task whenever the engine must block on human confirmation. Alternative: use Service Task with auto-complete worker that \"represents\" the manual step's completion via external trigger (e.g., REST call from inspector's mobile app). Best practice: For human work tracked by Camunda: User Task (with minimal form if needed). For pure"
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial. Verify."
+    },
+    "c": {
+      "text": "Incorrect. wrong; Manual Task IS supported in 8.8 (per bpmn-coverage.md:86-88 className=\"implemented\"), it just doesn't wait."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/manual-tasks/manual-tasks/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q07",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

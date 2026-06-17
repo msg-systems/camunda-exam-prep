@@ -1,0 +1,27 @@
+{
+  "id": "ext-routing-events-to-processes-116",
+  "topic": "extensions-integrations",
+  "subtopic": "routing-events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Logistics integrates a Camunda 8.8 invoice process that handles 12000 invoices per week. A Java service worker receives REST requests from an upstream channel and must start a new invoice process instance on every request using the latest deployed version, identified by the BPMN process ID embedded in the BPMN XML file.",
+  "question": "Which Zeebe Java API call starts a new instance of the invoice process at its latest deployed version?",
+  "options": [
+    { "id": "a", "text": "Call newPublishMessageCommand with messageName invoice and an empty correlationKey to instruct the workflow engine to spawn a new invoice process instance for each request." },
+    { "id": "b", "text": "Call newDeployResourceCommand with bpmnProcessId invoice and version latest to redeploy the process and create one fresh instance under the latest version of invoice." },
+    { "id": "c", "text": "Call newCreateInstanceCommand with bpmnProcessId invoice and version five to start the latest invoice process instance regardless of how many versions are currently deployed." },
+    { "id": "d", "text": "Call newCreateInstanceCommand with bpmnProcessId invoice and latestVersion to start a new process instance in the latest deployed version of the invoice process definition." }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The page documents newPublishMessageCommand for routing messages, not for the simple case of one none start event identified by the BPMN process ID. Starting by process ID at latest version uses newCreateInstanceCommand instead of publishing a message." },
+    "b": { "text": "Incorrect. newDeployResourceCommand uploads a resource to the workflow engine; the page reserves newCreateInstanceCommand with bpmnProcessId and latestVersion for the act of starting an instance, separate from deployment of the BPMN file." },
+    "c": { "text": "Incorrect. The page shows version(5) as an example of pinning a specific deployed version of the invoice process. To always pick whatever version is currently the latest in the engine, the example calls latestVersion instead of a fixed number." },
+    "d": { "text": "Correct. The routing events best practice example calls newCreateInstanceCommand with bpmnProcessId invoice and latestVersion to start a new process instance in the latest deployed version, which matches the upstream channel in the Vertex Logistics integration." }
+  },
+  "explanation": "The page documents newCreateInstanceCommand with bpmnProcessId and latestVersion as the standard call to start a new process instance in the latest deployed version; version(n) pins a specific deployed version, while newDeployResourceCommand and newPublishMessageCommand serve different roles.",
+  "docs": [
+    { "title": "Routing events to processes", "url": "https://docs.camunda.io/docs/components/best-practices/development/routing-events-to-processes/" }
+  ]
+}

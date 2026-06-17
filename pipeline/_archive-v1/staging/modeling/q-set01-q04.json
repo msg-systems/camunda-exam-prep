@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A multi-product fintech company runs three different lending processes (consumer loans, business loans, mortgage applications) in Camunda 8. All three need to perform an identical 6-step KYC (Know Your Customer) verification. Currently each lending process has its own copy of these 6 steps inline; when compliance requires a change, the dev team has to update three places and frequently misses one. The team wants to extract KYC into a single reusable BPMN model that all three lending processes invoke. Versioning matters: when KYC v3 is deployed, in-flight loan applications already past the KYC stage must continue using whatever version they started with, while new applications use v3.",
+  "question": "Which BPMN construct should the developer use to model the reusable KYC?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Deploy KYC as a standalone process and invoke it from each lending process via a Call Activity with bindingType=\"deployment\" (or bindingType=\"versionTag\") so in-flight callers stay bound to the KYC version active at their original deployment. A Call Activity creates a child process instance of the referenced process definition and suspends the parent until the child completes, then resumes with the child's output variables propagated back via output mappings. The bindingType attribute controls which version of the called process is used: latest (default) always invokes the most recently deployed version, deployment binds to the version deployed alongside the caller, and versionTag binds to the version carrying a specific user-defined tag. This makes the KYC reusable across all three lending processes with a single maintained definition."
+    },
+    {
+      "id": "b",
+      "text": "Convert KYC into an Embedded Subprocess inside each lending process. Use Element Templates in Web Modeler so all three subprocess copies share the same XML configuration, ensuring that any template update propagates consistently when developers apply the new template version to each process file. An Embedded Subprocess executes within the parent process scope, inheriting all parent variables directly without needing explicit input/output mappings. Element Templates define reusable configuration schemas for BPMN elements and allow Web Modeler to display a standardised property panel."
+    },
+    {
+      "id": "c",
+      "text": "Model KYC as a Multi-Instance Subprocess where the input collection contains the 6 check types and each iteration runs one verification. A Multi-Instance marker on a Subprocess causes Zeebe to instantiate the subprocess body once for each element in the input collection, executing them in parallel (Parallel MI) or one after another (Sequential MI). The inputCollection FEEL expression defines the list of items, and each iteration receives its element via inputElement. A completionCondition can terminate remaining instances early once a threshold is met. This pattern suits scenarios where the same subprocess logic repeats for varying inputs -- such as processing each order line item or each document in a batch."
+    },
+    {
+      "id": "d",
+      "text": "Implement KYC as a Custom Connector built with the Connector SDK and invoke it from a single Service Task in each lending process. A Custom Outbound Connector built with the Connector SDK is packaged as a JAR and deployed to the Connector runtime; it exposes a configuration schema via an Element Template and implements the OutboundConnectorFunction interface to execute its logic when a job is activated. A Connector encapsulates all its logic in a single BPMN element, making it useful when integration logic should be opaque to the process modeller and reusable across many process models through the Element Template catalog."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Element Templates standardise configuration of a single element, NOT reusable process logic across multiple processes. Three Embedded Subprocesses with identical templates still means three copies of the same 6-step flow -- change propagation is still three deployments."
+    },
+    "b": {
+      "text": "Incorrect. Call Activity is the BPMN-standard construct for invoking a deployed process from another deployed process. Important nuance: per the Camunda 8.8 docs, bindingType defaults to latest, meaning every call invokes the latest deployed version -- including for already-running parent processes that haven't yet reached the Call Activity. To get the \"in-flight apps stick to their original version\" semantics, you must explicitly set bindingType=\"deployment\" (binds to the KYC version deployed together with the calling process) or bindingType=\"versionTag\" with a specific version tag. Without this explicit binding type, the scenario's versioning requirement is NOT satisfied."
+    },
+    "c": {
+      "text": "Incorrect. Multi-Instance executes the same activity N times with different inputs. Here we have 6 different verification steps, not 6 instances of the same task."
+    },
+    "d": {
+      "text": "Incorrect. Connector SDK is for single-call external integrations, not multi-step process logic with internal flow control and audit trail."
+    }
+  },
+  "explanation": "Element Templates standardise configuration of a single element, NOT reusable process logic across multiple processes. Three Embedded Subprocesses with identical templates still means three copies of the same 6-step flow -- change propagation is still three deployments.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

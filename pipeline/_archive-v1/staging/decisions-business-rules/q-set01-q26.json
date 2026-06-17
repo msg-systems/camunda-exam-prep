@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q26",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A consumer lending DMN diagram has a RiskScoring decision that takes inputs applicantAge, incomeAnnual, and existingDebts. The team writes the input column applicantAge with the FEEL expression applicantAge >= 18 and applicantAge <= 65. At runtime, for an applicant with applicantAge = 22, the decision unexpectedly returns \"no rule matched\" and creates an incident. The developer suspects the FEEL expression is incorrect. They review the DMN spec and notice that FEEL in DMN input columns has different semantics than FEEL in general expressions.",
+  "question": "What is the correct FEEL syntax for \"applicantAge between 18 and 65\" in a Decision Table input cell?",
+  "options": [
+    {
+      "id": "a",
+      "text": "applicantAge >= 18 and applicantAge <= 65 -- full FEEL expression as written. , in gateways or script tasks) where you reference variables explicitly by name. In a DMN Decision Table input cell, however, the column header already names the variable -- the cell contains only the unary test constraint (a predicate evaluated against that variable implicitly). Writing a full predicate with the variable name repeated produces a FEEL type mismatch that causes \"no rule matched\"."
+    },
+    {
+      "id": "b",
+      "text": "between 18 and 65 -- DMN-style natural language that superficially resembles SQL's BETWEEN clause. This syntax is absent from FEEL and the DMN specification. 65] where square brackets indicate inclusive boundaries and parentheses indicate exclusive. Writing between 18 and 65 in an input cell is not parseable by the Camunda DMN engine and would cause evaluation errors."
+    },
+    {
+      "id": "c",
+      "text": ">= 18, <= 65 -- comma-separated constraints that look like they might mean \"value is at least 18 AND at most 65\". So >= 18, <= 65 is interpreted as \"value is ≥ 18 OR value is ≤ 65\", which would match every number (any number satisfies at least one condition). This is a subtle but critical DMN semantics trap: commas in input cells = OR, not AND."
+    },
+    {
+      "id": "d",
+      "text": "65] -- the DMN input cell interprets a range expression. The input column header is applicantAge; the cell value is the constraint. 65) would mean exclusive boundaries. 65], which returns true."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. In DMN Decision Table input cells, the input column header names the variable (e.g., applicantAge) and the cell value is the constraint expression evaluated against that variable (a \"unary test\" per feel-unary-tests.md). The range syntax [18..65] is interval notation -- square brackets are inclusive, parentheses exclusive. The DMN engine evaluates whether the input value lies within the interval."
+    },
+    "b": {
+      "text": "Incorrect. This is the boxed expression style used for invocation-level FEEL but not for input cells. Input cells reference the variable implicitly via the column header."
+    },
+    "c": {
+      "text": "Incorrect. between 18 and 65 is not standard DMN/FEEL syntax. Range notation [18..65] is the canonical form."
+    },
+    "d": {
+      "text": "Correct. Comma-separated lists in DMN input cells mean \"OR\" (any of the comma-separated values match), not \"AND\". `>= 18, =18 OR value is <=65\", which matches everything."
+    }
+  },
+  "explanation": "Comma-separated lists in DMN input cells mean \"OR\" (any of the comma-separated values match), not \"AND\". `>= 18, =18 OR value is <=65\", which matches everything.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q26",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

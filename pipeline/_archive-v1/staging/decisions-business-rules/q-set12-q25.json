@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q25",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN table has grown to 200 rules. The team wonders about performance: is a large table slow? Should they split into smaller tables linked via DRD?",
+  "question": "Performance considerations for large DMN tables vs decomposed DRDs?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A 200-rule flat table requires linear scan through every rule for hit policies like COLLECT and RULE ORDER, which do not short-circuit. FIRST can short-circuit on an early match, but worst case still evaluates all 200 rules. Decomposed DRD tables are typically smaller and focused, meaning each individual evaluation operates on fewer rules and finishes more quickly. Additionally, flat 200-rule tables create maintainability burdens that introduce subtle bugs, adding operational overhead that offsets any marginal performance gains."
+    },
+    {
+      "id": "b",
+      "text": "DMN performance and maintainability trade-offs depend on hit policy, rule count, and design. For a 200-rule table, hit policies that evaluate all rules (COLLECT, RULE ORDER) incur full linear scan costs each time. FIRST short-circuits on the first match. Decomposed DRDs break 200 rules into smaller focused tables evaluated in dependency order per Information Requirements, with intermediate results cached within the evaluation pass. Each smaller table finishes faster. Maintainability also improves: each table has a clear responsibility, changes are localized, and subtle rule conflicts or coverage gaps are easier to detect. Tables with more than 50 rules are strong candidates for decomposition."
+    },
+    {
+      "id": "c",
+      "text": "Claiming that DRD decomposition always produces faster evaluation than a flat table overstates the case. DRD decomposition generally helps performance for large rule sets because individual tables are smaller and faster to evaluate. The performance benefit depends heavily on rule count, hit policy, and how often decisions are reused across the DRD. Decomposition is recommended as a best practice, but \"always faster\" is an overstatement."
+    },
+    {
+      "id": "d",
+      "text": "A 200-rule flat table with COLLECT or RULE ORDER hit policy evaluates all 200 rules sequentially on every execution. A decomposed DRD evaluates multiple smaller, focused tables, each with fewer rules. The total work may be similar in some cases, but decomposed tables allow the engine to stop evaluation at the appropriate dependency boundary, enable intermediate result reuse, and reduce per-table evaluation time. Decomposition also improves maintainability, which reduces operational errors that affect runtime performance indirectly."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. DMN performance + maintainability trade-offs: Large flat table: Hit policy matters (Camunda 8 supports only UNIQUE / ANY / FIRST / RULE ORDER / COLLECT per decision-table-hit-policy.md:26-53 -- PRIORITY + OUTPUT ORDER are NOT supported even though present in the DMN-1.3 spec): FIRST short-circuits (best case: row 1 matches, no further eval per :91-99); UNIQUE / ANY can short-circuit on the first match if input domain is well-partitioned. COLLECT (with or without aggregator) and RULE ORDER must evaluate all rules to gather every satisfied output. Hit-policy-to-cost mapping is the dominant factor for 200-rule tables. Linear scan: each rule evaluated against inputs; cost scales with rule count. Maintainability: 200 rules hard to mentally model; subtle bugs (overlapping conditions, missing coverage) likely. Decomposed DRD: Smaller tables with focused responsibilities; each evaluation smaller. DRD dependency order: engine evaluates per Information Requirement chain; intermediate results cached within evaluation. Maintenance: each table's purpose clear; changes localised. Practical guideline: < 20 rules: flat table usually fine. 20-50 rules: starts to be hard to review; consider decomposing. 50+ rules: strong signal to decompose; review for natural decision splits. 200+ rules: almost always benefits from decomposition. Decomposition patterns: Stages: validate → compute → adjust → finalise -- each as separate decision. Categories: per customer tier; per region; etc. BKM extraction: common sub-logic as BKM, called from multiple decisions."
+    },
+    "b": {
+      "text": "Correct. Decomposition often wins."
+    },
+    "c": {
+      "text": "Incorrect. Depends."
+    },
+    "d": {
+      "text": "Incorrect. Differs."
+    }
+  },
+  "explanation": "Decomposition often wins.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/best-practices/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q25",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

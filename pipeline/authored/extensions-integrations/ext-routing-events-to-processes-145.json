@@ -1,0 +1,50 @@
+{
+  "id": "ext-routing-events-to-processes-145",
+  "topic": "extensions-integrations",
+  "subtopic": "events",
+  "difficulty": "hard",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An accountant reconciles incoming bank payments against many waiting `order` process instances. The active trigger comes from the bank account, not from Tasklist. What does the routing best-practice recommend for modelling and integration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Model an intermediate message catch event in each order process; build a custom search screen so the accountant can correlate a 'Paid' click to the right instance(s) via the Camunda API."
+    },
+    {
+      "id": "b",
+      "text": "Model a user task per order so the accountant claims and completes it in Tasklist."
+    },
+    {
+      "id": "c",
+      "text": "Model a multi-instance receive task at process start so a single payment fans out to every order."
+    },
+    {
+      "id": "d",
+      "text": "Use a non-interrupting boundary signal event so one 'Paid' broadcast updates all open orders at once."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The 'Handling messages sent by a user' section says to model a message wait point (not a user task) and to build a custom search screen; correlating the user's action to the right instance is done by custom code calling the Camunda API."
+    },
+    "b": {
+      "text": "The docs argue against a user task here — the accountant is not waiting on a Tasklist entry; the active trigger is the external payment event in the bank account."
+    },
+    "c": {
+      "text": "A multi-instance receive task would block one parent instance until all sub-instances complete, which does not match the fan-in pattern where each order waits independently for its own payment."
+    },
+    "d": {
+      "text": "Signals are broadcast and uncorrelated, so a single 'Paid' signal would notify every waiting order, not just the one that was actually paid."
+    }
+  },
+  "explanation": "When the human is not the active trigger (the external bank payment is), the docs recommend modelling the wait point as a message catch event rather than a user task, because the accountant does not want to monitor a queue in Tasklist. A custom screen lets the accountant find waiting orders, and the 'Paid' action becomes a correlated message published through the Camunda API to the right process instance.",
+  "docs": [
+    {
+      "title": "Routing events to processes - best practices",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/routing-events-to-processes/"
+    }
+  ]
+}

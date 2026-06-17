@@ -1,0 +1,63 @@
+{
+  "id": "imp-set01-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Order process publishes payment_received message. Message Catch Event with correlationKey: =orderId. 20% of orders never advance because upstream microservices sometimes publish orderId as integer (12345) and sometimes as string (\"12345\"). Process always stores as string.",
+  "question": "Root cause and fix?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe is case-insensitive on correlation key values but tolerates type mismatches between integer and string forms of the same identifier. According to this explanation, applying lower case(orderId) to the correlation key expression would normalise the case and cause Zeebe to accept both 12345 and \"12345\" as equal."
+    },
+    {
+      "id": "b",
+      "text": "The default message TTL is only 10 seconds, so messages published before the subscription is established expire before they can be correlated. Increasing the TTL would give more time for the subscription to be created. The issue is not an expired-message timing problem but a type mismatch between the publisher and the subscription's correlation key. Increasing TTL does nothing to resolve a strict-type equality failure."
+    },
+    {
+      "id": "c",
+      "text": "Zeebe message correlation uses strict-typed equality when matching the incoming message's correlation key value against the active subscription's correlation key. When the upstream microservice publishes orderId as an integer (12345), Zeebe evaluates 12345 = \"12345\" which is false -- the message is buffered but never matched. The fix is to ensure consistent typing: either always publish the correlation key as a string, or use a FEEL string(orderId) expression on the Message Catch Event's correlation key to coerce the process variable to string before matching."
+    },
+    {
+      "id": "d",
+      "text": "Zeebe only correlates the first published message with a given correlation key; if the same message is published twice, the second one is silently discarded because the subscription is consumed after the first match. Therefore when the same orderId appears in two different messages with different types, the second one is ignored. This describes message deduplication by messageId semantics, not the type-mismatch problem. The actual cause of the 20% failure is strict-type mismatch, not duplicate suppression."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Strict-typed equality; string() coerces."
+    },
+    "b": {
+      "text": "Incorrect. Case-sensitive without type-tolerance."
+    },
+    "c": {
+      "text": "Correct. Subscription pre-existed; TTL not the issue."
+    },
+    "d": {
+      "text": "Incorrect. Zeebe has explicit buffering + messageId-based dedup."
+    }
+  },
+  "explanation": "Subscription pre-existed; TTL not the issue.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q12",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-question-too-short",
+        "severity": "block",
+        "message": "question length 19 < 20 (catastrophically short)",
+        "where": "question"
+      }
+    ]
+  }
+}

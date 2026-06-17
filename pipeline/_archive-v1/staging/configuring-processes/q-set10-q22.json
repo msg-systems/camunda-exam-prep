@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's Service Task enrich-customer reads customer.id and produces customer.fullProfile. The team wonders if the worker can use Input Mapping to extract just customer.id (rather than the full customer object) for efficiency.",
+  "question": "How does Input Mapping select specific fields from a nested variable?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Worker must receive the entire customer object because Input Mapping cannot project individual nested fields -- this description does not reflect the actual behaviour. Camunda 8 Input Mapping with FEEL expressions can extract any nested field from any process variable. The source attribute of a zeebe:input element accepts arbitrary FEEL expressions, including deep field access using dot notation. Workers receive exactly the projected fields configured in Input Mapping and have no visibility into variables not included in their mapping configuration."
+    },
+    {
+      "id": "b",
+      "text": "Input Mapping only works with top-level process variables and cannot navigate into nested object fields or computed paths -- this description does not reflect the actual behaviour. The FEEL expression in the source attribute of a zeebe:input mapping can navigate arbitrarily deep into nested objects using dot notation, apply list filters, invoke built-in functions, and compute derived values. There is no restriction to top-level variable names; any valid FEEL expression that evaluates to a value can serve as an Input Mapping source."
+    },
+    {
+      "id": "c",
+      "text": "Input Mapping with FEEL inline handles nested field extraction directly without requiring a preprocessing step. id extracts the id field from the customer object at task activation. Adding a separate flattening task increases the number of BPMN elements and worker invocations without providing technical benefit."
+    },
+    {
+      "id": "d",
+      "text": "id. The worker receives customerId as a local-scoped string variable, not the full customer object. Reduces payload size and clarifies the worker's input contract. md:67-86, implicit item variable inside the brackets), or if-then-else defaults."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Input Mapping with FEEL is the canonical way to select specific fields. The source FEEL expression can be any FEEL expression -- it doesn't have to reference a top-level variable. Examples: Extract field: Source: =customer.id, Target: customerId. Compute: Source: =customer.firstName + \" \" + customer.lastName, Target: fullName. Filter list: Source: =items[item.status = \"PENDING\"], Target: pendingItems (FEEL filter syntax per feel-list-expressions.md:67-86: the current element is implicitly bound to item). Anti-pattern (Pattern #23): the bracket-comprehension [i in items : i.status = \"PENDING\"] does not exist in FEEL -- projection uses for i in items return … per feel-control-flow.md:35-53. Default value: Source: =if customer.preferredCurrency != null then customer.preferredCurrency else \"USD\", Target: currency. The worker sees only the targets -- clean, explicit contract. Reduces what's sent over the wire (especially with fetchVariables whitelist combined with Input Mapping)."
+    },
+    "b": {
+      "text": "Incorrect. Input Mapping enables projection."
+    },
+    "c": {
+      "text": "Incorrect. FEEL navigates nested."
+    },
+    "d": {
+      "text": "Correct. Inline FEEL handles it."
+    }
+  },
+  "explanation": "Inline FEEL handles it.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/#inputoutput-variable-mappings"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q22",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

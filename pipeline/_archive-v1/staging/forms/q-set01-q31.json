@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q31",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An insurance claim form has a \"policy type\" dropdown with options \"auto\", \"home\", \"life\". When the user selects \"auto\", an additional section with \"vehicle make\", \"vehicle model\", and \"license plate\" fields should appear. When they select \"home\", a different section with \"address\", \"year built\", \"square footage\" should appear. The form should NOT show irrelevant sections to keep the UI clean. The team is implementing this in Camunda 8 Forms.",
+  "question": "Which Forms feature enables this dynamic UI behaviour?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:21: Hide if: [Expression] to hide the number). Note the inverted semantics: the predicate must be true to hide the field. = \"auto\". hide."
+    },
+    {
+      "id": "b",
+      "text": "Multiple forms per User Task -- assign three forms (auto, home, life) and select the appropriate one based on a pre-task variable. This approach is unavailable: Camunda 8 User Tasks bind to a single form specified in the task's zeebe:formDefinition property. You cannot dynamically switch the form based on a variable. If you wanted completely different forms per policy type, you would need three separate User Tasks in the process (one per path), which is a different architectural choice. The scenario asks for a single task with dynamic field visibility, which is what the per-element Hide if property provides."
+    },
+    {
+      "id": "c",
+      "text": "{{/if}} blocks. This syntax is absent from Camunda 8 Forms. The feelers templating syntax uses {{expression}} (single curly-brace pair) for value interpolation in labels and text elements -- it evaluates a FEEL expression and renders the result as text. {{/if}} for wrapping content groups. Conditional element rendering in Camunda 8 Forms is always handled through the per-element Hide if property, not through template control flow syntax."
+    },
+    {
+      "id": "d",
+      "text": "Custom JavaScript embedded in form properties controlling visibility programmatically. Camunda 8 Forms are a declarative, no-code form designer -- there is no mechanism to embed custom JavaScript in form property values. ). This is a deliberate design choice to keep forms portable, auditable, and independent of JavaScript runtime concerns."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda 8 Forms supports conditional rendering at the element level via the Hide if property exposed by every form element. Per forms-element-library-number.md:21 (and analogous lines in every other element-library doc): Hide if: [Expression] to hide the number. The predicate is FEEL boolean with inverted semantics -- true means hide. To show vehicle fields ONLY when policyType = \"auto\", write Hide if = policyType != \"auto\" (hide unless auto). The form re-renders reactively as user input changes. This is the form-native, declarative mechanism."
+    },
+    "b": {
+      "text": "Incorrect. Camunda 8 User Tasks bind to a single form. Multiple forms per task is not a configuration option."
+    },
+    "c": {
+      "text": "Incorrect. Forms templating syntax {{...}} (feelers) is for value interpolation in labels and text, not for conditional logic blocks. There is no {{#if}} Handlebars-style control flow."
+    },
+    "d": {
+      "text": "Incorrect. Forms do not embed custom JavaScript. Logic is declarative via FEEL expressions in property values."
+    }
+  },
+  "explanation": "Camunda 8 Forms supports conditional rendering at the element level via the Hide if property exposed by every form element. Per forms-element-library-number.md:21 (and analogous lines in every other element-library doc): Hide if: [Expression] to hide the number. The predicate is FEEL boolean with inverted semantics -- true means hide. To show vehicle fields ONLY when policyType = \"auto\", write Hide if = policyType != \"auto\" (hide unless auto). The form re-renders reactively as user input changes. This is the form-native, declarative mechanism.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-number/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q31",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

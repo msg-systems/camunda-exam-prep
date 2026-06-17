@@ -1,0 +1,63 @@
+{
+  "id": "imp-set13-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Inbound Connector receives an event with payload {customer: {id: 100, email: \"alice@example.com\"}}. Team wants to flatten + transform the payload before correlating -- e.g., set customerId = customer.id, customerEmail = customer.email.",
+  "question": "Pre-correlation transformation for Inbound Connectors?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Inbound Connector payloads always arrive in raw form and are passed directly to process variables with no ability to filter, rename, restructure, or compute derived values before the message correlation occurs. This misrepresents the documented behavior. Inbound Connectors support FEEL-based configuration at multiple points in the event processing pipeline. The activation condition filters events before correlation. The correlation key (payload) expression extracts the routing value from the raw payload. The result expression shapes which fields become process variables and allows renaming and restructuring the payload before it enters process scope. Raw payloads can be fully transformed."
+    },
+    {
+      "id": "b",
+      "text": "Any required transformation of the Inbound Connector payload must be done in the publishing system before the event is sent to Camunda; once the event arrives, it is correlated and stored as-is with no further transformation capability in the Connector layer. While pushing transformation responsibility to the publisher is a valid design choice for some scenarios, Camunda Inbound Connectors provide their own FEEL-based transformation capabilities including activation condition, correlation key expression, and result expression for variable mapping. The Connector layer can handle payload transformation independently."
+    },
+    {
+      "id": "c",
+      "text": "Inbound Connectors are read-only event receivers with no ability to transform, rename, or compute derived values from the incoming event payload; what arrives in the message is exactly what gets stored in process variables. This misrepresents the documented behavior. Inbound Connectors support FEEL expressions in the result expression and variable mapping configuration, allowing the payload to be restructured, field-renamed, filtered, and augmented with computed values before the correlation completes and process variables are set."
+    },
+    {
+      "id": "d",
+      "text": "md). email}). All three use FEEL and execute before the process instance is activated or continued."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Inbound Connector data flow + transformation: Lifecycle: 1. External event arrives (HTTP webhook, Kafka message, etc.). 2. Connector receives raw payload. 3. Activation condition (FEEL) evaluated; skip if false. 4. Correlation key expression (FEEL) extracts correlation value from payload. 5. Variable mapping (FEEL) transforms payload to process variables. 6. Camunda correlates: finds matching subscription; activates process / continues instance with mapped variables. Variable mapping (FEEL): `feel { customerId: customer.id, customerEmail: customer.email, customerName: customer.firstName + \" \" + customer.lastName, isPremium: contains(customer.tags, \"premium\"), receivedAt: now() } Restructure nested payload to flat process variables. Compute derived values (concatenations, calculations). Drop fields that aren't needed. Correlation key extraction: For Webhook with key in URL: =request.headers.x-customer-id or similar. For Kafka with key in payload: =customer.id (after parsing). For composite keys: =customer.region + \"-\" + customer.id (per Set 13 Q20). Activation condition (filter): =customer.country = \"DE\" -- only correlate German customer events. =event.type = \"ORDER_PLACED\" -- filter event types. Reduces noise; only relevant events trigger BPMN. Result variables (per-Connector spec): Some Connectors offer resultExpression for output shaping after correlation completes. For Inbound: mapping happens BEFORE correlation typically. Best practices: Validate payload structure: defensive FEEL handles missing fields (=if customer != null then customer.id else null`). Decouple from external schema: variable mapping is the boundary layer; future external-schema changes only impact mapping, not downstream BPMN. Test edge cases: empty payloads, missing fields, type mismatches. Verify exact Connector capabilities per version."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. Partially correct."
+    },
+    "d": {
+      "text": "Correct. Incorrect."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/inbound/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q46",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 7.0 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

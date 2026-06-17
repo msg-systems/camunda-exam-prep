@@ -1,0 +1,50 @@
+{
+  "id": "ext-configuration-34",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Healthcare keeps every BPMN model for its Camunda 8.8 Spring Boot service under src/main/resources/bpmn in a nested folder tree, and the service handles 4500 records per day. The team wants a single @Deployment annotation that deploys every BPMN file under that tree at application start-up, without listing each file by name and without changing the tenant from the configured default.",
+  "question": "Which @Deployment value deploys every BPMN file under the bpmn folder tree at application start-up?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Apply @Deployment(resources = \"classpath:demoProcess.bpmn\"); the Spring resource loader deploys one named file from the application classpath at start-up"
+    },
+    {
+      "id": "b",
+      "text": "Apply @Deployment(resources = {\"classpath:demoProcess.bpmn\",\"classpath:demoProcess2.bpmn\"}); the Spring resource loader deploys the two listed files at start-up"
+    },
+    {
+      "id": "c",
+      "text": "Apply @Deployment(resources = \"classpath:bpmn/*.bpmn\", tenantId = \"myTenant\"); the Spring resource loader deploys every top-level bpmn file to the named tenant at start-up"
+    },
+    {
+      "id": "d",
+      "text": "Apply @Deployment(resources = \"classpath*:/bpmn/**/*.bpmn\"); the Spring resource loader deploys every BPMN file matching that wildcard pattern at start-up"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. A single classpath:demoProcess.bpmn value deploys only that one named file; it does not traverse the nested bpmn folder tree the team wants to deploy."
+    },
+    "b": {
+      "text": "Incorrect. The array form deploys only the listed files; it does not pick up additional BPMN files added under the bpmn folder tree later."
+    },
+    "c": {
+      "text": "Incorrect. The single-asterisk classpath form only matches files in one folder, and changing tenantId routes the deployment to a non-default tenant the team wanted to leave alone."
+    },
+    "d": {
+      "text": "Correct. The docs show classpath*:/bpmn/**/*.bpmn as the wildcard pattern; the Spring resource loader walks the nested folder tree at start-up and deploys every matching BPMN file."
+    }
+  },
+  "explanation": "The @Deployment annotation uses the Spring resource loader, so a wildcard like classpath*:/bpmn/**/*.bpmn deploys every BPMN file under the folder tree at application start-up, while single-file and small array forms only deploy the explicitly named resources.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task has a non-interrupting Message Boundary. The team wonders if the boundary subscription detaches when the User Task completes -- i.e., after the task is done, does the subscription remain or end?",
+  "question": "When does a Boundary Event subscription end?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Subscriptions persist forever -- wrong; bounded by host."
+    },
+    {
+      "id": "b",
+      "text": "Boundary Event subscriptions are scoped to the host activity's lifetime and are automatically destroyed when the host activity completes, regardless of whether it completed successfully or was cancelled. The subscription is created when the activity is activated and is destroyed when the activity ends -- this is how Zeebe implements the BPMN boundary scoping rule. For a non-interrupting Message Boundary on a User Task, the subscription ends when the User Task is completed by the user. If a matching message arrives after the task has completed, the subscription is already gone and the message will not trigger the boundary path. This scoping is consistent across all Boundary Event types: Message, Timer, Error, and Escalation."
+    },
+    {
+      "id": "c",
+      "text": "Subscriptions are scoped to the host activity, not the instance. When a User Task completes, all of its Boundary Event subscriptions are immediately destroyed. If a Message arrives after the User Task has completed, the Message Boundary subscription is already gone and cannot receive it. For scenarios where you need to listen for messages after a User Task completes, you must model a Message Catch Event downstream, not a Boundary on the task itself."
+    },
+    {
+      "id": "d",
+      "text": "Claiming that Boundary Event subscriptions never end is clearly incorrect. Subscriptions have a well-defined lifecycle: they are created when the host activity activates, remain active while the host is in progress, and are destroyed when the host completes normally, when the boundary fires and cancels the host (interrupting type), or when the enclosing scope is cancelled. This lifecycle-bound design is fundamental to how BPMN Boundary Events work and ensures that subscriptions do not accumulate or leak across the process instance's lifetime."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Boundary Event subscriptions are tightly bound to the host activity's lifecycle: Lifecycle: 1. Host activates (e.g., User Task is offered to assignee): subscription created. 2. Host in progress: subscription active; events matching it can fire the boundary. 3. Host completes (normally) OR boundary fires (interrupting → host cancelled) OR host cancelled (e.g., parent scope ends): subscription destroyed. After subscription destruction: Future matching events don't trigger the boundary. For Message Boundaries: published Messages with matching correlation are NOT correlated to the destroyed subscription (they may sit in the broker's buffer per TTL, awaiting a different subscription). For Timer Boundaries: the timer is cancelled; remaining time is lost. Implications: Message Boundary on long-running task: if you expect a Message after the task completes, the Boundary won't catch it. Use a Message Catch Event downstream instead. Timer Boundary on a quickly-completing task: if task completes before timer fires, the timer is moot. Common pattern: Timer Boundary for the worst-case timeout; usually task completes before timer fires. Compensation Boundary: special case -- it doesn't \"fire\" until a Compensation Throw downstream; the activity must have completed for the compensation to be relevant. Compensation Boundaries are dormant until triggered."
+    },
+    "b": {
+      "text": "Correct. Bounded."
+    },
+    "c": {
+      "text": "Incorrect. Host-scoped, not instance-scoped."
+    },
+    "d": {
+      "text": "Incorrect. Bounded by host completion."
+    }
+  },
+  "explanation": "Bounded.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/events/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q21",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 13.1 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

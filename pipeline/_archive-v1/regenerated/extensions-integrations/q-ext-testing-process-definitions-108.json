@@ -1,0 +1,50 @@
+{
+  "id": "ext-testing-process-definitions-108",
+  "topic": "extensions-integrations",
+  "subtopic": "testing-process-definitions",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Kestrel Insurance writes a Camunda 8.8 test for a claims process that handles 3500 claims per day and uses the REST connector to notify customers about rejections. The team wants the test to drive the process to the rejection branch without actually hitting the external REST endpoint provided by the connector runtime at job activation time.",
+  "question": "Which mocking strategy does the Camunda 8.8 testing guide recommend for an outbound REST connector that the team wants to keep out of the test path?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Call processTestContext.mockJobWorker with the connector job type and thenComplete so the connector job completes without invoking the real REST endpoint"
+    },
+    {
+      "id": "b",
+      "text": "Annotate the REST connector field with @MockitoBean and stub the doPost method so the connector runtime returns a canned response on every job activation"
+    },
+    {
+      "id": "c",
+      "text": "Replace the connector runtime with a no-op Spring bean in the test profile so the connector job worker is never registered against the broker at startup"
+    },
+    {
+      "id": "d",
+      "text": "Set camunda.client.worker.override.io.camunda:http-json.enabled=false in the Spring property file so the connector job type is permanently disabled in tests"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The guide recommends mocking the connector job worker via processTestContext.mockJobWorker on the io.camunda:http-json:1 job type with thenComplete, so the connector job is completed without calling the real REST endpoint."
+    },
+    "b": {
+      "text": "Incorrect. The REST connector is not a Spring bean you can mock with @MockitoBean directly; the documented approach is to mock its job worker through the process test context utilities in 8.8."
+    },
+    "c": {
+      "text": "Incorrect. Replacing the connector runtime entirely is not the documented strategy; the guide shows a targeted job worker mock using processTestContext.mockJobWorker for the connector job type in 8.8."
+    },
+    "d": {
+      "text": "Incorrect. The guide does not document this property as the mocking strategy; it shows processTestContext.mockJobWorker on the connector job type to keep the connector out of the test path."
+    }
+  },
+  "explanation": "The guide shows that connector job workers can be mocked using processTestContext.mockJobWorker on the connector job type with thenComplete, which finishes the job without invoking the real REST endpoint while the rest of the process glue still executes.",
+  "docs": [
+    {
+      "title": "Testing process definitions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/testing-process-definitions/"
+    }
+  ]
+}

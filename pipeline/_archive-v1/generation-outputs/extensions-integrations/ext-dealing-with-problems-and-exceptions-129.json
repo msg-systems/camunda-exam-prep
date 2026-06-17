@@ -1,0 +1,27 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-129",
+  "topic": "extensions-integrations",
+  "subtopic": "problems-and-exceptions",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Catalyst Insurance ships 13000 invoices per day from a Camunda 8.8 service for a regional insurer. The send-invoice automation succeeds for 92% of cases but fails for the remaining cases, and the business demands that an unsent invoice is automatically routed to a human user task instead of staying as an unresolved technical incident in Operate forever.",
+  "question": "Which BPMN modeling technique does the best-practices guide recommend so that the process reacts to an unsent invoice instead of leaving it as a technical incident?",
+  "options": [
+    { "id": "a", "text": "Configure a high taskDefinition retries number on the send-invoice service task and rely on the resulting incident in Operate to alert a human operator to take care of the invoice manually outside the BPMN model" },
+    { "id": "b", "text": "Replace the send-invoice service task with a script task that wraps the call in a try/catch and writes the unsent flag into a process variable that a downstream user task reads at runtime" },
+    { "id": "c", "text": "Attach a BPMN error event to the send-invoice task and route its outgoing flow to a user task assigned to a human user who is now in charge of taking care of delivering the invoice manually" },
+    { "id": "d", "text": "Wrap the send-invoice service task in an embedded subprocess with a timer boundary event so the process retries the activity every 2 hours until the invoice service eventually becomes available again" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Incidents are technical interventions in Operate; the page recommends modeling a BPMN error event so the process itself reacts to the deviation." },
+    "b": { "text": "Incorrect. The recommended pattern is a BPMN error event with a user task on its outgoing flow, not a script-task plus variable plus downstream user task." },
+    "c": { "text": "Correct. The page recommends a BPMN error event on the send-invoice activity so the process can route to a user task assigned to a human user who is now in charge of taking care of delivering the invoice." },
+    "d": { "text": "Incorrect. A timer boundary event is not the documented pattern for this deviation; the page describes a BPMN error event with a user task fallback." }
+  },
+  "explanation": "The Using BPMN error events section uses exactly this example: when the invoice cannot be sent automatically, a BPMN error event leaves the activity and routes to a user task assigned to a human user, who is now in charge of taking care of delivering the invoice. This makes the deviation visible and resolvable inside the process model rather than as a technical incident in Operate.",
+  "docs": [
+    { "title": "Dealing with problems and exceptions", "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q09",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A bank's wire transfer process must allow the sender to cancel the transfer at any point before it reaches the \"Settle\" step. Cancellation arrives as an asynchronous message transferCancelled correlated by transfer_id. The cancellation must work regardless of which stage the wire is at -- validation, fraud check, AML screening, or awaiting clearance -- and must run cleanly only once per transfer (multiple cancel requests should be idempotent). The model must keep the main flow clean (not clutter with cancellation handling on every step) and the cancellation logic must interrupt whatever step is currently active to immediately route to the refund/notify path.",
+  "question": "Which BPMN construct models this asynchronous cancellation cleanly?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Attach a Non-interrupting Message Boundary Event to every Service Task in the main flow, all routing to a shared \"Handle Cancellation\" subprocess. Non-interrupting Boundary Events spawn a new parallel execution token while the host activity continues running. Attaching one to every Service Task means that when the cancellation message arrives, the main flow AND the cancellation handler run concurrently -- refunding a wire transfer that is simultaneously being settled is exactly the failure mode the scenario describes as forbidden. It also violates the \"keep the main flow clean\" requirement."
+    },
+    {
+      "id": "b",
+      "text": "Wrap the main flow in a Subprocess and add an Event Subprocess with an Interrupting Message Start Event correlated on transfer_id. When the transferCancelled message arrives, Zeebe cancels whatever is currently active in the parent scope and activates the Event Subprocess's flow instead. Single-fire semantics are default -- once consumed, the message subscription closes. This keeps the main flow uncluttered and provides a single clean interrupt point for the entire scope."
+    },
+    {
+      "id": "c",
+      "text": "Place a Message Catch Event at the start of the process before validation begins. A Message Catch Event at process start acts as a blocking wait state -- the process would wait for the cancellation message to arrive before it could even begin validation. This inverts the intended semantics entirely: the process would never start processing the wire transfer because it would be waiting to be cancelled first."
+    },
+    {
+      "id": "d",
+      "text": "Use an Event-Based Gateway with two branches at every transition between steps -- one branch for the next step, one for cancellation. An Event-Based Gateway at every step transition clutters the main flow significantly -- worse than attaching boundary events -- and requires N gateways for N transitions. The Event-Based Gateway is designed for a specific point-in-time choice at one location, not as a continuously-active async interrupt across the entire process scope."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Event Subprocess with an Interrupting Message Start Event is the BPMN-canonical pattern for \"asynchronous interrupt at any point in a scope\". The Event Subprocess lives inside the parent scope (the wrapping subprocess). When transferCancelled arrives, Zeebe cancels whatever is active in the main flow (interrupting), and the Event Subprocess's outgoing flow takes over (refund/notify). Single-fire semantics are default -- once consumed, the message subscription closes for this scope. Clean main flow, clean scope-level interrupt."
+    },
+    "b": {
+      "text": "Correct. Non-interrupting Boundary on every Service Task means every task spawns a new parallel token when the message arrives -- main flow continues processing AND the cancellation handler runs concurrently. Refunding a wire that is simultaneously being settled is the failure mode the scenario forbids."
+    },
+    "c": {
+      "text": "Incorrect. Message Catch Event before main flow would block process start until cancellation arrives -- backwards semantics. The process would wait to be cancelled before it even began."
+    },
+    "d": {
+      "text": "Incorrect. Event-Based Gateway at every transition clutters the main flow worse than option b and produces N gateways instead of one event subprocess. Also Event-Based Gateway is a specific point-in-time choice, not a continuous \"any-point\" interrupt."
+    }
+  },
+  "explanation": "Non-interrupting Boundary on every Service Task means every task spawns a new parallel token when the message arrives -- main flow continues processing AND the cancellation handler runs concurrently. Refunding a wire that is simultaneously being settled is the failure mode the scenario forbids.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q09",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

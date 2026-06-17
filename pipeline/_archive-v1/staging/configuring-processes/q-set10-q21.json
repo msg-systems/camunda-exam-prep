@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team layered retry: BPMN zeebe:taskDefinition retries = 5, AND the worker code has internal retry logic (e.g., the HTTP client retries 3 times). They wonder how these two retry layers interact.",
+  "question": "How do BPMN-level retries and worker-internal retries compose?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Worker-internal retries completely override and replace BPMN-level retry configuration -- this description does not reflect the actual behaviour. Both retry layers operate independently at different levels of the stack. Worker-internal retries happen within a single job activation without Zeebe's involvement. BPMN-level retries are triggered only after the worker reports a failure to Zeebe via fail-job, at which point Zeebe decrements the retry counter. Neither layer overrides the other; they compose multiplicatively."
+    },
+    {
+      "id": "b",
+      "text": "They compose multiplicatively -- worker retries 3 times per BPMN activation; BPMN retries 5 times → worker has up to 5 × 3 = 15 internal retries total before incident. Each BPMN-level retry is a fresh job activation; worker's internal retries happen within one activation. Best practice: be aware of total retry count to avoid runaway retries; tune backoff at both levels."
+    },
+    {
+      "id": "c",
+      "text": "BPMN-level retries are bypassed entirely while the worker performs internal retries, activating only if the worker itself crashes -- this description does not reflect the actual behaviour. From Zeebe's perspective, it sees only one event: the worker either completes the job successfully or calls fail-job. Whether the worker internally retried once or ten times is invisible to Zeebe. The BPMN retry counter decrements when fail-job is called or the activation timeout expires, regardless of what the worker attempted internally."
+    },
+    {
+      "id": "d",
+      "text": "Only one retry layer can be active at a time -- configuring both causes the lower-level layer to be ignored -- this description does not reflect the actual behaviour. Both retry layers operate simultaneously and independently. Worker-internal retries execute within a single job activation without any Zeebe involvement. BPMN retries activate after the worker reports failure to Zeebe. Both layers run concurrently according to their own logic; configuring both means each operates as designed, and their effects multiply when calculating total possible retry attempts."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Two independent retry layers: Worker-internal retries: within a single job activation, the worker's code (HTTP client retry library, custom try/catch loop) retries the underlying operation. Doesn't involve Zeebe. BPMN-level retries: after a worker reports failure (via gRPC fail-job or by not completing within activation timeout), Zeebe decrements the retries counter. If > 0, re-activates the job (potentially after retryBackoff); if 0, creates an Incident. Composition: total possible retries = BPMN retries × worker retries (worst case). For 5 BPMN retries with worker doing 3 retries each: up to 15 total attempts. Implications: Latency: if each worker retry has a delay, and BPMN has its own backoff, total latency for repeated failures can be long. Tune carefully. External API load: 15 calls per failure can stress partners; coordinate with external systems' rate limits. Visibility: BPMN-level retries are visible in Operate (jobs and retries counters); worker-internal retries are invisible to Camunda unless explicitly logged. Best practice: pick ONE primary retry layer for predictability. If the worker handles its own retries comprehensively (with appropriate backoff and giving up on permanent failures), set BPMN retries low (e.g., 1) -- the worker has already exhausted recovery attempts. Or vice versa: worker doesn't retry; rely on BPMN retries for resilience."
+    },
+    "b": {
+      "text": "Correct. Both apply."
+    },
+    "c": {
+      "text": "Incorrect. Worker eventually returns to Zeebe."
+    },
+    "d": {
+      "text": "Incorrect. Both apply."
+    }
+  },
+  "explanation": "Both apply.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q21",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

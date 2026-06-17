@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-creation-49",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-creation",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Bank invokes a short-running order-confirmation process from a synchronous REST handler over 14000 transactions per day in Camunda 8.8. The client must receive the resulting variables in the same response once the instance finishes, and the team is choosing the documented API command for that pattern.",
+  "question": "Which Camunda 8 command returns process variables to the client once the executed process instance completes?",
+  "options": [
+    { "id": "a", "text": "Call CreateProcessInstanceWithResult on the gateway; the response is sent when the process execution completes and includes the resulting variables to the client." },
+    { "id": "b", "text": "Call CreateProcessInstance and poll the gateway every 200 ms with GetProcessInstance until state is COMPLETED, then read the resulting variables from the response." },
+    { "id": "c", "text": "Call CreateProcessInstance and have a job worker on the end event publish the resulting variables back to the original client via a custom gateway callback channel." },
+    { "id": "d", "text": "Call CreateProcessInstanceWithResult and supply a webhook URL; the gateway posts the resulting variables to that URL after the process execution has completed." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. CreateProcessInstanceWithResult allows synchronous execution: the gateway sends the response, including the variables, once process execution completes, which fits short-running processes and information-collection use cases." },
+    "b": { "text": "Incorrect. Polling is not the documented mechanism for returning variables on completion; CreateProcessInstanceWithResult exists precisely so the client can await results in the original request without polling." },
+    "c": { "text": "Incorrect. Workers do not publish variables back to the original client through the gateway; CreateProcessInstanceWithResult is the documented command that returns variables on completion." },
+    "d": { "text": "Incorrect. The documented response delivery is synchronous on the original CreateProcessInstanceWithResult call; the gateway does not post results to a client-supplied webhook URL after completion." }
+  },
+  "explanation": "CreateProcessInstanceWithResult lets the client synchronously execute a process and receive the variables in the response when execution completes, which is the documented pattern for short-running and information-collection processes.",
+  "docs": [
+    { "title": "Process instance creation", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/" }
+  ]
+}

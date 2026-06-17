@@ -1,0 +1,50 @@
+{
+  "id": "cfg-expressions-16",
+  "topic": "configuring-processes",
+  "subtopic": "expressions",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A FEEL expression on a sequence flow condition contains a recursive call without a proper termination bound. At runtime its evaluation exceeds the default expression evaluation timeout. What happens to the affected process instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Evaluation is interrupted and an incident is raised for the affected process instance."
+    },
+    {
+      "id": "b",
+      "text": "The expression is silently coerced to `false` so the token follows the default sequence flow."
+    },
+    {
+      "id": "c",
+      "text": "The expression is silently coerced to `null` and the engine continues with the next condition in document order."
+    },
+    {
+      "id": "d",
+      "text": "The engine automatically retries the evaluation with an exponentially increased timeout."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state that if an expression exceeds the timeout, evaluation is interrupted and an incident is raised for the affected process instance. The default timeout is five seconds and can be configured."
+    },
+    "b": {
+      "text": "There is no implicit coercion of a timed-out expression to `false`. The engine raises an incident instead of taking a fallback flow."
+    },
+    "c": {
+      "text": "A timeout does not produce a `null` result and the engine does not fall through to the next condition; it interrupts the expression and raises an incident."
+    },
+    "d": {
+      "text": "There is no documented automatic retry with an increased timeout. The timeout value is a fixed configuration setting and only changes if you reconfigure it."
+    }
+  },
+  "explanation": "FEEL expression evaluation has a configurable timeout (default five seconds) to prevent long-running expressions, such as recursive ones without bounds or those processing very large data sets, from blocking processing. When the timeout is exceeded, the engine interrupts the expression and raises an incident.",
+  "docs": [
+    {
+      "title": "Expressions",
+      "url": "https://docs.camunda.io/docs/components/concepts/expressions/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q32",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A global SaaS rollout deploys the same Camunda 8 onboarding form across 3 regions -- EN-US, DE-DE, FR-FR. The form labels, placeholders, validation messages must be localised per region's language. The form is the same shape; only text changes.",
+  "question": "Which Forms localisation approach is canonical?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Deploy 3 separate forms, one per locale (EN-US, DE-DE, FR-FR), and add a Service Task before the User Task that evaluates the user's language and selects the correct form ID to assign. While this approach technically delivers localized forms, it creates a triple maintenance burden: every structural form change (adding a field, updating validation, changing layout) must be replicated across all three locale-specific files. As the platform expands to more locales, this scales poorly and significantly increases the risk of locale versions diverging."
+    },
+    {
+      "id": "b",
+      "text": "Use Camunda Forms' built-in internationalization (i18n) support by configuring a lang attribute on each individual form label element, specifying translated strings per locale directly in the form schema. Camunda Forms does not have a built-in lang attribute mechanism on form elements or a native i18n configuration layer in the form schema. The actual approach for runtime locale-sensitive text in Camunda Forms is FEEL templating with process variables."
+    },
+    {
+      "id": "c",
+      "text": "Use FEEL expressions in label and placeholder fields with a process variable language indicating the user's locale. Each field's label property is a FEEL conditional expression, for example =if language=\"de\" then \"Vorname\" else if language=\"fr\" then \"Prénom\" else \"First name\". Camunda Forms support FEEL templating in text-bearing properties; the expression is evaluated at task render time using the current process variable scope. Single form, multiple languages at runtime -- the DRY canonical i18n pattern."
+    },
+    {
+      "id": "d",
+      "text": "Camunda Forms has no localisation support; the team should render the form in a separate external web application that has its own i18n framework (like React-Intl or i18next) and integrates with the Camunda process via the task completion API. Forms do support localisation through FEEL templating, making this claim factually incorrect. An external i18n web application adds significant infrastructure overhead compared to the native FEEL-based approach, which requires no additional systems and integrates directly with the process variable scope."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda Forms support FEEL templating in label/placeholder/help text fields. Combined with a process variable =language, the FEEL expression can return the appropriate string per locale (e.g., =if language=\"de\" then \"Vorname\" else if language=\"fr\" then \"Prénom\" else \"First name\"). This is the canonical i18n pattern in Camunda Forms -- single form, multi-language at runtime."
+    },
+    "b": {
+      "text": "Incorrect. 3 separate forms means triple maintenance -- when adding a field, you update three files. Not DRY."
+    },
+    "c": {
+      "text": "Correct. No built-in lang attribute mechanism."
+    },
+    "d": {
+      "text": "Incorrect. Forms support i18n via FEEL templating."
+    }
+  },
+  "explanation": "No built-in lang attribute mechanism.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/configuration/forms-config-templating-syntax/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q32",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

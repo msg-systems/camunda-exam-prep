@@ -1,0 +1,53 @@
+{
+  "id": "mng-resolve-incidents-update-variables-10",
+  "topic": "managing-development",
+  "subtopic": "operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An instance of `order-process.bpmn` is created with the `zbctl` command shown. According to the guide, what happens when this instance reaches the XOR gateway that branches on `orderValue`?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An incident is raised because the gateway cannot compare a string `orderValue` to an integer threshold."
+    },
+    {
+      "id": "b",
+      "text": "The instance routes to the high-value branch because `\"99\"` coerces to a number above zero."
+    },
+    {
+      "id": "c",
+      "text": "`zbctl` rejects the create command up front because `orderValue` is not an integer."
+    },
+    {
+      "id": "d",
+      "text": "The default sequence flow out of the XOR fires silently, so no incident is reported."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The guide describes exactly this case: `orderValue` is present but set as a string, so the XOR gateway cannot compare it to the integer threshold and the engine raises an incident."
+    },
+    "b": {
+      "text": "FEEL does not silently coerce strings to numbers for `>=` comparisons; the comparison fails with a type error rather than matching a branch."
+    },
+    "c": {
+      "text": "`zbctl` accepts the JSON payload as written and creates the instance; the failure surfaces later when the gateway evaluates."
+    },
+    "d": {
+      "text": "A failed gateway evaluation creates an incident on the gateway; the engine does not silently take a default flow when the condition fails to evaluate."
+    }
+  },
+  "explanation": "The guide demonstrates that creating an instance with `orderValue` as a string causes the XOR gateway condition `orderValue>=100` to fail with a type-comparison error, producing an incident that an operator must resolve before the instance can progress.",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "./bin/zbctl --insecure create instance order-process --variables '{\"orderId\": \"1234\", \"orderValue\":\"99\"}'"
+  }
+}

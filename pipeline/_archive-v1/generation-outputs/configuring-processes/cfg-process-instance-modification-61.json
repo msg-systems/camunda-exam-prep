@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-61",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "A healthcare provider's process instance has an embedded subprocess with two concurrently active instances after a parallel split. The operations team wants to activate task C inside that subprocess across 25 instances for stuck patient cases via process instance modification, and the architect must explain how the engine resolves which subprocess instance to use when the enclosing scope is ambiguous.",
+  "question": "What is the engine's behavior when activating a nested element if the enclosing subprocess has more than one active instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The engine rejects the modification command because it cannot decide in which active subprocess instance to activate the element, so the activation instruction is not applied at all"
+    },
+    {
+      "id": "b",
+      "text": "The engine creates a new subprocess instance and activates the element inside it, alongside the existing two active subprocess instances, to keep parallel branches isolated from each other"
+    },
+    {
+      "id": "c",
+      "text": "The engine activates a new copy of the element inside every active subprocess instance, so the same modification is duplicated across the existing branches automatically by the runtime"
+    },
+    {
+      "id": "d",
+      "text": "The engine selects the most recently created subprocess instance based on activation timestamp and activates the element there, so operators get a deterministic placement strategy by default"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. If the subprocess has more than one active instance, the engine cannot decide where to place the nested element. The activation instruction is not applied and the modification command is rejected, so the process instance state remains unchanged."
+    },
+    "b": {
+      "text": "Incorrect. The engine does not create a new subprocess instance alongside existing ones in this situation. It rejects the command instead, leaving the operator to choose a more specific path through additional instructions."
+    },
+    "c": {
+      "text": "Incorrect. The engine never fans out a single activation instruction across multiple active subprocess instances. Activation targets exactly one element in one scope; duplicate activation across branches is not part of the modification contract."
+    },
+    "d": {
+      "text": "Incorrect. There is no most-recent-instance heuristic. The engine refuses to guess which subprocess to use and rejects the activation instruction outright when more than one active instance exists."
+    }
+  },
+  "explanation": "When activating a nested element, the engine needs exactly one active instance of the enclosing subprocess. If multiple active subprocess instances exist, the engine cannot decide where to place the element and rejects the modification command.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

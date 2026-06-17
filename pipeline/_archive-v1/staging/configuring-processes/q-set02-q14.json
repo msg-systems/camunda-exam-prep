@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A claims process has a Business Rule Task configured with zeebe:calledDecision.decisionId: ClaimRouting. The DMN ClaimRouting takes inputs claimType, claimAmount, and customerTier. At runtime, the developer observes that only claimType and claimAmount are reaching the DMN engine -- customerTier is consistently missing, causing \"Required input 'customerTier' not found\" errors even though the process variable IS set just before the Business Rule Task. The developer checks: the Business Rule Task has no input mappings configured (relying on default scope inheritance). The variable customerTier is set by an upstream Service Task's output mapping into a local subprocess scope (not the root process scope). Why is customerTier not reaching the DMN?",
+  "question": "Why is customerTier not reaching the DMN?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Business Rule Task does not inherit scope variables automatically; each variable needed by the DMN engine must be explicitly declared via an input mapping on the Business Rule Task configuration before the decision can access it. Adding an input mapping here would just rename or re-assign the variable, not fix the underlying scope visibility issue."
+    },
+    {
+      "id": "b",
+      "text": "inputs array before evaluation. No such wrapping mechanism exists. Variables pass directly from the Zeebe variable scope into the DMN evaluation context without any intermediate envelope configuration. This is a fabricated property that is absent from the Camunda 8 BPMN extension schema."
+    },
+    {
+      "id": "c",
+      "text": "Zeebe variables that hold non-primitive types such as objects, lists, and nested structures are stripped before being passed to the DMN engine. The DMN engine only supports flat primitive values, so customerTier must be converted to a plain string first. Zeebe variables can be objects, lists, numbers, strings, booleans, or nested structures -- the DMN engine accepts any structured JSON-compatible value and maps it to the appropriate FEEL type for evaluation. No type flattening is required."
+    },
+    {
+      "id": "d",
+      "text": "The Business Rule Task inherits the parent's variable scope which includes everything visible at the BR Task's level -- INCLUDING parent scope and subprocess local scope where it executes. If customerTier was set in a sibling subprocess scope (different scope branch), it isn't visible here. Move customerTier to a scope that's an ancestor of the Business Rule Task."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe variables follow scope inheritance: a Business Rule Task sees all variables in its scope chain -- own scope, enclosing subprocess scopes, and root process scope. It does NOT see variables in sibling scopes (different branches of subprocess hierarchy). If customerTier was set as output of a Service Task whose mapping wrote to a different subprocess scope (sibling), the Business Rule Task can't see it. The fix is to either elevate the variable to a common ancestor scope (root process or shared parent subprocess) or use Service Task output mapping with explicit promotion."
+    },
+    "b": {
+      "text": "Incorrect. Business Rule Task DOES inherit scope variables by default -- that's Zeebe's standard variable scoping behavior. Explicit input mappings would just rename or extract, not provide what's missing."
+    },
+    "c": {
+      "text": "Incorrect. No such envelope mechanism; variables pass directly."
+    },
+    "d": {
+      "text": "Correct. Zeebe variables can be objects, lists, primitives, etc. -- DMN engine consumes any structured JSON."
+    }
+  },
+  "explanation": "Zeebe variables can be objects, lists, primitives, etc. -- DMN engine consumes any structured JSON.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q14",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

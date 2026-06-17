@@ -1,0 +1,76 @@
+{
+  "id": "imp-set13-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team runs integration tests of BPMN models. They wonder how to mock Connectors so tests don't hit real external services (e.g., REST APIs, Slack).",
+  "question": "Connector mocking for integration tests?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Can't mock -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Integration tests with Camunda 8 Connectors must always call the real external services; there is no way to intercept or replace Connector calls during testing, making isolated test environments impossible. This misrepresents the documented behavior. Multiple approaches exist to mock Connectors in tests. Service Tasks can be replaced with mock workers in test-specific BPMN diagrams. External HTTP services can be stubbed using tools like WireMock to intercept Connector HTTP calls. The Connector SDK also allows building Connectors with configurable endpoints for test environments."
+    },
+    {
+      "id": "c",
+      "text": "Combination of approaches is the recommended strategy for mocking Connectors in integration tests. No single mocking technique suits all test scenarios. For unit-level process logic tests, replace Connector-configured tasks with Service Tasks backed by in-process mock workers that return deterministic responses. For integration tests that exercise the real Connector code path, configure the Connector to point to stub HTTP endpoints (WireMock, Hoverfly) using test-environment secrets or environment variables. For end-to-end tests, use sandbox credentials against test accounts in real external systems. Layering these approaches creates a reliable test pyramid."
+    },
+    {
+      "id": "d",
+      "text": "The best approach to testing BPMN models with Connectors is to disable all Connectors entirely in the test environment and only test the pure BPMN flow without any integration points. This is too limited. The better approach is to mock Connectors at the appropriate level -- replacing them with controlled stubs or mock workers -- so tests can verify both the BPMN flow and the interaction with Connector components without depending on external services."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Mocking strategies for Connector-heavy BPMN tests: Pattern 1: Test-specific BPMN with mock workers: Replace Connector tasks with Service Tasks in test BPMN that use a mock job type. Register a mock worker in test setup: returns canned responses based on inputs. Pros: full control, no external dependencies, deterministic tests. Cons: maintain dual BPMN (prod with Connector, test with mock) -- drift risk. Pattern 2: Camunda Process Test framework (if available): Camunda 8 testing libraries (Spring Zeebe Test, etc.) may provide: Job mocking: register mock workers programmatically. Process state assertions. Time control (advance simulated time). Verify support for Connector mocking in current libraries. Pattern 3: External stub services: WireMock: stand up fake HTTP server; configure expected responses per URL. Hoverfly: similar; supports HTTPS + recording / replay. TestContainers: dockerised stub services. Configure Connector to point to stub URL via environment variable / secret. Pros: no BPMN changes; tests real Connector code paths. Cons: stub maintenance. Pattern 4: Conditional activation via env: Connector input includes =if env.testMode = \"true\" then \"mock-url\" else \"real-url\". Deployment-time variable determines target. Simpler than dual BPMN; less clean than full mocking framework. Pattern 5: Real Connector against test environment: Connector hits real service, but in a test environment (sandbox API, test database). Pros: tests real integration; cons: external dependency, network reliance, side effects. Strategy selection: Unit tests (process logic only): mock workers / Camunda Process Test framework -- fast. Integration tests (Connector + process): stub services or sandbox APIs -- medium. End-to-end tests: real services in dedicated test environment -- slow but comprehensive. Best practices: Layer your test pyramid: many unit tests, fewer integration tests, fewest E2E tests. Deterministic tests: avoid flaky tests dependent on external state. Document mocking strategy: clear convention so team adds tests consistently."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. Incorrect."
+    },
+    "d": {
+      "text": "Incorrect. Partially correct."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q36",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 20 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 33.3 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

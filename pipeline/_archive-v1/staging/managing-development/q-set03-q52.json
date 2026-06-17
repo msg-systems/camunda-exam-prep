@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q52",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's Java backend service needs to call the Orchestration Cluster REST API to start process instances. The cluster is a SaaS cluster with OAuth2 client-credentials authentication. The team needs to obtain a token.",
+  "question": "Which approach correctly fetches an OAuth2 token for the cluster API?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Authenticate to the Orchestration Cluster REST API using HTTP Basic Authentication with the cluster's administrative username and password, passing Base64-encoded credentials in the Authorization: Basic ... header on each API call. Camunda 8 SaaS does not support username/password Basic Authentication for API access. The authentication model for SaaS clusters uses OAuth2 client credentials grant with API Clients provisioned in Console. Basic auth is not an available option and any attempts would receive 401 Unauthorized responses."
+    },
+    {
+      "id": "b",
+      "text": "The Orchestration Cluster REST API is publicly accessible without any authentication -- no tokens, credentials, or headers are required to start process instances or interact with the cluster. All Camunda 8 SaaS cluster APIs require authentication. The Orchestration Cluster REST API requires a valid OAuth2 Bearer token for every request. Without proper authentication, all API calls return 401 Unauthorized. Exposing cluster operations without authentication would be a severe security vulnerability that Camunda SaaS prevents by design."
+    },
+    {
+      "id": "c",
+      "text": "Use Camunda's OAuth2 client-credentials flow: provision an API Client in Console (getting client_id + client_secret), then POST to the Auth0 token endpoint with client_id, client_secret, audience (the cluster's audience URL), and grant_type=client_credentials. The response returns an access token; include it as Authorization: Bearer <token> on every subsequent Orchestration Cluster REST API call. This is the canonical machine-to-machine auth pattern for SaaS."
+    },
+    {
+      "id": "d",
+      "text": ") -- Camunda SaaS issues API keys for cluster access that can be included in the request URL for simplicity. Camunda 8 SaaS uses OAuth2 Bearer tokens for cluster API authentication, not query-parameter API keys. The standard authentication flow requires obtaining a token via the client-credentials grant at the auth endpoint and presenting it as an Authorization: Bearer <token> HTTP header on subsequent requests."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 SaaS uses OAuth2 client-credentials grant: provision an API Client in Console for the cluster, get client_id + client_secret, exchange for access token at the auth endpoint, use as Bearer token. Standard OAuth2 flow."
+    },
+    "b": {
+      "text": "Incorrect. Username/password basic auth is not the SaaS authentication model."
+    },
+    "c": {
+      "text": "Correct. All cluster APIs require auth."
+    },
+    "d": {
+      "text": "Incorrect. Camunda 8 SaaS uses OAuth2 Bearer tokens, not query params."
+    }
+  },
+  "explanation": "All cluster APIs require auth.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/guides/getting-started-orchestrate-apis/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q52",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

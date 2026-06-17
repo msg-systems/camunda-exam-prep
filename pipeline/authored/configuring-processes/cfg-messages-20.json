@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-20",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A message is published with `timeToLive` set to `0`. At publication time, no matching subscription is opened. What does Zeebe do with the message?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It discards the message because buffering is disabled when TTL is `0`."
+    },
+    {
+      "id": "b",
+      "text": "It buffers the message indefinitely until a subscription appears."
+    },
+    {
+      "id": "c",
+      "text": "It buffers the message for a default of 5 minutes."
+    },
+    {
+      "id": "d",
+      "text": "It raises an incident on the message publication."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state directly that \"the buffering of a message is disabled when its TTL is set to zero. If no proper subscription is open, the message is discarded.\" That is exactly this scenario."
+    },
+    "b": {
+      "text": "Indefinite buffering is not how Zeebe behaves; messages live only as long as their explicit TTL. With TTL `0`, there is no buffering at all."
+    },
+    "c": {
+      "text": "There is no documented default buffering window of 5 minutes. The TTL value sent by the publisher governs buffering; `0` disables it entirely."
+    },
+    "d": {
+      "text": "Publishing a message that finds no subscription is not an error condition for Zeebe and does not raise an incident — the message is silently discarded."
+    }
+  },
+  "explanation": "Message buffering in Zeebe is driven by the publisher-supplied TTL. A TTL greater than zero retains the message for that duration so a later subscription can pick it up (FIFO if multiple match). A TTL of zero disables buffering, so an unmatched message is discarded immediately.",
+  "docs": [
+    {
+      "title": "Message correlation",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

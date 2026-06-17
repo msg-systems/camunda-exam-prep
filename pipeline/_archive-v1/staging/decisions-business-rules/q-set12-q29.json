@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team writes DMN decisions and wants to unit test them with various input combinations to verify correctness. They wonder about tooling.",
+  "question": "What tools support DMN testing?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Claiming there are no tools for testing DMN decisions in Camunda 8 does not reflect the actual behavior. Multiple testing mechanisms exist: Web Modeler Play mode allows interactive process execution including DMN evaluation within BPMN flows; the EvaluateDecision REST API (POST /v2/decision-definitions/evaluation) allows scripted, process-independent decision invocation ideal for CI pipelines; Camunda Process Test (CPT) provides a JUnit-style harness for end-to-end process and DMN testing; and the Operate Decision Instance view lets teams inspect historical rule matches and outputs. The ecosystem provides options across the full testing spectrum from interactive exploration to automated regression suites."
+    },
+    {
+      "id": "b",
+      "text": "8. Web Modeler Play mode allows interactive process execution including DMN evaluation within BPMN flows. The EvaluateDecision REST API endpoint (POST /v2/decision-definitions/evaluation) enables scripted, process-independent invocation of DMN decisions, making it ideal for CI pipeline integration. Camunda Process Test (CPT) provides a JUnit-style harness for automated end-to-end testing of both processes and embedded DMN. The Operate Decision Instance view lets teams inspect historical rule matches. These options cover interactive, scripted, and automated testing scenarios."
+    },
+    {
+      "id": "c",
+      "text": "The EvaluateDecision REST API provides a scriptable, process-independent endpoint that can be called from any HTTP client or CI pipeline without human interaction. Camunda Process Test (CPT) embeds a Camunda 8 runtime in-process for JUnit-style automated tests that assert BRT outcomes. These automated approaches enable regression testing of DMN decisions as part of a normal development workflow, with the same rigor applied to code unit tests. Fully automated DMN testing without any manual steps is achievable and recommended."
+    },
+    {
+      "id": "d",
+      "text": "Claiming that every DMN test must start a full BPMN process instance is only partially accurate. While end-to-end tests via Web Modeler Play or Camunda Process Test do involve process instances, the EvaluateDecision REST API (POST /v2/decision-definitions/evaluation) allows direct, process-independent decision invocation. This approach evaluates the DMN decision in isolation, without spawning any BPMN process instance, making it significantly faster and simpler for unit-style tests targeting specific decision logic."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. DMN testing tooling spans interactive and automated (note: no \"DMN Tester\" feature exists inside the Web Modeler DMN editor in 8.8 -- that's a fabricated name; Play and EvaluateDecision are the actual paths): Interactive (development-time) -- Web Modeler Play mode (per play-your-process.md): Click the Play tab on a BPMN diagram that includes a BRT referencing your decision. Play deploys the BPMN and all linked DMN files to a development cluster (:21). Start the process with example data; Play executes the entire process including DMN tables, FEEL, forms, connectors (:72). Inspect Instance History + Variables; see which rules fired in Operate. SaaS only; in Self-Managed Play uses a configured cluster (:17). EvaluateDecision REST endpoint (Orchestration Cluster API, per business-rule-tasks.md:19-22): POST /v2/decision-definitions/evaluation with decisionDefinitionKey or decisionDefinitionId + variables. Returns decision result independently of any process -- pure DMN evaluation. Scriptable from any HTTP client; ideal for CI test suites. Also exposed via Zeebe gRPC EvaluateDecision RPC for SDKs. End-to-end testing -- Camunda Process Test (CPT) / spring-boot-starter testing module: JUnit-style harness embeds a Camunda 8 runtime in-process. Deploy BPMN+DMN; create instance; assert BRT result. Doc: apis-tools/testing/ (Spring Boot starter + plain Java testing). Operate Decision Instance view: Browse historical evaluations; inspect inputs/outputs/rule matches. Useful for production debugging, not for pre-deployment unit tests. Test strategy for DMN-heavy systems: Unit-style (fast, in CI): EvaluateDecision-API tests per decision. Coverage: design tests covering each rule + edge cases (boundary values, no-match scenarios). Regression: lock down current behaviour; alert on changes. Build a test culture for DMN -- same rigour as BPMN / code tests."
+    },
+    "b": {
+      "text": "Correct. Tools exist."
+    },
+    "c": {
+      "text": "Incorrect. Automation possible."
+    },
+    "d": {
+      "text": "Incorrect. Faster alternatives."
+    }
+  },
+  "explanation": "Tools exist.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/validation/play-your-process/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q29",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

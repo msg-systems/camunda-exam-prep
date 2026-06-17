@@ -1,0 +1,50 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-89",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A process instance arrives at a service task with task type `retrieveMoney`, but no worker is currently subscribed to that type. What does Camunda 8 do with the resulting job?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It places the job in the internal persistent queue, where it waits until a worker subscribes to `retrieveMoney`."
+    },
+    {
+      "id": "b",
+      "text": "It raises an incident immediately because no worker is available to handle the job."
+    },
+    {
+      "id": "c",
+      "text": "It rejects the process instance creation until at least one worker for `retrieveMoney` is registered."
+    },
+    {
+      "id": "d",
+      "text": "It silently completes the job and advances the process instance past the service task."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state explicitly: \"If there is no worker subscribed when a job is created, the job is simply put in a queue.\" The job persists until a worker subscribes to that task type."
+    },
+    "b": {
+      "text": "An incident is raised when a job _fails_ with `0` remaining retries, not when no worker is subscribed; an unhandled job just waits in the queue."
+    },
+    "c": {
+      "text": "Camunda 8 decouples process instance creation from worker availability — jobs are queued, not blocked at start."
+    },
+    "d": {
+      "text": "Auto-completing a job that no worker handled would silently skip the work; the engine never advances past an unfinished service task on its own."
+    }
+  },
+  "explanation": "Job workers and the engine are decoupled by an internal persistent job queue. If no worker is subscribed when a job is created, the job waits in the queue; once a worker subscribes to that task type it can activate the job and complete it. Multiple subscribed workers act as competing consumers, so jobs are distributed among them.",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

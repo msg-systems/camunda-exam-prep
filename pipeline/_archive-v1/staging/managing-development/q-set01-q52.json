@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q52",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's CI/CD pipeline needs to authenticate to a Camunda 8 SaaS cluster to deploy BPMN processes automatically. The pipeline runs in GitHub Actions and uses a generic Job Worker also authenticated to the same cluster. The team is configuring client credentials in Camunda Console.",
+  "question": "What is the correct pattern for client credentials in Camunda 8 SaaS?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Reuse the team lead's user credentials in the pipeline -- works but is non-portable. Reusing a human user's credentials for a CI/CD pipeline is an anti-pattern with multiple serious consequences: the pipeline breaks immediately when the team lead changes their password, leaves the company, or has their account locked; the audit trail for all pipeline operations appears under the team lead's identity (making it impossible to distinguish human from automated actions); scope isolation is lost (the user account has whatever permissions the team lead has, often more than what the pipeline needs); and the credentials cannot be rotated independently of the user account. Service-oriented client credentials (OAuth2 client ID/secret) are the correct, secure pattern."
+    },
+    {
+      "id": "b",
+      "text": "Use an API key -- Camunda 8 supports simple API keys for cluster access. Camunda 8 SaaS does not use a simple API key authentication scheme for cluster programmatic access. The authentication mechanism for all programmatic cluster interactions (Zeebe gRPC, REST API, Job Workers) is OAuth2 client credentials flow -- the client presents a client ID and client secret to an OAuth2 token endpoint, receives a short-lived JWT access token, and includes that token in API requests. , the Administration API or Web Modeler API) may use personal access tokens in certain contexts, but simple static API keys are not the SaaS cluster authentication model."
+    },
+    {
+      "id": "c",
+      "text": "Create a dedicated Client in the Console UI for the cluster -- Console generates a client ID + client secret pair scoped to the cluster. The pipeline stores the client ID/secret as GitHub Actions secrets and uses them for OAuth2 client credentials grant against the cluster's token endpoint. The same client credentials grant access for multiple operations including BPMN deployments and job worker subscriptions."
+    },
+    {
+      "id": "d",
+      "text": "Configure mTLS -- Camunda 8 SaaS requires client TLS certificates for programmatic access. Mutual TLS (mTLS) is not the standard authentication mechanism for Camunda 8 SaaS cluster access. 509 certificates for authentication, requiring certificate provisioning, rotation, and chain-of-trust management. 509 certificate infrastructure. TLS is used for transport security (server-side), but client certificate authentication (mTLS) is not the documented Camunda 8 SaaS authentication pattern."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 SaaS uses OAuth2 client credentials as the standard for programmatic cluster access. In Console UI, you create a new Client per cluster; Console issues a client ID and a client secret (shown once for security). The pipeline (or worker) sends these to the cluster's OAuth2 token endpoint, receives a short-lived access token, and uses the token in subsequent API/gRPC calls. The same client credentials can be scoped to multiple permissions (deploy, Zeebe access, Operate read, etc.)."
+    },
+    "b": {
+      "text": "Incorrect. Reusing user credentials in pipelines is anti-pattern (no rotation, no audit, no scope isolation)."
+    },
+    "c": {
+      "text": "Correct. Camunda 8 SaaS does not use simple API keys; OAuth2 client credentials is the supported scheme."
+    },
+    "d": {
+      "text": "Incorrect. mTLS is not the standard pattern for SaaS programmatic access; OAuth2 is."
+    }
+  },
+  "explanation": "Camunda 8 SaaS does not use simple API keys; OAuth2 client credentials is the supported scheme.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/console/manage-clusters/manage-api-clients/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q52",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

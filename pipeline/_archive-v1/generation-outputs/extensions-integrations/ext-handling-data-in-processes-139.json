@@ -1,0 +1,27 @@
+{
+  "id": "ext-handling-data-in-processes-139",
+  "topic": "extensions-integrations",
+  "subtopic": "process-variables",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Wren Insurance integrates a Camunda 8.8 approval flow with a leading policy management system that already stores 22000 policies per month. The architect must decide what to persist as process variables versus what to leave in the leading system so that variable storage in the engine stays lean and each process instance only references the policy by its primary identifier.",
+  "question": "Which approach matches the Camunda 8.8 data-handling guidance when a leading system already stores the business data?",
+  "options": [
+    { "id": "a", "text": "Store only references such as the primary identifier in a process variable like policyId, and continue to read the full policy record from the leading system whenever a work item or gateway needs it" },
+    { "id": "b", "text": "Store both the full policy payload and a reference identifier on the process instance so that gateways and service tasks always have a complete local copy independent of the leading system at any time" },
+    { "id": "c", "text": "Store every field of the policy as separate scalar process variables on every instance to enable rich queries inside the Camunda engine without contacting the leading system at runtime for any field" },
+    { "id": "d", "text": "Store a fresh snapshot of the policy on the start event of every instance and refresh that snapshot at the end of each service task so the local view stays close to the leading system at runtime" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. When a leading system already stores the business data, the docs recommend keeping only references such as an identifier (for example policyId) as a process variable and reading the full record from the leading system on demand from tasks and gateways." },
+    "b": { "text": "Incorrect. The docs explicitly recommend against storing full payloads when a leading system is the source of truth; only references should be kept in process variables to keep the variable map lean." },
+    "c": { "text": "Incorrect. Spreading every field as a separate variable runs counter to the rule of thumb that process variables should be kept as few as possible and within the documented variable size limitation." },
+    "d": { "text": "Incorrect. Refreshing a full snapshot at each service task adds excessive variable churn; the guidance is to store references and consult the leading system on demand instead of caching the full payload." }
+  },
+  "explanation": "The Storing-just-the-relevant-data section recommends holding only references (typically IDs) as process variables when a leading system stores the business objects, treating that leading system as the source of truth and keeping the variable map as lean as possible.",
+  "docs": [
+    { "title": "Storing just the relevant data", "url": "https://docs.camunda.io/docs/components/best-practices/development/handling-data-in-processes/" }
+  ]
+}

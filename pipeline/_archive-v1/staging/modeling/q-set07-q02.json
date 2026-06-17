@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An e-commerce order-fulfillment process must perform two checks in parallel after the order is placed: validate-stock (does the warehouse have inventory?) and reserve-stock (lock the items for shipment). Both checks are independent -- they don't share state, neither depends on the other -- and both must complete successfully before shipping. The team wants the model to clearly express that the two run concurrently and that the downstream ship-order task waits for both.",
+  "question": "Which gateway pair correctly models this parallel split + synchronisation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Exclusive Gateway to split + Exclusive Gateway to join. XOR semantics evaluate outgoing branch conditions and select exactly one path based on the first true condition or the default flow; the join then passes through any single arriving token without waiting for others. This breaks the requirement because only one check would ever run, never both simultaneously. The two stock tasks both need to execute, which XOR gateways fundamentally prevent by design."
+    },
+    {
+      "id": "b",
+      "text": "Inclusive Gateway to split + Inclusive Gateway to join. OR semantics activate one or more outgoing branches based on evaluated conditions; the corresponding join waits for all taken branches to complete before producing a single token. Parallel Gateway expresses unconditional fork join more clearly and idiomatically without requiring any conditions."
+    },
+    {
+      "id": "c",
+      "text": "Parallel Gateway to split (creates two tokens simultaneously, one per outgoing branch, both activated immediately without any conditions) + Parallel Gateway to join (waits until all expected incoming tokens have arrived before producing a single outgoing token). This is the BPMN spec idiom for AND split / AND join semantics: both validate stock and reserve stock run concurrently in separate execution paths, and the downstream ship order task waits for both to complete. This is the canonical fork join concurrency pattern."
+    },
+    {
+      "id": "d",
+      "text": "Event Based Gateway to split + Exclusive join. The Event Based Gateway races over incoming intermediate events such as Message Catch, Timer, or Signal events -- whichever fires first determines the taken branch. This makes it a race construct, not a concurrency construct. The validate stock and reserve stock checks are Service Tasks that need to run concurrently, not competing events. Event Based Gateway is the wrong primitive for forking parallel task execution and cannot achieve the AND split semantics required here."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Parallel split + Parallel join is the canonical BPMN pattern for \"do A and B at the same time, then continue.\" The split fires both downstream activities concurrently; the join is a synchronisation point that waits for both to complete and produces a single outgoing token. This is precisely the \"fork-join\" pattern named in concurrency literature."
+    },
+    "b": {
+      "text": "Incorrect. Exclusive Gateway picks exactly one outgoing branch based on the first true condition (or the default flow). The team needs both branches to run, not just one. Even if all conditions evaluated to true, XOR still chooses the first matching -- so the second task would never execute."
+    },
+    "c": {
+      "text": "Correct. Inclusive runs one-or-many branches based on conditions. If you wanted optional parallel checks (e.g., \"skip stock-reserve if stock is irrelevant\"), Inclusive would be perfect. But here both are always required, which means conditions reduce to true and you've added unnecessary expressive power. Parallel is more idiomatic for unconditional fork-join."
+    },
+    "d": {
+      "text": "Incorrect. Event-Based Gateway is a race construct over incoming events (Message/Timer/Signal); it doesn't fork concurrent task execution. The two stock checks aren't events, they're work -- this gateway type doesn't fit."
+    }
+  },
+  "explanation": "Inclusive runs one-or-many branches based on conditions. If you wanted optional parallel checks (e.g., \"skip stock-reserve if stock is irrelevant\"), Inclusive would be perfect. But here both are always required, which means conditions reduce to true and you've added unnecessary expressive power. Parallel is more idiomatic for unconditional fork-join.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/parallel-gateways/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q02",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "id": "imp-set16-q01",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A BPMN diagram has two pools -- \"Customer\" and \"Bank.\" The modeler uses solid arrow between activities within Bank pool, and dashed arrow from Customer to Bank. Team wonders meaning.",
+  "question": "Sequence Flow vs Message Flow visual + semantic?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Same thing -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Two distinct connection types: Sequence Flow (solid arrow, filled arrowhead) connects activities within the same pool and drives execution by moving tokens. Message Flow (dashed arrow, open arrowhead) connects elements across pool boundaries and represents message exchange between separate participants. These two types are not interchangeable: sequence flow cannot cross pool boundaries, and message flow within a pool is redundant. Camunda 8 evaluates sequence flow conditions and advances tokens; Message Flow is treated as a collaborative annotation paired with Message events to trigger correlation. Visual and semantic distinction is fundamental to valid BPMN."
+    },
+    {
+      "id": "c",
+      "text": "The dashed arrow in BPMN represents Message Flow, an active and supported notation for inter-pool communication in collaboration diagrams. 0 specification and remains fully valid in Camunda 8 modeling. Marking it as deprecated confuses it with the dotted Data Association line or older informal diagramming conventions. Message Flow is required any time two separate process participants (pools) need to represent their communication. Omitting it from collaboration diagrams would lose important semantic information about cross-participant interactions."
+    },
+    {
+      "id": "d",
+      "text": "0 specification. Sequence Flow governs the order and control flow of activities within a single process (pool), while Message Flow represents asynchronous communication between separate process participants. Using the wrong type in a diagram creates invalid BPMN: a sequence flow crossing pool boundaries violates the spec, and a message flow inside one pool is semantically redundant. Camunda's modeler enforces these rules during validation."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN flow notation: Sequence Flow (solid line + filled arrowhead): Same pool: connects activities, gateways, events within ONE process. Drives execution: engine moves token along flow. Can have conditions: conditional sequence flow (per Set 13 Q8). Message Flow (dashed line + open arrowhead): Across pools: between separate process participants. Represents message: information / event sent between participants. Doesn't drive execution directly: paired with Message events for actual engine effect. Rules: Sequence Flow constraints: Within same process / pool only. Crossing pool boundary = invalid BPMN. Message Flow constraints: Across pools only. Within same pool = redundant (use sequence). From/to specific elements: typically Send/Receive Tasks, Message Throw/Catch Events, or pool boundary. For the scenario: Solid arrows within Bank: sequence flow controlling Bank's process. Dashed arrow from Customer to Bank: message flow indicating Customer sends Bank a message. In Camunda 8: Sequence flows: engine evaluates + advances. Message flows: documentary in collaboration diagrams; actual message handled by Message events. Visual conventions: | Visual | Type | Direction | |--------|------|-----------| | Solid arrow | Sequence | Within pool | | Dashed arrow | Message | Across pools | | Dotted arrow | Data association | Activity ↔ Data Object/Store | Common patterns: Customer → Bank Order request: Customer's process: Send Task \"Send Order\". Message flow (dashed) to Bank pool. Bank's process: Receive Task / Message Start \"Receive Order\". Both pools: own internal sequence flows. Collaboration diagrams: Multiple pools: visualise interactions. Message flows: highlight communications. Sequence flows: internal process detail. Black-box pools: No internal flow shown: external participant. Message flows in/out: only interactions visible. Best practices: Use correct flow type: per BPMN spec. Validate BPMN: linter catches sequence-across-pools. Document collaboration: dashed lines clarify integration. Anti-patterns: Solid arrow crossing pool boundary: invalid. Dashed within same pool: confusing."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q01",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 20 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 33.4 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

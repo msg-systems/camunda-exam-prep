@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-35",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Yarrow Insurance writes 5000 policies per day in Camunda 8.8 and a publish-message call uses an empty correlation key, no message ID and a positive TTL targeting an intermediate event in the underwriting process that subscribes to the empty string correlation key on activation.",
+  "question": "Which behavior does the correlation overview document for a message with empty correlation key, no message ID and a positive TTL on an intermediate event?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The message is correlated to every process instance that has an active intermediate event subscribed to any correlation key, with the empty string acting as a wildcard"
+    },
+    {
+      "id": "b",
+      "text": "The message is discarded immediately because intermediate events cannot subscribe to an empty correlation key at any TTL value above zero according to the broker rules"
+    },
+    {
+      "id": "c",
+      "text": "A new process instance is started for every message because a positive TTL is treated as a start-event-style trigger inside the overview table for intermediate events"
+    },
+    {
+      "id": "d",
+      "text": "The message is correlated during the lifetime of the message if a matching subscription to the empty string is active, and new equal messages are buffered behind it"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The empty string is not a wildcard; the overview row only matches subscriptions whose correlation key is also the empty string, not subscriptions to any correlation key."
+    },
+    "b": {
+      "text": "Incorrect. The table explicitly defines this configuration for intermediate events; the message is correlated during its lifetime when an empty-string subscription is active on the broker."
+    },
+    "c": {
+      "text": "Incorrect. Intermediate event rows in the overview never start a new process instance; only start-event rows describe instance creation in the table for messages."
+    },
+    "d": {
+      "text": "Correct. The row for empty correlation key, message ID not set and TTL > 0 on an intermediate event states the message is correlated during its lifetime if a matching subscription to the empty string is active, with equal messages buffered."
+    }
+  },
+  "explanation": "The overview table maps empty correlation key, no message ID and TTL > 0 on an intermediate event to: correlated during the lifetime of the message if a matching subscription to the empty string is active, with new equal messages buffered behind it on the broker side.",
+  "docs": [
+    {
+      "title": "Messages",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "imp-set14-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Cluster shows symptoms: jobs piling up unactivated, high CPU on broker, slow API responses. Team wonders resource exhaustion symptoms + mitigation.",
+  "question": "Resource exhaustion symptoms + mitigation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Restart cluster -- partial; not root cause."
+    },
+    {
+      "id": "b",
+      "text": "Camunda clusters do not automatically resolve resource pressure without operator intervention. When disk space fills up, Zeebe cannot write journal segments and the cluster degrades. When memory is exhausted, JVM processes crash or begin garbage collecting excessively. When CPU is throttled, timeout cascades occur. These conditions require monitoring, alerts, and operator action -- either adding resources, scaling nodes, adjusting configuration limits, or archiving old data."
+    },
+    {
+      "id": "c",
+      "text": "Cluster resource exhaustion produces characteristic symptoms that are directly attributable to specific resource constraints. Disk-full conditions cause Zeebe journal write failures and broker degradation. Memory pressure causes GC pauses and potentially OOM crashes visible in metrics. CPU throttling in Kubernetes manifests as elevated processing latency. These symptoms are closely linked to resource limits, making resource monitoring an essential operational discipline for Self-Managed Camunda deployments."
+    },
+    {
+      "id": "d",
+      "text": "Common cluster resource issues + mitigations: Disk exhaustion prevents Zeebe from writing journal segments -- mitigate with larger persistent volumes, lower log compaction thresholds, and data archival. Memory pressure causes JVM GC pauses or OOM crashes -- set appropriate heap sizes and resource limits. CPU throttling in Kubernetes degrades processing throughput -- adjust resource requests and limits. Monitor all three dimensions with Prometheus and alert before critical thresholds are reached."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Cluster resource exhaustion playbook: Common symptoms + causes: CPU saturation: Symptoms: high CPU on broker / gateway nodes; slow operations. Causes: high load (many concurrent processes), expensive operations, GC pressure. Mitigations: Scale horizontally (more nodes). Profile hot paths (FlameGraph, JFR). Reduce process complexity if possible. Memory pressure: Symptoms: OOM errors, frequent GC, slow operations. Causes: undersized heap, memory leak, large variable payloads. Mitigations: Increase heap size. Check for leaks (heap dump analysis). Reduce variable payload sizes (use document references instead of inline binaries). Disk full: Symptoms: write failures, snapshot failures. Causes: history accumulation, large process state, log buildup. Mitigations: Increase storage. Tune data retention (per Set 13 Q29). Archive old data. Network saturation: Symptoms: high latency, timeouts, packet loss. Causes: high throughput, many clients, hot partition. Mitigations: Scale gateway nodes. Distribute traffic. Check client patterns (chatty workers?). Backlog growth: Symptoms: jobs piling up, processes pending. Causes: workers can't keep up, downstream APIs slow, worker crashes. Mitigations: Scale workers (per Set 14 Q19). Investigate downstream bottlenecks. Fix worker errors. Slow API responses (Operate / Tasklist): Symptoms: UI slow, queries time out. Causes: too much data, missing indices, undersized Elasticsearch. Mitigations: Scale Operate / Elasticsearch. Tune retention (less data). Add indices for common queries. For the scenario (jobs piling up, high CPU on broker, slow APIs): Initial assessment: 1. Check broker CPU: > 80%? Saturation likely. 2. Check job backlog: how many unactivated? 3. Check API latency: which APIs slow? 4. Check worker health: are workers running? Polling? 5. Check downstream: are external APIs slow? Likely diagnosis: Broker overloaded; can't service all worker polls efficiently. Mitigations: Scale broker nodes. Reduce poll frequency (workers may be polling too aggressively). Investigate root cause (sudden spike? misconfigured workload?). Diagnostic tools: Prometheus + Grafana: CPU / memory / disk dashboards. Job backlog metrics. API latency histograms. Logs: Broker logs for errors, warnings. GC logs for memory pressure. Slow query logs. JVM tools (for JVM-based components): Heap dumps. Thread dumps. JFR recordings. Cluster status APIs: Camunda may expose health endpoints. Per-node status. Mitigation strategies: Short-term (incident response): Scale up: add capacity quickly. Restart problem nodes: if memory leak suspected. Reduce load: throttle clients; cancel non-critical processes. Medium-term: Tune configuration: heap sizes, thread pools, etc. Optimise workloads: reduce hot paths. Improve workers: more efficient code. Long-term: Capacity planning: model load growth. Architecture review: design for scale. Continuous monitoring: detect early. Best practices: Alerting: set thresholds; alert on resource exhaustion early. Runbooks: documented procedures for each scenario. Load testing: regularly test cluster capacity. Capacity headroom: don't run near 100%; have buffer. Chaos engineering: test failure modes. For SaaS: Camunda manages cluster scaling typically. Plan tier may limit capacity. Contact support for capacity issues. Anti-patterns: Restart-and-hope: doesn't fix root cause. Ignore symptoms: minor issues escalate to major outages. No monitoring: blind to issues until customers complain."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/about-self-managed/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q58",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 11.9 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

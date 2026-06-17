@@ -1,0 +1,53 @@
+{
+  "id": "mng-resolve-incidents-update-variables-13",
+  "topic": "managing-development",
+  "subtopic": "operate",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "After running the `zbctl` command shown, which BPMN element in the guide's `order-process` model receives the published message?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The `Payment Received` intermediate message catch event."
+    },
+    {
+      "id": "b",
+      "text": "A `Payment Received` message start event that begins a new instance."
+    },
+    {
+      "id": "c",
+      "text": "The `Initiate Payment` service task waiting on its worker."
+    },
+    {
+      "id": "d",
+      "text": "The XOR gateway, which evaluates `orderValue>=100`."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The guide states that the published `payment-received` message is correlated with the running instance so it can advance past the `Payment Received` intermediate message catch event."
+    },
+    "b": {
+      "text": "A message start event would create a new instance; here the message is correlated to an existing running instance via its correlation key, so it goes to an intermediate catch event."
+    },
+    "c": {
+      "text": "`Initiate Payment` is a job-worker task completed by `zbctl create worker initiate-payment`, not by a message correlation."
+    },
+    "d": {
+      "text": "The XOR gateway evaluates a FEEL condition on `orderValue`; it does not subscribe to messages."
+    }
+  },
+  "explanation": "Per the guide, `--correlationKey=\"1234\"` correlates the `payment-received` message to a running instance and advances its token past the intermediate message catch event named `Payment Received`. Message start events create new instances; the XOR gateway is a separate downstream element.",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "./bin/zbctl --insecure publish message \"payment-received\" --correlationKey=\"1234\""
+  }
+}

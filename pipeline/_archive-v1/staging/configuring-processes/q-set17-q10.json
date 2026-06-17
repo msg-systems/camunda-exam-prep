@@ -1,0 +1,63 @@
+{
+  "id": "imp-set17-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Call Activity references another process by ID. Wonders how engine picks version of called process.",
+  "question": "Call Activity version binding?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Always specific version -- partial."
+    },
+    {
+      "id": "b",
+      "text": "The engine selects a random version of the called process when a Call Activity activates -- this does not accurately reflect the behavior. Camunda 8 has a deterministic version selection mechanism controlled by the bindingType attribute on the Call Activity. The default latest binding resolves to the newest deployed version. The deployment binding pins to the co-deployed version. The versionTag binding resolves by matching a version label. All selections are deterministic based on deployment state."
+    },
+    {
+      "id": "c",
+      "text": "The version of the called process is permanently bound at design time and cannot change without modifying the BPMN -- this does not accurately reflect the behavior. Camunda 8 resolves Call Activity versions at runtime based on the bindingType configuration. The latest binding dynamically resolves to the newest deployed version at each activation, allowing the called process to be updated independently without touching the calling process BPMN definition."
+    },
+    {
+      "id": "d",
+      "text": "md:21-31 with three documented values: latest (default) resolves to the most recently deployed version at activation time, deployment pins to the version deployed together with the calling process, and versionTag resolves to the latest deployment annotated with the matching custom version label. This attribute enables teams to choose between dynamic version resolution and stable pinned references based on their release management strategy."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Call Activity version binding: Default behavior: Latest deployed version of called process selected at invocation. Dynamic resolution: each Call Activity activation looks up latest. Configuration: `xml References by processId; version dynamic. For version pinning (verbatim from call-activities.md:21-31, :69-85): bindingType=\"deployment\": pins to the deployment-time version (use when you deploy caller+called together as one unit and want them to evolve in lockstep). bindingType=\"versionTag\" + versionTag=\"v1.0\": latest deployment annotated with that tag (use when called process has its own release cadence and you want a semantic-version pin). Default bindingType=\"latest\" (or attribute omitted): always picks the latest deployed version when the activity activates. Implications of latest binding: Pros: Bug fixes propagate: callers benefit. Centralised updates: change once. Cons: In-flight Call Activities: pick up new version (if they restart calling). Surprise: caller code unaware of called process changes. For deployment coordination: Deploy called process first: ensure available. Deploy caller: references work. For breaking changes: Renamed called process ID: callers break. Removed elements: callers may fail. Coordinate: backward-compatible changes. For testing: Test calls: with current version. Test version transitions: deploy new; verify caller works. For reuse: Common subprocess (per Set 14 Q5): \"Send Notification\" called by many. Update once: benefits all callers. For independent versioning: Caller v1 + Called v2: typically works if compatible. Caller v1 + Called v3: may fail if breaking changes. For tracking which version used: Operate shows called process instance: with version. Audit: which version executed at which time. For Process Service vs Call Activity: Process Service (BPMN spec): typically separate concept. Camunda 8 Call Activity: direct invocation. For cross-tenant: Call Activity within tenant: standard. Cross-tenant calls: verify support. Best practices: Backward-compatible called process changes: don't break callers. Communicate: across teams owning caller / called. Versioning strategy: document org-wide. Testing: catch version compatibility issues. Anti-patterns: Breaking changes without coordination: callers fail. No documentation of called process contract. Manual version syncing: error-prone. For the scenario (which version): Latest deployed: default. Verify pinning if needed per Camunda 8 version. For complex versioning needs: Multiple called process IDs: per major version. e.g., order-fulfillment-v1, order-fulfillment-v2`: separate processes. Caller picks: explicit version routing."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/#binding-type"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q10",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 14.4 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

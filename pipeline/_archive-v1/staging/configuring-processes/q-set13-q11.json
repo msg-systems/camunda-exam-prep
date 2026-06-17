@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q11",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task has both formId (modern Camunda Form reference) and zeebe:formDefinition formId extension. The team wonders if these are the same or different. Are User Task formId attribute and `` extension the same?",
+  "question": "Are User Task formId attribute and `` extension the same?",
+  "options": [
+    {
+      "id": "a",
+      "text": "\"> extension element is the modern Camunda 8 convention for referencing deployed Camunda Forms. It's the Zeebe-specific extension under <bpmn:extensionElements>. A bare formId attribute directly on <bpmn:userTask> (without the extension) isn't standard Zeebe configuration. Modern pattern: ``xml <bpmn:userTask id=\"UserTask_review\"> <bpmn:extensionElements> <zeebe:formDefinition formId=\"review-form-v1\" /> </bpmn:extensionElements> </bpmn:userTask> `` Verify your Camunda 8 / Modeler version's exact XML schema."
+    },
+    {
+      "id": "b",
+      "text": "\"> are the same thing -- partial; the actual behavior depends on the Camunda version and context. In Camunda 7 style configurations, a bare camunda:formKey attribute on <bpmn:userTask> was a common pattern. In Camunda 8, the standard is the <zeebe:formDefinition> extension element under <bpmn:extensionElements>. The formId child attribute of <zeebe:formDefinition> references a deployed Camunda Form by its logical ID. These are different XML elements in different namespaces with different semantics."
+    },
+    {
+      "id": "c",
+      "text": "Both the direct attribute and the extension element should be set simultaneously for redundancy -- wrong; setting both would introduce conflicting or redundant configuration. The proper Camunda 8 approach is to use the <zeebe:formDefinition> extension element exclusively for referencing Camunda Forms. Using both configurations simultaneously could cause unpredictable behavior depending on which takes precedence in the engine's form resolution logic. Web Modeler generates the correct XML when the user selects a form via the UI property panel, producing only the extension element without any legacy direct attribute."
+    },
+    {
+      "id": "d",
+      "text": "The formId value is not actually used by Camunda at runtime -- partial; formId within <zeebe:formDefinition> is precisely the identifier Zeebe uses to look up the deployed Camunda Form at task activation. Tasklist queries the form by this ID to render the correct form schema for assignees. Without a valid formId, Tasklist cannot display a form and falls back to raw variable display or shows an error. The formKey variant handles external forms referenced by URL rather than internal deployed forms."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda 8 form binding uses Zeebe extension elements: Modern pattern (Zeebe extension): `xml The formId is a child attribute of -- the Zeebe extension that tells Tasklist to render the referenced Camunda Form. Legacy / external form pattern: xml The formKey attribute (or alternate form of formDefinition) for external / legacy forms. Direct BPMN attribute formKey on userTask (legacy / Camunda 7): Some older Camunda versions / standards put camunda:formKey directly as an attribute on . Not the modern Camunda 8 convention. In Web Modeler property panel: Modelers see options like \"Type: Camunda Form (linked)\" → sets . Or \"Type: External form\" → sets `. The XML is generated based on these UI choices. Verify your Camunda 8 / Zeebe version for the exact extension schema; UI handles the XML generation typically."
+    },
+    "b": {
+      "text": "Incorrect. Modern is the extension form."
+    },
+    "c": {
+      "text": "Incorrect. One or the other."
+    },
+    "d": {
+      "text": "Incorrect. Partially correct."
+    }
+  },
+  "explanation": "Camunda 8 form binding uses Zeebe extension elements: Modern pattern (Zeebe extension): `xml The formId is a child attribute of -- the Zeebe extension that tells Tasklist to render the referenced Camunda Form. Legacy / external form pattern: xml The formKey attribute (or alternate form of formDefinition) for external / legacy forms. Direct BPMN attribute formKey on userTask (legacy / Camunda 7): Some older Camunda versions / standards put camunda:formKey directly as an attribute on . Not the modern Camunda 8 convention. In Web Modeler property panel: Modelers see options like \"Type: Camunda Form (linked)\" → sets . Or \"Type: External form\" → sets `. The XML is generated based on these UI choices. Verify your Camunda 8 / Zeebe version for the exact extension schema; UI handles the XML generation typically.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q11",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

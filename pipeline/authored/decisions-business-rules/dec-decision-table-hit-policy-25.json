@@ -1,0 +1,53 @@
+{
+  "id": "dec-decision-table-hit-policy-25",
+  "topic": "decisions-business-rules",
+  "subtopic": "hit policy",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A DMN decision table is declared with `hitPolicy=\"COLLECT\"` and no `aggregation` attribute. For a given input, four rules are satisfied and emit the numeric outputs `100`, `200`, `300`, and `400`. What does the decision return?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The four output values as a list in arbitrary order."
+    },
+    {
+      "id": "b",
+      "text": "`1000` — the sum of all matching outputs."
+    },
+    {
+      "id": "c",
+      "text": "`400` — the largest matching output."
+    },
+    {
+      "id": "d",
+      "text": "An error, because `COLLECT` requires an `aggregation` attribute when multiple rules match."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Without an aggregator, `COLLECT` returns the output of all satisfied rules as a list. The docs explicitly state the list has no ordering, so the four values appear in arbitrary order."
+    },
+    "b": {
+      "text": "Summation only happens when the table also sets `aggregation=\"SUM\"`. With no aggregator, the raw list is returned."
+    },
+    "c": {
+      "text": "`MAX` would return the largest, but that requires `aggregation=\"MAX\"`. Without an aggregator, all matching outputs are returned as a list."
+    },
+    "d": {
+      "text": "`COLLECT` works without an aggregator; multiple matches are exactly the case it is designed for and produce a list."
+    }
+  },
+  "explanation": "Under the `COLLECT` hit policy the decision table result is the output of every satisfied rule, collected as a list in arbitrary order. An aggregator (`SUM`, `MIN`, `MAX`, `COUNT`) is optional; only when one is set does the result collapse to a single value.",
+  "docs": [
+    {
+      "title": "DMN decision table hit policy",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "<decisionTable id=\"decisionTable\" hitPolicy=\"COLLECT\">\n    <!-- no aggregation attribute -->\n</decisionTable>"
+  }
+}

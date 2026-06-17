@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q49",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression: =customer.address.street + \", \" + customer.address.city. If customer.address is null, what happens?",
+  "question": "How does FEEL handle null propagation in nested expressions?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL throws a NullPointerException when accessing fields on a null-valued context -- this applies Java runtime exception semantics to a language designed with null-tolerant evaluation. address returns null, and subsequent operations on that null continue to propagate null rather than throwing exceptions. address is null."
+    },
+    {
+      "id": "b",
+      "text": "FEEL is null-tolerant -- operations on null typically return null rather than throwing an exception. field) returns null, arithmetic with null (null + 5) returns null, and string concatenation with null (\"text\" + null) returns null. address is null, without crashing. = null then ... to handle these cases."
+    },
+    {
+      "id": "c",
+      "text": "String concatenation with null components returns an empty string -- this applies a type coercion behaviour that FEEL does not perform. When any operand of a FEEL string concatenation is null, the result is null, not an empty string. FEEL does not silently convert null to an empty string or to any other default value. = null then X else \"\" pattern."
+    },
+    {
+      "id": "d",
+      "text": "FEEL halts expression evaluation when it encounters a null value in a nested access chain -- this describes a fail-fast behaviour that is the opposite of FEEL's null-tolerant design. FEEL continues evaluating expressions even when intermediate results are null, propagating null through all downstream operations. This allows complex nested expressions to produce a null result rather than halting mid-expression, enabling cleaner downstream null handling with a single null check at the end."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL's null-tolerant semantics: Field access on null: null.field returns null (no NullPointerException). Arithmetic with null: null + 5 returns null. String concat with null: \"text\" + null returns null. List operations with null: similar -- null typically propagates. Boolean operations: null and X, null or X return null (three-valued logic). This means complex expressions with intermediate nulls evaluate to null without crashing. Caveat: the downstream code receives null and must handle appropriately. If a Gateway condition evaluates to null, the gateway may not behave as expected (typically the flow is taken or not based on null-handling rules). Best practices: Defensive checks before risky access: =if customer != null and customer.address != null then .... Default fallbacks: =if x != null then x else default. Validate inputs at process entry to ensure expected structure. Three-valued logic: null is neither true nor false; boolean expressions with null can produce null. FEEL handles this consistently."
+    },
+    "b": {
+      "text": "Correct. Null-tolerant."
+    },
+    "c": {
+      "text": "Incorrect. Null specifically."
+    },
+    "d": {
+      "text": "Incorrect. Continues."
+    }
+  },
+  "explanation": "Null-tolerant.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q49",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

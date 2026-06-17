@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q17",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Element Template for a \"Slack Notify\" custom Service Task should require the modeler to always provide a channel name -- the template must reject deployment if the field is empty.",
+  "question": "Which Element Template field constraint fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No constraints are supported in Element Templates; the field cannot be made mandatory at design time. This is factually wrong. The Element Template properties specification includes a constraints object that supports notEmpty, minLength, maxLength, and pattern validation. These constraints are enforced at design time in the Web Modeler and Desktop Modeler properties panel, preventing saving or deploying a model where a required field is empty."
+    },
+    {
+      "id": "b",
+      "text": "notEmpty: true on the channel property definition in the Element Template JSON. When notEmpty is true, the Web Modeler and Desktop Modeler properties panel displays a validation warning and prevents saving or deploying the process if the channel field is left blank. This is the purpose-built design-time validation mechanism for required Element Template fields in Camunda 8."
+    },
+    {
+      "id": "c",
+      "text": "Add a Validator Service Task before the Slack Notify task that checks whether the channel name variable is set. This implements validation at runtime rather than at design time. A missing channel would only be detected when the process executes, resulting in a runtime incident rather than a clear design-time warning. notEmpty property achieves the same goal earlier in the development lifecycle without any extra BPMN elements."
+    },
+    {
+      "id": "d",
+      "text": "Use a FEEL precondition expression inside the Element Template to validate the channel name at the modelling stage. FEEL expressions in Element Templates are evaluated at runtime by the Zeebe engine, not during design-time authoring. A FEEL expression cannot prevent a modeller from saving a diagram with an empty field. Only the constraints object properties enforce design-time validation in the Modeler properties panel."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Element Template properties support a constraints object: notEmpty: Boolean, minLength: Integer, maxLength: Integer, pattern: Object (per modeler/element-templates/template-properties.md:1188-1196). notEmpty: true (line 1192) rejects empty input in the modeler properties panel; the warning per line 1219-1221 explicitly states \"use notEmpty where necessary\" so BPMN/Zeebe schema constraints are surfaced at design-time."
+    },
+    "b": {
+      "text": "Correct. Constraints are supported."
+    },
+    "c": {
+      "text": "Incorrect. Runtime check is too late; design-time constraint catches it earlier."
+    },
+    "d": {
+      "text": "Incorrect. FEEL evaluates at runtime; constraint is design-time."
+    }
+  },
+  "explanation": "Constraints are supported.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/element-templates/template-properties/#validating-user-input-constraints"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q17",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

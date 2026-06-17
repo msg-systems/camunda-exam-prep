@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q47",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "RPA bot may run long (5-10 minutes per task) for browser automation. Team wonders if there's a timeout specific to RPA tasks.",
+  "question": "RPA timeout configuration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:67-72: On the RPA task in the diagram (recommended): set the timeout when configuring the RPA task in the BPMN model. Per-task override. properties default timeout -- used as the fallback when the task does not specify one. g. Wait Until Element Is Visible locator timeout=30s) -- those are Robot-Framework features, not Camunda timeouts."
+    },
+    {
+      "id": "b",
+      "text": "Camunda RPA task execution has no timeout mechanism -- scripts can run indefinitely without the engine cancelling them -- this approach has limitations. Camunda 8 RPA supports explicit timeout configuration at two layers. First, a per-task timeout can be set on the RPA task in the BPMN process model. properties as a fallback for tasks without an explicit timeout. md:67-72. Without timeouts, long-running or stuck robot scripts would hold process instances open indefinitely, which is precisely why the two-layer timeout system exists."
+    },
+    {
+      "id": "c",
+      "text": "All Camunda RPA tasks have a fixed 60-second timeout that cannot be changed -- this approach has limitations. Timeouts for Camunda RPA are configurable, not fixed. The per-task timeout set on the RPA BPMN task can be any duration appropriate for the robot script's expected execution time. properties is also configurable. md. Script complexity, UI interaction wait times, and external system response times vary widely across RPA automations -- a one-size-fits-all fixed timeout would be impractical for real-world deployments."
+    },
+    {
+      "id": "d",
+      "text": ", Wait Until Element Is Visible locator timeout=30s), these are script-internal mechanisms. Camunda RPA adds an external layer: the per-task timeout configured in the BPMN model and the worker default timeout both enforce an outer time boundary that the robot framework itself cannot override. If the script exceeds the Camunda-level timeout, the RPA worker cancels the job and the task fails."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. RPA timeout layers: Layer 1: Job activation timeout: Same as Service Tasks (per Set 13 Q10). Camunda timeout: how long broker waits for bot to complete. If exceeded: job re-activatable; duplicate execution risk. For RPA tasks: Bots may take longer than typical Service Tasks. Set generous activation timeout: e.g., 30 min for 10-min average bot. Configuration: `xml Layer 2: Bot-internal timeout: Total bot execution time limit. Bot framework enforces. Examples: Robocorp: configurable in robot.yaml. Camunda RPA framework: per-job timeout setting. Bot exceeds internal timeout: Bot terminates. Reports failure to Camunda. Job goes to retry / Incident. Layer 3: Per-step timeouts within bot: Element wait timeouts: wait for button N seconds. Network timeouts: API calls within bot. Polling timeouts: wait for screen change. Examples: python # Robot Framework Wait Until Element Is Visible locator timeout=30s Click Element locator Coordination across layers: Job activation timeout = 30 min ├─ Bot internal timeout = 25 min ├─ Step 1: wait for login (30s) ├─ Step 2: navigate to form (30s) ├─ Step 3: fill 100 fields (15 min) └─ Step 4: submit + wait for result (5 min) ` Each layer's timeout should be larger than what it contains, with buffer. For long-running bots: Pattern 1: Long timeouts: Set generous timeouts at each layer. Cons: stuck bots take long to fail. Pattern 2: Break into sub-tasks: Multiple shorter Service Tasks. Each with reasonable timeout. Pros: progress visible; recovery possible. Pattern 3: Async with progress reports: Bot reports progress mid-execution. Process can check status. More complex but better observability. For the scenario (5-10 min bots): Activation timeout: 15-30 min (e.g., PT30M). Bot internal timeout: 12 min. Per-step timeouts: per action. Symptoms of mis-configured timeouts: Symptom 1: Job re-activated while bot still running: Activation timeout too short. Duplicate bot executions; chaos. Fix: increase activation timeout. Symptom 2: Bot aborts mid-task: Bot internal timeout too short. Incomplete work. Fix: increase bot timeout; debug why bot is slow. Symptom 3: Step waits never complete: Per-step timeout too short for slow page. Bot fails at step. Fix: increase step timeout OR fix slow page. Best practices: Profile typical bot runs: P95 / P99 duration. Set timeouts based on P99 × 1.5+ buffer. Monitor timeout events: alert if frequent. Test failure modes: simulate slow / hung bots. For idempotent bots: Critical for retries: if activation timeout fires, bot re-runs. Bot should detect already-completed state: skip vs redo. For very long bots (> 1 hour): Consider non-RPA approaches: API integration where available. Or async patterns: bot kicks off; checks back later. Long activation timeouts: tax cluster. For monitoring: Bot duration metrics: histogram of run times. Timeout metrics: rate of timeout events. Failure modes: timeout vs other failures."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "RPA timeout layers: Layer 1: Job activation timeout: Same as Service Tasks (per Set 13 Q10). Camunda timeout: how long broker waits for bot to complete. If exceeded: job re-activatable; duplicate execution risk. For RPA tasks: Bots may take longer than typical Service Tasks. Set generous activation timeout: e.g., 30 min for 10-min average bot. Configuration: `xml Layer 2: Bot-internal timeout: Total bot execution time limit. Bot framework enforces. Examples: Robocorp: configurable in robot.yaml. Camunda RPA framework: per-job timeout setting. Bot exceeds internal timeout: Bot terminates. Reports failure to Camunda. Job goes to retry / Incident. Layer 3: Per-step timeouts within bot: Element wait timeouts: wait for button N seconds. Network timeouts: API calls within bot. Polling timeouts: wait for screen change. Examples: python # Robot Framework Wait Until Element Is Visible locator timeout=30s Click Element locator Coordination across layers: Job activation timeout = 30 min ├─ Bot internal timeout = 25 min ├─ Step 1: wait for login (30s) ├─ Step 2: navigate to form (30s) ├─ Step 3: fill 100 fields (15 min) └─ Step 4: submit + wait for result (5 min) ` Each layer's timeout should be larger than what it contains, with buffer. For long-running bots: Pattern 1: Long timeouts: Set generous timeouts at each layer. Cons: stuck bots take long to fail. Pattern 2: Break into sub-tasks: Multiple shorter Service Tasks. Each with reasonable timeout. Pros: progress visible; recovery possible. Pattern 3: Async with progress reports: Bot reports progress mid-execution. Process can check status. More complex but better observability. For the scenario (5-10 min bots): Activation timeout: 15-30 min (e.g., PT30M). Bot internal timeout: 12 min. Per-step timeouts: per action. Symptoms of mis-configured timeouts: Symptom 1: Job re-activated while bot still running: Activation timeout too short. Duplicate bot executions; chaos. Fix: increase activation timeout. Symptom 2: Bot aborts mid-task: Bot internal timeout too short. Incomplete work. Fix: increase bot timeout; debug why bot is slow. Symptom 3: Step waits never complete: Per-step timeout too short for slow page. Bot fails at step. Fix: increase step timeout OR fix slow page. Best practices: Profile typical bot runs: P95 / P99 duration. Set timeouts based on P99 × 1.5+ buffer. Monitor timeout events: alert if frequent. Test failure modes: simulate slow / hung bots. For idempotent bots: Critical for retries: if activation timeout fires, bot re-runs. Bot should detect already-completed state: skip vs redo. For very long bots (> 1 hour): Consider non-RPA approaches: API integration where available. Or async patterns: bot kicks off; checks back later. Long activation timeouts: tax cluster. For monitoring: Bot duration metrics: histogram of run times. Timeout metrics: rate of timeout events. Failure modes: timeout vs other failures.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/rpa/production/#timeouts"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q47",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

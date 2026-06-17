@@ -1,0 +1,27 @@
+{
+  "id": "mng-what-is-optimize-66",
+  "topic": "managing-development",
+  "subtopic": "Optimize architecture",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Kestrel Insurance plans to enable Optimize alongside Camunda 8.8 to analyze 45000 instances per day from a claims workflow. The architecture review board asks how Optimize gets process data out of the engine without affecting runtime, and where it persists the historical records it shows on its reports and dashboards for the business team.",
+  "question": "How does Optimize collect process data from the Camunda 8.8 server and where does it store that data?",
+  "options": [
+    { "id": "a", "text": "Optimize subscribes to a Kafka exporter on the broker and persists the records into a relational database that powers the analytical reports and dashboards" },
+    { "id": "b", "text": "Optimize makes REST API calls to the Camunda server, collects new historical data, and stores the data in its Elasticsearch database for the reports and dashboards" },
+    { "id": "c", "text": "Optimize reads directly from the broker's RocksDB state files on disk and writes the snapshots into a managed MongoDB cluster that backs the dashboards" },
+    { "id": "d", "text": "Optimize attaches as a Zeebe partition replica and the broker streams events into a built-in column store running inside each Optimize cluster node" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Optimize does not consume a Kafka exporter or use a relational database. The overview states it makes REST API calls to the Camunda server and stores collected data in an Elasticsearch database." },
+    "b": { "text": "Correct. The overview states Optimize makes REST API calls to the Camunda server, collects new historical data, and stores it in its Elasticsearch database so users can analyze reports and dashboards independently of runtime." },
+    "c": { "text": "Incorrect. Optimize does not read RocksDB state files on disk or use MongoDB. It pulls data from the Camunda server via REST API calls and stores it in Elasticsearch as documented." },
+    "d": { "text": "Incorrect. Optimize is not a Zeebe partition replica and does not run an embedded column store. It calls REST APIs against the Camunda server and persists historical data in Elasticsearch." }
+  },
+  "explanation": "Optimize collects historical process data by making REST API calls to the Camunda server as instances run, and stores that data in its own Elasticsearch database. This lets business users analyze reports and dashboards independently, without affecting the runtime cluster.",
+  "docs": [
+    { "title": "What is Optimize", "url": "https://docs.camunda.io/docs/components/optimize/what-is-optimize/" }
+  ]
+}

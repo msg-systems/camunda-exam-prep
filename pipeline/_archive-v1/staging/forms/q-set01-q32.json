@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q32",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A B2B procurement form needs to capture an invoice line-items table where the user can add/remove rows dynamically. Each row has columns \"item description\", \"quantity\", \"unit price\". The form should output the line items as a list of objects in a process variable named lineItems, e.g., [{description: \"Widget A\", quantity: 5, unitPrice: 12.50}, ...]. The developer is building this in Camunda 8 Forms.",
+  "question": "Which Forms element correctly supports user-editable variable-length rows that submit as a list of objects?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md). Per :7 \"This is an element allowing the user to render tabular data\" -- Table is read-only display with a Data source FEEL expression for rows and a Headers source for columns. No add/delete row UI; intended for showing existing tabular data from a process variable, not collecting new rows from user input. The Table element has no built-in interaction model for adding rows at runtime -- it binds to an existing list variable and renders it as a formatted grid. Choosing Table for a procurement line-items entry scenario would give users a read-only view of any existing data but no way to enter new rows."
+    },
+    {
+      "id": "b",
+      "text": "Define three separate top-level Textfield/Number fields each as an array: lineItems_description, lineItems_quantity, lineItems_unitPrice. This breaks the row structure -- each \"column\" would be a separate flat list without any grouping that ties the description, quantity, and unit price of a single line item together. The downstream process would receive three unrelated arrays and have no reliable way to reconstruct which description goes with which quantity. This approach also provides no built-in UI for adding and removing rows simultaneously -- there would be three separate add-item buttons, creating a confusing and error-prone user experience."
+    },
+    {
+      "id": "c",
+      "text": "md). Per :14-16 it has a Path property (binds the list to a variable like lineItems), a Default number of items property, and an Allow add/delete items boolean. , three Textfield/Number children with Keys description, quantity, unitPrice) whose values are scoped per-row under the Path. Output shape = list of objects, exactly what the team needs."
+    },
+    {
+      "id": "d",
+      "text": "return expression on submit to reshape into a list. A Group component in Camunda 8 Forms visually groups elements but does not provide the add/remove row capability -- it is a fixed structure. There is also no \"on submit\" FEEL expression attachment in Camunda 8 Forms that fires to transform submitted data. return expression is for use in BPMN Script Tasks, DMN, or Input/Output Mappings -- not embedded in form submit logic. This approach reinvents what the Dynamic list element handles natively, requiring complex workarounds that provide no benefit."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 Forms ships two distinct list-shaped components (commonly confused): Dynamic list for user-editable variable-length rows, and Table for read-only tabular display. For the procurement use case (add/remove rows, submit as list of objects), the canonical element is Dynamic list per forms-element-library-dynamiclist.md:7 \"designed to dynamically manage a list of form elements. It enables users to add or remove items from the list\" with built-in add/delete UI per :16."
+    },
+    "b": {
+      "text": "Incorrect. Table is a rendering component for tabular data (per forms-element-library-table.md:7), not an editable collector. It reads a Data source expression and renders rows; no built-in add/delete row buttons. Wrong element for \"add/remove rows\"."
+    },
+    "c": {
+      "text": "Correct. Separate flat-array fields lose the row structure (no per-row grouping); also clunky UX (three separate add buttons, no coherent row). Reinvents what Dynamic list does natively."
+    },
+    "d": {
+      "text": "Incorrect. Building a custom Group + FEEL reshape is over-engineered when Dynamic list does exactly this natively."
+    }
+  },
+  "explanation": "Separate flat-array fields lose the row structure (no per-row grouping); also clunky UX (three separate add buttons, no coherent row). Reinvents what Dynamic list does natively.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-dynamiclist/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q32",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

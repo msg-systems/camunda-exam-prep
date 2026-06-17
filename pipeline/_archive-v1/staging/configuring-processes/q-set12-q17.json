@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q17",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's AI Agent has a system prompt that evolves over time as the team refines the agent's behaviour. They wonder about managing system prompt versions -- track changes, A/B test, roll back if needed.",
+  "question": "How might a team manage AI Agent system prompt versions?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Hardcode prompts; never change -- wrong; iteration valuable."
+    },
+    {
+      "id": "b",
+      "text": "Multiple valid approaches exist for managing AI Agent system prompt versions in Camunda 8. Inlining prompts as BPMN Connector properties ties prompt versions to BPMN deployment versions -- each redeployment creates a new snapshot, and Operate tracks all versions. Externalizing prompts to a centralized config store such as a database, Git repository, or secrets manager and fetching them at runtime via FEEL expressions decouples prompt lifecycle from BPMN lifecycle, enabling prompt updates without redeployment. For A/B testing, an XOR Gateway can split traffic based on a customer ID hash so some instances use prompt v1 and others v2. DMN tables can select which prompt to use based on scenario attributes, making prompt selection rule-based and easy to maintain. The choice depends on prompt-change cadence and team sophistication."
+    },
+    {
+      "id": "c",
+      "text": "Claiming that Camunda automatically manages AI Agent system prompt versions without any configuration is an oversimplification. Prompt version management is not a built-in Camunda feature that handles Git commits, diff tracking, A/B test routing, or automatic rollback. When prompts are inlined in the BPMN, versioning is tied to BPMN deployment versions in Operate. External prompt stores and Git-based version control require explicit integration setup by the development team. The level of prompt version management depends entirely on the architecture the team designs and implements."
+    },
+    {
+      "id": "d",
+      "text": "Version-controlling prompts only within the BPMN XML (inline as Connector properties) is a valid but limited approach. While it works for simple scenarios where prompt changes coincide with process logic changes, it requires a full BPMN redeployment for every prompt update and makes A/B testing between prompt versions complex. Teams with high prompt-iteration cadence benefit from externalizing prompts to a config store, which decouples prompt lifecycle from BPMN lifecycle. Relying solely on BPMN versioning for prompt management does not support advanced use cases like partial traffic rollout or runtime prompt switching."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. AI Agent system prompt management deserves the same rigor as any production-critical config: Pattern 1: Inline in BPMN Pro: simple; versioned with BPMN. Con: prompt changes require BPMN redeployment; can't A/B test easily. Pattern 2: External config store Prompts in Git repo / database; BPMN AI Agent property reads via FEEL: =lookupPrompt(\"customer-service-agent-v2\"). Pro: prompt changes don't need BPMN redeploy; centralised; easy A/B test (lookup includes version param). Con: extra layer; lookup mechanism to maintain. Pattern 3: A/B testing via Gateway XOR Gateway splits traffic before AI Agent: =hash(customerId) mod 100 < 10 → use prompt v2 (10% sample); else prompt v1. Compare outcomes (customer satisfaction, completion rate, etc.) before full rollout. Pattern 4: DMN-driven DMN decision returns the prompt string based on inputs (customer tier, language, context). BPMN reads DMN result; passes to AI Agent. Maintain prompts in DMN decision table (easy to add / remove rows). Production maturity: combine patterns. Source-control prompts; deploy via CI; A/B test before full rollout; monitor outcomes. Specific Camunda IDP / AI features may add native prompt management -- verify per version."
+    },
+    "b": {
+      "text": "Correct. Iteration valuable."
+    },
+    "c": {
+      "text": "Incorrect. Depends."
+    },
+    "d": {
+      "text": "Incorrect. Multiple approaches."
+    }
+  },
+  "explanation": "Iteration valuable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/agentic-orchestration/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q17",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 13.9 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "id": "imp-set13-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team designed a DMN decision table intending to use the PRIORITY hit policy from DMN-1.3 spec with three matching rules ranked LOW, HIGH, MEDIUM via an output-values priority list. On deployment to Camunda 8, the runtime rejects the model. The team wonders why. PRIORITY hit policy in Camunda 8 -- what's the canonical solution?",
+  "question": "PRIORITY hit policy in Camunda 8 -- what's the canonical solution?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:26-53). 3 spec are not part of the current implementation. , =outputs[priority = \"HIGH\"][1] after the BRT to pick the preferred match). For the COLLECT-with-aggregator path, only SUM / MIN / MAX / COUNT are supported aggregators (per :139-170), and the table must have exactly one output column (:126)."
+    },
+    {
+      "id": "b",
+      "text": "md:26-53. 3 specification as a way to select the highest-priority match based on output value ordering, Camunda 8 implements only UNIQUE, ANY, FIRST, RULE ORDER, and COLLECT. Deploying a decision with hitPolicy=\"PRIORITY\" results in a deployment rejection or unsupported behavior. Teams needing priority semantics must use FIRST (with rules authored in priority order) or COLLECT with FEEL filtering as workarounds."
+    },
+    {
+      "id": "c",
+      "text": "md:26-53. 3 specification but are not part of the current implementation by the Zeebe engine. Attempting to deploy a decision table using OUTPUT ORDER will fail. The five supported policies are UNIQUE, ANY, FIRST, RULE ORDER, and COLLECT."
+    },
+    {
+      "id": "d",
+      "text": "Switch to RULE ORDER -- partial; RULE ORDER does return all matches in rule order (per :101-110) but it returns a list of outputs, not a single highest-priority result. To extract the top-priority result, combine with [1] indexing on the Business Rule Task's output variable to take the first element. FIRST is simpler and more idiomatic when priority can be encoded in rule row order. RULE ORDER suits scenarios where all matches are needed, not just the top one."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. PRIORITY is part of DMN-1.3 spec but not in Camunda 8's supported hit-policy list per decision-table-hit-policy.md:26-53 (table lists exactly 5 entries: Unique / Any / First / Rule order / Collect). Deploying a hitPolicy=\"PRIORITY\" decision is rejected by Zeebe at deploy time."
+    },
+    "b": {
+      "text": "Incorrect. Camunda 8 supports exactly 5 hit policies; PRIORITY and OUTPUT ORDER are not implemented: The 5 supported policies (per :26-53): UNIQUE (default if hitPolicy attribute omitted, per :11-12): exactly one rule may match; >1 match is a violation. ANY: multiple rules may match but must all produce the same output. FIRST: multiple may match; engine returns only the first satisfied rule's output (per :91-99). RULE ORDER: returns outputs of all satisfied rules in declaration order as a list (per :101-110). COLLECT: returns outputs of all satisfied rules as an unordered list (per :112-120); optional aggregator (SUM / MIN / MAX / COUNT only, per :139-170) reduces to a single value, in which case the table must have exactly one output (:126). Canonical workaround for \"highest-priority winner\" semantics: Pattern A -- FIRST + priority-ordered rules: Author rules so that highest-priority outputs come first in row order. Set hitPolicy=\"FIRST\". Engine short-circuits on first matching rule -- same effect as PRIORITY's \"single highest\" result, encoded in rule layout. Trade-off: rule order doubles as priority spec -- re-ordering rules changes priority semantics; document in DMN annotations. Pattern B -- COLLECT + numeric priority + MAX aggregator: Output column = numeric priority score (e.g., urgency: 1=LOW, 5=MEDIUM, 10=HIGH). hitPolicy=\"COLLECT\" + aggregation=\"MAX\" → returns the single largest numeric output among satisfied rules. Trade-off: requires numeric encoding of priority; only one output column allowed. Pattern C -- COLLECT + Output Mapping FEEL filter: hitPolicy=\"COLLECT\" returns list of all matches. Process layer Output Mapping uses FEEL filter to pick the preferred element: =results[priority = \"HIGH\"][1], fall through to MEDIUM / LOW. Trade-off: priority logic lives in BPMN/FEEL, not DMN -- split of concerns. Difference from FIRST + rule order: FIRST is a hit policy that short-circuits at the engine level on first satisfied rule -- the cheapest path semantically. Use Pattern B/C when the DMN model cannot express priority via row ordering (e.g., dynamic rule order, or priority depends on output content, not author intent)."
+    },
+    "c": {
+      "text": "Incorrect. OUTPUT ORDER is also NOT in C8's supported 5-policy list per :26-53."
+    },
+    "d": {
+      "text": "Incorrect. RULE ORDER works but it returns a list of all matches (per :101-110), not a single result. To extract one, you'd index with [1] -- at which point FIRST is more idiomatic."
+    }
+  },
+  "explanation": "PRIORITY is part of DMN-1.3 spec but not in Camunda 8's supported hit-policy list per decision-table-hit-policy.md:26-53 (table lists exactly 5 entries: Unique / Any / First / Rule order / Collect). Deploying a hitPolicy=\"PRIORITY\" decision is rejected by Zeebe at deploy time.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q23",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

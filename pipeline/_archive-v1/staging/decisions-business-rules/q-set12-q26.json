@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q26",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's DMN file contains multiple decisions (5 decision tables related to pricing). They wonder if Camunda supports multi-decision files or if each decision needs its own file.",
+  "question": "Can one DMN file contain multiple decisions?",
+  "options": [
+    {
+      "id": "a",
+      "text": "dmn file serves as a container and can hold multiple decision tables, BKMs, Input Data nodes, and Knowledge Sources. Grouping related decisions in one file is the standard pattern, not an exception. It allows decisions to share the same DRD namespace, reference shared BKMs, and be deployed together as a single versioned unit. Requiring one file per decision would create an unnecessary proliferation of deployment artifacts."
+    },
+    {
+      "id": "b",
+      "text": "When a DMN file is deployed, all decisions, BKMs, Input Data nodes, and Knowledge Sources contained within the file are deployed together as a single versioned artifact. Each decision within the file gets its own decision definition key and can be invoked independently from any BPMN process via a Business Rule Task. Deployment is a file-level operation, not a decision-level operation, so all elements in the file share the same deployment version."
+    },
+    {
+      "id": "c",
+      "text": "The DRD (Decision Requirements Diagram) structure, which groups multiple related decisions in one file, is the standard and recommended approach in Camunda 8. Decomposing complex decision logic into multiple related decisions within a single file is actively encouraged as best practice for maintainability. There has been no deprecation of multi-decision files; this structure remains fully supported in both Web Modeler and Desktop Modeler."
+    },
+    {
+      "id": "d",
+      "text": "3 spec), forming a DRD. Each decision has its own ID and can be invoked independently from BPMN. The file is a container for related decisions sharing the same DRD context. Standard pattern: group decisions that work together."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. A DMN file (with root) can contain (per dmn.md:23-28 Camunda 8 Modeler supports exactly these four kinds): Multiple Decisions: each with its own ID, name, body (table / literal expression). BKMs: shared business knowledge models (note: per dmn.md:64 \"Currently, you can only reuse BKMs within the same decision\" -- same-decision-only constraint). Input Data: declared external inputs. Knowledge Sources: governance metadata. Not supported in C8 Modeler (spec-only): Decision Services. If a question presents Decision Services as a Camunda-8 building block, treat as fabrication. All supported elements connected via Information / Knowledge / Authority Requirements forming the DRD. Each decision in the file: Has its own ID. Can be invoked independently from BPMN (Business Rule Task references by decision ID). Shares the file's namespace + imports. Deployment: Deploy the DMN file → all decisions / BKMs / etc. become available in the cluster. Versioning: file-level (all elements share the same version per deployment). When to group decisions in one file: Tightly related decisions (e.g., all pricing-related logic). Shared BKMs. Shared input data. When to split into multiple files: Independent domains (pricing vs. compliance vs. eligibility -- separate files for separation of concerns). Different ownership / lifecycle (different teams maintain)."
+    },
+    "b": {
+      "text": "Incorrect. Multi-decision standard."
+    },
+    "c": {
+      "text": "Incorrect. Deploys all."
+    },
+    "d": {
+      "text": "Correct. Standard."
+    }
+  },
+  "explanation": "Standard.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q26",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

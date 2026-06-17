@@ -1,0 +1,50 @@
+{
+  "id": "mod-ad-hoc-subprocesses-45",
+  "topic": "modeling",
+  "subtopic": "ad-hoc sub-processes",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An ad-hoc sub-process is handled by a job worker. The worker tries to complete its current job with an `adHocSubProcess` job result that both activates new inner elements and signals that the `completionCondition` is fulfilled. What does the docs say about this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe activates the new elements first, then completes the ad-hoc sub-process once they finish."
+    },
+    {
+      "id": "b",
+      "text": "The `completionCondition` always takes precedence, so the newly activated elements are silently dropped."
+    },
+    {
+      "id": "c",
+      "text": "Both operations succeed and the activated elements run as fire-and-forget after the sub-process completes."
+    },
+    {
+      "id": "d",
+      "text": "The job worker cannot fulfill the completion condition and activate new elements at the same time; these must be separate job completions."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "There is no documented behavior where Zeebe runs the activations first and then completes. The two actions are mutually exclusive in a single job result."
+    },
+    "b": {
+      "text": "The docs do not describe silently dropping activations; they state the worker simply cannot combine the two actions in one job completion."
+    },
+    "c": {
+      "text": "An ad-hoc sub-process cannot have inner elements running after it completes — the sub-process either cancels remaining instances or waits for them. Fire-and-forget post-completion is not supported."
+    },
+    "d": {
+      "text": "Per the docs: the job worker can activate more elements or fulfill the completion condition, but it cannot fulfill both the completion condition and activate new elements at the same time."
+    }
+  },
+  "explanation": "In a job-worker-handled ad-hoc sub-process, the worker receives a job and decides the next step: activate one or more inner elements, or fulfill the completion condition. These are mutually exclusive in a single job completion. There is only one active ad-hoc sub-process job at any time, and the job may be recreated during execution; completing it may also result in a `NOT_FOUND` rejection.",
+  "docs": [
+    {
+      "title": "BPMN ad-hoc sub-processes",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/ad-hoc-subprocesses/"
+    }
+  ]
+}

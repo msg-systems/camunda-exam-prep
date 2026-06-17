@@ -1,0 +1,50 @@
+{
+  "id": "mod-multi-instance-66",
+  "topic": "modeling",
+  "subtopic": "multi-instance",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Orion Bank scores 200 transactions per batch through a parallel multi-instance service task in Camunda 8.8. The downstream gateway consumes the resulting array, so the output order must mirror the order of the input list rather than the order of completion.",
+  "question": "How is the order of the outputCollection determined for a parallel multi-instance activity?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The outputElement of each instance is appended to the outputCollection in the order that instances complete, so the fastest instances land at the lowest array indices"
+    },
+    {
+      "id": "b",
+      "text": "The outputElement of each instance is inserted into the outputCollection in random order, as parallel instances run concurrently across the available cluster partitions"
+    },
+    {
+      "id": "c",
+      "text": "The outputElement of each instance is inserted into the outputCollection at the same index as the corresponding inputElement of the inputCollection set for the iteration"
+    },
+    {
+      "id": "d",
+      "text": "The outputElement of each instance is inserted into the outputCollection sorted ascending by its own value, so any duplicate values cluster together in the final array"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The documented behavior preserves the input position rather than ordering by completion time; appending in completion order would scramble the result for parallel instances."
+    },
+    "b": {
+      "text": "Incorrect. The order is documented as deterministic and matches the inputCollection, not random; the engine indexes outputs by the source position regardless of how instances ran."
+    },
+    "c": {
+      "text": "Correct. The documentation states that when an instance completes, the outputElement is inserted into the outputCollection at the same index as the inputElement of the inputCollection."
+    },
+    "d": {
+      "text": "Incorrect. The documented behavior preserves index alignment with the input, not any sort order; the engine does not reorder the result by value or de-duplicate entries."
+    }
+  },
+  "explanation": "The output ordering of a multi-instance activity is deterministic: each completed outputElement is placed at the same index in the outputCollection as the matching inputElement in the inputCollection, regardless of completion order.",
+  "docs": [
+    {
+      "title": "BPMN multi-instance",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ]
+}

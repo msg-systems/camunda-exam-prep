@@ -1,0 +1,27 @@
+{
+  "id": "cfg-variables-13",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Logistics designs a Camunda 8.8 shipment-tracking process that handles 18,000 jobs per hour and wants to attach a 2 MB tracking-event payload to each completed job. An architect needs a documented size budget per command before sizing the worker batch policy for the production rollout.",
+  "question": "Which payload-size guidance from the Camunda 8.8 variables documentation applies when completing a job that includes variables?",
+  "options": [
+    { "id": "a", "text": "Roughly 1.5 MB is considered safe per command or event that includes variables, with a recommended target of about 1 MB to leave headroom under the overall 4 MB payload limit." },
+    { "id": "b", "text": "The full 4 MB per process-instance limit is also the per-command budget, so a single complete-job command can include any variable payload that stays at or below 4 MB total." },
+    { "id": "c", "text": "Each job-completion command can include up to 8 MB of variables, with the 4 MB payload limit only counting variables that remain on the process instance after the job completes." },
+    { "id": "d", "text": "The size limit applies only to commands that start new process instances; subsequent commands such as job completion are unlimited and rely on disk throughput for their payload size." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The docs cite ~1.5 MB as a safe per-command rule of thumb and recommend targeting <=1 MB to leave headroom under the 4 MB overall payload limit in production-like tests." },
+    "b": { "text": "Incorrect. The per-command effective budget is smaller than 4 MB because the engine may append follow-up records that temporarily duplicate the variable payload within the same batch." },
+    "c": { "text": "Incorrect. No 8 MB allowance exists for job completion; the documented rule of thumb is well below that and the 4 MB limit covers both variables and engine-internal data combined." },
+    "d": { "text": "Incorrect. The size guidance applies to any command or event that includes variables, including job completions, not just commands that start new process instances in the cluster." }
+  },
+  "explanation": "The 4 MB payload limit covers variables together with workflow engine internal data. Because the engine may briefly duplicate the variable payload in follow-up records, the docs recommend a rule of thumb of about 1.5 MB per command and a 1 MB target for production-like loads.",
+  "docs": [
+    { "title": "Variables", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+  ]
+}

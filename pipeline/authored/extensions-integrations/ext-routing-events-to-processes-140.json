@@ -1,0 +1,50 @@
+{
+  "id": "ext-routing-events-to-processes-140",
+  "topic": "extensions-integrations",
+  "subtopic": "events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A running process instance must react automatically when one of its own process variables changes value, with no external system pushing a message. What does the routing best-practice say about doing this in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 does not yet support the BPMN conditional event, so a different mechanism (e.g., evaluate the condition externally and publish a message) is required."
+    },
+    {
+      "id": "b",
+      "text": "Use a non-interrupting boundary timer with cycle `R/PT0S` to re-evaluate the variable on every change."
+    },
+    {
+      "id": "c",
+      "text": "Add an event subprocess with an interrupting signal start event named after the variable."
+    },
+    {
+      "id": "d",
+      "text": "Use an intermediate conditional event — Camunda 8 evaluates the condition on every variable write."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The 'reacting to process-internal events' section carries a caution: Camunda 8 does not yet support the conditional event. The recommended workaround is to evaluate the condition externally and route the result back via a message."
+    },
+    "b": {
+      "text": "Timer cycles fire on time, not on variable writes; a timer cannot act as a variable-change listener."
+    },
+    "c": {
+      "text": "Signal events are broadcast triggers from outside the instance; they are not how an instance subscribes to its own variable changes."
+    },
+    "d": {
+      "text": "Conditional events are exactly the construct that Camunda 8 does not yet support; the docs warn against assuming the engine will re-evaluate on every variable write."
+    }
+  },
+  "explanation": "The loan-application example in the best-practice page describes a conditional boundary event watching a variable changed by a user task. The caution box right next to it states that Camunda 8 does not yet support the conditional event, so the supported workaround is to externalise the condition check and feed the result back to the process via a message.",
+  "docs": [
+    {
+      "title": "Routing events to processes - best practices",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/routing-events-to-processes/"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "mng-resolve-incidents-update-variables-08",
+  "topic": "managing-development",
+  "subtopic": "operate",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An `order-process.bpmn` instance was created via `zbctl` with the payload below. The XOR gateway in the model requires an integer `orderValue` for the routing evaluation to happen properly. Per the Operate guide on resolving incidents and updating variables, what should the operator do?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Cancel the instance — incidents from gateway evaluation cannot be recovered without redeploying."
+    },
+    {
+      "id": "b",
+      "text": "Redeploy `order-process.bpmn` with the gateway condition rewritten to compare strings so the existing value matches."
+    },
+    {
+      "id": "c",
+      "text": "Update `orderValue` to an integer value in Operate, then resolve the incident on the XOR gateway."
+    },
+    {
+      "id": "d",
+      "text": "Re-run the same `zbctl` command; Zeebe coerces string numbers to integers on the second attempt."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Cancellation is unnecessary — this entire guide exists because the recovery path is updating the variable in Operate, not destroying the instance."
+    },
+    "b": {
+      "text": "Rewriting the BPMN to accept the wrong-typed payload is the opposite of what the guide teaches; the guide fixes the variable to match the model."
+    },
+    "c": {
+      "text": "The page teaches exactly this flow: when `orderValue` was set as a string but the XOR gateway needs an integer, update the variable in Operate and resolve the resulting incident."
+    },
+    "d": {
+      "text": "Zeebe does not silently coerce string numbers to integers for FEEL comparisons; re-running zbctl with the same payload reproduces the same problem."
+    }
+  },
+  "explanation": "The Operate guide walks through the case where an `order-process` instance is created with `orderValue` as the string `\"99\"` even though the XOR gateway requires an integer for proper evaluation. The fix is to update the variable to the correct type in Operate and resolve the resulting incident, not to cancel, redeploy, or simply re-create the instance.",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "./bin/zbctl --insecure create instance order-process --variables '{\"orderId\": \"1234\", \"orderValue\":\"99\"}'"
+  }
+}

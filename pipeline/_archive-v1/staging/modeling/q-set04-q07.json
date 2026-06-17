@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q07",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A claim-processing diagram has 12 tasks. The handle exceptions logic (notify ops, log incident, route to manual review) should be modelled in a separate visual area that can fire whenever a specific error message arrives during the main flow.",
+  "question": "Which BPMN construct fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Separate BPMN file invoked by Call Activity creates a separate process definition with its own lifecycle, variable scope, and deployment unit. While it can model exception-handling logic in isolation, it does not share the parent process variable scope as cleanly as an Event Subprocess. It also requires explicit invocation via Call Activity rather than reacting autonomously to a message event during parent execution. This pattern suits reusable cross-process subprocesses, not event-driven exception handling scoped to one parent."
+    },
+    {
+      "id": "b",
+      "text": "Adding exception logic at the end of the main flow with a conditional gateway means the exception handling only runs after the main flow completes â€” not when the error message arrives during any of the 12 tasks. The scenario requires the handler to fire at any point during the main flow when a specific message is received. End-of-flow conditional logic cannot intercept mid-process events; the error message could arrive and remain unhandled while the main flow is still executing."
+    },
+    {
+      "id": "c",
+      "text": "Boundary Message Event on each of the 12 tasks requires a separate Boundary Event on every task, creating visual clutter and maintenance overhead. Each needs its own outgoing path to the exception-handling logic, either duplicating that logic 12 times or using Call Activities to a shared handler. Event Subprocess achieves the DRY result with a single handler that fires for any of the 12 tasks without adding visual elements to main task nodes or creating any logic duplication."
+    },
+    {
+      "id": "d",
+      "text": "Event Subprocess with Message Start Event inside the parent process is the canonical BPMN scoped event handler. It sits visually inside the parent process as a separate area, listens for the message trigger, and activates anytime during parent execution. It can be non-interrupting (parent continues in parallel) or interrupting (parent flow replaced). It shares the parent variable scope, eliminates 12 separate Boundary Events, and provides a single DRY location for all exception-handling logic within the process boundary. ###"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Event Subprocess is the canonical BPMN construct for scoped event handling within a process. It sits inside the parent (visually separate area), listens for its trigger (Message Start), and activates anytime during the parent's execution. Cleaner than 12 boundary events."
+    },
+    "b": {
+      "text": "Incorrect. Call Activity calls another deployed process -- separate definition, separate lifecycle; doesn't share the parent's variable scope as cleanly."
+    },
+    "c": {
+      "text": "Incorrect. \"At the end\" doesn't fire during the main flow when needed."
+    },
+    "d": {
+      "text": "Correct. 12 boundary events × 12 tasks = visual mess; Event Subprocess is the DRY solution."
+    }
+  },
+  "explanation": "12 boundary events × 12 tasks = visual mess; Event Subprocess is the DRY solution.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q07",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

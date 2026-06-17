@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team is migrating a Camunda 7 process to Camunda 8. The Camunda 7 process has a Business Rule Task that calls a DMN named \"approval-flow\" via the property camunda:decisionRef=\"approval-flow\". In Camunda 7, the DMN evaluation was performed by the embedded DMN engine in the same JVM as the process engine, with the result automatically bound to a process variable named decisionResult. When the team imports the BPMN XML into Web Modeler for Camunda 8 deployment, the Business Rule Task deploys without errors but fails at runtime with \"no decision found for id 'approval-flow'\" -- even though the DMN file was uploaded to the Web Modeler project and shows status \"Deployed\".",
+  "question": "What is likely the cause and the fix?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The DMN file must be deployed via the Zeebe gRPC API, not through Web Modeler. The Web Modeler \"Deployed\" status shown by the team indicates the DMN resource was successfully registered with the Zeebe engine. The deployment method is not the cause of the runtime failure."
+    },
+    {
+      "id": "b",
+      "text": "decisionId instead of Camunda 7's camunda:decisionRef. 0). Zeebe simply discards any XML element or attribute it doesn't recognise from its own schema, which is why the deployment succeeds with no errors but the Business Rule Task has no decision binding at runtime. The fix is to open the BPMN in Web Modeler, select the Business Rule Task, and configure the \"Called Decision\" property using the Camunda 8 UI -- this writes the correct zeebe:calledDecision element to the XML."
+    },
+    {
+      "id": "c",
+      "text": "Combine them. This premise is false -- BPMN and DMN files are always separate XML documents in both Camunda 7 and Camunda 8. The Business Rule Task in BPMN references the DMN by its decision ID; they are linked logically by ID, not physically by being in the same file. Combining them into a single XML file is unsupported, non-standard, and would not solve the namespace mismatch problem."
+    },
+    {
+      "id": "d",
+      "text": "The DMN file's <definitions> element must reference the BPMN process via a processRef attribute. This is a fabricated requirement -- the DMN <definitions> element contains namespace declarations, a name, an id, and <decision> child elements. There is no processRef attribute in the DMN specification. decisionId), not the other way around. Adding a processRef to DMN XML would cause a parse error or be silently ignored."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 7 and Camunda 8 use different BPMN XML extension namespaces. Camunda 7's camunda:decisionRef is in the http://camunda.org/schema/1.0/bpmn namespace; Camunda 8's Zeebe extension is zeebe:calledDecision.decisionId in http://camunda.org/schema/zeebe/1.0. Zeebe silently ignores Camunda 7 properties because they're in a different namespace and not part of Zeebe's schema -- the Business Rule Task deploys without errors but has no decision binding at runtime. The fix is to re-edit the Business Rule Task in Web Modeler so it uses the Zeebe-specific property."
+    },
+    "b": {
+      "text": "Correct. DMN files can be deployed via Web Modeler, Camunda Java client, or REST. There is no \"must use gRPC\" restriction."
+    },
+    "c": {
+      "text": "Incorrect. BPMN and DMN are separate XML files in both Camunda 7 and 8. Combining them is not required and would not be standard."
+    },
+    "d": {
+      "text": "Incorrect. DMN files do not reference BPMN process IDs in their `` element. The linkage is from BPMN's Business Rule Task → DMN's decisionId, not the reverse."
+    }
+  },
+  "explanation": "DMN files can be deployed via Web Modeler, Camunda Java client, or REST. There is no \"must use gRPC\" restriction.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q29",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

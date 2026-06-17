@@ -1,0 +1,27 @@
+{
+  "id": "con-connector-templates-27",
+  "topic": "connectors",
+  "subtopic": "connector-templates",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "At fintech vendor Bramble Trust, a Camunda 8.8 user task can be cancelled when an external risk system pushes a webhook within 48 hours of activation. The risk system signs every callback with a JWT, and a small team of 4 engineers configures the HTTP Webhook boundary event connector template to validate JWT roles against a well-known JWKs endpoint.",
+  "question": "Which Authorization type value should the team pick on the boundary event template, and which field then holds the well-known JWKs URL?",
+  "options": [
+    { "id": "a", "text": "Authorization type APIKEY in the authorization group, with the JWKs endpoint placed in the inbound.auth.apiKeyLocator field as a FEEL expression evaluated on the request payload" },
+    { "id": "b", "text": "Authorization type JWT in the authorization group, with the JWKs endpoint placed in the inbound.auth.jwt.jwkUrl field of the authorization group on the boundary event template" },
+    { "id": "c", "text": "Authorization type BASIC in the authorization group, with the JWKs endpoint placed in the inbound.auth.username field and the shared secret stored in inbound.auth.password" },
+    { "id": "d", "text": "Authorization type NONE in the authorization group, with the JWKs endpoint placed in the inbound.verificationExpression field located in the webhookResponse group of the template" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Selecting APIKEY exposes inbound.auth.apiKey plus inbound.auth.apiKeyLocator; apiKeyLocator is a FEEL expression that extracts the API key from the request, not a JWKs URL holder." },
+    "b": { "text": "Correct. The boundary template defines an Authorization type dropdown with NONE, BASIC, APIKEY, and JWT; selecting JWT reveals inbound.auth.jwt.jwkUrl described as the well-known URL of JWKs, alongside permissionsExpression and requiredPermissions." },
+    "c": { "text": "Incorrect. Selecting BASIC exposes inbound.auth.username and inbound.auth.password for basic authentication credentials; the template provides no JWKs URL field under BASIC." },
+    "d": { "text": "Incorrect. NONE disables authorization and exposes no auth fields; the verification expression is for one-time webhook handshake responses, not for JWT keys." }
+  },
+  "explanation": "On the boundary event webhook template, picking JWT in the Authorization type dropdown reveals JWT-specific properties including inbound.auth.jwt.jwkUrl (the well-known URL of JWKs), inbound.auth.jwt.permissionsExpression, and inbound.auth.jwt.requiredPermissions, all in the authorization group.",
+  "docs": [
+    { "title": "Connector templates - Inbound boundary event", "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-templates/" }
+  ]
+}

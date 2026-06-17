@@ -1,0 +1,27 @@
+{
+  "id": "cfg-incidents-45",
+  "topic": "configuring-processes",
+  "subtopic": "incidents",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Iris Marketplace processes 18000 orders per day in Camunda 8.8 and an operations developer must resolve a process instance-related incident caused by a condition expression that did not return a boolean value on an exclusive gateway, using the Java client against the broker.",
+  "question": "Which Java client commands does the incidents docs prescribe for a process instance-related incident not tied to a failed job?",
+  "options": [
+    { "id": "a", "text": "newUpdateRetriesCommand on the job key with retries set to 3, then newResolveIncidentCommand on the incident key in that order against the broker" },
+    { "id": "b", "text": "newCompleteJobCommand with the corrected boolean payload, then newResolveIncidentCommand on the incident key in that order against the broker" },
+    { "id": "c", "text": "newCancelProcessInstanceCommand for the stuck instance, then newCreateProcessInstanceCommand to start a fresh instance with valid variables again" },
+    { "id": "d", "text": "newSetVariablesCommand on the element instance with corrected variables, then newResolveIncidentCommand on the incident key in that order against the broker" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Updating retries applies to job-related incidents; for a non-job, condition-driven incident the docs only require setting variables and resolving the incident, not increasing retries." },
+    "b": { "text": "Incorrect. Complete-job is irrelevant here because no job has been activated; the incident is on the condition expression in the process instance, so set-variables and resolve-incident are used." },
+    "c": { "text": "Incorrect. Cancelling the instance loses execution context; the docs recommend updating variables on the existing element instance and marking the incident as resolved." },
+    "d": { "text": "Correct. The docs show that for a non-job incident, such as a condition expression that did not return a boolean value, the client calls newSetVariablesCommand on the element instance and then newResolveIncidentCommand on the incident key." }
+  },
+  "explanation": "For incidents created during process execution that are not job-related, the docs note the cause is usually a process instance variable, for example a condition expression that did not return a boolean. The fix is to update the variables on the element instance and mark the incident as resolved, after which the process instance continues.",
+  "docs": [
+    { "title": "Incidents", "url": "https://docs.camunda.io/docs/components/concepts/incidents/" }
+  ]
+}

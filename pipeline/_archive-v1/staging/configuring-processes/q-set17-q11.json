@@ -1,0 +1,56 @@
+{
+  "id": "imp-set17-q11",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Worker handles jobs but only needs specific variables (subset). Team wonders fetchVariables filter.",
+  "question": "Worker fetchVariables filter?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda SDKs support fetchVariables filter: - Specify subset: worker requests only specific variable names. - Reduces payload: smaller activation responses. - For large variables: significant overhead reduction. - Configuration: at worker registration; per-job-type. - Default: all variables fetched. - SDK support: Java, Go, and other official SDKs expose fetchVariables as a subscription configuration option. \", fetchVariables = {\"orderId\", \"amount\"})."
+    },
+    {
+      "id": "b",
+      "text": "Job workers always receive all process variables regardless of any configuration -- this does not accurately reflect the behavior. By default, all variables are fetched, but the SDK provides a fetchVariables property allowing workers to specify an explicit allowlist of variable names. Only listed variables are included in activated jobs. This filtering reduces network payload and memory consumption, which can significantly improve throughput for processes with many or large variables."
+    },
+    {
+      "id": "c",
+      "text": "Workers must manually filter variables after fetching all of them in the worker code -- this partially describes a workaround but misses the built-in mechanism. While a worker could receive all variables and discard unwanted ones in application code, the fetchVariables property in the worker subscription configuration tells the broker which variables to include before sending the job. Filtering at source is far more efficient than filtering an already-transferred large payload."
+    },
+    {
+      "id": "d",
+      "text": "Variable fetching is not configurable for job workers in Camunda 8 -- this does not accurately reflect the behavior. The Camunda 8 Java SDK and other official SDKs explicitly support the fetchVariables configuration. Developers declare a list of variable names when registering a job worker, and the broker ensures only those variables are included in activated jobs. This is an intentional performance optimization feature, particularly valuable for high-throughput scenarios where workers only need a subset of available variables."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. fetchVariables filter: Purpose: Reduce activation payload: don't fetch all variables. For high-throughput workers: efficiency. For large variables: avoid unneeded transfer. Camunda Spring Boot Starter example (8.8 -- replaces legacy Spring Zeebe SDK per apis-tools/camunda-spring-boot-starter/getting-started.md:16-22): `java @JobWorker(type = \"process-payment\", fetchVariables = {\"orderId\", \"amount\", \"customerId\"}) public Map handle( @Variable String orderId, @Variable BigDecimal amount, @Variable String customerId) { // process return Map.of(\"paymentId\", \"...\"); } Only specified variables fetched. (@JobWorker annotation preserved by Camunda Spring Boot Starter.) TypeScript SDK example (@camunda8/sdk -- replaces legacy zeebe-node per apis-tools/typescript/typescript-sdk.md): ts c8.createJobWorker({ type: \"process-payment\", fetchVariable: [\"orderId\", \"amount\"], taskHandler: async (job) => { // job.variables contains only orderId + amount } }); ` At gRPC layer: Worker requests with variable filter. Broker returns subset. Default behavior: Without filter: all variables fetched. For small processes: fine. For large state: inefficient. Use cases: Use case 1: High-throughput: Worker processes thousands of jobs. Only needs few variables. Filter reduces overhead. Use case 2: Large variables in process: Process has 100KB+ document content. Worker just needs metadata. Filter avoids transferring. Use case 3: Sensitive data: Process has PII variables. This worker doesn't need. Filter avoids exposure. For @VariablesAsType (per Set 14 Q41): Filter to fields needed: efficient. POJO with subset fields: works. For dynamic filtering: At worker code: post-fetch. Less efficient than fetchVariables. For combining with autoComplete: Worker returns variables: full process scope updated. fetchVariables: only affects fetch direction. For SaaS: Bandwidth costs: fetchVariables helps reduce. For Self-Managed: Network bandwidth: limited resource. fetchVariables improves: especially across clusters. For testing: Verify worker doesn't depend on non-fetched variables. Unit tests: with filtered scope. For evolution: New variables added: don't fetch if not needed. Worker stable: filter unchanged. For multi-worker setup: Different workers: different filters. Same job type: same filter typically. For variables structure: Nested objects: typically fetch whole object. Filter at top level: names at root scope. For Camunda 8 versions: Verify fetchVariables support per version + SDK. For best results: Use fetchVariables: high-throughput workers. Don't bother: low-throughput. Monitor benefit: measure with / without. Anti-patterns: Fetching all when only few needed: inefficient. Wrong variable names: silent failure (variable null). Best practices: Filter for performance: when needed. Document variable contract: per worker. Test: verify behavior. For Connectors: Outbound Connectors: similar variable handling. Element Template config: declares needed. For the scenario (only subset of variables): fetchVariables filter: pass list of names. Reduces payload. Efficient. For tooling: Worker frameworks: support filter. Verify SDK version: feature availability."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "fetchVariables filter: Purpose: Reduce activation payload: don't fetch all variables. For high-throughput workers: efficiency. For large variables: avoid unneeded transfer. Camunda Spring Boot Starter example (8.8 -- replaces legacy Spring Zeebe SDK per apis-tools/camunda-spring-boot-starter/getting-started.md:16-22): `java @JobWorker(type = \"process-payment\", fetchVariables = {\"orderId\", \"amount\", \"customerId\"}) public Map handle( @Variable String orderId, @Variable BigDecimal amount, @Variable String customerId) { // process return Map.of(\"paymentId\", \"...\"); } Only specified variables fetched. (@JobWorker annotation preserved by Camunda Spring Boot Starter.) TypeScript SDK example (@camunda8/sdk -- replaces legacy zeebe-node per apis-tools/typescript/typescript-sdk.md): ts c8.createJobWorker({ type: \"process-payment\", fetchVariable: [\"orderId\", \"amount\"], taskHandler: async (job) => { // job.variables contains only orderId + amount } }); ` At gRPC layer: Worker requests with variable filter. Broker returns subset. Default behavior: Without filter: all variables fetched. For small processes: fine. For large state: inefficient. Use cases: Use case 1: High-throughput: Worker processes thousands of jobs. Only needs few variables. Filter reduces overhead. Use case 2: Large variables in process: Process has 100KB+ document content. Worker just needs metadata. Filter avoids transferring. Use case 3: Sensitive data: Process has PII variables. This worker doesn't need. Filter avoids exposure. For @VariablesAsType (per Set 14 Q41): Filter to fields needed: efficient. POJO with subset fields: works. For dynamic filtering: At worker code: post-fetch. Less efficient than fetchVariables. For combining with autoComplete: Worker returns variables: full process scope updated. fetchVariables: only affects fetch direction. For SaaS: Bandwidth costs: fetchVariables helps reduce. For Self-Managed: Network bandwidth: limited resource. fetchVariables improves: especially across clusters. For testing: Verify worker doesn't depend on non-fetched variables. Unit tests: with filtered scope. For evolution: New variables added: don't fetch if not needed. Worker stable: filter unchanged. For multi-worker setup: Different workers: different filters. Same job type: same filter typically. For variables structure: Nested objects: typically fetch whole object. Filter at top level: names at root scope. For Camunda 8 versions: Verify fetchVariables support per version + SDK. For best results: Use fetchVariables: high-throughput workers. Don't bother: low-throughput. Monitor benefit: measure with / without. Anti-patterns: Fetching all when only few needed: inefficient. Wrong variable names: silent failure (variable null). Best practices: Filter for performance: when needed. Document variable contract: per worker. Test: verify behavior. For Connectors: Outbound Connectors: similar variable handling. Element Template config: declares needed. For the scenario (only subset of variables): fetchVariables filter: pass list of names. Reduces payload. Efficient. For tooling: Worker frameworks: support filter. Verify SDK version: feature availability.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q11",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

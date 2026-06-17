@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q28",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DRD has Decision A that takes inputs customerType and region. Decision B depends on A and additionally takes input orderAmount. When invoking the DRD from a Business Rule Task with decisionId: B, what inputs must be supplied as process variables?",
+  "question": "Which set of process variables is required?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Supply only orderAmount as the process variable because it is Decision B's direct input; Decision A's outputs will be computed automatically without needing A's input variables supplied by the caller. The DMN engine does not compute Decision A's results from thin air -- it still requires customerType and region as inputs to evaluate A's rules. Without supplying A's leaf inputs, the engine cannot evaluate A, leaving B unable to access A's output as its own input. The caller must supply all leaf-level inputs for the entire DRD chain."
+    },
+    {
+      "id": "b",
+      "text": "Supply all process variables currently in scope to the Business Rule Task, because Zeebe passes the entire process variable context to the DMN engine without filtering. The Business Rule Task should be configured with targeted input mappings for the three leaf-level variables (customerType, region, orderAmount) rather than indiscriminately passing all process state. The key insight is which leaf inputs are required, not that all variables should be passed."
+    },
+    {
+      "id": "c",
+      "text": "Supply customerType, region, and orderAmount -- all leaf-level inputs required by the entire DRD chain. The DMN engine walks the Information Requirements backward from Decision B: B depends on A (via Information Requirement arrow), and A requires customerType and region; B itself additionally requires orderAmount. Supplying all three allows the engine to evaluate A using A's inputs, then evaluate B using A's output plus orderAmount. A's output is computed at evaluation time -- the caller does not pre-populate it."
+    },
+    {
+      "id": "d",
+      "text": "Supply customerType, region, orderAmount, plus Decision A's output variable pre-populated with a value calculated externally before calling the Business Rule Task. Providing a stale or externally-computed value for A's output could shadow the engine's evaluation result if variable naming conflicts occur."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. When invoking decision B which transitively depends on A, Zeebe traverses the DRD's Information Requirements backward from B to find all leaf-level Input Data. All leaf inputs needed by A AND B must be supplied as process variables. A's output is computed at evaluation time using its inputs -- the caller doesn't supply A's outputs."
+    },
+    "b": {
+      "text": "Incorrect. A needs its own inputs (customerType, region) to compute; can't skip the upstream needs."
+    },
+    "c": {
+      "text": "Correct. Zeebe does see all process variables (scope inheritance), but only the leaf inputs are USED by the DRD. The team should ensure at least the leaf inputs are present; surplus variables are ignored."
+    },
+    "d": {
+      "text": "Incorrect. A's output is computed at evaluation time; doesn't need pre-population."
+    }
+  },
+  "explanation": "Zeebe does see all process variables (scope inheritance), but only the leaf inputs are USED by the DRD. The team should ensure at least the leaf inputs are present; surplus variables are ignored.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-requirements-graph/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q28",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

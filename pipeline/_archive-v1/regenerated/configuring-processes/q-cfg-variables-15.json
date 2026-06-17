@@ -1,0 +1,50 @@
+{
+  "id": "cfg-variables-15",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Bank's Camunda 8.8 onboarding process runs at 4,500 instances per day and defines a variable b on the root scope and another variable b on the activity scope of Task A. The architects must explain to a new hire what each of Task A, Task B, and Task C can read when the instance reaches the parallel-gateway region.",
+  "question": "Which observation about variable b in the documented scope diagram correctly applies to Task A, Task B, and Task C?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Task A reads the activity-scope value of b that covers the root-scope value, while Task B and Task C only see the root-scope value of b because they are outside Task A's scope."
+    },
+    {
+      "id": "b",
+      "text": "Task A reads both copies of b as a merged list, Task B reads only the root value of b, and Task C cannot read b at all because the inner copy of b breaks visibility for it."
+    },
+    {
+      "id": "c",
+      "text": "Task A and Task B both read the activity-scope value of b because they share the subprocess scope, while Task C reads neither because shadowed names are dropped from all scopes."
+    },
+    {
+      "id": "d",
+      "text": "Task A and Task B read the root-scope value of b because activity-scope variables are write-only inside Camunda 8.8, while Task C also reads the root value as the engine default."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs explain that a variable defined again at a nested scope covers the higher-scope variable for activities in that scope, and that activities outside the scope cannot observe variables defined inside it."
+    },
+    "b": {
+      "text": "Incorrect. Variables are not merged into a list when shadowed; activities in the shadowing scope see only the inner value, and outer activities still see the outer value normally for the same name."
+    },
+    "c": {
+      "text": "Incorrect. The activity scope of Task A is not shared with Task B; Task B observes the root-scope value of b, and Task C does too because shadowing in another scope has no effect on it at all."
+    },
+    "d": {
+      "text": "Incorrect. Activity-scope variables are read-write within their scope; the docs describe Task A as observing the inner b that covers the root b, not as being unable to read its own scope's b."
+    }
+  },
+  "explanation": "The variable-scope rules let a nested scope shadow a higher-scope variable with the same name. Inside the shadowing scope (Task A), the inner value is the only one visible, while activities outside the shadowing scope continue to read the higher-scope value because they cannot see into the inner scope.",
+  "docs": [
+    {
+      "title": "Variables",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ]
+}

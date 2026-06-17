@@ -1,0 +1,27 @@
+{
+  "id": "dec-decision-table-hit-policy-28",
+  "topic": "decisions-business-rules",
+  "subtopic": "hit policy",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon insurer evaluates 2200 policies per day in a Camunda 8.8 leave-application DMN table. Two rules can match the same applicant: no vacation days remaining and currently on probation. Both rules produce the refuse output. The modeler chose ANY for this case and asks what happens when those two rules match together.",
+  "question": "What is the runtime behaviour of the ANY hit policy when multiple rules are satisfied during a single decision evaluation?",
+  "options": [
+    { "id": "a", "text": "ANY returns the output of every satisfied rule as a list in the order in which the rules appear in the deployed decision table at runtime" },
+    { "id": "b", "text": "ANY returns the output of the first satisfied rule in document order regardless of whether the satisfied rules generate the same output" },
+    { "id": "c", "text": "ANY returns the output of one satisfied rule only when all satisfied rules generate the same output, and is violated otherwise during evaluation" },
+    { "id": "d", "text": "ANY returns the output of every satisfied rule as an aggregated value across the satisfied rules during the single decision evaluation" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. ANY does not return a list; the docs assign list-style outputs to RULE ORDER and COLLECT. ANY returns only the output of one of the satisfied rules under the equal-output constraint." },
+    "b": { "text": "Incorrect. Returning the first satisfied rule by document order is the FIRST hit policy. ANY requires every satisfied rule to generate the same output rather than picking by order." },
+    "c": { "text": "Correct. The ANY section states that all satisfied rules must generate the same output and the result contains only the output of one of the satisfied rules; otherwise the hit policy is violated." },
+    "d": { "text": "Incorrect. Aggregation is a feature of the COLLECT hit policy via the aggregation attribute on decisionTable. ANY does not aggregate the outputs of multiple satisfied rules during evaluation." }
+  },
+  "explanation": "The ANY section says multiple rules can be satisfied but all satisfied rules must generate the same output, and the decision result contains only the output of one of the satisfied rules. If they produce different outputs, the policy is violated.",
+  "docs": [
+    { "title": "DMN hit policy", "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/" }
+  ]
+}

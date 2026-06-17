@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Customer-support workflow integrates LLM for automated draft response generation in three styles (formal, friendly, technical). Requirements: structured prompts, response validation, clear Operate audit. Choose between AI Agent Connector vs Ad-hoc Subprocess orchestrating multiple LLM calls.",
+  "question": "Which Camunda 8.8 pattern fits best?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use an Ad-hoc Subprocess containing multiple Service Tasks for prompt construction, LLM API call, and response validation. The Ad-hoc Subprocess allows these inner tasks to be activated and completed in any order chosen by the operator or a controlling process, enabling flexible multi-step AI orchestration. For the three-style draft generation, the Ad-hoc Subprocess would contain three parallel prompt-execution paths."
+    },
+    {
+      "id": "b",
+      "text": "Use a standard Service Task configured with a custom Java job worker that wraps the LLM SDK internally. The worker handles prompt construction, API calls to the language model, response validation, and formatting of the three draft styles within its implementation. 8's AI-native features and requires the team to build, maintain, and deploy a custom worker with all the associated infrastructure. While it works technically, it forgoes the Connector's built-in retry, Operate visibility, and declarative configuration benefits available through the AI Agent Connector."
+    },
+    {
+      "id": "c",
+      "text": "8 connector that exposes LLM invocation as a single configurable BPMN element. The team configures the system prompt with style parameters, selects the AI model, and sets validation rules directly in the BPMN element's property panel. The AI Agent Connector provides built-in retry handling, structured output validation, and full invocation audit in Operate without requiring any custom worker code. 8."
+    },
+    {
+      "id": "d",
+      "text": "Implement the response generation as a DMN Decision Table where the input column contains the ticket text and the output column returns the generated response text for each style. Decision tables evaluate rule-based logic using FEEL expressions and return predefined output values -- they do not invoke external AI services or generate natural language text. DMN cannot call LLM APIs; it evaluates deterministic conditional rules. Using DMN for generative AI output generation is a fundamental architectural mismatch."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. AI Agent Connector fits deterministic, structured LLM invocation with clear audit. Single-element abstraction; configuration externalises prompts."
+    },
+    "b": {
+      "text": "Incorrect. Ad-hoc Subprocess fits dynamic agentic orchestration (agent reasons about next step); over-engineered for deterministic 3-style draft."
+    },
+    "c": {
+      "text": "Correct. Pre-8.8 fallback; loses connector benefits."
+    },
+    "d": {
+      "text": "Incorrect. DMN evaluates rule-based logic, not generative AI."
+    }
+  },
+  "explanation": "Pre-8.8 fallback; loses connector benefits.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/agentic-orchestration/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q20",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

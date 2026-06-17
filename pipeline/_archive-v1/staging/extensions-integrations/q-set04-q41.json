@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A TypeScript Job Worker uses @camunda8/sdk. The worker must subscribe to process-receipt jobs. The team wants the worker to process 10 jobs concurrently to maximise throughput.",
+  "question": "Which SDK option controls concurrency?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Spawning 10 separate worker processes each with the default maxJobsActive of 1 achieves 10-way concurrency through multiple process instances rather than worker-level configuration. While functionally equivalent in throughput, it requires 10x the deployment overhead: 10 processes to start, monitor, scale, and manage. Tuning maxJobsActive to 10 on a single worker achieves the same concurrency with a single deployment unit, which is simpler to operate and more resource-efficient."
+    },
+    {
+      "id": "b",
+      "text": "maxJobsActive (or the equivalent concurrency option in different Zeebe client SDKs) controls how many jobs the worker keeps activated simultaneously. Setting this to 10 allows the worker to hold 10 activated jobs at once and process them with worker-side concurrency. The Zeebe broker activates up to 10 jobs per activation request. Combined with a thread pool or async handler in the worker, this enables parallel processing of up to 10 jobs without deploying multiple worker instances."
+    },
+    {
+      "id": "c",
+      "text": "js worker handler enables the worker to process multiple jobs concurrently within a single JavaScript event loop when the handler is called multiple times. all() in the handler alone does not cause the worker to activate more than one job at a time -- it only helps if multiple jobs are already activated. all() without maxJobsActive tuning processes one job at a time."
+    },
+    {
+      "id": "d",
+      "text": "Concurrency in Zeebe Job Workers is configurable via the maxJobsActive setting, which is explicitly designed for this purpose. Claiming that concurrency is fixed at 1 and unconfigurable is factually incorrect. NET, Python -- exposes a concurrency or maxJobsActive option that controls how many jobs are simultaneously activated. This is a documented, first-class worker configuration parameter, not a fixed constant. ###"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Worker options like maxJobsActive (Node SDK; Java equivalent is maxJobsActive) tune how many concurrent jobs the worker holds. Set to 10 to handle 10 in flight."
+    },
+    "b": {
+      "text": "Correct. 10 processes adds OS overhead; per-worker concurrency is the simpler scale knob."
+    },
+    "c": {
+      "text": "Incorrect. Promise.all inside a single-job handler doesn't increase job concurrency."
+    },
+    "d": {
+      "text": "Incorrect. Concurrency is tunable."
+    }
+  },
+  "explanation": "10 processes adds OS overhead; per-worker concurrency is the simpler scale knob.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q41",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

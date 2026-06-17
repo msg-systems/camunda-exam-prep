@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q11",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A logistics company's BPMN process has a Service Task that calls a partner API. The partner requires a specific HTTP header X-Partner-Account-ID with a fixed value for the company. The team uses a generic Java Job Worker that already handles authentication; they want to pass the account ID per Service Task (different processes might use different partner accounts) without modifying the worker code.",
+  "question": "Which BPMN configuration mechanism passes a per-task static value to the worker?",
+  "options": [
+    {
+      "id": "a",
+      "text": "getCustomHeaders() in the Java SDK or equivalent in other SDKs. Define X-Partner-Account-ID = \"ACCT-001\" in the Service Task properties. The worker reads the header per-job and adds it to the outgoing HTTP request. Different Service Tasks across different processes carry different values with zero code changes -- canonical design-time configuration."
+    },
+    {
+      "id": "b",
+      "text": "getVariables() in the handler. While this technically works, process variables carry runtime data flow semantics, not static configuration. Storing a constant account ID as a process variable pollutes the instance state and makes the data available throughout the entire process scope, which is a less clean design than Task Headers."
+    },
+    {
+      "id": "c",
+      "text": "Hardcode the partner account ID value directly in the worker's Java code, then deploy separate worker instances for each partner account, each registering under a different job type string. This approach requires deploying and maintaining N worker binaries for N partner accounts."
+    },
+    {
+      "id": "d",
+      "text": "Use a Service Task input mapping with a constant FEEL value expression to inject the partner account ID as a local variable visible to the worker during job handling. Input mappings are designed to transform runtime variable data for the worker's consumption -- using them with hard-coded constant expressions for static configuration is an unusual pattern. Task Headers are the canonical mechanism specifically designed for per-task static values."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Task Headers is exactly the mechanism for passing per-task static configuration to the worker without polluting process variables. Define key/value pairs in BPMN (X-Partner-Account-ID = \"ACCT-001\"); the worker receives them via job.getCustomHeaders(). Different Service Tasks in different processes can carry different header values without code changes -- design-time configuration."
+    },
+    "b": {
+      "text": "Incorrect. Process variables are for runtime data flow, not static configuration. Setting a variable upstream pollutes process state with a constant; Task Headers is cleaner."
+    },
+    "c": {
+      "text": "Incorrect. Hardcoding in worker requires separate worker deployments per account -- anti-pattern."
+    },
+    "d": {
+      "text": "Incorrect. Input mapping with a constant works but is unusual usage; Task Headers is the canonical mechanism for static per-task config."
+    }
+  },
+  "explanation": "Task Headers is exactly the mechanism for passing per-task static configuration to the worker without polluting process variables. Define key/value pairs in BPMN (X-Partner-Account-ID = \"ACCT-001\"); the worker receives them via job.getCustomHeaders(). Different Service Tasks in different processes can carry different header values without code changes -- design-time configuration.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/service-tasks/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q11",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

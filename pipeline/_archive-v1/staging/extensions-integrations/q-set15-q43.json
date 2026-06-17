@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q43",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "REST Connector body needs template with variable interpolation: {name: ${customerName}, items: ${orderItems}}. Team wonders syntax.",
+  "question": "REST Connector body templating?",
+  "options": [
+    {
+      "id": "a",
+      "text": "REST Connector body field uses FEEL expressions for dynamic composition. The Request body property accepts a FEEL expression that can reference process variables: ={name: customerName, orderId: orderId, items: orderItems} constructs a context (JSON object) at runtime. Simple scalar values reference variables directly; computed fields use FEEL arithmetic or string operations; nested structures use nested context expressions. The body evaluates at execution time against current process variable scope. Note: ${variable} placeholder syntax is for form templating engines, NOT FEEL -- using ${} in a FEEL-mode body field will not resolve process variables and will produce unexpected output. Use =variableName (FEEL mode prefix =) for expressions."
+    },
+    {
+      "id": "b",
+      "text": "The REST Connector body operates in FEEL expression mode, not Mustache/template mode. In FEEL mode, the correct syntax for referencing process variables is direct variable name reference: =myVariable or in a context ={field: myVariable}. The ${} notation is used in Camunda Forms HTML view templating ({{var}} in Mustache style) and Java EL contexts -- not in Connector FEEL expression fields. Using ${variable} syntax in a FEEL field will produce a literal string, not a variable reference."
+    },
+    {
+      "id": "c",
+      "text": "The REST Connector body in Camunda 8 must be a static JSON string -- no dynamic variable injection is possible -- this approach has limitations. The REST Connector body property supports FEEL expressions that compose dynamic content from process variables at runtime. A FEEL context expression like ={customerId: customerId, amount: orderTotal, currency: \"EUR\"} builds a JSON object where customerId and orderTotal are resolved from current process variable values. This enables fully dynamic API request bodies driven by process data, eliminating the need for any static hardcoding in the process model."
+    },
+    {
+      "id": "d",
+      "text": "REST Connector request bodies are always static strings defined at design time and cannot reference runtime process variables -- this approach has limitations. The entire Camunda 8 Connector framework is built around dynamic FEEL expression evaluation at runtime. All configurable properties in Connector Element Templates, including the request body, URL, headers, query parameters, and authentication fields, support FEEL expressions that resolve against current process variable scope at the moment the Service Task activates. Static hardcoded values are the exception, not the rule -- dynamic FEEL-driven configuration is the standard and expected pattern for production Connector usage."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. REST Connector body templating with FEEL: Pattern: Static body: `json {\"action\": \"create\", \"type\": \"order\"} Dynamic body (FEEL): feel ={ customerName: customerName, items: orderItems, total: sum(orderItems.amount), timestamp: now() } Returns object that becomes JSON body. Or for explicit string body: feel =\"POST data: \" + customerName + \" ordered \" + string(count(items)) + \" items\" Returns string (for non-JSON bodies). For JSON content type: Connector serialises FEEL context to JSON. Object → JSON object. List → JSON array. String → JSON string. Nested: feel ={ customer: { id: customerId, name: customerName, address: { street: customer.address.street, city: customer.address.city } }, items: for item in orderItems return { sku: item.sku, qty: item.qty } } Builds nested JSON. For conditional fields: feel ={ name: customerName, discount: if isVip then 0.20 else 0, notes: if comments != null then comments else \"\" } NOT ${variable} syntax: ${...} is templating engine syntax (Velocity, Freemarker, etc.). FEEL doesn't use ${...}: uses inline expressions. Some Connector versions may support both: verify. Comparison with HTML/Template engines: | Style | Syntax | |-------|--------| | FEEL | ={field: variable} | | Mustache | {{variable}} | | Velocity | $variable or ${variable} | | JSX/Vue | {variable} or {{variable}} | | Shell | $VAR | Connector typically uses FEEL. For form-style templating (legacy): Some older Connectors may support ${} for simple substitution; verify. Mixed content: For body containing literal ${...} text: feel =\"The variable is \" + variable Or escape if needed. For complex transformations: feel ={ orders: for o in selectedOrders return { id: o.id, total: sum(o.lineItems.amount), itemCount: count(o.lineItems) } } Aggregate and transform. For XML body (SOAP): Per Set 14 Q33: compose XML string in FEEL or use SOAP Connector. For form-encoded (application/x-www-form-urlencoded): Different serialisation; verify Connector config. Best practices: Use FEEL for body composition: idiomatic. Test serialisation: verify JSON shape. Document expected schema: contract with API. Defensive nulls: handle missing fields. For the scenario ({name: ${customerName}, items: ${orderItems}}): Translates to FEEL: feel ={ name: customerName, items: orderItems } ` Same intent; FEEL syntax. Anti-patterns: String concatenation for JSON: error-prone (escaping). Mixed templating: use one approach consistently."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "REST Connector body templating with FEEL: Pattern: Static body: `json {\"action\": \"create\", \"type\": \"order\"} Dynamic body (FEEL): feel ={ customerName: customerName, items: orderItems, total: sum(orderItems.amount), timestamp: now() } Returns object that becomes JSON body. Or for explicit string body: feel =\"POST data: \" + customerName + \" ordered \" + string(count(items)) + \" items\" Returns string (for non-JSON bodies). For JSON content type: Connector serialises FEEL context to JSON. Object → JSON object. List → JSON array. String → JSON string. Nested: feel ={ customer: { id: customerId, name: customerName, address: { street: customer.address.street, city: customer.address.city } }, items: for item in orderItems return { sku: item.sku, qty: item.qty } } Builds nested JSON. For conditional fields: feel ={ name: customerName, discount: if isVip then 0.20 else 0, notes: if comments != null then comments else \"\" } NOT ${variable} syntax: ${...} is templating engine syntax (Velocity, Freemarker, etc.). FEEL doesn't use ${...}: uses inline expressions. Some Connector versions may support both: verify. Comparison with HTML/Template engines: | Style | Syntax | |-------|--------| | FEEL | ={field: variable} | | Mustache | {{variable}} | | Velocity | $variable or ${variable} | | JSX/Vue | {variable} or {{variable}} | | Shell | $VAR | Connector typically uses FEEL. For form-style templating (legacy): Some older Connectors may support ${} for simple substitution; verify. Mixed content: For body containing literal ${...} text: feel =\"The variable is \" + variable Or escape if needed. For complex transformations: feel ={ orders: for o in selectedOrders return { id: o.id, total: sum(o.lineItems.amount), itemCount: count(o.lineItems) } } Aggregate and transform. For XML body (SOAP): Per Set 14 Q33: compose XML string in FEEL or use SOAP Connector. For form-encoded (application/x-www-form-urlencoded): Different serialisation; verify Connector config. Best practices: Use FEEL for body composition: idiomatic. Test serialisation: verify JSON shape. Document expected schema: contract with API. Defensive nulls: handle missing fields. For the scenario ({name: ${customerName}, items: ${orderItems}}): Translates to FEEL: feel ={ name: customerName, items: orderItems } ` Same intent; FEEL syntax. Anti-patterns: String concatenation for JSON: error-prone (escaping). Mixed templating: use one approach consistently.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/#request-body"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q43",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

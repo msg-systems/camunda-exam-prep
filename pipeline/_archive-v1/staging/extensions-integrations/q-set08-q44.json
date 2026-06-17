@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q44",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team is moving from Camunda 8 SaaS to Self-Managed. They wrote integrations using the Orchestration REST API. They wonder if the same code works in both environments.",
+  "question": "Which best describes API portability between Camunda 8 SaaS and Self-Managed?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 SaaS and Self-Managed expose completely different API interfaces with incompatible endpoints, different authentication mechanisms, and distinct request and response formats -- this description does not reflect the actual behaviour. The API contract is consistent between SaaS and Self-Managed deployments. Both expose the same Zeebe gRPC API, the same Camunda REST API endpoints, and the same Operate, Tasklist, and other component APIs. The API specifications are identical. The differences are in configuration details: different base URLs for SaaS cluster endpoints versus self-managed host addresses, and OAuth2 client credentials configured for the specific environment."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 SaaS and Self-Managed are completely identical from an API perspective with no differences whatsoever -- teams can use the exact same API calls without any modification -- this overstates the compatibility. The API contracts are consistent, but operational differences exist. SaaS uses Camunda-managed cluster URLs with OAuth2 client credentials obtained from the Camunda Console. Self-Managed uses customer-defined host URLs with OAuth2 credentials configured in the local Keycloak or Identity component. Client applications must be configured with environment-specific connection settings even though the API shapes are identical."
+    },
+    {
+      "id": "c",
+      "text": "The REST APIs are largely the same -- same endpoint paths, request/response shapes, OAuth2 client-credentials auth model. md; SM uses your configured identity -- Keycloak by default or external IdP); (3) multi-tenancy is opt-in and configurations differ between SaaS plans and SM. Code that abstracts the base URL and OAuth2 token endpoint ports cleanly."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 SaaS uses only the REST API while Self-Managed deployments use only the gRPC API -- the two deployment models expose different protocol interfaces -- this description does not reflect the actual behaviour. Both SaaS and Self-Managed deployments support both the REST API and the gRPC API. Job workers can use either protocol in either environment. The gRPC-based Zeebe client libraries work with both deployment types. The REST APIs for process management, instance creation, and operational queries are available in both environments. Protocol choice is a client application decision, not a constraint imposed by the deployment model."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 maintains API consistency between SaaS and Self-Managed editions. The same REST endpoint paths, request/response schemas, and conceptual model apply. The practical migration concerns are deployment / configuration: base URL of the cluster, OAuth2 token endpoint (Camunda's hosted identity for SaaS vs your configured IdP for SM), feature availability (some advanced features may be edition-gated; verify the docs). Practical migration pattern: Extract base URL + auth endpoint as configuration values. Use OAuth2 client-credentials flow in both -- same code, different credentials. Test integrations against both environments in CI before cutover."
+    },
+    "b": {
+      "text": "Incorrect. Contract is consistent."
+    },
+    "c": {
+      "text": "Correct. Differences exist but are minor (URL + auth)."
+    },
+    "d": {
+      "text": "Incorrect. Both editions support REST + gRPC."
+    }
+  },
+  "explanation": "Differences exist but are minor (URL + auth).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q44",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

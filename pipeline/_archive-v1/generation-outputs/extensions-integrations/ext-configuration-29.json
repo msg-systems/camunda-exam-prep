@@ -1,0 +1,27 @@
+{
+  "id": "ext-configuration-29",
+  "topic": "extensions-integrations",
+  "subtopic": "Spring Boot Starter variable fetching",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Retail processes 22000 orders per day on Camunda 8.8 with 12 workers behind the Spring Boot Starter. The platform team must constrain the foo worker to fetch only variable1 and variable2 from the broker, defining the override in application.yaml so that the configuration takes precedence over annotation-based detection across every deployment for the retail order pipeline.",
+  "question": "Which Camunda 8.8 Spring Boot Starter configuration causes the foo job worker to fetch only variable1 and variable2 on each job activation?",
+  "options": [
+    { "id": "a", "text": "Define camunda.client.worker.override.foo.fetch-variables with the entries variable1 and variable2 so the foo worker activates jobs with only those two variables loaded from broker state" },
+    { "id": "b", "text": "Define camunda.client.worker.defaults.fetch-variables with the entries variable1 and variable2 so the foo worker activates jobs with only those two variables loaded from broker state" },
+    { "id": "c", "text": "Define camunda.client.worker.override.foo.force-fetch-all-variables with value true so the foo worker activates jobs with only variable1 and variable2 loaded from broker state" },
+    { "id": "d", "text": "Define camunda.client.worker.override.foo.fetch-variables-as-list with variable1 and variable2 so the foo worker activates jobs with only those two variables loaded from broker state" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The documented per-worker constraint is camunda.client.worker.override.WORKER_TYPE.fetch-variables expressed as a YAML list; this properties-defined form overrides all other detection strategies for that worker type." },
+    "b": { "text": "Incorrect. The defaults section applies to every worker rather than only the foo worker; per-worker constraints live under the override section keyed by the specific worker type such as foo." },
+    "c": { "text": "Incorrect. Setting force-fetch-all-variables to true forces every process variable to be fetched, which is the opposite of constraining the list to variable1 and variable2 for the foo worker." },
+    "d": { "text": "Incorrect. The documented property name is fetch-variables and it accepts a YAML list of variable names directly; there is no fetch-variables-as-list variant in the worker override configuration." }
+  },
+  "explanation": "Per-worker variable filtering is expressed as camunda.client.worker.override.WORKER_TYPE.fetch-variables with a YAML list of variable names; this properties-defined form overrides all other detection strategies, including annotation-based fetchVariables on the JobWorker annotation.",
+  "docs": [
+    { "title": "Spring Boot Starter configuration", "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/" }
+  ]
+}

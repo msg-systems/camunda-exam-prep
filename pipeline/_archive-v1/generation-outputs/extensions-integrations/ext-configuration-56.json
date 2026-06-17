@@ -1,0 +1,27 @@
+{
+  "id": "ext-configuration-56",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Bank runs a Camunda 8.8 Spring Boot service that owns 14 BPMN files for retail customer onboarding and must deploy them automatically every time the application starts so that 9000 orders per day continue to flow without a manual upload step against the Orchestration Cluster.",
+  "question": "Which Camunda Spring Boot Starter mechanism deploys process models on application start-up?",
+  "options": [
+    { "id": "a", "text": "Annotate a registered Spring bean with @Deployment and pass resource paths such as classpath:demoProcess.bpmn so the starter loads them via the Spring resource loader on application start-up" },
+    { "id": "b", "text": "Place the BPMN files inside src/main/resources/META-INF/processes and rely on the starter to auto-scan that folder on application start-up without any annotation or configuration property" },
+    { "id": "c", "text": "Set the property camunda.client.deployment.auto-scan=true so the starter inspects the entire classpath and deploys every .bpmn file it encounters on application start-up" },
+    { "id": "d", "text": "Implement the ApplicationRunner interface and manually call CamundaClient newDeployResourceCommand inside the run method for every BPMN file the application needs at start-up" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The Camunda Spring Boot Starter ships a @Deployment annotation that internally uses the Spring resource loader, supports lists of resources and wildcard patterns such as classpath*:/bpmn/**/*.bpmn, and lets you set tenantId on the annotation." },
+    "b": { "text": "Incorrect. The starter does not auto-scan META-INF/processes for BPMN files; deployment on start-up is driven by the @Deployment annotation on a registered Spring bean." },
+    "c": { "text": "Incorrect. There is no camunda.client.deployment.auto-scan property; the deployment toggle is camunda.client.deployment.enabled and the resource list comes from the @Deployment annotation." },
+    "d": { "text": "Incorrect. Calling newDeployResourceCommand manually from an ApplicationRunner is possible but is not the documented start-up mechanism the starter provides; the documented mechanism is the @Deployment annotation." }
+  },
+  "explanation": "The Camunda Spring Boot Starter documents @Deployment as the way to deploy process models on application start-up. The annotation accepts one resource, a list of resources, or wildcard patterns through the Spring resource loader, supports a tenantId property, and falls back to camunda.client.tenant-id when none is provided.",
+  "docs": [
+    { "title": "Camunda Spring Boot Starter configuration", "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/" }
+  ]
+}

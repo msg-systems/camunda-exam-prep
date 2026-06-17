@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A bank's loan origination process includes a User Task \"Review Credit Application\" that must be claimable by any member of the \"credit-officers\" group but must also allow a specific senior officer to be pre-assigned when the loan amount exceeds €500,000. The team configures the User Task with assignee set to =if loanAmount > 500000 then \"senior.officer@bank.com\" else null and candidateGroups set to =[\"credit-officers\"]. For loans under €500K the task appears for all credit-officers; for loans over €500K -- where the assignee evaluates to a specific email -- the senior officer does not see the task in their Tasklist \"Tasks I Can Claim\" view.",
+  "question": "What is the correct understanding of Zeebe's User Task assignment fields?",
+  "options": [
+    {
+      "id": "a",
+      "text": "assignee and candidateGroups cannot coexist on the same User Task -- if both are present in the BPMN XML, the Zeebe engine rejects the deployment with a validation error. This constraint would mean the team must choose between pre-assigning the task to the senior officer or making it available to all credit officers, but cannot do both simultaneously based on a FEEL condition."
+    },
+    {
+      "id": "b",
+      "text": "Zeebe silently discards the assignee field when candidateGroups is set, treating the candidate groups definition as the authoritative assignment configuration. Under this behaviour the task would always be unassigned and available to all credit officers in the group, regardless of the FEEL expression on assignee. The senior officer would need to manually claim the task from the \"Tasks I Can Claim\" view even for loans over €500,000, removing the intended pre-assignment benefit. The group membership would still control visibility and claimability for all users."
+    },
+    {
+      "id": "c",
+      "text": "Tasklist requires the user to be a member of at least one of the candidateGroups even when the task has an explicit assignee set, so the senior officer would not see the task in either \"My Tasks\" or \"Tasks I Can Claim\" unless they also belong to the \"credit-officers\" group. Under this interpretation, the assignee field only pre-claims the task but does not override the group membership requirement for Tasklist visibility. The senior officer would need to be added to the \"credit-officers\" group or to an explicit candidateUsers list to gain access to the pre-assigned task."
+    },
+    {
+      "id": "d",
+      "text": "Setting assignee directly assigns (claims) the task to that user -- Tasklist's \"My Tasks\" view shows tasks where the current user is the assignee; \"Tasks I Can Claim\" shows unassigned tasks where the user is listed in candidateUsers or belongs to a group in candidateGroups. com\" for loans over €500K, the task is created pre-claimed to that user. The senior officer sees it in \"My Tasks\", not in \"Tasks I Can Claim\" because it is already claimed. Both fields can coexist -- Zeebe records all of them on the task record."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Both assignee and candidateGroups can coexist. When assignee is set, the task is created pre-claimed to that user. Tasklist filters: \"My Tasks\" = tasks where I am assignee; \"Tasks I Can Claim\" = unassigned tasks where I'm a candidate. Issue is filter discoverability, not configuration."
+    },
+    "b": {
+      "text": "Incorrect. No deployment failure for coexistence."
+    },
+    "c": {
+      "text": "Incorrect. Zeebe records both fields."
+    },
+    "d": {
+      "text": "Correct. Assignee is sufficient for \"My Tasks\" visibility."
+    }
+  },
+  "explanation": "Assignee is sufficient for \"My Tasks\" visibility.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

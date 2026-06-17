@@ -1,0 +1,27 @@
+{
+  "id": "mng-resolve-incidents-update-variables-15",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Logistics runs Camunda 8.8 with 5000 shipments per day. An operator opens an incident in Operate and reads the message 'Expected to evaluate condition orderValue>=100 successfully, but failed because: Cannot compare values of different types: STRING and INTEGER' on an exclusive gateway in the running process instance.",
+  "question": "What does the Operate incident message reveal about the variable that blocks the gateway from evaluating?",
+  "options": [
+    { "id": "a", "text": "The orderValue variable currently holds a string value, so the gateway condition cannot compare it numerically against the integer 100 in Operate" },
+    { "id": "b", "text": "The orderValue variable is absent from the process instance scope, so the gateway condition has no value to compare against the integer 100 at all" },
+    { "id": "c", "text": "The gateway condition uses an unsupported FEEL operator, so the engine refuses to evaluate orderValue against the integer 100 on the running instance" },
+    { "id": "d", "text": "The process definition was deployed with a syntax error in the condition, so the broker refuses to evaluate orderValue against the integer 100 here" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The incident message states that the engine cannot compare values of different types STRING and INTEGER, which means orderValue is stored as a string while the condition expects an integer for the >=100 comparison." },
+    "b": { "text": "Incorrect. A missing variable would surface as an unresolvable name in the condition, not as a type mismatch between STRING and INTEGER reported by the FEEL evaluation." },
+    "c": { "text": "Incorrect. The >= operator is a supported FEEL comparison; the failure here is specifically a type mismatch between the string value of orderValue and the integer literal 100." },
+    "d": { "text": "Incorrect. A deployment-time syntax error would prevent the model from being deployed, while this incident was raised at runtime during condition evaluation on the gateway." }
+  },
+  "explanation": "Operate surfaces the engine's evaluation error verbatim. The text 'Cannot compare values of different types: STRING and INTEGER' identifies orderValue as the string side of the comparison, so the fix is to store the value as an integer.",
+  "docs": [
+    { "title": "Diagnosing and resolving incidents", "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/" }
+  ]
+}

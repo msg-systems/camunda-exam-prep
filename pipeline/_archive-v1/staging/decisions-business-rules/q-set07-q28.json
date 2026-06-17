@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q28",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's Business Rule Task evaluates a DMN. The team is curious about the runtime architecture -- does Zeebe spawn a separate process / call out to a DMN engine, or evaluate inline?",
+  "question": "How does Zeebe evaluate DMN decisions invoked from Business Rule Tasks?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Via a dedicated Job Worker that subscribes to a special dmn:evaluate task type -- when a Business Rule Task activates, Zeebe publishes a job with this type and an external DMN evaluation service picks it up, evaluates the decision, and completes the job. This describes the Camunda 7 architecture, where an external DMN engine (Camunda Engine or third-party) was commonly invoked via worker-style integrations. In Camunda 8, this external worker pattern is not how DMN evaluation works -- the FEEL and DMN runtime are built directly into the Zeebe broker."
+    },
+    {
+      "id": "b",
+      "text": "Via a separate external DMN microservice that Zeebe calls out to at runtime -- the broker sends the decision request over HTTP or gRPC, the external service evaluates it and returns the result. This is inaccurate; Camunda 8 does not call out to any external DMN service for Business Rule Tasks. The DMN and FEEL runtimes are bundled natively within the broker deployment. , standalone DMN evaluation as a policy service), but they are not how Camunda 8's Business Rule Tasks work."
+    },
+    {
+      "id": "c",
+      "text": "Native engine -- Zeebe has a built-in DMN evaluator that bundles the FEEL engine and DMN runtime directly within the broker. Business Rule Tasks evaluate the referenced decision inline as part of normal workflow execution on the partition that holds the process instance. No external worker subscription is required, no separate DMN engine process is started, and no gRPC call to an external service occurs. This native integration reduces latency, eliminates operational overhead, and means teams only need to deploy the DMN resource to the cluster without configuring a separate evaluation service."
+    },
+    {
+      "id": "d",
+      "text": "On a separate dedicated Zeebe partition that specialises in DMN evaluation -- Zeebe routes Business Rule Tasks to this partition to offload decision processing from process execution partitions. This claim is inaccurate. Zeebe partitions are general-purpose processing units that handle all types of workflow work, including DMN evaluation. There is no dedicated DMN partition or DMN-specific routing. The Business Rule Task evaluates its referenced decision inline as part of normal workflow execution on whatever partition holds the process instance, using the embedded DMN engine."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8's runtime architecture includes native DMN evaluation. The FEEL engine and DMN runtime are bundled; Business Rule Tasks evaluate decisions inline without needing a separate worker subscription. This means: deploy the DMN, reference it from a Business Rule Task, instances evaluate it directly. Less moving parts, lower latency than C7's external-engine pattern."
+    },
+    "b": {
+      "text": "Incorrect. In C7, DMN was sometimes handled by external workers. C8 builds it in; no need for a dmn-eval worker."
+    },
+    "c": {
+      "text": "Correct. No external DMN service."
+    },
+    "d": {
+      "text": "Incorrect. DMN evaluation is just regular broker work; no dedicated partition."
+    }
+  },
+  "explanation": "No external DMN service.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q28",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

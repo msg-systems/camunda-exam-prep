@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "User Task should be due by 2026-05-20 17:00. Team wonders if BPMN has due date attribute.",
+  "question": "User Task due date attribute?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:64-83: - dueDate: deadline by which the task should be finished. - followUpDate: latest time a user should START working on the task (per :73-75). g. g. dueDate or = now() + duration(\"PT15S\")), evaluated on activating the user task; must result in ISO 8601 date-time string per :77. md:71. - Just metadata: doesn't auto-trigger escalation by itself. - Pair with Timer Boundary: for actual overdue escalation."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 User Tasks support a dueDate attribute via the zeebe:taskSchedule extension element, which is visible in Tasklist and helps assignees prioritize work. Both static ISO 8601 date-time strings and dynamic FEEL expressions are supported. The due date metadata is displayed in the Tasklist UI and used for sorting tasks. It does not trigger automatic escalation by itself, but it provides the scheduling information needed by both human workers and monitoring tools to track SLA adherence."
+    },
+    {
+      "id": "c",
+      "text": "Only via Timer -- this is only partially correct. Timer Boundary Events on User Tasks can trigger escalation actions when a deadline is reached, but they are separate from the dueDate attribute. The dueDate is metadata that appears in Tasklist for human workers to see; it is not a trigger. Timer Boundary Events are the mechanism for automated escalation. Both can be used together: set dueDate for display and pair with a Timer Boundary at the same deadline to trigger escalation. Relying solely on Timer Boundary without dueDate means Tasklist users have no visible deadline information."
+    },
+    {
+      "id": "d",
+      "text": "Server time only -- this is only partially accurate. The dueDate on a User Task can be a static ISO 8601 timestamp (which can include timezone offset), a FEEL expression using now() for relative deadlines, or a reference to a process variable containing a date-time value. The now() function in FEEL does use the engine's clock but the timezone can be specified. Dynamic expressions like =now() + duration(\"P1D\") allow process-relative deadlines, and expressions like =date and time(\"2026-05-20T17:00:00Z\") use explicit UTC timestamps. This is not limited to server time alone."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. User Task due date: Attribute: `xml Verify exact attribute / element per version. Dynamic due date (FEEL): xml Computed: 7 days from creation. Use cases for dynamic: SLA-based: =now() + duration(\"PT24H\") for 24-hour SLA. Customer-tier dependent: =if customer.tier = \"VIP\" then now() + duration(\"PT4H\") else now() + duration(\"P3D\"). VIPs faster; standard slower. Process-level scheduling: Based on order priority, type, etc. Behaviors: In Tasklist: Display due date: visible to assignee. Sort by due date: prioritise urgent. Color coding: overdue highlighted. Engine behavior: Just metadata: doesn't auto-trigger escalation. No automatic cancellation on overdue. For overdue handling: Pattern: Timer Boundary: [User Task] (dueDate = X) └─ [Timer Boundary (=dueDate)] → [Escalate] Timer fires at due date → escalation action. Pattern: Periodic check: Background process checks overdue tasks. Sends reminders / escalations. For followUpDate (verify): Different from due date. \"First check by this date\" semantic. May or may not be supported. For Tasklist sorting: Due date asc: most urgent first. Combined with priority (per Set 15 Q12): multi-sort. Time zone considerations: Server time vs user time: be careful. ISO 8601 with TZ: explicit. Display in user's TZ: Tasklist may convert. DST handling: Same as Timer events (per Set 13 Q17). ISO 8601 handles correctly. For long-running processes: Multiple User Tasks with different dues. Cascading SLAs. Best practices: Set due date when meaningful: SLA enforcement. Use dynamic FEEL: context-aware deadlines. Pair with Timer Boundary: actual escalation. Display clearly: Tasklist UX. Anti-patterns: Due date without Timer Boundary: just decoration; no enforcement. Fixed dates in BPMN: should be process-relative. For audit: Track SLA adherence: was task completed by due date? Metrics: P50 / P95 completion vs due date. For the scenario (due 2026-05-20 17:00): xml Or relative: xml ` Optionally pair with Timer Boundary for escalation."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "User Task due date: Attribute: `xml Verify exact attribute / element per version. Dynamic due date (FEEL): xml Computed: 7 days from creation. Use cases for dynamic: SLA-based: =now() + duration(\"PT24H\") for 24-hour SLA. Customer-tier dependent: =if customer.tier = \"VIP\" then now() + duration(\"PT4H\") else now() + duration(\"P3D\"). VIPs faster; standard slower. Process-level scheduling: Based on order priority, type, etc. Behaviors: In Tasklist: Display due date: visible to assignee. Sort by due date: prioritise urgent. Color coding: overdue highlighted. Engine behavior: Just metadata: doesn't auto-trigger escalation. No automatic cancellation on overdue. For overdue handling: Pattern: Timer Boundary: [User Task] (dueDate = X) └─ [Timer Boundary (=dueDate)] → [Escalate] Timer fires at due date → escalation action. Pattern: Periodic check: Background process checks overdue tasks. Sends reminders / escalations. For followUpDate (verify): Different from due date. \"First check by this date\" semantic. May or may not be supported. For Tasklist sorting: Due date asc: most urgent first. Combined with priority (per Set 15 Q12): multi-sort. Time zone considerations: Server time vs user time: be careful. ISO 8601 with TZ: explicit. Display in user's TZ: Tasklist may convert. DST handling: Same as Timer events (per Set 13 Q17). ISO 8601 handles correctly. For long-running processes: Multiple User Tasks with different dues. Cascading SLAs. Best practices: Set due date when meaningful: SLA enforcement. Use dynamic FEEL: context-aware deadlines. Pair with Timer Boundary: actual escalation. Display clearly: Tasklist UX. Anti-patterns: Due date without Timer Boundary: just decoration; no enforcement. Fixed dates in BPMN: should be process-relative. For audit: Track SLA adherence: was task completed by due date? Metrics: P50 / P95 completion vs due date. For the scenario (due 2026-05-20 17:00): xml Or relative: xml ` Optionally pair with Timer Boundary for escalation.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q15",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[2]"
+      }
+    ]
+  }
+}

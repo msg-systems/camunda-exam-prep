@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A customer-support ticket process must escalate to a supervisor if no agent picks up the User Task within 4 hours. The escalation should leave the original task active (a regular agent can still pick it up) but notify a supervisor in parallel.",
+  "question": "Which BPMN construct best handles this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Interrupting Timer Boundary Event with PT4H has a solid-border timer attached to the User Task. When the timer fires, interrupting semantics immediately cancel the host User Task â€” it is terminated and no agent can claim it. This violates the scenario requirement that the original task remain active. Interrupting boundary events are appropriate only when you want to cancel the activity and redirect flow on timeout, not when the task must remain available in parallel with a supervisor notification path."
+    },
+    {
+      "id": "b",
+      "text": "Event Subprocess with Message Start Event is a scoped event handler embedded inside the parent process that fires when a specific inbound message arrives. While Event Subprocesses suit unexpected events across the process scope, this one uses a Message trigger â€” not a Timer. The scenario requires a 4-hour waiting condition that maps naturally to a Timer event. Using a Message Start Event means notification fires on message receipt, not after a fixed duration â€” a mismatched trigger type for time-based escalation."
+    },
+    {
+      "id": "c",
+      "text": "Non-interrupting Timer Boundary Event configured with PT4H is the canonical BPMN escalation-notify pattern. The dashed-border timer fires after 4 hours without cancelling the host User Task â€” the task remains active for any agent to claim. Meanwhile a parallel supervisor-notification path executes. In Camunda 8 / Zeebe, non-interrupting boundary events use a dashed border, signalling that the host activity continues uninterrupted. This precisely implements notify-supervisor-in-parallel while keeping the original task alive."
+    },
+    {
+      "id": "d",
+      "text": "Adding a parallel branch via Parallel Gateway that waits 4 hours then notifies the supervisor is functionally equivalent but more verbose. A Parallel Gateway splits flow into two concurrent branches: the original User Task path and a waiting path using an Intermediate Timer Catch Event. While achieving the same runtime result, it is more complex than a Non-interrupting Timer Boundary Event and mixes the escalation concern into the main flow, reducing diagram clarity compared to the purpose-built boundary event. ###"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Non-interrupting Timer Boundary Event (dashed border) fires the timer without cancelling the host User Task. The supervisor-notify path runs in parallel while the original task remains active. This is canonical escalation-notify pattern."
+    },
+    "b": {
+      "text": "Incorrect. Interrupting (solid border) would cancel the User Task -- agent can no longer pick it up."
+    },
+    "c": {
+      "text": "Correct. Event Subprocess fires on a different signal type (Message); Timer is the natural trigger for \"after 4 hours.\""
+    },
+    "d": {
+      "text": "Incorrect. Parallel Gateway with explicit wait is more verbose; Boundary Event is purpose-built."
+    }
+  },
+  "explanation": "Event Subprocess fires on a different signal type (Message); Timer is the natural trigger for \"after 4 hours.\"",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q02",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

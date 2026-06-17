@@ -1,13 +1,48 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { ExamAttempt } from '@/types';
-import { TOPICS_BY_ID } from '@/data/topics';
+import { TOPICS_BY_ID, EXAM_PASS_PERCENTAGE } from '@/data/topics';
 import { getQuestionById } from '@/data';
 import { QuestionCard } from '@/components/QuestionCard';
 
 interface ResultsScreenProps {
   attempt: ExamAttempt;
   onRetake: () => void;
+}
+
+interface ScoreBand {
+  label: string;
+  blurb: string;
+  classes: string;
+}
+
+function scoreBandFor(pct: number, pass: number): ScoreBand {
+  if (pct >= 80) {
+    return {
+      label: 'Very comfortable pass',
+      blurb: 'You are exam-ready. Stop studying tonight.',
+      classes: 'border-green-500 bg-green-50 text-green-900 dark:bg-green-900/30 dark:text-green-100',
+    };
+  }
+  if (pct >= 70) {
+    return {
+      label: 'Pass range',
+      blurb: 'Likely pass. Skim the topics you missed and you are done.',
+      classes: 'border-emerald-500 bg-emerald-50 text-emerald-900 dark:bg-emerald-900/30 dark:text-emerald-100',
+    };
+  }
+  if (pct >= pass) {
+    return {
+      label: 'Thin pass margin',
+      blurb: `Above the ${pass}% cut-off, but only just. Drill the weakest topics before exam day.`,
+      classes: 'border-yellow-500 bg-yellow-50 text-yellow-900 dark:bg-yellow-900/30 dark:text-yellow-100',
+    };
+  }
+  return {
+    label: 'Below pass',
+    blurb: `Under the ${pass}% cut-off. Identify the topic cluster you missed and focus there.`,
+    classes: 'border-red-500 bg-red-50 text-red-900 dark:bg-red-900/30 dark:text-red-100',
+  };
 }
 
 export function ResultsScreen({ attempt, onRetake }: ResultsScreenProps) {
@@ -100,14 +135,20 @@ export function ResultsScreen({ attempt, onRetake }: ResultsScreenProps) {
     .map((r, i) => ({ r, i }))
     .filter(({ r }) => !r.correct);
 
+  const band = scoreBandFor(attempt.score, EXAM_PASS_PERCENTAGE);
+
   return (
     <div className="space-y-6">
       <div className="card text-center">
         <h2 className="text-2xl font-bold">{attempt.passed ? 'Passed' : 'Did not pass'}</h2>
         <p className="mt-2 text-4xl font-bold text-camunda">{attempt.score.toFixed(1)}%</p>
         <p className="mt-1 text-sm text-slate-500">
-          {attempt.correctQuestions} / {attempt.totalQuestions} correct
+          {attempt.correctQuestions} / {attempt.totalQuestions} correct · pass at {EXAM_PASS_PERCENTAGE}%
         </p>
+        <div className={`mt-4 rounded border-l-4 p-3 text-left text-sm ${band.classes}`}>
+          <p className="font-semibold">{band.label}</p>
+          <p className="mt-1 text-xs">{band.blurb}</p>
+        </div>
         <div className="mt-4 flex flex-wrap justify-center gap-2">
           <button className="btn btn-primary" onClick={() => setReviewIdx(0)}>
             Review all answers

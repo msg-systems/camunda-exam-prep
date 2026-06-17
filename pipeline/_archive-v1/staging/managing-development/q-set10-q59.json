@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q59",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's BPMN models have varying error-handling approaches: some use Error Boundary, some rely on retries, some have no handling. The team lead wants to establish best-practice error-handling strategies.",
+  "question": "What are recommended error-handling strategies in Camunda 8 BPMN?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Layered approach: 1. Retries for transient errors -- zeebe:taskDefinition retries with appropriate backoff; let Zeebe re-activate. Catches network blips, transient API errors. 2. Error Boundary Events for known business errors -- workers throw BPMN errors with codes; boundaries catch and route to business handling. 3. Incident + manual intervention for unknown errors -- when retries exhausted and no boundary catches, Incident appears in Operate; ops investigates. 4. Compensation for saga rollback -- when one step succeeds but later steps fail and need rollback. 5. Timeout for hung tasks -- Timer Boundary on long-running activities. Apply per task type's failure characteristics."
+    },
+    {
+      "id": "b",
+      "text": "A catch-all boundary handles all errors uniformly without distinguishing transient failures that should be retried from business logic errors that need routing to specific handling paths. A comprehensive strategy layers multiple mechanisms: retries for transient errors, specific Error Boundary Events for known business errors, and catch-all as a final fallback."
+    },
+    {
+      "id": "c",
+      "text": "Never add error handling to BPMN processes and allow all errors to propagate naturally -- this makes every unhandled error create an Incident requiring manual operator intervention. Without error handling, transient network failures and temporary partner outages that could be resolved automatically via retry create manual work for operators. Business logic errors that should route to defined handling paths instead block the process. Thoughtful error handling reduces operational burden significantly."
+    },
+    {
+      "id": "d",
+      "text": "A single uniform error-handling strategy should be applied to all Service Tasks regardless of the type of error they might throw -- this fails to account for the different natures of error categories. Transient infrastructure errors benefit from automatic retry while business validation errors need routing to human-review paths. Unknown errors need Incident creation for operator investigation. A one-size-fits-all approach either over-retries business errors or under-handles transient failures."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Robust error-handling strategy in BPMN combines multiple mechanisms by error category: 1. Transient errors (network blip, partner overload) Mechanism: BPMN retries (retries = 3 or 5) + retryBackoff. Outcome: Zeebe auto-retries; usually succeeds on retry; no human attention. 2. Known business errors (validation failure, invalid input, business rule violation) Mechanism: Worker throws BPMN error with errorCode (INVALID_DATA, INSUFFICIENT_FUNDS); Error Boundary Event catches by code; routes to business-appropriate handling. Outcome: Explicit business flow for these cases (e.g., manual review, customer notification, escalation). 3. Unknown errors (bugs, unforeseen edge cases) Mechanism: Retries exhausted; no matching Error Boundary; Incident in Operate. Outcome: Ops sees incident; investigates; fixes data / code / retries. 4. Saga rollback (one step succeeded, later failed, need to undo) Mechanism: Compensation Boundary Events on completable activities; Compensation Throw on failure path. Outcome: Engine walks back, runs compensation handlers; clean rollback. 5. Timeout / SLA violations Mechanism: Timer Boundary on long-running activities; SLA-based routing. Outcome: Cap latencies; escalate slow processes. 6. Process-level overall timeout Mechanism: Subprocess wrap + Interrupting Timer Boundary. Outcome: Bound total process duration. Apply combinations based on each task / process's needs. Document the strategy in BPMN comments / company standards."
+    },
+    "b": {
+      "text": "Incorrect. Catch-all is one mechanism; full strategy combines."
+    },
+    "c": {
+      "text": "Incorrect. Without handling, everything becomes incident."
+    },
+    "d": {
+      "text": "Incorrect. Multi-strategy."
+    }
+  },
+  "explanation": "Robust error-handling strategy in BPMN combines multiple mechanisms by error category: 1. Transient errors (network blip, partner overload) Mechanism: BPMN retries (retries = 3 or 5) + retryBackoff. Outcome: Zeebe auto-retries; usually succeeds on retry; no human attention. 2. Known business errors (validation failure, invalid input, business rule violation) Mechanism: Worker throws BPMN error with errorCode (INVALID_DATA, INSUFFICIENT_FUNDS); Error Boundary Event catches by code; routes to business-appropriate handling. Outcome: Explicit business flow for these cases (e.g., manual review, customer notification, escalation). 3. Unknown errors (bugs, unforeseen edge cases) Mechanism: Retries exhausted; no matching Error Boundary; Incident in Operate. Outcome: Ops sees incident; investigates; fixes data / code / retries. 4. Saga rollback (one step succeeded, later failed, need to undo) Mechanism: Compensation Boundary Events on completable activities; Compensation Throw on failure path. Outcome: Engine walks back, runs compensation handlers; clean rollback. 5. Timeout / SLA violations Mechanism: Timer Boundary on long-running activities; SLA-based routing. Outcome: Cap latencies; escalate slow processes. 6. Process-level overall timeout Mechanism: Subprocess wrap + Interrupting Timer Boundary. Outcome: Bound total process duration. Apply combinations based on each task / process's needs. Document the strategy in BPMN comments / company standards.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/best-practices/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q59",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "mod-send-tasks-29",
+  "topic": "modeling",
+  "subtopic": "send tasks",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A process instance reaches a send task with `taskDefinition` type `kafka`, but no job worker is currently subscribed to that type. What does Zeebe do?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe creates a job and waits; the send task stays activated until a worker subscribes and completes the job."
+    },
+    {
+      "id": "b",
+      "text": "Zeebe publishes the message itself using a built-in Kafka producer, since send tasks are handled by the broker."
+    },
+    {
+      "id": "c",
+      "text": "An incident is raised immediately because there is no worker registered for `kafka`."
+    },
+    {
+      "id": "d",
+      "text": "The send task is skipped and the token continues along the outgoing sequence flow."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Send tasks behave exactly like service tasks: Zeebe creates a job and waits for completion. Jobs for send tasks are not processed by Zeebe itself, so the job simply waits until a worker subscribes."
+    },
+    "b": {
+      "text": "Zeebe has no built-in Kafka producer; the docs say jobs for send tasks are not processed by Zeebe itself and a job worker must be provided."
+    },
+    "c": {
+      "text": "The absence of a subscribed worker is not an incident; the job is simply unactivated and waits to be picked up."
+    },
+    "d": {
+      "text": "Send tasks do not skip; the process instance pauses at the task until the job is completed by a worker."
+    }
+  },
+  "explanation": "A send task is a job-based activity like a service task — Zeebe creates a job and pauses the token until the job is completed. Because Zeebe does not process send task jobs itself, the job remains available for activation until a registered job worker requests and completes it.",
+  "docs": [
+    {
+      "title": "BPMN send tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/send-tasks/"
+    }
+  ]
+}

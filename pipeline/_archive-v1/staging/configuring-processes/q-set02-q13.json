@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A monthly billing process must fire on the first business day of every month at 09:00 local time. The team is in Frankfurt (CET/CEST timezone -- daylight saving time twice a year). The current configuration uses a Timer Start Event with cycle: R/P1M -- but the team observes that during the March DST transition, the next fire happened at 08:00 local instead of 09:00, and during October DST it fired at 10:00.",
+  "question": "Which timer configuration handles DST correctly?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Stay with R/P1M but add a downstream Service Task that checks the current time and discards execution if the current hour is not 09:00, effectively allowing the timer to fire at the wrong time but suppressing the actual processing. This is a workaround that still allows the timer to fire at incorrect times -- during DST transitions the process activates an hour off, then the check discards it."
+    },
+    {
+      "id": "b",
+      "text": "Use a CRON expression like 0 0 9 1 with a timezone qualifier. Zeebe supports CRON-style timer expressions in addition to ISO 8601. CRON expressions allow fine-grained calendar-aware scheduling and include timezone awareness so that Zeebe interprets the fire time against local wall-clock time in the specified timezone."
+    },
+    {
+      "id": "c",
+      "text": "Use cycle: R/PT720H (720 hours = 30 days) to express a fixed duration cycle that avoids the calendar-based DST ambiguity of ISO 8601 monthly periods. A fixed 720-hour cycle does not align with calendar months -- February has 28 or 29 days, other months have 30 or 31. After a year the timer drifts by several days away from the intended first-of-month firing time, making this approach increasingly inaccurate over time."
+    },
+    {
+      "id": "d",
+      "text": "Switch to an ISO 8601 absolute date expression like date: 2026-09-01T09:00:00+02:00 and re-deploy the process each month with the next target date hardcoded. Re-deploying every month to update a hardcoded date is operationally fragile -- it requires manual intervention monthly, creates deployment history noise, and is prone to human error (wrong date, wrong offset for DST). Recurring timer expressions exist precisely to avoid this kind of manual cycle."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe supports CRON-style timer expressions in addition to ISO 8601. CRON allows finer-grained scheduling (e.g., \"every 1st of month at 9 AM\") with built-in timezone awareness -- Zeebe interprets the expression in the configured cluster timezone or a per-timer timezone qualifier. This handles DST transitions correctly because CRON evaluates against local wall-clock time, not absolute durations."
+    },
+    "b": {
+      "text": "Correct. Adding a downstream check is a workaround that still fires at the wrong time, just discards execution sometimes. Wasteful and brittle."
+    },
+    "c": {
+      "text": "Incorrect. R/PT720H is a fixed-duration cycle that drifts: 30-day cycles don't align with calendar months (February has 28-29 days, others have 30-31). After a year, the timer would be days off."
+    },
+    "d": {
+      "text": "Incorrect. Re-deploying every month is operationally fragile and defeats the purpose of a recurring timer."
+    }
+  },
+  "explanation": "Adding a downstream check is a workaround that still fires at the wrong time, just discards execution sometimes. Wasteful and brittle.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q13",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

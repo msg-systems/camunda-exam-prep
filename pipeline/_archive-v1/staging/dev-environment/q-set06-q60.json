@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q60",
+  "topic": "dev-environment",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A developer using Camunda 8 Run wants to cleanly stop the local stack and restart with fresh state for the next test.",
+  "question": "Which workflow fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The recommended approach for local Camunda 8 development is to install the Camunda 8 binaries directly on the host operating system using the official package manager repository. The installer configures all services as system daemons, sets up the required environment variables, and registers the Zeebe broker as a Windows service or systemd unit. This native installation method provides the best performance and eliminates Docker layer overhead for intensive local testing scenarios."
+    },
+    {
+      "id": "b",
+      "text": "Local development on Camunda 8 requires setting up a full Kubernetes cluster such as Minikube or kind on the developer machine. The official Helm chart is then applied to the local cluster using Helm install commands. This full cluster setup ensures that the local environment exactly mirrors the production topology, including partition distribution and replication factors, providing the highest fidelity for integration tests before deployment to staging."
+    },
+    {
+      "id": "c",
+      "text": "It is a lightweight, pre-configured distribution that bundles all required Camunda 8 components into a single package that can be started with a single command. Alternatively, the official Docker Compose configuration from the camunda-platform repository can be used to spin up all components locally, providing a convenient development environment without requiring a Kubernetes cluster or native binary installation."
+    },
+    {
+      "id": "d",
+      "text": "Local development requires deploying Camunda 8 via the Camunda Cloud Console's developer sandbox feature. The developer requests a sandbox cluster through the Console UI, which provisions a shared multi-tenant cluster optimized for low-cost development workloads. The sandbox expires after 48 hours but can be renewed, and all standard Camunda 8 SaaS features are available in the sandbox environment including Operate, Tasklist, and Connectors."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 Run ships with start/shutdown commands for graceful lifecycle -- macOS/Linux uses shell scripts (./start.sh, ./shutdown.sh), Windows uses the c8run.exe binary directly (.\\c8run.exe start, .\\c8run.exe stop). State persists in the data directory between starts (H2 default secondary storage in 8.9-alpha3 per c8run.md:253); remove the c8run data folder to reset, or for Docker mode docker compose ... down -v."
+    },
+    "b": {
+      "text": "Incorrect. kill -9 risks data corruption."
+    },
+    "c": {
+      "text": "Correct. Graceful stop supported."
+    },
+    "d": {
+      "text": "Incorrect. Restart preserves state unless data dir is removed."
+    }
+  },
+  "explanation": "Graceful stop supported.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/about-self-managed/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q60",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

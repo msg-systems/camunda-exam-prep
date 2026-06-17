@@ -1,0 +1,25 @@
+{
+  "id": "mod-ad-hoc-subprocesses-59",
+  "topic": "modeling",
+  "subtopic": "subprocesses",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Quanta Healthcare runs a Camunda 8.8 patient triage workflow that processes 4000 instances per day. An ad-hoc sub-process is implemented with a job worker that decides which inner steps (lab order, imaging, consult) to activate based on each patient profile and continues across multiple turns.",
+  "question": "How does the job worker control which inner elements run, across multiple activations of the ad-hoc sub-process?",
+  "options": [
+    { "id": "a", "text": "The worker writes the next element ID into a process variable, and Zeebe polls that variable on every tick to activate the matching inner element" },
+    { "id": "b", "text": "The worker calls a dedicated REST endpoint per inner element, and Zeebe activates the element that was last requested by the worker until completion" },
+    { "id": "c", "text": "The worker completes the job with an adHocSubProcess result that lists element IDs, and Zeebe creates a new job for the sub-process when a flow inside finishes" },
+    { "id": "d", "text": "The worker subscribes to a Kafka topic of ad-hoc events, and Zeebe activates the inner element whose ID matches the latest event arriving on that topic" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Zeebe does not poll process variables to trigger ad-hoc activation; the job worker interacts through job creation and completion, not by writing into a shared variable." },
+    "b": { "text": "Incorrect. There is no dedicated REST endpoint pattern per inner element. The worker communicates with Zeebe through one job for the ad-hoc sub-process at a time." },
+    "c": { "text": "Correct. The worker completes the job with an adHocSubProcess job result that names the element IDs to activate, and Zeebe creates a new job when any inner flow completes." },
+    "d": { "text": "Incorrect. Kafka topics are not part of the ad-hoc sub-process job protocol. Activation happens through completing the job with an adHocSubProcess job result." }
+  },
+  "explanation": "When an ad-hoc sub-process is defined as a job worker, Zeebe creates a job, the worker decides which elements to activate by completing it with an adHocSubProcess result, and Zeebe recreates the job as inner flows complete.",
+  "docs": [ { "title": "BPMN ad-hoc sub-processes", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/ad-hoc-subprocesses/" } ]
+}

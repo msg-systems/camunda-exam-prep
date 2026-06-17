@@ -1,0 +1,70 @@
+{
+  "id": "imp-set16-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Webhook Inbound Connector deployed. Team wonders how to get the webhook URL to share with partner.",
+  "question": "Inbound Webhook URL generation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Manual URL -- partial."
+    },
+    {
+      "id": "b",
+      "text": "An Inbound Webhook Connector creates an HTTP endpoint that external systems must call to trigger Camunda process actions. Without a URL, the external partner has no way to send events to the Connector. The URL is the fundamental integration contract: the partner configures their system to POST event payloads to this endpoint whenever relevant events occur. Sharing the URL (along with authentication credentials and the expected payload schema) is a required step in any webhook integration. Claiming no URL is needed fundamentally misunderstands how webhook-based integrations work in Camunda 8."
+    },
+    {
+      "id": "c",
+      "text": "External proxy -- this is only partially relevant. While an external reverse proxy or API gateway is often placed in front of the Connector Runtime in production (for TLS termination, rate limiting, or IP allowlisting), the proxy is not a substitute for a webhook URL. The proxy itself must forward requests to the Connector Runtime's webhook endpoint. webhookId property set in the Element Template. Adding a proxy layer changes the public-facing base URL but does not change the routing logic or the need to share the correct endpoint with the partner."
+    },
+    {
+      "id": "d",
+      "text": "md:170-190: for SaaS, the format is https://<base URL>/inbound/<webhook ID> where the base URL contains the region and cluster ID; for Self-Managed, it is https://<base URL>/<contextPath>/inbound/<webhook ID>. webhookId property. In Web Modeler on SaaS, the Webhooks tab shows the resolved URL after deployment. Share this URL with the partner alongside the required authentication method (HMAC, Basic, or API key) and the expected payload schema."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Webhook URL setup: Components: Cluster base URL: SaaS: https://..connectors.camunda.io (or similar). Self-Managed: per Connector Runtime config; e.g., https://connectors.example.com. Webhook path / ID: Element Template: specifies path / context. Auto-generated or modeler-set: per implementation. Full URL: Combination: /. Example: https://abc-123.bru-2.connectors.camunda.io/inbound/order-events. Configuration in Element Template: `json { \"label\": \"Webhook Path\", \"type\": \"String\", \"binding\": { \"type\": \"zeebe:property\", \"name\": \"inbound.webhookId\" }, \"value\": \"order-events\" } Modeler sets path; URL derived. At deployment: Connector Runtime registers endpoint. URL active. Discovery: Web Modeler: Deployment view: may show webhook URL. Or: inferred from cluster URL + configured path. Console: Cluster connector endpoints. Inbound configurations. API: Operate / Connector Runtime API: list active inbound subscriptions. For Self-Managed setup: Configure Connector Runtime to expose webhook port. External access: through ingress / reverse proxy. TLS termination: at proxy. For SaaS: Public endpoint managed by Camunda. Authentication required per Webhook Connector config (per Set 14 Q46). Sharing with partner: Send to partner: URL: full endpoint. Auth method: HMAC secret / API key / etc. Payload format: expected event structure. Response: what partner should expect. Partner setup: Configure their system to POST to this URL. Include auth credentials. Multiple webhooks: Multiple Webhook Inbound Connectors: each has own URL. Different paths: route to different processes. For path uniqueness: Camunda generates or modeler ensures unique path. Collision: undefined which Connector receives. For testing: Local testing: Use ngrok / similar: expose local Runtime publicly. Partner sends to ngrok URL: routes to local. Webhook tester tools: Send test POST: from Postman / curl. Verify Camunda receives: Operate shows new process. For security: HTTPS only: not HTTP for production. Auth required: HMAC / Bearer / etc. IP allowlist (optional): restrict partners. For monitoring: Inbound event rate: per Connector. Failed auth: alert. Process creation rate: from webhook events. For partner integration"
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q34",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 22 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 27.2 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

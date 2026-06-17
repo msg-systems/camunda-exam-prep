@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q50",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team wants to integrate Camunda 8 with their legacy desktop accounting application that lacks any REST API or programmatic interface -- the only way to drive it is through its Windows desktop UI (click buttons, fill fields, navigate menus). The accounting app must perform an end-of-day reconciliation operation as part of a larger Camunda 8 business process.",
+  "question": "Which Camunda 8 feature is purpose-built for automating legacy UI-only applications?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Custom Outbound Connector -- write a Connector that programmatically drives the UI via libraries like Selenium. Embedding Selenium or a similar browser/desktop automation library inside a Camunda Connector is technically possible but misuses both tools. The Connector runtime is designed for lightweight HTTP REST integrations, not for running headless browser sessions or desktop application automation. , ChromeDriver), adding heavyweight infrastructure dependencies to the Connector container. More importantly, this approach reinvents Camunda's purpose-built RPA feature from scratch, without the script management, recording, error recovery, and worker fleet management that the native RPA integration provides."
+    },
+    {
+      "id": "b",
+      "text": "External Job Worker with RDP automation library -- Java job worker that connects via RDP and replays clicks. Using RDP (Remote Desktop Protocol) inside a Java Job Worker is the pre-Camunda-RPA workaround for this class of problem. It requires setting up an RDP server on the machine running the legacy accounting application, writing Java code to manage RDP session lifecycle, implementing click-replay automation, handling screen resolution and UI state, and managing the entire automation lifecycle without any purpose-built tooling. This approach is fragile, hard to test, hard to maintain when the UI changes, and lacks the script recording, error recovery, and orchestration integration that Camunda's native RPA feature provides."
+    },
+    {
+      "id": "c",
+      "text": "Connector Element Template -- pre-defined Element Template can encapsulate UI automation patterns. Element Templates are design-time configuration abstractions for Camunda Web Modeler -- they define reusable property panel UI for BPMN elements, specifying which properties to expose to process modelers and what their default values should be. , a Connector or Job Worker task); it does not add execution capabilities. An Element Template for a Service Task does not make that task capable of running UI automation -- execution capability comes from the Connector runtime or Job Worker code, not from the template definition."
+    },
+    {
+      "id": "d",
+      "text": "Camunda RPA -- Robotic Process Automation feature designed for UI automation of legacy desktop applications. RPA workers execute UI automation scripts; Camunda BPMN orchestrates the RPA workers as part of larger end-to-end processes. In the scenario, a Service Task configured for RPA triggers an RPA worker to run a script that launches the legacy accounting desktop application, navigates its menus, fills in the reconciliation fields, and clicks \"Submit\". The RPA script executes on a dedicated RPA worker machine (or VM) with access to the desktop application. Once the script completes, the BPMN process continues to the next step. 8."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8.8 includes RPA (Robotic Process Automation) as a first-class feature for exactly this use case. RPA workers execute UI automation scripts (using Camunda's built-in RPA scripting engine or integration with third-party RPA tools like UiPath/Blue Prism). BPMN orchestrates RPA workers as job execution targets -- when a Service Task is configured for RPA, the RPA worker runs the automation. This is the supported, canonical approach."
+    },
+    "b": {
+      "text": "Incorrect. Custom Connector with Selenium is theoretically possible but loses the Camunda RPA-specific features (script management, recording, error handling specific to UI automation). Reinvents Camunda RPA poorly."
+    },
+    "c": {
+      "text": "Incorrect. RDP automation in a generic Job Worker is the pre-Camunda-RPA workaround. Working but non-canonical, lacks the RPA-specific tooling."
+    },
+    "d": {
+      "text": "Correct. Element Templates are for configuration standardisation, not execution. Templates do not run UI automation."
+    }
+  },
+  "explanation": "Element Templates are for configuration standardisation, not execution. Templates do not run UI automation.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/rpa/getting-started/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q50",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

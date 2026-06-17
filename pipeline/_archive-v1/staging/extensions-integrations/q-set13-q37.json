@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q37",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression needs to replace ALL occurrences of \"foo\" with \"bar\" in a string, not just the first. The team wonders which function and how.",
+  "question": "FEEL function for replace-all in strings?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use replaceFirst(input, pattern, replacement) -- a FEEL function that replaces only the first occurrence of the pattern in the string, requiring multiple calls to replace all instances. This overstates what is needed for a simple replace-all. The FEEL replace(input, pattern, replacement) function uses regex semantics and replaces all occurrences by default per the DMN FEEL specification. A replaceFirst variant is not a standard FEEL built-in function; the standard replace achieves global replacement without needing an explicit \"first\" variant."
+    },
+    {
+      "id": "b",
+      "text": "replace(input, pattern, replacement) uses a regex pattern; by default, regex replace is global (replaces all occurrences per DMN FEEL spec) -- verify per FEEL implementation. , use \\. for a literal dot) or pre-process the string before calling replace. Example: =replace(\"foo bar foo\", \"foo\", \"x\") → \"x bar x\". The function replaces all non-overlapping matches in a single call. Distinct from substring (returns a portion of string) and list operations."
+    },
+    {
+      "id": "c",
+      "text": "FEEL has no string replacement function at all; string modification in DMN requires calling an external service via a connector or scripting language. This misrepresents the documented behavior. The FEEL built-in function library includes replace(input, pattern, replacement) as a standard string function. It is documented in the DMN FEEL specification and supported in Camunda 8's FEEL engine. String manipulation functions including replace, contains, starts with, ends with, substring, upper case, and lower case are all part of the standard FEEL built-in catalog."
+    },
+    {
+      "id": "d",
+      "text": "The correct FEEL approach for replacing all occurrences is to use a recursive function or for-loop that iterates over the string with substring and string length calls to rebuild the result character by character. This is an overcomplicated approach that bypasses the purpose of built-in functions. FEEL provides the replace(input, pattern, replacement) function that handles global replacement in a single call. Implementing a custom loop-based replacement would produce brittle, verbose, hard-to-maintain code when a one-line function call suffices."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL replace function: Signature (verify per FEEL implementation): replace(input: string, pattern: string, replacement: string) Some FEEL implementations: also replace(input, pattern, replacement, flags) for regex flags. Behavior: Pattern is a regex: by DMN FEEL spec, replace uses regex semantics (global by default). Replacement: may support backreferences ($1, $2) for captured groups. Returns: new string with replacements. Examples: `feel replace(\"foo bar foo\", \"foo\", \"x\") → \"x bar x\" replace(\"a1b2c3\", \"[0-9]\", \"\") → \"abc\" replace(\"hello world\", \"(\\w+) (\\w+)\", \"$2 $1\") → \"world hello\" Literal (non-regex) replace pattern: To replace a string containing regex special chars literally: escape them. Special chars: . * + ? ( ) [ ] { } | \\ ^ $. Example: replace literal \".\" → use \\. in pattern. For simple literal replacement on safe strings: replace works without escaping. Combined with other functions: feel replace(upper case(input), \"FOO\", \"BAR\") For more complex transforms: chain or use multiple replace calls. Don't confuse with: substring(string, start, length): extract part of string. string length(s): get string length. split(s, delimiter): split into list. Verify replace`'s exact signature + regex behavior in your Camunda FEEL version."
+    },
+    "b": {
+      "text": "Correct. Verify."
+    },
+    "c": {
+      "text": "Incorrect. Option d) -- Overcomplicated."
+    },
+    "d": {
+      "text": "Incorrect. Overcomplicated."
+    }
+  },
+  "explanation": "Verify.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-string/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q37",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

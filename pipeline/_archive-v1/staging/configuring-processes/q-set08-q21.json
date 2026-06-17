@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A daily-summary report process has a Service Task that runs every morning at 7 AM. The team has a Timer Start Event with cycle 0 0 7 * (cron syntax). They observe the report fires correctly but want to also enable a one-off ad-hoc trigger for end-users to start the process manually outside the schedule.",
+  "question": "How can a process support both scheduled (Timer Start) AND ad-hoc (API-triggered) starts?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A Camunda 8 process definition can only contain a single Start Event -- adding a second Start Event to support an additional trigger type is an unsupported configuration in standard BPMN and will cause a deployment error -- this description does not reflect the actual behaviour. BPMN explicitly supports multiple Start Events on a process, and Zeebe implements this pattern. Each Start Event independently creates a new process instance through its own activation mechanism. A Timer Start Event creates instances on schedule while a None Start Event creates instances via direct API call. Both can coexist in the same process definition, each providing a separate entry point."
+    },
+    {
+      "id": "b",
+      "text": "Add multiple Start Events: one Timer Start Event configured with the daily schedule cycle for batch processing, and one None Start Event for ad-hoc API-triggered instances. Both Start Events lead into the same downstream flow, converging naturally or through an explicit join. The API call POST /v2/process-instances with the process definition key triggers the None Start. Per Zeebe's multi-start support, both events coexist in the same process definition and independently create process instances. This is the canonical pattern for processes requiring both scheduled and on-demand instantiation without duplicating process logic."
+    },
+    {
+      "id": "c",
+      "text": "Replace the Timer Start Event with a Message Start Event and have an external scheduler send a trigger message at the daily batch time -- this approach shifts the scheduling responsibility entirely out of Camunda and into an external messaging system. While technically functional, this design means the process model no longer self-documents its scheduling behaviour. Both the scheduled and ad-hoc triggers would need to send messages, making the distinction between trigger types invisible in the BPMN. Multiple Start Events with distinct types more clearly communicate the different instantiation mechanisms available for the process."
+    },
+    {
+      "id": "d",
+      "text": "Deploy two entirely separate process definitions -- one containing only a Timer Start Event for the daily batch schedule, and another with a None Start Event for ad-hoc API triggers -- each requiring independent maintenance and deployment. Two separate process definitions double the maintenance burden: every BPMN change must be made and deployed twice. Operate monitoring shows two separate processes where a unified view would be more useful for operations teams tracking instance history and status."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN supports multiple Start Events of different types in a single process. Each is a distinct entry trigger: None Start is triggered by an explicit API call (POST /v2/process-instances with process ID). Timer Start fires on the configured schedule (the engine creates instances at the timer's tick). Message Start is triggered by a published message matching the start event's name. Different Start Events can lead into the same downstream flow, or different paths (e.g., the ad-hoc path skips a \"schedule-validation\" step). The process model unifies both trigger sources behind a single executable definition."
+    },
+    "b": {
+      "text": "Correct. Multiple Start Events supported."
+    },
+    "c": {
+      "text": "Incorrect. Forcing all triggers through Messages adds correlation overhead and shifts the ad-hoc API contract."
+    },
+    "d": {
+      "text": "Incorrect. Two definitions for two trigger types of one process is fragmented."
+    }
+  },
+  "explanation": "Multiple Start Events supported.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/none-events/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q21",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

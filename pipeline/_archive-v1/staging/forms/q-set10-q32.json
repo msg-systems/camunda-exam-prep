@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q32",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team updates a Form (adds a new field, changes a label). They wonder if redeploying the Form affects running instances that already have the old Form version associated.",
+  "question": "How does Form versioning relate to running instances?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda Forms do not have versioning; deploying an updated Form automatically replaces the previous version for all tasks including those already activated -- this is an oversimplification. Forms in Camunda 8 are deployed as versioned resources similar to BPMN and DMN. The actual impact on running instances depends on how the User Task references the Form: whether it pins to a specific version or resolves to the latest at activation time. The versioning behaviour is configuration-dependent, not absent."
+    },
+    {
+      "id": "b",
+      "text": "Whether running instances are affected depends on the Form version resolution semantics configured in the BPMN. If the User Task uses latest-version resolution, newly activated User Tasks in running instances will show the updated Form. Only when the BPMN reference pins to a specific Form version are running instances guaranteed to see the original Form."
+    },
+    {
+      "id": "c",
+      "text": "Each Form deployment creates a new version; running instances reference the specific version their BPMN was deployed with (or the latest at activation time, depending on the form-key resolution semantics). New User Task activations after the new Form deployment may use the latest version (or stay pinned per the BPMN's reference). For breaking Form changes during running instances, plan migration / version pinning carefully. Verify the specific version-binding semantics for your Camunda 8 version."
+    },
+    {
+      "id": "d",
+      "text": "Any Form change deployed to the cluster immediately breaks all in-flight process instances whose User Tasks reference that Form -- this overstates the impact. Well-designed versioning with explicit Form version pinning in the BPMN User Task reference protects in-flight instances. Breaking changes only affect running instances if the Form version resolution uses the latest-at-activation strategy. Backward-compatible Form changes such as adding optional fields with default values are safe regardless of resolution strategy."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Forms in Camunda 8 are deployed resources with versions, similar to BPMN/DMN. When a BPMN's User Task references a Form by ID, the resolution mechanism determines which Form version is shown: Pin to specific version: the BPMN reference includes the version explicitly, so running instances always see that version. Latest at activation: the BPMN references the form ID without version pinning; each User Task activation uses the latest Form version at that moment. Pin to BPMN's deployment time: the form version is fixed when the BPMN deploys. Exact semantics depend on the version-binding configuration in your BPMN and Camunda 8 version. Verify the docs. Practical implications: Breaking Form changes during running instances: a new field added with required = true might surprise an in-flight instance whose User Task already activated with the old form. If using \"latest\" resolution, the user might see a form expecting fields not in process scope. Mitigation: pin to specific version in the BPMN reference (where supported); or design Form changes to be backward-compatible (only adding optional fields). Migration: for major Form overhauls, plan a deployment window with low in-flight task counts; or migrate process instances explicitly."
+    },
+    "b": {
+      "text": "Incorrect. Configuration-dependent."
+    },
+    "c": {
+      "text": "Correct. Pinning protects."
+    },
+    "d": {
+      "text": "Incorrect. Usually pinning protects."
+    }
+  },
+  "explanation": "Pinning protects.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q32",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

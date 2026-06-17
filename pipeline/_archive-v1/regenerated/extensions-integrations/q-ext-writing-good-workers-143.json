@@ -1,0 +1,50 @@
+{
+  "id": "ext-writing-good-workers-143",
+  "topic": "extensions-integrations",
+  "subtopic": "workers",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Retail's order fulfillment process on Camunda 8.8 calls 3 internal REST services for payment, inventory, and shipping. The architect is choosing between deploying 3 separate worker applications versus a single process solution and wants a recommendation grounded in the best practice.",
+  "question": "Which application layout does the Camunda 8.8 best practice recommend for these three workers?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Bundle the BPMN model and all three workers as a single process solution application, so the whole thing is easy to version, test, integrate, and deploy and may even deploy the BPMN model at startup"
+    },
+    {
+      "id": "b",
+      "text": "Deploy each of the three workers as its own application with an independent release cycle, and keep the BPMN model in a fourth deployment artifact owned by a separate team for governance reasons"
+    },
+    {
+      "id": "c",
+      "text": "Deploy the BPMN model on its own and pair each worker with the team that owns the downstream system; collocating workers with the model couples release cadences to the BPMN file"
+    },
+    {
+      "id": "d",
+      "text": "Bundle the workers into one application but exclude the BPMN model; the process solution pattern is documented for monoliths and not for microservice teams owning a Camunda 8 process"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Organizing glue code and workers in process solutions section says to implement all glue code in one application, the process solution, which may also include the BPMN process model deployed at startup, producing a self-contained app that is easy to version, test, integrate, and deploy."
+    },
+    "b": {
+      "text": "Incorrect. The best practice puts all workers in one application instead of one app per task, and ties the BPMN model to that same process solution rather than to a separate team."
+    },
+    "c": {
+      "text": "Incorrect. Co-locating the model and the workers as a process solution is the recommended pattern; the best practice does not warn against coupling worker and model releases this way."
+    },
+    "d": {
+      "text": "Incorrect. The process solution pattern explicitly may include the BPMN model alongside the workers and is the recommended layout, not limited to monoliths."
+    }
+  },
+  "explanation": "The process solution pattern in Camunda 8.8 packages the BPMN model and its workers as a single self-contained application that is easy to version, test, integrate, and deploy.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

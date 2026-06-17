@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-99",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An insurance broker is migrating 80 claims and discovers that two source catch events in the migration plan have been mapped to the same target catch event id by mistake. The engineering team needs to know how the engine handles this case during validation and which limitation of the migration plan is being violated by the duplicate target.",
+  "question": "Which validation rule does a migration plan violate when two catch events in the source process are mapped to the same catch event in the target process?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Each catch event in the target can only be the target of a mapping instruction once, so mapping two source catch events to the same target id is rejected by the migration validation"
+    },
+    {
+      "id": "b",
+      "text": "The target catch event must declare a multi-source attribute set to true; without that attribute, the validation rejects mapping two source catch events to a single target id"
+    },
+    {
+      "id": "c",
+      "text": "The migration plan must include a deduplication directive that lists the duplicate sources; with that directive the validation accepts mapping two source catch events to one target id"
+    },
+    {
+      "id": "d",
+      "text": "The migration plan is accepted but the second mapping instruction is silently dropped during execution so only the first source catch event is migrated to the target catch event"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Two catch events in the source cannot be mapped to the same catch event in the target. Each catch event in the target can only be the target of a mapping instruction once, so the migration plan is rejected by the validation step before any migration happens."
+    },
+    "b": {
+      "text": "Incorrect. There is no multi-source attribute on catch events that would unlock mapping two sources to a single target. The rule that each target catch event can be the destination of only one mapping is unconditional."
+    },
+    "c": {
+      "text": "Incorrect. The migration plan format has no deduplication directive that would permit mapping two sources to one target. The validation rule rejects the plan regardless of any additional directives the caller might add."
+    },
+    "d": {
+      "text": "Incorrect. The engine does not silently drop one of the duplicate mappings during execution. The whole migration command is rejected with an explanatory message and no state changes are applied to the process instance."
+    }
+  },
+  "explanation": "Two catch events in the source process cannot be mapped to the same catch event in the target, and each target catch event can be the destination of at most one mapping instruction. The migration is rejected during validation if either rule is violated.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's BPMN has an Embedded Subprocess \"Process Order\" that itself contains another Embedded Subprocess \"Validate Items\" -- nested two levels deep. The team wonders if nesting is supported and what scope rules apply.",
+  "question": "What's the behaviour and scoping of nested Embedded Subprocesses?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Nesting is fully supported in BPMN. Each Embedded Subprocess creates its own variable scope. , up to process root). Variables set in an inner scope aren't visible to outer scopes unless explicitly propagated via Output Mapping on the inner subprocess. Boundary events and Event Subprocesses behave per their attached scope."
+    },
+    {
+      "id": "b",
+      "text": "0 specification and Camunda 8 implementation. Embedded Subprocesses can be nested to arbitrary depth; there is no hard limit imposed by the engine. Each nested level creates its own variable scope with its own boundary events and event subprocesses. Practical limits arise from diagram complexity and maintainability concerns rather than any technical constraint in the Zeebe execution engine."
+    },
+    {
+      "id": "c",
+      "text": "All nested subprocess scopes automatically share variables -- this misrepresents Camunda 8 variable scoping. Each Embedded Subprocess creates an isolated variable scope. While inner scopes can read variables from enclosing outer scopes via scope hierarchy traversal, writing a new variable in an inner scope does not automatically update or create it in the outer scope. Output Mappings on the subprocess are required to propagate inner-scope variables to parent scopes after the subprocess completes."
+    },
+    {
+      "id": "d",
+      "text": "Nested subprocesses are flattened into a single execution scope at runtime -- this is factually incorrect. Camunda 8 preserves the full scope hierarchy exactly as modelled in the BPMN structure. Each nested Embedded Subprocess maintains its own runtime scope during execution, with its own variable namespace and boundary event subscriptions. The engine uses this hierarchy for variable resolution, event propagation, and compensation handling. No flattening occurs in the Zeebe execution engine."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. BPMN supports arbitrary nesting of Embedded Subprocesses. Each level creates its own scope; the scope hierarchy mirrors the BPMN structure. Variable semantics: Read access: inner scope reads its own variables + parent's + grandparent's + ... + process root. FEEL navigates this hierarchy transparently. Write access: writes default to the innermost scope (the variable lives where it's first defined or assigned within a scope). Propagation upward: if you need a value from an inner scope to be visible in the outer, use Output Mapping on the inner subprocess's outgoing arrow / completion. Boundary events and Event Subprocesses are scoped per their attached element -- a Boundary on the outer \"Process Order\" subprocess catches errors propagating out of the outer; the inner \"Validate Items\" boundary catches its own errors first. Nesting trade-off: deep nesting can make diagrams hard to read; flatten when possible by extracting reusable subprocesses as Call Activities."
+    },
+    "b": {
+      "text": "Incorrect. Arbitrary nesting."
+    },
+    "c": {
+      "text": "Incorrect. Scopes are isolated."
+    },
+    "d": {
+      "text": "Incorrect. Hierarchy at runtime."
+    }
+  },
+  "explanation": "BPMN supports arbitrary nesting of Embedded Subprocesses. Each level creates its own scope; the scope hierarchy mirrors the BPMN structure. Variable semantics: Read access: inner scope reads its own variables + parent's + grandparent's + ... + process root. FEEL navigates this hierarchy transparently. Write access: writes default to the innermost scope (the variable lives where it's first defined or assigned within a scope). Propagation upward: if you need a value from an inner scope to be visible in the outer, use Output Mapping on the inner subprocess's outgoing arrow / completion. Boundary events and Event Subprocesses are scoped per their attached element -- a Boundary on the outer \"Process Order\" subprocess catches errors propagating out of the outer; the inner \"Validate Items\" boundary catches its own errors first. Nesting trade-off: deep nesting can make diagrams hard to read; flatten when possible by extracting reusable subprocesses as Call Activities.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/#variable-scopes"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

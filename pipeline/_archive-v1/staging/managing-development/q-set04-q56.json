@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q56",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An ops user opens Operate and sees an Incident on a Business Rule Task: \"Failed to evaluate expression: ... no rule matched and no default output\". The DMN was UNIQUE policy.",
+  "question": "What's the root cause and fix?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Resolving the Incident in Operate without making any DMN table change simply re-tries the Business Rule Task on the same unmodified DMN table that had no matching rule. The identical input values are re-evaluated against the same table, producing the same no-match result and immediately raising a new Incident. Resolving an Incident without fixing its root cause is a pointless operation -- the fix must be applied to the DMN table before the Incident retry can succeed."
+    },
+    {
+      "id": "b",
+      "text": "Re-deploying the BPMN process definition does not change the DMN table logic. The DMN decision is a separate deployed artifact. dmn file with the added default rule changes the decision logic. Re-deploying BPMN alone leaves the missing-default-rule problem in the DMN unchanged and the Incident will recur."
+    },
+    {
+      "id": "c",
+      "text": "A UNIQUE policy decision table that finds no matching rule and has no default row configured raises an Incident in Operate because it cannot produce a result. The correct resolution is: add a default rule (a row with no input conditions, acting as catch-all) to the DMN table, deploy the updated DMN, then in Operate, resolve the Incident and retry the failed element. The process instance resumes from the Business Rule Task, re-evaluates the updated DMN, finds the default rule, and produces a result."
+    },
+    {
+      "id": "d",
+      "text": "Changing the hit policy from UNIQUE to ANY does not resolve a no-match scenario. ANY hit policy, like UNIQUE, returns an error if no rules match (though ANY allows multiple matching rules to produce the same output). Neither UNIQUE nor ANY has a \"return null on no match\" behavior. Only adding a default rule (a row with empty input conditions) or using a hit policy that supports a default output provides graceful handling when no specific rule matches. ###"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. UNIQUE policy means \"exactly one match\"; with no match the evaluator can't return. The fix is to ensure all possible input combinations are covered -- typically by adding a catch-all default rule with broad input ranges and a default output value."
+    },
+    "b": {
+      "text": "Incorrect. Retrying without the data fix loops."
+    },
+    "c": {
+      "text": "Correct. Redeploying without DMN fix doesn't help."
+    },
+    "d": {
+      "text": "Incorrect. ANY allows multiple matches with same output -- but the issue is \"no match,\" not \"multiple matches.\""
+    }
+  },
+  "explanation": "Redeploying without DMN fix doesn't help.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q56",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

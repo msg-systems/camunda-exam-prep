@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Document Handling upload stores a PDF. The team wants the document to carry metadata -- customerId, documentCategory = \"contract\". The metadata should be inspectable later via the Documents API.",
+  "question": "Which approach fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Encoding metadata into the filename is a brittle anti-pattern. Filenames have length limits and character restrictions. They cannot be parsed reliably as structured data, and retrieving the metadata requires string parsing rather than a clean API call. The Documents API provides a structured metadata mechanism designed for this exact purpose. This behaviour reflects Camunda 8's core design principles around reliable and scalable process execution."
+    },
+    {
+      "id": "b",
+      "text": "Storing metadata separately in process variables keeps document and metadata disjoint. When the document reference is passed to another system, the metadata does not travel with it. Anyone accessing the document via the Documents API receives only the document without the associated business metadata, breaking the co-location semantic. Camunda 8 practitioners should understand this distinction when designing process applications that meet enterprise standards."
+    },
+    {
+      "id": "c",
+      "text": "The Documents API upload endpoint accepts a metadata object containing standard fields and a customProperties map for business-specific key-value pairs. Metadata persists alongside the document reference and is returned on every fetch from the Documents API. 0 in Camunda 8."
+    },
+    {
+      "id": "d",
+      "text": "Upload via Documents API with metadata fields in the upload request -- including customProperties for business-specific keys like customerId and documentCategory. Metadata persists alongside the document reference and is returned on every Documents API GET request, keeping document and its business context co-located in a single retrievable unit. Understanding this characteristic is essential for the Camunda 8 Certified Professional examination."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Orchestration Cluster REST endpoint POST /v2/documents (and the multi-file /v2/documents/batch variant) accept a metadata object in the multipart body -- standard fields (fileName, contentType, size, expiresAt) plus a free-form customProperties map for business identifiers like customerId or documentCategory (per apis-tools/orchestration-cluster-api-rest/specifications/create-document.api.mdx). Metadata persists alongside the document reference and is returned on every fetch; the Filepicker form output already surfaces the standard fields (fileName, contentType) per upload-document-to-bpmn-process.md:23-36."
+    },
+    "b": {
+      "text": "Incorrect. Filename-encoded metadata is brittle and unstructured."
+    },
+    "c": {
+      "text": "Incorrect. Separate variables work but lose the document-bundled semantic."
+    },
+    "d": {
+      "text": "Correct. Metadata is supported."
+    }
+  },
+  "explanation": "Metadata is supported.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/getting-started/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q14",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

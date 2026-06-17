@@ -1,0 +1,27 @@
+{
+  "id": "ext-local-development-with-element-templates-191",
+  "topic": "extensions-integrations",
+  "subtopic": "local-development",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Fintech packages a custom outbound connector for local testing with 3 developers on a Camunda 8 Run setup. The Maven build mvn clean verify package produces target/connector-template-0.1.0-SNAPSHOT-with-dependencies.jar, and the team must place that JAR in the correct location of the Camunda 8 Run installation before starting it with Docker Compose.",
+  "question": "Which directory in a Camunda 8 Run setup receives the packaged custom connector JAR so the runtime picks it up?",
+  "options": [
+    { "id": "a", "text": "Copy the JAR with dependencies into the custom_connectors directory in the root folder of the Camunda 8 Run setup, then start Camunda 8 Run with Docker Compose" },
+    { "id": "b", "text": "Copy the JAR with dependencies into the connectors directory in the root folder of the Camunda 8 Run setup, then restart only the Zeebe container with Docker Compose" },
+    { "id": "c", "text": "Copy the JAR with dependencies into the lib directory inside the Zeebe broker container of the Camunda 8 Run setup, then start Camunda 8 Run with Docker Compose" },
+    { "id": "d", "text": "Copy the JAR with dependencies into a custom_connectors directory under each developer home folder, then start Camunda 8 Run with Docker Compose using that path" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The provisioning guide instructs you to copy the JAR containing all connector dependencies into the custom_connectors directory in the root folder of the Camunda 8 Run setup, and then start Camunda 8 Run with Docker Compose so the runtime loads the connector." },
+    "b": { "text": "Incorrect. The documented folder is named custom_connectors, not connectors, and Camunda 8 Run is started as a whole with start.sh --docker or c8run.exe start -docker, not by restarting only Zeebe." },
+    "c": { "text": "Incorrect. Custom connector JARs are not placed in the Zeebe broker lib directory; they live alongside Camunda 8 Run in the custom_connectors folder of the setup root." },
+    "d": { "text": "Incorrect. The custom_connectors folder lives in the root of the Camunda 8 Run setup, not under each developer home folder; Camunda 8 Run loads connectors from that single setup directory." }
+  },
+  "explanation": "To provision a custom connector runtime in Camunda 8 Run, drop the with-dependencies JAR built by mvn clean verify package into the custom_connectors folder at the root of the Camunda 8 Run setup, then start Camunda 8 Run with Docker Compose. The connector is ready as soon as a process references it.",
+  "docs": [
+    { "title": "Local development with element templates", "url": "https://docs.camunda.io/docs/components/best-practices/development/local-development-with-element-templates/" }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-testing-process-definitions-181",
+  "topic": "extensions-integrations",
+  "subtopic": "testing",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Kestrel Logistics uses a Camunda 8.8 invoice approval process whose Send invoice rejection service task is implemented by an outbound REST connector. The QA lead is designing a test that focuses on the connector's input and output data mapping for 200 rejection scenarios per release.",
+  "question": "How do the Camunda 8.8 best practices suggest testing the rejection connector for Kestrel Logistics?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Run the outbound REST connector with its real configuration in an integration test and mock the remote REST endpoint, so input and output data mapping defined in the connector configuration are actually exercised by the test"
+    },
+    {
+      "id": "b",
+      "text": "Replace the outbound REST connector with a stubbed job worker in the process test and assert on the variables that worker receives; connector configuration is too dynamic to be covered by a process test directly"
+    },
+    {
+      "id": "c",
+      "text": "Skip automated testing for connector configurations entirely and rely on production telemetry from Operate; the REST connector framework already guarantees correct input and output data mapping by construction"
+    },
+    {
+      "id": "d",
+      "text": "Mock the entire engine and feed pre-built connector job records into the test fixture, then assert on the resulting REST request payload without deploying the BPMN process model at all"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Mocking REST calls subsection says that when using the Connector framework, especially for input and output data mapping, you typically want to mock the endpoint rather than the job worker, so the connector configuration itself is exercised in the test against a mocked REST endpoint."
+    },
+    "b": {
+      "text": "Incorrect. The best practice deliberately keeps the connector in place and mocks the endpoint, so the connector configuration (including IO mapping) is actually under test."
+    },
+    "c": {
+      "text": "Incorrect. The Connector framework does not exempt configurations from testing; the best practice explicitly covers input and output data mapping with REST endpoint mocking."
+    },
+    "d": {
+      "text": "Incorrect. The best practice runs the real engine with the deployed process model and mocks the REST endpoint, rather than feeding synthetic connector job records to a mocked engine."
+    }
+  },
+  "explanation": "For Camunda 8.8 outbound REST connectors the testing best practice is to run the connector and process model for real and mock the remote endpoint so input and output mapping defined in the connector configuration are validated end to end.",
+  "docs": [
+    {
+      "title": "Testing process definitions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/testing-process-definitions/"
+    }
+  ]
+}

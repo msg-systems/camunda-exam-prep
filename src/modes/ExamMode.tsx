@@ -5,7 +5,7 @@ import { ResultsScreen } from '@/components/ResultsScreen';
 import { useExamSessionStore } from '@/store/examSessionStore';
 import { useProgressStore } from '@/store/progressStore';
 import { useTimer } from '@/hooks/useTimer';
-import { getRandomExamSet, getRandomScenarioWeightedExamSet, getQuestionById } from '@/data';
+import { getRandomExamSet, getQuestionById } from '@/data';
 import {
   EXAM_DURATION_MINUTES,
   EXAM_PASS_PERCENTAGE,
@@ -24,11 +24,10 @@ export function ExamMode() {
   const recordAttempt = useProgressStore((s) => s.recordAttempt);
 
   const [completedAttempt, setCompletedAttempt] = useState<ExamAttempt | null>(null);
-  const [realisticMix, setRealisticMix] = useState(true);
 
   const beginExam = () => {
     setCompletedAttempt(null);
-    const qs = realisticMix ? getRandomScenarioWeightedExamSet() : getRandomExamSet();
+    const qs = getRandomExamSet();
     start(
       qs.map((q) => q.id),
       EXAM_DURATION_MINUTES * 60 * 1000
@@ -93,18 +92,10 @@ export function ExamMode() {
           {EXAM_PASS_PERCENTAGE}%
         </p>
         <p className="mt-3 text-xs text-slate-500">
-          Questions are weighted to match the official Camunda 8 Certified Developer blueprint.
-          You won't see correctness feedback until you submit.
+          Mirrors the official Camunda Certified Professional - Developer (C8-CP-DV)
+          v8.8.0 format: single correct response, four options, weighted to the
+          official topic blueprint. No correctness feedback until you submit.
         </p>
-        <label className="mt-4 inline-flex cursor-pointer items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={realisticMix}
-            onChange={(e) => setRealisticMix(e.target.checked)}
-            className="h-4 w-4 accent-camunda"
-          />
-          Realistic mix (scenario-heavy)
-        </label>
         <div>
           <button className="btn btn-primary mt-4" onClick={beginExam}>
             Start exam

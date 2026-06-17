@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q53",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team uses Operate's Modify Process Instance to add a token at a downstream Service Task. They want the new token to have specific variables set before processing. They wonder if Modify supports setting variables at activation.",
+  "question": "Can Modify Process Instance set variables when activating a new token?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Modify Process Instance has no variable modification capability and only supports token movement -- this is inaccurate. md:71-78, the Modify feature includes variable management for newly activated scopes. When activating a new token at a flow node, operators can add variables to that new scope through the Modify UI. Global-scope variable edits are also supported per :80-87. All changes (token cancellation, token activation, and variable additions) are applied atomically as a single pending-modifications bundle. Variables are a first-class part of the Modify operation's capabilities."
+    },
+    {
+      "id": "b",
+      "text": "Yes -- Modify Process Instance supports activating tokens at specific flow nodes WITH variable updates at that scope. md:71-78 (\"## Add variable to new scopes\" -- \"During the modification mode, if there are new scopes generated it will be possible to add variables to these new scopes... 1. Select the new scope from the Instance History panel... 2. Click Add Variable from the Variables panel... 3. Fill out the Name and Value fields... 4. Once you blur out... the new variable will be added to the pending modifications\"). The Modify operation can:"
+    },
+    {
+      "id": "c",
+      "text": "Modify Process Instance only supports cancelling existing tokens, not activating new ones -- this describes only half of the Modify capability. md:52-60, Modify supports adding new tokens to flow nodes in addition to cancelling existing ones. The \"add token\" capability allows ops to inject execution at downstream activities, enabling recovery patterns like jumping past a failing element or restarting from a midpoint with corrected data."
+    },
+    {
+      "id": "d",
+      "text": "Variables for a newly activated token must be set in a separate Update Variables operation after the Modify completes -- this describes a two-step workflow that the Modify feature integrates into one atomic operation. Adding variables to newly activated scopes is part of the same Modify operation: the operator adds the token, then adds variables to that pending scope in the modification editor, and the entire change applies atomically when the Apply Modifications button is clicked."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate's Modify Instance feature is comprehensive: Cancel existing tokens: at specific flow nodes (skip / abort). Activate new tokens: at specific flow nodes (inject / jump). Set variables at activated token's scope: pre-populate data the activated work expects. All in one atomic operation: the changes apply together. Use case for \"skip ahead with variables\": Process is stuck because of a missing customerId at Service Task T3. Ops realises the customer ID is \"C-789\" but can't easily fix the upstream. Modify Instance: cancel token at T3, activate new token at T7 (downstream), set variable customerId = \"C-789\" in the activated scope. Result: process continues from T7 with the right data. Compared with separate operations: Update Variables alone: doesn't move tokens. Cancel + Activate without variables: doesn't bring the data. Modify Instance with all three: atomic, comprehensive intervention. Best practice: Modify operations are surgical; use sparingly for one-off recovery. Frequent need indicates BPMN model gaps that should be addressed structurally."
+    },
+    "b": {
+      "text": "Correct. Supported."
+    },
+    "c": {
+      "text": "Incorrect. Add too."
+    },
+    "d": {
+      "text": "Incorrect. Atomic operation cleaner."
+    }
+  },
+  "explanation": "Supported.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/process-instance-modification/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q53",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

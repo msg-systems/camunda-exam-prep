@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task in a claims process must be assigned to the user whose ID is stored in claim.assignedAgent. The team configures the User Task in Web Modeler.",
+  "question": "Which configuration assigns the User Task dynamically?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Using a Task Listener with event type on-create to set the assignee programmatically requires writing and deploying a Job Worker that handles the listener event and calls the assignee update API. 8 supports Task Listeners with event types including creating, assigning, updating, completing, and canceling, this is an indirect approach requiring deployed worker code. The canonical declarative mechanism is zeebe:assignmentDefinition, which needs no worker deployment beyond the BPMN itself."
+    },
+    {
+      "id": "b",
+      "text": "Hardcoding the user ID directly in the BPMN satisfies assignment but defeats the dynamic requirement. A hardcoded assignee means every instance of the task is assigned to the same person regardless of process context. assignedAgent, which holds a different user ID per process instance. Hardcoded assignment is only appropriate when every instance of a task should always go to the same specific user."
+    },
+    {
+      "id": "c",
+      "text": "assignedAgent is the canonical declarative configuration for dynamic User Task assignment in Camunda 8. This Zeebe extension element accepts FEEL expressions in the assignee, candidateGroups, and candidateUsers attributes. At task activation, the FEEL expression is evaluated and the result is set as the assignee. This requires no deployed Job Worker code â€” it is pure model-time configuration evaluated automatically by the Zeebe engine."
+    },
+    {
+      "id": "d",
+      "text": "Dynamic assignment of User Tasks based on process variables is fully supported in Camunda 8 via the zeebe:assignmentDefinition element. The assignee, candidateGroups, and candidateUsers attributes all accept FEEL expressions evaluated at task activation time. Process variables available at that point in the flow are accessible in the FEEL expression. There is no need to reject or work around dynamic assignment â€” it is a first-class feature of the Camunda 8 User Task configuration panel in Web Modeler. ###"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. zeebe:assignmentDefinition accepts FEEL expressions in assignee and candidateGroups. Evaluated at activation; result is set as the User Task's assignee."
+    },
+    "b": {
+      "text": "Incorrect. Camunda 8.8 does support user task listeners (zeebe:taskListeners with eventType ∈ creating/assigning/updating/completing/canceling, per user-tasks.md:151-161), so an assigning listener could programmatically set the assignee via job-worker logic. However, the canonical declarative mechanism for FEEL-driven assignment is zeebe:assignmentDefinition (lines 33-36) -- a one-line model-time configuration vs. a deployed worker."
+    },
+    "c": {
+      "text": "Correct. Hardcoded contradicts \"dynamically.\""
+    },
+    "d": {
+      "text": "Incorrect. Dynamic assignment is supported via FEEL."
+    }
+  },
+  "explanation": "Hardcoded contradicts \"dynamically.\"",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q12",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

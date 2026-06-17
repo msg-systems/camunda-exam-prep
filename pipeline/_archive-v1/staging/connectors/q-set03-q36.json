@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Outbound HTTP Connector calls a partner API. The request body must include data from process variables (customer ID, order details) plus some computed fields (current timestamp, signature hash). The team wants to compose the request body cleanly without manual JSON string construction.",
+  "question": "Which Connector configuration handles structured request body composition?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Build the request body JSON manually in a Script Task (using JavaScript or Groovy) before the HTTP Connector task. The Script Task assembles a JSON string by concatenating process variable values with static structure, then stores it as a process variable that the Connector reads from its Body field."
+    },
+    {
+      "id": "b",
+      "text": "The HTTP Outbound Connector's Body field only accepts static JSON strings -- the team must write the complete request body as a literal string with no dynamic value injection, computed fields, or process variable references supported. The Connector Body field fully supports FEEL expressions that produce JSON-serializable objects. Computed fields, process variable references, FEEL built-in functions like now(), and nested context literals are all valid and encouraged. The limitation described here is absent from the platform."
+    },
+    {
+      "id": "c",
+      "text": "total)}. The FEEL evaluator builds the object at runtime using process variables, computed properties, and built-in functions. The runtime serialises the result to JSON for the HTTP request body. No extra tasks needed."
+    },
+    {
+      "id": "d",
+      "text": "Reference process variables directly in the Connector Body field using ${var} syntax -- the Connector runtime interpolates variable names enclosed in dollar-brace notation. Camunda 8 uses FEEL (= prefix) for dynamic expression evaluation, not JUEL-style ${} syntax which was used in Camunda 7 and Spring Expression Language contexts. id} in a Camunda 8 Connector field would not be evaluated as an expression; it would be treated as a literal string. The correct approach is a FEEL context expression starting with =."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Outbound HTTP Connector accepts a FEEL context expression in its Body field for structured composition. The FEEL evaluator builds the object at runtime -- process variables, computed fields, FEEL built-ins (like now()), nested objects all work. The runtime serializes the object to JSON. Cleaner than string concatenation."
+    },
+    "b": {
+      "text": "Incorrect. Script Task to build JSON works but pollutes the BPMN with an extra task; FEEL handles this inline."
+    },
+    "c": {
+      "text": "Correct. Computed fields supported via FEEL."
+    },
+    "d": {
+      "text": "Incorrect. Camunda 8 uses FEEL (=), not JUEL (${})."
+    }
+  },
+  "explanation": "Computed fields supported via FEEL.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q36",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

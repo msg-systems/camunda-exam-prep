@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q07",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team configures a Multi-Instance Subprocess and assumes BPMN's loopCardinality attribute is available (as in some other BPMN engines). They want to iterate over an orders collection but also cap at 5 instances by mixing loopCardinality and inputCollection. Can loopCardinality and inputCollection be configured together in Camunda 8?",
+  "question": "Can loopCardinality and inputCollection be configured together in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes -- both loopCardinality and inputCollection can be configured simultaneously and the engine combines their effects -- this misrepresents Zeebe's Multi-Instance implementation. 0 loopCardinality attribute has no Zeebe extension surface and no runtime implementation. Setting it in the BPMN XML does not affect execution in any way. Zeebe's Multi-Instance is driven exclusively by inputCollection, and the two attributes do not interact because loopCardinality produces no effect in the Zeebe engine."
+    },
+    {
+      "id": "b",
+      "text": "Yes -- loopCardinality can be configured to cap the maximum number of instances generated from inputCollection -- this describes behaviour that has no runtime implementation in Camunda 8 in Zeebe. 0 specification defines loopCardinality as a separate mechanism for specifying a fixed instance count, Zeebe has no implementation for it. To cap iterations in Camunda 8, the developer must encode the limit directly within the inputCollection FEEL expression, such as using sublist() or an if-else conditional."
+    },
+    {
+      "id": "c",
+      "text": "0 concepts. In the standard specification, loopCardinality defines a fixed number of instances without iterating over data, while inputCollection drives iteration over a data collection. In Camunda 8, only inputCollection is supported as the Multi-Instance driver. The loopCardinality attribute has no Zeebe extension element and no runtime implementation, so the constructs are definitively not equivalent in the Zeebe engine."
+    },
+    {
+      "id": "d",
+      "text": "\" For \"iterate orders but cap at 5\", set inputCollection = \"= if count(orders) > 5 then sublist(orders, 1, 5) else orders\" -- single collection-driven config with the cap computed inline via FEEL. The loopCardinality attribute from BPMN spec has no Zeebe implementation."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Pattern #50 hit (3rd cumulative across Sets 8, 9, 10): Zeebe MI configuration is inputCollection-only per multi-instance.md:35. The BPMN-spec loopCardinality attribute has no Zeebe implementation surface -- there is no zeebe: extension carrying it. To express \"iterate n times\" semantics in C8: ` # static n iterations inputCollection = \"= for i in 1..5 return i\" inputElement = \"i\" # collection-driven with cap inputCollection = \"= if count(orders) > 5 then sublist(orders, 1, 5) else orders\" inputElement = \"order\" Special variables available per multi-instance.md:71 + :102-109: loopCounter (1-based instance index), numberOfInstances, numberOfActiveInstances, numberOfCompletedInstances, numberOfTerminatedInstances -- usable in completionCondition. If inputCollection evaluates to an empty array, the MI body is completed immediately and no instances are created (:45`, \"behaves like the activity is skipped\")."
+    },
+    "b": {
+      "text": "Incorrect. loopCardinality not implemented in Zeebe; setting it in BPMN XML has no effect."
+    },
+    "c": {
+      "text": "Incorrect. No interplay; loopCardinality is not a Zeebe attribute."
+    },
+    "d": {
+      "text": "Correct. Distinct concepts in BPMN spec; in C8 only inputCollection is available."
+    }
+  },
+  "explanation": "Distinct concepts in BPMN spec; in C8 only inputCollection is available.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q07",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

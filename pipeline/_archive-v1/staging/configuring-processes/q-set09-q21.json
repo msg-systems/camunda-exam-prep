@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A parent process has a Call Activity invoking a payment-processing child process. The team wants to attach a Timer Boundary Event to the Call Activity -- if payment-processing takes more than 5 minutes, cancel and route to a \"payment timeout\" handler.",
+  "question": "Can Boundary Events attach to Call Activities?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Boundary Events in Camunda 8 can only attach to leaf-level activities such as Service Tasks, User Tasks, Script Tasks, and Business Rule Tasks. Call Activities are not leaf activities -- they invoke child processes -- so Boundary Events cannot be attached to them. Call Activities are fully-fledged BPMN activities that support all boundary event types. Boundary Events attached to Call Activities fire based on events occurring while the child process is running."
+    },
+    {
+      "id": "b",
+      "text": "Yes -- Boundary Events including Timer, Error, Escalation, and Message types attach to Call Activities just like they do to other BPMN activities. An Interrupting Timer Boundary on a Call Activity cancels the called child process and all its current tokens when the timer fires; flow then routes via the boundary's outgoing sequence arrow in the parent process to the defined timeout handler path. The child process resources are cleaned up by the engine."
+    },
+    {
+      "id": "c",
+      "text": "Boundary Events can attach to Call Activities in Camunda 8, but only Error Boundary Events are supported on Call Activities. Timer Boundary, Escalation Boundary, and Message Boundary Events are claimed to work only on Service Tasks, User Tasks, and other leaf activities. All standard boundary event types including Timer, Error, Escalation, and Message work on Call Activities."
+    },
+    {
+      "id": "d",
+      "text": "Yes, boundary events can be used with Call Activities, but they must be modelled inside the called child process, not on the Call Activity element in the parent process. The boundary event in the child process fires when the condition is met and routes flow within the child scope. This describes the wrong placement. Boundary Events always attach to their host activity in the scope where they are defined. To enforce a timeout from the parent, the Timer Boundary goes on the Call Activity element in the parent scope."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Call Activities are first-class BPMN activities -- boundaries attach to them just like any activity. Boundary types that work: Timer Boundary: cancel after duration / fire on date. Error Boundary: catch errors propagated from the called process (errors that weren't caught inside the called process bubble up to the Call Activity). Escalation Boundary: catch escalations from the called process. Message Boundary: catch messages while the called process is running. For \"5-minute timeout on payment processing\": Interrupting Timer Boundary with PT5M. When the timer fires, the called process is cancelled (along with its tokens), the parent's flow continues via the boundary's outgoing arrow to a timeout handler."
+    },
+    "b": {
+      "text": "Correct. Call Activities support boundaries."
+    },
+    "c": {
+      "text": "Incorrect. Multiple boundary types work."
+    },
+    "d": {
+      "text": "Incorrect. Boundary in parent scope."
+    }
+  },
+  "explanation": "Call Activities support boundaries.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q21",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

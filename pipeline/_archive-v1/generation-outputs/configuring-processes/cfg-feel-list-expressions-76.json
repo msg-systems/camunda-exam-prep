@@ -1,0 +1,27 @@
+{
+  "id": "cfg-feel-list-expressions-76",
+  "topic": "configuring-processes",
+  "subtopic": "feel-list-expressions",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Bank wants to group 6 invoices currently held in a FEEL variable by their person attribute in Camunda 8.8 so that downstream rules can produce one sub-list per payer and total invoice amounts per person without writing custom worker code.",
+  "question": "Which FEEL expression groups the invoices list by the person attribute into a list of sub-lists?",
+  "options": [
+    { "id": "a", "text": "for p in distinct values(invoices.person) return invoices[person = p] iterates the unique person values and filters each subset" },
+    { "id": "b", "text": "for p in invoices.person return invoices[person = p] iterates every person occurrence and filters the matching invoices each pass" },
+    { "id": "c", "text": "some p in invoices.person satisfies invoices[person = p] tests whether any person value yields a matching invoice sub-list" },
+    { "id": "d", "text": "every p in distinct values(invoices.person) satisfies invoices[person = p] tests whether every person yields a sub-list" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The documented grouping pattern uses 'for p in distinct values(invoices.person) return invoices[person = p]' to iterate unique persons and filter the invoices for each, yielding a list of sub-lists." },
+    "b": { "text": "Incorrect. Iterating invoices.person directly walks every entry and produces duplicate sub-lists; the docs use distinct values to iterate unique persons exactly once." },
+    "c": { "text": "Incorrect. The 'some' quantifier returns a boolean indicating that at least one element satisfies the condition; it does not materialize a list of grouped sub-lists." },
+    "d": { "text": "Incorrect. The 'every' quantifier also returns a boolean covering all elements; it is not the documented mechanism to produce grouped sub-lists from a list." }
+  },
+  "explanation": "The FEEL grouping example computes distinct person values and, for each, filters the original list with invoices[person = p], yielding a list of sub-lists where each contains the invoices for one person.",
+  "docs": [
+    { "title": "FEEL list expressions", "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-list-expressions/" }
+  ]
+}

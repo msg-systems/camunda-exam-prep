@@ -1,0 +1,50 @@
+{
+  "id": "mod-bpmn-primer-14",
+  "topic": "modeling",
+  "subtopic": "primer",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Ridge Wholesaler runs a Camunda 8.8 order-to-delivery process based on a BPMN model with Collect Money, Fetch Items, and Ship Parcel service tasks. 22000 orders per day flow through this XML-backed model, and a new engineer needs to understand how Zeebe drives execution between elements.",
+  "question": "How does Zeebe advance execution between BPMN elements in this order-to-delivery process?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe evaluates the entire BPMN XML on each tick and re-runs every service task whose worker has not yet acknowledged completion to the orchestration cluster"
+    },
+    {
+      "id": "b",
+      "text": "Zeebe maintains a token per process instance and moves it along the sequence flow arrows, stopping at each service task to create a job for a registered worker"
+    },
+    {
+      "id": "c",
+      "text": "Zeebe streams each XML element to a queue and workers compete for service task execution by reading the queue and writing BPMN attributes back for the next element"
+    },
+    {
+      "id": "d",
+      "text": "Zeebe materializes the process as a state chart of tasks and lets workers pick any state to execute, ignoring the sequence flow arrows after the initial deployment"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe does not re-evaluate the entire BPMN XML on every tick or re-run service tasks; it advances tokens along the sequence flow as each task completes."
+    },
+    "b": {
+      "text": "Correct. Process execution is modeled as a token per instance that advances along sequence flow arrows; when the token reaches a service task, Zeebe creates a job and notifies a registered worker, then continues on completion."
+    },
+    "c": {
+      "text": "Incorrect. There is no queue model where workers rewrite BPMN attributes for the next element; service task execution uses jobs created by Zeebe at each task."
+    },
+    "d": {
+      "text": "Incorrect. Zeebe respects sequence flow arrows to drive tokens; it does not flatten the model into a state chart that ignores the modeled order of execution."
+    }
+  },
+  "explanation": "The BPMN primer describes process execution as tokens running through the model. Zeebe drives the token, stops at each task to create a job for the registered worker, and continues along the outgoing sequence flow on completion.",
+  "docs": [
+    {
+      "title": "BPMN primer",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/bpmn-primer/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "mod-compensation-handler-111",
+  "topic": "modeling",
+  "subtopic": "compensation-handler",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Banking uses a Camunda 8.8 loan disbursement process where an activity that wires funds can repeat inside a loop and complete 3 times for a single instance before a compensation throw event fires, across 1200 loans per day in the same scope.",
+  "question": "How many times does the compensation handler run for that activity when the compensation throw event fires?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The compensation handler runs at most one time per process instance regardless of how many times the compensation activity completed inside the same instance during the scope"
+    },
+    {
+      "id": "b",
+      "text": "The compensation handler runs one time per process instance and the engine internally aggregates the effects of all earlier completions of the activity during the scope"
+    },
+    {
+      "id": "c",
+      "text": "The compensation handler runs as many times as instances of the process that reached the activity, regardless of how many times that activity completed inside each instance"
+    },
+    {
+      "id": "d",
+      "text": "The compensation handler runs as many times as the activity was completed inside the process instance, matching the number of times the compensation activity finished in the scope"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The compensation handler page states that if an activity has been completed more than once, the compensation handler is invoked for the same amount, not capped at a single invocation per instance."
+    },
+    "b": {
+      "text": "Incorrect. There is no documented aggregation behaviour; the handler is simply invoked the same number of times that the compensation activity completed inside the process instance."
+    },
+    "c": {
+      "text": "Incorrect. The count is per completion of the compensation activity within the instance, not per process instance that passed through the activity once or more in the scope."
+    },
+    "d": {
+      "text": "Correct. The Compensation handler page states that if an activity has completed more than once, the compensation handler is invoked the same number of times when the compensation throw event activates in its scope."
+    }
+  },
+  "explanation": "Compensation handlers run once for each completion of their compensation activity within a process instance. If a looped activity completed three times, the compensation throw event invokes its compensation handler three times.",
+  "docs": [
+    {
+      "title": "BPMN compensation handler",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-handler/"
+    }
+  ]
+}

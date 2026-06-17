@@ -1,0 +1,50 @@
+{
+  "id": "cfg-signals-31",
+  "topic": "configuring-processes",
+  "subtopic": "signals",
+  "difficulty": "hard",
+  "style": "concept",
+  "kind": "negative",
+  "camundaVersion": "8.8",
+  "question": "Which statement about signal cardinality and performance in Camunda 8.8 is FALSE?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A single broadcasted signal triggers all signal catch events whose signal name matches."
+    },
+    {
+      "id": "b",
+      "text": "A signal broadcast reaches all partitions of the cluster."
+    },
+    {
+      "id": "c",
+      "text": "Signals scale better than messages because each broadcast targets a single partition selected by a correlation key."
+    },
+    {
+      "id": "d",
+      "text": "Network traffic from a signal broadcast scales linearly with the number of partitions."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "True per the docs — a broadcasted signal iterates over all available subscriptions and triggers every catch event whose signal name matches."
+    },
+    "b": {
+      "text": "True per the docs — signals are broadcast to all partitions."
+    },
+    "c": {
+      "text": "False — signals have no correlation key; they are broadcast to all partitions and to all matching subscriptions, which is exactly why the docs caution that signals can negatively impact Camunda 8 performance compared to correlated messages."
+    },
+    "d": {
+      "text": "True per the docs — the caution notes that broadcast network traffic scales linearly with the number of partitions."
+    }
+  },
+  "explanation": "The Signal cardinality section warns that a single signal broadcast iterates over all matching subscriptions and is sent to all partitions, with network traffic growing linearly in the number of partitions. Unlike messages, signals do not use a correlation key, so they cannot be routed to a single partition. That is precisely why the docs caution that signals can negatively impact Camunda 8 performance.",
+  "docs": [
+    {
+      "title": "Signals",
+      "url": "https://docs.camunda.io/docs/components/concepts/signals/"
+    }
+  ]
+}

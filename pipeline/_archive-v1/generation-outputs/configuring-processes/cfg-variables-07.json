@@ -1,0 +1,27 @@
+{
+  "id": "cfg-variables-07",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Insurance models a claim triage process in Camunda 8.8 with input mappings on a service task that handles 8000 claims per day. The team needs to predict where the resulting variable lives after the input mapping executes and how it interacts with surrounding scopes for downstream activities.",
+  "question": "Where is a new variable placed when an input mapping is applied to a Camunda 8.8 service task or subprocess?",
+  "options": [
+    { "id": "a", "text": "The new variable is created as a local variable in the scope of the element where the input mapping is defined, leaving outer scopes untouched at activation" },
+    { "id": "b", "text": "The new variable is created in the root process instance scope so that downstream activities outside the element can also observe it immediately after activation" },
+    { "id": "c", "text": "The new variable is created on every parallel branch of the process instance simultaneously, regardless of the scope where the input mapping was defined on a task" },
+    { "id": "d", "text": "The new variable is materialized as a custom header on the activated job for the worker to read and is never persisted as a process variable record on the scope" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The Input mappings section states that applying an input mapping creates a new local variable in the scope where the mapping is defined. Outer scopes do not observe the new variable unless propagation is configured separately on the element." },
+    "b": { "text": "Incorrect. Input mappings do not write to the root process instance scope by default. They create a local variable in the scope of the element where the mapping is defined, which keeps the new value isolated to that element scope." },
+    "c": { "text": "Incorrect. The new variable is scoped to the element where the input mapping was defined, not broadcast across parallel branches. Parallel branches each have their own scopes and do not share locals from sibling elements." },
+    "d": { "text": "Incorrect. Input mappings do not produce custom headers on the activated job. They create a local variable in the element scope and may use either FEEL expressions or static values for the source of the mapping." }
+  },
+  "explanation": "Input mappings can be defined on service tasks, script tasks, business rule tasks, call activities, user tasks, send tasks, and subprocesses. When applied, they create a new local variable in the scope where the mapping is defined. The source may be a FEEL expression or a static value, and an empty source maps the target to null.",
+  "docs": [
+    { "title": "Variables", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+  ]
+}

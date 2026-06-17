@@ -1,0 +1,27 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-137",
+  "topic": "extensions-integrations",
+  "subtopic": "problems-and-exceptions",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vanta Bank runs a Camunda 8.8 onboarding process at a regional bank that handles 4500 customers per day. The CRM-add-customer step can succeed while the billing-add-customer step later fails inside the same business transaction; the CRM API does not support delete and an architect needs the documented BPMN technique that undoes the CRM creation in this case.",
+  "question": "Which BPMN mechanism does the best-practices guide recommend to implement the Saga pattern for the add-customer step?",
+  "options": [
+    { "id": "a", "text": "Wrap the add-customer task in an event subprocess with a timer start event so the engine repeatedly reissues the call until the billing step finally succeeds and the inconsistency window between systems closes by itself" },
+    { "id": "b", "text": "Reissue the original add-customer command from a job worker that listens to a Kafka topic and let downstream consumers cancel the original CRM creation when they observe a duplicate event in the partition log" },
+    { "id": "c", "text": "Link the add-customer task with a compensation handler that deactivates the customer in the CRM, and trigger compensation from the error path; all completed activities in scope will run their compensating activities" },
+    { "id": "d", "text": "Replace the BPMN model with a long-running scheduled batch job that runs every 6 hours and queries the CRM and billing systems for divergences before issuing corrective REST calls to either side as needed" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The Saga pattern undoes side effects rather than retrying them; the page uses BPMN compensation events, not a timer-driven retry loop." },
+    "b": { "text": "Incorrect. Kafka cancellation logic is not the documented Saga technique; the docs use BPMN compensation events." },
+    "c": { "text": "Correct. The Saga pattern section says Camunda supports Saga through BPMN compensation events, which link a task with its undo task; when compensation is triggered on the error path, completed activities run their compensating activities, e.g. deactivating the customer in the CRM." },
+    "d": { "text": "Incorrect. A batch reconciliation job is one of the strategies under resolve, but it is not the documented Saga implementation; the page uses BPMN compensation events." }
+  },
+  "explanation": "The Saga pattern and BPMN compensation section describes the documented pattern. A BPMN compensation event links the add-customer task with its compensating activity. When an error is caught further in the business transaction, the process triggers compensation; the engine runs the compensating activities of all completed tasks in scope, for example deactivating the customer in the CRM when the API does not support deletion.",
+  "docs": [
+    { "title": "Dealing with problems and exceptions", "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/" }
+  ]
+}

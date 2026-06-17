@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Process has both Embedded Subprocess AND Event Subprocess. Team wonders semantic differences.",
+  "question": "Embedded vs Event Subprocess semantic?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Same -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Event Subprocess deprecated -- this does not accurately reflect the behavior. The Event Subprocess is a fully supported and actively maintained BPMN element in Camunda 8. It handles events such as Message, Timer, Error, and Signal within a parent scope. Far from being deprecated, it is a recommended pattern for interrupting and non-interrupting event handling. The dashed border and typed Start Event distinguish it visually from the standard Embedded Subprocess, which uses a solid border and a None Start Event."
+    },
+    {
+      "id": "c",
+      "text": "Embedded Subprocess is for tasks only -- this does not accurately reflect the behavior. An Embedded Subprocess can contain any valid BPMN elements including tasks, gateways, intermediate events, boundary events, and even nested subprocesses. It is a general-purpose composition element that groups related flow elements into an execution scope with its own local variables, boundary events, and lifecycle. It is not limited to task containment in any way."
+    },
+    {
+      "id": "d",
+      "text": "Different roles: Embedded Subprocess participates in the main sequence flow (solid border, entered via sequence flow, inline composition), while Event Subprocess is triggered by an event at scope level (dashed border, typed Start Event, not part of main flow). Embedded acts as an inline grouped sub-flow; Event Subprocess acts as a reactive event handler. Both create their own variable scope and support boundary events, but their trigger mechanisms and relationships to the parent flow differ fundamentally."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Subprocess types comparison: Embedded Subprocess: Visual: Solid border rectangle. May contain None Start + flow + None End. Behavior: Part of main sequence flow: entered via sequence flow. Inline composition: grouping related activities. Token enters: parent passes control. Token exits: parent continues. Example: ` [Start] → [Embedded Subprocess: \"Process Order\"] → [End] internal flow Sequential composition; embedded as a \"task\" with internal flow. Event Subprocess: Visual: Dashed border rectangle. Typed Start Event inside: Message/Timer/Error/Signal/Compensation/Escalation. Behavior: Triggered by event in parent scope. Not in main sequence flow: separate sibling. Activates when event fires during parent execution. Interrupting / non-interrupting marker. Example: Parent Subprocess: Main flow: [Start] → [Task A] → [Task B] → [End] Event Subprocess (dashed): [Message Start \"CANCEL\"] → [Cleanup] → [End] ` Cancel message during Task A or B: triggers Cleanup. Differences summary: | Aspect | Embedded | Event Subprocess | |--------|----------|------------------| | Visual border | Solid | Dashed | | Start Event | None typical | Typed required | | Entry | Sequence flow | Event trigger | | Scope | Same level | Within parent scope | | Lifecycle | Linear | Reactive | Use cases: Embedded: Grouping related tasks: logical organisation. Inline sub-flow: not reusable. Scope for variables: per Set 13 Q21. Event Subprocess: Event handling: react to events at scope level. Cancellation: handle cancels. SLA enforcement: timer-based. Error handling: catch errors. Per Set 16 Q2: typed Start Events. For variable scope: Both create scope: variables local. Embedded scope: visible during embedded execution. Event Subprocess scope: while event subprocess active. For tokens: Embedded: One token enters: from parent sequence. One token exits (or many for MI). Event Subprocess: Token spawned on event: alongside parent token. For interrupting: parent token cancelled. For non-interrupting: parent continues; event subprocess separate. For nesting: Embedded inside Embedded: Legal: multi-level grouping. Event Subprocess inside Embedded: Common: event handler within scope of embedded. Event Subprocess at process root: Process-wide handler. For interruption (per Set 14 Q2): Event Subprocess interrupting: kills parent scope. Non-interrupting: parent continues. For Camunda 8 support: Both first-class: supported. Event Subprocess Start Events: verify all types per version. For modelling: Use Embedded for inline composition. Use Event Subprocess for event handling. Anti-patterns: Embedded for event handling: doesn't match semantic. Event Subprocess in main flow: unusual; reconsider. For the scenario (both in same process): Embedded: part of main flow. Event Subprocess: handler for events. Complementary roles."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q03",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 14 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 36.8 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

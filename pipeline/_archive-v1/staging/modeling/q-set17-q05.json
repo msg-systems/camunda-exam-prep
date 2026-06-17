@@ -1,0 +1,63 @@
+{
+  "id": "imp-set17-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Activity has Standard Loop marker with loopCondition. Team wonders when condition evaluated -- before each iteration or after.",
+  "question": "Standard Loop condition timing?",
+  "options": [
+    {
+      "id": "a",
+      "text": "\"Always before\" -- mistaken; the attribute is moot because Standard Loop is absent from C8 at runtime."
+    },
+    {
+      "id": "b",
+      "text": "\"Always after\" -- wrong, for the same reason as option a. Standard Loop is absent from the Zeebe engine runtime in Camunda 8 per the BPMN coverage documentation. The testBefore attribute controls whether the loop condition is evaluated before or after each iteration according to the BPMN specification, but this attribute is entirely moot in Camunda 8 because Zeebe does not honor Standard Loop markers at all. Use Sequential Multi-Instance with a completionCondition for iterative patterns."
+    },
+    {
+      "id": "c",
+      "text": "md:127, :138-140 the LoopSvg marker carries no className=\"implemented\" (unlike MI Parallel / MI Sequential / Compensation / Ad-Hoc next to it). The testBefore attribute / loopCondition / loopMaximum are spec features but Zeebe will NOT iterate the activity based on them. For \"iterate while condition\" use: Sequential Multi-Instance (inputCollection with completionCondition for early exit), a process-level loop via sequence flow back to the task through an XOR gateway, or an Embedded Subprocess with custom iteration logic. Each alternative provides a supported implementation path for conditional looping behavior in Camunda 8 without relying on the unimplemented Standard Loop element."
+    },
+    {
+      "id": "d",
+      "text": "Closer to truth in practice: Standard Loop configuration is effectively unavailable in Camunda 8 because the marker is absent from the Zeebe engine runtime. The loopCondition and testBefore attributes exist in the BPMN specification but are not honored by Zeebe during execution. This option acknowledges the practical limitation but fails to recommend concrete alternatives."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Standard Loop semantics: BPMN spec: loopCondition: FEEL expression evaluated to determine iteration. testBefore attribute: true (default): test before each iteration (while-style). false: test after (do-while-style; at least one iteration). loopMaximum (optional): Maximum iterations. Safety cap. Execution patterns: testBefore=\"true\" (while): 1. Evaluate loopCondition. 2. If true: execute Activity. 3. Repeat from step 1. 4. If false: exit. Equivalent to: ` while (condition) { execute Activity } testBefore=\"false\" (do-while): 1. Execute Activity. 2. Evaluate loopCondition. 3. If true: go to step 1. 4. If false: exit. Equivalent to: do { execute Activity } while (condition) For Camunda 8 (definitive -- bpmn-coverage.md:127, :138-140): Standard Loop is NOT implemented: in the Markers row carries no className=\"implemented\" (unlike MultiInstanceParallelSvg / MultiInstanceSequentialSvg / CompensationSvg / AdHocSvg on the same row). testBefore / loopCondition / loopMaximum: spec attributes that Zeebe will NOT honor -- the activity executes once and the loop marker is ignored at runtime. Canonical replacements: Multi-Instance (collection-based, with completionCondition for early exit) or process-level loop (sequence flow back via XOR gateway). Compared to Multi-Instance (per Set 13 Q9): Standard Loop: Condition-based: iterate while true. No collection: iterates without input. Sequential typical. Multi-Instance: Collection-based: iterate over list. inputCollection specified. Sequential or parallel. Per-iteration variables. When to use Standard Loop: Iterate until condition met: e.g., \"until approved\". No fixed iteration count or collection. When to use MI: Process collection: each item. Known iterations. For \"while approved is null\": loopCondition: =approved = null testBefore: true Re-execute User Task until approved. For \"retry up to N times\": loopCondition: =retryCount < 5 and not success testBefore: false (always try once) Loop counter (verify support): Some engines provide loopCounter variable. For tracking iterations. For escape conditions: loopCondition: =continueIterating and elapsed < SLA Compound condition for safety. For testing: Test loop entry/exit: condition variations. Test maxLoop boundary: hit cap. Test do-while semantics: at least one execution. For Operate visibility: Each iteration: shows as separate activation. Element instance per iteration. Anti-patterns: Infinite loop: condition never false; combine with loopMaximum. No exit condition: stuck. Using Loop when MI fits: less clean. For the scenario (Standard Loop): testBefore determines when condition evaluated. Both supported per spec. Default testBefore=true` typical (while-style). Verify Camunda 8 Standard Loop support: May have limitations compared to MI. MI more commonly used. For complex looping: Sequential MI with completionCondition (per Set 13 Q13). Process-level loop (sequence flow back)."
+    },
+    "b": {
+      "text": "Incorrect. testBefore attribute is moot -- Standard Loop is not implemented in Camunda 8."
+    },
+    "c": {
+      "text": "Correct. Same -- testBefore not honored at runtime."
+    },
+    "d": {
+      "text": "Incorrect. Standard Loop marker is not implemented in C8; effectively \"not configurable.\" Use Multi-Instance + completionCondition or a process-level loop."
+    }
+  },
+  "explanation": "Same -- testBefore not honored at runtime.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/bpmn-coverage/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q05",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 6.8 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

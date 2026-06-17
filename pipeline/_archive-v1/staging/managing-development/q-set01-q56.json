@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q56",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team wants to test a complex BPMN flow before deploying it to a real cluster. The flow has 30+ elements including Service Tasks (which would call real external systems), User Tasks, and a Decision Table. The team wants to simulate runtime execution without actually invoking external systems -- they want to step through the process, set variable values manually, and verify the path is correct.",
+  "question": "Which Camunda 8 feature is purpose-built for this kind of pre-deployment testing?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Deploy the process to a dedicated test cluster and run it. Deploying to a dedicated test cluster is a valid end-to-end testing approach, but it is significantly heavier than Camunda Play for the specific use case of pre-deployment interactive walkthrough. A test cluster requires provisioning real infrastructure, deploying actual or mock workers for every Service Task (the scenario has 30+ elements including Service Tasks that call real external systems), configuring all those workers, and having a full runtime environment available. Camunda Play handles all of this automatically within Web Modeler -- it sandboxes the execution and lets the developer mock Service Task outcomes without any worker code."
+    },
+    {
+      "id": "b",
+      "text": "Write process tests with the Camunda 8 Test Framework -- unit-style tests of the BPMN with mocked workers. The Camunda 8 Test Framework (with the camunda-process-test-spring or camunda-process-test JUnit extensions) is excellent for automated regression testing of process definitions -- writing test cases in code that exercise specific paths and assert on outcomes. This serves a complementary but different purpose from the scenario's need: interactive visual walkthrough to verify path correctness before the first deployment. \" check."
+    },
+    {
+      "id": "c",
+      "text": "Camunda Play -- Zeebe-powered playground environment within Web Modeler for validating a process. Start an instance, interactively complete tasks, provide example data/variables, mock service tasks via service-task placeholders or example payloads, and visualise the path. In the scenario's case, the developer opens the BPMN in Web Modeler, switches to the Play tab, selects a development cluster, and starts an instance with example input variables. Service Tasks are handled by Play's built-in mocking -- the developer provides the expected output variables for each service task instead of needing real workers. The token moves visually through the diagram, and the developer can inspect variables at each step and verify that the correct path is taken at each gateway decision."
+    },
+    {
+      "id": "d",
+      "text": "Use DMN evaluation in Web Modeler to test decisions in isolation. Web Modeler does provide a DMN decision evaluation tool that lets you test DMN decision tables and decision requirements diagrams by supplying input values and seeing which rules fire and what outputs are produced. This is a useful tool for verifying decision logic in isolation, but it is narrowly scoped to DMN evaluation -- it does not address the full BPMN process flow with Service Tasks, User Tasks, gateways, events, and subprocess elements that the scenario describes. Testing the full 30+ element BPMN process requires Camunda Play, not the DMN-specific evaluation tool."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda Play is the interactive process playground specifically designed for pre-deployment validation per web-modeler/validation/play-your-process.md:11 verbatim \"Play is a Zeebe-powered playground environment within Web Modeler for validating a process at any stage of development.\" From Web Modeler, the developer \"plays\" the process: opens the Play tab, picks a development cluster (SaaS auto-provisioned; SM uses the cluster configured per web-modeler/configuration), and Play auto-deploys the current version + dependencies. Starts an instance, sees the token visualised on the diagram, mocks Service Task outcomes via service-task placeholders or example data instead of running real workers, responds to User Tasks, and watches the path execute. Variables can be inspected and modified live. Note: Play uses a real Zeebe cluster underneath -- it's not a pure local simulation -- but the development cluster is sandboxed from production."
+    },
+    "b": {
+      "text": "Incorrect. Test cluster deployment works but requires real Zeebe + real workers (or mocks). Heavier setup than Play."
+    },
+    "c": {
+      "text": "Correct. Unit-style process tests are great for CI/CD regression but require code; Play is for interactive exploration."
+    },
+    "d": {
+      "text": "Incorrect. DMN testing in Modeler tests decisions in isolation, not the full BPMN process flow."
+    }
+  },
+  "explanation": "Unit-style process tests are great for CI/CD regression but require code; Play is for interactive exploration.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/validation/play-your-process/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q56",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

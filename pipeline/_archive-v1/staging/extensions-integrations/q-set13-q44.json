@@ -1,0 +1,76 @@
+{
+  "id": "imp-set13-q44",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Java SDK worker loses gRPC connection to Zeebe (network blip). Team wonders if the SDK auto-reconnects or if the worker process crashes.",
+  "question": "SDK reconnection behavior on network issues?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Worker crashes -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Camunda Java SDK workers do not implement any reconnection logic; when the gRPC connection to Zeebe drops, the worker thread terminates permanently and must be restarted by the operator. This misrepresents the documented behavior. Camunda SDKs include built-in connection management that handles transient network issues without manual intervention. The gRPC layer monitors connection health and performs automatic reconnection with configurable retry intervals and backoff. The worker process continues running during the reconnection attempt, not terminating."
+    },
+    {
+      "id": "c",
+      "text": "Camunda SDKs include built-in resilience for gRPC connection issues: when the connection to Zeebe drops due to a network blip, the SDK detects the disconnection and automatically initiates reconnection with exponential backoff. During the outage, job polling pauses; any in-flight job being processed locally continues to completion, and the result is reported back once the connection is restored. The worker process itself does not crash on transient network failures. Configurable parameters include retry intervals, maximum retry count, and backoff strategy via SDK configuration."
+    },
+    {
+      "id": "d",
+      "text": "After a gRPC connection drop to Zeebe, the SDK requires an operator to manually restart the worker process to re-establish the connection; there is no automatic recovery mechanism built into the SDK. This misrepresents the documented behavior. Camunda Java SDK workers use gRPC's built-in connection monitoring and retry logic. The SDK automatically attempts to reconnect without operator intervention. Kubernetes liveness probes or Spring Boot Actuator health checks can alert on prolonged outages, but transient network blips are handled transparently by the SDK's reconnection layer."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. SDK resilience to connection issues: Built-in reconnection: SDK uses gRPC's connection management. On disconnect (TCP reset, broker restart, network partition): SDK detects. Backoff retry: typically exponential or configurable. Polling pauses: long-poll for jobs stops; resumes on reconnection. Local state preserved: worker doesn't lose in-progress jobs. In-flight jobs during outage: Already-activated job: local processing continues (no need for connection during compute). On completion: SDK tries to send job.complete / job.fail; if connection still down, retries. If activation timeout exceeds: broker re-activates job to another worker → duplicate execution risk (per Set 13 Q10). Mitigation: idempotent worker code. Long outages: Worker keeps trying; doesn't crash. May exhaust retry budget; SDK logs warnings. Health endpoints (Spring Actuator /actuator/health) surface connection state for monitoring. Ops dashboards detect unhealthy workers. Configuration knobs (verify per SDK version): Initial retry delay. Max retry delay (backoff cap). Multiplier (e.g., 2.0 = exponential). Max retries (or unlimited). Connection timeout + keepalive settings. Health monitoring patterns: Spring Actuator: /actuator/health/zeebeClient indicator. Prometheus metrics: connection state, retry counters. Logs: SDK logs connection events at INFO / WARN level. What happens in extreme cases: Broker fully down: SDK keeps retrying; jobs not processed; backlog grows. Network partition: same as above. Broker accepting some workers, refusing others: SDK retries; may surface auth / quota issues in logs. Best practices: Monitor connection health: alert on disconnection. Idempotent workers: critical given duplicate-execution risk. Test failure scenarios: chaos engineering (kill broker, network glitches) -- validate worker recovery. Worker process resilience: ensure worker doesn't crash on transient SDK errors (let SDK handle)."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. Incorrect."
+    },
+    "d": {
+      "text": "Incorrect. Incorrect."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q44",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 24 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 24.4 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q30",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A driving-license renewal form in Camunda 8 needs a dropdown of supported license types that is loaded dynamically from a process variable (the list of available types depends on the applicant's state/region -- different states issue different license types). The variable availableLicenseTypes is set by an upstream Service Task as a list of objects: [{value: \"STANDARD\", label: \"Standard License\"}, ...].",
+  "question": "How should the developer configure the dropdown to use this dynamic list?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Hardcode all possible license types across all states as static dropdown options, then use the conditional Show if expression on individual options to hide those that are irrelevant for the applicant's state. Hardcoding all possible values and using visibility conditions creates a fragile model -- whenever a new license type is added to any state, every form in every process must be updated. Variable-driven dropdown options are maintainable because the list is computed upstream and passed dynamically, requiring no form changes when the available types change."
+    },
+    {
+      "id": "b",
+      "text": "Add a separate User Task before the main form to present a filtering step where the applicant selects their state first, then use the selected state to display a filtered static dropdown in the subsequent form. Adding an extra User Task is overhead when the form already natively supports receiving a variable-driven options list from an upstream Service Task. This approach adds an unnecessary step to the user journey and additional process state."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 Forms do not support dynamic dropdowns whose options are driven by process variables; instead use a free-text input field and add FEEL-based format validation to ensure the applicant enters one of the allowed license type values. Dynamic dropdowns driven by process variables are fully supported in Camunda 8 Forms via the \"Input data driven by process data\" options source mode. The feature is designed precisely for the scenario described -- a list computed by an upstream Service Task and bound to a dropdown via a variable name."
+    },
+    {
+      "id": "d",
+      "text": "a. \"Input data driven by process data\") and set the Input values key property to availableLicenseTypes (plain variable name -- no = prefix; that = prefix belongs to the separate \"FEEL expression\" options-source mode only). md. When the form renders, Camunda Forms reads the variable and populates the dropdown choices dynamically at runtime without hardcoding any values in the form schema itself."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 Forms supports dynamic options sourced from a process variable for Radio and Select fields. Per forms-config-options.md, the Options source has three modes: \"Static configured on the form schema\", \"Input data driven by process data\" (uses Input values key property → variable name, e.g. availableLicenseTypes), and \"FEEL expressions\" (uses a FEEL expression with = prefix returning an array). The data must be [{value, label}, ...] JSON; shorthand [{value: \"fr\"}] or [\"fr\", \"en-gb\"] is also accepted when label equals value."
+    },
+    "b": {
+      "text": "Incorrect. Hardcoding all options + conditional hide produces a fragile model that must be updated when new license types are added. Variable-driven is the maintainable choice."
+    },
+    "c": {
+      "text": "Incorrect. Adding an extra User Task is overhead for what the form already supports."
+    },
+    "d": {
+      "text": "Correct. Dynamic dropdowns ARE supported."
+    }
+  },
+  "explanation": "Dynamic dropdowns ARE supported.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/configuration/forms-config-options/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q30",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Node.js Job Worker's handler throws an uncaught exception (e.g., JSON.parse failure on malformed input). The team wonders what happens -- does the job auto-fail, hang, or what?",
+  "question": "What happens when a Node SDK handler throws an uncaught exception?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Job hangs indefinitely in an active state when the handler throws an uncaught exception, because the worker never explicitly completes or fails it -- this description does not reflect actual behaviour for well-designed SDKs. The @camunda8/sdk TypeScript SDK wraps handler invocations in error boundaries. When an uncaught exception propagates out of the handler function, the SDK catches it and automatically calls fail-job with the error details. The job does not hang; it transitions to a failed state with the exception information captured."
+    },
+    {
+      "id": "b",
+      "text": "js worker process crashes when a handler throws an uncaught exception -- this may happen in poorly designed SDKs but not in @camunda8/sdk. js uncaught exception handler. The SDK translates handler exceptions into job failure calls with appropriate error messaging. Process stability is maintained while the failed job is reported to Zeebe for retry or incident creation."
+    },
+    {
+      "id": "c",
+      "text": "Job completes successfully with an empty or null result set when the handler throws an uncaught exception -- this description does not reflect the actual behaviour. An uncaught exception in the handler indicates that the work was not successfully completed. The SDK catches this exception and reports it as a job failure to Zeebe using fail-job semantics. Reporting success with an empty result when an exception occurred would hide errors from operators and produce incorrect downstream variable state in the process instance."
+    },
+    {
+      "id": "d",
+      "text": "fail() (decrements retries, may create incident if retries = 0). The error message and stack trace are usually captured in the job's failure details, visible in Operate. Best practice: catch exceptions explicitly to add context (errorCode for BPMN routing, custom error messages) rather than relying on uncaught fallback. 8 -- the official TypeScript SDK (@camunda8/sdk) is documented under apis-tools/typescript/typescript-sdk/."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Well-designed Node SDKs (including @camunda8/sdk) wrap handler invocations in error boundaries: Uncaught exception in handler: SDK catches, calls job.fail() with the error details (or equivalent). Effect: Zeebe records the failure, decrements retries; if retries > 0, re-activates after backoff; if 0, creates an Incident with the error message visible in Operate. Default behaviour: similar to explicit job.fail() but with less control over the error reporting (no errorCode for BPMN routing, generic error message). Best practice: always explicit handling: `javascript async function handle(job) { try { const data = JSON.parse(job.variables.input); return { result: processed(data) }; } catch (e) { if (e instanceof SyntaxError) { await job.error({ errorCode: 'INVALID_JSON', errorMessage: e.message }); } else { throw e; // or job.fail() with more context } } } ` This gives BPMN-level error routing (errorCode → Error Boundary Event) instead of generic failure."
+    },
+    "b": {
+      "text": "Incorrect. SDK catches."
+    },
+    "c": {
+      "text": "Incorrect. Quality SDK design catches; bad design could crash process. Verify SDK version."
+    },
+    "d": {
+      "text": "Correct. Failure, not success."
+    }
+  },
+  "explanation": "Failure, not success.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/typescript-sdk/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q42",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

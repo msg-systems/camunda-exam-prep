@@ -1,0 +1,50 @@
+{
+  "id": "ext-testing-process-definitions-137",
+  "topic": "extensions-integrations",
+  "subtopic": "integration-tests",
+  "difficulty": "easy",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "For an integration test of a process whose service task uses a Camunda REST outbound connector, what does the docs recommend mocking?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The REST endpoint itself (e.g. with WireMock), so the connector's input and output mapping is actually exercised."
+    },
+    {
+      "id": "b",
+      "text": "The connector's job worker, so the connector code path never runs during the integration test."
+    },
+    {
+      "id": "c",
+      "text": "Both the endpoint and the worker together, so duplicated assertions confirm parity."
+    },
+    {
+      "id": "d",
+      "text": "Neither — integration tests must always call the real production REST endpoint."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs say that when using the Connector framework there is logic worth testing in the connector configuration, especially the input and output data mapping, so you typically want to mock the endpoint rather than the job worker. WireMock is the example given."
+    },
+    "b": {
+      "text": "Mocking the job worker is the unit-test technique for the chunk tests; in integration tests it bypasses the very mapping logic you are trying to exercise."
+    },
+    "c": {
+      "text": "The docs pick one strategy per test scope, not both at once. Mocking the worker and the endpoint together is not recommended and not described."
+    },
+    "d": {
+      "text": "Hitting a production endpoint from automated integration tests is not what the docs prescribe; the WireMock-based stub is the recommended pattern."
+    }
+  },
+  "explanation": "Camunda's integration-test guidance is to mock the REST endpoint (using WireMock, for example) rather than the connector's job worker, so the connector's input and output data mapping is actually exercised by the test. Mocking the worker is the lighter unit-test technique used for chunk tests.",
+  "docs": [
+    {
+      "title": "Testing process definitions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/testing-process-definitions/"
+    }
+  ]
+}

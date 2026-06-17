@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task has Task Headers configured: {priority: \"high\", retryHint: \"5min\"}. These values are static -- the same for every instance of this task. A new team member asks: \"Can the headers be dynamic per instance -- e.g., priority varying by customer tier?\"",
+  "question": "Can Task Headers be dynamic (vary per process instance)?",
+  "options": [
+    {
+      "id": "a",
+      "text": "tier to differ between instances. This is inaccurate. Task Headers are part of the BPMN model as static string key-value pairs. They do not support FEEL expressions and are not evaluated at runtime. getCustomHeaders(). For dynamic per-instance data, the correct mechanism is Input Mapping with FEEL expressions."
+    },
+    {
+      "id": "b",
+      "text": "Yes -- Zeebe re-reads Header values from the BPMN model at each job activation. Re-reading does not evaluate or refresh them; the same literal values appear on every activation. getCustomHeaders(), which always returns the same static map. For per-instance dynamic values, the correct Camunda 8 mechanism is Input Mapping with FEEL expressions, not Task Headers."
+    },
+    {
+      "id": "c",
+      "text": "Yes -- Task Headers support a hybrid model: values prefixed with = are treated as FEEL expressions evaluated per instance, while unprefixed values remain static. This mixed-mode syntax has no support in the Task Header schema. Headers do not support any syntax marker that signals dynamic evaluation. The = prefix convention that signals FEEL evaluation applies to certain other BPMN attributes (like assignment expressions or condition expressions on sequence flows), but Task Header values are always treated as plain literal strings regardless of their content."
+    },
+    {
+      "id": "d",
+      "text": "No -- Task Headers are static metadata defined at design time (per modelled task, identical for every instance). They are string key-value pairs embedded in the BPMN XML and are not evaluated as FEEL expressions at runtime. getCustomHeaders(). For dynamic per-instance values that vary between process instances, the correct Camunda 8 mechanism is Input Mapping with FEEL expressions, which are evaluated fresh at each job activation and passed to the worker as locally scoped job variables."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Task Headers are part of the BPMN model -- string key/value pairs attached to a specific task element. Modelled once at design time; identical across instances. The worker reads them from activatedJob.getCustomHeaders(). For dynamic per-instance metadata, use Input Mapping: define a local variable via FEEL that evaluates against process variables / context, and pass it to the worker as a local-scoped variable. This separates \"static config\" (Headers) from \"dynamic data\" (variables)."
+    },
+    "b": {
+      "text": "Incorrect. Headers are not FEEL-evaluated. They're literal string values."
+    },
+    "c": {
+      "text": "Incorrect. The broker does read Headers each time the job activates, but the values themselves don't change between activations -- they're static in the BPMN."
+    },
+    "d": {
+      "text": "Correct. No mixed-mode syntax."
+    }
+  },
+  "explanation": "No mixed-mode syntax.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q22",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

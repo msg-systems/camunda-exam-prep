@@ -1,0 +1,27 @@
+{
+  "id": "mod-event-subprocesses-56",
+  "topic": "modeling",
+  "subtopic": "event-subprocesses",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Granite Insurance models a Camunda 8.8 claim review process whose embedded event subprocess must read process variables of the containing claim scope and add its own working variables that should not leak when the subprocess completes, across 900 claims per day in the same scope.",
+  "question": "Which variable behaviour applies to an event subprocess in its containing scope in Camunda 8.8?",
+  "options": [
+    { "id": "a", "text": "The event subprocess can only read local variables of the containing scope but it cannot modify them, and any input mappings define global variables visible to the outer scope at runtime" },
+    { "id": "b", "text": "The event subprocess can access and modify local variables of the containing scope, and input mappings create local variables only visible inside the event subprocess that disappear when it completes" },
+    { "id": "c", "text": "The event subprocess can create new global variables in the containing scope via output mappings on the start event, and its own local variables are propagated by default to the containing scope" },
+    { "id": "d", "text": "The event subprocess has its own isolated variable scope and cannot read variables of the containing scope unless explicit signal correlation copies values into it on activation at runtime" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The Variables section states the event subprocess can both access and modify local variables of its containing scope, and input mappings create variables local to the event subprocess in this scope." },
+    "b": { "text": "Correct. The Variables section states the event subprocess is inside the scope, so it can read and modify the containing scope's local variables, and input mappings create new local variables only visible inside the event subprocess." },
+    "c": { "text": "Incorrect. The page states that by default the event subprocess's local variables are not propagated; output mappings must be defined on the event subprocess to propagate values to the containing scope at completion." },
+    "d": { "text": "Incorrect. The page contrasts the event subprocess with a boundary event by stating the event subprocess is inside the scope and can therefore access all local variables without explicit correlation copying values into it." }
+  },
+  "explanation": "Event subprocesses sit inside the containing scope, so they can read and modify its local variables directly. Input mappings define variables local to the event subprocess; by default these are removed on completion, and output mappings are required to propagate values back to the containing scope.",
+  "docs": [
+    { "title": "BPMN event subprocesses", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/" }
+  ]
+}

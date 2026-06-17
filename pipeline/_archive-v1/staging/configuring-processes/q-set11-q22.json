@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's process variable has deeply nested structure: =order.shipping.address.city. They wonder if JSONPath-style access ($.order.shipping.address.city) works as alternative to FEEL dot notation.",
+  "question": "Does Camunda 8 support JSONPath syntax for variable access?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 uses FEEL exclusively for all expression evaluation including variable access, gateway conditions, input/output mappings, and timer expressions. JSONPath syntax using the $. prefix is not a recognised expression form in Zeebe; using it would result in FEEL evaluation errors or unexpected literal-string interpretations."
+    },
+    {
+      "id": "b",
+      "text": "JSONPath is supported for certain types of operations such as filter or projection expressions within Camunda 8 -- this misidentifies the expression language. FEEL is the sole expression language in Camunda 8 for all expression contexts. No subset of JSONPath syntax is interpreted by Zeebe's FEEL engine. Teams migrating from JSONPath-based systems must translate all path expressions to FEEL equivalents: dot notation for property access, list filter predicates, and for-in-return projections."
+    },
+    {
+      "id": "c",
+      "text": "Add a Service Task to convert JSONPath navigation into FEEL-compatible variables before using them in expressions -- this is a workaround that adds unnecessary complexity. city), bracket access (order[\"shipping\"]), list filters, and projections provide full coverage of what JSONPath does. Most JSONPath patterns translate directly to FEEL with minimal effort, making a conversion Service Task an unnecessary overhead."
+    },
+    {
+      "id": "d",
+      "text": "No -- Camunda 8 uses FEEL exclusively for expression evaluation in all contexts. value) is not natively recognised and would cause evaluation errors. city), bracket access (order[\"shipping\"][\"address\"][\"city\"]), list filters, and for-in-return projections collectively cover all the navigation patterns that JSONPath provides. For dynamic key lookup, FEEL offers get value(context, key). Teams migrating from JSONPath-based systems must translate to FEEL equivalents, which are often direct one-to-one substitutions."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8's expression language is FEEL exclusively. No JSONPath, no JavaScript, no Groovy. FEEL navigation patterns: Dot navigation (for static known keys): order.shipping.address.city. Bracket access (for dynamic / special keys): order[\"shipping\"][\"address\"][\"city\"] -- useful when keys are computed or contain special chars. List indexing (1-based): items[1], items[3], items[-1] (last). Filter (bracket form with implicit item): items[status = \"ACTIVE\"] per feel-list-expressions.md:67-86 -- the predicate references list elements via the implicit item variable per :75 (\"While filtering, the current element is assigned to the variable item\"). Projection: for x in items return x.field per feel-list-expressions.md:88-148 -- the canonical map-style projection. Anti-pattern: the bracket-comprehension form [x in items : expr] does NOT exist in FEEL (Pattern #23 -- fabricated syntax). Context lookup: get value(context, \"dynamicKey\") for entirely dynamic key access. For complex queries on nested data, compose FEEL primitives. The combination of dot navigation, bracket access, filters, and projections covers what JSONPath does in other tools. If a team is migrating from a JSONPath-based system, they'd need to translate paths to FEEL syntax. Most translations are 1-to-1 (replace $. prefix with the variable name; convert [*] to FEEL for expressions or list functions)."
+    },
+    "b": {
+      "text": "Incorrect. FEEL only."
+    },
+    "c": {
+      "text": "Incorrect. FEEL only."
+    },
+    "d": {
+      "text": "Correct. Direct FEEL simpler."
+    }
+  },
+  "explanation": "Direct FEEL simpler.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q22",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-23",
+  "topic": "managing-development",
+  "subtopic": "operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "After the variable incident is fixed and the instance is retried, the token reaches the `Ship Without Insurance` task but the instance does not finish. Per the guide, why?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`Ship Without Insurance` is a job-worker task; until a worker is registered for that job type, no worker activates and completes the job."
+    },
+    {
+      "id": "b",
+      "text": "Operate must be configured with a 'complete-on-arrival' rule for terminal tasks."
+    },
+    {
+      "id": "c",
+      "text": "A boundary timer must elapse before the engine completes the service task."
+    },
+    {
+      "id": "d",
+      "text": "`zbctl resolve incident` is needed because every job-worker task starts in an error state."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The guide completes the instance by creating a worker for `ship-without-insurance` with `zbctl --insecure create worker ship-without-insurance --handler cat`. Until such a worker activates and completes the job, the token stays parked at the task."
+    },
+    "b": {
+      "text": "Operate has no 'complete-on-arrival' rule; job-worker tasks are completed by registered workers."
+    },
+    "c": {
+      "text": "A service task is not gated by a timer; the engine waits for a worker to activate and complete the job."
+    },
+    "d": {
+      "text": "There is no incident on `Ship Without Insurance` here; the earlier gateway incident was already resolved, and job-worker tasks do not start in error states."
+    }
+  },
+  "explanation": "Job-worker tasks in Zeebe are completed by external workers. Until a worker is registered for the `ship-without-insurance` job type, the job sits waiting. The guide demonstrates this by creating the worker with `zbctl create worker ship-without-insurance --handler cat`, after which the instance completes.",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ]
+}

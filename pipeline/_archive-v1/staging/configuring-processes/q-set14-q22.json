@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task has assignee = \"alice\" AND candidateGroups = \"reviewers\". Alice is also in \"reviewers\" group. Team wonders who can claim/work on this task.",
+  "question": "User Task assignment vs candidate group precedence?",
+  "options": [
+    {
+      "id": "a",
+      "text": "User tasks in Camunda 8 support assignee, candidateUsers, and candidateGroups simultaneously, not only candidate groups. md:34, all three attributes can be specified at once. When assignee is set, Tasklist auto-claims the task for that user. candidateGroups defines who can view and re-claim the task. Both attributes serve different purposes: assignee controls initial ownership while candidateGroups defines the eligible pool for reassignment. Restricting to only candidate groups ignores direct assignment capability."
+    },
+    {
+      "id": "b",
+      "text": "Both the assignee and candidateGroups attributes are fully effective when set on a User Task in Camunda 8. The assignee attribute causes Tasklist to auto-claim the task for the specified user on activation. The candidateGroups attribute defines the pool of users who can claim or reclaim the task. md, which explicitly describes how each attribute controls task visibility and assignment routing in Tasklist."
+    },
+    {
+      "id": "c",
+      "text": "When candidateGroups is set, the task appears in the group's shared queue and any group member can actively claim it. The assignee attribute makes a deterministic direct assignment to a specific user. Random auto-assignment would produce unpredictable task routing that violates the controlled assignment patterns required for compliance and accountability in business processes."
+    },
+    {
+      "id": "d",
+      "text": "md:31-49): assignee causes Tasklist to auto-claim the task for Alice on activation; candidateGroups defines who can reclaim the task if Alice un-assigns it (Tasklist V1 also uses it for visibility). md:34, one or all assignment attributes can be specified simultaneously. There is no automatic override rule -- both are stored and consulted by Tasklist for different functions: auto-claim versus the reclaim pool."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. User Task assignment semantics: Assignment attributes: assignee: Specifies a direct assignment to a specific user. Tasklist shows the task in this user's \"My Tasks\" view. User can complete without claiming (already claimed implicitly). Override: can be reassigned via API. candidateGroups: Specifies a pool of groups. Members of any listed group can claim the task. Once claimed: becomes that user's task. Tasklist shows in \"Group Tasks\" / \"Available Tasks\" view. candidateUsers: Specifies a pool of users (vs groups). Similar semantic to candidateGroups but user-specific. When both assignee and candidateGroups set: Typical behavior: assignee takes precedence -- task is directly assigned. candidateGroups may be informational -- shown but no different routing. OR different Tasklist versions may interpret differently: Some: assignee = \"claimed by\"; candidate groups = \"anyone in this group can re-claim.\" Some: assignee = primary; candidates not shown if assignee set. Best practice: set one, not both: Pattern 1: Direct assignment: Set assignee to specific user. Skip candidate groups. Pattern 2: Pool-based: Skip assignee. Set candidateGroups (and/or candidateUsers). User in the group claims. Pattern 3: Assignment via expression: =if isManager then \"alice\" else null for assignee. Conditionally direct-assign or leave to candidate groups. Common pitfalls: Pitfall 1: Setting both causes confusion: Users wonder why they see task in two places. Tasklist UI may show task differently based on user's perspective (assignee vs group member). Pitfall 2: Assignee not in candidate groups: Edge case: assignee = \"alice\", candidate groups = \"reviewers\", alice NOT in reviewers. Some interpretations: alice has the task (assignee overrides). Verify Tasklist version's behavior. Pitfall 3: Reassignment: Original assignee absent (on vacation, etc.). Need to reassign. With candidate groups: easier -- anyone in group can claim. Without: manager / admin must reassign via API. Recommended decision tree: | Need | Setting | |------|---------| | Specific user must do this | assignee only | | Any of N people can do this | candidateGroups or candidateUsers only | | Specific user but with fallback group | Two-step: assign with assignee; expression-based unassign on timeout; reassign to group | For dynamic assignment: FEEL expressions resolved at task activation. assignee = userByRegion[customer.region] -- lookup. Process variables driving assignment."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q22",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

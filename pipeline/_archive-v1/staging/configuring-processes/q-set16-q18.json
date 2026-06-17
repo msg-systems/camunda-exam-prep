@@ -1,0 +1,82 @@
+{
+  "id": "imp-set16-q18",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team's cluster serves multiple tenants (customer A, customer B). Each tenant should see only their own process data. Wonders multi-tenancy support.",
+  "question": "Multi-tenancy in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No multi-tenancy -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Cluster per tenant only -- this is only partially correct. Cluster-per-tenant is one valid multi-tenancy approach, providing the strongest isolation at the highest cost. Each deployment and process instance is tagged with a tenant identifier, and authorization is scoped accordingly. The choice between models depends on isolation requirements, cost constraints, and operational capacity. Many organizations use a hybrid approach for their different customer tiers."
+    },
+    {
+      "id": "c",
+      "text": "Manual filtering -- this is only partially correct. , checking a tenant variable in every API query), Camunda 8 provides built-in tenant ID support that enforces tenant isolation at the platform level. Relying on manual filtering in every query or API call is error-prone: one missed filter could expose cross-tenant data. The native tenant ID mechanism enforces isolation automatically through the authorization model, so tenants only see their own deployments and process instances without requiring manual filtering in every operation."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 typically supports multi-tenancy (verify per version): deployments and process instances are tagged with a tenant ID at creation time, providing logical data isolation within a shared cluster. Users and API clients are scoped to specific tenants through the Identity service, so they can only see deployments and process instances belonging to their tenant. Operate, Tasklist, and the REST API all enforce tenant filtering. For SaaS, Camunda offers both cluster-per-tenant (maximum isolation) and shared cluster with tenant IDs (cost-efficient). Self-Managed deployments configure tenant settings in Identity. This built-in mechanism removes the need for manual application-level filtering on every query."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Multi-tenancy patterns: Models: Model 1: Cluster per tenant: Each customer: own Camunda cluster. Strong isolation: data, performance, deploys. Cost: linear scaling. Model 2: Tenant-aware shared cluster: Single cluster: multiple tenants. Tenant ID tags resources. Logical isolation: same infrastructure. Cost-efficient: shared resources. Model 3: Hybrid: VIP customers: own cluster. SMB: shared cluster. Tenant ID concept: Each process definition / instance: tagged with tenant. Queries filter: only tenant's data. Authorization: users scoped to tenant. Configuration: At deployment: Deploy resource with tenant ID. Resource visible only to that tenant. At process instance start: Inherit tenant from definition. Or explicit specification. In APIs: Token / auth scope: tenant-specific. Operate queries: filter by tenant. For Camunda 8 (verify per version): Multi-tenancy support: evolving feature. Self-Managed: configurable. SaaS: typically cluster-per-customer or per-organisation. Cluster-per-tenant pros: Maximum isolation. Independent SLAs. Customisation per tenant. No noisy neighbor. Cluster-per-tenant cons: High cost: multiple clusters to maintain. Operations: more clusters = more ops. Onboarding: each new tenant = new cluster. Shared cluster pros: Cost-efficient. Centralised ops. Faster onboarding. Shared cluster cons: Noisy neighbor: one tenant's spike affects others. Less customisation. Stricter isolation requirements. For the scenario: Depends on: Number of tenants: few = clusters; many = shared. Isolation requirements: regulatory / compliance. Cost sensitivity. Customisation needs. Implementation considerations: Auth: Tenant-scoped tokens: client A can only access tenant A. Identity / Keycloak: realm per tenant or shared with tenant attribute. Process variables: Include tenant ID: in payloads. Workers: route based on tenant. Custom Connectors: Tenant-aware: route to per-tenant external systems. Operate / Tasklist: Tenant-filtered views: users see only their tenant. Best practices: Plan multi-tenancy early: hard to retrofit. Test isolation: verify no cross-tenant leakage. Document model: which approach used. Tenant-aware monitoring: per-tenant metrics. For SaaS: Organisations in Console map to tenants. Clusters within org scoped to org. Cross-org access: limited. For Self-Managed: Configure Identity with tenant model. Verify Camunda 8 multi-tenancy config. For the scenario (customer A, customer B): Tenant per customer. Implement via tenant ID tagging. Isolate queries, auth, etc. Verify Camunda 8 specifics: Tenant ID support in Zeebe. Tenant filtering in Operate / Tasklist. Tenant-aware Identity integration. Multi-tenancy maturity: Camunda 8 multi-tenancy: evolving. Roadmap items: more features over time."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/about-self-managed/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q18",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 26 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[1]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[2]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 27.5 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

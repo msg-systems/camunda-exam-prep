@@ -1,0 +1,50 @@
+{
+  "id": "cfg-feel-built-in-functions-context-167",
+  "topic": "configuring-processes",
+  "subtopic": "feel-built-in-functions-context",
+  "difficulty": "hard",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Zenith Bank standardises FEEL context merging on Camunda 8.8 over 11000 transactions per day. A modeller calls context merge([{x:1, y: 0}, {y:2}]) on the process instance and needs the exact return value and override rule from the context built-in functions page, plus the legacy function name that context merge() replaced on the platform.",
+  "question": "What does the docs page state context merge([{x:1, y: 0}, {y:2}]) returns and which legacy function did context merge() replace?",
+  "options": [
+    {
+      "id": "a",
+      "text": "context merge([{x:1, y: 0}, {y:2}]) returns {x:1, y: 0} and context merge() replaced put(); the docs state that the engine keeps the first occurrence of each key on conflict and that put() is the previous Camunda Extension function"
+    },
+    {
+      "id": "b",
+      "text": "context merge([{x:1, y: 0}, {y:2}]) returns {x:1, y:2} and context merge() replaced merge all(); the docs state that the engine keeps the first occurrence of each key on conflict and that merge all() is the previous Camunda Extension function"
+    },
+    {
+      "id": "c",
+      "text": "context merge([{x:1, y: 0}, {y:2}]) returns {x:1, y:2} and context merge() replaced put all(); the docs state that entries are overridden in the same order as the list of contexts and that put all() is the previous Camunda Extension function"
+    },
+    {
+      "id": "d",
+      "text": "context merge([{x:1, y: 0}, {y:2}]) returns {x:1, y: 0, y:2} as a context with duplicate y entries; the docs state that the engine preserves all entries from each input context and that context merge() replaced join()"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The docs state that entries are overridden in the order of the input list, so the later {y:2} overrides {y:0} and the result is {x:1, y:2}, not {x:1, y:0}; and the deprecated function was put all(), not put()."
+    },
+    "b": {
+      "text": "Incorrect. The result {x:1, y:2} matches the docs, but the docs name put all() as the replaced function, not merge all(); merge all() is not listed on the context built-in functions page."
+    },
+    "c": {
+      "text": "Correct. The context built-in functions page documents context merge(contexts: list<context>): context. It unions the contexts; if an entry for the same key exists, the value is overridden in the same order as the list of contexts, so context merge([{x:1, y: 0}, {y:2}]) returns {x:1, y:2}. The page states context merge() replaced put all() (Camunda Extension) and that the previous function is deprecated."
+    },
+    "d": {
+      "text": "Incorrect. The docs state that contexts in FEEL do not contain duplicate keys; on conflict the later entry overrides, and the result is {x:1, y:2}. The replaced function is put all() rather than join()."
+    }
+  },
+  "explanation": "context merge(contexts: list<context>): context unions the given contexts and returns a new context. If an entry for the same key exists in multiple contexts, the value is overridden in the same order as the list of contexts, so context merge([{x:1, y: 0}, {y:2}]) returns {x:1, y:2}. The page notes that context merge() replaced put all() (Camunda Extension), which is deprecated.",
+  "docs": [
+    {
+      "title": "FEEL built-in functions: context",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-context/"
+    }
+  ]
+}

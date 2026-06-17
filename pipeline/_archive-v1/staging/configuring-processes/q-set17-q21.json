@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Cluster has 4 broker partitions. Worker maxJobsActive = 100. Team wonders interaction between concurrency settings.",
+  "question": "Worker concurrency vs broker partitions?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Same thing -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Different concurrency dimensions: Zeebe partitions represent the horizontal scaling unit of the broker, determining how many process instances can be processed in parallel across the cluster. Job worker concurrency, configured in the worker SDK, controls how many jobs a single worker instance activates and processes simultaneously. These are orthogonal scaling axes: more partitions distribute work across the cluster, while higher worker concurrency allows a single application node to handle more parallel jobs. Both settings must be tuned together for optimal throughput."
+    },
+    {
+      "id": "c",
+      "text": "While partition count affects job distribution across the cluster, worker count and partition count are independent scaling dimensions. Multiple workers can connect to the same job type across different partitions simultaneously. Optimal worker count depends on job processing time, desired throughput, and available computational resources, not purely on partition topology."
+    },
+    {
+      "id": "d",
+      "text": "Zeebe partitions and job worker instances are equivalent and can be used interchangeably in architecture planning -- this does not accurately reflect the behavior. Partitions are a broker-side concept representing internal data distribution and processing units within the Zeebe cluster. Job workers are client-side application threads or processes that subscribe to job types and execute business logic. They operate at entirely different architectural layers. Adding more partitions does not automatically create more workers, and vice versa."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Concurrency dimensions in Camunda 8: Broker partitions: Purpose: cluster-level parallelism for process instances. Each partition: own log + state. Process instance: assigned to one partition. Within partition: sequential processing (for ordering). Across partitions: concurrent. Scaling: More partitions = more concurrent instances handled. Trade-off: more partitions = more resource usage. Typical: 1-16 partitions; cluster-dependent. maxJobsActive (per Set 14 Q19): Purpose: worker-level concurrent job handling. Per worker instance: max jobs at once. For high-throughput: more jobs concurrent. For rate-limited downstream: limit concurrent. Independence: Partitions: cluster property. maxJobsActive: worker property. Don't directly relate. How they interact: Worker activates jobs: Reaches out to gateway. Gateway routes to appropriate partition. Returns jobs from various partitions. Worker maxJobsActive = 100: Fetches up to 100 jobs at once. These jobs may come from any partitions. For 4 partitions: Cluster handles ~4x more concurrent instances vs 1 partition. Worker doesn't know about partitions typically. Scaling combinations: More partitions: Higher cluster throughput. More memory / disk. More worker instances: More parallel job processing. Limited by cluster's ability to dispatch. Higher maxJobsActive per worker: Each worker processes more in parallel. Limited by worker resources (CPU, memory). Optimal scaling: Cluster-bound: Partitions saturated: more partitions. Disk I/O bottleneck: faster storage or more partitions. Worker-bound: Workers maxed: more worker instances. Per-worker bottleneck: higher maxJobsActive. For partition count: Static (typically): Set at cluster creation. Re-partitioning: complex; usually requires re-deploy. For typical clusters: Small: 1 partition. Medium: 4 partitions. Large: 16+ partitions. For worker scaling: Horizontal: Multiple worker instances. Each independent. Linear scaling. Vertical: Higher maxJobsActive per worker. More CPU/memory per worker. For partition assignment: Process instance to partition: hash typically. Once assigned: stays. For cross-partition: Most operations within partition: optimal. Cross-partition operations: more expensive. For testing: Test scaling: more partitions, more workers. Identify bottleneck: tune accordingly. For monitoring: Per-partition load: balanced? Per-worker utilization: at max? For Camunda 8 architecture: Zeebe partitions: core scaling concept. Workers as clients: scale separately. For partition leadership: Each partition: leader broker. Replicas: for HA. Leader election: on failure. For deployment: Deploys propagate to all partitions. Available cluster-wide. For multi-tenancy: Within cluster: shared partitions. Or: tenant-per-partition: limited isolation. Or: tenant-per-cluster: strongest. Anti-patterns: Too few partitions: under-utilization. Too many partitions: overhead. maxJobsActive way over capacity: thrashing. Best practices: Right-size partitions at cluster creation. Scale workers horizontally: easier than re-partitioning. Monitor + tune: based on metrics. Load test: validate before production. For the scenario (4 partitions + maxJobsActive=100): Independent: cluster + worker concurrency. Both tunable. Match to workload."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/zeebe/technical-concepts/architecture/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q21",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 20 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 28.8 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

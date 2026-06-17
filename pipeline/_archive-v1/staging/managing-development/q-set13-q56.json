@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q56",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Self-Managed Camunda 8 cluster needs to export process / job metrics to Prometheus for ops dashboards. Team wonders how Zeebe exposes metrics.",
+  "question": "Zeebe metrics export to Prometheus?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe and other Camunda 8 components expose no built-in metrics; collecting operational data requires instrumenting your own job workers with custom metric libraries to report job durations and error rates to monitoring systems. This misrepresents the documented behavior. Camunda 8 exposes rich built-in metrics via Micrometer. The Prometheus endpoint is available at :9600/actuator/prometheus (Spring Boot management port). enabled: true. Configure your Prometheus scrape job with metrics_path: /actuator/prometheus targeting port 9600. enabled: true."
+    },
+    {
+      "id": "b",
+      "text": "The only observability mechanism Camunda 8 provides is structured application logs; there are no dedicated metric endpoints, and teams must parse log output to extract operational numbers like job completion rates or process throughput. While Camunda 8 does produce structured logs, it also exposes dedicated Prometheus-format metric endpoints via the Micrometer façade on the Spring Boot management port. Metrics include process instance counters, job activation rates, error rates, and latency histograms -- enabling proper monitoring with time-series tools rather than log parsing."
+    },
+    {
+      "id": "c",
+      "text": "md:9-50). The Prometheus scraping endpoint is at :9600/actuator/prometheus (Spring Boot management port). enabled: true in application configuration. Metrics include process instance counters (zeebe_process_instances_created_total), job activation/completion/failure rates, and latency histograms. enabled: true and configure the OTLP endpoint. Both Prometheus and OTLP exports coexist if needed."
+    },
+    {
+      "id": "d",
+      "text": "Exporting Camunda 8 metrics to Prometheus requires building a custom Prometheus exporter component that scrapes Zeebe's internal state via the management API and publishes metrics in Prometheus format; no standard exporter is included with Camunda 8. This overstates the required effort. Camunda 8 ships native Prometheus support via Micrometer without any custom exporter development. The Prometheus endpoint at :9600/actuator/prometheus is built in and requires only configuration to enable. Custom exporters are only needed for non-standard metric backends that Micrometer does not natively support."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe metrics ecosystem: Metrics endpoints: Zeebe broker: exposes Prometheus metrics on management port. Zeebe gateway: separate metrics endpoint. Operate / Tasklist: their own metrics for UI / API operations. Connector Runtime: metrics for Connector executions. Common metric categories: Process metrics: zeebe_process_instances_created_total: counter of new instances. zeebe_process_instances_completed_total: completions. Element-instance creation / completion rates. Job metrics: zeebe_jobs_activated_total: jobs picked up by workers. zeebe_jobs_completed_total: successful completions. zeebe_jobs_failed_total: failures (job.fail or job.error). Job activation latency histograms. Partition metrics: Health per partition. Leader / follower roles. Lag indicators. System metrics: JVM heap, GC. Network throughput. Disk usage. Prometheus configuration: `yaml scrape_configs: job_name: 'zeebe-broker' scrape_interval: 15s static_configs: targets: ['zeebe-broker:9600'] metrics_path: '/actuator/prometheus' ` Grafana dashboards: Camunda provides reference dashboards for common metrics. Community dashboards on grafana.com. Custom dashboards for org-specific KPIs. Alerting: Alert on high failure rate: jobs_failed_total / jobs_completed_total ratio. Alert on slow processes: process duration percentiles. Alert on partition health: unavailable partitions. Alert on backlog: jobs_activated_total - jobs_completed_total growing. SaaS: Camunda Console: built-in dashboards. Some metrics may be exported via custom integrations. Less direct control vs Self-Managed. Custom metrics: Workers: add Micrometer / Prometheus client libraries; expose own metrics. Connectors: similar. Useful for business KPIs not covered by standard metrics. Best practices: Scrape regularly: 15s common. Retention: balance vs cost; 30-90 days typical. Aggregate: per-process-definition group for clarity. Document dashboards: clear ownership + alerting policy."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. Partially correct."
+    },
+    "d": {
+      "text": "Incorrect. Overstates."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/operational-guides/monitoring/metrics/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q56",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

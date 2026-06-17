@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q48",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team needs statistical functions in FEEL: mean (average), median, mode. Wonders availability.",
+  "question": "FEEL statistical functions?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL does not provide any statistical built-in functions and statistics must be computed using custom workers â€” this approach has limitations. FEEL includes several statistical list built-in functions: sum(list) computes the sum of numeric values, mean(list) computes the arithmetic mean, min(list) returns the minimum value, max(list) returns the maximum, count(list) counts elements, stddev(list) computes standard deviation, and median(list) returns the median. These functions operate on FEEL lists and enable inline statistical computation without external workers."
+    },
+    {
+      "id": "b",
+      "text": "In addition to sum(list), FEEL provides min(list), max(list), mean(list) (arithmetic average), median(list) (middle value), mode(list) (most frequent, returns a list), product(list), and stddev(list) (standard deviation). md as list built-ins operating on lists of numbers. Claiming only sum exists would leave developers unaware of the rich built-in statistical toolset available for aggregations in DMN literal expressions and BPMN FEEL conditions."
+    },
+    {
+      "id": "c",
+      "text": "md: mean(list) at :135-155 -- arithmetic mean. 5). mode(list) at :201-217 -- most frequent value(s) -- note the verbatim doc example returns a list (mode(6, 3, 9, 6, 6) → [6]). md), product(list) at :113-133. 0816659994661326). All accept either a list literal or a sequence of arguments (mean([1,2,3]) ≡ mean(1,2,3) per signature note). md (which hosts single-value math like abs, round*, sqrt, log, exp, even, odd)."
+    },
+    {
+      "id": "d",
+      "text": "md documents mean(list), median(list), mode(list), stddev(list), product(list) alongside sum, min, and max. 0816659994661326 per verbatim documentation. While all statistical functions accept both a list literal and a sequence of arguments, the built-in versions are the idiomatic and preferred approach."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL statistical functions: mean(list) (arithmetic mean): `feel mean([1, 2, 3, 4, 5]) → 3 mean([10, 20, 30]) → 20 mean([]) → null (or error) median(list) (middle value): feel median([1, 2, 3, 4, 5]) → 3 median([1, 2, 3, 4]) → 2.5 (average of middle two) median([]) → null mode(list) (most frequent): feel mode([1, 2, 2, 3]) → [2] (list, in case of multi-modal) mode([1, 2, 3]) → [1, 2, 3] (all unique; all are modes) Verify exact mode return type per version (single value vs list). Other aggregates: sum(list): feel sum([1, 2, 3]) → 6 product(list): feel product([2, 3, 4]) → 24 min(list) / max(list): feel min([3, 1, 4, 1, 5]) → 1 max([3, 1, 4, 1, 5]) → 5 count(list): feel count([1, 2, 3]) → 3 stddev(list) (sample standard deviation; verify support): feel stddev([1, 2, 3, 4, 5]) → ~1.58 For empty / null lists: sum([]): typically 0. mean([]): typically null. min([]) / max([]): typically null. count([]): 0. Verify edge cases per FEEL version. For null elements in list: feel mean([1, null, 3]) // varies: error, skip, or treat as 0 Defensive: filter nulls first. Defensive patterns: feel cleanData: items[item != null] avg: if count(cleanData) > 0 then mean(cleanData) else 0 Use cases: Use case 1: Performance metrics: feel avgResponseTime: mean(responseTimes) p50: median(responseTimes) Use case 2: Score aggregation: feel finalScore: mean(judgeScores) Use case 3: Anomaly detection: feel threshold: mean(values) + 2 * stddev(values) Use case 4: Most common category: feel primaryCategory: mode(observations) For complex statistics: Percentiles: may need custom logic. Variance: stddev² if needed. Range: max - min. In DMN: Decision outputs can use aggregates. COLLECT hit policy + aggregate (per Set 14 Q23) related. In BPMN Output Mapping: feel ={ avgScore: mean(allScores), minScore: min(allScores), maxScore: max(allScores) } Compute summary at end of process. For projecting lists: feel prices: for item in items return item.price avgPrice: mean(prices) ` Extract field; aggregate. Best practices: Verify function availability per FEEL version. Handle empty / null lists: defensive code. For complex stats: pre-compute in worker; pass as variables. Document expected ranges: validate input. Anti-patterns: Stats on huge lists: performance issues; pre-aggregate. No null defense: errors at runtime. Assuming ordered: median requires sorting; engine handles. For the scenario (mean, median, mode): All typically available; verify mode exact behavior."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-list/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q48",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

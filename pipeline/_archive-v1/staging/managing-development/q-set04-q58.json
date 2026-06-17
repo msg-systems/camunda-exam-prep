@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process instance is Incident-blocked on a Service Task with error \"Variable 'orderId' not found.\" Ops sees the upstream task didn't set orderId due to a data issue. They want to set orderId manually and retry.",
+  "question": "Which Operate workflow fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Cancelling and restarting the instance with correct variables discards all work done up to the failure point. Any completed tasks, collected data, sent notifications, or external side effects from the partially-completed instance would need to be re-processed or manually reversed. For a simple missing variable issue, editing the variable in Operate and resolving the incident is far less disruptive and preserves instance continuity, keeping all previously completed work intact."
+    },
+    {
+      "id": "b",
+      "text": "Operate explicitly supports editing process instance variables after instance creation -- this is a first-class operational feature for incident remediation. The claim that variables cannot be set post-creation is factually incorrect. The variable edit UI in Operate allows operators to add, modify, or (with care) remove process variables for in-flight instances. This capability exists specifically for correcting data issues that cause incidents without requiring instance cancellation."
+    },
+    {
+      "id": "c",
+      "text": "Modifying the instance to move past the failed task without fixing the underlying variable issue skips error handling and leaves the root cause unresolved. If the Service Task used orderId to call an external API, skipping the task means the API was never called and downstream tasks depending on its output may fail. The correct approach is to fix the data (set the missing variable) and retry the task, ensuring all business logic executes with correct inputs."
+    },
+    {
+      "id": "d",
+      "text": "In Operate, process instance variables can be edited directly from the instance detail view. , set orderId = \"ORD-1234\"), then click Resolve Incident. The resolved job is re-activated by Zeebe and the worker picks it up with the corrected variable. The instance advances past the previously failed task. ###"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate's \"Edit variables\" + \"Resolve Incident\" is the canonical recovery flow for missing-data Incidents. Set the missing variable; resolve makes Zeebe re-activate the job; worker now finds the variable."
+    },
+    "b": {
+      "text": "Incorrect. Cancel/restart wastes earlier progress."
+    },
+    "c": {
+      "text": "Incorrect. Variables are editable in Operate."
+    },
+    "d": {
+      "text": "Correct. \"Modify to move past\" skips the task -- fixes the symptom by avoiding the work, not the cause."
+    }
+  },
+  "explanation": "\"Modify to move past\" skips the task -- fixes the symptom by avoiding the work, not the cause.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q58",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

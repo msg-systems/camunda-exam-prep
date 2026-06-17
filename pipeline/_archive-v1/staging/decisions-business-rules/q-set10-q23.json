@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A pricing-decision DMN with FIRST hit policy has 5 rules. Rules are ordered from most specific to most general (specific-first design). The team wonders how FIRST evaluates and what happens if the order is wrong.",
+  "question": "How does FIRST hit policy evaluate rules, and does row order matter?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FIRST evaluates rules in top-down order by their row position in the decision table; returns the first matching rule's output and immediately stops evaluation. Row order is critical -- if a generic rule with broad conditions appears before specific rules with narrow conditions, the generic one matches first and the specific ones are never evaluated. Best practice for FIRST: place the most specific rules at the top and use a catch-all rule as the final fallback row at the bottom."
+    },
+    {
+      "id": "b",
+      "text": "FIRST hit policy evaluates rules in a random or arbitrary order, so the same input may produce different results across evaluations -- this description does not reflect the actual behaviour. FIRST uses a strictly deterministic top-down evaluation order based on row position in the decision table. The engine always evaluates row 1 first, then row 2, and so on. The first row whose conditions all match for the given input produces the output and evaluation stops. There is nothing random about FIRST evaluation."
+    },
+    {
+      "id": "c",
+      "text": "Row order is irrelevant for FIRST hit policy because the engine evaluates all rows and selects the best match based on specificity scoring -- this description does not reflect the actual behaviour. FIRST does not evaluate all rows or apply specificity scoring. It strictly follows row order: row 1 is evaluated first, and if it matches, that row's output is returned immediately without checking any subsequent rows. This means the order in which rules appear in the table directly determines which rule wins when multiple rules could match."
+    },
+    {
+      "id": "d",
+      "text": "FIRST hit policy evaluates all matching rules and then selects the result alphabetically by output value -- this describes behaviour that has no runtime implementation in Camunda 8 in any BPMN-DMN-compliant engine. FIRST is a short-circuit evaluation policy: it stops at the first matching row and returns that row's output without examining subsequent rows. There is no alphabetical or any other post-evaluation sorting step. Output collection and ranking is the domain of COLLECT and RULE ORDER hit policies, not FIRST."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. FIRST hit policy semantics: Engine scans rules top-down by row order. First rule whose inputs all match wins; its output is the result. Short-circuit: remaining rules aren't evaluated. Implications: Row order is meaningful -- rearranging changes which rule matches first. Specific-first design: put highly-specific rules (narrow matching conditions) at the top; general / fallback rules at the bottom. Catch-all as the last row (all inputs - wildcard) ensures a result even when no specific rule matches. Example anti-pattern: a rule \"if customer is VIP, give 25% discount\" placed below a generic \"if any customer, give 10% discount.\" The generic rule matches first, VIPs only get 10%. Reorder: VIP rule first, generic rule second (or as default). Contrast with PRIORITY hit policy: PRIORITY orders by output value priority (not row order). Note: PRIORITY is NOT in Camunda 8's supported hit policies per decision-table-hit-policy.md:26-53 -- only UNIQUE, ANY, FIRST, RULE ORDER, COLLECT are supported. For \"highest-priority output\" semantics, the canonical C8 pattern is FIRST with rules ordered most-severe-first (manual priority encoding)."
+    },
+    "b": {
+      "text": "Incorrect. Row order, not random."
+    },
+    "c": {
+      "text": "Incorrect. Row order matters."
+    },
+    "d": {
+      "text": "Incorrect. No alphabetical logic."
+    }
+  },
+  "explanation": "FIRST hit policy semantics: Engine scans rules top-down by row order. First rule whose inputs all match wins; its output is the result. Short-circuit: remaining rules aren't evaluated. Implications: Row order is meaningful -- rearranging changes which rule matches first. Specific-first design: put highly-specific rules (narrow matching conditions) at the top; general / fallback rules at the bottom. Catch-all as the last row (all inputs - wildcard) ensures a result even when no specific rule matches. Example anti-pattern: a rule \"if customer is VIP, give 25% discount\" placed below a generic \"if any customer, give 10% discount.\" The generic rule matches first, VIPs only get 10%. Reorder: VIP rule first, generic rule second (or as default). Contrast with PRIORITY hit policy: PRIORITY orders by output value priority (not row order). Note: PRIORITY is NOT in Camunda 8's supported hit policies per decision-table-hit-policy.md:26-53 -- only UNIQUE, ANY, FIRST, RULE ORDER, COLLECT are supported. For \"highest-priority output\" semantics, the canonical C8 pattern is FIRST with rules ordered most-severe-first (manual priority encoding).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

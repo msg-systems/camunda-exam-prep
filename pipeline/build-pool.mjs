@@ -78,7 +78,27 @@ function shuffleOptions(q) {
     }
   }
 
-  return { ...q, options: newOptions, correctOptionId: newCorrect, optionExplanations: newExpl };
+  // Remap codeBlocks.perOption keys so per-option code stays attached to the
+  // right option after shuffling. codeBlocks.stem is independent.
+  let newCodeBlocks = q.codeBlocks;
+  if (q.codeBlocks && q.codeBlocks.perOption && typeof q.codeBlocks.perOption === 'object') {
+    const newPerOption = {};
+    for (const origId of LETTERS) {
+      const code = q.codeBlocks.perOption[origId];
+      if (typeof code === 'string') {
+        newPerOption[remap[origId]] = code;
+      }
+    }
+    newCodeBlocks = { ...q.codeBlocks, perOption: newPerOption };
+  }
+
+  return {
+    ...q,
+    options: newOptions,
+    correctOptionId: newCorrect,
+    optionExplanations: newExpl,
+    ...(newCodeBlocks ? { codeBlocks: newCodeBlocks } : {}),
+  };
 }
 
 // ---------- collect authored files ----------

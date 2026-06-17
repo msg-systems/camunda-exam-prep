@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-26",
+  "topic": "managing-development",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/guides/getting-started-orchestration-cluster/resolve-incidents-update-variables/"
+    }
+  ],
+  "subtopic": "Operate incidents",
+  "scenario": "A Quanta Logistics operator follows the Camunda 8.8 getting-started guide on a Linux box for 8 instances. After running zbctl to create an order-process instance the operator wants to complete the Initiate Payment service task with a community zbctl worker rather than wiring up a custom Java handler from scratch for the demo.",
+  "question": "Which Linux zbctl invocation does the guide use to complete the Initiate Payment service task on the instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The guide runs the Linux invocation ./bin/zbctl --insecure create worker initiate-payment --handler cat, which starts a community zbctl worker that completes Initiate Payment jobs using cat as the job handler"
+    },
+    {
+      "id": "b",
+      "text": "The guide runs ./bin/zbctl --insecure complete job initiate-payment, which directly marks any pending Initiate Payment job as completed without starting a long-running zbctl worker process on the box"
+    },
+    {
+      "id": "c",
+      "text": "The guide runs ./bin/zbctl --insecure assign task initiate-payment to a Tasklist user, who then completes the Initiate Payment service task interactively from the Tasklist UI in the browser"
+    },
+    {
+      "id": "d",
+      "text": "The guide runs ./bin/zbctl --insecure deploy worker initiate-payment.bpmn, which expects a worker BPMN model on disk that the engine compiles into an Initiate Payment completion routine on the instance"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The guide shows the Linux invocation ./bin/zbctl --insecure create worker initiate-payment --handler cat, which starts a community zbctl worker that completes the Initiate Payment service task using cat as the handler."
+    },
+    "b": {
+      "text": "Incorrect. The guide drives the Initiate Payment task with a zbctl worker rather than a zbctl complete job command, so the documented flow is not a direct one-shot completion of the pending job."
+    },
+    "c": {
+      "text": "Incorrect. The guide does not assign the task to a Tasklist user; the Initiate Payment service task is completed by a zbctl worker process that uses a shell command as its handler."
+    },
+    "d": {
+      "text": "Incorrect. There is no documented zbctl deploy worker command for an initiate-payment.bpmn model; the guide starts a worker process directly with create worker --handler cat on Linux."
+    }
+  },
+  "explanation": "On Linux the guide runs ./bin/zbctl --insecure create worker initiate-payment --handler cat to start a community zbctl worker that completes the Initiate Payment service task. The shell cat command serves as the job handler in the demo."
+}

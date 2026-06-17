@@ -1,0 +1,63 @@
+{
+  "id": "imp-set01-q16",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Subprocess \"Verify Documents\" needs local scratch variable verificationResults scoped to subprocess only. Only clean boolean allDocumentsVerified propagates to parent.",
+  "question": "Configuration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Configure an Input Mapping on the Embedded Subprocess that explicitly copies all required parent-scope variables into the subprocess scope. This is necessary because the subprocess cannot read parent variables directly -- only variables explicitly mapped into the subprocess are accessible. The verificationResults scratch variable would stay local by default. Explicit input mappings are only needed to create subprocess-local copies or to rename variables -- they are not required for read access."
+    },
+    {
+      "id": "b",
+      "text": "Replace the Embedded Subprocess with a Call Activity that references a separate child process definition. This provides strong scope isolation -- the child process has its own variable scope entirely separate from the parent, and only values passed via input/output mappings are shared. For a simple local scratch variable scenario within a single process, a Call Activity is over-engineered. The requirement is fulfilled more cleanly by an Embedded Subprocess with appropriate output mappings."
+    },
+    {
+      "id": "c",
+      "text": "verified) and target allDocumentsVerified. When the subprocess completes, Zeebe applies the output mapping, writing the computed boolean to the parent scope. All other subprocess-local variables including verificationResults are automatically discarded when the subprocess ends without needing explicit cleanup."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 Embedded Subprocesses do not support subprocess-local variables -- any variable written inside the subprocess is immediately available in the parent scope. To create a logical separation, the team must use a naming convention such as prefixing all internal variables with verify_ to distinguish them from parent variables. Variables created inside a subprocess remain in the subprocess scope until explicitly promoted via output mappings -- they are not automatically propagated to the parent scope."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Embedded Subprocess has implicit read access; variables scoped to subprocess are local + discarded automatically. Output mapping promotes specific values to parent."
+    },
+    "b": {
+      "text": "Incorrect. Implicit read access; explicit mapping redundant."
+    },
+    "c": {
+      "text": "Correct. Call Activity = separate process instance; heavier than needed."
+    },
+    "d": {
+      "text": "Incorrect. Subprocess-local variables ARE supported via scoped output mappings."
+    }
+  },
+  "explanation": "Call Activity = separate process instance; heavier than needed.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q16",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-question-too-short",
+        "severity": "block",
+        "message": "question length 14 < 20 (catastrophically short)",
+        "where": "question"
+      }
+    ]
+  }
+}

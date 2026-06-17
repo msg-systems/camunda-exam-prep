@@ -1,0 +1,50 @@
+{
+  "id": "con-polling-28",
+  "topic": "connectors",
+  "subtopic": "polling",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Retail, an omnichannel retailer with 9000 active orders, configures a Camunda 8.8 HTTP Polling intermediate catch event to watch a shipment-status REST endpoint every 5 minutes per order. Each running instance holds orderId, the polled response has shape {\"orderId\":\"O42\",\"status\":\"OK\"}, and the catch event should fire only when the polled status equals 'OK'.",
+  "question": "Which configuration polls every 5 minutes, correlates by orderId, and activates only when status equals 'OK'?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Interval=PT5M with Correlation key (process)==orderId, Correlation key (payload)==body.orderId, and Activation Condition==(body.status = \"OK\") on the catch event"
+    },
+    {
+      "id": "b",
+      "text": "Interval=PT5M with Correlation key (process)==body.orderId, Correlation key (payload)==orderId, and Activation Condition==(body.status = \"OK\") on the catch event"
+    },
+    {
+      "id": "c",
+      "text": "Interval=PT5M with Correlation key (process)==orderId, Correlation key (payload)==body.orderId, and Activation Condition==(orderId.status = \"OK\") on the catch event"
+    },
+    {
+      "id": "d",
+      "text": "Interval=5M with Correlation key (process)==orderId, Correlation key (payload)==body.orderId, and Activation Condition==(body.status = \"OK\") on the catch event"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Interval accepts ISO 8601 durations (PT5M = 5 minutes), Correlation key (process) is the FEEL expression that returns the subscription key from the running instance (=orderId), Correlation key (payload) extracts the same value from the polled response (=body.orderId), and Activation Condition reads body.status against the expected value."
+    },
+    "b": {
+      "text": "Incorrect. The two correlation expressions are swapped; the process side must resolve the subscription key from the running instance (=orderId) and the payload side must read it from the polled body (=body.orderId)."
+    },
+    "c": {
+      "text": "Incorrect. The Activation Condition reads the polled payload, so the field path is body.status; orderId.status would attempt to dereference a string variable as if it were a context, which does not match the polled response shape."
+    },
+    "d": {
+      "text": "Incorrect. Interval values must be ISO 8601 durations such as PT5M; a bare 5M is not a valid ISO 8601 duration, and the polling runtime cannot schedule the interval without the leading PT prefix."
+    }
+  },
+  "explanation": "The HTTP Polling connector schedules calls on an ISO 8601 Interval (the docs show PT5M, PT10M, PT1H). On the intermediate catch event you also set Correlation key (process), a FEEL expression resolved against process variables, and Correlation key (payload), a FEEL expression resolved against the polled response using the body.<field> prefix. Activation Condition decides whether the catch event fires.",
+  "docs": [
+    {
+      "title": "HTTP Polling connector",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/polling/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q11",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A payments orchestration service uses Camunda 8 Self-Managed to process high-volume credit card authorisations. The Service Task \"Authorise Payment\" calls a downstream auth processor with typical latency 50-200 ms. Worker is configured: maxJobsActive=64, pollInterval=100ms, timeout=PT5M. Under peak load (10,000 authorisations/hour), the worker reports CPU at 30% and the auth processor reports no backpressure -- yet Operate shows about 40% of Service Tasks lingering in \"ACTIVATED\" state for 15-30 seconds before being processed, and average end-to-end latency has climbed from 250 ms to 8 seconds. The team can't add CPU to the worker (CPU is idle anyway). They suspect a scaling issue at the activation layer.",
+  "question": "Which scaling approach fits this bottleneck?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Deploy multiple worker instances (replicas) all subscribed to the same job type. The broker distributes job activations across the worker pool; each broker partition hands jobs to whichever worker polls first. Multiple replicas increase total activation throughput proportionally. Since the scenario reports CPU at 30% (idle headroom) and downstream at no backpressure, the single-worker throughput ceiling is the constraint -- adding replicas resolves it directly."
+    },
+    {
+      "id": "b",
+      "text": "Increase maxJobsActive from 64 to 1000 so the single worker holds more jobs in-flight concurrently, processing more Service Tasks at once without deploying additional worker processes. However a single JVM has finite IO connections and event-loop capacity, so pushing to 1000 maxJobsActive on one worker hits coordination overhead rather than linearly scaling throughput. Horizontal scaling is the correct axis."
+    },
+    {
+      "id": "c",
+      "text": "Decrease pollInterval from 100 ms to 10 ms so the single worker sends activation requests to the broker ten times more frequently, picking up waiting jobs faster and reducing the 15-30 second activation lag. However Zeebe job activation is a push-pull hybrid -- the broker pushes available jobs onto open long-poll connections. Polling more often does not increase how quickly the broker dispatches jobs; it just stresses the broker unnecessarily."
+    },
+    {
+      "id": "d",
+      "text": "Increase timeout from PT5M to PT30M so jobs remain locked to the worker longer before Zeebe re-activates them for another worker, preventing duplicate processing under slow network conditions. The timeout property is a failure-recovery mechanism -- it controls how long a job lock persists if the worker crashes without responding. It has no effect on how quickly newly-created jobs are dispatched to workers and does not address the activation lag described."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Horizontal scaling is the canonical Zeebe-friendly answer for activation lag. Multiple worker instances all subscribed to the same job type share the work -- broker hands each available job to whichever worker polls first. Each broker partition spreads activations across the worker pool, so per-worker latency drops. The scenario specifies CPU is idle and downstream has no backpressure -- classic signal that the worker count itself is the bottleneck."
+    },
+    "b": {
+      "text": "Incorrect. Raising maxJobsActive lets one worker hold more concurrent jobs, but a single JVM has finite IO connections and event-loop capacity. At 10K/hour with 200ms avg latency, you need ~550 concurrent jobs sustained -- even 1000 maxJobsActive on one worker hits coordination overhead. Multiple workers scale linearly; single-worker tuning hits ceiling."
+    },
+    "c": {
+      "text": "Incorrect. Job activation in Zeebe is push-pull hybrid: the worker maintains a long-poll connection; broker pushes jobs as they become available on the open poll. Polling more frequently doesn't help when broker is already pushing as fast as worker can accept -- and excessive polling can stress the broker."
+    },
+    "d": {
+      "text": "Incorrect. timeout is the job lock duration for recovery (re-activate if worker crashes). Increasing it doesn't change activation latency for waiting jobs -- wrong axis."
+    }
+  },
+  "explanation": "Horizontal scaling is the canonical Zeebe-friendly answer for activation lag. Multiple worker instances all subscribed to the same job type share the work -- broker hands each available job to whichever worker polls first. Each broker partition spreads activations across the worker pool, so per-worker latency drops. The scenario specifies CPU is idle and downstream has no backpressure -- classic signal that the worker count itself is the bottleneck.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q11",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

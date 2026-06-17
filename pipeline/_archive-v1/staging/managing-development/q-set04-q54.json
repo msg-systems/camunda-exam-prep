@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q54",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An ops engineer sees in Operate that 30 instances of kyc-verification are stuck on the same task for 6+ hours. The task is a Service Task with type external-credit-check. The team needs to diagnose.",
+  "question": "Which first investigation step?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Restarting the Zeebe cluster is an extreme operational action that disrupts all running process instances cluster-wide -- every active job is returned to available, in-flight operations are interrupted, and the restart takes the cluster offline temporarily. For investigating why a single task type is stuck, cluster restart would not fix a missing or broken Job Worker and would cause far broader disruption than the original problem. Targeted diagnosis precedes any infrastructure changes."
+    },
+    {
+      "id": "b",
+      "text": "Re-deploying the BPMN process definition creates a new process version but does not affect currently running instances, which continue executing on their existing version. If the problem is that no worker is subscribed to the task type, re-deploying the process will not change that -- the same jobs on the same task type will continue to be unprocessed. Re-deployment addresses process model changes, not worker connectivity issues. Worker subscription must be investigated independently."
+    },
+    {
+      "id": "c",
+      "text": "Cancelling all stuck instances removes them from the system without addressing the root cause. If the underlying problem (missing worker subscription, broken worker code, infrastructure failure) is not resolved, the next batch of process instances will encounter the same stuck task. Cancellation loses business data and forces manual restarts of cancelled work. Diagnosis and fixing the worker issue is the correct approach -- instance cancellation is a last resort for irrecoverable instances only."
+    },
+    {
+      "id": "d",
+      "text": "When a Service Task job sits in the Operate incidents view with no activated jobs, the first diagnostic step is verifying whether any worker is subscribed to the external-credit-check task type. Check the Zeebe cluster topology for connected workers and their subscribed job types. If no worker is subscribed, jobs activate but immediately time out. If a worker is subscribed but not processing, check worker logs for errors. Operate shows job state; checking worker subscription pinpoints whether the failure is in worker deployment or logic. ###"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Stuck-on-Service-Task pattern almost always means worker not running, not subscribed to correct task type, or crashing on activation. First check: is the worker subscribed and processing? Verify via worker logs and Operate's job/task counts."
+    },
+    "b": {
+      "text": "Incorrect. Cluster restart is heavy and likely unrelated."
+    },
+    "c": {
+      "text": "Incorrect. Redeploy doesn't fix worker subscription."
+    },
+    "d": {
+      "text": "Correct. Cancel is destructive; diagnose first."
+    }
+  },
+  "explanation": "Cancel is destructive; diagnose first.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q54",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-128",
+  "topic": "extensions-integrations",
+  "subtopic": "problems-and-exceptions",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Quanta Healthcare runs Camunda 8.8 workers that process 6400 claims per day for a regional hospital network. After a worker crash during a billing run, an architect must explain why a single createCustomer call could be executed more than once and what design property of the worker code prevents duplicate side effects from corrupting the downstream system.",
+  "question": "Which delivery guarantee does the docs page describe for Zeebe job handlers, and what design property must the worker code provide?",
+  "options": [
+    { "id": "a", "text": "Job handlers are invoked under an exactly-once guarantee inside the broker transaction, so worker glue code does not need to be idempotent because Zeebe deduplicates duplicate completions transparently for the application developer" },
+    { "id": "b", "text": "Job handlers run under an at-least-once strategy because a worker that crashes after doing the work cannot complete the job; the engine reassigns the job after a timeout, so worker glue code must be idempotent" },
+    { "id": "c", "text": "Job handlers run under an at-most-once strategy because the engine deletes a job from the queue the moment a worker activates it, so worker glue code may safely skip idempotency checks against the downstream service provider system" },
+    { "id": "d", "text": "Job handlers run under a best-effort strategy that allows them to be skipped after a fixed number of broker outages, so worker glue code only needs to be retried manually from Operate by a human operator on call duty" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The docs explicitly say Zeebe uses at-least-once, not exactly-once, and that worker code must be designed for duplicate invocations." },
+    "b": { "text": "Correct. The page states Zeebe uses the at-least-once strategy: if a worker that polled a job crashes before completing, the engine re-assigns the job after the configured timeout, so worker glue code must be idempotent." },
+    "c": { "text": "Incorrect. Zeebe is not at-most-once; the page explicitly calls out at-least-once and warns that handlers may run more than once." },
+    "d": { "text": "Incorrect. The delivery strategy is at-least-once and is not described as best-effort or operator-driven." }
+  },
+  "explanation": "Zeebe uses an at-least-once strategy for job handlers. A worker that crashes after performing the side effect but before completing the job will see the same job reassigned after the configured timeout, so the same handler may run multiple times. Worker code must therefore be idempotent through natural idempotency, business identifiers, or a custom idempotency key.",
+  "docs": [
+    { "title": "Dealing with problems and exceptions", "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/" }
+  ]
+}

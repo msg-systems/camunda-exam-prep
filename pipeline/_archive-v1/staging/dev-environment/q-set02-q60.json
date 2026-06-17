@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q60",
+  "topic": "dev-environment",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team is setting up local Camunda 8 development environments for 5 developers. Each developer needs an isolated environment to test changes before pushing to the shared staging cluster. The team has Docker installed and uses Camunda 8 Run for its simplicity. By default, Camunda 8 Run binds the Camunda core (Operate + Tasklist + Identity + REST APIs) on port 8080, Connectors API on 8086, Zeebe gRPC gateway on 26500, and Prometheus metrics on 9600 (per c8run-troubleshooting.md:23-27). Developer #2 reports a port conflict -- they already use 8080 for another local app.",
+  "question": "How should Developer #2 reconfigure Camunda 8 Run to use a different port?",
+  "options": [
+    {
+      "id": "a",
+      "text": "yml file. md Port Conflicts section. Docker Compose is an alternative deployment method, not the only path to port flexibility."
+    },
+    {
+      "id": "b",
+      "text": "port property to the desired value, and repackaging the JAR before running it. This approach requires JAR repackaging tools and manual extraction of the embedded Spring Boot configuration -- a complex and unsupported modification. /c8run start --port 8081. JAR repackaging is completely unnecessary."
+    },
+    {
+      "id": "c",
+      "text": "g. /c8run start --port 8081. md:38-39) for changing the Camunda core port without touching JAR contents. The flag instructs the launcher to start the Camunda core web server on the specified alternative port instead of the default 8080, resolving the conflict with Developer #2's existing application and allowing both to run simultaneously on the same host."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 Run only supports the default port assignments (8080, 8086, 26500, 9600) and provides no configuration mechanism to change them; Developer #2 must identify and stop the other application using port 8080, or permanently reassign that application to a different port, before Camunda 8 Run can start successfully. Camunda 8 Run does support alternative port configuration via the --port CLI flag."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per c8run-troubleshooting.md \"Port conflicts\" section, the documented fix is the --port CLI flag passed to the c8run start script: ./c8run start --port 8081. No JAR repackaging and no env var gymnastics required. Per-developer port assignment via the launch command is the canonical pattern for shared-host multi-developer setups. Note also the default port assignment: in 8.8 c8run, Operate, Tasklist, Identity, and the v2 REST APIs are all served from the same unified web server on port 8080 -- there are not separate Operate-8081 / Tasklist-8082 ports as on older split deployments."
+    },
+    "b": {
+      "text": "Incorrect. Camunda 8 Run does support port customisation via --port; Docker Compose is an alternative deployment path, not a requirement for port flexibility."
+    },
+    "c": {
+      "text": "Correct. Modifying the JAR is unnecessary; --port handles this."
+    },
+    "d": {
+      "text": "Incorrect. Camunda 8 Run does support custom ports."
+    }
+  },
+  "explanation": "Modifying the JAR is unnecessary; --port handles this.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/c8run-troubleshooting/#port-conflicts"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q60",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

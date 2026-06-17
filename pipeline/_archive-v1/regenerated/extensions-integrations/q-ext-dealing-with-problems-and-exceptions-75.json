@@ -1,0 +1,50 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-75",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Logistics runs Camunda 8.8 workers that process 8000 shipment jobs per day for a carrier integration. A worker finishes a REST call to confirm a shipment without any failure and must notify the workflow engine that the service task succeeded so the process instance moves on to the next activity in the model.",
+  "question": "Which Zeebe gateway API does the worker invoke to report that the shipment service task completed successfully in Camunda 8.8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The worker invokes FailJob with the remaining retries set to a positive number so the workflow engine re-dispatches the job to another competing consumer and the process instance advances to the next activity"
+    },
+    {
+      "id": "b",
+      "text": "The worker invokes ThrowError with a BPMN error code so the workflow engine routes the process instance through a matching boundary error event and continues execution along the success path of the model"
+    },
+    {
+      "id": "c",
+      "text": "The worker invokes ResolveIncident on the job so the workflow engine clears any pending incident on the service task and the process instance moves past it to the next activity automatically"
+    },
+    {
+      "id": "d",
+      "text": "The worker invokes CompleteJob so the workflow engine marks the service task as finished and the process instance moves on to the next activity defined in the BPMN model"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FailJob signals a failure to the workflow engine; with positive remaining retries the job is retried by another worker, but the service task is not marked complete and the process instance does not advance."
+    },
+    "b": {
+      "text": "Incorrect. ThrowError raises a BPMN error that is handled on the model level via a matching error event; it does not signal a successful completion of the service task."
+    },
+    "c": {
+      "text": "Incorrect. There is no ResolveIncident reply from a worker on a happy-path completion; incidents are raised when the retry count reaches zero and are resolved by an operator in Operate, not by the worker on success."
+    },
+    "d": {
+      "text": "Correct. CompleteJob is the call the worker sends back to the workflow engine to report that the service task went well, after which the process instance can move on to the next activity in the BPMN model."
+    }
+  },
+  "explanation": "When a worker has finished its work successfully, it calls CompleteJob so the workflow engine marks the service task as done and the process instance advances; FailJob signals a failure with retry semantics, and ThrowError reports a BPMN error to be handled on the model level.",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

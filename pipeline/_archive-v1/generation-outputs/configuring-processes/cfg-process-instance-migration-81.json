@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-81",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora SaaS runs 8000 claims per day through a process where each claim waits at user task Review with a 7-day timer boundary event. 3 days have already elapsed for the in-flight claims. The team is rolling out a new process version that adds a follow-up task after the timer fires and they do not want to restart the timer for any of the running claims during migration.",
+  "question": "What does mapping the existing timer boundary event to the target timer boundary event do during a process instance migration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It migrates the timer subscription to the target boundary event so the elapsed three days are preserved and the timer fires after the remaining time on the new boundary event"
+    },
+    {
+      "id": "b",
+      "text": "It cancels the timer subscription and opens a fresh subscription on the target so the timer restarts and waits the full duration defined on the target boundary event"
+    },
+    {
+      "id": "c",
+      "text": "It promotes the timer subscription into a global signal subscription so any claim that hits the target boundary event fires the timer immediately on migration completion"
+    },
+    {
+      "id": "d",
+      "text": "It removes the timer subscription entirely so the user task continues without any timer boundary and the team must publish a message to advance the migrated claim"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. When a catch event is mapped during migration, the associated subscription is migrated to the target catch event. For a timer, that preserves the time already elapsed, so the migrated instance waits only the remaining duration before the timer fires."
+    },
+    "b": {
+      "text": "Incorrect. Cancelling and reopening the subscription is what happens when the catch event mapping is omitted. A mapping between source and target catch events explicitly preserves the existing subscription rather than restarting it."
+    },
+    "c": {
+      "text": "Incorrect. There is no promotion of timer subscriptions into signal subscriptions during migration. Catch event subscriptions stay the same type and are simply rebound to the target catch event when a mapping is provided."
+    },
+    "d": {
+      "text": "Incorrect. Mapping the boundary event keeps the timer attached and preserves the subscription. Removing a subscription happens only when the source catch event has no mapping and the target has no corresponding event."
+    }
+  },
+  "explanation": "Providing a mapping instruction between a source and target catch event during migration tells the engine to migrate the existing subscription. For timer boundary events this means the previously elapsed duration carries over to the new boundary event.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

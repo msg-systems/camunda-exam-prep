@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Node.js application is setting up @camunda8/sdk to communicate with a SaaS cluster. The dev wants to know how the ZBClient (or equivalent) is created -- what config it needs.",
+  "question": "How is the Node SDK client typically configured for SaaS?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Camunda 8 TypeScript SDK does not auto-detect credentials from the environment without any explicit configuration being provided. While the SDK can read from environment variables as a convenience, those environment variables must be set with the correct cluster address, OAuth2 client credentials, and token endpoint values before the SDK can authenticate. Creating a client without any configuration would result in authentication failures because the SDK has no way to discover where the cluster is or what credentials to use."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 SaaS does not use username and password (basic authentication) for SDK authentication. The platform uses OAuth2 client credentials grant flow, which requires a client ID and client secret obtained from the Camunda Console when creating an API client. Username and password authentication is not an available option for programmatic SDK access to Camunda 8 SaaS clusters."
+    },
+    {
+      "id": "c",
+      "text": "A simple API key is not the authentication model for Camunda 8 SaaS SDK access. The platform uses OAuth2 client credentials grant flow, which involves exchanging a client ID and client secret for a short-lived access token at the token endpoint. This access token is then used as a Bearer token in subsequent API and gRPC calls. This is more secure than static API keys because access tokens expire and are rotated automatically."
+    },
+    {
+      "id": "d",
+      "text": "io for SaaS). The SDK handles OAuth2 flow (token fetch / refresh / caching) internally. Code: import { Camunda8 } from '@camunda8/sdk'; const c8 = new Camunda8({ ZEEBE_ADDRESS, ZEEBE_CLIENT_ID, ZEEBE_CLIENT_SECRET, CAMUNDA_OAUTH_URL });. md); Pattern #36 -- apis-tools/node-js-sdk/ is 404, real docs at apis-tools/typescript/."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 SaaS uses OAuth2 client-credentials grant for SDK authentication. SDK setup: 1. Console UI: provision an API Client → get client ID + client secret + audience URLs. 2. SDK config: pass cluster address, client credentials, and OAuth2 token endpoint. 3. SDK runtime: on first call, exchanges credentials for an access token at the OAuth2 endpoint; uses Bearer token in subsequent gRPC / REST calls; refreshes before expiry. Environment-variable convention (typical): ZEEBE_ADDRESS: cluster's Zeebe gRPC address (e.g., .zeebe.camunda.io:443). ZEEBE_CLIENT_ID: API client ID. ZEEBE_CLIENT_SECRET: API client secret. CAMUNDA_OAUTH_URL: Auth0 token endpoint. The SDK reads from environment by default, or accept explicit config object in code. For Self-Managed clusters: same OAuth2 model; just point to your IdP's token endpoint."
+    },
+    "b": {
+      "text": "Incorrect. Credentials required."
+    },
+    "c": {
+      "text": "Incorrect. Not basic auth."
+    },
+    "d": {
+      "text": "Correct. OAuth2, not API key."
+    }
+  },
+  "explanation": "OAuth2, not API key.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q42",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

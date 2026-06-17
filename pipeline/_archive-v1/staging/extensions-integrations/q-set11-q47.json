@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q47",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team running Camunda 8 SaaS wonders if RPA is also a SaaS-managed service or if they need to deploy their own RPA workers.",
+  "question": "Is Camunda RPA a SaaS-managed service or self-hosted in 8.8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Hybrid by architecture: SaaS-managed orchestration (BPMN engine, Operate, Modeler) + a self-hosted RPA worker on the team's own infrastructure. md:14, :32-37 the worker is a standalone binary (Windows / Linux / macOS) the team downloads, unpacks, and runs locally -- it then connects outbound to Camunda (SaaS or SM) via Zeebe to receive RPA jobs. md:39-54). 8 -- the worker is always self-hosted."
+    },
+    {
+      "id": "b",
+      "text": "8. zip), unpacks it, and runs it on their own Windows, Linux, or macOS machine. The worker connects outbound to the Camunda cluster (SaaS or SM) via Zeebe. Camunda does not host or manage the RPA execution workers on behalf of customers."
+    },
+    {
+      "id": "c",
+      "text": "Teams using Camunda 8 SaaS for RPA must self-host both the BPMN engine and the RPA workers -- this conflates two separate components. The BPMN engine and orchestration (Zeebe, Operate, Tasklist, Web Modeler) are fully SaaS-managed when using Camunda 8 SaaS. Only the RPA worker component is self-hosted by the team on their own infrastructure. This hybrid model allows teams to keep the automation execution close to the target systems without managing the orchestration platform."
+    },
+    {
+      "id": "d",
+      "text": "Camunda RPA has no SaaS compatibility and requires a Self-Managed Zeebe cluster -- this contradicts the documented SaaS support. md:21-32, SaaS clusters expose connector secrets to RPA workers via the Orchestration Cluster API and Secrets scopes. The RPA worker connects outbound to a SaaS Camunda cluster using standard Zeebe client credentials provisioned through the Camunda Console. 8."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda RPA in 8.8 is architecturally a two-component split: Self-hosted RPA worker (always self-hosted in 8.8): Standalone binary per rpa/overview.md:17 (\"standalone RPA worker and Robot Framework-based scripts\") and getting-started.md:32-37 (download rpa-worker_*.zip, unpack, run executable). Available on Windows, Linux, macOS per getting-started.md:16. Worker connects outbound to the Camunda cluster (SaaS or Self-Managed) using Zeebe client credentials per getting-started.md:73-77. For desktop automations (SAP GUI, Excel, Win32 apps), worker runs on the Windows machine with target apps installed; for browser/console-only automations, a lightweight Docker image is available per getting-started.md:16. Production hardening: disable local sandbox (camunda.rpa.sandbox.enabled=false), install required tools, tag workers with labels (production.md:13-17, :34-54). Orchestration side (Camunda 8 SaaS or SM): In a BPMN diagram, the team adds a task and changes the type to RPA connector per getting-started.md:59 (NOT a fabricated camunda::rpa task type). Configure the task with the scriptId of a deployed .rpa script per getting-started.md:62. Process variables flow into Robot variables automatically; the script returns variables via the Camunda Robot library's Set Output Variable keyword per getting-started.md:85-97. Worker-to-script routing: camunda.rpa.zeebe.worker-tags=, controls which scripts a worker picks up (production.md:39-48). The script's RPA task in the BPMN can specify a label per production.md:50. Default label is default if none configured; for unlabeled-fallback include default in the worker tags list per production.md:44-48, :54. Versioning quirk (recurring exam-trap): Per production.md:169, \"RPA workers fetch the latest script version automatically\" -- opposite of BPMN/DMN pin-on-deploy semantics. Use labels (not version pinning) to manage breaking script changes. Hybrid topology: SaaS Camunda 8 (Zeebe + Operate + Tasklist + Web Modeler in Camunda's cloud) + self-hosted RPA worker on the team's own machines for the actual automation execution."
+    },
+    "b": {
+      "text": "Incorrect. No cloud-managed RPA worker option in 8.8."
+    },
+    "c": {
+      "text": "Incorrect. SaaS engine supports RPA; only the worker is self-hosted."
+    },
+    "d": {
+      "text": "Incorrect. RPA is SaaS-supported via outbound-connected workers + connector-secrets access."
+    }
+  },
+  "explanation": "Camunda RPA in 8.8 is architecturally a two-component split: Self-hosted RPA worker (always self-hosted in 8.8): Standalone binary per rpa/overview.md:17 (\"standalone RPA worker and Robot Framework-based scripts\") and getting-started.md:32-37 (download rpa-worker_*.zip, unpack, run executable). Available on Windows, Linux, macOS per getting-started.md:16. Worker connects outbound to the Camunda cluster (SaaS or Self-Managed) using Zeebe client credentials per getting-started.md:73-77. For desktop automations (SAP GUI, Excel, Win32 apps), worker runs on the Windows machine with target apps installed; for browser/console-only automations, a lightweight Docker image is available per getting-started.md:16. Production hardening: disable local sandbox (camunda.rpa.sandbox.enabled=false), install required tools, tag workers with labels (production.md:13-17, :34-54). Orchestration side (Camunda 8 SaaS or SM): In a BPMN diagram, the team adds a task and changes the type to RPA connector per getting-started.md:59 (NOT a fabricated camunda::rpa task type). Configure the task with the scriptId of a deployed .rpa script per getting-started.md:62. Process variables flow into Robot variables automatically; the script returns variables via the Camunda Robot library's Set Output Variable keyword per getting-started.md:85-97. Worker-to-script routing: camunda.rpa.zeebe.worker-tags=, controls which scripts a worker picks up (production.md:39-48). The script's RPA task in the BPMN can specify a label per production.md:50. Default label is default if none configured; for unlabeled-fallback include default in the worker tags list per production.md:44-48, :54. Versioning quirk (recurring exam-trap): Per production.md:169, \"RPA workers fetch the latest script version automatically\" -- opposite of BPMN/DMN pin-on-deploy semantics. Use labels (not version pinning) to manage breaking script changes. Hybrid topology: SaaS Camunda 8 (Zeebe + Operate + Tasklist + Web Modeler in Camunda's cloud) + self-hosted RPA worker on the team's own machines for the actual automation execution.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/rpa/overview/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q47",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

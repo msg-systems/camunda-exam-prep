@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q52",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A CI pipeline must call the Web Modeler API. The pipeline doesn't have an interactive user; it needs a non-human auth token.",
+  "question": "Which credential type fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Username and password credentials submitted as Basic Authentication headers to the Web Modeler API. The Web Modeler API uses OAuth2 client_credentials grant (M2M authentication) exclusively and does not accept username/password Basic Authentication. There is no Basic Auth endpoint for the Web Modeler API. Providing username and password would result in authentication errors since the API requires a valid JWT bearer token."
+    },
+    {
+      "id": "b",
+      "text": "Use the CI pipeline's user account password to authenticate Web Modeler API calls. Using human user credentials in automated CI pipelines is a security anti-pattern -- passwords are typically short-lived, require multi-factor authentication, and may be rotated by security policies. The Web Modeler API does not accept human user passwords; it requires an OAuth2 client_credentials M2M JWT obtained from a dedicated service application with a rotatable client secret."
+    },
+    {
+      "id": "c",
+      "text": "M2M client credentials (OAuth2) -- create an Administration API client (SaaS) or M2M application in Management Identity (Self-Managed) with Web Modeler API CRUD permissions. The CI pipeline exchanges client_id and client_secret for a JWT at the token endpoint, then passes it as Authorization: Bearer <token>. The token expires and must be refreshed; no interactive user session is required."
+    },
+    {
+      "id": "d",
+      "text": "The Web Modeler API is publicly accessible without authentication; no credentials are required. This is factually incorrect. All Web Modeler API requests require a valid JWT bearer token obtained through the OAuth2 client_credentials flow. Unauthenticated requests are rejected. The API documentation explicitly specifies authentication requirements for all endpoints, and production Web Modeler installations enforce token validation."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Web Modeler API auth is OAuth2 client_credentials grant (M2M), NOT a Personal Access Token. Headless CI obtains a JWT via the token endpoint and presents it as Authorization: Bearer . The Administration API client (SaaS) or M2M application (SM) has rotatable secret + CRUD permissions per apis-tools/web-modeler-api/authentication.md:30-31, 67-72."
+    },
+    "b": {
+      "text": "Incorrect. Username/password is not exposed for the Web Modeler API; OAuth2 client_credentials is the only headless flow."
+    },
+    "c": {
+      "text": "Correct. Using human credentials in CI is insecure (and the API does not accept them anyway)."
+    },
+    "d": {
+      "text": "Incorrect. Auth required -- all Web Modeler API requests need a valid JWT per authentication.md:12."
+    }
+  },
+  "explanation": "Using human credentials in CI is insecure (and the API does not accept them anyway).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/web-modeler-api/authentication/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q52",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

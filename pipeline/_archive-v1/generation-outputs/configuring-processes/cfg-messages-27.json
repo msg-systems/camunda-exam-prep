@@ -1,0 +1,27 @@
+{
+  "id": "cfg-messages-27",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Wren Bank processes 14000 transactions per day in Camunda 8.8 and a developer must understand how the broker correlates incoming messages to process instances using subscriptions on message catch events to deliver payment confirmations from the upstream webhook.",
+  "question": "Which two pieces of information does a Camunda 8 message subscription contain to route a published message to a process instance?",
+  "options": [
+    { "id": "a", "text": "The processInstanceKey of the waiting instance plus the broker node ID, written into the subscription by the catch event when it activates" },
+    { "id": "b", "text": "The processDefinitionId and the BPMN element name of the catch event, which the broker hashes to find a matching subscription record" },
+    { "id": "c", "text": "The tenantId and the deploymentKey, allowing the broker to scope correlation by tenant before evaluating the message body content on arrival" },
+    { "id": "d", "text": "The message name and the correlation key, evaluated when the message catch event activates and used to match incoming messages on the broker" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The subscription does not carry the process instance key as a routing field; it contains the message name and correlation key the broker uses to find matches across processes." },
+    "b": { "text": "Incorrect. Process definition and element identifiers are not used to route incoming messages; the docs specify the message name and the correlation key as the subscription fields." },
+    "c": { "text": "Incorrect. Tenant scoping is a separate concern; subscriptions themselves match on message name and correlation key as defined in the Message subscriptions section of the messages page." },
+    "d": { "text": "Correct. The Message subscriptions section states that correlation is based on subscriptions containing the message name and the correlation key, evaluated when the message catch event activates." }
+  },
+  "explanation": "The Message subscriptions section defines a subscription as containing a message name (defined statically or via an expression) and a correlation key expression. Both are evaluated when the catch event activates, and the broker uses them to route published messages to process instances.",
+  "docs": [
+    { "title": "Messages", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-92",
+  "topic": "extensions-integrations",
+  "subtopic": "error-modeling",
+  "difficulty": "easy",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A task `Check customer creditworthiness` returns either `credit-worthy` or `not credit-worthy` as the expected result of the check. Per the best-practices guidance, which BPMN construct should branch on that result?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An exclusive (XOR) gateway working on the result variable."
+    },
+    {
+      "id": "b",
+      "text": "A boundary error event with `errorCode=NOT_CREDIT_WORTHY`."
+    },
+    {
+      "id": "c",
+      "text": "A non-interrupting escalation event attached to the task."
+    },
+    {
+      "id": "d",
+      "text": "An incident raised by the worker via `FailJob` with `0` retries."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs treat \"not credit-worthy\" as an _expected result_ of the check, so it is modelled with an exclusive gateway. Boundary error events are reserved for situations that _hinder reaching the expected result_."
+    },
+    "b": {
+      "text": "Boundary error events are for exceptional situations that prevent reaching a result — e.g. the customer ID is unknown — not for a normal binary outcome of the check."
+    },
+    "c": {
+      "text": "Escalation events signal a separate concern up the hierarchy; they do not branch on the task's normal expected result."
+    },
+    "d": {
+      "text": "Failing with `0` retries raises an incident requiring human intervention — this is a technical failure path, not a business-result branch."
+    }
+  },
+  "explanation": "Best-practices guidance distinguishes _expected results_ from _exceptional errors_. Expected results (the customer is or is not credit-worthy) are routed with an XOR gateway working on the task's output variable. Errors that prevent reaching the result (e.g. the customer ID does not exist) are modelled with boundary error events.",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

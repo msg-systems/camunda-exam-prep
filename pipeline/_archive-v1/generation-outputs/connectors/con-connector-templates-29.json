@@ -1,0 +1,27 @@
+{
+  "id": "con-connector-templates-29",
+  "topic": "connectors",
+  "subtopic": "connector-templates",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "At healthcare SaaS Marigold Health, 6 developers fork the outbound REST connector template in Camunda 8.8 before extending it. They notice that some template properties end up as static metadata on the BPMN element while others must reach the job worker as input variables, and want to map the binding types correctly.",
+  "question": "Which binding type does the outbound REST connector template use for properties that the job worker reads as input variables on the service task?",
+  "options": [
+    { "id": "a", "text": "zeebe:property, used for the REST Endpoint URL, REST Method, and Request Body so the worker reads them as message subscription properties at activation time" },
+    { "id": "b", "text": "zeebe:taskDefinition, used for the Request Body, Username, Password, and Bearer Token so the worker resolves them through the task definition type at deployment time" },
+    { "id": "c", "text": "zeebe:taskHeader, used for the Authentication Type, Username, Password, and Bearer Token so the worker reads them as headers statically attached to the service task" },
+    { "id": "d", "text": "zeebe:input, used for the Request Body, Authentication Type, Username, Password, and Bearer Token so the worker reads them as input variable mappings on the service task" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. zeebe:property is not used by this template at all; URL and Method bind to zeebe:taskHeader and Body binds to zeebe:input, so they do not flow as message subscription properties." },
+    "b": { "text": "Incorrect. zeebe:taskDefinition is used only for the hidden value http that sets the task type; it does not carry body or authentication input values to the worker." },
+    "c": { "text": "Incorrect. zeebe:taskHeader carries the static REST Endpoint URL and REST Method, not the body or authentication.* fields, which the template binds via zeebe:input." },
+    "d": { "text": "Correct. In the outbound REST template, Request Body, Authentication Type, Username, Password, and Bearer Token all bind to zeebe:input with names body, authentication.type, authentication.username, authentication.password, and authentication.token." }
+  },
+  "explanation": "The outbound REST connector template uses three binding types: zeebe:taskDefinition for the hidden http task type, zeebe:taskHeader for the static REST URL and method values, and zeebe:input for runtime variable mappings such as the body and the authentication.* properties read by the job worker.",
+  "docs": [
+    { "title": "Connector templates - Outbound", "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-templates/" }
+  ]
+}

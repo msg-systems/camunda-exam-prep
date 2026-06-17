@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q48",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression compares two dates: the author tries =startDate before endDate (infix syntax). They wonder whether before / after are infix operators in FEEL. Are before and after part of FEEL for date/range comparison -- and if so, what syntax?",
+  "question": "Are before and after part of FEEL for date/range comparison -- and if so, what syntax?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The infix syntax date1 before date2 is not documented as valid in Camunda 8 FEEL. While some older DMN specification drafts referenced an infix form as syntactic sugar, the Camunda 8 FEEL implementation canonicalises these as prefix function calls. The author writing =startDate before endDate should instead write =before(startDate, endDate) using the prefix function-call form. Using undocumented infix syntax risks evaluation errors at runtime when the FEEL expression is processed by the Zeebe engine."
+    },
+    {
+      "id": "b",
+      "text": "While the standard comparison operators < and > do work for point-to-point date comparisons in FEEL, they are limited to comparing individual date or time values. The FEEL range functions provide much richer semantics including point-to-range and range-to-range relationships like during, overlaps, starts, finishes, and meets. These cannot be expressed with simple comparison operators alone and require the dedicated range function calls documented in the FEEL built-in functions range reference."
+    },
+    {
+      "id": "c",
+      "text": "Yes -- before, after, meets, met by, overlaps, overlaps before, overlaps after, during, includes, starts, started by, finishes, finished by, coincides are FEEL Range FUNCTIONS -- not infix operators. g. before(date1, date2), during(point, range). Each function takes two arguments and supports multiple overloads: point/point, point/range, range/point, or range/range. md:7-9. Note that multi-word function names like met by and overlaps before use spaces, not camelCase."
+    },
+    {
+      "id": "d",
+      "text": "10] are syntax for expressing range values, not for testing relationships between ranges. These range literal values can be consumed as arguments by the FEEL range functions such as during(point, range) or overlaps(range1, range2). The range literal syntax and the range function library are complementary features -- literals define range values while the functions test relationships between ranges and points. Range literals alone cannot perform the relational tests that the function library provides."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. No infix date1 before date2 operator form is documented in Camunda 8 FEEL. The infix form is sometimes mentioned in older DMN spec drafts as syntactic sugar for unary tests, but Camunda 8 FEEL canonicalises the function form. Use before(date1, date2)."
+    },
+    "b": {
+      "text": "Incorrect. `` work for point-to-point dates but lack the richer range semantics."
+    },
+    "c": {
+      "text": "Correct. Per Camunda 8 FEEL docs (feel-built-in-functions-range.md), these relations are functions -- called with prefix-style parentheses, not infix: before(point1, point2) / before(range, point) / before(point, range) / before(range1, range2) -- strict ordering. after(...) -- symmetric to before, 4 overloads. meets(range1, range2) / met by(range1, range2) -- ranges touch at a single point. Note multi-word names with spaces (met by, NOT metBy). overlaps(range1, range2) / overlaps before(range1, range2) / overlaps after(range1, range2) -- ranges overlap. during(point, range) / during(range1, range2) / includes(range, point) / includes(range1, range2) -- containment. starts(point, range) / starts(range1, range2) / started by(range, point) / started by(range1, range2) / finishes(...) / finished by(...) -- boundary matching. coincides(point1, point2) / coincides(range1, range2) -- identical. Argument types: number, date, time, date-time, days-time-duration, years-months-duration per :11-18. 27 function signatures total in 8.8. Comparison operators (, =, =) also work for point-to-point date comparisons (per feel-temporal-expressions.md); the range functions add semantics for ranges."
+    },
+    "d": {
+      "text": "Incorrect. Range literals ([1..10]) coexist with -- and are consumed by -- the relation functions; not substitutes."
+    }
+  },
+  "explanation": "Per Camunda 8 FEEL docs (feel-built-in-functions-range.md), these relations are functions -- called with prefix-style parentheses, not infix: before(point1, point2) / before(range, point) / before(point, range) / before(range1, range2) -- strict ordering. after(...) -- symmetric to before, 4 overloads. meets(range1, range2) / met by(range1, range2) -- ranges touch at a single point. Note multi-word names with spaces (met by, NOT metBy). overlaps(range1, range2) / overlaps before(range1, range2) / overlaps after(range1, range2) -- ranges overlap. during(point, range) / during(range1, range2) / includes(range, point) / includes(range1, range2) -- containment. starts(point, range) / starts(range1, range2) / started by(range, point) / started by(range1, range2) / finishes(...) / finished by(...) -- boundary matching. coincides(point1, point2) / coincides(range1, range2) -- identical. Argument types: number, date, time, date-time, days-time-duration, years-months-duration per :11-18. 27 function signatures total in 8.8. Comparison operators (, =, =) also work for point-to-point date comparisons (per feel-temporal-expressions.md); the range functions add semantics for ranges.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-range/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q48",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

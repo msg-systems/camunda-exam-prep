@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q25",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A logistics decision table evaluates shipping options; multiple rules match, each with a different cost. The team wants the minimum cost across all matching rules.",
+  "question": "Which hit policy + aggregator fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "PRIORITY hit policy ranks matching rules by output-value priority ordering defined in the decision table. Beyond being absent from Camunda 8, PRIORITY uses output-value orderings rather than numeric aggregation, so it cannot compute the mathematical minimum of cost values across matching rules."
+    },
+    {
+      "id": "b",
+      "text": "COLLECT with MIN aggregator -- the engine evaluates all rules, collects outputs from every matching rule, then applies the MIN aggregation function to return the single smallest value. Camunda 8's COLLECT hit policy supports four aggregators: SUM, MIN, MAX, and COUNT. When using an aggregator, the decision table must have a single output column. MIN over shipping cost outputs returns the cheapest option automatically."
+    },
+    {
+      "id": "c",
+      "text": "RULE ORDER hit policy combined with a manual min() FEEL function call in downstream process expressions. While RULE ORDER returns a row-ordered list of all matching outputs and FEEL's built-in min(list) can compute the minimum, placing aggregation logic outside the DMN table couples the decision output format to the caller. COLLECT with MIN encapsulates the aggregation cleanly inside the decision table itself."
+    },
+    {
+      "id": "d",
+      "text": "FIRST hit policy with rules pre-sorted by cost value in the decision table. FIRST returns only the output of the first matching rule; it cannot dynamically compute a mathematical minimum across all matching rules' cost values. Pre-sorting the table by cost would only work if exactly the lowest-cost option always appears first, but rule evaluation order changes with different input combinations, making this approach unreliable."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. COLLECT supports exactly 4 aggregators -- SUM / MIN / MAX / COUNT (per decision-table-hit-policy.md:139-170); bare COLLECT (no aggregator) returns list. MIN over matching cost outputs returns the smallest value directly. Note: with an aggregator, the table can only have a single output column (decision-table-hit-policy.md:126)."
+    },
+    "b": {
+      "text": "Correct. PRIORITY is NOT in C8's supported policy set (only UNIQUE/ANY/FIRST/RULE ORDER/COLLECT -- decision-table-hit-policy.md:26-53). Doubly wrong: also uses output-value priority list ordering, not numeric MIN aggregation."
+    },
+    "c": {
+      "text": "Incorrect. Manual min() (FEEL built-in) in downstream FEEL works but COLLECT-MIN keeps the aggregation in DMN."
+    },
+    "d": {
+      "text": "Incorrect. DMN rules aren't dynamically sorted by output."
+    }
+  },
+  "explanation": "PRIORITY is NOT in C8's supported policy set (only UNIQUE/ANY/FIRST/RULE ORDER/COLLECT -- decision-table-hit-policy.md:26-53). Doubly wrong: also uses output-value priority list ordering, not numeric MIN aggregation.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q25",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

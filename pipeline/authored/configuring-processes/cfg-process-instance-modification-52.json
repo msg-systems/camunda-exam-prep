@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-52",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "medium",
+  "style": "recall",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "You are unsure whether a planned process instance modification is safe. What does the Camunda 8.8 documentation recommend you do before applying it in production?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Have the engine simulate the modification automatically; it will detect and reject unsafe ones."
+    },
+    {
+      "id": "b",
+      "text": "Test the modification on a non-production cluster or use Camunda Process Test."
+    },
+    {
+      "id": "c",
+      "text": "Run the modification with a `dryRun=true` flag on the production cluster."
+    },
+    {
+      "id": "d",
+      "text": "Rely on Operate's modification preview, which blocks unsafe modifications before they apply."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs explicitly state that the process instance does not detect unsafe modifications — there is no automatic simulation."
+    },
+    "b": {
+      "text": "The docs explicitly recommend: when in doubt, test your modification on a non-production cluster or use Camunda Process Test."
+    },
+    "c": {
+      "text": "There is no `dryRun` flag on the modification command; modification is always applied (transactionally) when accepted."
+    },
+    "d": {
+      "text": "Operate shows the resulting state but does not detect or block all unsafe modifications; the engine itself does not detect them."
+    }
+  },
+  "explanation": "Process instance modification can create runtime states that are unreachable by normal execution — for example, tokens stuck on a parallel join, or activated tasks running with incomplete variables. The engine does not detect these situations. The docs therefore recommend validating any modification on a non-production cluster or via Camunda Process Test before applying it in production.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

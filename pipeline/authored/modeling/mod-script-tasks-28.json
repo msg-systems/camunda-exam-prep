@@ -1,0 +1,56 @@
+{
+  "id": "mod-script-tasks-28",
+  "topic": "modeling",
+  "subtopic": "script tasks",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Two script task XML snippets are deployed. Which one is evaluated by Zeebe's integrated FEEL engine without any external job worker?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The snippet that uses `zeebe:script` with `expression` and `resultVariable`."
+    },
+    {
+      "id": "b",
+      "text": "The snippet that uses `zeebe:taskDefinition type=\"script\"` with task headers `language` and `script`."
+    },
+    {
+      "id": "c",
+      "text": "Either; Zeebe evaluates all script tasks internally regardless of the extension elements used."
+    },
+    {
+      "id": "d",
+      "text": "Neither; both forms require an external worker to complete the job."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The inline FEEL form uses `zeebe:script` with the `expression` attribute and is evaluated by Zeebe's integrated FEEL Scala engine; no external worker is needed."
+    },
+    "b": {
+      "text": "The `zeebe:taskDefinition` with type `script` plus headers is the job worker form. Zeebe does not process these jobs; an external worker (such as the community Zeebe Script Worker) must complete them."
+    },
+    "c": {
+      "text": "Zeebe only evaluates the inline FEEL form internally; the job worker form explicitly requires an external worker."
+    },
+    "d": {
+      "text": "The inline FEEL form does not require a worker — only the job worker form does."
+    }
+  },
+  "explanation": "Two script task forms exist. `zeebe:script` with `expression`/`resultVariable` is evaluated by Zeebe's integrated FEEL Scala engine in-broker. `zeebe:taskDefinition type=\"script\"` plus headers is the job worker form and behaves like a service task — Zeebe creates a job and an external worker must complete it.",
+  "docs": [
+    {
+      "title": "BPMN script tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/script-tasks/"
+    }
+  ],
+  "codeBlocks": {
+    "perOption": {
+      "a": "<bpmn:scriptTask id=\"calculate-sum\" name=\"Calculate sum\">\n  <bpmn:extensionElements>\n    <zeebe:script expression=\"=a + b\" resultVariable=\"sum\" />\n  </bpmn:extensionElements>\n</bpmn:scriptTask>",
+      "b": "<bpmn:scriptTask id=\"calculate-sum\" name=\"Calculate sum\">\n  <bpmn:extensionElements>\n    <zeebe:taskDefinition type=\"script\" />\n    <zeebe:taskHeaders>\n      <zeebe:header key=\"language\" value=\"javascript\" />\n      <zeebe:header key=\"script\" value=\"a + b\" />\n    </zeebe:taskHeaders>\n  </bpmn:extensionElements>\n</bpmn:scriptTask>"
+    }
+  }
+}

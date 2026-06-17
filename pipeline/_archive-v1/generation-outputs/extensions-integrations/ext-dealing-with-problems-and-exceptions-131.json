@@ -1,0 +1,27 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-131",
+  "topic": "extensions-integrations",
+  "subtopic": "problems-and-exceptions",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Harbor Insurance ships a Camunda 8.8 claims process for a regional insurer that runs 2800 instances per day. The lead developer is reviewing the model and notices that an item-unavailable BPMN error is thrown by a service task but no boundary error event catches it anywhere in the process; the operations team asks what happens to the running instance.",
+  "question": "Which behavior does the BPMN spec define for an unhandled BPMN error inside a Camunda 8 process instance?",
+  "options": [
+    { "id": "a", "text": "An unhandled BPMN error terminates the process instance silently rather than raising an incident, so a parent scope should always catch the error with a boundary event when the deviation must be handled inside the model" },
+    { "id": "b", "text": "An unhandled BPMN error raises a technical incident in Operate so a human operator can decide whether to retry the activity, terminate the instance, or move the token to the BPMN error end event manually" },
+    { "id": "c", "text": "An unhandled BPMN error is converted into a FailJob with retries set to zero, which raises an incident on the originating service task instead of terminating the process instance prematurely" },
+    { "id": "d", "text": "An unhandled BPMN error pauses the instance for 24 hours waiting for a matching subscription to appear via a deployment, and only terminates the instance after that grace period has elapsed without a handler" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The page explicitly states that according to the BPMN spec a BPMN error is either handled in the process or terminates the process instance, and it does not lead to an incident being raised." },
+    "b": { "text": "Incorrect. An unhandled BPMN error does not raise an incident; the docs state this explicitly." },
+    "c": { "text": "Incorrect. An unhandled BPMN error is not converted into a FailJob; the page says it terminates the instance instead." },
+    "d": { "text": "Incorrect. There is no documented 24-hour grace period for BPMN errors; an unhandled error terminates the instance." }
+  },
+  "explanation": "Per the BPMN spec, a BPMN error is either handled inside the process model or it terminates the process instance. The Camunda docs explicitly call out that an unhandled BPMN error does not raise an incident, which is why a boundary error event on a parent scope is usually the safety net when the deviation must be handled in the process.",
+  "docs": [
+    { "title": "Dealing with problems and exceptions", "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/" }
+  ]
+}

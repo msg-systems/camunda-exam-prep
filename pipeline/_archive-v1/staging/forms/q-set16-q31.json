@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q31",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Two forms have field email. Process uses both. Team wonders if variable namespace conflicts.",
+  "question": "Form variable namespacing?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Form fields map directly to process variables by key: there is no automatic namespacing in Camunda Forms. A field with key: \"email\" in Form A and the same key: \"email\" in Form B both read from and write to the same process variable email. When both User Tasks are completed in sequence, the second task's submission overwrites the first task's value. , customerEmail vs supportEmail) or use Output Mapping on each User Task to route the generic form key to differently named process variables. Input Mapping can also scope variables to task-local context, avoiding unintended cross-task overwrites."
+    },
+    {
+      "id": "b",
+      "text": "Camunda Forms do not automatically namespace form field variables. A field with key: \"email\" in Form A and another field with the same key in Form B will both write to the same process variable email. email or taskA_email. This means teams must explicitly design variable naming to avoid conflicts, either by using distinct keys in each form or by using Output Mapping on the User Task to rename the form's generic key to a context-specific process variable name."
+    },
+    {
+      "id": "c",
+      "text": "Camunda Forms are not isolated; they read from and write to the shared process variable scope. Form fields bind to process variables by their key property. When a User Task with a form is completed, the form's field values are written directly to the process scope under the field's key name. Two forms with the same key will share the same process variable, not operate in isolated scopes. Isolation must be implemented explicitly using Output Mapping to route each form's output to differently named variables."
+    },
+    {
+      "id": "d",
+      "text": "Workers handle -- this is only partially correct. While a worker or Service Task before or after a User Task can transform variables, relying on workers to resolve form variable naming conflicts adds unnecessary coupling and complexity. The proper approach is to use User Task Output Mapping to rename form field values to context-specific variable names at the point of task completion. This keeps the naming resolution co-located with the form-BPMN binding and does not require extra Service Tasks or workers."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Form variable mapping: Default behavior: Form field key: variable name. On submit: variable set in scope. No automatic prefix / namespace. Example issue: Process flow: Task 1: form has email field. User submits \"alice@x.com\". Task 2: form has email field. User submits \"support@y.com\". Result: After Task 1: process var email = \"alice@x.com\". After Task 2: process var email = \"support@y.com\" (overwrites). Original value lost (unless persisted earlier). Solutions: Solution 1: Distinct keys: Task 1 form: customerEmail. Task 2 form: supportEmail. No conflict: different variable names. Solution 2: Task-local scope via Input/Output Mapping: `xml Form's email field → process var customerEmail. Each task can rename form fields to scope-specific names. Solution 3: Nested structure: xml Map email field to nested customer.email (preserves structure). For complex variable hierarchies: feel ={ customer: { email: form.customerEmail, phone: form.customerPhone }, support: { email: form.supportEmail, contact: form.supportContact } } Compose nested via FEEL. For shared schemas across forms: Same email field type: validation rules consistent. Different process variables: explicit naming. DRY validation: shared component / template. Variable scope considerations (per Set 13 Q21): Process root: global. Subprocess scope: inner-only. Task scope: with Input/Output Mapping. For task-local without process-wide: Input Mapping: bring needed variables in. Output Mapping: shape what flows back. Task-local stays local. For multi-user forms (same process): Each task: own form, own values. Process tracks: per-task results. Don't overwrite: use distinct keys. For audit: Task variables: capture per-task input. Process variables: aggregate across. For forms with same logical field: Question: same data or different? Same data: one form pattern; one variable. Different data: distinct keys. Best practices: Distinct variable names per context: prevent conflicts. Use Output Mapping for renaming: when form key is generic. Document variable contracts: per form. Test multi-task processes: verify no unexpected overwrites. Anti-patterns: Generic keys (email, name) in shared processes: collision risk. Same form used in multiple contexts: review variable destination. No Output Mapping for renames: collision. For form template reuse: Template uses generic email. Each task: Output Mapping renames to context-specific. Template stays generic: reusable. For Tasklist visibility: Form displays field as email: user-friendly label. Process variable: scoped name. Decoupled via Output Mapping. For the scenario (two forms email` field): Conflict by default. Fix: distinct keys OR Output Mapping rename."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Form variable mapping: Default behavior: Form field key: variable name. On submit: variable set in scope. No automatic prefix / namespace. Example issue: Process flow: Task 1: form has email field. User submits \"alice@x.com\". Task 2: form has email field. User submits \"support@y.com\". Result: After Task 1: process var email = \"alice@x.com\". After Task 2: process var email = \"support@y.com\" (overwrites). Original value lost (unless persisted earlier). Solutions: Solution 1: Distinct keys: Task 1 form: customerEmail. Task 2 form: supportEmail. No conflict: different variable names. Solution 2: Task-local scope via Input/Output Mapping: `xml Form's email field → process var customerEmail. Each task can rename form fields to scope-specific names. Solution 3: Nested structure: xml Map email field to nested customer.email (preserves structure). For complex variable hierarchies: feel ={ customer: { email: form.customerEmail, phone: form.customerPhone }, support: { email: form.supportEmail, contact: form.supportContact } } Compose nested via FEEL. For shared schemas across forms: Same email field type: validation rules consistent. Different process variables: explicit naming. DRY validation: shared component / template. Variable scope considerations (per Set 13 Q21): Process root: global. Subprocess scope: inner-only. Task scope: with Input/Output Mapping. For task-local without process-wide: Input Mapping: bring needed variables in. Output Mapping: shape what flows back. Task-local stays local. For multi-user forms (same process): Each task: own form, own values. Process tracks: per-task results. Don't overwrite: use distinct keys. For audit: Task variables: capture per-task input. Process variables: aggregate across. For forms with same logical field: Question: same data or different? Same data: one form pattern; one variable. Different data: distinct keys. Best practices: Distinct variable names per context: prevent conflicts. Use Output Mapping for renaming: when form key is generic. Document variable contracts: per form. Test multi-task processes: verify no unexpected overwrites. Anti-patterns: Generic keys (email, name) in shared processes: collision risk. Same form used in multiple contexts: review variable destination. No Output Mapping for renames: collision. For form template reuse: Template uses generic email. Each task: Output Mapping renames to context-specific. Template stays generic: reusable. For Tasklist visibility: Form displays field as email: user-friendly label. Process variable: scoped name. Decoupled via Output Mapping. For the scenario (two forms email` field): Conflict by default. Fix: distinct keys OR Output Mapping rename.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q31",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[3]"
+      }
+    ]
+  }
+}

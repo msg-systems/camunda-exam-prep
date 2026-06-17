@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q55",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A production process instance has an Incident on a Service Task because the worker called a downstream API that returned 401 Unauthorized. The team fixed the worker (auth issue) and now wants to retry the failed Service Task -- but they also need to set a variable apiRetryAttempt = 2 to signal to the worker that this is a retry (for downstream telemetry).",
+  "question": "What is the correct workflow in Operate?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Select the incident in Operate, navigate to the variables panel on the instance detail page, and update the variable apiRetryAttempt to 2. Then click Retry on the incident. Operate applies both changes atomically: it sets the variable in Zeebe's process variable store and re-activates the job, resetting its retry counter so the now-fixed worker can pick it up. The worker receives the job activation payload that includes the updated apiRetryAttempt = 2 value, enabling it to emit the correct downstream telemetry for this retry attempt. This combined variable-update-then-retry workflow is the canonical Operate incident resolution pattern for cases where both a variable change and a job re-activation are required."
+    },
+    {
+      "id": "b",
+      "text": "Cancel the entire production process instance to stop the incident, then modify the BPMN model to add apiRetryAttempt = 2 as a default input variable on the Service Task, re-deploy the new version, and start a fresh process instance from the beginning with the original input data. Cancelling the instance and redeploying to set a hardcoded default variable is disproportionately destructive -- it loses all process state up to the incident point, requires re-running all prior steps, and requires a BPMN change and deployment for what is a one-time operational intervention. Operate's variable-update feature handles this directly."
+    },
+    {
+      "id": "c",
+      "text": "Directly connect to the Zeebe broker's underlying PostgreSQL or Elasticsearch database, update the apiRetryAttempt variable value for the specific process instance in the database tables, then use the Zeebe gRPC API to call ResolveIncident to clear the incident and re-activate the job. Directly modifying Zeebe's internal data stores (whether Elasticsearch, RocksDB, or any backing storage) is an unsupported operation that can corrupt process state, violate the engine's internal consistency invariants, and render the instance permanently broken. Operate's incident resolution workflow is the supported mechanism."
+    },
+    {
+      "id": "d",
+      "text": "Wait for Zeebe to automatically retry the failed Service Task job on a scheduled backoff interval; when the retry fires the worker will detect the auth fix, set apiRetryAttempt = 2 in its output variables, and the process will continue. Once a job's retry counter reaches zero and Zeebe creates an incident, automatic retries stop until the incident is explicitly resolved. Incidents do not auto-retry -- they are permanent blocking states awaiting human intervention. Additionally, the worker cannot update variables during a retry if the job is not activated."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Operate's incident resolution workflow supports combining variable updates with retry -- both done from the incident's UI panel. The operator sets the variable, then clicks Retry, and Operate sends both changes atomically."
+    },
+    "b": {
+      "text": "Incorrect. Cancel + redeploy destroys state and is heavy."
+    },
+    "c": {
+      "text": "Incorrect. Direct DB editing is dangerous and unsupported."
+    },
+    "d": {
+      "text": "Incorrect. Once retries are exhausted (incident created), automatic retry doesn't happen until reset."
+    }
+  },
+  "explanation": "Operate's incident resolution workflow supports combining variable updates with retry -- both done from the incident's UI panel. The operator sets the variable, then clicks Retry, and Operate sends both changes atomically.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q55",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

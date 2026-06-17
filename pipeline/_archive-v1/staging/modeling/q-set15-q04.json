@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Activity has two markers: MI marker (parallel) and Loop marker (standard loop). Team wonders if this is valid -- can an Activity have both?",
+  "question": "Activity markers combinability?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:131-147 Markers section, the only markers that carry className=\"implemented\" are Multi-Instance Parallel, Multi-Instance Sequential, Compensation, and Ad-Hoc. The standard Loop marker is NOT implemented in C8 ( appears without the implemented class). So the question's premise (MI + Loop on same Activity) is doubly invalid: (1) BPMN spec disallows combining MI with Loop markers on the same Activity, AND (2) C8 does not execute the Loop marker at all. For \"iterate over collection\" use MI (parallel or sequential). For \"loop while condition\" use MI with completionCondition FEEL boolean (per Set 13 Q13) -- there is no native standard-loop marker in C8."
+    },
+    {
+      "id": "b",
+      "text": "Any Activity marker combination is allowed in BPMN -- this claim overlooks explicit mutual-exclusivity rules in the BPMN specification. The Loop marker and Multi-Instance marker represent fundamentally different iteration semantics: Loop uses a condition-based repetition while Multi-Instance iterates over a collection. They cannot be applied simultaneously to the same Activity. md -- the engine ignores it at runtime. Only Multi-Instance Parallel, Multi-Instance Sequential, Compensation, and Ad-Hoc markers are implemented in Camunda 8."
+    },
+    {
+      "id": "c",
+      "text": "Activities in BPMN cannot have any markers -- this claim does not fully apply. BPMN explicitly defines several Activity markers that modify execution semantics: Multi-Instance Parallel (three vertical lines), Multi-Instance Sequential (three horizontal lines), Loop (curved arrow), Compensation (two backward arrows), and Ad-hoc (tilde). Camunda 8 implements Multi-Instance Parallel, Multi-Instance Sequential, Compensation, and Ad-hoc markers. Activities can and do use these markers in production Camunda 8 processes. The constraint is that certain markers are mutually exclusive (Loop and MI) and some are unavailable in this context (Loop marker in Camunda 8)."
+    },
+    {
+      "id": "d",
+      "text": "0 specification itself prohibits combining Loop and Multi-Instance markers on the same Activity -- this is a spec-level mutual exclusion, not merely an engine preference. Engines like Camunda 8 then further restrict which markers are implemented: the Loop marker has no runtime effect in Camunda 8, while MI Parallel, MI Sequential, Compensation, and Ad-hoc are fully supported. Understanding both spec-level and engine-level constraints is essential for correct marker usage."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Activity marker rules: Marker types (BPMN spec): Loop marker (semicircle arrow at bottom): BPMN-spec construct that iterates an activity while loopCondition is true. NOT implemented by Zeebe in Camunda 8 per bpmn-coverage.md:127, :138-140 ( carries no implemented class). Modeler may render the icon, but the broker will reject or ignore at runtime. Use MI with completionCondition for the equivalent semantic. MI marker: Sequential: three horizontal lines (=) at bottom. Parallel: three vertical lines (|||) at bottom. Iterates over collection. Compensation marker: Two left-pointing arrows at bottom. Indicates activity is a compensation handler. Combination rules: Loop and MI are mutually exclusive: Different iteration semantics; can't combine. Choose one. Compensation marker can coexist with iteration in some interpretations: Verify per BPMN modeler / engine. Most often: compensation handler is plain (no iteration). For \"MI + Loop\" pattern needs: Loop via completionCondition in MI: iterate collection AND have stop condition. No native combination of Loop + MI markers. Camunda 8 marker support (per bpmn-coverage.md:131-147 Markers section): Multi-Instance Parallel + Multi-Instance Sequential: implemented. Compensation marker: implemented (per Set 14 Q20). Ad-hoc marker (~): implemented (Q3 above). Standard Loop marker: NOT implemented -- model with MI + completionCondition instead. Workarounds for \"iterate while condition AND over collection\": Workaround 1: MI with completionCondition: MI over collection. completionCondition: when condition met, stop. Common pattern. Workaround 2: Filter collection first: Pre-filter to relevant items. MI over filtered list. Simpler than complex completion conditions. Workaround 3: Subprocess with explicit loop: Subprocess containing iteration logic. More control; more visual complexity. For the scenario (MI parallel + Loop): Not valid: BPMN doesn't allow both. Modelers tool may warn or reject. Pick one based on intent: If iterating fixed collection: MI. If iterating until condition met (no collection): Loop. If both needs: MI with completionCondition. In Web Modeler: Property panel typically lets you set one marker at a time. Switching between markers replaces. Best practices: Understand iteration intent: collection vs condition. Use MI for known collection: standard pattern. Use Loop for condition-based: less common; verify need. Document iteration: comment what's being iterated and why. Edge case: nested iterations: Outer MI + Inner activity with Loop: legal; two separate elements. Outer subprocess MI + Inner subprocess MI: legal; nested MI. vs other Activity types: User Task with Loop marker: BPMN-spec-legal but does not run in Camunda 8 -- use MI with completionCondition for \"re-review until approved\" (e.g. completionCondition = approved = true). Service Task with MI: supported (process each item). Subprocess with MI: supported (per-item subprocess execution). Visual cue: One marker per activity is the standard. Multiple markers visible: bug or non-standard tool."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Activity marker rules: Marker types (BPMN spec): Loop marker (semicircle arrow at bottom): BPMN-spec construct that iterates an activity while loopCondition is true. NOT implemented by Zeebe in Camunda 8 per bpmn-coverage.md:127, :138-140 ( carries no implemented class). Modeler may render the icon, but the broker will reject or ignore at runtime. Use MI with completionCondition for the equivalent semantic. MI marker: Sequential: three horizontal lines (=) at bottom. Parallel: three vertical lines (|||) at bottom. Iterates over collection. Compensation marker: Two left-pointing arrows at bottom. Indicates activity is a compensation handler. Combination rules: Loop and MI are mutually exclusive: Different iteration semantics; can't combine. Choose one. Compensation marker can coexist with iteration in some interpretations: Verify per BPMN modeler / engine. Most often: compensation handler is plain (no iteration). For \"MI + Loop\" pattern needs: Loop via completionCondition in MI: iterate collection AND have stop condition. No native combination of Loop + MI markers. Camunda 8 marker support (per bpmn-coverage.md:131-147 Markers section): Multi-Instance Parallel + Multi-Instance Sequential: implemented. Compensation marker: implemented (per Set 14 Q20). Ad-hoc marker (~): implemented (Q3 above). Standard Loop marker: NOT implemented -- model with MI + completionCondition instead. Workarounds for \"iterate while condition AND over collection\": Workaround 1: MI with completionCondition: MI over collection. completionCondition: when condition met, stop. Common pattern. Workaround 2: Filter collection first: Pre-filter to relevant items. MI over filtered list. Simpler than complex completion conditions. Workaround 3: Subprocess with explicit loop: Subprocess containing iteration logic. More control; more visual complexity. For the scenario (MI parallel + Loop): Not valid: BPMN doesn't allow both. Modelers tool may warn or reject. Pick one based on intent: If iterating fixed collection: MI. If iterating until condition met (no collection): Loop. If both needs: MI with completionCondition. In Web Modeler: Property panel typically lets you set one marker at a time. Switching between markers replaces. Best practices: Understand iteration intent: collection vs condition. Use MI for known collection: standard pattern. Use Loop for condition-based: less common; verify need. Document iteration: comment what's being iterated and why. Edge case: nested iterations: Outer MI + Inner activity with Loop: legal; two separate elements. Outer subprocess MI + Inner subprocess MI: legal; nested MI. vs other Activity types: User Task with Loop marker: BPMN-spec-legal but does not run in Camunda 8 -- use MI with completionCondition for \"re-review until approved\" (e.g. completionCondition = approved = true). Service Task with MI: supported (process each item). Subprocess with MI: supported (per-item subprocess execution). Visual cue: One marker per activity is the standard. Multiple markers visible: bug or non-standard tool.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

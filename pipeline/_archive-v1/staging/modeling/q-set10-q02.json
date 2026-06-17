@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task validate-payment may throw two distinct BPMN error codes: \"INVALID_CARD\" (route to manual fix) and \"FRAUD_SUSPECTED\" (route to fraud team). The team wants two Error Boundary Events on the same activity -- one for each errorCode -- each routing to its own handler path.",
+  "question": "Can multiple Error Boundary Events attach to the same activity, each with a different errorCode?",
+  "options": [
+    {
+      "id": "a",
+      "text": "0 explicitly supports multiple Error Boundary Events attached to the same host activity or subprocess. Each boundary can specify a different errorCode, enabling distinct routing to different handler paths. Camunda 8 implements this capability fully; multiple boundaries on one task is a standard and widely-used pattern for granular error routing."
+    },
+    {
+      "id": "b",
+      "text": "Yes, but all Error Boundary Events attached to the same activity must catch the same error code -- this negates the entire purpose of attaching multiple boundaries. The design intention is precisely per-code differentiation: each boundary specifies a unique errorCode value so that different errors from the same host task route to different handlers. If all boundaries matched the same code, there would be no benefit over using a single boundary with that code."
+    },
+    {
+      "id": "c",
+      "text": "Yes -- multiple Error Boundary Events can attach to the same host activity, each filtering by a different errorCode. When the host throws an error, the boundary whose errorCode matches activates; flow routes via that boundary's outgoing arrow to its specific handler. If multiple boundaries' codes could match, behaviour follows BPMN-spec ordering (typically: the most specific match wins). A catch-all boundary (no errorCode) can additionally serve as a fallback."
+    },
+    {
+      "id": "d",
+      "text": "Only via Event Subprocess -- Event Subprocesses can catch errors thrown anywhere within their enclosing subprocess scope, making them suited for subprocess-wide error handling. Event Subprocesses and Error Boundary Events serve different granularity levels; combining both is also valid for layered error handling strategies."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN explicitly supports multiple Error Boundary Events per activity, each specifying a different errorCode. This is the cleanest way to express \"different errors → different handlers\": Boundary 1: errorCode = \"INVALID_CARD\" → outgoing arrow → \"manual fix\" path. Boundary 2: errorCode = \"FRAUD_SUSPECTED\" → outgoing arrow → \"fraud team\" path. At runtime, the worker throws an error with one of the codes; the boundary with matching code activates; flow routes accordingly. Unmatched codes either propagate up scope (if there's no catch-all boundary or matching higher-scope catch) or produce an unhandled error → Incident. Composition: you can combine specific Error Boundaries with a catch-all Error Boundary (no errorCode) as a fallback. Per error-events.md:50-52 (verbatim): \"It is not possible to define multiple error catch events with the same errorCode in a single scope. It is also not permitted to have multiple error catch-all events in a single scope. However, it is possible to define both an error catch event referencing an error with a particular errorCode and an error catch-all event within the same scope. When this happens, the error catch event that matches the errorCode is prioritized.\" Scope walk per :43-45: error matched at innermost scope first, propagated up if uncaught."
+    },
+    "b": {
+      "text": "Incorrect. Multiple supported."
+    },
+    "c": {
+      "text": "Correct. Per-code differentiation is the design."
+    },
+    "d": {
+      "text": "Incorrect. Boundary at activity level is direct; Event Subprocess for subprocess-wide."
+    }
+  },
+  "explanation": "Per-code differentiation is the design.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q02",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set16-q08",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Modeler wants Compensation Boundary on a Multi-Instance Service Task. Team wonders if this is allowed.",
+  "question": "Compensation Boundary placement rules?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Compensation Boundary attaches to activities (Service Task, User Task, Send/Manual Task, Embedded Subprocess, Call Activity) including their Multi-Instance variants. md:57-71: - The compensation handler of a multi-instance activity is invoked only ONCE -- NOT per-iteration -- and is responsible for reverting the effects of ALL instances. md -- multi-instance activity as compensation handler). md:68-71). - Compensation fires only for COMPLETED activities (per :26-29); handlers fire at-once WITHOUT specific order per :31-35 -- NOT LIFO. - Cannot attach Compensation Boundary to gateways / events / flows / lanes / pools."
+    },
+    {
+      "id": "b",
+      "text": "Compensation Boundary Events can be attached to any activity type in Camunda 8, not only Service Tasks. Supported attachment targets include User Tasks, Send Tasks, Manual Tasks, Embedded Subprocesses, Call Activities, and their Multi-Instance variants. Restricting compensation to Service Tasks alone would leave User Tasks and Subprocesses without undo handlers, making it impossible to model complete saga compensation patterns for processes involving human work or nested subprocess execution."
+    },
+    {
+      "id": "c",
+      "text": "Not allowed on MI -- this requires more precise qualification. A Compensation Boundary Event can be placed on a Multi-Instance activity in Camunda 8. To get per-iteration compensation, the handler itself must be marked as multi-instance. md:57-71."
+    },
+    {
+      "id": "d",
+      "text": "Compensation Boundary Events can be attached to activities at any scope level within a BPMN process, not restricted to the root process level. Within an Embedded Subprocess, activities can have their own Compensation Boundaries, and compensation throw events within that subprocess scope will invoke those handlers. Scoped compensation is a key feature of the BPMN compensation model: handlers are registered at the scope where the activity executes, and a Compensation Throw in that scope activates them."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Compensation Boundary placement: Standard attachment: Activities supporting Compensation Boundary: Service Task. User Task. Send Task. Manual Task. Subprocess (Embedded, Transaction). Call Activity. Multi-Instance variants: typically supported. Cannot attach to: Gateways (XOR, OR, Parallel, Event-Based). Events (Start, Intermediate, End). Sequence flows. Lanes / Pools. For MI activities per compensation-events.md:57-71: MI Service Task with Compensation Boundary -- default: Handler invoked only ONCE (not per-iteration) -- must revert ALL instances' effects. Invoked only after ALL instances of the MI activity have completed (:68-71). NO inherent ordering -- handlers fire at-once WITHOUT specific order per :31-35 (NOT LIFO). Handler does NOT receive per-iteration variables by default -- it must derive them from the broader context. To compensate per iteration: mark the compensation handler itself as multi-instance (per compensation-handler.md \"multi-instance activity as compensation handler\") -- then the handler runs once per item. Example: ` [MI Service Task: \"Reserve Item\"] (over items list) │ comp [Release Reservation] (compensation handler -- default: ONE invocation) (mark handler as MI to invoke per-iteration) ... [Compensation Throw Event] ` When compensation thrown: Default: one \"Release Reservation\" runs, responsible for all reservations. With MI handler: one \"Release Reservation\" per item (no LIFO guarantee). Considerations for MI compensation: Per-iteration handlers: Handler typically runs once per completed iteration. For 100 reservations: 100 release calls. Performance: may be slow if many iterations. Variables passed: Each iteration's local variables (per Set 14 Q21). Handler can know which item to undo. Idempotency: Handler should be idempotent: per Set 14 Q20. Re-running shouldn't cause issues. Camunda 8 support: Verify per version: Compensation Boundary support: typically yes. MI compensation specifics: verify behavior. Alternative if MI compensation tricky: Pattern: Subprocess wrapping MI: Embedded Subprocess containing MI. Compensation Boundary on Subprocess. Handler: compensates all items (via own logic). Pattern: Manual compensation tracking: During MI: track completed items. On failure: explicit compensation loop. More control; more code. Best practices: Test MI compensation: more complex than single-task. Idempotent handlers: critical. Document compensation semantics: per activity. Avoid over-compensation: don't undo what wasn't done. For the scenario (Compensation Boundary on MI Service Task): Typically supported. Each completed iteration → compensation runs. Verify Camunda 8 version behavior. For complex undo scenarios: Test thoroughly: more iterations = more compensation calls. Failure-on-compensation: per Set 13 Q5; can lead to Incident. Tooling: Operate: shows compensation activations. Logging: track which iterations compensated. Metrics: rate of compensation events. Anti-patterns: Forgetting compensation for MI: partial state. Non-idempotent MI compensation: chaos on retry. Compensation handler heavier than original: review design."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Compensation Boundary placement: Standard attachment: Activities supporting Compensation Boundary: Service Task. User Task. Send Task. Manual Task. Subprocess (Embedded, Transaction). Call Activity. Multi-Instance variants: typically supported. Cannot attach to: Gateways (XOR, OR, Parallel, Event-Based). Events (Start, Intermediate, End). Sequence flows. Lanes / Pools. For MI activities per compensation-events.md:57-71: MI Service Task with Compensation Boundary -- default: Handler invoked only ONCE (not per-iteration) -- must revert ALL instances' effects. Invoked only after ALL instances of the MI activity have completed (:68-71). NO inherent ordering -- handlers fire at-once WITHOUT specific order per :31-35 (NOT LIFO). Handler does NOT receive per-iteration variables by default -- it must derive them from the broader context. To compensate per iteration: mark the compensation handler itself as multi-instance (per compensation-handler.md \"multi-instance activity as compensation handler\") -- then the handler runs once per item. Example: ` [MI Service Task: \"Reserve Item\"] (over items list) │ comp [Release Reservation] (compensation handler -- default: ONE invocation) (mark handler as MI to invoke per-iteration) ... [Compensation Throw Event] ` When compensation thrown: Default: one \"Release Reservation\" runs, responsible for all reservations. With MI handler: one \"Release Reservation\" per item (no LIFO guarantee). Considerations for MI compensation: Per-iteration handlers: Handler typically runs once per completed iteration. For 100 reservations: 100 release calls. Performance: may be slow if many iterations. Variables passed: Each iteration's local variables (per Set 14 Q21). Handler can know which item to undo. Idempotency: Handler should be idempotent: per Set 14 Q20. Re-running shouldn't cause issues. Camunda 8 support: Verify per version: Compensation Boundary support: typically yes. MI compensation specifics: verify behavior. Alternative if MI compensation tricky: Pattern: Subprocess wrapping MI: Embedded Subprocess containing MI. Compensation Boundary on Subprocess. Handler: compensates all items (via own logic). Pattern: Manual compensation tracking: During MI: track completed items. On failure: explicit compensation loop. More control; more code. Best practices: Test MI compensation: more complex than single-task. Idempotent handlers: critical. Document compensation semantics: per activity. Avoid over-compensation: don't undo what wasn't done. For the scenario (Compensation Boundary on MI Service Task): Typically supported. Each completed iteration → compensation runs. Verify Camunda 8 version behavior. For complex undo scenarios: Test thoroughly: more iterations = more compensation calls. Failure-on-compensation: per Set 13 Q5; can lead to Incident. Tooling: Operate: shows compensation activations. Logging: track which iterations compensated. Metrics: rate of compensation events. Anti-patterns: Forgetting compensation for MI: partial state. Non-idempotent MI compensation: chaos on retry. Compensation handler heavier than original: review design.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q08",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

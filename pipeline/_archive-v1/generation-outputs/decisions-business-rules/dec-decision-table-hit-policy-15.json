@@ -1,0 +1,27 @@
+{
+  "id": "dec-decision-table-hit-policy-15",
+  "topic": "decisions-business-rules",
+  "subtopic": "hit-policy",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Retailer runs a Camunda 8.8 storefront that serves 12000 customers per hour and picks one advertisement per visitor from a DMN table keyed by age band. The table's hit policy is FIRST, and for a 19 year old visitor several rules in the table are simultaneously satisfied. The operations lead needs to confirm which single output the engine returns into the storefront process for that visitor.",
+  "question": "When several rules match a single input under the FIRST hit policy, which output does the deployed decision table return?",
+  "options": [
+    { "id": "a", "text": "The output of every satisfied rule is returned in the decision result as a list ordered by the matching rule positions" },
+    { "id": "b", "text": "The output of any one satisfied rule is returned in the decision result, provided every match yields the same output value" },
+    { "id": "c", "text": "The output of the first satisfied rule in document order is returned in the decision result and later matches are ignored" },
+    { "id": "d", "text": "The output of the last satisfied rule in document order is returned in the decision result and earlier matches are ignored" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Returning a list of all satisfied outputs ordered by rule position is how the docs describe RULE ORDER, not FIRST, which collapses the result to a single output." },
+    "b": { "text": "Incorrect. The equal-output guarantee is the documented rule for ANY. FIRST does not require satisfied rules to share an output entry to return cleanly." },
+    "c": { "text": "Correct. The First section states that multiple rules can be satisfied but the result contains only the output of the first satisfied rule, illustrated by the 19 year old example where the rule for Cars is used." },
+    "d": { "text": "Incorrect. FIRST takes the first satisfied rule in document order, not the last; for the 19 year old visitor that is the Cars rule rather than any later match." }
+  },
+  "explanation": "FIRST allows several rules to be satisfied but reduces the result to a single output, that of the first satisfied rule in document order, which the advertisement example demonstrates by returning the Cars output for a 19 year old visitor.",
+  "docs": [
+    { "title": "DMN decision table hit policy", "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/" }
+  ]
+}

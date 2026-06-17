@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team deployed old process versions no longer used. Wants to clean up to declutter Operate. Wonders if can delete process definitions.",
+  "question": "Process definition deletion / archiving?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Process definitions in Camunda 8 can always be deleted at any time without preconditions -- this approach has limitations. md:21). Versions with active process instances cannot be deleted -- cancel or migrate them first. The delete is permanent and cascading: all finished instances of that version, referenced decision/process instances, and associated user tasks in Tasklist are all removed. Decision definitions are also deletable per :25-36, but deleting the only existing version of a referenced decision causes incidents in dependent processes."
+    },
+    {
+      "id": "b",
+      "text": "Process definition versions can be deleted from Operate's Processes page using the Delete button, provided the version has no running instances. The delete is permanent and cascading. Old deployed versions that have been superseded by newer deployments are eligible for deletion once all their active instances are migrated or completed. Organizations with strict data lifecycle management or compliance requirements use this feature to remove obsolete process versions from operational data stores."
+    },
+    {
+      "id": "c",
+      "text": "Operate does support automatic retention-based cleanup of completed/cancelled process instances (configured in Operate/Zeebe settings), but this applies to process INSTANCES, not process DEFINITION versions. Process definition versions are retained indefinitely until explicitly deleted by an operator via the Operate UI or API. The retention policy for instances and the manual deletion of definition versions are separate mechanisms serving different purposes."
+    },
+    {
+      "id": "d",
+      "text": "md:9-23: Hard delete from Operate UI: Processes page → filter by process name + version → Delete button → confirm checkbox. md). Permanent + cascading effects per :12-17 warning: All finished process instances of the deleted version are removed from Operate. All decision and process instances referenced by deleted process instances are removed. If the definition contains user tasks, they are removed from Tasklist. Versioning (Set 13 Q28): old versions remain until explicitly deleted; bindingType decisions stay pinned to deployed-time version. Migrate active V1 → V2..."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Process definition lifecycle: Camunda 8 typical behavior: Active instances: Process instances running on a definition → definition can't be removed. Would orphan running processes. Without active instances: Deletion may be possible via API. Verify per version: specific support varies. For decluttering Operate: Approach 1: Filtering: Filter Operate by active definitions. Don't delete; just hide. Pros: preserves history. Cons: definitions clutter admin views. Approach 2: Archival: Soft delete / mark archived. Hidden from active lists. History preserved. Verify Operate version support. Approach 3: Hard delete (if supported): Permanent removal of definition + history. Caution: irreversible. Verify no active instances first. For old versions: Versioning (per Set 13 Q28): Multiple versions of same processId accumulate. Old versions: may have completed instances; new processes start on latest. Cleanup strategy: Don't delete versions with history: audit / compliance. Filter Operate to show only current versions. Archive policy: time-based. Data retention: Configure history retention (per Set 13 Q29). Old instances: auto-removed after TTL. Affects Operate index size. For SaaS: Cluster-level retention policies. Verify deletion capabilities per plan. For Self-Managed: More control over retention + cleanup. DB-level cleanup: power-user; risky. Use APIs: safer. Migration to new versions (per Set 14 Q53): Migrate active V1 instances to V2. Then V1 has no active instances → eligible for cleanup (if supported). Cohabitation: V1 + V2 coexist: V1 drains naturally. After draining: V1 candidates for cleanup. Backup before cleanup: Important: delete is destructive. Backup history before bulk deletion. Best practices: Don't delete with active instances. Use retention policies: automatic cleanup. Archive vs delete: prefer archive for compliance. Document retention: per process; what's kept how long. Anti-patterns: Delete to \"fix\" issues: loses history. No retention policy: data grows forever. Manual cleanup without backup: irreversible mistakes. For the scenario (old versions clutter): Recommended approach: 1. Identify old versions with no active instances. 2. Filter Operate to hide them (if no delete support). 3. Or: delete via API (verify support; backup first). 4. Establish retention policy to prevent accumulation. Periodic review: Quarterly cleanup: find candidates. Operations process: review + approve deletions. Audit log: track what was deleted. For multi-tenant clusters: Per-tenant cleanup: don't affect others. Tenant-aware tooling."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/delete-resources/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q58",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

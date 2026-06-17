@@ -1,0 +1,63 @@
+{
+  "id": "imp-set13-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's process needs to listen on a WebSocket connection for real-time events. They wonder if Camunda has a WebSocket Connector or if external infrastructure is needed.",
+  "question": "WebSocket Connector / pattern for real-time events?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Native WebSocket Connector always -- partial; verify."
+    },
+    {
+      "id": "b",
+      "text": "It is technically impossible to integrate WebSocket-based real-time event streams with Camunda 8 process instances, and teams must use polling-based HTTP approaches instead. This misrepresents the documented behavior. WebSocket integration with Camunda 8 is achievable via bridging patterns. The most common approach is an external WebSocket gateway service that maintains the stateful WebSocket connection and translates incoming events into Camunda messages published via the Orchestration Cluster REST API. This decouples the long-lived connection from the Connector Runtime and allows independent scaling of the gateway component."
+    },
+    {
+      "id": "c",
+      "text": "The only viable approach for WebSocket events with Camunda 8 is to first stream all WebSocket messages to a Kafka topic and then use the Kafka Consumer Connector to consume them. This overstates the requirement. While the WebSocket-to-Kafka-to-Camunda pipeline is one valid pattern for decoupled event delivery, it is not the only option. A simpler direct gateway pattern -- an external WebSocket listener that publishes to Camunda via REST -- works without requiring Kafka infrastructure. Kafka adds resilience and buffering but is optional."
+    },
+    {
+      "id": "d",
+      "text": "8 does NOT ship a native WebSocket Connector -- neither the out-of-the-box catalog (connectors/out-of-the-box-connectors/ -- 0 grep hits for websocket) nor the protocol connectors (connectors/protocol/ -- only GraphQL / HTTP Webhook / HTTP Polling / REST / SOAP per filesystem) include WebSockets. md lifecycle); long-lived stateful WebSocket connections don't fit the runtime model. The recommended approach is an external WebSocket gateway service that translates incoming push events into Camunda messages via the Orchestration Cluster REST API. Canonical patterns:"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. WebSocket integration considerations: Why WebSockets are tricky for Connectors: Long-lived stateful connections: client maintains a connection; receives push events. Connectors traditionally: stateless event-driven (Webhook = HTTP push) or polling. Operationally: keeping WebSocket connections alive within Connector runtime requires careful lifecycle management. Pattern 1: External WebSocket gateway (most common): Dedicated service (e.g., Node.js / Java service) maintains WebSocket connection to the source. On event: service translates to a Camunda Message (REST API call) or Kafka topic event. Camunda Message Catch / Kafka Inbound Connector correlates. Pros: separation of concerns; gateway can reconnect, buffer, transform. Cons: extra service to operate. Pattern 2: Camunda Webhook Inbound Connector: If source can push HTTP webhook events (not WebSocket): use Webhook Connector directly. Many SaaS systems offer webhooks as an alternative. Pattern 3: Custom Connector via SDK: Build an Inbound Connector that opens a WebSocket. Handles reconnection, event parsing, correlation key extraction. Pros: integrated; cons: complex to do right (reconnection, buffering). Pattern 4: Translate to event stream: WebSocket events → Kafka topic (via gateway) → Camunda Kafka Inbound Connector. Decouples Camunda from WebSocket's stateful nature. Considerations: Reconnection: WebSocket disconnects need automated retry. Event buffering: while reconnecting, events may be missed (depending on protocol). Backpressure: high-rate events may overwhelm Camunda. Auth + lifecycle: tokens / handshakes / heartbeats -- robust handling needed. Verify what Connectors are available; prefer external gateway for production WebSocket integrations unless native Connector exists and is mature."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. Incorrect."
+    },
+    "d": {
+      "text": "Correct. Overstates."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q34",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 12.0 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

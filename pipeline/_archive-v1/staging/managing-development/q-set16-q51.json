@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q51",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Operator wants to edit variable value mid-instance via Operate UI. Wonders if supported.",
+  "question": "Operate variable value editing in UI?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Operate typically supports variable editing in UI (verify per version): the Variables panel in the process instance view shows all current variable names and values. An edit icon next to each variable opens an inline editor where operators can modify the value and save. Complex types (objects, arrays) are edited via a JSON editor. Adding a missing variable is also supported. Changes are applied immediately via the Modify Variables API and are logged in the operations audit trail. Administrative or operator role permissions are required for this action."
+    },
+    {
+      "id": "b",
+      "text": "Operate provides variable editing capability through the Variables panel in the process instance view. The UI displays an edit icon next to each variable, allowing operators to modify or add variables without writing code or calling APIs directly. md and is specifically designed for operational incident resolution scenarios. A read-only Operate UI would make incident recovery impossible through the GUI and would force all corrections through API calls, significantly increasing operational toil."
+    },
+    {
+      "id": "c",
+      "text": "API only -- this is only partially correct. While the underlying variable modification does call the Modify Variables API behind the scenes, Operate's UI provides a graphical wrapper for this operation. Operators do not need to construct API calls or use command-line tools. The Variables panel in the process instance view has inline editing with an edit icon and a save button. For teams without direct API access or technical staff performing incident triage, the Operate UI editing capability is essential."
+    },
+    {
+      "id": "d",
+      "text": "md. The use case is operational incident resolution: when a process instance is stuck due to a bad variable value (wrong customer tier, incorrect amount, missing field), operators can fix it through Operate's UI without API calls or process cancellation."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Operate variable editing: UI workflow per operate/userguide/resolve-incidents-update-variables.md:149-155 (verbatim \"click the edit icon next to the orderValue variable\", \"Edit the variable\", \"you can also add a variable if a variable is missing\"): 1. Open process instance view. 2. Variables panel: visible. 3. Click edit icon next to the variable name. 4. Modify value in the inline editor. 5. Save: confirmation; can also add a missing variable. Behind the scenes: Calls Modify Variables API (per Set 16 Q14). Variable updated in scope. Audit log records. Permissions: Required: Admin / operator role: typical. Per tenant (if multi-tenant): tenant-scoped permission. Audit: who modified what. For sensitive variables: Some installations: restrict editing certain variables. Tagged sensitive: redact / disable edit. For complex types: JSON editor: structured edit. Validation: syntax check. Save: parses JSON. For variable scopes: Process root vs subprocess scope: select scope before edit. Element instance scope: less common to edit. For audit visibility: Operation log: shows in Operate. Who, when, what changed. Compliance: traceable changes. For partial fixes: Fix data mid-instance: don't cancel + restart. Continue with corrected: efficient. Caution: Side effects: workers may have stale view. In-flight workers: have snapshot of variables. New evaluations: get new value. For best results: Pair with retry / restart of pending elements. Modify Process Instance (per Set 13 Q53) for more control. For testing: Modify in dev: verify behavior. Stage rehearsal: before prod. For automation: API for scripted updates: bulk via API. Operate UI: ad-hoc. For complex modifications: Multi-variable edit: in one operation. Verify atomic: per Operate version. For history viewing: Variable history: previous values (verify support). Audit trail: when changed. Best practices: Document reason: in operation notes. Authorise carefully: not every user. Test post-edit: process behaves correctly. Use sparingly: design issue indicator. Anti-patterns: Routine variable edits: process design flaw. No audit: lost accountability. Skip validations: invalid downstream. For the scenario: UI edit: simplest. Save + verify: confirm change. Document: why."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Operate variable editing: UI workflow per operate/userguide/resolve-incidents-update-variables.md:149-155 (verbatim \"click the edit icon next to the orderValue variable\", \"Edit the variable\", \"you can also add a variable if a variable is missing\"): 1. Open process instance view. 2. Variables panel: visible. 3. Click edit icon next to the variable name. 4. Modify value in the inline editor. 5. Save: confirmation; can also add a missing variable. Behind the scenes: Calls Modify Variables API (per Set 16 Q14). Variable updated in scope. Audit log records. Permissions: Required: Admin / operator role: typical. Per tenant (if multi-tenant): tenant-scoped permission. Audit: who modified what. For sensitive variables: Some installations: restrict editing certain variables. Tagged sensitive: redact / disable edit. For complex types: JSON editor: structured edit. Validation: syntax check. Save: parses JSON. For variable scopes: Process root vs subprocess scope: select scope before edit. Element instance scope: less common to edit. For audit visibility: Operation log: shows in Operate. Who, when, what changed. Compliance: traceable changes. For partial fixes: Fix data mid-instance: don't cancel + restart. Continue with corrected: efficient. Caution: Side effects: workers may have stale view. In-flight workers: have snapshot of variables. New evaluations: get new value. For best results: Pair with retry / restart of pending elements. Modify Process Instance (per Set 13 Q53) for more control. For testing: Modify in dev: verify behavior. Stage rehearsal: before prod. For automation: API for scripted updates: bulk via API. Operate UI: ad-hoc. For complex modifications: Multi-variable edit: in one operation. Verify atomic: per Operate version. For history viewing: Variable history: previous values (verify support). Audit trail: when changed. Best practices: Document reason: in operation notes. Authorise carefully: not every user. Test post-edit: process behaves correctly. Use sparingly: design issue indicator. Anti-patterns: Routine variable edits: process design flaw. No audit: lost accountability. Skip validations: invalid downstream. For the scenario: UI edit: simplest. Save + verify: confirm change. Document: why.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q51",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[2]"
+      }
+    ]
+  }
+}

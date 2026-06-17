@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "SaaS subscription billing must charge every 30 days, starting at signup, indefinitely until cancellation. Team models Timer Catch Event with a cycle.",
+  "question": "Which timer expression is correct?",
+  "options": [
+    {
+      "id": "a",
+      "text": "duration: P30D -- a single duration expression that causes the process to pause for exactly 30 days after activation, then fire once and continue. For indefinite recurring billing at 30-day intervals, a single-fire duration is structurally insufficient -- it would require an explicit loop construct in the BPMN model."
+    },
+    {
+      "id": "b",
+      "text": "cycle: R/P30D -- this is the ISO 8601 repeating interval syntax used for cycle timer expressions in BPMN. The R prefix without a repetition count means \"repeat indefinitely\", and P30D is the 30-day period between firings. Zeebe evaluates this expression on a Timer Catch Event and automatically re-arms the timer after each firing, creating an unbounded 30-day billing cycle. No BPMN loop, no additional expressions, and no manual re-arming are required. This is the canonical expression for indefinite recurring schedules."
+    },
+    {
+      "id": "c",
+      "text": "date: =now() + duration(\"P30D\") -- a date timer expression computing the absolute point in time 30 days from now using the FEEL now() function. While this expression produces a valid single future timestamp for a one-off scheduled firing, it fires exactly once at that computed moment. To bill again 30 days after that, the process would need to loop back and re-evaluate the expression, effectively rebuilding the cycle manually. This adds complexity and is not as clean or idiomatic as the built-in cycle syntax for recurring intervals."
+    },
+    {
+      "id": "d",
+      "text": "cycle: PT30M -- this expression uses the ISO 8601 T designator which separates the date portion from the time portion. In ISO 8601 duration notation P30D means 30 days, but PT30M means 30 minutes (P=period, T=time component, M after T means minutes). Using PT30M would fire the billing cycle every 30 minutes, resulting in extremely frequent erroneous charges instead of monthly billing. The confusion between P30D and PT30M is a common ISO 8601 notation trap."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. ISO 8601 R/P30D = repeating unbounded 30-day period; Zeebe re-arms automatically."
+    },
+    "b": {
+      "text": "Correct. Single duration, not cycle."
+    },
+    "c": {
+      "text": "Incorrect. Single fire moment."
+    },
+    "d": {
+      "text": "Incorrect. PT30M = 30 minutes (T-prefix; M means minutes after T)."
+    }
+  },
+  "explanation": "Single duration, not cycle.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q13",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

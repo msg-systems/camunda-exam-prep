@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-32",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Echo Insurance processes 16000 claims per day in Camunda 8.8 and an architect must plan how a message with a set correlation key, no message ID and a positive TTL is handled when it arrives on a message start event of the claims intake process from the upstream broker.",
+  "question": "Which behavior does the correlation overview document for a message with set correlation key, no message ID and a positive TTL on a start event?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A new instance is started if no instance with the correlation key set at start is active during the lifetime of the message, and new equal messages are buffered"
+    },
+    {
+      "id": "b",
+      "text": "A new instance is always started for every message, with a positive TTL guaranteeing buffering and letting every message create its own instance in parallel each time"
+    },
+    {
+      "id": "c",
+      "text": "The message is correlated to the most recently completed instance with the matching correlation key, reactivating it for the duration of the TTL window"
+    },
+    {
+      "id": "d",
+      "text": "The message is rejected as duplicate because the correlation key alone is sufficient to identify a duplicate even without a message ID being provided at all"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The overview table shows that with correlation key set, message ID not set and TTL > 0 on a start event, a new instance is started if no instance with that key is active during the lifetime of the message, and equal messages are buffered."
+    },
+    "b": {
+      "text": "Incorrect. The same row in the overview table guards against duplicate active instances with the same correlation key; not every message starts a new instance, even with a positive TTL set."
+    },
+    "c": {
+      "text": "Incorrect. The overview never reactivates completed instances; start-event correlation creates a new instance or buffers the message, but does not revisit historical instances at all."
+    },
+    "d": {
+      "text": "Incorrect. Without a message ID the uniqueness check is disabled; the row only guards against an active instance sharing the correlation key, not against duplicate publications."
+    }
+  },
+  "explanation": "The Message correlation overview table for set correlation key, message ID not set and TTL > 0 on a start event documents that a new instance is started if no instance with that key is active during the lifetime of the message, with equal messages buffered behind the active instance.",
+  "docs": [
+    {
+      "title": "Messages",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

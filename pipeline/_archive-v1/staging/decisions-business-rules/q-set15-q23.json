@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN input column for \"age\" uses range expression [18..65]. Team wonders what range syntax means in DMN.",
+  "question": "DMN input range expressions?",
+  "options": [
+    {
+      "id": "a",
+      "text": "b] half-open (excludes left, includes right). Additional unary test forms: <5 (less than), >10 (greater than), <=20, >=15 (comparisons); 5,10,15 explicit list (OR semantics); - wildcard matches any value; not(5) negation. Input value exposed as ? placeholder in complex FEEL unary-test expressions."
+    },
+    {
+      "id": "b",
+      "text": "DMN input entries only support equality checks and cannot express range conditions -- this claim does not fully apply. FEEL unary tests (used in DMN input cells) provide rich range expression capabilities. 65] matches any value from 18 to 65 inclusive. Open intervals, half-open intervals, comparisons (<, >, <=, >=), explicit lists (5,10,15), negation (not(5)), and wildcards (-) are all part of the FEEL unary test syntax. Range expressions are one of the most commonly used DMN features for modeling age brackets, price tiers, date ranges, and other interval-based business rules."
+    },
+    {
+      "id": "c",
+      "text": "Square brackets and parentheses in FEEL range expressions are interchangeable and have no functional difference -- this approach has limitations. Bracket choice is precisely defined in FEEL semantics and directly affects which values match: square brackets [ or ] denote a closed endpoint (includes the endpoint value), while parentheses ( or ) denote an open endpoint (excludes the endpoint value). , 65 all match. , 64 match (18 and 65 excluded). 65) include 18 but exclude 65."
+    },
+    {
+      "id": "d",
+      "text": ", age between 18 and 65) and works for full FEEL expressions. 65] for closed intervals, with bracket/parenthesis notation controlling endpoint inclusion."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. FEEL unary tests (input entries in decision tables): Range notation: Closed interval [a..b]: Includes both endpoints: a ≤ x ≤ b. Example: [18..65] → ages 18 through 65 inclusive. Open interval (a..b): Excludes both endpoints: a 10: greater than 10. =15: ≥ 15. Equality: 5: equals 5. \"abc\": equals string \"abc\". Negation: not(5): not equal to 5. not(\"abc\"): not equal to \"abc\". Disjunction (OR): 5,10,15: equals 5 OR 10 OR 15. 20: less than 5 OR greater than 20. Wildcard: -: any value (matches everything). Examples in DMN table input entries: | Age | Tier | Output | |-----|------|--------| | 65 | - | \"senior\" | For \"age 18-65, any tier\" → adult: Input entry: [18..65] for age. Input entry: - for tier. Dates and times in ranges: feel [date(\"2026-01-01\")..date(\"2026-12-31\")] Date range; valid throughout 2026. feel date(\"2026-05-15\") After May 15, 2026. Strings in ranges (less common): feel [\"A\"..\"M\"] Strings starting with A through M (lexicographic). Complex expressions in inputs (FEEL unary-tests ? placeholder per feel-unary-tests.md:13, :135): In FEEL unary-tests the input value is exposed via the special variable ?: feel contains(?, \"priority\") Returns true if the input string contains the substring \"priority\". The ? placeholder lets unary-tests use full FEEL boolean expressions, not just intervals/lists. For Decision Table evaluation: Engine evaluates each rule's input entries. Each entry against the corresponding input variable. All entries true → rule matches. Hit policy determines what to do with matches (per Set 13 Q23, Set 14 Q23). Common pitfalls: Pitfall 1: Off-by-one in ranges: [18..65] includes 65; [18..65) excludes 65. Verify which is intended. Pitfall 2: Mixed types: [1..10] for string input → error. Match types. Pitfall 3: Overlapping ranges in UNIQUE: [1..10] and [5..15] both match for 7. UNIQUE expects single match. Fix: use FIRST or ANY hit policy if intentional; or refine ranges. Best practices: Use range notation for numeric / date inputs: clearer than multiple comparisons. Document inclusion: brackets vs parens matter. Test boundary values: exact endpoints. Use -` for \"any\" rather than overlapping ranges."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "FEEL unary tests (input entries in decision tables): Range notation: Closed interval [a..b]: Includes both endpoints: a ≤ x ≤ b. Example: [18..65] → ages 18 through 65 inclusive. Open interval (a..b): Excludes both endpoints: a 10: greater than 10. =15: ≥ 15. Equality: 5: equals 5. \"abc\": equals string \"abc\". Negation: not(5): not equal to 5. not(\"abc\"): not equal to \"abc\". Disjunction (OR): 5,10,15: equals 5 OR 10 OR 15. 20: less than 5 OR greater than 20. Wildcard: -: any value (matches everything). Examples in DMN table input entries: | Age | Tier | Output | |-----|------|--------| | 65 | - | \"senior\" | For \"age 18-65, any tier\" → adult: Input entry: [18..65] for age. Input entry: - for tier. Dates and times in ranges: feel [date(\"2026-01-01\")..date(\"2026-12-31\")] Date range; valid throughout 2026. feel date(\"2026-05-15\") After May 15, 2026. Strings in ranges (less common): feel [\"A\"..\"M\"] Strings starting with A through M (lexicographic). Complex expressions in inputs (FEEL unary-tests ? placeholder per feel-unary-tests.md:13, :135): In FEEL unary-tests the input value is exposed via the special variable ?: feel contains(?, \"priority\") Returns true if the input string contains the substring \"priority\". The ? placeholder lets unary-tests use full FEEL boolean expressions, not just intervals/lists. For Decision Table evaluation: Engine evaluates each rule's input entries. Each entry against the corresponding input variable. All entries true → rule matches. Hit policy determines what to do with matches (per Set 13 Q23, Set 14 Q23). Common pitfalls: Pitfall 1: Off-by-one in ranges: [18..65] includes 65; [18..65) excludes 65. Verify which is intended. Pitfall 2: Mixed types: [1..10] for string input → error. Match types. Pitfall 3: Overlapping ranges in UNIQUE: [1..10] and [5..15] both match for 7. UNIQUE expects single match. Fix: use FIRST or ANY hit policy if intentional; or refine ranges. Best practices: Use range notation for numeric / date inputs: clearer than multiple comparisons. Document inclusion: brackets vs parens matter. Test boundary values: exact endpoints. Use -` for \"any\" rather than overlapping ranges.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-unary-tests/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

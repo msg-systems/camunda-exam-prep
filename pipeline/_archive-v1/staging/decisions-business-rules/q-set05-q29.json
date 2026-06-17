@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Two DMN decision tables (in the same DRD) both apply the same FEEL formula for adjusting tax (e.g., =tax * if region = \"EU\" then 1.1 else 1.0). The team wants to extract the formula into a reusable artifact referenced by both tables.",
+  "question": "Which DMN construct fits in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Add a Business Knowledge Model (BKM) at the DRD level and reference it from both tax decision tables. 6 as a DMN-spec construct for reusable functions invoked via Knowledge Requirement links. Cross-decision BKM reuse required by this scenario -- sharing the formula across two distinct decision tables -- is outside the current supported scope."
+    },
+    {
+      "id": "b",
+      "text": "\"/></informationRequirement>). The engine resolves the shared decision once per DRD evaluation, making its result available to both dependent tables through the required-decision's ID as a context variable. This is the canonical cross-table reuse pattern in Camunda 8."
+    },
+    {
+      "id": "c",
+      "text": "Move the shared formula to a BPMN Script Task placed between the two Business Rule Tasks in the process flow. This approach crosses the tool boundary between DMN decision logic and BPMN orchestration logic. It forces the formula to be evaluated in the process layer rather than the decision layer, removing DMN versioning and governance benefits and creating coupling between the formula's execution lifecycle and the surrounding BPMN task sequencing."
+    },
+    {
+      "id": "d",
+      "text": "DMN does not support reusable logic at all; the formula must be duplicated in both decision tables. This is factually incorrect. Camunda 8's DMN engine supports two reuse mechanisms: Business Knowledge Model for within-single-decision function reuse, and Information Requirement links to a shared Literal Expression decision for cross-table reuse. The Required-Decision pattern -- linking both tables to one shared decision -- is the canonical multi-table reuse solution."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Modeling the shared formula as its own decision (decision body = literal expression) and linking it from both tax tables via informationRequirement is the canonical, executable C8 path. Result is accessible inside each dependent decision by the required decision's ID (per decision-requirements-graph.md:90-104). Engine auto-evaluates upstream dependencies when the top-level decision is invoked."
+    },
+    "b": {
+      "text": "Correct. BKM exists in Camunda 8 since 8.6 (per dmn.md:54-75) and is the DMN-1.3 standard for reusable functions invoked via Knowledge Requirement. However, the docs explicitly state: \"Currently, you can only reuse BKMs within the same decision\" (dmn.md:64). Cross-decision BKM reuse -- which the scenario requires -- is not yet supported. Also, Operate cannot show BKM evaluation results (dmn.md:56-58). Use BKM when the reuse is inside a single decision body; use Required-Decision (option a) for cross-table reuse."
+    },
+    "c": {
+      "text": "Incorrect. Mixes BPMN orchestration and DMN decision logic; harder to govern + version separately from BRTs."
+    },
+    "d": {
+      "text": "Incorrect. DMN's Required-Decision pattern + (within-decision) BKM both provide reuse."
+    }
+  },
+  "explanation": "BKM exists in Camunda 8 since 8.6 (per dmn.md:54-75) and is the DMN-1.3 standard for reusable functions invoked via Knowledge Requirement. However, the docs explicitly state: \"Currently, you can only reuse BKMs within the same decision\" (dmn.md:64). Cross-decision BKM reuse -- which the scenario requires -- is not yet supported. Also, Operate cannot show BKM evaluation results (dmn.md:56-58). Use BKM when the reuse is inside a single decision body; use Required-Decision (option a) for cross-table reuse.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-requirements-graph/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q29",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

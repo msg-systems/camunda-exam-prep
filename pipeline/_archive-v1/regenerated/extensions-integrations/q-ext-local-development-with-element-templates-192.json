@@ -1,0 +1,50 @@
+{
+  "id": "ext-local-development-with-element-templates-192",
+  "topic": "extensions-integrations",
+  "subtopic": "local-development",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Retail runs Camunda 8.8 self-managed and wants to script the deployment of additional form resources for 8 releases per quarter, instead of clicking through Desktop Modeler each time. The platform team will call the documented Orchestration Cluster REST API from their CI pipeline to deploy each user-signup.form file that element templates reference.",
+  "question": "Which Orchestration Cluster REST API call deploys an additional form or DMN resource referenced by an element template?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Send a POST request to /v2/deployments with the resource attached as the multipart form field named resources, e.g. curl -F resources=@user-signup.form http://localhost:8080/v2/deployments"
+    },
+    {
+      "id": "b",
+      "text": "Send a POST request to /v2/forms with the resource attached as a multipart form field named file, e.g. curl -F file=@user-signup.form http://localhost:8080/v2/forms, for each form release"
+    },
+    {
+      "id": "c",
+      "text": "Send a PUT request to /v2/deployments with the resource as a raw application/octet-stream body and the filename declared in an X-Resource-Name header for each form release"
+    },
+    {
+      "id": "d",
+      "text": "Send a POST request to /v2/deployments/forms with a JSON body that contains a base64 encoded resource field, plus the resource name and tenant identifier alongside the encoded form"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs show a POST to /v2/deployments with the resource attached as the multipart form field named resources, illustrated by curl -F resources=@user-signup.form, and the response contains the deployed form details under deployments[].form."
+    },
+    "b": {
+      "text": "Incorrect. There is no /v2/forms endpoint shown for deploying form resources; the documented endpoint is /v2/deployments with the file attached as the resources multipart field."
+    },
+    "c": {
+      "text": "Incorrect. Deployments use POST with a multipart resources field, not a PUT with a raw octet-stream body and an X-Resource-Name header."
+    },
+    "d": {
+      "text": "Incorrect. The documented call is a multipart POST to /v2/deployments with the file attached as resources; there is no /v2/deployments/forms endpoint accepting a base64 JSON body."
+    }
+  },
+  "explanation": "Additional element-template dependencies such as forms, DMN diagrams, or subprocesses are deployed by sending a multipart POST to /v2/deployments on the Orchestration Cluster REST API, attaching each file as the resources field. The response contains the deployment key and the deployed resource details.",
+  "docs": [
+    {
+      "title": "Local development with element templates",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/local-development-with-element-templates/"
+    }
+  ]
+}

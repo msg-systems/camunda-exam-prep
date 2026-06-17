@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team integrates with AWS -- when an SQS message arrives on a configured queue, a Camunda 8 process should start. They configure the AWS SQS Inbound Connector with the queue ARN and AWS credentials (via secrets). After deploying, the team observes that messages on the SQS queue are consumed by the Connector but process instances are not started.",
+  "question": "What is the most likely cause?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The AWS credentials referenced in the Connector secrets are incorrect or expired; when the Connector attempts to consume messages from SQS with invalid credentials, SQS silently discards the requests and the messages disappear without any visible error. Incorrect AWS credentials produce explicit authentication error responses from the SQS API -- these appear in the Connector Runtime logs as error events, not as silent message discards. \""
+    },
+    {
+      "id": "b",
+      "text": "Inbound Connectors in Camunda 8 only support Message Catch Events for correlating to existing process instances and do not have the capability to trigger the start of new process instances from external events. Inbound Connectors support both usage patterns: they can trigger the start of a new process instance (via a Start Event in the BPMN) or correlate an event to an existing waiting instance (via an Intermediate Message Catch Event). The limitation described here is an incorrect characterization."
+    },
+    {
+      "id": "c",
+      "text": "The AWS SQS Inbound Connector requires a FIFO queue to guarantee ordered message delivery; standard SQS queues are unavailable because the Connector relies on FIFO sequencing for correct message correlation. The AWS SQS Inbound Connector supports both standard SQS queues and FIFO queues -- queue type is not a limitation. Standard queues provide at-least-once delivery which the Connector handles. Configuring a FIFO queue is optional and not a prerequisite for the Connector to function."
+    },
+    {
+      "id": "d",
+      "text": "The AWS SQS Inbound Connector requires process start configuration -- specifying which process definition to start (by process ID or key), how to extract the correlation key from the SQS message payload, and which fields to map as initial process variables. Without this BPMN wiring configuration, the Connector successfully authenticates with AWS and consumes messages from the queue (explaining why messages disappear) but has no target BPMN element to trigger and no process ID to use for instance creation."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Inbound Connectors (whether webhook, SQS, Kafka, etc.) require proper wiring to a BPMN element -- typically either a Process Start Event (creates new instance) or a Message Catch Event (correlates to existing instance). The Connector configuration must include: which BPMN process to start (if Start Event) and how to extract message data into process variables. Without this configuration, the Connector successfully consumes messages but has no target to trigger."
+    },
+    "b": {
+      "text": "Incorrect. Bad credentials would produce errors visible in logs, not silent discard."
+    },
+    "c": {
+      "text": "Incorrect. Inbound Connectors support both Start Events and Catch Events."
+    },
+    "d": {
+      "text": "Correct. SQS Connector supports both standard and FIFO queues."
+    }
+  },
+  "explanation": "SQS Connector supports both standard and FIFO queues.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q34",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

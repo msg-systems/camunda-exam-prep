@@ -1,0 +1,27 @@
+{
+  "id": "ext-writing-good-workers-84",
+  "topic": "extensions-integrations",
+  "subtopic": "process solution",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Orion Retailer runs an order fulfillment process on Camunda 8.8 that calls 3 synchronous REST services for payment, inventory, and shipping. The platform team handles 22000 orders per day and is deciding whether to ship one process solution that owns all 3 workers and the BPMN model or to split each worker into its own deployable application from day one.",
+  "question": "What does the Camunda 8.8 best-practices guide recommend as the default packaging for the glue code workers of a single process?",
+  "options": [
+    { "id": "a", "text": "Bundle all glue code workers and the BPMN model into one process solution application that is versioned, tested, and deployed together as a single self-contained unit" },
+    { "id": "b", "text": "Deploy each job worker as its own standalone microservice from day one, keeping the BPMN model in a separate central modeling repository owned by a platform team" },
+    { "id": "c", "text": "Embed each worker directly inside the calling system itself, so payment runs in the payment service and shipping runs in the shipping service with no shared application" },
+    { "id": "d", "text": "Run all workers inside the Zeebe broker as in-process handlers and keep the BPMN model in a separate deployment pipeline owned by the operations team" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The guide recommends implementing all glue code in one process solution application that also deploys the BPMN model, producing a self-contained unit that is easy to version, test, integrate, and deploy." },
+    "b": { "text": "Incorrect. Splitting every worker into its own service is described only as an exception for scaling, throttling, or polyglot needs, not the default packaging." },
+    "c": { "text": "Incorrect. Embedding workers in the called systems is not the recommended pattern; the default is a self-contained process solution holding the glue code." },
+    "d": { "text": "Incorrect. Job workers run as external clients, not inside the Zeebe broker; the recommended default is one process solution application owning the workers and model." }
+  },
+  "explanation": "The Camunda 8.8 writing-good-workers guide recommends a single process solution application that contains all glue code workers and deploys the BPMN model, with carved-out workers used only when a task needs independent scaling, throttling, or a different language.",
+  "docs": [
+    { "title": "Writing good workers", "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/" }
+  ]
+}

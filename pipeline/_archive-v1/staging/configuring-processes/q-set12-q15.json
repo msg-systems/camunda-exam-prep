@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An IDP application's accuracy isn't great -- frequent low-confidence extractions trigger human review. The team wants to improve IDP accuracy over time by feeding back human corrections.",
+  "question": "Does IDP support feedback loops from human corrections?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda IDP improves via prompt refinement + extraction-model selection, NOT weight-level retraining (Pattern #40). md:108, :127-145 is in-context learning driven by edits the modeler makes on the IDP application: 1. md:200-205 perms allow Add/Edit/Delete of fields/prompts for editor+). 2. Reviewer edits the field Prompt to clarify, add example phrasing, or expand expected formats. 3. md:48-52) and saves them as test cases on the Validate extraction tab (:127-145). 4. Republish the IDP application via Web Modeler versioning. No weights are updated; no training corpus is sent back to the LLM provider. 8 IDP feature set."
+    },
+    {
+      "id": "b",
+      "text": "8 IDP is specifically designed with an iterative improvement loop. When human reviewers correct low-confidence extractions, those corrections inform prompt refinement and sample document curation. Modelers edit the field prompts in the IDP application to clarify instructions, add example phrasing, or expand expected formats. Additional sample documents can be added and saved as test cases on the Validate extraction tab. After these changes, the IDP application is republished with the improved prompts."
+    },
+    {
+      "id": "c",
+      "text": "md:82. ) that are not retrained based on user corrections. No corrected field values or reviewed documents are sent back to the LLM provider as training data. Corrections feed back as human-driven prompt refinements and additional sample documents stored within the IDP application itself. The LLM's weights remain unchanged throughout the IDP lifecycle."
+    },
+    {
+      "id": "d",
+      "text": "Re-uploading sample documents after corrections is a helpful step in the IDP improvement loop but is not the highest-leverage action. md:108, is editing the field prompt to clarify what the extraction should return, add example phrasing for the expected format, or explicitly describe edge cases. Sample documents help verify and diversify test coverage, but if the prompt itself is unclear or ambiguous, more samples alone will not fully resolve accuracy issues. The optimal approach combines prompt refinement with additional representative samples."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda 8.8 IDP's improvement model is prompt-engineering + sample curation, NOT model retraining (Pattern #40). No initial training: the extraction model is a pre-trained LLM (Amazon Bedrock, AWS Bedrock-anthropic, OpenAI/Azure-OpenAI, etc. per idp-reference.md). Team does NOT train it. Production extraction: Documents come in; LLM extracts per the configured field Prompts; confidence scores attached. High-confidence → automated path. Low-confidence (below the threshold the application defines) → human review path in a User Task; reviewer corrects field values. Improvement loop (per idp-unstructured-extraction.md:48-52, :108, :127-145): Edit the field Prompt: clearer description, list-of-expected-values, edge-case wording (:108: \"For incorrect field results, edit the field Prompt and retry the data extraction until the results are accurate.\"). Add more sample documents: 3-5+ for layout variation (:48-52); save mappings as test cases on the Validate tab (:127). Switch extraction model: if results stay weak with Model X, try Model Y (e.g., Bedrock-anthropic Claude vs Bedrock-Titan). Re-publish the IDP application; the BPMN flow auto-picks up the new prompts at next run. No fine-tuning is performed; no corrected data is sent to the LLM provider as training data. Per idp-key-concepts.md:82 the pre-trained model is \"adapted … without extensive retraining.\" Over time, accuracy climbs because prompts get sharper + sample test cases catch regressions, not because the model weights change."
+    },
+    "b": {
+      "text": "Incorrect. IDP does improve, via prompts + samples (not retraining)."
+    },
+    "c": {
+      "text": "Incorrect. Corrections inform prompt edits / sample additions, not training data; no weight update."
+    },
+    "d": {
+      "text": "Incorrect. Sample re-upload alongside prompt edits -- both are valid loops; prompt is the higher-leverage knob."
+    }
+  },
+  "explanation": "Camunda 8.8 IDP's improvement model is prompt-engineering + sample curation, NOT model retraining (Pattern #40). No initial training: the extraction model is a pre-trained LLM (Amazon Bedrock, AWS Bedrock-anthropic, OpenAI/Azure-OpenAI, etc. per idp-reference.md). Team does NOT train it. Production extraction: Documents come in; LLM extracts per the configured field Prompts; confidence scores attached. High-confidence → automated path. Low-confidence (below the threshold the application defines) → human review path in a User Task; reviewer corrects field values. Improvement loop (per idp-unstructured-extraction.md:48-52, :108, :127-145): Edit the field Prompt: clearer description, list-of-expected-values, edge-case wording (:108: \"For incorrect field results, edit the field Prompt and retry the data extraction until the results are accurate.\"). Add more sample documents: 3-5+ for layout variation (:48-52); save mappings as test cases on the Validate tab (:127). Switch extraction model: if results stay weak with Model X, try Model Y (e.g., Bedrock-anthropic Claude vs Bedrock-Titan). Re-publish the IDP application; the BPMN flow auto-picks up the new prompts at next run. No fine-tuning is performed; no corrected data is sent to the LLM provider as training data. Per idp-key-concepts.md:82 the pre-trained model is \"adapted … without extensive retraining.\" Over time, accuracy climbs because prompts get sharper + sample test cases catch regressions, not because the model weights change.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/idp/idp-unstructured-extraction/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q15",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

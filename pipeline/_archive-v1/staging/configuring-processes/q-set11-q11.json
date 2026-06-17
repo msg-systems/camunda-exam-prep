@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q11",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task's worker returns null for a field that Output Mapping expects to project: Target: customerEmail, Source: =result.email. The worker returned {email: null}. The team wonders what happens.",
+  "question": "What does Output Mapping do when the source FEEL evaluates to null?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The target variable is set to null in process scope. FEEL doesn't error on null source; the projection produces customerEmail = null. = null can guard against it. No automatic skipping of the mapping or substitution with defaults -- null is a valid value in FEEL. com\"."
+    },
+    {
+      "id": "b",
+      "text": "Output Mapping fails and creates an Incident when the source FEEL expression evaluates to null -- this conflates null values with evaluation errors. FEEL treats null as a fully valid first-class value, not an exceptional condition that warrants an Incident. An Output Mapping with a null source expression result succeeds and sets the target variable to null in the process scope. Incidents are created only for genuine evaluation errors, not for null values."
+    },
+    {
+      "id": "c",
+      "text": "Output Mapping silently skips the assignment when the source evaluates to null, leaving the target variable unset -- this misrepresents the mapping behaviour in a critical way. FEEL null values are distinct from absent variables. When a mapping source evaluates to null, the mapping executes and writes null to the target variable. The variable exists in scope with a null value, which is different from the variable being undefined or absent. Downstream conditions checking for null will see it."
+    },
+    {
+      "id": "d",
+      "text": "Output Mapping automatically substitutes an empty string when the source evaluates to null -- this invents an auto-defaulting behaviour absent from Camunda 8's actual engine logic. FEEL has no automatic type coercion from null to empty string. email else \"\" in the source expression."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. FEEL treats null as a valid value (distinct from \"absent\" or \"error\"). Output Mapping with a FEEL source returning null sets the target variable to null in the target scope. Downstream: Reading the variable gets null. FEEL expressions: handle null per their semantic (= null returns null; + null returns null; etc.). FEEL is \"null-tolerant\" -- many operations return null when an input is null, rather than throwing. Gateway conditions: =customerEmail != null is true if value is non-null. Useful for null guards. Variations: Provide a default: =if result.email != null then result.email else \"default@example.com\". Coalesce-style: FEEL doesn't have a built-in coalesce(), but the if-then-else above achieves it. Conditional mapping: some BPMN engines support conditional mappings (skip the mapping if condition false); verify Camunda 8 support. Best practice: explicitly handle null in mappings rather than rely on downstream behaviour, especially for variables that downstream gateways / activities depend on."
+    },
+    "b": {
+      "text": "Incorrect. Null is valid."
+    },
+    "c": {
+      "text": "Incorrect. Null set; not skipped."
+    },
+    "d": {
+      "text": "Incorrect. No auto-default."
+    }
+  },
+  "explanation": "FEEL treats null as a valid value (distinct from \"absent\" or \"error\"). Output Mapping with a FEEL source returning null sets the target variable to null in the target scope. Downstream: Reading the variable gets null. FEEL expressions: handle null per their semantic (= null returns null; + null returns null; etc.). FEEL is \"null-tolerant\" -- many operations return null when an input is null, rather than throwing. Gateway conditions: =customerEmail != null is true if value is non-null. Useful for null guards. Variations: Provide a default: =if result.email != null then result.email else \"default@example.com\". Coalesce-style: FEEL doesn't have a built-in coalesce(), but the if-then-else above achieves it. Conditional mapping: some BPMN engines support conditional mappings (skip the mapping if condition false); verify Camunda 8 support. Best practice: explicitly handle null in mappings rather than rely on downstream behaviour, especially for variables that downstream gateways / activities depend on.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/#inputoutput-variable-mappings"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q11",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "dec-decision-table-hit-policy-13",
+  "topic": "decisions-business-rules",
+  "subtopic": "hit-policy",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Forge SaaS serves 3000 tenants from a Camunda 8.8 entitlement workflow that maps a single subscription tier onto a single price band through a DMN table. The product lead insists the chosen hit policy must guarantee one and only one result per evaluation and must raise a clear failure if anyone ever introduces overlapping rules during the next 5000 deployments.",
+  "question": "Which behaviour does the UNIQUE hit policy guarantee on a deployed Camunda 8.8 decision table when it evaluates an input?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only a single rule may be satisfied, and the result contains that one satisfied rule's output entries when it matches"
+    },
+    {
+      "id": "b",
+      "text": "Only a single rule may be satisfied, and the result contains the output entries of every rule in declared row order"
+    },
+    {
+      "id": "c",
+      "text": "Multiple rules may be satisfied, and the result contains the output entries of the first satisfied rule in row order"
+    },
+    {
+      "id": "d",
+      "text": "Multiple rules may be satisfied, and the result contains the output entries of every satisfied rule as a result list"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Unique section states that only a single rule can be satisfied or no rule at all, and the result contains the output entries of that satisfied rule."
+    },
+    "b": {
+      "text": "Incorrect. UNIQUE never returns the outputs of every rule. The docs say the result only carries the satisfied rule's output entries, not every row in the table."
+    },
+    "c": {
+      "text": "Incorrect. Allowing multiple satisfied rules describes other policies. Under UNIQUE, a second satisfied rule for the same input violates the hit policy."
+    },
+    "d": {
+      "text": "Incorrect. Returning a list of every satisfied rule describes RULE ORDER or COLLECT, not UNIQUE, which is restricted to a single satisfied rule's output."
+    }
+  },
+  "explanation": "UNIQUE guarantees that exactly one rule, or none, can be satisfied for a given input; the result carries only that satisfied rule's output entries, and any second match violates the policy.",
+  "docs": [
+    {
+      "title": "DMN decision table hit policy",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set16-q52",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team needs to track task age vs SLA. Tasks older than 24h flagged. Wonders monitoring approach.",
+  "question": "Task age vs SLA monitoring?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Tasklist displays the creation timestamp for each User Task and supports filtering and sorting by task age. The Tasklist REST API allows programmatic queries with age-based filters. Custom dashboards can query the API to build task age histograms and flag tasks exceeding SLA thresholds. At the BPMN level, a Timer Boundary Event on a User Task fires when the task has been active past the configured duration, enabling engine-level SLA escalation, reassignment, or manager notification paths."
+    },
+    {
+      "id": "b",
+      "text": "Manual check -- this is only partially workable at small scale but insufficient for production SLA management. Manually reviewing task lists every hour to find tasks older than 24 hours is error-prone, does not scale beyond a few dozen tasks, cannot generate automated alerts, and provides no historical trend data. A systematic SLA monitoring approach uses platform APIs to query task creation times, dashboards to visualize aged tasks, and either BPMN-level Timer Boundary Events on User Tasks (for BPMN-enforced escalation) or external alerting pipelines that trigger when tasks exceed their age threshold."
+    },
+    {
+      "id": "c",
+      "text": "Multiple approaches: Tasklist and Operate UIs show task creation timestamps and support filtering/sorting by age; the Tasklist REST API allows programmatic queries for tasks older than a threshold (using createdBefore or startedBefore filter parameters); custom dashboards (Grafana, BI tools) can visualize task age histograms and highlight SLA breaches; and BPMN Timer Boundary Events on User Tasks provide engine-level SLA enforcement -- when the timer fires, the process can escalate, reassign, or route to a manager path."
+    },
+    {
+      "id": "d",
+      "text": "Camunda does not automatically cancel User Tasks when they exceed a time threshold. A Timer Boundary Event on a User Task can be configured to fire after a duration and cancel the task (interrupting boundary) or trigger a parallel escalation (non-interrupting boundary)."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Task SLA monitoring: Multiple monitoring layers: Layer 1: Operate / Tasklist UI: Task list: shows creation time. Filter by age: > 24h, > 48h, etc. Sort by age: oldest first. Visual indicator: color-coded for SLA breach. Layer 2: Custom dashboards: Operate / Tasklist API: query tasks with age filter. BI tools: Grafana, Power BI dashboards. Visualise: P50 / P95 task age. Layer 3: BPMN-level SLA enforcement: Timer Boundary on User Task: ` [User Task: Approve] └─ [Timer Boundary (P24H, non-interrupting)] → [Send Reminder] └─ [Timer Boundary (P48H, interrupting)] → [Escalate] Auto-act on SLA breach. Layer 4: Metrics: Prometheus (per Set 13 Q56): Pending tasks by age bucket: counter. Histogram: distribution of task ages. Layer 5: Alerts: Aged-task threshold breach: alert ops / management. Per-process / per-team: granular. For SLA design: Per User Task: dueDate (per Set 16 Q15): explicit deadline. Timer Boundary: enforcement. Combined: dueDate + Timer. Per process: Process duration SLA: end-to-end. Multiple Timer Boundaries: cascade. Per business unit: Different SLAs per category: VIP vs standard. Dynamic: FEEL expression. For escalation: Pattern 1: Reminder: Non-interrupting Timer. Send email / Slack to assignee. Task continues. Pattern 2: Reassign: Interrupting Timer. Cancel task; create new for manager. Pattern 3: Auto-action: Timer fires; system completes with default. For low-stakes tasks. For tracking compliance: Metrics on SLA breach rate. Per assignee / team. Trend over time. For multi-tier SLAs: Warning at 80% of SLA: pre-emptive. Breach at 100%: action. Critical at 150%: escalate further. Operate / Tasklist age calculation: Now - task creation time = age. Compared to SLA: in / out. Display: hours / days. For variable SLAs: feel // SLA based on customer tier slaHours: if customer.tier = \"VIP\" then 4 else 24 Use in Timer Boundary dueDate: =now() + duration(\"PT\" + string(slaHours) + \"H\") ` For long-running tasks: Periodic check: scheduled job. Update aging metrics. For reporting: SLA adherence rate: percent meeting SLA. Average completion time. P95 completion time. Best practices: Define SLAs clearly: per task type. Implement Timer Boundary: actual enforcement. Monitor + alert: catch breaches. Communicate: assignees know expectations. Review: tune SLAs based on actuals. Anti-patterns: SLA without enforcement: just decoration. No monitoring: invisible breaches. Static SLAs: don't adapt to context. For the scenario (24h SLA): Tasklist UI: shows aged tasks. Timer Boundary: auto-escalate at 24h. Dashboard: monitor. Alert: ops when breached. For audit: Track SLA compliance: per task / process. Reports: management visibility. For continuous improvement: Identify slow steps: optimisation candidates. Bottleneck analysis: where time spent."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/tasklist/userguide/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q52",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

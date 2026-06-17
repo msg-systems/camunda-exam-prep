@@ -1,0 +1,56 @@
+{
+  "id": "imp-set16-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN DRD has rectangles labeled \"Decision\" and ovals labeled \"Input Data.\" Team wonders the difference.",
+  "question": "DMN Input Data vs Decision?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Different DRD element types: - Decision (rectangle): logic that produces output from inputs; what the engine evaluates. - Input Data (oval): external data passed into the DRD; not computed, just provided. - Relationship: Decisions have information requirements from Input Data and/or other Decisions. - In BPMN: Input Data corresponds to process variables passed to decision. - Visual purpose: clarifies what's computed vs what's external input."
+    },
+    {
+      "id": "b",
+      "text": "Decision elements (rectangles) and Input Data elements (ovals) have distinct semantics in DMN. A Decision contains a decision logic body (decision table, literal expression, invocation, or context) that is evaluated by the engine to produce an output. An Input Data element represents an external datum provided by the caller, containing no logic itself. Treating them as identical would eliminate the ability to distinguish between what the DMN model computes and what it receives as input, making DRD diagrams meaningless as architectural documentation."
+    },
+    {
+      "id": "c",
+      "text": "3 specification and remains a valid part of DMN modeling. While some DMN implementations may treat Input Data as purely documentary (not validated at runtime), it is not deprecated. Camunda 8's DMN engine and modelers support Input Data declarations as part of DRD modeling. Removing Input Data from DRDs would obscure the diagram's intent, hiding which external inputs are required by the decision model."
+    },
+    {
+      "id": "d",
+      "text": "Confusing Input Data ovals with Decision rectangles reflects a fundamental misunderstanding of DMN's DRD structure. Input Data elements represent external data provided to the model and have no computational logic. Only Decision elements contain logic (tables, expressions, invocations). Treating both as decisions would suggest that input data is computed by the DMN model itself, which mischaracterizes the architecture -- input data comes from outside (BPMN process variables, API callers) and is passed in, not derived."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. DRD element types: Decision (rectangle): Logic unit: evaluates given inputs. Has body: decision table, literal expression, etc. Outputs: results for callers. Information requirements: declares dependencies. Input Data (oval): External data: provided by caller (BPMN, API, parent). Not computed by DMN: just an input declaration. Typed: type matches expected data. Visual reference: clarifies what's external. Other DRD elements: BKM (Business Knowledge Model): reusable logic (per Set 14 Q25). Knowledge Source: external authority / documentation link. Relationships: Information requirement (solid arrow): Decision needs Decision or Input Data. Knowledge requirement (dashed arrow): Decision uses BKM. Authority requirement: Decision references Knowledge Source. Example DRD: ` [Input Data: customer] │ ▼ [Decision: calculate eligibility] │ ▼ [Decision: approve loan] ▲ │ [Input Data: loanAmount] ` Eligibility depends on customer. Approve loan depends on eligibility + loanAmount. For Camunda 8: Input Data: documentary in many implementations. Actual data: passed from BPMN via Input Mapping on Business Rule Task. Tools: may use Input Data for documentation; runtime engine consumes variables. For BPMN invocation: Business Rule Task references top decision (e.g., \"approve loan\"). Input Mapping provides variables. DMN engine resolves dependencies (other decisions in DRG). Input Data declarations align with provided variables. For DMN-only invocation: Standalone decision (per Set 14 Q28): API call provides inputs. Inputs match Input Data declarations. Modelling best practices: Use Input Data for clarity: shows where data originates. Type Input Data: helps validation. Don't omit: even if documentary, helps readers. For DRD organisation: Inputs at top / left: visual convention. Decisions flow down / right. Layered: lower-level decisions feed higher-level. Anti-patterns: No Input Data declarations: unclear where data comes from. Conflating Decision and Input: confuses readers. For complex DRDs: Many Input Data + Decisions: visualise dependencies. DRD as"
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "DRD element types: Decision (rectangle): Logic unit: evaluates given inputs. Has body: decision table, literal expression, etc. Outputs: results for callers. Information requirements: declares dependencies. Input Data (oval): External data: provided by caller (BPMN, API, parent). Not computed by DMN: just an input declaration. Typed: type matches expected data. Visual reference: clarifies what's external. Other DRD elements: BKM (Business Knowledge Model): reusable logic (per Set 14 Q25). Knowledge Source: external authority / documentation link. Relationships: Information requirement (solid arrow): Decision needs Decision or Input Data. Knowledge requirement (dashed arrow): Decision uses BKM. Authority requirement: Decision references Knowledge Source. Example DRD: ` [Input Data: customer] │ ▼ [Decision: calculate eligibility] │ ▼ [Decision: approve loan] ▲ │ [Input Data: loanAmount] ` Eligibility depends on customer. Approve loan depends on eligibility + loanAmount. For Camunda 8: Input Data: documentary in many implementations. Actual data: passed from BPMN via Input Mapping on Business Rule Task. Tools: may use Input Data for documentation; runtime engine consumes variables. For BPMN invocation: Business Rule Task references top decision (e.g., \"approve loan\"). Input Mapping provides variables. DMN engine resolves dependencies (other decisions in DRG). Input Data declarations align with provided variables. For DMN-only invocation: Standalone decision (per Set 14 Q28): API call provides inputs. Inputs match Input Data declarations. Modelling best practices: Use Input Data for clarity: shows where data originates. Type Input Data: helps validation. Don't omit: even if documentary, helps readers. For DRD organisation: Inputs at top / left: visual convention. Decisions flow down / right. Layered: lower-level decisions feed higher-level. Anti-patterns: No Input Data declarations: unclear where data comes from. Conflating Decision and Input: confuses readers. For complex DRDs: Many Input Data + Decisions: visualise dependencies. DRD as",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

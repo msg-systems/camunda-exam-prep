@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q24",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A telecom company's pricing engine determines a customer's plan tier. The DMN Decision Table plan-tier evaluates customer attributes against multiple rules -- typically 1-3 rules match per customer. The business asks: \"I want to know how many rules matched for each customer (used as a 'qualification score' -- more rules → better candidate for upgrade).\" The output column is tier (string). The team needs to add a way to count matching rules.",
+  "question": "Which Hit Policy + aggregator combination returns the count of matching rules?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use COLLECT without an aggregator to return a list of all matching output values, then apply a downstream FEEL count() function in a Script Task to compute the number of matching rules. COLLECT without aggregator returns the list of matching outputs, and counting that list in a Script Task would produce the desired count -- but this reinvents the built-in COLLECT COUNT aggregator by adding an extra BPMN element for a calculation the DMN engine already performs natively."
+    },
+    {
+      "id": "b",
+      "text": "Use RULE ORDER hit policy which returns a list of all matching outputs ordered by their position in the rule table; count the list length downstream to obtain the number of matches. RULE ORDER returns a list of matching outputs in rule-definition order -- it is designed to preserve order for audit purposes, not to produce a count. While you could count the resulting list, this is less direct than using COLLECT COUNT, and RULE ORDER is semantically intended for ordered enumeration, not aggregation."
+    },
+    {
+      "id": "c",
+      "text": "COLLECT with COUNT aggregator. Returns the number of rules that matched as a single scalar integer value. COLLECT COUNT is the canonical DMN mechanism for \"how many rules matched\" -- the engine evaluates all rows in the decision table, counts the rules that match the given input, and returns the match count directly as a scalar integer, without needing any downstream processing step or extra BPMN element for the calculation."
+    },
+    {
+      "id": "d",
+      "text": "OUTPUT ORDER with a custom count column added to the decision table that increments for each matching rule. OUTPUT ORDER returns a list of all matching outputs sorted by the declared output priority of each row -- it is intended for ordered enumeration, not counting. \"Custom count column\" is not a recognised DMN concept. OUTPUT ORDER is also absent from Camunda 8's supported hit-policy list (which covers UNIQUE, ANY, FIRST, RULE ORDER, and COLLECT only)."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. COLLECT with COUNT aggregator is the canonical DMN policy for \"count matches\": the engine evaluates all rules, then returns the count of matching rules as a single scalar number. No downstream processing needed."
+    },
+    "b": {
+      "text": "Incorrect. Adding a downstream Script Task to count works but reinvents what COLLECT-COUNT does natively. Adds an extra BPMN element for no benefit."
+    },
+    "c": {
+      "text": "Correct. RULE ORDER returns a list of all matching outputs in rule-definition order -- not a count."
+    },
+    "d": {
+      "text": "Incorrect. OUTPUT ORDER returns a list sorted by output priority -- not a count. \"Custom count column\" is not a real DMN concept."
+    }
+  },
+  "explanation": "RULE ORDER returns a list of all matching outputs in rule-definition order -- not a count.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q24",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

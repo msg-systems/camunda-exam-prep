@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A TypeScript Job Worker handles validate-vat Service Tasks. The handler must occasionally fail the job with a specific BPMN error code (e.g., INVALID_VAT) -- to trigger an Error Boundary Event. Which @camunda8/sdk API call fits?",
+  "question": "Which @camunda8/sdk API call fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": ") -- the generic job failure method in the @camunda8/sdk TypeScript SDK. The fail method decrements the job retry count and, when retries reach zero, creates a Zeebe Incident visible in Operate. It does not propagate a BPMN error code to the process model, so an Error Boundary Event configured with errorCode = \"INVALID_VAT\" will not be triggered by calling fail."
+    },
+    {
+      "id": "b",
+      "text": "\"}) -- the @camunda8/sdk TypeScript SDK's explicit BPMN error method. This completes the job with a BPMN error that Zeebe propagates to the nearest matching Error Boundary Event or Error Event Subprocess subscribed to the INVALID_VAT error code. The worker signals a business error condition through the BPMN process model rather than a technical failure."
+    },
+    {
+      "id": "c",
+      "text": "Throw a JavaScript Error object and rely on the SDK to automatically convert it into a BPMN error with the required error code. Throwing an uncaught JS Error in the handler is treated as a job failure, not a BPMN error. error() method must be called explicitly with the appropriate errorCode to trigger Error Boundary Events."
+    },
+    {
+      "id": "d",
+      "text": "Return a special magic-field object {__error: \"INVALID_VAT\"} from the job handler function as a convention for signalling BPMN errors. The @camunda8/sdk has no magic-field convention for error signalling through return values. error({errorCode, errorMessage}) to propagate a BPMN error; there is no implicit detection of error-intent from returned objects or any special field names on returned values."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per apis-tools/typescript/api-reference/index.md:489, the @camunda8/sdk job worker handle exposes job.error({ errorCode, errorMessage? }) -- explicitly described as \"throws a business error\". The runtime propagates the errorCode to the nearest matching Error Catch (Boundary or Event Subprocess) per BPMN error propagation semantics."
+    },
+    "b": {
+      "text": "Correct. Per apis-tools/typescript/api-reference/index.md:487, job.fail({ errorMessage, retries?, retryBackoff? }) decrements retries and (when retries reach 0) creates an Incident; it does NOT propagate a BPMN error code."
+    },
+    "c": {
+      "text": "Incorrect. JS Error converts to failure, not BPMN error with errorCode."
+    },
+    "d": {
+      "text": "Incorrect. No magic-field convention."
+    }
+  },
+  "explanation": "Per apis-tools/typescript/api-reference/index.md:487, job.fail({ errorMessage, retries?, retryBackoff? }) decrements retries and (when retries reach 0) creates an Incident; it does NOT propagate a BPMN error code.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q41",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

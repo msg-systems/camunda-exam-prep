@@ -1,0 +1,50 @@
+{
+  "id": "dev-docker-compose-04",
+  "topic": "dev-environment",
+  "subtopic": "docker-compose",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "After running `docker compose up -d` from the developer Docker Compose quickstart, you open `http://localhost:8070` to use Web Modeler but the page does not load. What is the most likely reason?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Web Modeler is part of the full configuration only; the default `docker compose up -d` starts the lightweight configuration, which does not include Web Modeler."
+    },
+    {
+      "id": "b",
+      "text": "Web Modeler must be enabled in `docker-compose.yaml` by setting the `WEB_MODELER_ENABLED=true` environment variable on the Orchestration Cluster service."
+    },
+    {
+      "id": "c",
+      "text": "Web Modeler is served at `http://localhost:8088/modeler` in the lightweight configuration; port `8070` is reserved for the full configuration's Console."
+    },
+    {
+      "id": "d",
+      "text": "Web Modeler rejects the default `demo`/`demo` credentials; you must first sign into Keycloak at `http://localhost:18080/auth/` with `admin`/`admin`."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The Access components section lists Web Modeler under 'Management and modeling components (full configuration only)' at `http://localhost:8070`. The lightweight stack started by `docker compose up -d` does not include Web Modeler — you need to start the full configuration with `docker compose -f docker-compose-full.yaml up -d`."
+    },
+    "b": {
+      "text": "The docs do not document any `WEB_MODELER_ENABLED` toggle on the lightweight compose file. Web Modeler ships only with the full configuration, where it is wired up as its own service rather than enabled via an environment flag."
+    },
+    "c": {
+      "text": "Port `8088` is used by the Orchestration Cluster (Operate, Tasklist, Identity, REST API), not Web Modeler. Web Modeler is on `http://localhost:8070`, and Console runs on `http://localhost:8087` in the full configuration."
+    },
+    "d": {
+      "text": "Even with correct credentials, Web Modeler is simply not running under the lightweight configuration, so no login flow would appear. The `admin`/`admin` credentials belong to Keycloak, which is also only started by the full configuration."
+    }
+  },
+  "explanation": "The Docker Compose quickstart distinguishes a lightweight configuration (default `docker compose up -d`, with the Orchestration Cluster on `:8088` and Elasticsearch) from a full configuration (`docker compose -f docker-compose-full.yaml up -d`) that additionally starts Console on `:8087`, Optimize on `:8083`, Management Identity on `:8084`, Web Modeler on `:8070`, plus Keycloak and PostgreSQL. To use Web Modeler locally, start the full configuration.",
+  "docs": [
+    {
+      "title": "Docker Compose",
+      "url": "https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/docker-compose/"
+    }
+  ]
+}

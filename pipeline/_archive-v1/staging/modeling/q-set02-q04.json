@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A telecommunications carrier sells four products: mobile data plan, broadband internet, IPTV service, and landline. Each product has its own provisioning workflow in Camunda 8, but all four share an identical 7-step Credit Check sub-flow: pull credit bureau report, check internal debt history, check fraud markers, compute risk score, decide automated vs manual review, log compliance trail, and notify compliance officer. Previously, all four product flows had inline copies of this 7-step block; when regulation required a new fraud-marker check, the team updated three of four products and discovered the miss only when an angry compliance officer escalated. The architect wants to extract Credit Check into a single deployable artifact so future regulatory changes touch one place. In-flight provisioning workflows that have already passed Credit Check must continue at their original version (already validated against the old rules); new instances pick up the latest version.",
+  "question": "Which BPMN construct fits this reuse + version-isolation requirement?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Deploy Credit Check as a standalone BPMN process and invoke it from each product workflow via a Call Activity referencing the Credit Check process by processId, explicitly setting bindingType=\"deployment\" (or bindingType=\"versionTag\" with a version tag) so in-flight callers stay pinned to the version deployed alongside them. The implicit default latest does NOT pin and would lift in-flight workflows onto the newest version."
+    },
+    {
+      "id": "b",
+      "text": "Convert Credit Check into an Embedded Subprocess in each product workflow, and configure Element Templates so all four embedded subprocesses share the same XML configuration. Element Templates standardise single-element configuration such as a Service Task's URL or authentication properties -- they do not create reusable multi-step process logic. Each of the four product workflows would still contain a full inline copy of the 7-step Credit Check flow, meaning future regulatory changes still require updating four separate models."
+    },
+    {
+      "id": "c",
+      "text": "Build Credit Check as a Custom Connector using the Connector SDK and use a single Service Task in each product workflow. The Connector SDK is designed for single-call integrations with external systems, not multi-step process orchestration with internal flow control and per-step audit trails. Wrapping 7 sequential BPMN steps inside a Connector hides them from the engine -- there is no per-step visibility in Operate, no per-step retry configuration, and no per-step incident management."
+    },
+    {
+      "id": "d",
+      "text": "Model Credit Check as a Multi-Instance Subprocess with input collection [mobile, broadband, iptv, landline]. Multi-Instance is designed to execute the same subprocess logic repeatedly for each element in a collection, producing parallel or sequential iterations of identical work. Here the requirement is one Credit Check invoked from four different product processes -- not four parallel iterations of the same operation within one process. Multi-Instance addresses the wrong problem dimension."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Call Activity is the BPMN standard for cross-process reuse with version isolation. The Call Activity reference (processId) points at the deployed Credit Check process -- each invocation starts a separate process instance. Critical: Per the docs, bindingType controls which version is instantiated: latest (default -- picks newest at activation time), deployment (pins to the version deployed together with the caller), or versionTag (pins to a tagged version). If bindingType is omitted, latest is used and the scenario's \"in-flight at original version\" requirement is NOT met. To preserve version isolation, the caller must set bindingType=\"deployment\" (or versionTag) explicitly. Variables are mapped via Call Activity input/output mappings, keeping scope clean."
+    },
+    "b": {
+      "text": "Incorrect. Element Templates standardise single-element configuration (e.g., a Service Task's URL/auth), NOT reusable multi-step process logic. Four Embedded Subprocesses with identical templates still mean four copies of the 7-step flow that all need separate updates. Templates don't substitute for true model reuse."
+    },
+    "c": {
+      "text": "Incorrect. Connector SDK is for single-call integrations with external systems, NOT multi-step process orchestration with internal flow control and per-step audit. Wrapping 7 internal steps inside a Connector hides them from BPMN -- no per-step audit in Operate, no per-step retry, no per-step monitoring. Wrong abstraction level."
+    },
+    "d": {
+      "text": "Incorrect. Multi-Instance executes the same activity N times with different inputs from a collection. Here we have one Credit Check called from four different products, not four iterations of the same operation. Wrong abstraction."
+    }
+  },
+  "explanation": "Call Activity is the BPMN standard for cross-process reuse with version isolation. The Call Activity reference (processId) points at the deployed Credit Check process -- each invocation starts a separate process instance. Critical: Per the docs, bindingType controls which version is instantiated: latest (default -- picks newest at activation time), deployment (pins to the version deployed together with the caller), or versionTag (pins to a tagged version). If bindingType is omitted, latest is used and the scenario's \"in-flight at original version\" requirement is NOT met. To preserve version isolation, the caller must set bindingType=\"deployment\" (or versionTag) explicitly. Variables are mapped via Call Activity input/output mappings, keeping scope clean.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

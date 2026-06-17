@@ -1,0 +1,50 @@
+{
+  "id": "ext-handling-data-in-processes-99",
+  "topic": "extensions-integrations",
+  "subtopic": "process-variables",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A tweet approval process has a leading system that already stores the full tweet text. According to the best practice, what should be kept as a process variable?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only a reference such as `tweetId`, fetching the tweet text from the leading system when needed."
+    },
+    {
+      "id": "b",
+      "text": "The full tweet text, mirrored on every task so the worker never needs the leading system."
+    },
+    {
+      "id": "c",
+      "text": "The tweet text as a BPMN data object on the diagram, leaving Camunda variables empty."
+    },
+    {
+      "id": "d",
+      "text": "Both `tweet` and `tweetId`, kept in sync via a periodic background job."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The 'storing references only' guideline says that when a leading system holds the business data, store only an ID (e.g. `tweetId`) as a process variable rather than the full payload."
+    },
+    "b": {
+      "text": "Mirroring large payloads on every task wastes variable space, risks hitting the variable size limitation, and duplicates state already owned by the leading system."
+    },
+    "c": {
+      "text": "BPMN data objects are not treated as process variables in Camunda 8 and cannot be read at gateways or by workers; the docs recommend them only for documentation."
+    },
+    "d": {
+      "text": "Keeping both in sync introduces duplicated state and an extra background job — the opposite of the 'store as few variables as possible' rule."
+    }
+  },
+  "explanation": "When a leading system already stores the business data, the docs recommend keeping process variables lean by storing only a reference (e.g. `tweetId`) in Camunda. Payload as a process variable is justified only when it drives gateway decisions, supports a message-oriented hand-off, acts as a cache, postpones data changes in the leading system, tracks historical development, or no leading system exists.",
+  "docs": [
+    {
+      "title": "Handling data in processes",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/handling-data-in-processes/"
+    }
+  ]
+}

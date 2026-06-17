@@ -1,0 +1,50 @@
+{
+  "id": "con-use-connectors-09",
+  "topic": "connectors",
+  "subtopic": "use-connectors",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Pinnacle Retail, a retailer processing 50000 catalog lookups per day, calls a product-info REST API from a Camunda 8.8 outbound connector. When the partner returns HTTP 404 the team wants a 'Got a 404' BPMN error, on HTTP 500 a 'Got a 500' BPMN error, and on a body-level status of \"failed\" a 'FAILED' BPMN error that also forwards the response body to the boundary handler for inspection. The platform serves 12 tenants and processes 8400 transactions per day.",
+  "question": "Which errorExpression header value covers all three documented HTTP-to-BPMN-error mappings?",
+  "options": [
+    {
+      "id": "a",
+      "text": "if error.code = \"404\" then bpmnError(\"404\", \"Got a 404\") else if error.code = \"500\" then bpmnError(\"500\", \"Got a 500\") else if response.body.status = \"failed\" then bpmnError(\"FAILED\", \"Action failed\", response.body) else null"
+    },
+    {
+      "id": "b",
+      "text": "if error.code = 404 then bpmnError(404, \"Got a 404\") else if error.code = 500 then bpmnError(500, \"Got a 500\") else if response.body.status = \"failed\" then bpmnError(\"FAILED\", \"Action failed\") else null"
+    },
+    {
+      "id": "c",
+      "text": "if error.code = \"404\" then bpmnError(\"404\", \"Got a 404\") else if error.code = \"500\" then bpmnError(\"500\", \"Got a 500\") else if response.body.status = \"failed\" then jobError(\"Action failed\") else null"
+    },
+    {
+      "id": "d",
+      "text": "bpmnError(error.code, error.message, response.body) as a single FEEL expression that maps every failure to one BPMN error and leaves the boundary event to route 404, 500, and failed cases centrally"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs show this exact chained FEEL expression as the canonical errorExpression header, mapping HTTP 404 and 500 to distinct BPMN errors and a body-level status of \"failed\" to a FAILED BPMN error that also forwards response.body as the third bpmnError argument for downstream inspection."
+    },
+    "b": {
+      "text": "Incorrect. error.code is a string in the connector's error context, so comparing it to the integer 404 never matches; the bpmnError code argument is also documented as a string, and the response body would be dropped without the third argument."
+    },
+    "c": {
+      "text": "Incorrect. jobError fails the job and triggers retries; the requirement is to raise a BPMN error so a boundary event can handle the FAILED case, so bpmnError is the documented helper for this third branch as well."
+    },
+    "d": {
+      "text": "Incorrect. A single bpmnError for every failure cannot distinguish 404 from 500 or detect a body-level status of \"failed\"; the chained if/else in the documented recipe is required to route the three cases differently."
+    }
+  },
+  "explanation": "The HTTP-errors-to-BPMN-errors recipe sets a task header named errorExpression to a chained FEEL expression that tests error.code (a string) and response.body fields, returning bpmnError(code, message[, variables]) for matching branches and null otherwise. Passing response.body as the third bpmnError argument forwards the partner's body to the boundary event for handling.",
+  "docs": [
+    {
+      "title": "How to use connectors",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ]
+}

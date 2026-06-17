@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q31",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A form has a field \"Company Name\" that should only be shown when \"Account Type = Business\" (vs \"Individual\"). Team wonders if Camunda Forms support conditional visibility.",
+  "question": "Form conditional field visibility?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:20): - Hide if: a FEEL expression on the field. When the expression evaluates to true, the field is hidden; when false (or absent), the field is shown. - Example: Company Name field has Hide if = accountType = \"Individual\" → hidden for Individual accounts, shown for Business. - Dynamic re-evaluation: changes to referenced variables re-evaluate the expression and re-render."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 Forms natively support conditional field visibility through the Hide if property available on each form component. The Hide if property accepts a FEEL expression that evaluates to true when the component should be hidden and false when it should be visible. This enables dynamic forms where fields appear or disappear based on other field values, process variables, or computed conditions -- all without any custom JavaScript or external logic."
+    },
+    {
+      "id": "c",
+      "text": "The native Hide if property accepts FEEL expressions that provide sufficient logic for most conditional visibility use cases, including comparisons, null checks, boolean logic, and list membership tests. Custom JavaScript code would only be needed for complex presentation requirements beyond what FEEL expressions can express, which is rarely necessary for standard form field visibility scenarios."
+    },
+    {
+      "id": "d",
+      "text": "Using two forms doubles maintenance burden and creates synchronization challenges -- any shared field must be updated in both forms. The Hide if property on individual components allows a single form to adapt its visible content dynamically based on current values, making the two-form approach an over-engineered solution."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda Forms conditional visibility: Field-level condition: Each field has an optional condition property. FEEL expression evaluating against current form data. True → field visible. False → field hidden. Example: `json { \"type\": \"select\", \"key\": \"accountType\", \"label\": \"Account Type\", \"values\": [ {\"value\": \"Individual\", \"label\": \"Individual\"}, {\"value\": \"Business\", \"label\": \"Business\"} ] }, { \"type\": \"textfield\", \"key\": \"companyName\", \"label\": \"Company Name\", \"conditional\": { \"hide\": \"=accountType = \\\"Individual\\\"\" } } Behavior: User selects \"Business\": Company Name shows. User selects \"Individual\": Company Name hidden. Smooth UI experience; relevant fields only. Use cases: Use case 1: Type-dependent fields: Account type → different required fields. Customer type → tier-specific options. Use case 2: Progressive disclosure: Optional advanced fields; show only if user expands. Reduce form length for typical use. Use case 3: Validation-driven: Field A invalid → show help/hint field. Inline guidance based on form state. Use case 4: Multi-step within one form: Show / hide sections based on progress. Conditional types: Hide if true (hide condition). Show if true (show condition; opposite logic). Disable (rather than hide) -- field visible but read-only. Re-evaluation triggers: Changes to referenced variables in the condition. Form re-renders affected fields. Validation interaction: Hidden fields: typically not required; validation skipped. Re-shown fields: validate when re-visible. Submitted values: hidden fields may or may not submit their value (depends on form config). Complex conditions: feel =accountType = \"Business\" and revenue > 1000000 Multi-field dependencies. Best practices: Test combinations: ensure all paths through visibility logic produce sensible forms. Avoid deep nesting: too many conditional fields → confusing UX. Required + conditional: thoughtfully design; hidden + required is contradictory. Default values: hidden fields may have defaults that submit if not changed. Limitations: Complex business logic: may exceed form capabilities; defer to BPMN logic. Cross-form dependencies: each form typically self-contained. Verify exact syntax in your Camunda Forms version (conditional, hide, show` may vary)."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "Camunda Forms conditional visibility: Field-level condition: Each field has an optional condition property. FEEL expression evaluating against current form data. True → field visible. False → field hidden. Example: `json { \"type\": \"select\", \"key\": \"accountType\", \"label\": \"Account Type\", \"values\": [ {\"value\": \"Individual\", \"label\": \"Individual\"}, {\"value\": \"Business\", \"label\": \"Business\"} ] }, { \"type\": \"textfield\", \"key\": \"companyName\", \"label\": \"Company Name\", \"conditional\": { \"hide\": \"=accountType = \\\"Individual\\\"\" } } Behavior: User selects \"Business\": Company Name shows. User selects \"Individual\": Company Name hidden. Smooth UI experience; relevant fields only. Use cases: Use case 1: Type-dependent fields: Account type → different required fields. Customer type → tier-specific options. Use case 2: Progressive disclosure: Optional advanced fields; show only if user expands. Reduce form length for typical use. Use case 3: Validation-driven: Field A invalid → show help/hint field. Inline guidance based on form state. Use case 4: Multi-step within one form: Show / hide sections based on progress. Conditional types: Hide if true (hide condition). Show if true (show condition; opposite logic). Disable (rather than hide) -- field visible but read-only. Re-evaluation triggers: Changes to referenced variables in the condition. Form re-renders affected fields. Validation interaction: Hidden fields: typically not required; validation skipped. Re-shown fields: validate when re-visible. Submitted values: hidden fields may or may not submit their value (depends on form config). Complex conditions: feel =accountType = \"Business\" and revenue > 1000000 Multi-field dependencies. Best practices: Test combinations: ensure all paths through visibility logic produce sensible forms. Avoid deep nesting: too many conditional fields → confusing UX. Required + conditional: thoughtfully design; hidden + required is contradictory. Default values: hidden fields may have defaults that submit if not changed. Limitations: Complex business logic: may exceed form capabilities; defer to BPMN logic. Cross-form dependencies: each form typically self-contained. Verify exact syntax in your Camunda Forms version (conditional, hide, show` may vary).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q31",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

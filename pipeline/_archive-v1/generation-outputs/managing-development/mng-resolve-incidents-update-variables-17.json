@@ -1,0 +1,27 @@
+{
+  "id": "mng-resolve-incidents-update-variables-17",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Bank runs Camunda 8.8 with 18000 loan applications per day. After an operator fixes the orderValue variable on a stuck instance, the incident banner clears in Operate but the token has not advanced past the failing exclusive gateway and the process instance still sits on the same node in the diagram.",
+  "question": "What action must the operator take in Operate to advance the process instance past the resolved incident?",
+  "options": [
+    { "id": "a", "text": "Cancel the affected process instance and deploy a new version of the BPMN model so that the corrected variable mapping takes effect at the gateway on the next start" },
+    { "id": "b", "text": "Wait for the broker to detect the variable change automatically, which causes the exclusive gateway to re-evaluate the condition within 30 seconds on the cluster" },
+    { "id": "c", "text": "Initiate a retry of the process instance from the top right corner of the page or from the Operations section on the process instance page in Operate" },
+    { "id": "d", "text": "Re-publish the process instance to a new partition in the cluster so that the exclusive gateway condition is evaluated again against the freshly written variable" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Cancelling the instance discards work in progress; the documented resolution after editing the variable is to retry the existing instance, not to redeploy or restart it." },
+    "b": { "text": "Incorrect. There is no automatic re-evaluation timer on the broker; the operator explicitly initiates a retry from the process instance page after fixing the variable in Operate." },
+    "c": { "text": "Correct. Operate exposes two retry entry points on the process instance page (top right corner of the page and the Operations section), and either one resumes execution past the failing element." },
+    "d": { "text": "Incorrect. Operators do not move running instances between partitions in Operate; retrying the instance from the process instance page is the documented next step." }
+  },
+  "explanation": "Editing the variable clears the data problem but the engine needs an explicit retry to re-execute the failing element. Operate offers this retry from the top right corner of the process instance page and from the Operations section.",
+  "docs": [
+    { "title": "Diagnosing and resolving incidents", "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/" }
+  ]
+}

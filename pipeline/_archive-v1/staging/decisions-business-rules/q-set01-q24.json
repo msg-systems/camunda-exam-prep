@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q24",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A financial services platform models its loan-origination decision logic as a DMN diagram. The diagram contains four decisions: CreditScoreCheck (output: pass/fail), IncomeVerification (output: pass/fail), CollateralCheck (output: pass/fail), and a final LoanDecision that takes the three previous outputs as inputs and returns \"approved\" or \"rejected\". The four decisions are linked by Information Requirements arrows in the DRD. When the developer invokes the DMN diagram from a Business Rule Task in BPMN with decisionId: LoanDecision, the engine evaluates only LoanDecision itself and returns an incident: \"Required input variable 'creditScoreResult' is missing\". The developer expected the engine to automatically run the three upstream decisions because they are linked by Information Requirements arrows.",
+  "question": "What is the correct understanding of how DRDs handle Information Requirements at runtime?",
+  "options": [
+    {
+      "id": "a",
+      "text": "DRD Information Requirements arrows are purely documentational and have no effect on the DMN engine's evaluation behaviour at runtime. They serve as visual aids to communicate dependencies between decisions in the diagram, but the engine ignores them during execution. Each decision must be invoked separately -- the developer would need to add three Business Rule Tasks to the BPMN process, one calling CreditScoreCheck, one IncomeVerification, one CollateralCheck, and then a final one calling LoanDecision with the upstream results as input variables."
+    },
+    {
+      "id": "b",
+      "text": "Information Requirements work correctly within a single DMN file, but when the decisions span multiple DMN files, the engine cannot resolve the cross-file dependencies without explicit import declarations. The team would need to restructure their DMN to use Decision Knowledge Models or a separate import mechanism to link the upstream decisions from a different file to the final decision. This reasoning is flawed because the scenario does not involve cross-file linkage -- all four decisions are in the same DMN diagram, and Camunda 8 lacks a cross-file import mechanism for DMN."
+    },
+    {
+      "id": "c",
+      "text": "The DRD's Information Requirements arrows declare execution dependencies between decisions; at runtime, the Camunda DMN engine walks the dependency graph backward from the targeted decision and automatically evaluates all required upstream decisions in the correct order. When the team invokes LoanDecision, the engine resolves CreditScoreCheck, IncomeVerification, and CollateralCheck automatically before evaluating the final decision. The error \"Required input variable missing\" means the leaf-level input variables (like creditScore or annualIncome) are not present as process variables when the Business Rule Task executes -- the engine is trying to evaluate the upstream decisions but cannot find their input data."
+    },
+    {
+      "id": "d",
+      "text": "decisionIds array (using a plural property that accepts multiple IDs). Without this explicit declaration, the engine only evaluates the named decision and returns the missing-input error. This contradicts how Camunda 8 Business Rule Tasks work -- the zeebe:calledDecision extension uses a single decisionId property (singular, not array), and the engine automatically resolves Information Requirement dependencies without any explicit listing."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda's DMN engine does walk the dependency graph defined by Information Requirements. When you invoke LoanDecision, the engine recursively resolves upstream decisions linked by Information Requirements, evaluating them as needed. The error \"Required input variable missing\" means the leaf inputs to the upstream decisions (e.g., raw applicantData) are not in the process variable set when the Business Rule Task is invoked. The team must supply the leaf-level inputs via the process variables; the engine handles the rest of the chain automatically. Per decision-requirements-graph.md and dmn.md:23-28 (DMN element-kind coverage: Decision, Input data, Knowledge source, BKM), the DRG is the canonical execution model."
+    },
+    "b": {
+      "text": "Incorrect. This is a common misconception -- Information Requirements ARE evaluated at runtime in Camunda's DMN engine. They are not purely visual."
+    },
+    "c": {
+      "text": "Correct. DMN's Information Requirements work across decisions defined in the same DMN diagram file; cross-file linkage is not supported via in C8 (0-hit Grep across components/modeler/dmn/ for )."
+    },
+    "d": {
+      "text": "Incorrect. The Business Rule Task takes a single decisionId (the target decision). The engine resolves upstream dependencies automatically -- no array of decisionIds."
+    }
+  },
+  "explanation": "DMN's Information Requirements work across decisions defined in the same DMN diagram file; cross-file linkage is not supported via in C8 (0-hit Grep across components/modeler/dmn/ for ).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-requirements-graph/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q24",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q28",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team deployed Decision V1; now V2 changes a rule. Running process instances mid-flight call this decision. The team wonders which version in-flight instances use.",
+  "question": "DMN version selection when in-flight processes invoke a decision?",
+  "options": [
+    {
+      "id": "a",
+      "text": "In-flight process instances always use the original decision version that was deployed when the process started, regardless of any subsequent decision deployments. This is only true when deployment binding is configured. With the default latest binding, a Business Rule Task resolves the decision version at task activation time -- meaning process instances that have not yet reached the Business Rule Task will invoke the newest decision version after V2 is deployed, not the original V1."
+    },
+    {
+      "id": "b",
+      "text": "The Camunda 8 engine selects which decision version to invoke randomly among all deployed versions of a given decision ID whenever a Business Rule Task executes. Version selection in Camunda 8 is deterministic, not random. The Business Rule Task uses the bindingType attribute (latest, deployment, or versionTag) to determine which version to call. The latest binding resolves to the highest version number at task activation time, producing consistent and predictable version selection."
+    },
+    {
+      "id": "c",
+      "text": "Standard behavior with default binding: Business Rule Task's bindingType attribute controls which decision version is invoked. md:45-54: latest (default if attribute omitted, per :54) → engine resolves to the latest deployed version at task activation time, so in-flight processes that haven't yet hit the BRT pick up V2 once V1 deploy is followed by V2. deployment → pins to the decision version deployed alongside the current process version (sticky for the lifetime of the process version). versionTag → pins to the latest deployed decision matching a versionTag attribute (controlled drift)."
+    },
+    {
+      "id": "d",
+      "text": "BPMN processes in Camunda 8 have no mechanism to invoke DMN decisions; decisions must be evaluated by external services that call the Zeebe API directly. This misrepresents the documented behavior. The task references a decision by decisionId and bindingType, and the engine automatically evaluates the specified decision version, storing the result in the configured result variable without requiring any external orchestration."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Decision version binding via the Business Rule Task bindingType attribute (per business-rule-tasks.md:45-54): The three binding types: latest (default, per :47, :54): Engine resolves to the latest deployed version of the decisionId at task activation time. In-flight processes: if the BRT hasn't yet activated, the next activation picks up V2 (just deployed) automatically. Effect: V1-running processes that hit the BRT post-V2-deploy invoke V2 logic. deployment (per :48): Pins to the decision version that was deployed together with this process version. Sticky for the lifetime of the process model version -- V1 process instances always use V1 decision even after V2 deploy. versionTag (per :49): Pins to the latest deployed decision annotated with the versionTag attribute on the BRT. XML: per :128-137. Controlled drift: redeploy decision with same versionTag to roll the binding forward without changing BPMN. XML examples (from :107-138): xml Scenario walk-through (V1 deployed, V2 deployed, in-flight processes): | bindingType | Pre-BRT instances post-V2-deploy use… | |---|---| | latest (default) | V2 (any activation after V2-deploy resolves to latest) | | deployment | V1 (sticky to process-version-deploy companion) | | versionTag=\"v1.0\" | Whichever V is tagged v1.0 (operator-controlled rollover) | When to choose which: latest: bug fixes, tax-rate changes, compliance updates -- apply to all evaluations going forward. deployment: regulated long-running processes that must stay frozen to the decision version they were certified against. versionTag: blue/green decision rollouts or operator-gated drift independent of BPMN redeploy. Decision evaluation incidents (per business-rule-tasks.md:27-28): if no matching decision is found at the chosen binding, the BRT raises an incident; resolve by deploying the expected version (or fixing the binding) and re-evaluating. Best practices: Backward-compatible decision changes (input/output schema preserved): safe with latest. Breaking changes: deploy as new decisionId rather than mutating in place, OR use deployment/versionTag to gate consumers. Audit/replay: with deployment you can replay the exact decision-version pair; with latest you must log the resolved decision version per instance."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. Incorrect."
+    },
+    "d": {
+      "text": "Incorrect. Incorrect."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q28",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

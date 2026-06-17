@@ -1,0 +1,50 @@
+{
+  "id": "frm-forms-element-library-text-19",
+  "topic": "forms",
+  "subtopic": "text element",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A FEEL expression bound to the **Text** property of a text component evaluates at runtime to a string containing `<script>alert('xss')</script>` followed by some Markdown. What does the rendered form show?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An alert dialog pops up when the form is rendered to the user."
+    },
+    {
+      "id": "b",
+      "text": "The `<script>` element is dropped during rendering and does not execute; the surrounding Markdown still renders."
+    },
+    {
+      "id": "c",
+      "text": "The form refuses to render and shows a validation error to the user."
+    },
+    {
+      "id": "d",
+      "text": "All Markdown formatting is stripped and only the literal script tag remains visible."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "The text component sanitises potentially harmful HTML before rendering, so an injected `<script>` does not execute and no alert is shown."
+    },
+    "b": {
+      "text": "The docs state that to ensure safety and prevent cross-site scripting, potentially harmful HTML elements will not be rendered. The script tag is therefore dropped from output, while the surrounding Markdown is still processed by the renderer."
+    },
+    "c": {
+      "text": "Validation errors are a property of input fields (e.g. number, text field), not of the read-only text component, which silently sanitises its output."
+    },
+    "d": {
+      "text": "Markdown formatting is not stripped because of a script tag; the renderer continues to process GitHub-flavored Markdown and safe HTML — only harmful elements are dropped."
+    }
+  },
+  "explanation": "The text component's Text property is processed by a Markdown renderer that supports basic HTML and GitHub-flavored Markdown, but the docs explicitly say potentially harmful HTML elements are not rendered. That built-in sanitisation drops `<script>` (and similar) tags from the output while leaving the safe Markdown intact, providing XSS protection without breaking the rest of the text.",
+  "docs": [
+    {
+      "title": "Forms element library — Text",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-text/"
+    }
+  ]
+}

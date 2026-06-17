@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Inbound Webhook Connector receives events. Due to partner's retry behaviour, the same event may arrive multiple times. The team wonders if the Connector deduplicates events.",
+  "question": "Does Inbound Connector deduplicate events from external sources?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Connector \"Deduplication ID\" feature groups multiple BPMN Connector elements into a single shared subscription -- it is a subscription-grouping mechanism, not event-content deduplication. It prevents multiple subscriptions from activating when two BPMN elements share the same logical trigger, but it does not detect or drop duplicate event payloads arriving from an external partner. Event-content idempotency, such as discarding a retry with the same payload, requires a separate design involving idempotency keys from the partner, using those keys as messageId values for Camunda's broker-level dedup, or implementing application-level state-store checks in downstream Service Tasks."
+    },
+    {
+      "id": "b",
+      "text": "The Connector framework provides a Deduplication ID mechanism that groups multiple BPMN Connector elements sharing the same logical subscription into a single active subscriber. This prevents redundant parallel subscriptions for the same event source. Some specific Connectors may also offer additional configuration options for handling repeated events. The limitation is that this built-in mechanism addresses subscription deduplication, not event-content idempotency -- partners sending the same payload multiple times requires additional application-level handling, but \"never any dedup\" is too strong an assertion."
+    },
+    {
+      "id": "c",
+      "text": "Tasklist is a human task management component that handles User Task assignment, claiming, and completion by human operators. It has no role in processing, filtering, or deduplicating external events received by Inbound Connectors. Event deduplication for Inbound Connectors is handled at the Connector layer (Deduplication ID for subscription grouping), the Camunda broker layer (message ID dedup within TTL), or the application layer via explicit state-store checks after the Connector triggers a process."
+    },
+    {
+      "id": "d",
+      "text": "Two distinct deduplication concepts must not be conflated in Camunda 8 Inbound Connector design. First, the Connector Deduplication ID is a subscription-grouping mechanism: it groups multiple BPMN Connector elements that share the same logical event source into a single shared subscription, preventing redundant parallel subscriptions when the same trigger is modeled multiple times. Second, event-content idempotency addresses duplicate payloads arriving from an external partner's retry behavior -- this is entirely separate and not handled by the Deduplication ID. For partner-retry deduplication, teams must use the partner's idempotency key as a Camunda message ID to leverage broker-level dedup, or implement application-level state-store checks in downstream tasks. Conflating these two concepts leads to incorrect designs."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Event deduplication for Inbound Connectors is a layered concern: Connector-specific dedup: Some Connectors (especially Webhook variants) may expose configuration for dedup keys. Verify per Connector + version. Message correlation dedup (general pattern): Partner includes idempotency key in event (header / body). Connector extracts key, uses as messageId when correlating. Camunda's broker dedups: same messageId within TTL window → discarded. Effect: even if partner retries the event, only one correlates. Application-level dedup: After event triggers a process, a Service Task / DMN checks if this event has been processed before (by querying a state store). Skip duplicates; record processed events. End-to-end idempotency: Combine layers for mission-critical scenarios. Partner: send idempotency key. Connector: pass through as messageId. Camunda: dedup via TTL. Application: state-store check as safety net. Don't assume Connector dedups automatically; design idempotency intentionally."
+    },
+    "b": {
+      "text": "Incorrect. Depends."
+    },
+    "c": {
+      "text": "Incorrect. Some support."
+    },
+    "d": {
+      "text": "Correct. wrong scope."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q46",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

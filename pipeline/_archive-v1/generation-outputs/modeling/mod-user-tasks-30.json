@@ -1,0 +1,27 @@
+{
+  "id": "mod-user-tasks-30",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Cascade Insurance runs a configure user task in Camunda 8.8 that activates 4000 times per day. The modeler edits the BPMN XML to attach two task listeners on the same user task, one that runs on the assigning lifecycle event with 5 retries and one that runs on the completing lifecycle event using the default retry count.",
+  "question": "Which XML structure correctly defines the two zeebe:taskListener entries on this user task?",
+  "options": [
+    { "id": "a", "text": "A zeebe:taskListeners block inside extensionElements containing two zeebe:taskListener children, the first with eventType assigning, type assigning-user-task-listener, and retries 5, the second with eventType completing and type completing-user-task-listener" },
+    { "id": "b", "text": "A zeebe:taskListeners block inside extensionElements containing two zeebe:taskListener children, the first with eventType assigned, type assigning-user-task-listener, and retries 5, the second with eventType completed and type completing-user-task-listener" },
+    { "id": "c", "text": "Two separate zeebe:taskListeners blocks inside extensionElements, one per listener, with each block declaring eventType and type at the block level and omitting the nested zeebe:taskListener children entirely" },
+    { "id": "d", "text": "A single zeebe:taskListener element inside extensionElements with a comma-separated eventType value of assigning,completing and a single type attribute that is reused for both lifecycle events on the user task" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The documented XML wraps multiple zeebe:taskListener entries in a single zeebe:taskListeners block within extensionElements, with each entry carrying eventType, type, and optional retries; assigning and completing are valid eventType values." },
+    "b": { "text": "Incorrect. The valid eventType values are creating, assigning, updating, completing, and canceling, not assigned or completed, so this structure uses invalid lifecycle event names." },
+    "c": { "text": "Incorrect. The documented structure nests one or more zeebe:taskListener children inside a single zeebe:taskListeners parent rather than declaring eventType and type on multiple top-level taskListeners blocks." },
+    "d": { "text": "Incorrect. Each listener is declared as its own zeebe:taskListener element with its own eventType and type; a single element with a comma-separated eventType is not the documented form." }
+  },
+  "explanation": "The documented XML for user task listeners uses a single zeebe:taskListeners block inside extensionElements containing one zeebe:taskListener child per lifecycle event. Each child carries the required eventType and type attributes and an optional retries attribute.",
+  "docs": [
+    { "title": "BPMN user tasks", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/" }
+  ]
+}

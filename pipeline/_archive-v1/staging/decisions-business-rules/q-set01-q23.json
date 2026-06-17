@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A trade finance bank screens incoming transactions against an AML (Anti-Money Laundering) rule set encoded as a DMN Decision Table named aml-risk-score. The table has six rules, each contributing a risk score when its conditions match (e.g., high-value > €100K → +30 points, sanctioned country → +50 points, high-risk industry → +20 points). A transaction's total risk score is the sum of all matched rules. The team initially configured the Hit Policy as UNIQUE, expecting one rule to win -- but production traffic shows most transactions match 2-4 rules, and the engine throws a \"Unique Hit Policy violated\" exception every time, blocking the entire transaction flow. The compliance team's actual requirement is: \"When multiple rules match, add up their individual scores and return a single aggregate value.\"",
+  "question": "Which Hit Policy configuration delivers the correct behaviour?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Switch from UNIQUE to COLLECT with SUM aggregator. The COLLECT hit policy evaluates all matching rules in the decision table regardless of how many match. When an aggregator modifier (SUM, MIN, MAX, or COUNT) is specified, Zeebe applies that aggregation inside the DMN engine across all matched rule output values and returns a single scalar result. With COLLECT-SUM, every rule that matches contributes its score to the running total, and the engine returns the sum -- the precise cumulative-scoring behavior the AML compliance team requires."
+    },
+    {
+      "id": "b",
+      "text": "Switch from UNIQUE to PRIORITY. When multiple rules match, Zeebe evaluates all of them but returns only the single output value associated with the highest-priority rule, as defined by the order of allowed values in the output column's enumeration. For the AML scoring case where priorities need to be summed rather than selected, PRIORITY semantics would return only the highest-scoring matched rule rather than the total. Additionally, PRIORITY is absent from Camunda 8 entirely -- only UNIQUE, ANY, FIRST, RULE ORDER, and COLLECT are supported."
+    },
+    {
+      "id": "c",
+      "text": "Switch from UNIQUE to FIRST. The FIRST hit policy evaluates rules from top to bottom and returns the output of the first matching rule by row order, then stops evaluating. For the AML case with 2-4 matching rules per transaction, FIRST would return only the topmost matching rule's score. All subsequent matching rules are ignored, which means 60-75% of the risk factors would be omitted from the score. The resulting risk score would be drastically understated compared to the compliance team's requirement."
+    },
+    {
+      "id": "d",
+      "text": "Keep the UNIQUE hit policy in place and resolve the multi-match problem by adding a downstream Script Task that collects all matched rule outputs into a list variable and uses FEEL list functions to compute the sum. This workaround would first require finding all matching rules -- but UNIQUE throws an exception when multiple rules match rather than returning a list. The approach fails before reaching the aggregation step. Even if the policy were changed to RULE ORDER (which returns a list), the downstream aggregation is more verbose than using COLLECT-SUM's built-in aggregation directly inside the DMN engine."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. DMN's COLLECT hit policy gathers outputs of all matching rules. With an aggregator modifier (SUM, MIN, MAX, COUNT), Zeebe applies the aggregation directly inside the DMN engine and returns a single scalar value. COLLECT-SUM is precisely the cumulative-scoring semantic the AML team needs: matched rules contribute, sum is computed, single risk score returned. No downstream Script Task needed. Per decision-table-hit-policy.md:139-170, the four COLLECT aggregators are SUM / MIN / MAX / COUNT; with an aggregator set, the table must have exactly one output column (per :126)."
+    },
+    "b": {
+      "text": "Incorrect. First, semantically: PRIORITY would pick one winner, not aggregate. Second -- and decisive -- PRIORITY is NOT one of the five hit policies supported in Camunda 8. Per decision-table-hit-policy.md:26-53, C8 supports exactly five: UNIQUE / ANY / FIRST / RULE ORDER / COLLECT. PRIORITY (and OUTPUT ORDER) appear in DMN-1.3 spec but are NOT implemented in Camunda 8."
+    },
+    "c": {
+      "text": "Incorrect. FIRST returns the first matching rule's output by row order. Misses all other matches. Doesn't aggregate."
+    },
+    "d": {
+      "text": "Incorrect. Keeping UNIQUE means the table still throws exceptions on multi-match. Even if you used COLLECT (without aggregator), aggregating downstream in a Script Task works but is more verbose than the built-in COLLECT-SUM aggregator. Not the canonical approach."
+    }
+  },
+  "explanation": "DMN's COLLECT hit policy gathers outputs of all matching rules. With an aggregator modifier (SUM, MIN, MAX, COUNT), Zeebe applies the aggregation directly inside the DMN engine and returns a single scalar value. COLLECT-SUM is precisely the cumulative-scoring semantic the AML team needs: matched rules contribute, sum is computed, single risk score returned. No downstream Script Task needed. Per decision-table-hit-policy.md:139-170, the four COLLECT aggregators are SUM / MIN / MAX / COUNT; with an aggregator set, the table must have exactly one output column (per :126).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

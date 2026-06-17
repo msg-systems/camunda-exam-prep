@@ -1,0 +1,27 @@
+{
+  "id": "cfg-variables-19",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Apex Logistics runs a Camunda 8.8 dispatch process. A service task receives the variables status and cost back from 5,000 jobs run daily. The architect defines a single output mapping with source =status and target dispatchStatus and asks what happens to the variable cost in the parent scope after the job completes.",
+  "question": "What happens to the variable cost in the parent scope after this job completes?",
+  "options": [
+    { "id": "a", "text": "The variable cost is not merged into the parent scope because at least one output mapping is defined and cost itself has no mapping of its own in the task configuration." },
+    { "id": "b", "text": "The variable cost is merged into the parent scope using its original name because the engine always preserves any unmapped result variable as a documented default behaviour." },
+    { "id": "c", "text": "The variable cost is merged into the parent scope under the same name as the mapped target dispatchStatus, overwriting whatever value dispatchStatus had previously been set to." },
+    { "id": "d", "text": "The variable cost is merged into the parent scope only after it is renamed to mappedCost by the engine's default fallback policy for unmapped result variables on a task." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The docs state that when one or more output mappings are defined, only the variables explicitly produced by an output mapping are merged into the parent scope, so cost stays local and is discarded." },
+    "b": { "text": "Incorrect. There is no documented default that preserves unmapped result variables once at least one output mapping exists; the docs note this is a common source of confusion." },
+    "c": { "text": "Incorrect. Each output mapping has its own target name; an unmapped result variable does not inherit the name of another mapping's target during the merge into the parent scope." },
+    "d": { "text": "Incorrect. The engine does not auto-rename unmapped result variables; the documented behaviour is simply that they are not merged into the parent scope and stay in the task scope." }
+  },
+  "explanation": "As soon as a service task has at least one output mapping, the results variables become local in the mapping's scope and only the variables produced by output mappings are merged into the parent scope. Unmapped result variables stay local and are discarded when the scope is left.",
+  "docs": [
+    { "title": "Variables", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+  ]
+}

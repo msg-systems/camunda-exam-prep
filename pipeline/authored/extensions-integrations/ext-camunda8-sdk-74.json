@@ -1,0 +1,53 @@
+{
+  "id": "ext-camunda8-sdk-74",
+  "topic": "extensions-integrations",
+  "subtopic": "typescript-sdk",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "In the programmatic user task poller above, what does setting `consistency.waitUpToMs: Infinity` together with the `predicate` function turn the `camunda.searchUserTasks` call into?",
+  "codeBlocks": {
+    "stem": "const userTaskPoller = camunda.searchUserTasks(\n  { filter: { state: \"CREATED\" } },\n  {\n    consistency: {\n      waitUpToMs: Infinity,\n      pollIntervalMs: 1_000,\n      predicate: async (results) => { /* claim + complete */ return false; }\n    }\n  }\n);"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "A polling subscription that repeatedly invokes the predicate at `pollIntervalMs`; returning `false` keeps polling."
+    },
+    {
+      "id": "b",
+      "text": "A blocking single call that returns the first matching task and then exits."
+    },
+    {
+      "id": "c",
+      "text": "A WebSocket subscription that the Tasklist gateway pushes user task events into."
+    },
+    {
+      "id": "d",
+      "text": "A no-op — `Infinity` is rejected by the SDK and the search returns immediately with an empty result."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs say: to set up a subscription, set `waitUpToMs` to `Infinity`, and the `predicate` now becomes a polling subscription function; returning `false` keeps polling, which is exactly how the example claims and completes each new `CREATED` task."
+    },
+    "b": {
+      "text": "Without the predicate returning `true`, the call does not terminate after the first match — that's the whole point of using `Infinity` plus a polling predicate."
+    },
+    "c": {
+      "text": "The SDK polls (`pollIntervalMs: 1_000`); it does not establish a WebSocket push subscription against Tasklist."
+    },
+    "d": {
+      "text": "`Infinity` is the documented way to enable subscription mode; it is not rejected."
+    }
+  },
+  "explanation": "Combining `waitUpToMs: Infinity` with a `predicate` converts a one-shot `searchUserTasks` into a polling subscription. The SDK calls the predicate every `pollIntervalMs`; returning `false` keeps polling, so the example's claim/complete loop runs indefinitely. The memoisation in the example handles idempotency over eventually consistent reads.",
+  "docs": [
+    {
+      "title": "Camunda 8 TypeScript SDK",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-modification-66",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Brightline Telco runs a Camunda 8.8 order-fulfilment process at 12,000 instances per hour. The team plans to use the modification command to terminate task C inside a non-interrupting message event subprocess. Task C is currently the only active element inside that event subprocess, and the surrounding embedded subprocess has no other active children.",
+  "question": "Which cascading effects does the modification command produce when task C is terminated in this configuration?",
+  "options": [
+    { "id": "a", "text": "The engine terminates task C, then the event subprocess because it has no remaining active instances, and then the embedded subprocess for the same reason." },
+    { "id": "b", "text": "The engine terminates only task C and leaves both the event subprocess and the embedded subprocess open so a new message can re-trigger them later on." },
+    { "id": "c", "text": "The engine terminates task C and the event subprocess, but leaves the embedded subprocess alive until a subsequent termination command is issued explicitly for it." },
+    { "id": "d", "text": "The engine rejects the termination because task C is the only active instance and a modification cannot terminate the last active instance of a subprocess." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Per the documented rules, terminating the last active instance inside a subprocess terminates that subprocess, and this rule cascades upward when the parent then also becomes empty." },
+    "b": { "text": "Incorrect. The docs describe automatic upward termination when a subprocess has no remaining active instances, so the event subprocess does not stay open after task C is terminated." },
+    "c": { "text": "Incorrect. The cascading rule applies recursively; once the event subprocess terminates, the same condition empties the embedded subprocess and terminates it as well." },
+    "d": { "text": "Incorrect. The last-active-instance restriction applies only to child process instances created by a call activity, not to an embedded subprocess inside the same process instance." }
+  },
+  "explanation": "The termination cascade described in the modification docs removes any subprocess that no longer has active instances after its last child is terminated. The only exception is the last active instance of a child process instance, which must be cleared by terminating the call activity that created it.",
+  "docs": [
+    { "title": "Process instance modification", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/" }
+  ]
+}

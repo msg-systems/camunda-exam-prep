@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q19",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task has three Boundary Events attached: Timer (PT2M), Error (errorCode \"TIMEOUT\"), and Message (\"CancelRequest\"). All could potentially fire. The team wonders what happens if multiple boundaries could match simultaneously.",
+  "question": "What's the BPMN behaviour when multiple Boundary Events could match for the same activity?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The first interrupting event to trigger terminates the host activity, ending the scope. md:53 (verbatim): \"A boundary event must be an intermediate catch event, and can be either interrupting or non-interrupting. \" Once the host is terminated, any pending boundary subscriptions on it are also closed -- so an interrupting boundary fires at most once and pre-empts the others. Non-interrupting boundaries fire independently each time their trigger condition is met without terminating the host; multiple non-interrupting boundaries can therefore fire in parallel and even fire repeatedly during the activity's lifetime. The Camunda 8 docs do not define a static \"priority\" among boundaries -- ordering is purely by trigger event-time."
+    },
+    {
+      "id": "b",
+      "text": "The BPMN specification defines that for interrupting boundaries, the first event to trigger terminates the host activity. Some engine implementations may add priority schemes, but the BPMN standard itself does not define a static priority ordering among different boundary event types on the same activity."
+    },
+    {
+      "id": "c",
+      "text": "All attached boundary events fire simultaneously when any trigger condition becomes true -- this description does not reflect actual behaviour for interrupting boundary events. When an interrupting boundary fires, it immediately terminates the host activity and cancels all other pending boundary event subscriptions on that activity. The host activity no longer exists once terminated, so other interrupting boundaries cannot subsequently fire. Only non-interrupting boundaries can fire multiple times independently without cancelling the host activity or each other."
+    },
+    {
+      "id": "d",
+      "text": "Only a single boundary event of any kind can be attached to an activity -- additional boundaries would cause deployment errors -- this description does not reflect the actual behaviour. 0 specification both support multiple boundary events of different types on the same host activity. Common patterns include combining a Timer boundary for timeout handling with an Error boundary for exception handling and a Message boundary for external cancellation signals, all attached to the same Service Task or subprocess."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Boundary Events fire based on their trigger conditions, asynchronously / independently. For multiple boundaries on the same activity: Interrupting boundaries: the first one to trigger cancels the host activity and routes via its outgoing arrow. Other boundaries become moot (host no longer active). Non-interrupting boundaries: each can fire as its condition becomes true; the host stays active; multiple non-interrupting \"side flows\" can run in parallel. Mixed: non-interrupting can fire while host is active; if an interrupting then fires, it cancels the host (and ends the activity scope, terminating non-interrupting side flows if they're still running and depend on host scope). Example scenario: Timer (interrupting, PT2M), Error (interrupting, \"TIMEOUT\"), Message (non-interrupting, \"CancelRequest\"): Message can fire at any time (non-interrupting reminder). Whichever of Timer or Error fires first cancels the host. Concurrent firing in the exact same instant is theoretically possible but rare; the engine handles it deterministically per its event-loop semantics."
+    },
+    "b": {
+      "text": "Incorrect. Some engines / configurations may add priority; BPMN spec doesn't define priority for boundaries."
+    },
+    "c": {
+      "text": "Incorrect. Not simultaneous."
+    },
+    "d": {
+      "text": "Incorrect. Multiple supported."
+    }
+  },
+  "explanation": "Boundary Events fire based on their trigger conditions, asynchronously / independently. For multiple boundaries on the same activity: Interrupting boundaries: the first one to trigger cancels the host activity and routes via its outgoing arrow. Other boundaries become moot (host no longer active). Non-interrupting boundaries: each can fire as its condition becomes true; the host stays active; multiple non-interrupting \"side flows\" can run in parallel. Mixed: non-interrupting can fire while host is active; if an interrupting then fires, it cancels the host (and ends the activity scope, terminating non-interrupting side flows if they're still running and depend on host scope). Example scenario: Timer (interrupting, PT2M), Error (interrupting, \"TIMEOUT\"), Message (non-interrupting, \"CancelRequest\"): Message can fire at any time (non-interrupting reminder). Whichever of Timer or Error fires first cancels the host. Concurrent firing in the exact same instant is theoretically possible but rare; the engine handles it deterministically per its event-loop semantics.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/events/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q19",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

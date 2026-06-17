@@ -1,0 +1,50 @@
+{
+  "id": "dec-decision-table-hit-policy-19",
+  "topic": "decisions-business-rules",
+  "subtopic": "hit policy",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A leave-application decision table uses hit policy `ANY`. For one applicant, rule R1 (no vacation days left) is satisfied and outputs `\"refuse\"`, and rule R4 (otherwise) is also satisfied and outputs `\"approve\"`. What does the engine produce?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A hit-policy violation, because the satisfied rules produced different outputs"
+    },
+    {
+      "id": "b",
+      "text": "`\"refuse\"`, because R1 appears first in row order"
+    },
+    {
+      "id": "c",
+      "text": "`[\"refuse\", \"approve\"]`, as a list of all satisfied outputs"
+    },
+    {
+      "id": "d",
+      "text": "`\"approve\"`, because `ANY` picks any satisfied rule arbitrarily regardless of output"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Under `ANY`, multiple rules may be satisfied, but they must all generate the same output. Different outputs from satisfied rules violate the hit policy."
+    },
+    "b": {
+      "text": "Picking by row order is the behavior of `FIRST`, not `ANY`. `ANY` does not fall back to row order when outputs differ — it raises a violation instead."
+    },
+    "c": {
+      "text": "`ANY` returns the output of one of the satisfied rules, never a list. List-shaped results are associated with `RULE ORDER` or `COLLECT`."
+    },
+    "d": {
+      "text": "`ANY` does not pick arbitrarily when outputs differ. It only returns a single value when all satisfied rules produce the same output."
+    }
+  },
+  "explanation": "`ANY` allows multiple rules to be satisfied but constrains them to produce the same output, returning only one. When satisfied rules generate different outputs the hit policy is violated — this is exactly the failure mode the leave-application example in the docs is designed to expose.",
+  "docs": [
+    {
+      "title": "DMN decision table hit policy",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ]
+}

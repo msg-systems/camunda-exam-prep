@@ -1,0 +1,50 @@
+{
+  "id": "ext-writing-good-workers-103",
+  "topic": "extensions-integrations",
+  "subtopic": "data-minimization",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A worker handles many jobs per second on a process with parallel gateways and multi-instance activities. Which configuration on the job-activation call does the docs recommend to minimize data transfer?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Specify a `FetchVariables` list so only the variables the handler actually needs are fetched with each job."
+    },
+    {
+      "id": "b",
+      "text": "Omit `FetchVariables` so the broker streams the full process state — this is always the fastest option."
+    },
+    {
+      "id": "c",
+      "text": "Set `FetchVariables` to `[]` and have the worker re-read variables later via the Tasklist API for each job."
+    },
+    {
+      "id": "d",
+      "text": "Increase the broker's max message size so every variable fits in one payload no matter how large."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs explicitly recommend using the `FetchVariables` parameter and only fetching the variables the job handler needs. This keeps the activation payload small, reduces network bandwidth, and minimises the risk of overwriting parallel-branch variables on completion."
+    },
+    "b": {
+      "text": "By default (when `FetchVariables` is omitted) the job payload contains all variables visible in the scope — possibly tens of variables of arbitrary size. The docs warn against this and recommend the opposite."
+    },
+    "c": {
+      "text": "Tasklist is for human tasks, not for worker job payloads, and the docs do not propose re-reading variables out-of-band. `FetchVariables` already lets the worker request only what it needs."
+    },
+    "d": {
+      "text": "Raising the message ceiling does the opposite of data minimisation; the docs' advice is to send less data, not to make room for more."
+    }
+  },
+  "explanation": "The docs say to use the `FetchVariables` parameter and only request the variables your handler needs, to minimise broker work and network bandwidth. This also reduces the surface area for race conditions on parallel paths, since completing a job writes its fetched/returned variables back to the process scope.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

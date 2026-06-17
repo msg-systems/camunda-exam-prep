@@ -1,0 +1,63 @@
+{
+  "id": "imp-set14-q35",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Connector fails intermittently (partner API has occasional 500s). Team wonders if the Connector has its own retry or relies on standard Service Task retries.",
+  "question": "Connector retry vs Service Task retry?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Connector tasks reuse the single job-retries counter that any Service Task uses -- there is no separate \"Connector-internal retries layer\". md:72-79: - On Connector failure, the runtime issues fail job with remaining retries decremented (configured via zeebe:taskDefinition retries=\"N\", default 3). - If remaining retries > 0: the job is retried and reassigned. - If remaining retries == 0: an incident is raised (operator must resolve before further retries). - Optional retry back off can be set on the fail to delay the next activation (:76-79), useful when the downstream is temporarily down. - Idempotency is critical because the retried call hits the same downstream endpoint with the same payload. , TCP retries inside the HTTP client library) do happen but are not exposed as a separate retry knob -- from the BPMN perspective there is one counter and one retry-backoff."
+    },
+    {
+      "id": "b",
+      "text": "Connector tasks do not ignore the BPMN retry configuration. fail(). When the retry count reaches zero, an Incident is created in Operate. The retry count is configured in the BPMN element properties panel via the retries attribute, and a configurable backoff delay can be set between retry attempts. The Connector worker fully respects this standard job-level retry mechanism."
+    },
+    {
+      "id": "c",
+      "text": "Retry capability is fully available for Connector tasks in Camunda 8. The BPMN retry count configured on the Connector task element controls how many times the job is retried after failure. Additionally, some Connectors implement their own internal retry logic with exponential backoff before reporting failure to the broker. Both the BPMN-level retry counter and Connector-internal retries work together, giving teams two layers of retry resilience for integration with external services. The retry delay between attempts can also be configured per BPMN task properties."
+    },
+    {
+      "id": "d",
+      "text": "Some Connectors do implement internal retry logic with backoff before reporting a failure, but the BPMN-level retry counter is not absent or irrelevant. fail() call decrements the BPMN retry counter. Saying only Connector-internal retry exists ignores the standard BPMN job retry mechanism that applies uniformly to all job-based tasks including Connectors. When Connector-internal retries are exhausted, the job failure is reported to the broker which then decrements the BPMN retry counter."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Connector + Service Task retry layering: Layer 1: BPMN Service Task retries (Camunda 8 standard): retries configured on the task (default typically 3). When Connector fails (throws / returns error): job.fail() decrements retries. At 0: Incident raised; operator intervention needed. Layer 2: Connector-internal retries (optional, per Connector): Some Connectors retry low-level operations (e.g., HTTP Connector retries on connection refused). Transparent to BPMN: only after all internal retries fail does the Connector fail to BPMN level. Coordination: Example: HTTP Connector with internal retries (3) + BPMN retries (3): Connection fails: Connector internally retries up to 3 times. All 3 internal retries fail: Connector reports failure to BPMN. BPMN decrements retries (now 2 left). BPMN re-activates Connector job; Connector again retries internally up to 3 times. Up to 3 × 3 = 9 actual HTTP attempts before Incident. Configuration: BPMN-level: `xml ` Connector-internal (depends on Connector): May not be exposed in standard config. Implementation detail. For transient errors: Strategy 1: BPMN retries with backoff: Standard BPMN retries (3, 5, 10) cover transient issues. Each retry typically immediate (no backoff in basic BPMN). For backoff: use Timer between retries (custom flow). Strategy 2: Backoff via process model: Connector → Error Boundary → Timer (delay) → loop back. Custom retry loop with controllable delay. Strategy 3: Custom retry logic in worker: For custom Connectors / Service Tasks. Code-level retry with exponential backoff. For permanent errors: BPMN error code mapping: Connector throws specific error codes (404, 401, 500-class differently). Error Boundary: route based on error type. 400-class (client error): don't retry; investigate input. 500-class (server error): retry; may resolve. Network errors: retry; likely transient. Idempotency (critical with retries): Same request may be sent multiple times (network retries, BPMN retries). Partner should handle idempotently (idempotency keys, deduplication). If partner not idempotent: design retry to be safe (read-only operations, etc.). Monitoring: Retry counts: high retry rates signal partner issues. Incidents: alert on exhausted retries. Latency: retries add latency; track to detect degradation. Best practices: Sensible retry counts: 3-5 for transient; don't retry permanent errors. Idempotency: critical for safe retries. Backoff: avoid hammering failing partners. Monitor + alert: on retry rates and incidents."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Connector + Service Task retry layering: Layer 1: BPMN Service Task retries (Camunda 8 standard): retries configured on the task (default typically 3). When Connector fails (throws / returns error): job.fail() decrements retries. At 0: Incident raised; operator intervention needed. Layer 2: Connector-internal retries (optional, per Connector): Some Connectors retry low-level operations (e.g., HTTP Connector retries on connection refused). Transparent to BPMN: only after all internal retries fail does the Connector fail to BPMN level. Coordination: Example: HTTP Connector with internal retries (3) + BPMN retries (3): Connection fails: Connector internally retries up to 3 times. All 3 internal retries fail: Connector reports failure to BPMN. BPMN decrements retries (now 2 left). BPMN re-activates Connector job; Connector again retries internally up to 3 times. Up to 3 × 3 = 9 actual HTTP attempts before Incident. Configuration: BPMN-level: `xml ` Connector-internal (depends on Connector): May not be exposed in standard config. Implementation detail. For transient errors: Strategy 1: BPMN retries with backoff: Standard BPMN retries (3, 5, 10) cover transient issues. Each retry typically immediate (no backoff in basic BPMN). For backoff: use Timer between retries (custom flow). Strategy 2: Backoff via process model: Connector → Error Boundary → Timer (delay) → loop back. Custom retry loop with controllable delay. Strategy 3: Custom retry logic in worker: For custom Connectors / Service Tasks. Code-level retry with exponential backoff. For permanent errors: BPMN error code mapping: Connector throws specific error codes (404, 401, 500-class differently). Error Boundary: route based on error type. 400-class (client error): don't retry; investigate input. 500-class (server error): retry; may resolve. Network errors: retry; likely transient. Idempotency (critical with retries): Same request may be sent multiple times (network retries, BPMN retries). Partner should handle idempotently (idempotency keys, deduplication). If partner not idempotent: design retry to be safe (read-only operations, etc.). Monitoring: Retry counts: high retry rates signal partner issues. Incidents: alert on exhausted retries. Latency: retries add latency; track to detect degradation. Best practices: Sensible retry counts: 3-5 for transient; don't retry permanent errors. Idempotency: critical for safe retries. Backoff: avoid hammering failing partners. Monitor + alert: on retry rates and incidents.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q35",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

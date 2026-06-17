@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q59",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team wants to ensure that every deployment to production is preceded by a successful run of integration tests on staging. They're setting up a CI/CD pipeline using GitHub Actions that should: (1) build the BPMN/DMN artifacts, (2) deploy to staging, (3) run an integration test suite, (4) on success, deploy to production.",
+  "question": "Which Camunda 8 mechanism is most appropriate for automated programmatic deployment in CI/CD?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Both Zeebe deployResource and Web Modeler API are valid CI/CD deployment mechanisms; the choice depends on whether you want the Modeler audit and sharing layer involved in the pipeline. Zeebe deployResource is direct and minimal -- it treats BPMN as code-in-Git and bypasses the Web Modeler's project layer entirely. Web Modeler API routes deployment through Modeler projects, keeping the Modeler's view of \"what's deployed where\" accurate and making deployments visible to business stakeholders via the Modeler UI. Both are documented, production-supported approaches with distinct trade-offs."
+    },
+    {
+      "id": "b",
+      "text": "Use the Zeebe Java or TypeScript client's deployResource command with cluster-specific OAuth2 credentials. In the CI/CD pipeline, authenticate to the staging cluster using its dedicated client credentials to deploy BPMN/DMN artifacts for the integration test step, then authenticate to the production cluster using its own credentials to perform the production deployment after the tests pass. This approach is direct, requires no Modeler layer, and keeps process definitions in Git as the source of truth."
+    },
+    {
+      "id": "c",
+      "text": "Use the Web Modeler API to push the updated BPMN/DMN files into a Web Modeler project via the file-sync endpoint, then trigger a deployment from the project to the target cluster using the deployment endpoint. This keeps the Web Modeler's \"deployed versions\" view accurate and allows business stakeholders to see the current deployed state in the Modeler UI alongside the file history."
+    },
+    {
+      "id": "d",
+      "text": "bpmn --cluster prod for the production step after integration tests pass. No standalone Camunda CLI tool with a deploy command and multi-cluster targeting exists as a documented product offering. Programmatic deployment in CI/CD is done via the Zeebe SDK deployResource command or the Web Modeler REST API, not a separate CLI utility."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Working answer, but ignores the alternative."
+    },
+    "b": {
+      "text": "Incorrect. Working answer, but ignores the alternative."
+    },
+    "c": {
+      "text": "Incorrect. Both options work; the choice depends on whether you want the Modeler's project/audit layer involved. Zeebe deployResource is direct and minimal -- fits when the BPMN is treated as code-in-Git only. Web Modeler API routes deployment through the Modeler project (file sync + trigger deployment), which keeps Modeler's view of \"what's deployed where\" accurate. Many teams prefer Web Modeler API for visibility; some prefer Zeebe direct for simplicity."
+    },
+    "d": {
+      "text": "Incorrect. No standalone Camunda CLI tool of that scope; deployment is via SDK/API."
+    }
+  },
+  "explanation": "Working answer, but ignores the alternative.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/zeebe-api/grpc/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q59",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

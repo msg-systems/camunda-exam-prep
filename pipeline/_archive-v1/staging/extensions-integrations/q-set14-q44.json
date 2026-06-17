@@ -1,0 +1,69 @@
+{
+  "id": "imp-set14-q44",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Java SDK worker authenticates via OAuth client credentials. Token has 1h expiry. Team wonders if SDK auto-refreshes tokens.",
+  "question": "SDK token caching + refresh?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Manual refresh required -- wrong typically."
+    },
+    {
+      "id": "b",
+      "text": "Camunda SDKs do not fetch a fresh OAuth token on every API request. Requesting a new token per call would add round-trip latency to every Zeebe gRPC call, overwhelm the OAuth server, and exceed rate limits under load. The SDK caches the access token in memory for the duration of its validity, re-using it for all API calls until it is close to expiry, then proactively refreshes before the token expires."
+    },
+    {
+      "id": "c",
+      "text": "Camunda SDKs typically auto-manage OAuth tokens: The Camunda Java and Spring Boot SDKs handle OAuth client-credentials token acquisition, in-memory caching, and proactive refresh transparently. After configuration with client-id, client-secret, and oken-url, the SDK fetches a token, caches it for expires_in seconds, and renews it before expiry. Worker code receives no auth burden. Per camunda-spring-boot-starter configuration, credentials-cache-path optionally persists the cache to disk across restarts."
+    },
+    {
+      "id": "d",
+      "text": "Requesting a new OAuth token on every individual API call is a common misconception about how client-credentials authentication should work. The OAuth spec and all major SDK implementations intend for tokens to be cached and reused for their full lifetime. Issuing per-request tokens would create unnecessary load on the identity server, violate OAuth best-practice guidance, and add measurable latency to every job activation poll and task completion call."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. SDK token management: OAuth client credentials flow: 1. SDK has client_id + client_secret (from config / secrets). 2. POSTs to OAuth token endpoint with credentials. 3. Receives access_token + expires_in (e.g., 3600 sec). 4. Uses token in Authorization header for API calls. 5. Before expiry: requests new token; replaces in cache. SDK auto-management features: Token caching: In-memory cache; lives with SDK instance. Avoids requesting new token per call (inefficient). Lifetime tracking based on expires_in value. Proactive refresh: Refreshes typically a few minutes before expiry. Avoids \"token expired during request\" race conditions. May refresh: 5 min before expiry, or 80% of TTL elapsed, etc. Failure handling: Token request fails (auth server down, wrong creds): error propagates; subsequent API calls fail. Token expired and refresh fails: similar. Logs: SDK logs auth events at INFO / WARN. Configuration knobs (verify per SDK): Client ID / Secret: required. OAuth token endpoint URL: typically auto-detected from cluster config. Token cache TTL: usually auto from expires_in. Refresh threshold: % or absolute time before expiry to refresh. Spring Zeebe example: `yaml camunda: client: auth: client-id: ${CLIENT_ID} client-secret: ${CLIENT_SECRET} token-url: https://login.cloud.camunda.io/oauth/token audience: zeebe.camunda.io ` SDK fetches + caches + refreshes automatically. For Self-Managed Identity / Keycloak: Configure URLs to your Keycloak. Same flow; different endpoints. Multiple audience tokens: Camunda has multiple APIs (Zeebe, Operate, Tasklist, etc.). Each may have separate token audience. SDK manages each independently typically. Thread safety: Token cache is thread-safe (multiple workers can share). Refresh is coordinated to avoid stampedes. Best practices: Don't manually manage tokens: let SDK handle. Monitor auth errors: alert on repeated failures. Rotate secrets regularly: SDK config update. Test with short token TTLs: verify refresh works. Anti-patterns: Logging tokens: sensitive; never log full tokens (per Set 13 Q11 LOGFIRE_TRACKING memory). Hard-coding credentials: use env vars / secrets. Manual token handling: unnecessary complexity. For long-running processes: Tokens refresh as needed during process. No special handling for processes spanning days. For idle workers: Token may expire while idle. Next API call: SDK refreshes; transparent. Custom auth providers: For non-standard auth: implement custom auth provider interface. Override default OAuth flow. Rare; only for specific enterprise needs."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q44",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[3]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 11.8 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

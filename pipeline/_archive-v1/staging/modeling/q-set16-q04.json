@@ -1,0 +1,56 @@
+{
+  "id": "imp-set16-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process starts with variables orderId and customer. Team wonders if Start Event can have Output Mapping to set initial variables.",
+  "question": "Start Event Output Mapping for process variable init?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Start Event behavior varies per Camunda 8 version: typically Output Mapping not applicable to None Start Event (per Set 13 Q4). Process variables typically come from: - Process instance creation API: caller provides initial variables. - Message Start Event payload: Message variables become process variables. - Timer Start: no variables (typically empty). - For initialisation logic: first Service Task after Start handles setup. Verify per Camunda 8 version."
+    },
+    {
+      "id": "b",
+      "text": "Output Mapping always works -- this is only partially accurate. Output Mapping on a None Start Event is generally unsupported or inapplicable in Camunda 8, because the None Start Event has no incoming data payload to map from. Output Mappings transform incoming payload into process variables, but a None Start simply begins execution without providing a source payload. Event-based Start Events (Message, Timer, Signal) may support input or variable mapping from their payload, but None Start does not receive such a payload. Initial variables must be provided by the process instantiation API call instead."
+    },
+    {
+      "id": "c",
+      "text": "In Camunda 8, process variables at instance creation are explicitly provided by the caller: either via the REST API's variables field in the create-process-instance request, through a Message Start Event's payload, or through Signal Start payload. Variables do not spontaneously appear or come from nowhere. The process engineer designs the contract for what initial variables are expected, and callers supply them at runtime. Without initial variables being passed, the process scope starts empty, and any tasks expecting those variables will encounter runtime errors or undefined behavior."
+    },
+    {
+      "id": "d",
+      "text": "Process variable initialization in Camunda 8 follows deterministic, documented mechanisms: the API caller provides variables at process creation, or Message/Signal Start Events carry payload that populates the initial scope. There is no random or automatic initialization. Variables are deterministic data passed through defined channels. If a team expects specific initial variables like orderId and customer, they must ensure the process is started with those values via the API or correct event payload. Undefined or missing initial variables result in runtime errors when tasks reference them."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Process initial variable sources: Process instance creation: Via Orchestration Cluster REST API per apis-tools/orchestration-cluster-api-rest/specifications/create-process-instance.api.mdx:32-34: ` POST /process-instances { \"processDefinitionKey\": \"...\", \"variables\": { \"orderId\": \"ORD-100\", \"customer\": {...} } } (Use processDefinitionKey from deployment OR processDefinitionId + version.) Caller provides initial variables; they become process variables. Via Message Start Event: Message published with variables in payload. Process starts via Message Start. Payload variables → process scope. Via Timer Start Event: Auto-triggered at schedule. No external variables: starts with empty variable scope. Via Signal Start Event: Broadcast signal triggers process. Signal payload (if any) → variables. Start Event Output Mapping: Per Set 13 Q4: Output Mapping typically not applicable to None Start Event. Input Mapping (transforming incoming variables) may apply for some event types. For the scenario (orderId, customer): Most common: Caller (API or upstream service) provides at instance creation. Process receives in initial variable scope. For Message Start: Publisher sends Message with payload. orderId and customer in payload. Process receives. For \"compute initial values\": Add Service Task after Start. Service Task computes / fetches initial state. Sets via Output Mapping. Example flow: [Start (None)] → [Service Task: Initialise State] → [Continue] Output: orderId, customer fetched Or: [Start (Message: \"ORDER_CREATED\")] → ... Payload: {orderId, customer} → process scope Variable scope at process start: Provided by caller (API or Message payload). Stored at process root scope. Visible throughout process (per scope rules per Set 13 Q21). For default values: Pattern: Conditional initialisation: Use FEEL in Input Mapping of first activity. =if customerId != null then customerId else \"ANONYMOUS\"`. Pattern: Init Service Task: Dedicated worker for initialisation. Sets defaults; fetches additional data. For complex initialisation: Validation: ensure required variables present. Fetch related data: customer details from CRM. Set defaults: where missing. Best practices: Document expected initial variables: contract. Validate at start: reject invalid early. Defensive defaults: handle missing. Don't rely on Start Event mapping for None: use explicit init step. For Operate visibility: Initial variables visible in Operate. Can be inspected for debugging. Anti-patterns: Expecting None Start to populate variables: doesn't typically. No validation: garbage in = garbage process. Hardcoding initial values in BPMN: should be parameters."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Process initial variable sources: Process instance creation: Via Orchestration Cluster REST API per apis-tools/orchestration-cluster-api-rest/specifications/create-process-instance.api.mdx:32-34: ` POST /process-instances { \"processDefinitionKey\": \"...\", \"variables\": { \"orderId\": \"ORD-100\", \"customer\": {...} } } (Use processDefinitionKey from deployment OR processDefinitionId + version.) Caller provides initial variables; they become process variables. Via Message Start Event: Message published with variables in payload. Process starts via Message Start. Payload variables → process scope. Via Timer Start Event: Auto-triggered at schedule. No external variables: starts with empty variable scope. Via Signal Start Event: Broadcast signal triggers process. Signal payload (if any) → variables. Start Event Output Mapping: Per Set 13 Q4: Output Mapping typically not applicable to None Start Event. Input Mapping (transforming incoming variables) may apply for some event types. For the scenario (orderId, customer): Most common: Caller (API or upstream service) provides at instance creation. Process receives in initial variable scope. For Message Start: Publisher sends Message with payload. orderId and customer in payload. Process receives. For \"compute initial values\": Add Service Task after Start. Service Task computes / fetches initial state. Sets via Output Mapping. Example flow: [Start (None)] → [Service Task: Initialise State] → [Continue] Output: orderId, customer fetched Or: [Start (Message: \"ORDER_CREATED\")] → ... Payload: {orderId, customer} → process scope Variable scope at process start: Provided by caller (API or Message payload). Stored at process root scope. Visible throughout process (per scope rules per Set 13 Q21). For default values: Pattern: Conditional initialisation: Use FEEL in Input Mapping of first activity. =if customerId != null then customerId else \"ANONYMOUS\"`. Pattern: Init Service Task: Dedicated worker for initialisation. Sets defaults; fetches additional data. For complex initialisation: Validation: ensure required variables present. Fetch related data: customer details from CRM. Set defaults: where missing. Best practices: Document expected initial variables: contract. Validate at start: reject invalid early. Defensive defaults: handle missing. Don't rely on Start Event mapping for None: use explicit init step. For Operate visibility: Initial variables visible in Operate. Can be inspected for debugging. Anti-patterns: Expecting None Start to populate variables: doesn't typically. No validation: garbage in = garbage process. Hardcoding initial values in BPMN: should be parameters.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

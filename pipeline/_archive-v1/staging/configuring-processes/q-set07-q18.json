@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q18",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An AI Agent Connector orchestrates a customer-service agent. The LLM decides which tool to call next based on conversation context. The team's agent has 4 tools: lookup-order, check-shipping-status, escalate-to-human, send-survey. They're configuring where these tools are defined.",
+  "question": "Where are the tools (the agent's callable actions) defined in the BPMN?",
+  "options": [
+    {
+      "id": "a",
+      "text": "As JSON configuration in the AI Agent Connector's property panel -- the Connector's properties carry agent-level configuration such as the LLM model name, system prompt, maximum turns, and API credentials. The source of truth for available tools is the set of activities (Service Tasks) inside the linked Ad hoc Subprocess. Defining tools as static JSON config would make the BPMN model misleading, since the diagram would show the Ad hoc Subprocess with its activities but the actual tool list would live invisibly in a property panel."
+    },
+    {
+      "id": "b",
+      "text": "Inside the LLM provider's tool registry on the provider side -- for example, by registering OpenAI Functions on the OpenAI platform or defining Anthropic Tool Use schemas directly through the provider's API. While tool schemas are indeed serialised and passed to the LLM at inference time (that is how LLMs learn what tools are available), the source of truth definition lives in the Camunda BPMN model, not in the LLM provider. Camunda reads the Ad hoc Subprocess's inner activities and dynamically builds the tool registry for each LLM inference call. The LLM provider side is an ephemeral transient payload, not the canonical definition location."
+    },
+    {
+      "id": "c",
+      "text": "The AI Agent Connector comes with a hardcoded, non-configurable list of tools that cannot be customised by modellers -- the entire value proposition of Camunda's agentic orchestration approach is precisely the opposite. The agent's callable actions are fully defined in BPMN as inner Service Tasks within an Ad hoc Subprocess. This means tool lists can be changed, extended, removed, or redeployed without touching any Connector code. The BPMN-driven tool model is what makes agentic processes observable (tool calls appear in Operate), version-controlled, and governed through the normal process deployment lifecycle."
+    },
+    {
+      "id": "d",
+      "text": "As inner Service Tasks within an Ad hoc Subprocess linked from the AI Agent Connector. Each Service Task = one callable tool. The AI Agent reads the available activities, builds a tool registry for the LLM, and at each turn lets the LLM choose which to invoke. The Service Task's task type, input mapping, and description (often visible to the LLM as the tool's docstring) describe what each tool does."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The canonical Camunda 8 agentic orchestration pattern: AI Agent Connector + Ad-hoc Subprocess. The Ad-hoc Subprocess hosts the available tools as inner activities (typically Service Tasks). The AI Agent at runtime reads the activity list (and their descriptions / schemas) and presents them to the LLM. Per turn: LLM picks one, Camunda executes it, result returns to LLM, repeat until done. The activities are the source of truth -- change the tool by editing the BPMN."
+    },
+    "b": {
+      "text": "Incorrect. Connector properties may carry agent-level config (model, system prompt, etc.) but tool definitions live in the Ad-hoc Subprocess."
+    },
+    "c": {
+      "text": "Incorrect. Tools are passed from Camunda to the LLM at call time as part of the request (e.g., function definitions for OpenAI). Source of truth is Camunda-side BPMN; LLM-side is just the transient request payload."
+    },
+    "d": {
+      "text": "Correct. Tools are fully configurable via BPMN."
+    }
+  },
+  "explanation": "Tools are fully configurable via BPMN.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/agentic-orchestration/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q18",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

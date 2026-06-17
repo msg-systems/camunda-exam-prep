@@ -1,0 +1,50 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-126",
+  "topic": "extensions-integrations",
+  "subtopic": "problems-and-exceptions",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Bank runs Camunda 8.8 workers that handle 9000 jobs per day for a retail bank. After a noisy release the on-call team needs to remember which three completion calls a Camunda 8 worker can send back to the workflow engine when its glue code finishes a service task, so they can wire the right code path for each outcome.",
+  "question": "Which three calls can a Camunda 8 worker send back to the workflow engine after finishing a service task?",
+  "options": [
+    {
+      "id": "a",
+      "text": "AcknowledgeJob to confirm the receipt of the job; ExtendJob to ask the engine for more retry attempts; RejectJob to mark the service task as permanently failed without further intervention from any operator"
+    },
+    {
+      "id": "b",
+      "text": "PauseJob to put the instance on hold while a human reviews the case; ResumeJob to continue processing once the review is done; CancelJob to terminate the entire process instance with a single completion call"
+    },
+    {
+      "id": "c",
+      "text": "PublishJobResult to write the worker outcome to a Kafka topic; FailJob with negative retries; ThrowError with a Java stack trace serialized as the BPMN error payload to the engine"
+    },
+    {
+      "id": "d",
+      "text": "CompleteJob to advance the process; FailJob which retries while retries are positive and raises an incident when retries are zero or below; ThrowError to report a BPMN error handled on the BPMN level"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. There is no AcknowledgeJob, ExtendJob, or RejectJob call documented; the three calls are CompleteJob, FailJob, and ThrowError."
+    },
+    "b": {
+      "text": "Incorrect. There is no PauseJob, ResumeJob, or CancelJob call from the worker; the documented three are CompleteJob, FailJob, and ThrowError."
+    },
+    "c": {
+      "text": "Incorrect. There is no PublishJobResult call, and ThrowError carries a BPMN errorCode rather than a Java stack trace."
+    },
+    "d": {
+      "text": "Correct. The page lists exactly three completion options for the worker: CompleteJob to advance the instance, FailJob (retries decremented; incident raised when remaining retries reach zero or below), and ThrowError to raise a BPMN error handled on the BPMN level."
+    }
+  },
+  "explanation": "Whenever a worker finishes a service task, it sends one of CompleteJob, FailJob, or ThrowError back to Zeebe. FailJob is retried while retries are positive and raises an incident when retries are zero or below. ThrowError reports a BPMN error so the process model can react to it.",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

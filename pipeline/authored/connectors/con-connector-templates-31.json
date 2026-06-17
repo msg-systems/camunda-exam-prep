@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-templates-31",
+  "topic": "connectors",
+  "subtopic": "inbound-start",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "In the example HTTP Webhook inbound start event connector template, which property marks the element as a webhook-typed inbound connector for the runtime?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A visible `String` property labeled \"Webhook URL\" that the user pastes their external endpoint into."
+    },
+    {
+      "id": "b",
+      "text": "A `Hidden` property with value `io.camunda:webhook:1` bound to the zeebe property `inbound.type`."
+    },
+    {
+      "id": "c",
+      "text": "Setting `appliesTo` to `bpmn:ServiceTask` so the runtime treats the task as an inbound connector."
+    },
+    {
+      "id": "d",
+      "text": "A `Dropdown` property \"Connector kind\" that lets the user choose between `inbound` and `outbound` at modeling time."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "The template has no \"Webhook URL\" input; the URL is derived by the runtime from the configured Webhook ID, not pasted by the user."
+    },
+    "b": {
+      "text": "The template's first property is a `Hidden` field with value `io.camunda:webhook:1` and binding `{ type: \"zeebe:property\", name: \"inbound.type\" }`. The connector runtime reads `inbound.type` to dispatch the event to the webhook implementation, paired with a hidden `inbound.subtype` of `ConfigurableInboundWebhook`."
+    },
+    "c": {
+      "text": "Inbound start event templates declare `appliesTo: [\"bpmn:StartEvent\"]`, not `bpmn:ServiceTask`. Service tasks are for outbound templates."
+    },
+    "d": {
+      "text": "There is no `Dropdown` in this template letting users switch inbound and outbound; the kind is determined statically by `appliesTo` plus the hidden `inbound.type`."
+    }
+  },
+  "explanation": "Inbound connector templates identify their runtime implementation through a hidden `inbound.type` property. For the HTTP Webhook example the value is `io.camunda:webhook:1`, paired with a hidden `inbound.subtype = ConfigurableInboundWebhook`. The user-facing properties (Webhook ID, HMAC settings, activation condition, variable mapping) are the visible inputs, but the hidden `inbound.type` is what wires the modeled element to the runtime implementation.",
+  "docs": [
+    {
+      "title": "Connector templates",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-templates/"
+    }
+  ]
+}

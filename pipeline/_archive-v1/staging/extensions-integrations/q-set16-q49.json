@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q49",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL: list [1, 2, 3, 4, 5]. Want [5, 4, 3, 2, 1]. Team wonders reverse function. FEEL list reverse?",
+  "question": "FEEL list reverse?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL provides a built-in reverse(list) function with signature reverse(list: list): list that returns a new list with elements in opposite order. reverse([1,2,3]) returns [3,2,1]. FEEL is value-semantic: the original list is not mutated; a new list is returned. Common use cases include reverse-chronological display of event lists, LIFO (last-in-first-out) traversal of queues, and reversing sorted results. The function works on any FEEL list regardless of element type."
+    },
+    {
+      "id": "b",
+      "text": "md:398-413: reverse([1,2,3,4,5]) returns [5,4,3,2,1]. The function returns a new list with the original elements in reversed order without modifying the input list (FEEL is value-semantic). This is a standard built-in function available in all compliant FEEL engines including Camunda 8. It handles lists of any type (numbers, strings, contexts) and any length. For strings, there is no direct string-reverse function; the pattern is string join(reverse(split(s, \"\")), \"\") (verify split/join availability)."
+    },
+    {
+      "id": "c",
+      "text": "Only via loop -- this is only partially workable. A FEEL for comprehension could reconstruct the reversed list by iterating indices in reverse order: for i in reverse([1,2,3,4,5]) return i. Using a manual loop when reverse() exists adds verbosity, increases the chance of index arithmetic errors (especially with FEEL's 1-based indexing), and obscures the intent. The built-in reverse function is concise, specified, and unambiguous."
+    },
+    {
+      "id": "d",
+      "text": "Sort descending -- this confuses two distinct operations. Sorting by a descending comparator (sort(list, function(a, b) a > b)) would produce a descending order but only for values that are orderable by comparison. For already-sorted numeric lists this might coincidentally produce a reversed list, but for unsorted lists or non-numeric lists this produces a sorted order, not the original list in reversed sequence. ) descending returns [5,4,3,1,1] (numerically sorted). These are fundamentally different operations."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL reverse: Signature: reverse(list) → list. Examples: `feel reverse([1, 2, 3, 4, 5]) → [5, 4, 3, 2, 1] reverse([\"a\", \"b\", \"c\"]) → [\"c\", \"b\", \"a\"] reverse([]) → [] reverse([1]) → [1] For complex types: feel reverse([{id: 1}, {id: 2}, {id: 3}]) // → [{id: 3}, {id: 2}, {id: 1}] Elements preserved; order flipped. Use cases: Use case 1: Reverse chronological order: feel // events sorted ascending by time recentFirst: reverse(events) Use case 2: LIFO behavior: feel // Last in, first out stackOrder: reverse(arrivalOrder) Use case 3: Undo sequence: feel // Compensation order (per Set 14 Q20: LIFO) undoOrder: reverse(completedSteps) Compare with sort(list, precedes) per feel-built-in-functions-list.md:504-519: Signature sort(list: list, precedes: function boolean>): list. Verbatim example: sort(list: [3,1,4,5,2], precedes: function(x,y) x b (no separate desc-sort function). For partial reversal: feel // First N reversed reverseFirstN: concatenate(reverse(items[1..N]), items[(N+1)..count(items)]) Combine reverse with sublist. For nested: feel // List of lists; reverse outer reverse([[1, 2], [3, 4], [5, 6]]) → [[5, 6], [3, 4], [1, 2]] // Inner lists NOT reversed Only top-level reversed. For deep reverse: Not directly: combine reverse + for-loop with recursive reverse. For strings: Direct reverse: typically not. Workaround: split to chars, reverse, join. feel // If FEEL supports char-level operations reverseString: string join(reverse(split(s, \"\")), \"\") Verify FEEL implementation; may differ. Performance: O(n): linear. Single pass. In Output Mapping: xml In Decision Tables: In output expression: reverse a list. In input entry: less common. For pagination: feel // Last 10 items (reverse and take first 10): lastTen: reverse(items)[1..10] Combine slice operations. For combining: feel // Reverse + concatenate result: concatenate(reverse(listA), listB) For boolean check (palindrome): feel isPalindrome: list = reverse(list) Simple equality. Best practices: Use reverse when explicit reversal needed. Sort for ordering: sort > reverse for general ordering. Test edge cases: empty, single, large. Anti-patterns: Manual loop for reverse: when built-in exists. Multiple reverses: typically redundant. For the scenario ([1,2,3,4,5] → [5,4,3,2,1]): feel reversed: reverse(items) ` Simple, idiomatic."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-list/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q49",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-question-too-short",
+        "severity": "block",
+        "message": "question length 18 < 20 (catastrophically short)",
+        "where": "question"
+      }
+    ]
+  }
+}

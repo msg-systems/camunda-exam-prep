@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q50",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team needs to integrate with a partner system that exposes only a legacy SOAP API (no REST, no gRPC). The SOAP API has 12 operations the team needs to call from various BPMN processes.",
+  "question": "Which Camunda 8 integration approach fits SOAP integration best?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use the generic Outbound HTTP Connector with a raw HTTP POST request, setting the Content-Type to text/xml and manually constructing the full SOAP envelope XML as the request body for each of the 12 operations using FEEL string expressions. This approach is technically possible but operationally fragile: each operation requires its own complete SOAP envelope with correct namespace declarations, SOAPAction headers, and XML namespace bindings. Managing 12 different SOAP envelope templates as FEEL strings in BPMN processes is error-prone and difficult to maintain when the WSDL evolves."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 has no native support for SOAP protocol and cannot communicate with SOAP APIs; the team must deploy an API gateway (such as AWS API Gateway or MuleSoft) that translates between Camunda's HTTP-based Connector calls and the partner's WSDL-defined SOAP service. Camunda 8 can integrate with SOAP APIs through a Custom Outbound Connector that wraps a SOAP client library such as Apache CXF. No intermediate proxy or API gateway is required -- the Custom Connector handles WSDL parsing, envelope construction, and response unmarshalling directly."
+    },
+    {
+      "id": "c",
+      "text": "Use Camunda RPA to automate a browser session that navigates to the partner's web portal and submits order confirmations through the portal's HTML form interface, avoiding the SOAP API entirely by using the UI as the integration point. RPA is designed for automating graphical user interface interactions with legacy applications -- not for calling web service APIs. SOAP is a programmatic API protocol; a Custom Outbound Connector wrapping a SOAP client library is the correct architectural approach for API-based integration, regardless of the protocol."
+    },
+    {
+      "id": "d",
+      "text": ", Apache CXF or JAX-WS). The Connector's @Variable-annotated input POJO receives the SOAP operation name and payload fields from the BPMN element template's zeebe:input bindings. The SDK handles FEEL expression evaluation and secret substitution before passing the typed inputs to the SOAP client. The client constructs the SOAP envelope, calls the WSDL endpoint, and the Connector's return value is mapped into process variables via the Result Variable / Result Expression headers. This Connector-once-use-many-times model cleanly abstracts the 12 SOAP operations from BPMN designers, who only see configuration properties -- no XML plumbing."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. A Custom Outbound Connector wrapping a SOAP client library (like Apache CXF or javax.xml.ws) gives a clean BPMN-side abstraction. Users configure the operation name, parameters, and the Connector handles SOAP envelope construction, WSDL parsing, and response unwrapping. This is the canonical approach for 12 SOAP operations: build once, use many times in BPMN."
+    },
+    "b": {
+      "text": "Incorrect. Generic HTTP POST with manually-constructed SOAP envelopes is fragile (each operation has its own envelope structure, namespace declarations, etc.) and clutters every BPMN process."
+    },
+    "c": {
+      "text": "Incorrect. Camunda 8 supports SOAP via Custom Connector; no proxy needed."
+    },
+    "d": {
+      "text": "Correct. RPA is for UI automation, not API integration."
+    }
+  },
+  "explanation": "RPA is for UI automation, not API integration.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q50",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

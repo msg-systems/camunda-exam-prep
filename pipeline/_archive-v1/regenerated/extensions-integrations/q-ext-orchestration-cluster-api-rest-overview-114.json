@@ -1,0 +1,50 @@
+{
+  "id": "ext-orchestration-cluster-api-rest-overview-114",
+  "topic": "extensions-integrations",
+  "subtopic": "orchestration-cluster-api",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Stellar Bank drives 9000 instances per hour through the Camunda 8.8 Orchestration Cluster REST API from a Spring Boot integration. Under peak load the gateway begins rejecting calls. The reliability team needs to know which documented HTTP status code signals backpressure so the retry library can apply an exponential backoff specifically for that code.",
+  "question": "Which HTTP status does the Camunda 8.8 Orchestration Cluster REST API return when the broker signals backpressure?",
+  "options": [
+    {
+      "id": "a",
+      "text": "503 Service Unavailable when the system signals backpressure to protect server compute resources, with the recommendation that clients retry the request after a backoff period"
+    },
+    {
+      "id": "b",
+      "text": "429 Too Many Requests when the system signals backpressure to protect server compute resources, with the recommendation that clients retry the request after a backoff period"
+    },
+    {
+      "id": "c",
+      "text": "409 Conflict when the system signals backpressure to protect server compute resources, with the recommendation that clients retry the request after a backoff period"
+    },
+    {
+      "id": "d",
+      "text": "412 Precondition Failed when the system signals backpressure to protect server compute resources, with the recommendation that clients retry the request after a backoff period"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The HTTP status codes table maps 503 to backpressure: the service is currently unavailable because the system signals backpressure to prevent server compute resources from being exhausted, and clients are recommended to retry after a backoff period."
+    },
+    "b": {
+      "text": "Incorrect. 429 Too Many Requests is not the documented backpressure code in this table; the overview reserves 503 for the backpressure case."
+    },
+    "c": {
+      "text": "Incorrect. 409 Conflict is used when a request modifies a resource that is not in the correct state, not for backpressure signalling."
+    },
+    "d": {
+      "text": "Incorrect. 412 Precondition Failed asks the client to check cluster status, but is not the code used to signal broker backpressure under load."
+    }
+  },
+  "explanation": "When the broker signals backpressure the Orchestration Cluster REST API returns 503 Service Unavailable. The status table documents this case as a temporary unavailability caused by load shedding, and instructs clients to retry the request after a backoff period rather than treating it as a permanent failure.",
+  "docs": [
+    {
+      "title": "Orchestration Cluster REST API overview",
+      "url": "https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/orchestration-cluster-api-rest-overview/"
+    }
+  ]
+}

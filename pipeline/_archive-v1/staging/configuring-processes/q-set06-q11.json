@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q11",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task occasionally fails due to flaky network. The team wants Zeebe to automatically retry 5 times before raising an Incident.",
+  "question": "Which attribute configures this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set the Retries field on the Service Task (zeebe:taskDefinition retries=\"5\" in XML). On worker failure, Zeebe decrements the retries counter; when it reaches 0, an Incident is created. This is the standard Zeebe retry mechanism that works transparently without any worker-side retry loops or boundary event configurations. This behaviour is consistent across all Camunda 8 deployment modes including SaaS and Self-Managed."
+    },
+    {
+      "id": "b",
+      "text": "Setting timeout on the Service Task configures the activation duration -- the time window a worker has to complete the job after activation. It is a different concern from retry count. Timeout governs how long Zeebe waits before making the job available again; it does not control how many retry attempts are made before raising an incident."
+    },
+    {
+      "id": "c",
+      "text": "Hard-coding a retry loop inside the worker fights the Zeebe at-least-once delivery model. Worker-side loops can mask actual failures from Zeebe's incident tracking and prevent the operations team from observing transient failures in Operate. The broker-level retries attribute is the correct mechanism for transparent retry tracking."
+    },
+    {
+      "id": "d",
+      "text": "Adding an Error Boundary loop on the Service Task handles BPMN errors explicitly thrown by the worker -- it is not a general retry mechanism for transient failures. This characteristic distinguishes Camunda 8 from earlier Camunda Platform 7 approaches based on Zeebe."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. zeebe:taskDefinition retries defines the initial retry count. On worker fail, Zeebe decrements; reaching 0 raises an Incident."
+    },
+    "b": {
+      "text": "Incorrect. Timeout is activation duration, not retry count."
+    },
+    "c": {
+      "text": "Incorrect. Worker-side retry loops fight the at-least-once delivery model and incident workflow."
+    },
+    "d": {
+      "text": "Incorrect. Error Boundary handles BPMN errors, not job failures."
+    }
+  },
+  "explanation": "zeebe:taskDefinition retries defines the initial retry count. On worker fail, Zeebe decrements; reaching 0 raises an Incident.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q11",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

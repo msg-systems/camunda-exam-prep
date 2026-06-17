@@ -1,0 +1,63 @@
+{
+  "id": "imp-set13-q07",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team needs to send a message to an external system. They consider: (1) Send Task with Connector binding, (2) Service Task with Connector, (3) Intermediate Throw Message Event with Connector. They wonder which is most semantically appropriate.",
+  "question": "Send Task vs Service Task with Connector vs Throw Message Event -- semantic choice?",
+  "options": [
+    {
+      "id": "a",
+      "text": "All identical -- partial; semantic differences matter."
+    },
+    {
+      "id": "b",
+      "text": "Only Service Tasks should be used for sending messages to external systems -- wrong; Send Task and Intermediate Throw Message Event are equally valid and more semantically precise options. BPMN defines the Send Task specifically to communicate the intent that this activity sends a message to an external participant. Using a Service Task for every external interaction conflates tasks that do business computation with tasks that merely transmit messages. The choice between all three constructs affects diagram readability and the clarity of intent for future maintainers, architects, and reviewers who need to understand the process model quickly."
+    },
+    {
+      "id": "c",
+      "text": "Send Task always wins over Service Task and Throw Message Event for any messaging scenario -- overstates; the optimal choice depends on context and intent. Send Tasks are most appropriate when messaging is the primary business purpose of the activity and deserves prominent visual representation. For lightweight notification events occurring mid-flow where the \"sending\" is incidental to the main process flow, an Intermediate Throw Message Event communicates more clearly that an event occurred rather than work was performed. For complex tasks where messaging is one part of broader business logic, a Service Task may be appropriate."
+    },
+    {
+      "id": "d",
+      "text": "Each has different semantic emphasis: a Service Task performs business work and happens to send a message as part of that work -- appropriate when messaging is incidental. A Send Task explicitly models the act of sending a message to an external participant, communicating clear intent to reviewers. An Intermediate Throw Message Event represents a process event where a signal is emitted mid-flow, appropriate for lightweight notification without business computation. Functionally, all three can invoke a Connector or job worker; the choice is about diagram readability and modelling semantics rather than runtime capability difference."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. All three constructs can send messages with a Connector; semantic choice: Send Task (BPMN task with envelope marker): Semantic: \"this task's purpose IS to send a message.\" Visual: rectangle with envelope marker (distinguishes from generic Service Task). Use when: messaging is a meaningful business step; readers benefit from the visual cue. Service Task (generic worker-driven task): Semantic: \"this task does work via a worker.\" Visual: rectangle with gear / cog marker (or just plain). Use when: the task's purpose is broader than just messaging (e.g., \"process payment\" -- which happens to call a payment API). For pure messaging: less semantically precise than Send Task. Throw Message Event (BPMN intermediate event): Semantic: \"an event happens -- fire a message.\" Visual: circle with envelope marker. Use when: the messaging is a side-effect / event in the middle of flow; not a \"task\" with significant work. Lightest weight: no task box overhead. Choice in practice: Slack notification on order shipped: Throw Message Event or Send Task (both semantic; Throw lighter for \"event during flow\"). Submit credit application to partner via API: Send Task (it's a meaningful business step). Generic API call doing computation: Service Task (work, not pure messaging). All three functionally similar at runtime with a Connector. Diagram readability drives choice."
+    },
+    "b": {
+      "text": "Incorrect. Semantic differences."
+    },
+    "c": {
+      "text": "Incorrect. Multiple options."
+    },
+    "d": {
+      "text": "Correct. Overstates."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/send-tasks/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q07",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 12.0 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

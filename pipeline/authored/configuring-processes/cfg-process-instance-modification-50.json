@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-50",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A modification command contains an activation instruction for task `X` and a termination instruction for task `Y`, where task `Y` is currently the only active element in the process instance. After the command applies, the process instance keeps running. Why?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The engine applies all termination instructions first, then activations, so task `Y` is terminated and task `X` is created on a fresh empty instance."
+    },
+    {
+      "id": "b",
+      "text": "The engine applies all activation instructions first, so task `X` is active before task `Y` is terminated and the process instance still has an active element."
+    },
+    {
+      "id": "c",
+      "text": "The engine retries the termination after the activation creates a new active instance asynchronously."
+    },
+    {
+      "id": "d",
+      "text": "The engine silently ignores the termination because applying it would otherwise end the process instance."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "The documented order is the opposite — activations are applied first, then terminations."
+    },
+    "b": {
+      "text": "The docs state that the engine applies all activation instructions first and all termination instructions second, so a freshly activated element prevents the cascading process-end rule from firing when the previous last active instance is removed."
+    },
+    "c": {
+      "text": "There is no retry phase. Modification is a single transactional command, not a polling loop."
+    },
+    "d": {
+      "text": "Modification is transactional — instructions are not silently dropped; if anything could not apply, the entire command would be rejected."
+    }
+  },
+  "explanation": "Per the docs, modification commands apply activation instructions first and termination instructions second. This ordering is what lets you swap the last active element of a process instance or a subprocess: by the time the termination runs, the activation has already produced a new active element, so the cascading \"terminate the parent when empty\" rule does not fire. The whole command is transactional — all or nothing.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

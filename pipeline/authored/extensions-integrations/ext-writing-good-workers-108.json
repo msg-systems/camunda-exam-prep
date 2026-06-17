@@ -1,0 +1,53 @@
+{
+  "id": "ext-writing-good-workers-108",
+  "topic": "extensions-integrations",
+  "subtopic": "java-worker",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A `@JobWorker(type = \"rest\")` makes a blocking `RestTemplate` call and the team needs more throughput without rewriting in reactive style. Which single change does the docs suggest?",
+  "codeBlocks": {
+    "stem": "ZeebeClient client = ZeebeClient.newClientBuilder()\n  .numJobWorkerExecutionThreads(5)\n  .build();"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "Build the client with `.numJobWorkerExecutionThreads(5)` (or the equivalent Spring Boot Starter configuration) so the polling component dispatches jobs across a thread pool."
+    },
+    {
+      "id": "b",
+      "text": "Bump `retries` on the service task definition above the default 3 so blocking jobs are reprocessed faster."
+    },
+    {
+      "id": "c",
+      "text": "Set `autoComplete = true` on the `@JobWorker`, which switches the SDK to a non-blocking completion path."
+    },
+    {
+      "id": "d",
+      "text": "Lower the broker's job activation timeout so blocking jobs are reassigned to other workers sooner."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs show exactly this fix for blocking handlers: build the `ZeebeClient` with `.numJobWorkerExecutionThreads(5)` (or the equivalent Spring Boot Starter execution-threads configuration). This lifts the default-of-one thread cap so blocking REST calls can run in parallel."
+    },
+    "b": {
+      "text": "Retries control failure handling, not concurrency. Raising retries does not make a single worker process more jobs per second."
+    },
+    "c": {
+      "text": "`autoComplete` controls whether the SDK auto-sends the complete command; it does not change the threading model. Blocking code still serializes on the same execution threads."
+    },
+    "d": {
+      "text": "Shortening the activation timeout causes jobs to be re-activated by other workers and increases broker load; it does not raise throughput on the original worker."
+    }
+  },
+  "explanation": "The docs' direct fix for scaling blocking Java workers without rewriting in reactive style is to enlarge the worker execution thread pool — for example with `ZeebeClient.newClientBuilder().numJobWorkerExecutionThreads(5).build()` or the equivalent Spring Boot Starter configuration. Throughput then scales roughly with the number of threads, bounded by the I/O latency.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

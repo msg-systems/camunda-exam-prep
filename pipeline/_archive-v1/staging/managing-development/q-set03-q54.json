@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q54",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A production process model order-fulfillment v1 has 500 active instances. The team wants to deploy v2 with a fixed bug in a downstream Service Task. They want existing instances to continue with v1 logic until completion, but new instances to use v2.",
+  "question": "Which Camunda 8 deployment behavior fits this scenario?",
+  "options": [
+    {
+      "id": "a",
+      "text": "When v2 is deployed, all 500 running v1 instances automatically migrate to the v2 process model in-flight -- Zeebe replaces the model they are executing with v2 immediately, and the old v1 definition becomes unavailable. Zeebe's versioning model does the opposite: running instances remain pinned to the version they started on (v1), and the old definition stays available as a historical deployment until all its instances complete. Auto-migration would be unsafe and is not Zeebe's default."
+    },
+    {
+      "id": "b",
+      "text": "To move existing instances to v2, the team must explicitly migrate each instance individually using Operate's process instance migration UI -- selecting each v1 instance and mapping its active element position to the corresponding v2 element. The team wants v1 instances to complete naturally on v1 while new instances use v2, which Zeebe's default multi-version coexistence handles automatically without any migration."
+    },
+    {
+      "id": "c",
+      "text": "Cancel all 500 running v1 instances before deploying v2, because Zeebe only supports one active process definition version at a time and will reject the v2 deployment if v1 instances are still running. Zeebe explicitly supports multiple concurrent process definition versions. Deployed processes are never removed to accommodate running instances; each deployment creates a new version that coexists with older versions."
+    },
+    {
+      "id": "d",
+      "text": "Deploy v2 -- by default, Zeebe's process versioning model pins running instances to the version of the process that was deployed when they were started. The 500 active v1 instances continue executing the v1 process model until each reaches its End Event naturally. All new instances started after the v2 deployment automatically use v2. No migration action is required for this scenario -- multiple process versions coexist simultaneously in Zeebe by design, each running independently."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe's default versioning: when you deploy v2 of a process with the same id, running instances pinned on v1 continue executing the v1 model. New instance starts after v2 deployment use v2. This is the safe default -- bug fixes don't disrupt in-flight work."
+    },
+    "b": {
+      "text": "Incorrect. No auto-migration; this would be unsafe for many fixes."
+    },
+    "c": {
+      "text": "Incorrect. Migration is supported but not required for this scenario."
+    },
+    "d": {
+      "text": "Correct. Multiple versions coexist by design."
+    }
+  },
+  "explanation": "Multiple versions coexist by design.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/processes/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q54",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

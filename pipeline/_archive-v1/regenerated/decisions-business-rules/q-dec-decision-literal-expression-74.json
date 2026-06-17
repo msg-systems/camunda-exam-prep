@@ -1,0 +1,50 @@
+{
+  "id": "dec-decision-literal-expression-74",
+  "topic": "decisions-business-rules",
+  "subtopic": "decision-literal-expression",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Maple Health, an insurer adjudicating 7200 claims per day, accidentally sets a DMN decision id attribute to claim status (with a space). Deployment passes, but a downstream eligibility decision that lists this decision as required cannot access its result at runtime in Camunda 8.8.",
+  "question": "Why can a dependent decision no longer access the result when the source decision ID contains a whitespace character?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Decision IDs must be alphanumeric or underscore, so an ID with whitespace cannot be referenced from a dependent decision and the result becomes inaccessible"
+    },
+    {
+      "id": "b",
+      "text": "Decision IDs with whitespace are silently stripped at deployment, so the dependent decision resolves to a different ID than the one written in the source"
+    },
+    {
+      "id": "c",
+      "text": "Decision IDs with whitespace are valid only when quoted in FEEL, so the dependent decision must wrap the reference in single quotes to read the result"
+    },
+    {
+      "id": "d",
+      "text": "Decision IDs with whitespace are valid only inside decision tables, so the dependent decision must use a decision table to read the upstream literal result"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The decision ID may contain only alphanumeric characters and the underscore; if it contains any special character or symbol such as whitespace, the result cannot be accessed in a dependent decision."
+    },
+    "b": {
+      "text": "Incorrect. The engine does not silently strip whitespace from decision IDs; an invalid ID simply prevents dependent-decision access to the result."
+    },
+    "c": {
+      "text": "Incorrect. There is no FEEL escaping path that rehabilitates a decision ID containing special characters; such IDs cannot be referenced from dependent decisions at all."
+    },
+    "d": {
+      "text": "Incorrect. The form of the dependent decision is irrelevant; an invalid decision ID blocks access from any dependent decision, table or literal expression."
+    }
+  },
+  "explanation": "Decision IDs must be alphanumeric or underscore. Any special character or symbol (including whitespace) makes the result inaccessible from a dependent decision.",
+  "docs": [
+    {
+      "title": "DMN decision literal expression",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-literal-expression/"
+    }
+  ]
+}

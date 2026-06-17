@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q48",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL needs abs(-5) (absolute), floor(3.7) (round down), ceiling(3.2) (round up). Team wonders availability. FEEL numeric functions abs, floor, ceiling?",
+  "question": "FEEL numeric functions abs, floor, ceiling?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL provides a comprehensive set of numeric built-in functions. abs(n) returns the absolute value (abs(-5) → 5). 7) → -4). 2) → -3). Additional rounding functions include round half up(n, scale) for half-up rounding to a decimal precision and round half even(n, scale) for banker's rounding. modulo(a, b) computes the remainder. These are specified in the DMN FEEL standard and available in Camunda 8's evaluator."
+    },
+    {
+      "id": "b",
+      "text": "Only abs -- this is only partially correct. While abs(n) is indeed one of FEEL's built-in numeric functions, it is not the only one. FEEL provides a complete set of numeric utility functions: floor(n) rounds down to the nearest integer (toward negative infinity), ceiling(n) rounds up to the nearest integer (toward positive infinity), round half up(n, scale) rounds to a specified number of decimal places using half-up convention, round half even(n, scale) uses half-even (banker's) rounding, and modulo(a, b) computes the remainder. Limiting FEEL to only abs would make many common numeric operations impossible without manual arithmetic."
+    },
+    {
+      "id": "c",
+      "text": "2) → -3). These are standard built-in functions in the DMN FEEL specification, available in all compliant engines including Camunda 8. Additional rounding functions include round half up and round half even with configurable scale. These functions eliminate the need for manual computation in decision table cells or literal expressions."
+    },
+    {
+      "id": "d",
+      "text": "Manual computation -- this is only partially workable. While simple absolute value could be computed with if n >= 0 then n else -n, and floor could be approximated for positive numbers, these manual expressions are fragile (edge cases like negative numbers, NaN, extreme values), verbose, and hard to read. FEEL's built-in numeric functions (abs, floor, ceiling) are precisely specified by the standard, handle all edge cases correctly, and communicate intent clearly. Using manual computation when standard functions exist violates the principle of using the language's idioms and increases maintenance risk."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL numeric functions: abs(n) (absolute value): `feel abs(-5) → 5 abs(5) → 5 abs(0) → 0 abs(-3.14) → 3.14 floor(n) (round towards negative infinity): feel floor(3.7) → 3 floor(3.2) → 3 floor(-2.3) → -3 (rounds DOWN) floor(5) → 5 ceiling(n) (round towards positive infinity): feel ceiling(3.2) → 4 ceiling(3.7) → 4 ceiling(-2.3) → -2 (rounds UP) ceiling(5) → 5 Rounding modes (per feel-built-in-functions-numeric.md:103-205 -- all rounding functions take (n, scale)): round up(n, scale) :103, round down(n, scale) :129, round half up(n, scale) :155, round half down(n, scale) :181: feel round half up(5.5, 0) // 6 round half up(-5.5, 0) // -6 round half up(1.121, 2) // 1.12 round half down(5.5, 0) // 5 Note: FEEL 8.8 does not ship a round half even (banker's-rounding) function -- only up/down/half up/half down. modulo(a, b): feel modulo(10, 3) → 1 modulo(-10, 3) → 2 or -1 (per implementation) modulo(10, 0) → null / error Other functions: decimal(n, scale) per feel-built-in-functions-numeric.md:9: Round to specific decimal places (DMN-spec banker's-rounding semantics on a tie). sqrt(n) (square root, verify): feel sqrt(16) → 4 sqrt(2) → 1.4142... exp(n) / log(n) (verify support): feel exp(1) → 2.718... log(2.718) → 1 product(list) (per Set 14 Q48): feel product([2, 3, 4]) → 24 Use cases: Use case 1: Distance / difference: feel diff: abs(actual - expected) Always positive. Use case 2: Pagination calculations: feel totalPages: ceiling(totalItems / itemsPerPage) Round up to fit all items. Use case 3: Discrete rounding: feel // Round down to nearest 100 bucket: floor(amount / 100) 100 Use case 4: Mod for cycling: feel // Cycle through 4 values index: modulo(counter, 4) For specific rounding modes: feel // Half up for amounts finalAmount: decimal(rawAmount, 2) // banker's typically // For half-up specifically: customRoundedAmount: round half up(rawAmount 100) / 100 For financial calculations (per Set 13 Q48): FEEL uses arbitrary precision decimals. Banker's rounding default in decimal. For specific modes: use explicit functions. Performance: All cheap operations. No issues. For Decision Tables: In output expressions: use these functions. In input entries: less common. For aggregate computations: feel averageRounded: floor(sum(values) / count(values)) For boundary handling: feel // Cap at max capped: if value > maxValue then maxValue else value // Or with min function (list arg per feel-built-in-functions-list.md:43): capped: min([value, maxValue]) FEEL 8.8 min/max take a single list argument (per feel-built-in-functions-list.md:43, :67); no 2-arg min(a, b) overload. For complex math: Power: n m or pow(n, m) (verify). Logarithm: log(n). Trigonometric: sin, cos, etc. (less common in business FEEL). Best practices: Use built-ins for standard math. Decimal for financial: precision. Test edge cases: zero, negative, very large. Document expected behavior: rounding mode etc. Anti-patterns: Float-based math in FEEL when decimal needed: precision loss. Manual rounding when built-in exists. Ignoring negative number behavior: floor / ceiling differ. For the scenario (abs, floor, ceiling`): All three standard FEEL functions. Verify in your FEEL version**: Exact function names. Behavior on edge cases."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-numeric/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q48",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[1]"
+      }
+    ]
+  }
+}

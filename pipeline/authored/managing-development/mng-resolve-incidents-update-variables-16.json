@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-16",
+  "topic": "managing-development",
+  "subtopic": "operate",
+  "difficulty": "hard",
+  "style": "concept",
+  "kind": "negative",
+  "camundaVersion": "8.8",
+  "question": "Which statement about the guide's procedure for advancing the example instance to its XOR gateway is NOT correct?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Once the `payment-received` message is published, the instance bypasses the `Initiate Payment` task automatically."
+    },
+    {
+      "id": "b",
+      "text": "Completing `Initiate Payment` requires a registered worker that activates and completes the job."
+    },
+    {
+      "id": "c",
+      "text": "The published `payment-received` message must correlate with the running instance via its correlation key."
+    },
+    {
+      "id": "d",
+      "text": "The correlated message advances the token past the `Payment Received` intermediate message catch event."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "False — the message catch event sits downstream of `Initiate Payment`; correlating a message does not bypass an upstream service task. The guide registers a worker to complete `Initiate Payment` before publishing the message."
+    },
+    "b": {
+      "text": "True — the guide creates a worker with `zbctl create worker initiate-payment --handler cat` to complete the `Initiate Payment` job."
+    },
+    "c": {
+      "text": "True — `zbctl publish message ... --correlationKey=\"1234\"` correlates the message to the instance whose correlation value is `1234`."
+    },
+    "d": {
+      "text": "True — the guide states the published message is correlated with the instance so it can advance past the `Payment Received` intermediate message catch event."
+    }
+  },
+  "explanation": "Publishing a message correlates to a waiting subscription; it does not skip an upstream service task. The guide therefore first registers the `initiate-payment` worker to complete that task, then publishes `payment-received` with `correlationKey=\"1234\"` to advance the token past the intermediate catch event toward the XOR gateway.",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ]
+}

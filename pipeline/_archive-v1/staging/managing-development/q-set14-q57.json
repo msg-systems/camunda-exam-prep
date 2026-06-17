@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q57",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team needs to triage instances by specific variable value in Operate -- e.g., \"show all instances where customerId = C-100.\" Team wonders Operate's variable filtering.",
+  "question": "Operate filtering by variable values?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Operate supports filtering process instances by variable name and value, not only by process definition ID. ), and target value. Multiple variable filters combine as AND conditions, narrowing results to instances matching all criteria. The Operate REST API exposes equivalent filtering for programmatic queries. Verify exact filter syntax per your Operate version."
+    },
+    {
+      "id": "b",
+      "text": "Operate supports variable-based filtering: In the Processes view, users enter a variable name and value filter to find all instances where customerId = C-100 or any other variable condition. The filter supports multiple operators and AND combinations of multiple variable filters. Results update in the instance list immediately. The Operate REST API's search endpoint accepts a ariables filter array for the same capability programmatically. This is a first-class Operate feature for operational triage."
+    },
+    {
+      "id": "c",
+      "text": "Operate provides comprehensive filtering capabilities for process instances. The filter panel supports filtering by process definition, version, state, date ranges, and variable values. Operate was designed specifically to enable operations teams to locate and triage specific instances among potentially thousands of running processes. Without filtering, managing large deployments would require examining every instance individually."
+    },
+    {
+      "id": "d",
+      "text": "Querying the Operate backend database directly with SQL is neither recommended nor necessary for variable-based instance filtering. Operate provides a purpose-built REST API with a variable filter parameter and a UI filter panel that deliver the required capability without direct database access. Direct database queries bypass Operate's authorization layer, may break with internal schema changes, and are unsupported. The documented API and UI interfaces are the correct mechanisms for filtering by variable value."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate variable filtering: Standard filters: Process definition / version. State: active, completed, terminated, with incident. Start date range, end date range. Process instance ID / key. Parent process (for subprocesses). Variables: name + operator + value. Variable filter examples: Equals: customerId = \"C-100\": instances with this specific customer. Multiple variable conditions: customerId = \"C-100\" AND status = \"PENDING\": combine. Operators (verify per version): Equals (=): exact match. Contains: substring (for strings). Greater / less than: numeric / date comparisons. Exists: variable is set (any value). Range: between values. UI workflow: 1. Open Operate process instances view. 2. Click \"Add filter\" or similar. 3. Choose variable name (or type if dynamic). 4. Select operator. 5. Enter value. 6. Apply; results filtered. API equivalent: `json POST /v1/process-instances/search { \"filter\": { \"variables\": [ {\"name\": \"customerId\", \"value\": \"C-100\", \"operator\": \"EQUALS\"} ] } } Use cases: Use case 1: Customer support: Customer calls; find their active processes. Filter by customerId; see their order, support tickets, etc. Use case 2: Investigation: Bug report mentions specific orderId. Filter by orderId; find affected instance. Use case 3: Operational metrics: \"How many high-priority orders pending?\". Filter by priority and status. Use case 4: Audit: \"Find all instances touched by user X.\" Filter by user variable. Performance considerations: Indexing: Operate may index common variables for fast filtering. Unindexed variable filters: slower; full scan. For frequent filters: ensure indexing (verify Operate version config). Large result sets: Pagination on result lists. Don't expect to view 10,000 results all at once. Refine filters or use aggregate APIs. Custom queries: Operate API: programmatic filtering for custom dashboards. Direct DB access (Self-Managed): for power users; ensure proper indices. Export to BI: ETL Operate data to data warehouse for advanced analytics. Best practices: Train operators on filtering: don't open every instance manually. Save common filters: if Operate supports bookmarking. Combine with date ranges: limit scope of search. For complex queries: API + scripts, not UI. Anti-patterns: No filters; browse all: doesn't scale. Filtering on non-indexed variables on huge datasets: slow. Variable name typos: silent no-match (variable doesn't exist that way). For the scenario (find by customerId = \"C-100\"): Operate UI → filter → variables → name: customerId, operator: =, value: C-100`. Returns matching instances. Inspect each as needed."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/basic-operate-navigation/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q57",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

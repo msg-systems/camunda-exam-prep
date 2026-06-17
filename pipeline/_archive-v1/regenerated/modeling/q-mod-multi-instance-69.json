@@ -1,0 +1,50 @@
+{
+  "id": "mod-multi-instance-69",
+  "topic": "modeling",
+  "subtopic": "multi-instance",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Junction Bank reviews 8 tasks per batch through a parallel multi-instance user task block in Camunda 8.8. The product owner wants the batch to complete the moment at least half of the instances finish, so a FEEL completionCondition must encode that 50% threshold against the documented multi-instance properties.",
+  "question": "Which FEEL completionCondition expresses stopping when at least half of the multi-instance instances complete?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An expression like = numberOfActiveInstances < numberOfInstances / 2 stops the body when fewer than half of the instances remain in the active state at evaluation"
+    },
+    {
+      "id": "b",
+      "text": "An expression like = numberOfTerminatedInstances >= 0.5 stops the body when half or more of the instances have been individually terminated by a job worker callback"
+    },
+    {
+      "id": "c",
+      "text": "An expression like = numberOfCompletedInstances / numberOfInstances >= 0.5 stops the body when half or more of the instances are already in the completed state at evaluation"
+    },
+    {
+      "id": "d",
+      "text": "An expression like = count(numberOfCompletedInstances) >= 0.5 stops the body when the completed count function returns a value of at least 0.5 as a fractional result"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The documentation expresses the 50% threshold through numberOfCompletedInstances divided by numberOfInstances, not through a separate comparison of the active instance count."
+    },
+    "b": {
+      "text": "Incorrect. numberOfTerminatedInstances counts terminations rather than completions, so it would not fire on instances that finished normally without being explicitly terminated."
+    },
+    "c": {
+      "text": "Correct. The documentation lists this exact form, = numberOfCompletedInstances / numberOfInstances >= 0.5, as the way to complete the body when 50 percent or more of the instances are complete."
+    },
+    "d": {
+      "text": "Incorrect. numberOfCompletedInstances is a numeric property, not a list to count; wrapping it in count() does not produce the documented half completion semantics."
+    }
+  },
+  "explanation": "The documented multi-instance properties include numberOfCompletedInstances and numberOfInstances, and the standard half-completion expression is = numberOfCompletedInstances / numberOfInstances >= 0.5.",
+  "docs": [
+    {
+      "title": "BPMN multi-instance",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team wants to test a DMN decision in isolation before relying on it from a BPMN process -- provide inputs, evaluate, observe outputs and which rules matched. They have the DMN file open in Web Modeler.",
+  "question": "Which Camunda 8 mechanism evaluates a DMN decision standalone and surfaces matched rules?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use Web Modeler's built-in \"DMN Tester\" panel -- enter test input values, click \"Evaluate\", and observe which rules matched and what output was produced, all directly in the browser without requiring deployment to a cluster. md (Key features table). The modeler provides only diagramming and modeling capabilities; it has no integrated execution engine for live DMN evaluation without deployment."
+    },
+    {
+      "id": "b",
+      "text": "Deploy the DMN file to a cluster and invoke the EvaluateDecision API -- either the REST endpoint POST /v2/decision-definitions/{key}/evaluation or the gRPC EvaluateDecision RPC -- with test input values. The response includes the matched rule outputs, and the Decision Instance view in Operate surfaces which specific rules fired and their evaluated outputs. \" This is the canonical standalone decision-testing path."
+    },
+    {
+      "id": "c",
+      "text": ") test utility to assert DMN decision outputs from a JUnit integration test, with no live cluster required. CPT's mockDmnDecision mocks the decision output rather than evaluating real DMN rules -- it allows testing the consumer BPMN's behavior when the decision returns certain values, not testing whether the DMN decision table itself contains correct logic. For validating actual DMN rule matching and output correctness, the real decision must be evaluated via the EvaluateDecision API."
+    },
+    {
+      "id": "d",
+      "text": "DMN can only be tested by running a complete end-to-end BPMN process through Camunda Play; Play's execution view renders which decision table rules matched at the Business Rule Task. md:253: \"Decision table rule evaluations are not viewable from Play. \" Play does not render matched rules; Operate's Decision Instance view does, making this option factually mistaken."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8.8's canonical \"test a decision in isolation\" mechanism is to deploy the DMN file and call the EvaluateDecision endpoint (gRPC EvaluateDecision per apis-tools/zeebe-api/gateway-service.md, or the REST equivalent), then inspect the matched rules in Operate's Decision Instance view (per play-your-process.md:253 -- rule-level evaluations are visible in Operate, not in Play). The same Business Rule Task documentation (business-rule-tasks.md:20-21) explicitly says: \"If you only want to evaluate a DMN decision, you can use the EvaluateDecision API.\""
+    },
+    "b": {
+      "text": "Correct. Web Modeler does not have a built-in \"DMN Tester\" panel. Per dmn.md and web-modeler/index.md (Key features table), there is no in-editor DMN evaluator -- only modeling. Distractor invents UI."
+    },
+    "c": {
+      "text": "Incorrect. Camunda Process Test (CPT) provides mockDmnDecision (per apis-tools/testing/utilities.md:261) but it mocks the decision output rather than evaluating real DMN logic -- useful for testing the consumer BPMN, not for testing the DMN itself."
+    },
+    "d": {
+      "text": "Incorrect. Play deploys the DMN with the BPMN process but, per play-your-process.md:253, \"Decision table rule evaluations are not viewable from Play. However, they can be inferred from the output variable, or can be viewed from Operate.\""
+    }
+  },
+  "explanation": "Web Modeler does not have a built-in \"DMN Tester\" panel. Per dmn.md and web-modeler/index.md (Key features table), there is no in-editor DMN evaluator -- only modeling. Distractor invents UI.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q29",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Inbound Webhook Connector is configured to start a process when a partner POSTs to it. The team wants to test the webhook locally before the partner integrates -- they want to confirm: (1) the webhook URL is reachable, (2) a POST starts a process instance, (3) the body is correctly mapped to variables.",
+  "question": "Which approach lets the team test the webhook without partner involvement?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Inbound Webhook Connector URL can only receive requests when the real partner system is live and sending production events -- testing requires the partner to be fully set up and sending real POST requests. This claim is inaccurate. The Webhook URL exposed by a deployed Inbound Connector is a standard HTTP endpoint that accepts any conforming POST request from any HTTP client. The endpoint has no knowledge of whether the sender is the \"real\" partner system or a test client. Any tool capable of sending HTTP requests -- curl, Postman, Insomnia, or a simple script -- can send test requests to the URL."
+    },
+    {
+      "id": "b",
+      "text": "Build a mock partner service that generates realistic POST requests with the correct body structure, headers, and authentication -- deploy this mock service before testing the webhook integration. While mock partner services are useful for advanced contract testing scenarios (verifying specific payload edge cases, testing retry logic, or simulating error conditions), they are significant over-engineering for the immediate goal of confirming that the webhook URL works and maps variables correctly. A single curl command or Postman request provides the same verification with far less setup effort and infrastructure overhead."
+    },
+    {
+      "id": "c",
+      "text": "After deploying the BPMN, get the Webhook URL from Web Modeler / Operate (or compute from cluster URL + Connector ID). Send test POST requests with curl, Postman, or any HTTP client -- same body shape the partner will send. Verify in Operate that a process instance starts and that variables hold the expected values. This is the standard integration testing path."
+    },
+    {
+      "id": "d",
+      "text": "When the BPMN containing the Inbound Webhook Connector is deployed to the cluster, Camunda automatically sends a test POST request to the webhook URL to verify connectivity and variable mapping correctness, reporting any failures in the deployment result. No such automatic self-test occurs. Camunda validates the BPMN structure and Connector configuration at deployment time (catching schema and mapping errors), but does not perform live HTTP round-trip tests of inbound webhook connectivity. Manual testing by sending a crafted POST request is always required to verify the full integration end-to-end."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Webhooks are HTTP endpoints -- any HTTP client can POST to them. The standard workflow: deploy, copy the Webhook URL, craft a test POST with curl or Postman matching the expected body shape, observe in Operate that a new instance starts with the right variables. Iterate until correct. Once it works, give the URL to the partner. Quick, deterministic, no partner dependency."
+    },
+    "b": {
+      "text": "Incorrect. The URL accepts any matching POST; partner involvement is needed only for the real production traffic, not for testing."
+    },
+    "c": {
+      "text": "Correct. Mock partner is useful for testing complex multi-step interactions, not for simple webhook validation."
+    },
+    "d": {
+      "text": "Incorrect. No auto-test."
+    }
+  },
+  "explanation": "Mock partner is useful for testing complex multi-step interactions, not for simple webhook validation.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q36",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

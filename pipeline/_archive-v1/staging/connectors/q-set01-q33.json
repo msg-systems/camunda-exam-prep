@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team builds a Camunda 8 SaaS process that calls a third-party CRM API. The CRM API requires an API key passed in the X-API-Key request header. The team initially hardcodes the API key directly in the Outbound HTTP Connector's \"Headers\" property field -- visible in the BPMN XML. During a security audit, this practice is flagged as a critical vulnerability: secrets in version-controlled BPMN files leak via Git history. The team needs to externalise the secret so it lives in a secure store, not in the BPMN model.",
+  "question": "Which Camunda 8 SaaS mechanism stores the secret and how is it referenced in the Connector?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Define the secret as a process-level variable with the value of the API key. Reference it in the Connector as =apiKey. While this technically passes the API key to the Connector at runtime, storing sensitive credentials as process variables creates multiple security problems: variables are visible in Operate's instance view to anyone with Operate access, they appear in audit logs and export data, they can be read by any downstream task or subprocess that inherits the variable scope, and they may be written to the Elasticsearch/OpenSearch index in plaintext. This is not a secure secret management approach and would fail a security audit for the same reasons the hardcoded approach does."
+    },
+    {
+      "id": "b",
+      "text": "Define the secret in the cluster's Secrets view (Console UI for the SaaS cluster). md:28. The Connector engine resolves the placeholder at runtime by looking up the cluster-level secret store -- the resolved value is substituted into the HTTP request header before the external call is made. CRM_API_KEY}} and never the actual API key, making it safe to commit to version control. In the Console UI, navigate to the cluster, select \"Connector secrets\", and add a name-value pair with name CRM_API_KEY and the actual API key as the value."
+    },
+    {
+      "id": "c",
+      "text": "env file deployed alongside the BPMN. CRM_API_KEY}. This misunderstands the Camunda 8 SaaS architecture. env file alongside BPMN resources -- the runtime is managed by Camunda. env file deployed with BPMN does not affect the Connector runtime's environment variables. NAME}}."
+    },
+    {
+      "id": "d",
+      "text": "Encrypt the secret with a Camunda-provided key and embed the ciphertext in the BPMN. Camunda does not offer a BPMN-embedded client-side encryption mechanism for connector secrets. Embedding ciphertext in BPMN XML is not a documented or supported pattern -- there is no Camunda-provided key, no encryption utility for BPMN properties, and no automatic decryption step in the Connector runtime that would process such ciphertext. NAME}} placeholder, which keeps the actual value completely out of the BPMN XML file."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 SaaS provides cluster-level Secrets managed via the Console UI. Each cluster has a secret store (separate from BPMN); users define name → value pairs. Connectors reference secrets via the {{secrets.NAME}} placeholder syntax per connectors/use-connectors/index.md:28. At runtime, the Connector engine substitutes the actual value before making the HTTP call. The BPMN XML contains only the placeholder, not the secret -- safe to commit to Git."
+    },
+    "b": {
+      "text": "Correct. Storing the secret in a process variable still leaks it into process state (visible in Operate), audit logs, and possibly downstream task contexts. Not a security-grade solution."
+    },
+    "c": {
+      "text": "Incorrect. Camunda 8 SaaS does not use .env files; cluster secrets are managed in the Console UI. (Note: Self-Managed default secret provider reads env vars, but the SaaS reference still uses the {{secrets.NAME}} placeholder, not ${env.X}.)"
+    },
+    "d": {
+      "text": "Incorrect. Camunda does not offer client-side encryption of BPMN secrets; the proper mechanism is the externalised Secrets store."
+    }
+  },
+  "explanation": "Storing the secret in a process variable still leaks it into process state (visible in Operate), audit logs, and possibly downstream task contexts. Not a security-grade solution.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q33",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

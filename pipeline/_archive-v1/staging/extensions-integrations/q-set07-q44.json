@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q44",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's worker logs show recurring gRPC RESOURCE_EXHAUSTED errors when polling for jobs. The cluster is healthy -- other workers in different namespaces don't see this error. What does RESOURCE_EXHAUSTED typically indicate?",
+  "question": "What does RESOURCE_EXHAUSTED typically indicate?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Network outage or connectivity problem -- the cluster is unreachable and all gRPC calls are failing. Network-level failures typically surface as UNAVAILABLE (service cannot be reached at all) or DEADLINE_EXCEEDED (the request timed out while trying to connect or waiting for a response). RESOURCE_EXHAUSTED indicates a different failure mode: the server is reachable and responding, but it is explicitly rejecting the request because some resource quota or capacity limit has been hit. The error message in RESOURCE_EXHAUSTED responses typically explains which resource is exhausted, helping teams distinguish from network issues."
+    },
+    {
+      "id": "b",
+      "text": "Authentication or authorisation failure -- the worker's credentials are invalid or it lacks the required permissions to poll for jobs on the specified task type. Authentication failures surface as UNAUTHENTICATED (no valid credentials provided or credentials expired) while authorisation failures use PERMISSION_DENIED (credentials are valid but the operation is forbidden). Both are distinct from RESOURCE_EXHAUSTED, which confirms that authentication succeeded but the request cannot be fulfilled due to resource or quota constraints. The scenario specifies that other workers in different namespaces are healthy, which rules out a credential problem."
+    },
+    {
+      "id": "c",
+      "text": "Throttling / capacity limit -- the Zeebe gateway is rejecting requests because the worker is sending gRPC calls faster than the cluster's configured quota allows. Common causes include per-tenant rate limits being exceeded, gateway thread pool exhaustion from too many concurrent long-poll requests, or broker backpressure signalling that the broker is overwhelmed. The error is explicit and intentional: the server is reachable and responding, but refusing the request due to resource constraints. Recommended mitigations include reducing the worker's request rate, tuning maxJobsActive to limit concurrent job activations, increasing pollInterval to reduce polling frequency, scaling the gateway horizontally, or checking and adjusting cluster quota settings."
+    },
+    {
+      "id": "d",
+      "text": "The process definition or task type is not deployed -- the worker is trying to poll for a job type that no longer exists in the cluster. Missing resource errors in gRPC typically surface as NOT_FOUND, and Zeebe's error responses for missing process definitions or task types would include specific error messages identifying the missing resource. RESOURCE_EXHAUSTED is fundamentally about capacity and throughput limits rather than missing resources; a worker successfully activating some jobs while others receive RESOURCE_EXHAUSTED confirms the process and task types exist but are being throttled."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. gRPC's standard RESOURCE_EXHAUSTED (code 8) signals that some resource (rate quota, memory, threads, etc.) is at capacity. In Zeebe context, common causes: per-tenant rate limit hit, gateway thread pool saturated, broker applying backpressure. Diagnostic approach: check the cluster metrics, look at backpressure indicators, reduce the worker's request rate or increase the cluster's capacity."
+    },
+    "b": {
+      "text": "Incorrect. Network issues typically surface as UNAVAILABLE."
+    },
+    "c": {
+      "text": "Correct. Auth issues surface as UNAUTHENTICATED."
+    },
+    "d": {
+      "text": "Incorrect. Missing process would surface as NOT_FOUND when starting an instance of it."
+    }
+  },
+  "explanation": "Auth issues surface as UNAUTHENTICATED.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/zeebe-api/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q44",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

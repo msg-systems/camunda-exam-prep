@@ -1,0 +1,63 @@
+{
+  "id": "imp-set15-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team wonders conceptual differences between Outbound and Inbound Connectors.",
+  "question": "Outbound vs Inbound Connector differences?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Outbound and Inbound Connectors are functionally identical and serve the same purpose in Camunda 8 â€” this approach has limitations. They serve opposite directions of integration. An Outbound Connector is a Service Task that a process activates to call an external system: the process makes a request and waits for a response. An Inbound Connector acts as an event trigger: it listens for events from an external system (webhook, message, polling) and starts or continues a process when a matching event arrives. The execution model, lifecycle, and use cases are fundamentally different."
+    },
+    {
+      "id": "b",
+      "text": "Different directions of integration: Outbound Connectors -- Camunda calls an external system (REST POST, Slack send, Email, GitHub API). Process initiates the call; used in Service Tasks; stateless per invocation. Inbound Connectors -- external system pushes data or Camunda polls; engine correlates the received message/event to a waiting process instance. External system initiates; process reacts; used in Message Start Events, Receive Tasks, Intermediate Message Catch Events. Outbound lifecycle: one job activation = one external call = job completion. Inbound lifecycle: long-lived subscription or polling loop; correlation via matching keys and activation condition. NAME}} for credential storage."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 only supports Outbound Connectors -- Inbound Connectors are unavailable in this context -- this approach has limitations. Camunda 8 ships both Outbound and Inbound Connectors out of the box. Inbound Connectors include the Webhook Connector (HTTP push), HTTP Polling Connector (periodic HTTP pull), Kafka Connector (consume from Kafka topics), and more. md) explicitly documents the InboundConnectorExecutable interface and @InboundConnector annotation for building custom Inbound Connectors. Inbound Connectors are fundamental to event-driven process architectures where external systems initiate process instances or continue waiting processes."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 only supports Inbound Connectors -- Outbound Connectors are not provided -- this approach has limitations. The Camunda 8 Connector library is predominantly outbound: REST Connector, Slack Connector, Email Connector, GitHub Connector, SOAP Connector, and many more all initiate calls from Camunda to external systems. These are used in Service Tasks across the majority of real-world process models. Outbound Connectors are the more numerous and commonly used category. 8 with built-in implementations and SDK support for custom connectors of both types."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Outbound vs Inbound Connectors: Outbound Connectors: Direction: Camunda → External system. Trigger: Process flow reaches a Service Task with Connector. Behavior: 1. Engine activates job for Service Task. 2. Connector Runtime picks up. 3. Calls external system with configured action. 4. Receives response. 5. Completes job with response variables. Examples: REST POST to partner API. Email send via SMTP. Slack message post. Database insert. Configuration: URL / target: external endpoint. Method / action: GET, POST, send, query, etc. Headers / auth. Body / payload (FEEL composed). Result expression (FEEL extract). Lifecycle: per invocation; no persistent state. Inbound Connectors: Direction: External → Camunda. Trigger: External event (push or poll detects). Behavior: 1. Connector Runtime registers subscription. 2. External system pushes event OR Connector polls. 3. Event correlated to Camunda Message. 4. Process started (Message Start) or continued (Message Catch / Receive). Examples: Webhook HTTP endpoint (per Set 14 Q46). Kafka topic consumer (per Set 13 Q33). Email Inbound (IMAP polling). Database polling. Configuration: Subscription details: webhook URL, topic, polling target. Activation condition (FEEL): filter events. Correlation key: extract from event. Variable mapping: shape event data. Lifecycle: long-lived subscription / periodic poll. Comparison table: | Aspect | Outbound | Inbound | |--------|----------|---------| | Direction | Camunda → External | External → Camunda | | BPMN element | Service Task | Message Start / Catch / Receive Task | | Trigger | Process flow | External event | | Lifecycle | Per call | Long-lived subscription | | State | Stateless | Subscription state | | Examples | REST POST, Email send | Webhook, Kafka, Email Inbound | Combined patterns: Request-response across systems: Outbound: send request to partner. Inbound: receive partner's async response. Process: paired Send + Receive (or Outbound call + Message Catch). Event-driven choreography: Inbound: receive event A. Process starts; does work. Outbound: emit event B. Other process catches B (via Inbound). Long-running with callback: Outbound: submit long task to partner. Inbound: receive completion notification. Pattern: webhook-based async. Configuration overlap: Common: Secrets binding (per Set 14 Q45): same {{secrets.NAME}} syntax. Element Templates: define modeler UX. Variable handling: FEEL expressions. Differences: Auth: Outbound: SDK presents auth to external (Bearer, Basic, etc.). Inbound: validates incoming auth (HMAC, JWT, etc.) -- Webhook auth per Set 14 Q46. Error handling: Outbound: BPMN errors → Boundary; standard retries. Inbound: deduplicate; handle malformed events. In Camunda 8 architecture: Connector Runtime: runs both types. Outbound: invoked per Service Task activation. Inbound: registered on deployment; runs continuously. Best practices: Use Outbound for synchronous calls: process initiates. Use Inbound for event-driven: external initiates. Combine for request-response async: both directions. Document the integration direction: clarify per Connector. For the scenario (conceptual differences): Direction: in vs out. Trigger: process vs external. Lifecycle: per-call vs long-lived. BPMN element: Service Task vs Message/Receive."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q45",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-scenario-too-short",
+        "severity": "block",
+        "message": "scenario length 76 < 80 (catastrophically short)",
+        "where": "scenario"
+      }
+    ]
+  }
+}

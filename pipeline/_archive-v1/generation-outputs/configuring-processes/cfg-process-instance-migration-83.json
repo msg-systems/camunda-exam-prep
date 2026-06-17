@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-83",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Bank wants to reset a one-week SLA timer attached to user task Approve for 400 loans so that the migrated instances wait a fresh two weeks rather than only the two days that remain from the original timer. The new process version updates the timer boundary event duration but keeps the user task element id unchanged across source and target.",
+  "question": "Which mapping instructions must the migration plan contain to cancel the existing timer subscription and start a new two-week timer on the target boundary event?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Map active user task A to A and omit any mapping for the timer boundary event so the engine closes the existing subscription and opens a new one on the target boundary event"
+    },
+    {
+      "id": "b",
+      "text": "Map active user task A to A and map timer boundary event Timer1 to Timer2 so the engine migrates the timer subscription and the new two-week duration applies retroactively to the elapsed days"
+    },
+    {
+      "id": "c",
+      "text": "Map active user task A to A and add a variable instruction resetTimer set to true so the engine recreates the timer subscription using the target two-week duration on activation"
+    },
+    {
+      "id": "d",
+      "text": "Map active user task A to A and provide a separate cancel-and-recreate operation for the timer boundary event so the engine performs both steps within the same migration transaction"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Omitting the mapping for the timer boundary event closes the existing subscription and opens a new one on the target boundary event during migration. The new timer then runs the full target duration, achieving the desired reset behaviour for the in-flight instances."
+    },
+    "b": {
+      "text": "Incorrect. Mapping the catch event preserves the existing subscription, which keeps the previously elapsed duration. The migrated instance would still fire after the remaining two days rather than waiting the full two weeks of the target definition."
+    },
+    "c": {
+      "text": "Incorrect. There is no resetTimer variable contract in process instance migration. The documented way to reset a catch event subscription is to omit the catch event mapping while keeping the mapping for the active element it is attached to."
+    },
+    "d": {
+      "text": "Incorrect. The migration command does not expose a separate cancel-and-recreate operation for catch events. Cancel and recreate behaviour is achieved simply by leaving the catch event out of the mapping instructions in the migration plan."
+    }
+  },
+  "explanation": "When a catch event is left out of the migration plan but the active element it is attached to is mapped, the engine closes the source subscription and opens a new one on the target. This is the documented mechanism for resetting a timer boundary event to the target definition's duration.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

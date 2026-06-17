@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-15",
+  "topic": "managing-development",
+  "subtopic": "operate",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "The `initiate-payment` worker completes its job and `payment-received` is correlated to the instance with key `1234`. Why does Operate then display an incident rather than letting the instance progress?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The XOR gateway downstream of the message catch event cannot evaluate `orderValue>=100` because `orderValue` was created as a string."
+    },
+    {
+      "id": "b",
+      "text": "The `payment-received` message was rejected because no subscription was active at the time of publish."
+    },
+    {
+      "id": "c",
+      "text": "The `initiate-payment` worker exhausted its retries running the `cat` handler."
+    },
+    {
+      "id": "d",
+      "text": "Two tokens arrived at the XOR gateway, violating its exclusive-merge semantics."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The instance was created with `orderValue` as the string `\"99\"`. After the token advances past the message catch event, it reaches the XOR gateway, which raises an incident because it cannot compare a string to an integer threshold."
+    },
+    "b": {
+      "text": "The message correlates successfully — the catch event's subscription is active once the token reaches it; the incident appears at the XOR gateway, not on the correlation."
+    },
+    "c": {
+      "text": "The `cat` handler simply echoes the payload and completes the job; the worker does not fail or exhaust retries in this example."
+    },
+    "d": {
+      "text": "Only one token is moving through the flow; XOR gateways evaluate one token at a time and do not raise incidents from merge semantics here."
+    }
+  },
+  "explanation": "Once the message is correlated, the token reaches the XOR gateway, which evaluates `orderValue>=100`. Because `orderValue` was supplied as a string (`\"99\"`) at creation, the gateway condition fails with a type-comparison error and Operate surfaces the failure as an incident on the gateway.",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ]
+}

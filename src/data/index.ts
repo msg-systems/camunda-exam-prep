@@ -5,6 +5,8 @@ import pool from '@/data/questions/pool.json';
 
 const RAW: Question[] = pool as Question[];
 
+const VALID_KINDS = new Set(['single', 'negative']);
+
 function validate(qs: Question[]): Question[] {
   const ids = new Set<string>();
   for (const q of qs) {
@@ -18,6 +20,9 @@ function validate(qs: Question[]): Question[] {
     }
     if (!q.options.find((o) => o.id === q.correctOptionId)) {
       throw new Error(`Question ${q.id} correctOptionId not in options`);
+    }
+    if (q.kind !== undefined && !VALID_KINDS.has(q.kind)) {
+      throw new Error(`Question ${q.id} has invalid kind="${q.kind}"`);
     }
   }
   return qs;
@@ -88,6 +93,3 @@ export function getRandomExamSet(size: number = EXAM_TOTAL_QUESTIONS): Question[
 
   return shuffle(picked);
 }
-
-/** Convenience alias for callers that asked for scenario-weighted mixing. */
-export const getRandomScenarioWeightedExamSet = getRandomExamSet;

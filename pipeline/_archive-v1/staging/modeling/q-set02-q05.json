@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A pharmacy chain processes prescription batches via Camunda 8 SaaS. Each batch (typically 30-150 prescriptions per pharmacist's shift) is processed through a Parallel Multi-Instance Subprocess that validates each prescription against a federal regulator's drug-interaction database. The federal regulator's API enforces a strict rate limit of 4 requests per second per registered client -- exceeding it returns HTTP 429 and after repeated violations the client gets temporarily suspended for compliance review. Currently the worker fires all multi-instance jobs concurrently, immediately tripping the rate limit; the resulting 429 storm and worker retries push batch processing time from seconds into the tens of minutes range. The pharmacy operations team wants to preserve the Multi-Instance abstraction (one prescription per iteration is the natural model) but pace the API calls so they respect the regulator's rate limit cleanly.",
+  "question": "Which Multi-Instance configuration solves this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Keep the Parallel Multi-Instance and configure zeebe:taskDefinition retries=10 so Zeebe automatically retries any 429-failed jobs after a short delay. The retries property controls how many times Zeebe re-activates a failed job before declaring an incident -- it addresses transient failures, not the concurrency rate. With Parallel MI still active, all N jobs fire simultaneously; if the regulator returns 429, they all retry concurrently and re-trip the rate limit in the same storm pattern. This is a classic wrong-axis fix."
+    },
+    {
+      "id": "b",
+      "text": "Keep Parallel Multi-Instance and add a downstream Service Task with a 250-ms Timer Catch Event before each provider call. Inserting a Timer Catch Event inside each MI iteration delays each individual call by 250 ms, but Parallel MI still dispatches all iterations concurrently. All timers tick down simultaneously, then all API calls fire at roughly the same instant after the 250-ms wait. This produces no effective throttling -- the concurrent burst hits the regulator at the same time just 250 ms later."
+    },
+    {
+      "id": "c",
+      "text": "Change the marker from Parallel to Sequential Multi-Instance. Each prescription is validated one at a time in deterministic order; the natural processing pace stays well within the regulator's 4 req/sec limit because prescription N+1 only begins after prescription N fully completes. With typical API latency of ≥250 ms per call, throughput stays at or below 4 req/sec by construction -- no 429 errors, no retry churn."
+    },
+    {
+      "id": "d",
+      "text": "Replace the Multi-Instance with a single Service Task that batches all prescriptions into one bulk API call. The federal regulator's API is described as per-line-item with a 4 req/sec rate limit -- no bulk endpoint exists. Inventing a batch endpoint that the scenario does not describe is non-implementable and collapses per-prescription audit visibility in Operate to a single undifferentiated row."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Sequential Multi-Instance processes prescription N+1 only when prescription N completes. With ~250 ms typical API latency per validation, this naturally produces a sustained request rate at or below 4 req/sec -- under the regulator's threshold by construction. No 429s, no retry churn, predictable throughput. Trade-off is total batch latency (250 ms × 150 ≈ 37 s for max batch), but that IS the throughput ceiling the regulator imposes -- sequential MI surfaces it cleanly rather than fighting it."
+    },
+    "b": {
+      "text": "Incorrect. retries controls how many times Zeebe re-activates a failed job before declaring an incident, NOT how fast jobs are dispatched. With Parallel MI, all N jobs fire concurrently; if the regulator returns 429, they all retry concurrently and re-trip the limit. Classic wrong-axis pattern: retries solve transient failures, not concurrency control."
+    },
+    "c": {
+      "text": "Correct. Adding a Timer Catch Event inside each MI iteration delays each provider call by 250 ms but does NOT serialise them -- Parallel MI still fires all iterations concurrently, so all timers tick down concurrently, then all calls fire after the same 250-ms wait. No effective throttle."
+    },
+    "d": {
+      "text": "Incorrect. Bulk batching is structurally different -- the regulator's API is described as per-line-item with 4 req/sec, not bulk-accepting. Inventing a bulk endpoint that doesn't exist is non-implementable. Also collapses per-prescription audit in Operate to a single row."
+    }
+  },
+  "explanation": "Adding a Timer Catch Event inside each MI iteration delays each provider call by 250 ms but does NOT serialise them -- Parallel MI still fires all iterations concurrently, so all timers tick down concurrently, then all calls fire after the same 250-ms wait. No effective throttle.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q05",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

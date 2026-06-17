@@ -1,214 +1,155 @@
-# Camunda 8.8 Practitioner Exam Pool — Regeneration Brief
+# Camunda 8.8 Exam Pool — Authoring Brief (v2 — Mock-PDF Style)
 
-You are authoring questions for a Camunda 8.8 Certified Developer practice
-platform. The current source pool was machine-translated from a low-quality
-exam dump and has structural defects that cannot be fixed mechanically. This
-brief is the **complete contract** for producing a clean replacement.
+You are authoring questions for a Camunda 8.8 Certified Professional —
+Developer (C8-CP-DV) practice platform. The previous pool (now archived
+under `pipeline/_archive-v1/`) was rejected: questions were padded with
+fictional company narratives and parallel-length options that tested
+puzzle-solving rather than Camunda knowledge.
+
+This brief is the **complete contract** for the replacement.
 
 ## What you are producing
 
-A directory of JSON files, one per question, organised by topic:
+A directory of JSON files, one per question, organised by topic under
+`pipeline/authored/<topic-slug>/q-<short-slug>.json`. Each file must conform
+to [schema.json](schema.json) and pass [pipeline/lib/content-lints.mjs](../lib/content-lints.mjs)
+with **zero findings**.
 
-```
-submission/
-  modeling/q-*.json
-  configuring-processes/q-*.json
-  decisions-business-rules/q-*.json
-  forms/q-*.json
-  connectors/q-*.json
-  extensions-integrations/q-*.json
-  managing-development/q-*.json
-  dev-environment/q-*.json
-```
+## Style — match the Camunda mock-exam PDFs exactly
 
-Total **500 questions** distributed per `BUDGET.md`. Each file must conform to
-`schema.json` and pass `node lib/run-lints.mjs submission/` with **zero
-findings**. Anti-examples are at the bottom of this document.
+The voice is captured by the three Camunda Mock Exam PDFs. Three rules:
 
-## Style contract (the part previous agents got wrong)
+### 1. Runtime situation, not company narrative
 
-These rules are non-negotiable. Each is enforced by `lib/content-lints.mjs`.
+Name the BPMN elements, FEEL expressions, ISO 8601 tokens, error codes,
+annotations. Do **not** name fictional companies or invent KPIs.
 
-### 1. An option is a self-contained statement
+**Bad** (old rubric):
+> At Aurora Retail, a Camunda 8.8 process handles 6000 reviews per day with a
+> non-interrupting boundary timer attached to the Review document user task.
+> The team must decide how the timer's R3/PT1H cycle interacts with the task
+> lifecycle when reviewers complete reviews late, especially under SLA
+> constraints…
 
-An option states a fact, a configuration, or a behaviour. It does **not**
-explain why it is right or wrong. The reader's only job when looking at an
-option is to evaluate the statement on its own merits.
+**Good** (mock-PDF style):
+> A user task `Review document` has a non-interrupting boundary timer
+> `R3/PT1H` whose outgoing flow leads to a send task `Send reminder`. The
+> user completes the review after 2.5 hours. How many reminders are sent,
+> and what happens to the user task?
 
-**Bad** (option grades itself):
-> "Use an Inclusive Gateway. This correctly models the two-way race because
-> the Inclusive Gateway evaluates all outgoing conditions in parallel."
+### 2. Crisp options — no padded length parity
 
-**Good** (statement only):
-> "Use an Inclusive Gateway with two conditional sequence flows, one keyed on
-> `photos_received = true` and one on `time_elapsed >= PT48H`, joined by a
-> downstream Inclusive Gateway."
+A correct answer like `true`, `"unda"`, or `"approve"` is fine. Distractors
+do **not** need to be the same length as the correct answer. Forcing
+parallelism padded the old pool with noise.
 
-The judgement ("correctly", "fails to", "this is the canonical pattern", "this
-adds no value") belongs in `optionExplanations`, **never** in `options[].text`.
+**Bad**:
+> A. `senior` — returned because age ≥ 65 matches the first row condition
+> B. `adult` — returned because age ≥ 18 also matches but is shadowed
+> C. `["senior", "adult"]` — returned as a list because two rules matched
+> D. An error is raised because two rules matched the input
 
-### 2. Never cite internal source files or line numbers
+**Good**:
+> A. `"senior"`
+> B. `"adult"`
+> C. `["senior", "adult"]`
+> D. An error, because two rules match.
 
-Camunda's public docs URLs are allowed in the `docs` array. Internal source
-paths, line ranges, internal docs filenames, or `:line` suffixes are forbidden
-**anywhere** in scenario, question, options, or option explanations.
+### 3. FEEL / code blocks go in `codeBlocks`, not in option text
 
-**Forbidden patterns** (lint will reject):
-- `per feel-built-in-functions-list.md`
-- `md:70-93`
-- `connector-sdk.md:233`
-- `application.yaml:42-58`
-- `See processes.feature for an example`
-
-If a fact comes from a doc page, cite the page once in the `docs` array as a
-proper `https://docs.camunda.io/docs/8.8/...` URL. Do not name the file.
-
-### 3. No verdict vocabulary anywhere in options
-
-Words and phrases the lint will flag inside any option's `text`:
-
-- "wrong", "incorrect", "right", "correct", "mistaken", "misleading"
-- "partial", "partially correct", "close but", "tempting but", "workable but"
-- "the canonical", "the idiomatic", "is recommended", "is preferred"
-- "should be preferred", "teams should", "developers should", "you should"
-- "is fully achievable", "is impossible", "is not required", "is not supported"
-- "this is a misconception", "common mistake", "red herring"
-- "this correctly models", "this incorrectly describes"
-- "adds no value", "defeats the purpose", "without adding value"
-- "is appropriate for", "is suitable for", "is the standard"
-- "Camunda 8 supports/allows/provides/requires..." (as a sentence in an option)
-- "However,", "In reality,", "In practice,", "In fact," at the start of an
-  option sentence (these are graded-essay openers)
-
-Use these words **only** in `optionExplanations` and the question-level
-`explanation`.
-
-### 4. No markdown, no decorative punctuation
-
-Inside `options[].text`, `scenario`, and `question`:
-
-- No `**bold**`, `*italic*`, backticks, blockquotes, headings, list markers.
-- No em-dashes (U+2014). Use `--` (two ASCII hyphens) for inline breaks.
-- No emoji or wingdings (🔍, ✅, ❌).
-- No "Documentation:", "Docs:", "See:" trailers with markdown links.
-
-Code identifiers may appear in plain text (e.g. `get or else(value, default)`)
-but not inside backticks.
-
-### 5. Length and balance
-
-| Field | Min | Max | Notes |
-|---|---|---|---|
-| `scenario` | 80 chars (hard floor); 150 chars (preferred) | ~700 | Must contain a domain marker (company, role, system name, "team", "service", etc.) and a measurable (number + unit, or threshold). |
-| `question` | 20 chars (hard floor); 30 chars (preferred) | ~250 | Must end with `?`. Must be interrogative ("Which", "What", "How", "Why", "When", "Where", "Who"). |
-| `options[].text` | 30 chars (hard floor); 60 chars (preferred) | ~400 | All four options within a 4× length ratio of each other (longest / shortest ≤ 4.0; ideally ≤ 2.5). |
-| `optionExplanations[].text` | 80 chars | 600 | Must start with `Correct.` (for the right answer) or `Incorrect.` (for distractors). |
-| `explanation` | 80 chars | 600 | Question-level rationale; states the principle, not the verdict. |
-
-### 6. Distractors must be plausible and parallel
-
-Each of the four options describes a structurally similar artefact (e.g. all
-four are BPMN constructs, or all four are valid YAML keys, or all four are
-real FEEL functions). At least three distractors must be things a real
-developer might attempt — not strawmen. Distractors are wrong because of a
-specific technical reason that you explain in `optionExplanations`.
-
-### 7. Exactly one correct answer
-
-`correctOptionId` matches exactly one of the four option ids `a`, `b`, `c`,
-`d`. The `optionExplanations` map has an entry for **every** option, and
-exactly one of them starts with `Correct.` — the one matching
-`correctOptionId`.
-
-### 8. Citations must be real Camunda 8.8 docs URLs
-
-Every question must have at least one entry in `docs` with:
-
-- `url` starting with `https://docs.camunda.io/docs/` (the `8.8` segment is
-  optional but preferred).
-- `title` is a short human-readable label ("BPMN message events", "Identity
-  configuration"). Do not put filenames or line numbers in the title.
-
-Do not invent URLs. If you are unsure a page exists, use the topic landing
-page (e.g. `https://docs.camunda.io/docs/components/modeler/bpmn/`) and write
-the explanation against verified behaviour.
-
-### 9. Topic, version, and id rules
-
-- `topic` is one of the 8 slugs in `BUDGET.md`. No other value is allowed.
-- `camundaVersion` is the string `"8.8"`.
-- `id` is unique across the whole submission, kebab-case, starts with the
-  topic prefix abbreviation (`mod-`, `cfg-`, `dec-`, `frm-`, `con-`, `ext-`,
-  `mng-`, `dev-`).
-- `difficulty` is one of `easy`, `medium`, `hard`.
-- `style` is one of `scenario` (preferred, ≥ 60%), `concept`, `recall`.
-
-## Anti-examples (do not produce questions that look like these)
-
-### Anti-example A — option fragments + doc-citation leak
-
-```
-A. score), 0) -- SQL-style coalesce built-in. FEEL does not have a coalesce()
-   function. ) returns the first non-null value from the argument list...
-B. score) -- explicit empty check. This expression is semantically correct
-   and will return 0 when the reviews list is empty...
-C. score) ?? 0 -- null-coalescing operator. The ?? operator is the
-   null-coalescing operator from JavaScript (ECMAScript 2020) and TypeScript...
-D. md:70-93: returns value if non-null, else default. score) extracts the
-   score field from each element of the reviews list...
+```json
+{
+  "question": "What is the result of the FEEL expression above when `orders` is an empty list `[]`?",
+  "codeBlocks": { "stem": "every order in orders satisfies order.total > 0" },
+  "options": [
+    { "id": "a", "text": "true" },
+    { "id": "b", "text": "false" },
+    { "id": "c", "text": "null" },
+    { "id": "d", "text": "An error, because the list is empty." }
+  ],
+  "correctOptionId": "a"
+}
 ```
 
-What is wrong: options start with truncated fragments (`score), 0)`), option D
-leads with a doc citation (`md:70-93`), option B contains the verdict ("This
-expression is semantically correct"), options vary wildly in length.
+The UI renders `codeBlocks.stem` as a `<pre><code>` under the question.
+`codeBlocks.perOption.{a,b,c,d}` renders under each option (useful when
+each option *is* a code snippet).
 
-### Anti-example B — graded mini-lecture in the option
+## Schema
 
-```
-A. Use an Inclusive Gateway with two conditional flows. However, the Inclusive
-   Gateway does not suspend and wait for future events -- it evaluates
-   conditions at the moment the token arrives. This is the wrong pattern for a
-   two-way race; teams should use a Receive Task with a Timer Boundary Event
-   instead, which is the canonical Camunda 8 approach.
-```
+Authoritative: [schema.json](schema.json). Highlights:
 
-What is wrong: the option contains its own verdict ("This is the wrong
-pattern"), a directive ("teams should use"), and an absolute affirmation ("is
-the canonical Camunda 8 approach"). All of that belongs in the explanation.
+- `id`: kebab-case, prefix `mod-`/`cfg-`/`dec-`/`frm-`/`con-`/`ext-`/`mng-`/`dev-`.
+- `topic`: one of `modeling`, `configuring-processes`, `decisions-business-rules`, `forms`, `connectors`, `extensions-integrations`, `managing-development`, `dev-environment`.
+- `style`: `scenario` | `concept` | `recall`.
+- `kind`: `single` (default, 1-of-4) or `negative` (still 1-of-4, asks for the wrong/false option — stem must contain uppercase `NOT` or `FALSE`).
+- `camundaVersion`: `"8.8"` (string, exactly).
+- `scenario`: **optional** — use only when the runtime situation needs more than one sentence to set up.
+- `question`: 20–400 chars, ends with `?`.
+- `options`: exactly 4, ids `a`/`b`/`c`/`d`. **No length floor, no length-ratio cap.** Crisp short options encouraged when the docs support them.
+- `correctOptionId`: one of `a`/`b`/`c`/`d`.
+- `optionExplanations`: all 4 required, ≥10 chars each, natural prose (no mandatory "Correct."/"Incorrect." prefix).
+- `explanation`: one short paragraph.
+- `docs`: ≥1 entry on `https://docs.camunda.io/docs/`. The claim **must** be literally supported by the linked page.
+- `codeBlocks`: optional `{ stem?, perOption?: { a?, b?, c?, d? } }`.
 
-**Correct version of the same option:**
+## Forbidden
 
-```
-A. Use an Inclusive Gateway with two conditional sequence flows, one keyed on
-   the message-received signal and one on the 48-hour timer expression.
-```
+- **Multi-select.** Camunda official exam is single-correct-only.
+- **More than 4 options.**
+- **Fictional company narratives** ("Aurora Retail…", "Verdant Marketplace…").
+- **Manufactured KPIs.** Use only counts/durations the docs themselves state.
+- **Internal source references** anywhere in text: `foo.md:23`, `(:32-43)`, `application.yaml:42-58`.
+- **Cyrillic characters** anywhere.
 
-### Anti-example C — meta-vocabulary in scenario or question
+## Distractor design
 
-```
-Question: "Which of the following is the wrong answer for handling timeouts?"
-```
+Every distractor encodes a *real misconception* a half-prepared Camunda 8
+developer could hold. Examples that work well in the mock PDFs:
 
-What is wrong: meta-vocabulary ("wrong answer") in the question stem. The
-question should describe the technical situation; the wrongness is determined
-by which option you pick.
+- Camunda 7 → Camunda 8 confusion: `${amount > 1000}` (JUEL) vs `amount > 1000` (FEEL).
+- Signals vs messages: signal = broadcast (no correlation key); message = 1:1 (needs correlation key + TTL).
+- Inclusive-merge "smart wait": inspects upstream to know how many tokens to wait for; not a deadlock.
+- Vacuous truth: `every X in [] satisfies …` returns `true`.
+- Call activity variable propagation: defaults to ALL parent vars (not isolated).
+- Default job retries: `3`.
+- `@JobWorker(autoComplete = false)`: you own the complete/fail/throw lifecycle.
+- ISO 8601: `R3/PT1H` (3 repeats, 1 hour each) vs `PT3H` (one 3-hour duration).
+- DMN hit policies: `First`, `Unique`, `Any`, `Priority`, `Collect`, `Rule Order`, `Output Order` — `Cascade`, `Atomic`, `Random` are not valid.
 
-## Process recommendation
+Strawmen ("the process explodes", "the cluster reboots") are rejected.
 
-1. Read `BUDGET.md` and `exemplars/` end-to-end before writing anything.
-2. For each topic, list the official 8.8 docs pages you intend to cover.
-3. Draft questions in batches of 5 per topic. After each batch, run the lint
-   runner. Fix anything it flags.
-4. Sweep for duplicates and near-duplicates (same configuration, different
-   wording — keep the cleaner one).
-5. Verify the final blueprint distribution matches `BUDGET.md` exactly.
-6. Submit only after `node lib/run-lints.mjs submission/` reports
-   `0 findings` and the acceptance checklist is signed off.
+## Docs grounding
 
-## Voice
+Each question links to **one** canonical `https://docs.camunda.io/docs/...`
+page that supports the answer. The critic pass (Phase 4) will require a
+literal quoted sentence from that page that supports the correct option.
+If you cannot find one, do not author the question.
 
-Write like the exemplars. Concrete (real company names, real numbers, real
-process steps). Precise (FEEL `mean(reviews.score)`, not "the mean function").
-Plain (no flourish, no marketing language, no "Importantly," / "It is worth
-noting that,"). Camunda-native (use BPMN/DMN/FEEL/Tasklist/Operate/Optimize
-vocabulary as it appears in the 8.8 docs).
+The blueprint's official Recommended Reading URLs (v8.8.0 blueprint pp.
+14, 16, 17, 18, 19, 21, 23, 24) are the seed set for `docs[0].url`.
+
+## Pool target
+
+| Topic                                   | Official % | Pool target |
+| --------------------------------------- | ---------: | ----------: |
+| modeling                                |        15% |          90 |
+| configuring-processes                   |        22% |         132 |
+| decisions-business-rules                |        11% |          66 |
+| forms                                   |         5% |          30 |
+| connectors                              |         6% |          36 |
+| extensions-integrations                 |        25% |         150 |
+| managing-development                    |        15% |          90 |
+| dev-environment                         |         1% |           6 |
+| **Total**                               |    **100%**|     **600** |
+
+`dev-environment` has limited surface area (c8run / docker-compose). Landing
+at 4–6 is acceptable; absorb slack into `extensions-integrations`.
+
+Item-kind distribution per topic: ~90% `single`, ~10% `negative`.
+
+## Exemplars
+
+Hand-authored, lint-clean exemplars in the new style live at
+[exemplars/](exemplars/) — one or two per topic. The generation pipeline
+embeds them as few-shot context in every prompt.

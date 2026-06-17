@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q56",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Ops wants real-time alerts when process incidents spike -- e.g., notify Slack / PagerDuty when 5+ incidents fire in 1 minute.",
+  "question": "How can Camunda 8 integrate with external alerting (Slack / PagerDuty)?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Multiple integration paths enable real-time incident alerting to Slack, PagerDuty, and similar tools. Camunda 8 components in Self-Managed deployments expose Prometheus metrics that include incident counts and rates. These metrics flow into Prometheus, which feeds Alertmanager, which then routes alerts to Slack or PagerDuty via its native integrations when configurable thresholds are exceeded. Custom services can also poll the Operate API for incident data and trigger webhooks directly. BPMN-level error handling with Slack or PagerDuty Connectors provides a third approach scoped within individual processes."
+    },
+    {
+      "id": "b",
+      "text": "Claiming that external alerting can only be achieved through the Operate UI is only partially correct. The Operate UI provides visibility into incidents and process state for human operators, but it does not send automated real-time alerts to Slack or PagerDuty based on threshold rules. External alerting requires integrating with observability infrastructure: Prometheus metrics + Alertmanager for threshold-based routing, custom API polling services for Operate-data-based triggers, or BPMN-level error handling with messaging Connectors. The UI is for browsing and resolving; automated alerting needs external system integration."
+    },
+    {
+      "id": "c",
+      "text": "Multiple integration paths enable real-time incident alerting from Camunda 8 to external systems like Slack and PagerDuty. In Self-Managed deployments, Camunda 8 components expose Prometheus metrics including incident counts and rates. These flow into Prometheus, which feeds Alertmanager, which routes threshold-based alerts to Slack or PagerDuty via native integrations when rules like \"5+ incidents in 1 minute\" are met. Custom services can poll the Operate REST API for incident data and trigger webhooks to external tools directly. At the process level, BPMN error handling with Slack or PagerDuty Connectors provides task-scoped alerting within individual process flows. Combining the Prometheus metrics path for system-wide thresholds with BPMN-level Connectors for process-specific notifications gives comprehensive incident alerting coverage."
+    },
+    {
+      "id": "d",
+      "text": "Claiming that Operate has a fully built-in Slack integration that handles incident spike alerting out of the box is only partially accurate. Operate may provide some level of integration or notification capability depending on the version and configuration, but a full threshold-based Slack alerting system with configurable rules like \"5+ incidents in 1 minute\" is not a standard built-in Operate feature. Achieving that level of sophistication typically requires Prometheus metrics + Alertmanager with a Slack webhook configuration, or a custom polling service."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. External alerting integration for Camunda 8: Path 1: Metrics-based (recommended): Camunda components expose Prometheus metrics (incidents, latencies, error rates). Prometheus scrapes; Alertmanager routes alerts based on rules. Alertmanager integrates with Slack / PagerDuty / email / etc. Pro: standard observability pattern; rule-based; suppression / grouping; multi-channel. Setup once; alerts on any metric thresholds. Path 2: Operate API polling: Custom service polls /v2/process-instances/search with state=ACTIVE + has-incident filter. On threshold (e.g., > 5 new incidents per minute), POST to Slack webhook. Pro: customisable; integrates Operate's incident details. Con: polling overhead; latency. Path 3: BPMN-modeled alerting: Process has Event Subprocess with Error Start (catch-all errors). Inside: Service Task with Slack Connector → notify ops. Pro: alerts are BPMN-visible; per-process semantics. Con: only catches errors thrown by that process; doesn't cover infrastructure incidents. Path 4: Camunda-emitted webhooks: If Camunda supports emitting events to external webhooks (verify per version). Pro: real-time; no polling. Con: limited filtering. Production stack: Prometheus + Alertmanager + Slack / PagerDuty: industry standard. Camunda Console (SaaS): may offer alert configuration for cluster-level events. Custom thresholds: tune over time based on baseline."
+    },
+    "b": {
+      "text": "Incorrect. Achievable."
+    },
+    "c": {
+      "text": "Correct. UI for browsing."
+    },
+    "d": {
+      "text": "Incorrect. Verify per version."
+    }
+  },
+  "explanation": "UI for browsing.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q56",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[1]"
+      }
+    ]
+  }
+}

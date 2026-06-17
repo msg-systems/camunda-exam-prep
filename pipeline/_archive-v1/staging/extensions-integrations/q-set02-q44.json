@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q44",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Node.js worker built with the TypeScript Zeebe SDK occasionally encounters runtime errors (network blip, downstream 500, malformed payload). The team wants the worker to gracefully fail the job (with retry budget) when an error occurs, instead of crashing the process. Which TypeScript SDK pattern handles errors correctly within a taskHandler?",
+  "question": "Which TypeScript SDK pattern handles errors correctly within a taskHandler?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Let the exception propagate out of the handler function without catching it; the TypeScript Zeebe SDK's global error handling mechanism automatically intercepts the uncaught exception, calls failJob internally with the retry counter decremented, and re-queues the job for another activation attempt. The TypeScript Zeebe SDK does catch unhandled errors in task handlers in some versions, but this behaviour is implementation-dependent and offers no control over the error message or exact retry decrement. fail() is the canonical pattern that gives the worker full control over failure reporting and retry semantics."
+    },
+    {
+      "id": "b",
+      "text": "js worker process terminates immediately when an error occurs; Zeebe detects the disconnection and re-activates the job for pickup by another worker instance once the job lock timeout expires. Zeebe will only re-activate the job after the full job lock timeout passes, introducing unnecessary latency."
+    },
+    {
+      "id": "c",
+      "text": "Wrap the task handler body in try/catch. retries - 1 }) to inform Zeebe of the failure with an explicitly decremented retry budget. Zeebe re-activates the job for another worker pick-up on the next poll cycle. When retries reach zero, Zeebe creates an Incident on the process instance, pausing execution until an operator resolves and retries from Operate. This pattern gives the worker full control over the error message text (visible in Operate's incident detail view), the exact retry decrement (normally 1, but can be more for severe errors), and optionally a retryBackoff duration for exponential back-off between retries. It is the canonical TypeScript Zeebe SDK error handling pattern."
+    },
+    {
+      "id": "d",
+      "text": "Set an errorHandler callback function at the worker-level configuration when creating the job worker subscription; this handler receives all errors from any task handler invocation and internally calls failJob on the appropriate job with a configured default retry decrement value. There is no standard errorHandler callback at the worker-level configuration in the TypeScript Zeebe SDK. fail(). A worker-level error callback is not part of the documented TypeScript SDK API."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. TypeScript Zeebe SDK's idiomatic error handling: wrap the handler logic in try/catch, on caught error call job.fail(\"description\", { retries: job.retries - 1 }) to inform Zeebe of failure with decremented retry budget. Zeebe re-activates the job until retries reach 0, then creates an incident."
+    },
+    "b": {
+      "text": "Incorrect. The TS SDK does have unhandled-error handling in some versions, but explicit job.fail is the canonical pattern that gives the worker control over the error message and retry count."
+    },
+    "c": {
+      "text": "Correct. Crashing the worker is wasteful -- Zeebe will eventually re-activate the job (after timeout) but the worker process exits, requiring restart. Bad pattern."
+    },
+    "d": {
+      "text": "Incorrect. Worker-level errorHandler is not the standard pattern; handler-level try/catch is."
+    }
+  },
+  "explanation": "Crashing the worker is wasteful -- Zeebe will eventually re-activate the job (after timeout) but the worker process exits, requiring restart. Bad pattern.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/zeebe-api/grpc/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q44",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

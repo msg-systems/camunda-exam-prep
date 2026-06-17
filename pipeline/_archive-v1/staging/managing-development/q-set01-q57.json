@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q57",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team deploys a new version of a process -- v2.0 -- to the production cluster. The cluster already has v1.0 with 500 in-flight instances. After v2.0 deployment, new process instances should start at v2.0, but the 500 in-flight v1.0 instances should continue to run at v1.0 (their original version) until they complete naturally -- no auto-migration.",
+  "question": "What is the default version-handling behaviour after deploying a new version?",
+  "options": [
+    {
+      "id": "a",
+      "text": "0 automatically. Zeebe does not automatically migrate in-flight instances when a new version is deployed. This would be extremely dangerous without explicit intent -- a new version might have structural BPMN changes (element IDs renamed, elements removed, flow restructured) that are incompatible with the current position of in-flight instance tokens, and auto-migration would corrupt those instances' execution state. Zeebe's version isolation policy -- in-flight instances stay on their original version, new instances start on the latest -- is the foundational guarantee that makes versioned deployments safe. Migration is always explicit, operator-initiated, and requires a defined element-ID mapping plan."
+    },
+    {
+      "id": "b",
+      "text": "Zeebe automatically uses the latest deployed version for new process instances but keeps in-flight instances at their original version. No explicit configuration needed. md. 0 instance. 0 instances coexist. This is the standard and expected Zeebe versioning behaviour requiring no operator action."
+    },
+    {
+      "id": "c",
+      "text": "Zeebe requires explicit version selection via API -- without specifying, new instances fail. New process instances do not fail when a version is not explicitly specified. The Zeebe default for process instance creation is to use the latest deployed version of the specified process definition key. In the REST API, omitting processDefinitionVersion or setting it to -1 explicitly means \"use latest\". This is the convenient default for most use cases -- teams deploying new versions expect new instances to use the latest logic without needing to update every caller's version number immediately. Explicit version selection (processDefinitionVersion: 1) is available for cases that require pinning."
+    },
+    {
+      "id": "d",
+      "text": "0 on next token movement. This would describe a very dangerous behaviour. If in-flight instances switched to the latest deployed version on any token movement, a new deployment could instantly change the behaviour of all running instances mid-execution -- causing them to follow different flow paths, encounter elements that don't exist in the state they're at, or lose variable values that the new version no longer expects. Zeebe's version isolation is strict by design: a process instance's process definition version is fixed at the time of instance creation and never changes unless explicitly migrated by an operator."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe's default versioning: new process instances start at the latest deployed version, in-flight instances continue at their original version (the one they were started on). This isolation ensures consistency -- a v1.0 instance always sees v1.0's logic from start to finish, regardless of new deployments. This is the default; no explicit configuration is needed. In the REST API request, processDefinitionVersion: -1 (or omitting the field) resolves to \"latest\" per create-process-instance.api.mdx worked examples."
+    },
+    "b": {
+      "text": "Correct. No auto-migration. Migration is explicit (Operate's Process Instance Migration)."
+    },
+    "c": {
+      "text": "Incorrect. New instances default to the latest version; explicit selection is optional."
+    },
+    "d": {
+      "text": "Incorrect. In-flight instances do not \"pick up\" newer versions; they continue at their original."
+    }
+  },
+  "explanation": "No auto-migration. Migration is explicit (Operate's Process Instance Migration).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q57",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

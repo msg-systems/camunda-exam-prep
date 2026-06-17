@@ -1,0 +1,76 @@
+{
+  "id": "imp-set14-q49",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Two lists: listA = [1, 2, 3], listB = [3, 4, 5]. Team wants union [1, 2, 3, 4, 5] and intersection [3].",
+  "question": "FEEL list union and intersection patterns?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No list operations -- wrong."
+    },
+    {
+      "id": "b",
+      "text": ") function merges multiple lists and removes duplicates. FEEL does not provide a corresponding intersection built-in. To compute intersection, use [x for x in list1 if list2 contains x] - a FEEL for-comprehension with a contains predicate. This FEEL expression is standard and efficient for small lists typical in decision logic."
+    },
+    {
+      "id": "c",
+      "text": "The flatten function handles recursive multi-level nesting in a single call, producing a flat list in one expression. For-loop accumulation requires writing a recursive for-expression or a context function, adding significant complexity and verbosity for a task that the built-in function handles natively."
+    },
+    {
+      "id": "d",
+      "text": "Converting FEEL lists to set-like structures before computing intersection is an unnecessary workaround. FEEL does not have a native set type, but the for-comprehension idiom [x for x in list1 if list2 contains x] provides intersection semantics directly on lists without conversion. The union built-in already deduplicates, so pairing union with the comprehension approach covers both operations idiomatically without introducing custom data structures or service-task round trips."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL set-like operations on lists: Union: Approach 1: union function (if available): `feel union(listA, listB) → [1, 2, 3, 4, 5] Returns combined list with duplicates removed. Approach 2: concatenate + distinct values: feel distinct values(concatenate(listA, listB)) → [1, 2, 3, 4, 5] Concatenate joins; distinct values dedupes. For multiple lists: feel union(listA, listB, listC) // or distinct values(concatenate(listA, listB, listC)) Intersection: Approach 1: Filter with quantifier: feel listA[some b in listB satisfies b = item] Filter listA to elements that also exist in listB. Approach 2: List comprehension: feel for x in listA return if (some y in listB satisfies y = x) then x else null Returns list with intersections (and nulls for non-matches); may need null filter. Approach 3: Built-in list contains predicate: feel filter(listA, list contains(listB, item)) Verify exact syntax per FEEL version. Difference (A - B): feel listA[not(some b in listB satisfies b = item)] Returns items in listA not in listB. Symmetric difference: feel concatenate( listA[not(some b in listB satisfies b = item)], listB[not(some a in listA satisfies a = item)] ) Items in either but not both. For complex object lists: Intersection by ID: feel let bIds = for b in listB return b.id return listA[list contains(bIds, item.id)] Performance: Nested quantifiers: O(n × m) for intersection of n × m elements. For large lists: pre-process (e.g., extract IDs to a set). For very large: consider doing in worker (more efficient algorithms). Compare with distinct values (per Q38): distinct values removes duplicates within one list. union combines two lists deduplicated. Related but distinct. Use cases: Use case 1: Combine eligible customers from multiple campaigns: feel union(campaignAEligible, campaignBEligible) Use case 2: Find customers in both segments: feel segmentA[some s in segmentB satisfies s = item] Use case 3: Identify excluded items: feel allItems[not(some e in excluded satisfies e = item)] Best practices: Verify FEEL version's exact function names: union, intersect` may or may not be available. Compose if not available: filter / quantifier patterns work universally. For complex sets: extract keys; operate on key lists; look up originals. Performance: profile for large datasets; worker may be better. Alternative: do set ops in worker: For complex / large set operations: Java / Node code with proper set types is much faster. FEEL: best for simple cases."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Overcomplicated."
+    },
+    "c": {
+      "text": "Incorrect. overcomplicated."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Overcomplicated.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-list/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q49",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 28 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 17.2 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

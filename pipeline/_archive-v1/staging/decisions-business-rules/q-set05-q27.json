@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q27",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A complex tax-decision is structured as a DRD with 4 chained decisions. The team wants to invoke it from BPMN as a single unit (not invoke each leaf decision separately).",
+  "question": "Which DMN construct fits invoking the entire DRD as one decision?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Just invoke the top-level output decision from the BPMN Business Rule Task. The DRD automatically evaluates all upstream dependencies via the informationRequirement arrows defined between decisions. When a required decision is linked to another via an information requirement, the engine recursively evaluates the upstream decision first and makes its result available inside the dependent decision through the required-decision's ID as a variable."
+    },
+    {
+      "id": "b",
+      "text": "Define a Decision Service in the DMN file and invoke it from the Business Rule Task. Decision Services are a DMN specification construct for exposing curated subsets of decisions as a callable service. Camunda 8's DMN implementation covers Decision tables, Literal Expressions, Input Data, Knowledge Sources, and Business Knowledge Models -- but not Decision Service elements. Attempting to use one would not work in Zeebe."
+    },
+    {
+      "id": "c",
+      "text": "Decision Services are absent from Camunda 8's supported DMN element set, meaning any attempt to reference them produces an evaluation error at runtime. While this statement is factually accurate for C8's DMN scope, it does not answer the scenario question, which asks for the correct mechanism to invoke the entire DRD chain as one unit. The answer is to invoke the top-level decision directly, not to reference the absence of Decision Services."
+    },
+    {
+      "id": "d",
+      "text": "Each chained decision in the DRD must be invoked separately from BPMN by placing a Business Rule Task for each decision in the process flow. This is factually incorrect. The DRD's informationRequirement arrows define a dependency graph that the Zeebe DMN engine resolves automatically. Invoking the top-level decision triggers transitive evaluation of all upstream dependency decisions without requiring separate BPMN steps."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. \"Decision Service\" is a DMN-1.3 spec element for exposing a curated subset of decisions as a service, but Camunda 8's DMN coverage (per dmn.md:23-28) lists only Decision (tables + literal expressions), Input data, Knowledge source, and Business knowledge model -- no Decision Service. C8 invokes the top-level decision; the DRD takes care of the rest."
+    },
+    "b": {
+      "text": "Incorrect. Invoking the top-level (output) decision in the DRD automatically evaluates all its dependencies via the informationRequirement arrows. The result of a required decision is exposed in the dependent decision via the required-decision ID (per decision-requirements-graph.md:90-104 + tip block at :95-103). The engine resolves upstream decisions transitively -- no separate orchestration needed."
+    },
+    "c": {
+      "text": "Incorrect. Decision Services indeed aren't a C8 construct (per dmn.md:23-28), yet the question asks for the C8-canonical mechanism, which is top-level decision invocation (option b)."
+    },
+    "d": {
+      "text": "Incorrect. Auto-evaluation handles chaining via informationRequirement."
+    }
+  },
+  "explanation": "\"Decision Service\" is a DMN-1.3 spec element for exposing a curated subset of decisions as a service, but Camunda 8's DMN coverage (per dmn.md:23-28) lists only Decision (tables + literal expressions), Input data, Knowledge source, and Business knowledge model -- no Decision Service. C8 invokes the top-level decision; the DRD takes care of the rest.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q27",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

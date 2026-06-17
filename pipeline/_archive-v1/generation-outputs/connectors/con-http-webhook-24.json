@@ -1,0 +1,25 @@
+{
+  "id": "con-http-webhook-24",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helix Health, a healthcare provider processing 12,000 orders per day from partner labs, configures a Camunda 8.8 HTTP Webhook connector to accept callbacks from a partner lab. The partner sends the API key in the Authorization header as 'Bearer <token>', and the connector must compare the extracted token against the value stored in the API Key field of the webhook configuration.",
+  "question": "Which FEEL expression in the API Key locator field extracts the token from a 'Bearer <token>' Authorization header?",
+  "options": [
+    { "id": "a", "text": "=split(request.headers.authorization, \" \")[2] to take the second element of the list produced by splitting the header on the space character" },
+    { "id": "b", "text": "=request.headers.authorization to use the full Authorization header value, leaving the 'Bearer ' prefix in place when the comparison runs" },
+    { "id": "c", "text": "=request.body.authorization to read the API key from the request body's authorization field instead of from the Authorization header" },
+    { "id": "d", "text": "=substring(request.headers.authorization, 7) to return all characters after position 7, hand-skipping the 'Bearer ' prefix length" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The HTTP Webhook docs show that when the Authorization header carries a Bearer prefix, you remove it by passing the header through the FEEL split() function and selecting the second element of the resulting list with index [2], since FEEL lists are 1-based." },
+    "b": { "text": "Incorrect. Using the raw header value passes the literal string 'Bearer <token>' as the API key, which will not match the bare token stored in the API Key field; the prefix must be stripped first." },
+    "c": { "text": "Incorrect. The Authorization header arrives under request.headers (lower-cased), not under request.body; reading from the body yields no value for a partner that authenticates via the Authorization header." },
+    "d": { "text": "Incorrect. The documented recipe for removing the Bearer prefix uses split() with the FEEL list index [2]; a substring call with a hard-coded offset is outside the recipe shown for this case." }
+  },
+  "explanation": "The API Key locator is a FEEL expression evaluated against the inbound request that yields the value compared to the API Key field. For an Authorization header containing 'Bearer <token>', the documented expression is =split(request.headers.authorization, \" \")[2], which uses split() to break the header on the space and returns the token element using the 1-based FEEL list index [2].",
+  "docs": [ { "title": "HTTP Webhook connector", "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/" } ]
+}

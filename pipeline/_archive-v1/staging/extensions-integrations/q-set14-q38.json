@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q38",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A list has duplicates: [1, 2, 2, 3, 3, 3]. Team wants unique: [1, 2, 3]. FEEL distinct values for deduplication?",
+  "question": "FEEL distinct values for deduplication?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL does provide a built-in deduplication function. The distinct values(list) function in FEEL's built-in list function library returns a list with duplicate values removed while preserving the order of first occurrences. md and is the standard FEEL approach for removing duplicate elements from a list without needing any manual iteration or custom logic."
+    },
+    {
+      "id": "b",
+      "text": "FEEL does not have a native Set data type that automatically eliminates duplicates. While using the distinct values() function achieves the same result as converting to a set in other languages, FEEL operates on lists throughout. There is no type-level set conversion that implicitly deduplicates; the distinct values() function must be explicitly called. Describing the approach as set conversion misrepresents how FEEL's type system works for list deduplication."
+    },
+    {
+      "id": "c",
+      "text": "Manually implementing deduplication via a filter expression that tracks previously seen values requires complex stateful logic that FEEL filter expressions do not natively support. A manual approach would need recursive functions or multiple intermediate steps to achieve what distinct values(list) accomplishes in a single function call."
+    },
+    {
+      "id": "d",
+      "text": "FEEL provides distinct values(list): returns a list with duplicates removed while preserving the order of first occurrences. Example: distinct values([1, 2, 2, 3, 3, 3]) returns [1, 2, 3]. FEEL equality is type-aware. md."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL deduplication: distinct values (DMN FEEL spec): Removes duplicates from a list. Returns deduplicated list. Order: typically preserves order of first occurrence. Examples: `feel distinct values([1, 2, 2, 3, 3, 3]) → [1, 2, 3] distinct values([\"a\", \"b\", \"a\"]) → [\"a\", \"b\"] distinct values([]) → [] distinct values([1, \"1\", 1]) → [1, \"1\"] (type-strict: 1 ≠ \"1\") Equality semantics: Type-strict: number 1 ≠ string \"1\". Structural equality for compounds: {a: 1} and {a: 1} may be considered equal. Use cases: Use case 1: Unique customer IDs from order list: feel distinct values(for order in orders return order.customerId) Returns unique customer IDs. Use case 2: Deduplicate after aggregation: feel distinct values(flatten(allTags)) Combine: flatten nested tag lists, then deduplicate. Use case 3: Set-like operations: FEEL doesn't have native Set type; use distinct values for set semantics. Intersect: for x in list1 satisfies (some y in list2 satisfies y = x) -- combine with distinct. For complex objects: Dedupe by key: more involved; may need custom logic. Native distinct values compares whole objects. Example with objects: feel distinct values([{id: 1}, {id: 1}, {id: 2}]) If FEEL structural equality matches: returns [{id: 1}, {id: 2}]. If not: may return all 3 (treating each {id:1} as distinct). Verify per FEEL version. For dedupe-by-field: Workaround: project to keys, dedupe, then look up originals. feel let uniqueIds = distinct values(for o in objs return o.id) return for id in uniqueIds return (objs[item.id = id])[1] Compare with union (if available): union(list1, list2)` may implicitly deduplicate when joining. Performance: O(n²) typical for distinct (each element compared with all previous). For large lists: consider preprocessing in workers. Anti-patterns: Not deduplicating when needed: downstream surprised by duplicates. Distinct on wrong key: dedupes by whole-object equality when by-field intended."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. overcomplicated."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-list/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q38",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

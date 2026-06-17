@@ -45,11 +45,29 @@ describe('Question pool', () => {
     }
   });
 
-  it('correct option explanation starts with "Correct."', () => {
+  it('every question has a valid kind (or omitted)', () => {
     for (const q of ALL_QUESTIONS) {
-      const expl = q.optionExplanations?.[q.correctOptionId];
-      expect(expl).toBeDefined();
-      expect(expl?.text.startsWith('Correct.')).toBe(true);
+      if (q.kind !== undefined) {
+        expect(['single', 'negative']).toContain(q.kind);
+      }
+    }
+  });
+
+  it('negative items have NOT or FALSE in the stem', () => {
+    for (const q of ALL_QUESTIONS) {
+      if (q.kind === 'negative') {
+        expect(/\b(NOT|FALSE)\b/.test(q.question)).toBe(true);
+      }
+    }
+  });
+
+  it('every question has 4 option explanations', () => {
+    for (const q of ALL_QUESTIONS) {
+      if (!q.optionExplanations) continue;
+      for (const id of ['a', 'b', 'c', 'd'] as const) {
+        expect(q.optionExplanations[id]).toBeDefined();
+        expect(q.optionExplanations[id]?.text?.length).toBeGreaterThan(0);
+      }
     }
   });
 

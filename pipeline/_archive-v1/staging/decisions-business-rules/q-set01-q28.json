@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q28",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A logistics company's pricing engine returns multiple types of output values from a single DMN Decision Table: baseRate (number), surcharge (number), expediteAvailable (boolean), serviceClass (string from enum \"standard\", \"express\", \"priority\"). The team configures the DMN Decision Table with four output columns, one for each value. After deployment, the Business Rule Task receives the result and the developer expects to access each value as a separate process variable. When the team inspects the result in Operate after process execution, they see the entire output as a single JSON object in the resultVariable named pricingResult. They wanted four flat variables: baseRate, surcharge, expediteAvailable, serviceClass directly accessible in downstream tasks.",
+  "question": "Which configuration ensures the output is flattened into individual process variables?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Omit the resultVariable configuration on the Business Rule Task. By default, all output columns become flat variables, each written directly to the process scope. There is no automatic multi-column flattening behaviour built into the Business Rule Task without explicit output mappings. The correct flattening mechanism requires Output Mappings configured on the task."
+    },
+    {
+      "id": "b",
+      "text": "Use FEEL flatten() function in the DMN output cell. The FEEL flatten() function is a list operation that flattens a nested list (list of lists) into a single flat list -- for example, flatten([[1,2],[3]]) returns [1,2,3]. It has no effect on converting a single structured context object into multiple process variables. Placing a FEEL expression in the DMN output cell changes the cell's output value but does not produce flat process variables in the Zeebe process scope."
+    },
+    {
+      "id": "c",
+      "text": "serviceClass → serviceClass). In Web Modeler, configure the Business Rule Task's resultVariable to pricingResult (stores the full DMN result object), then add Output Mappings for each field. This leverages the standard Zeebe variable-mapping mechanism -- the same pattern works for Service Tasks, Business Rule Tasks, and Call Activities."
+    },
+    {
+      "id": "d",
+      "text": "Configure the DMN Decision Table with output:multiple=true annotation. There is no such annotation in the DMN specification or in Camunda 8's DMN implementation. The DMN Decision Table's output structure is determined by the number of output columns defined in the table; each column produces a field in the result object. There is no output:multiple=true annotation that changes how outputs are delivered to the process scope -- that level of control is handled by BPMN-side Output Mappings, not DMN-side configuration."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Business Rule Task's resultVariable stores the entire DMN output as a single object. To get flat process variables, configure Output Mappings on the Business Rule Task -- each mapping has a FEEL source expression extracting one field from resultVariable and a target variable name. This is the standard Zeebe variable-mapping pattern applicable to any task type."
+    },
+    "b": {
+      "text": "Incorrect. Omitting resultVariable results in the DMN output being written with a system-generated name or being discarded -- not \"automatic flattening\". The flattening must be explicit via output mappings."
+    },
+    "c": {
+      "text": "Correct. There is no flatten() FEEL function for this purpose."
+    },
+    "d": {
+      "text": "Incorrect. output:multiple is not a valid DMN annotation."
+    }
+  },
+  "explanation": "There is no flatten() FEEL function for this purpose.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q28",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

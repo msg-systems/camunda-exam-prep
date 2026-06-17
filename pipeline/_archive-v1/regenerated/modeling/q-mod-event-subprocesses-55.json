@@ -1,0 +1,50 @@
+{
+  "id": "mod-event-subprocesses-55",
+  "topic": "modeling",
+  "subtopic": "event-subprocesses",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Kestrel Bank models a Camunda 8.8 mortgage application process where a global event subprocess must react to multiple incoming reminders without terminating the main flow, handling 900 loans per day across 3 tenants in the same parent process model.",
+  "question": "Which event subprocess configuration in Camunda 8.8 allows the subprocess to be triggered multiple times without terminating the containing scope?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A non-interrupting event subprocess in the same scope can be triggered multiple times during the lifetime of its containing scope without terminating active instances of that scope"
+    },
+    {
+      "id": "b",
+      "text": "An interrupting event subprocess can be re-triggered after each completion as long as no other event subprocess of the same scope has been triggered earlier in the same instance"
+    },
+    {
+      "id": "c",
+      "text": "A non-interrupting event subprocess that starts with an error start event can be triggered any number of times while the containing scope keeps running normally in the same instance"
+    },
+    {
+      "id": "d",
+      "text": "An interrupting event subprocess with a timer start event can fire multiple times per process instance, with the containing scope restored each time the subprocess completes its work"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The event subprocesses page states that a non-interrupting event subprocess can be triggered multiple times while its containing scope remains active, contrasting with interrupting subprocesses which can be triggered only once."
+    },
+    "b": {
+      "text": "Incorrect. An interrupting event subprocess can be triggered only once and terminates active instances of its containing scope, so it cannot be re-triggered later in the same parent process instance."
+    },
+    "c": {
+      "text": "Incorrect. The page lists error as one allowed start event type but does not change interrupting semantics; only non-interrupting event subprocesses can fire multiple times in the same containing scope."
+    },
+    "d": {
+      "text": "Incorrect. Interrupting event subprocesses cannot fire multiple times; the containing scope is terminated, not restored, when an interrupting event subprocess is triggered in the same instance."
+    }
+  },
+  "explanation": "Event subprocesses behave like boundary events but live inside the scope. Their start event is timer, message, error, signal, or escalation. Non-interrupting variants can be triggered multiple times while the containing scope stays active; interrupting variants run once and terminate that scope.",
+  "docs": [
+    {
+      "title": "BPMN event subprocesses",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q11",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task send-email needs metadata that varies between two cases: instance-specific values (customer email) AND static-per-task config (the email template ID, which is the same for every instance of this task). The team is deciding which metadata mechanism fits each.",
+  "question": "Which is correct about Task Headers vs Input Mapping?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Task Headers for static-per-task metadata (template ID, channel name) -- set in BPMN model, identical across all instances; the worker reads them via getCustomHeaders(). Input Mapping for dynamic per-instance values like customer email derived from process variables -- FEEL-evaluated at task activation, exposed as task-local variables scoped to the task execution. The key distinction is data lifetime: Headers are design-time constants, Input Mappings are runtime-computed values. This separation keeps worker configuration clean and process variable management explicit."
+    },
+    {
+      "id": "b",
+      "text": "Use Task Headers for both the static template ID and the dynamic per-instance customer email -- this description does not reflect actual behaviour because Task Headers are static key-value pairs defined at design time in the BPMN model. Headers cannot reference process variables or evaluate FEEL expressions. Their values are fixed at deploy time and remain constant across all process instances. Dynamic values that differ per instance, like customer email addresses, must flow through Input Mapping which is FEEL-evaluated at runtime using the current process variable values."
+    },
+    {
+      "id": "c",
+      "text": "Input Mapping is designed for dynamic runtime values derived from process variables. Static configuration like template IDs that never change between process instances is more semantically appropriate in Task Headers, which communicate design-time intent to workers. Using Input Mapping for static values adds unnecessary FEEL evaluation overhead and loses the semantic clarity that Headers provide for fixed worker configuration."
+    },
+    {
+      "id": "d",
+      "text": "Combine both the static template ID and the dynamic customer email into a single Task Header entry -- this description does not reflect actual behaviour because Task Headers are flat key-value pairs with literal string values only. There is no FEEL evaluation in Task Headers. A Header value is the exact literal string defined at design time, not a computed value. Embedding a variable reference like the customer email in a Header would pass the literal reference string to the worker, not the runtime email value. Static and dynamic data require the separate Header and Input Mapping mechanisms."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The semantic distinction: Task Headers carry static metadata declared at design time -- template IDs, channel names, classification tags, etc. They're identical for every instance of this task element. The worker reads them via the activated job's getCustomHeaders() map. No FEEL, no per-instance variation. Input Mapping evaluates FEEL expressions at activation -- produces dynamic, per-instance task-local variables. Customer email derived from a process variable would be Target: customerEmail, Source: =customer.email. Using both side by side keeps concerns separated: static config in Headers, dynamic data in Input Mapping. The worker reads them through different APIs."
+    },
+    "b": {
+      "text": "Incorrect. Headers can't carry dynamic values."
+    },
+    "c": {
+      "text": "Incorrect. Putting static config in Input Mapping mixes design-time and runtime concerns; Headers express \"this is config\" clearly."
+    },
+    "d": {
+      "text": "Incorrect. Headers don't evaluate FEEL."
+    }
+  },
+  "explanation": "The semantic distinction: Task Headers carry static metadata declared at design time -- template IDs, channel names, classification tags, etc. They're identical for every instance of this task element. The worker reads them via the activated job's getCustomHeaders() map. No FEEL, no per-instance variation. Input Mapping evaluates FEEL expressions at activation -- produces dynamic, per-instance task-local variables. Customer email derived from a process variable would be Target: customerEmail, Source: =customer.email. Using both side by side keeps concerns separated: static config in Headers, dynamic data in Input Mapping. The worker reads them through different APIs.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q11",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

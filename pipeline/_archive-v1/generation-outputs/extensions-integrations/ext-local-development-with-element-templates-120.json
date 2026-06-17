@@ -1,0 +1,27 @@
+{
+  "id": "ext-local-development-with-element-templates-120",
+  "topic": "extensions-integrations",
+  "subtopic": "Element templates",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Apex Healthcare automates onboarding across 320 deployments per quarter on Camunda 8.8 and wants to script the deployment of element template dependencies such as forms, DMN diagrams, and subprocesses straight from a CI pipeline using the Orchestration Cluster REST API instead of clicking through Desktop Modeler for every release.",
+  "question": "Which Orchestration Cluster REST API call deploys an additional form dependency to a Camunda 8.8 cluster?",
+  "options": [
+    { "id": "a", "text": "Send a POST request to /v2/deployments with the form file attached as the resources multipart field, for example curl -F resources=@/path/user-signup.form against the cluster" },
+    { "id": "b", "text": "Send a PUT request to /v1/forms with the form file attached as a formDefinition multipart field, scoped to the cluster default tenant for the orchestration runtime" },
+    { "id": "c", "text": "Send a POST request to /v2/forms/import with the raw form body and a JSON manifest naming the form id, version, and tenant scope used at deployment time" },
+    { "id": "d", "text": "Send a GraphQL mutation to /graphql with a createDeployment operation that uploads the form file inside a base64 encoded resources variable on the cluster" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The Orchestration Cluster REST API exposes POST /v2/deployments, and additional dependencies such as forms, DMN diagrams, or subprocesses are uploaded by attaching the file as the resources multipart field, as in curl -F resources=@/path/user-signup.form." },
+    "b": { "text": "Incorrect. There is no PUT /v1/forms endpoint with a formDefinition multipart field for deploying forms on Camunda 8.8; the documented call is POST /v2/deployments with the file in the resources field." },
+    "c": { "text": "Incorrect. The cluster API does not expose a /v2/forms/import endpoint taking a separate JSON manifest; deployment of additional dependencies is done through POST /v2/deployments with the resources multipart field." },
+    "d": { "text": "Incorrect. The Orchestration Cluster API in Camunda 8.8 is a REST API, not a GraphQL surface, and form deployment is performed by POSTing the file to /v2/deployments as the resources multipart field." }
+  },
+  "explanation": "To automate deployment of element template dependencies on Camunda 8.8, scripts call the Orchestration Cluster REST API endpoint POST /v2/deployments and attach the file using the resources multipart field. The response lists each deployed element together with the deployment key and tenant id.",
+  "docs": [
+    { "title": "Local development with element templates", "url": "https://docs.camunda.io/docs/components/best-practices/development/local-development-with-element-templates/" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q37",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression in a Service Task's input mapping computes a discount: discount = if customer.tier = \"GOLD\" then 0.15 else if customer.tier = \"SILVER\" then 0.10 else 0.05. At runtime, when customer.tier is null, the FEEL evaluator's behavior is observed.",
+  "question": "Which best describes FEEL semantics for null in this if-elif-else?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL raises an evaluation error when null is compared with = to a string value like \"GOLD\", causing the entire expression to fail and the Service Task to create an Incident in Zeebe. FEEL is specifically designed to handle null values gracefully without raising exceptions. The = operator applied to a null operand returns null (a three-valued logic result meaning \"unknown\"), not an error. The expression continues evaluating using FEEL's null-safe semantics, eventually returning the else-branch default without creating an Incident."
+    },
+    {
+      "id": "b",
+      "text": "null = \"GOLD\" returns null (not false) because FEEL uses three-valued logic where comparisons involving null yield \"unknown\". The if construct treats non-true conditions -- including null -- as falsy, so the if null then ... branch is skipped. 05. 05 when tier is null."
+    },
+    {
+      "id": "c",
+      "text": "tier is null, the entire if-elif-else expression returns null because null = \"GOLD\" and null = \"SILVER\" both evaluate to null, and FEEL propagates the null through the entire conditional chain without ever reaching the else branch. FEEL's if construct evaluates the condition; when the condition is null (not strictly true), it executes the else branch. 05 -- it does not return null from the whole expression."
+    },
+    {
+      "id": "d",
+      "text": "15 (the GOLD discount rate) as if null were a catch-all value for the first option. FEEL does not treat null as a default match for any specific branch. null = \"GOLD\" returns null (unknown), not true, so the first branch is not selected. 05."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL's if statement evaluates the condition; if it's not strictly true, the else branch executes. null = \"GOLD\" returns null, which in if context is treated as falsy → fall through to else. No exception, expression returns 0.05."
+    },
+    "b": {
+      "text": "Correct. FEEL = on null is graceful, not exception-raising for this case."
+    },
+    "c": {
+      "text": "Incorrect. else branch executes; result is 0.05 not null."
+    },
+    "d": {
+      "text": "Incorrect. null doesn't match GOLD or SILVER."
+    }
+  },
+  "explanation": "FEEL = on null is graceful, not exception-raising for this case.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-boolean/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q37",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

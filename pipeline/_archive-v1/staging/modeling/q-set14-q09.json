@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q09",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An embedded subprocess has multiple inner branches. One branch reaches a Terminate End Event. Team wonders if this terminates the entire process instance or just the subprocess.",
+  "question": "Terminate End Event scope in subprocess?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A Terminate End Event inside an embedded subprocess terminates only the active flows within that subprocess's scope, not the entire process instance. After the subprocess completes due to the termination, the parent process continues normally from the point after the subprocess element. Full process termination only occurs when a Terminate End Event is placed at the root level of the process, outside any subprocess boundary. Conflating subprocess-scoped and root-level terminate behavior leads to incorrect design decisions."
+    },
+    {
+      "id": "b",
+      "text": "Terminate End Event scope = enclosing subprocess only (not the entire process instance). When triggered, it cancels all other active flows in that subprocess; subprocess completes (as if normally ending); parent process continues from the subprocess. For full-process termination: a Terminate End Event at the process root level terminates the whole instance. Use cases: \"early exit\" from a parallel branch within a subprocess when one branch's outcome makes others moot."
+    },
+    {
+      "id": "c",
+      "text": "A Terminate End Event inside an embedded subprocess cancels all active branches within that subprocess scope but does not affect the parent process or any other enclosing scopes. After the subprocess exits normally following the termination, the parent process flow continues with whatever element follows the subprocess. Termination does not propagate upward through scope boundaries automatically -- that would require a separate mechanism such as a root-level Terminate End Event or an Error End Event with a matching boundary handler."
+    },
+    {
+      "id": "d",
+      "text": "Terminate End Event and Normal End Event have distinctly different behaviors when parallel flows are active. A Normal End Event ends only the current branch -- other parallel branches in the same scope continue independently. A Terminate End Event cancels all active branches in the enclosing scope simultaneously. In a subprocess with multiple parallel branches, reaching a Terminate End Event stops all other branches in that subprocess, whereas a Normal End Event leaves them running. They are not interchangeable when parallel execution is involved."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Terminate End Event scope: Terminate End Event: Notation: end event circle with filled black dot inside. Semantic: terminates ALL active flows in the enclosing scope when reached. Scope = the parent subprocess or process root containing the Terminate End Event. In an embedded subprocess: Terminate inside subprocess: cancels all other active branches in this subprocess. Subprocess then exits normally (no error / no exception). Parent flow continues -- the subprocess is just one element in the parent's flow. At process root level: Terminate at root: cancels entire process instance. All active branches at any scope level cancelled. Process instance terminates. Comparison with Normal End Event: Normal End: only the current branch ends; other parallel branches continue. Terminate End: all branches in scope end. Comparison with other End Events: | Type | Effect | |------|--------| | None End | Current branch ends; parallel branches continue | | Terminate End | All branches in enclosing scope end | | Error End | Throws BPMN error; caught by Error Boundary / Event Subprocess | | Escalation End | Throws escalation event | | Signal End | Publishes signal to all matching subscriptions | | Message End | Publishes message | | Cancel End | Triggers compensation (within Transaction Subprocess) | For the scenario: Embedded subprocess with parallel branches. One branch reaches Terminate End Event. Other active branches in subprocess: cancelled. Subprocess: completes (normal exit). Parent flow: continues after subprocess. Use cases: First-of-many wins: parallel branches racing; first to complete a goal terminates the others (e.g., \"first approver to respond cancels other approval requests\"). Early termination on critical event: one branch detects a fatal condition; ends subprocess immediately. Cleanup-on-success: one branch completes the goal; others (running diagnostics, retries, etc.) can stop. At root: Hard abort: e.g., \"fraud detected, cancel everything.\" Use sparingly: like an exception bailout; avoid for routine flow control. In Call Activity: Terminate in called process: ends called process; parent's Call Activity completes normally. To propagate to parent: use Error End Event in called process with matching Error Boundary on Call Activity in parent. Modeling tip: Terminate is a hammer: useful when needed; overuse complicates audit. Compare with Cancel End (Transaction subprocess only): Cancel triggers compensation; Terminate just stops."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/terminate-events/terminate-events/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q09",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q19",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Receive Task waits for OrderShipped message with correlation key =tracking.id. The team realises they need to transform the variable: trim whitespace and uppercase before correlating. Can the correlation key expression include FEEL function calls?",
+  "question": "Can Message correlation key use FEEL function calls?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes -- the correlation key field accepts a full FEEL expression including function calls, string transformations, and type coercions. id)) normalises the tracking ID by trimming whitespace and converting to uppercase. The expression is evaluated at task activation; the result must be a non-null value that uniquely identifies the waiting subscription. Both the message publisher and the subscription must use consistent transformation logic so the same normalised value is produced on both sides for correlation to succeed."
+    },
+    {
+      "id": "b",
+      "text": "The correlation key must be a simple direct variable reference with no transformation -- this unduly restricts the expressiveness of FEEL in correlation keys. The message correlation key field accepts any valid FEEL expression, enabling string normalisations, compositions, type coercions, and conditional derivations. id)) are equally valid and evaluated at task activation time."
+    },
+    {
+      "id": "c",
+      "text": "Only simple =variableName FEEL references are permitted in correlation keys -- this partially describes the usage but understates what FEEL supports. Full FEEL is available in correlation key expressions, including function calls, string operations, arithmetic, and conditional expressions. Any FEEL expression that evaluates to a non-null scalar value suitable for exact-match correlation is a valid correlation key, not just bare variable references."
+    },
+    {
+      "id": "d",
+      "text": "Variable transformations for correlation keys require a preceding Input Mapping step on a separate element, not inline expressions -- this is a workable but unnecessarily verbose approach. Adding Input Mapping to normalise variables before a Receive Task or Intermediate Catch Event adds an extra configuration step without providing additional benefit over inline FEEL. id)) directly in the correlation key expression is the more concise and co-located alternative."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Correlation key expressions are full FEEL. Common transformations: Normalisation: =upper case(trim(tracking.id)) -- handles inconsistent casing / whitespace. Composition: =customer.id + \"-\" + order.id -- composite correlation key. Conditional: =if order.priority = \"HIGH\" then \"PRIO-\" + order.id else order.id. Type coercion: =string(order.id) -- ensure string type. Important: consistency between publisher and subscription. Both sides must produce the same value: Subscription: =upper case(trim(tracking.id)) (transforms incoming variable). Publisher: must publish the message with the already-transformed value as its correlation key. If publisher sends \"abc-123\" (lowercase) and subscription transforms to \"ABC-123\", correlation will miss. Coordinate transformations. Best practice: keep correlation keys simple and consistent at source -- transform at the publisher side (the system generating the message) rather than in the subscription. Or pick a simpler key that doesn't need transformation."
+    },
+    "b": {
+      "text": "Incorrect. FEEL supported."
+    },
+    "c": {
+      "text": "Incorrect. Full FEEL."
+    },
+    "d": {
+      "text": "Incorrect. Inline FEEL."
+    }
+  },
+  "explanation": "Correlation key expressions are full FEEL. Common transformations: Normalisation: =upper case(trim(tracking.id)) -- handles inconsistent casing / whitespace. Composition: =customer.id + \"-\" + order.id -- composite correlation key. Conditional: =if order.priority = \"HIGH\" then \"PRIO-\" + order.id else order.id. Type coercion: =string(order.id) -- ensure string type. Important: consistency between publisher and subscription. Both sides must produce the same value: Subscription: =upper case(trim(tracking.id)) (transforms incoming variable). Publisher: must publish the message with the already-transformed value as its correlation key. If publisher sends \"abc-123\" (lowercase) and subscription transforms to \"ABC-123\", correlation will miss. Coordinate transformations. Best practice: keep correlation keys simple and consistent at source -- transform at the publisher side (the system generating the message) rather than in the subscription. Or pick a simpler key that doesn't need transformation.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q19",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "cfg-variables-14",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Crestline Insurance has a Camunda 8.8 process where the root scope already has a variable named riskLevel for each of the 3,000 claims processed daily. A worker completes a job inside a nested subprocess and returns riskLevel together with a brand-new variable claimNotes. The team needs to predict where each variable will end up after the merge.",
+  "question": "Where do riskLevel and claimNotes reside after the job completes in the nested subprocess?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The engine updates the existing riskLevel in the root scope where propagation stops, and creates claimNotes as a new variable in the root scope because no parent scope already has it."
+    },
+    {
+      "id": "b",
+      "text": "The engine creates both riskLevel and claimNotes as local variables in the nested subprocess scope, leaving the existing root-scope riskLevel untouched until the subprocess scope ends."
+    },
+    {
+      "id": "c",
+      "text": "The engine updates the existing riskLevel only in the nested subprocess scope and creates claimNotes there as well, so neither of the two changes is visible once the subprocess completes."
+    },
+    {
+      "id": "d",
+      "text": "The engine rejects the job completion because a worker is not allowed to write to a variable that already exists in a higher scope of the same process instance during a single merge."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Propagation walks each variable up until it finds a scope already containing the name; riskLevel stops at the root scope, and claimNotes finds no match so it is created in the root scope."
+    },
+    "b": {
+      "text": "Incorrect. Variables returned by job completion are propagated to higher scopes by default; only an explicit local-variable mechanism would keep them confined to the nested subprocess scope."
+    },
+    "c": {
+      "text": "Incorrect. riskLevel's update stops in the root scope where the name first exists, and claimNotes is created in the root scope rather than in the nested subprocess scope by default."
+    },
+    "d": {
+      "text": "Incorrect. There is no rule that rejects job completion when a returned variable matches a higher-scope variable; the engine simply handles the propagation according to the documented merge rules."
+    }
+  },
+  "explanation": "Variable propagation on job completion walks each returned variable from the activity scope toward the root scope. It stops at the first scope that already contains a variable with the same name and updates it; if no scope contains it, the engine creates the variable in the root scope.",
+  "docs": [
+    {
+      "title": "Variables",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ]
+}

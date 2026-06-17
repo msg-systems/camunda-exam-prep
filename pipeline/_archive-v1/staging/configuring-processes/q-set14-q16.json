@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q16",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An AI Agent Connector uses a prompt template: \"Summarize this {documentType} for {customerName}\". Team wonders if templates support variables and how.",
+  "question": "AI Agent prompt template variables?",
+  "options": [
+    {
+      "id": "a",
+      "text": "AI Agent Connector prompts in Camunda 8 fully support dynamic variable injection using FEEL expressions. The prompt field accepts any FEEL expression that evaluates to a string, enabling modelers to compose personalized, context-aware prompts by concatenating process variables such as documentType, customerName, or region. Claiming that prompts do not support variables ignores the standard FEEL string expression capability that all Connector input fields support in Camunda 8."
+    },
+    {
+      "id": "b",
+      "text": "AI Agent prompts in Camunda 8 are not limited to hardcoded strings. The prompt input field accepts FEEL expressions, allowing modelers to dynamically construct prompt text by combining string literals with any available process variable. This enables personalised prompts, multi-tenant configurations, and dynamic task framing without redeploying the process. Restricting prompt content to hardcoded text would eliminate the primary value of integrating AI agents into a data-driven workflow."
+    },
+    {
+      "id": "c",
+      "text": "Typical pattern: prompts use FEEL expressions for variable substitution. Template like \"Summarize this \" + documentType + \" for \" + customerName or template-literal syntax depending on Connector implementation. Camunda 8's AI Agent / LLM Connectors expose input fields for prompts; modeler writes FEEL to compose dynamic strings. Use cases: personalised prompts, multi-tenant prompts, context-aware queries."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8's FEEL expressions natively support string concatenation, null coalescing, conditional logic, and list operations, providing sufficient capabilities to compose dynamic prompts entirely within the process model without any external dependency on a separate template engine."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. AI Agent prompt with variables: FEEL expression in prompt field: ` prompt = \"Summarize this \" + documentType + \" for customer \" + customerName + \". Focus on: \" + string join(focusAreas, \", \") Dynamic value substitution via FEEL string concatenation. Use any process variable. Functions available: string() (number-to-string), string join, lower case, etc. Pattern: structured prompts: prompt = \"Context:\\n\" + \"- Document type: \" + documentType + \"\\n\" + \"- Customer: \" + customerName + \"\\n\" + \"- Region: \" + region + \"\\n\\n\" + \"Task: \" + task + \"\\n\\n\" + \"Format response as JSON.\" Use cases: Use case 1: Personalisation: Customer name in greeting / context. Region for locale-specific responses. Tier (basic/premium) affecting response depth. Use case 2: Multi-tenant: Different system prompts per tenant. prompt = tenants[tenantId].systemPrompt + .... Use case 3: Dynamic task framing: Same model used for different tasks; task description varies. prompt = \"Task \" + taskType + \": \" + taskInstructions + ...\". Use case 4: Context injection: Inject relevant prior context (history, knowledge base snippets). prompt = \"Background:\\n\" + string join(history, \"\\n\") + \"\\n\\nQuestion: \" + query. Templating considerations: String escaping: User-provided strings may contain special chars (quotes, newlines). FEEL string conversion typically handles, but verify edge cases. Avoid SQL-injection-style issues: never inject raw user input into system-prompt portion. Variable safety: Null defense: =if customerName != null then customerName else \"valued customer\". Type coercion: ensure variables are strings; convert numbers / dates as needed. Length / token limits: Long variables may overflow LLM token budget. Truncate: substring(longField, 1, 1000)` if needed. Summarize first: pre-compute summaries; inject. Prompt iteration: Version prompts: store as process variables; track which version each invocation used. A/B testing: route different process instances to different prompts; analyse outcomes. Best practices: Test prompts: log inputs + outputs; analyse quality. Don't inline secrets: API keys via secrets, never in prompts. Sanitize user inputs: prevent prompt injection attacks. Document prompt evolution: changelog of what changed when. Element Template (per Q15): Could provide prompt scaffolding; modeler fills variable parts."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/agentic-orchestration/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q16",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

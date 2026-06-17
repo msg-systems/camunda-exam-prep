@@ -1,0 +1,27 @@
+{
+  "id": "ext-configuration-46",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Insurance integrates a Camunda Spring Boot Starter worker with a self-managed Camunda 8.8 cluster that authenticates via OpenID Connect. The cluster expects 5200 jobs per day and the team configures camunda.client.auth.client-id and camunda.client.auth.client-secret without setting camunda.client.auth.method explicitly. A reviewer asks which authentication method will actually be applied in this configuration.",
+  "question": "Which authentication method does the starter activate when only client-id and client-secret are configured?",
+  "options": [
+    { "id": "a", "text": "The starter activates the none preset because camunda.client.auth.method was not set explicitly, so the worker connects without sending any credentials to the self-managed cluster" },
+    { "id": "b", "text": "The starter activates the basic preset because client-id and client-secret are accepted as username and password aliases when camunda.client.auth.method is omitted from configuration" },
+    { "id": "c", "text": "The starter refuses to start because camunda.client.auth.method is required whenever any auth property is set, so the worker fails fast at context initialization with an error" },
+    { "id": "d", "text": "The starter activates the oidc preset because the oidc method is implied when either camunda.client.auth.client-id or camunda.client.auth.client-secret is set in the application properties" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The none preset is only the default when no other property implies an authentication method; setting client-id or client-secret implies oidc." },
+    "b": { "text": "Incorrect. Basic auth is implied by camunda.client.auth.username or camunda.client.auth.password, not by client-id or client-secret." },
+    "c": { "text": "Incorrect. The starter detects the auth method automatically when camunda.client.auth.method is omitted; it does not require the method to be set explicitly." },
+    "d": { "text": "Correct. The docs state that the oidc method will be implied if you set either camunda.client.auth.client-id or camunda.client.auth.client-secret, even without setting method explicitly." }
+  },
+  "explanation": "When camunda.client.auth.method is omitted, the starter detects the method from other properties. Setting camunda.client.auth.client-id or camunda.client.auth.client-secret implies the oidc method, while setting username or password implies basic, and otherwise the none preset is used.",
+  "docs": [
+    { "title": "Camunda Spring Boot Starter configuration", "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/" }
+  ]
+}

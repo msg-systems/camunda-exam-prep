@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q25",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team has reusable decision logic: \"compute risk score.\" They wonder whether to model as BKM (Business Knowledge Model) or Decision (with Decision Service).",
+  "question": "BKM vs Decision (in Camunda 8 -- Decision Service NOT supported)?",
+  "options": [
+    {
+      "id": "a",
+      "text": "BKM and Decision are identical constructs in Camunda 8 DMN -- this approach has limitations. md:64); its result is not visible as a standalone entry in Operate. A Decision is a first-class Camunda 8 element invokable from BPMN via Business Rule Task zeebe:calledDecision or via the Orchestration Cluster REST/gRPC EvaluateDecision API. md:23-28."
+    },
+    {
+      "id": "b",
+      "text": "md:64: \"you can only reuse BKMs within the same decision\"); body is a Literal Expression; result variable = BKM element name; not invokable from BPMN and not visible in Operate. Decision is a first-class element: invokable from BPMN via Business Rule Task zeebe:calledDecision or REST/gRPC EvaluateDecision; body is Decision Table OR Literal Expression. md:23-28. For shared logic within one DMN file use BKM; for BPMN-level invocation model a top-level Decision."
+    },
+    {
+      "id": "c",
+      "text": "BKM (Business Knowledge Model) has been deprecated and removed from Camunda 8 DMN -- this claim does not fully apply. md:54-75. BKMs serve a specific and valuable purpose: they encapsulate reusable logic (Literal Expressions) within a DMN file, callable from other decisions in the same DRG. md:64), that constraint does not imply deprecation. 8 release with no planned removal."
+    },
+    {
+      "id": "d",
+      "text": "Decision Service and BKM are the same construct in Camunda 8 -- this approach has limitations on two counts. First, they are conceptually distinct in the DMN specification: BKM is a function-like reusable formula, while Decision Service is a logical grouping that exposes a subset of decisions as a callable service. md:23-28 lists only four supported DMN element kinds: Decision, Input data, Knowledge source, BKM). Treating them as equivalent or assuming Decision Service is available in Camunda 8 will lead to modeling errors and deployment failures."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BKM vs Decision (Decision Service is NOT a Camunda 8 element -- Pattern #35): BKM (Business Knowledge Model): Purpose: Reusable logic within a single decision per dmn.md:64 verbatim \"Currently, you can only reuse BKMs within the same decision\" (Pattern #34 5th cumulative S6+S8+S11+S13+S15). Invoked via FEEL function-call syntax inside the same parent decision's literal expression (e.g. =calculateRiskScore(amount, history)). Parameters: optional typed formal parameters (amount: number, history: string) per dmn.md:62-74. Body: Literal Expression in C8 per dmn.md:23-25 (Boxed Function Expression is DMN-1.3 spec but NOT in C8 modeler -- Pattern #41). Result-variable name equals the BKM element name (dmn.md:68). Operate visibility: BKM evaluation result is NOT visible in Operate per dmn.md:56-58 verbatim \"Viewing the result of BKM evaluation is currently not supported in Operate.\" Use cases: Common formula used by multiple decisions (e.g., tax calculation). Encapsulating decision logic for reuse. DRY within DMN model. Visual notation: Rectangle with \"hat\" (knowledge symbol). Connected to decisions via knowledgeRequirement (dashed line). Example BKM: Name: calculateTax. Parameters: amount, rate. Body: amount rate. Invocation from Decision: `feel total = grossAmount + calculateTax(grossAmount, taxRate) Decision: Purpose: First-class decision logic. Can be invoked from BPMN (Business Rule Task). Can be invoked standalone via API (per Set 14 Q28). Composable: one decision can depend on others (via information requirements). Use cases: High-level business decisions invoked from processes. Standalone \"decisioning APIs\" for external consumers. Multi-step decision flows. Decision Service (DMN-1.3 spec, NOT in Camunda 8 per dmn.md:23-28): DMN spec: logical grouping of decisions exposed as a service with declared inputs/outputs. Camunda 8 modeler does NOT support Decision Service (Pattern #35; only Decision / Input data / Knowledge source / BKM are listed in dmn.md:23-28). Engine does not invoke Decision Services: zeebe:calledDecision targets a single decisionId; EvaluateDecision REST POST /decision-definitions/evaluation and gRPC EvaluateDecision both take a single decision identifier. C8 substitute for \"multiple decisions as one service\": top-level Decision with informationRequirement to downstream decisions (DRG), invoked once by ID. Or orchestrate at BPMN level via multiple Business Rule Tasks. Comparison: | Aspect | BKM | Decision | |--------|-----|----------| | First-class | No (helper) | Yes | | Invocation source | Other decisions in DMN | BPMN + API + other decisions | | Parameters | Typed params | Inputs (via information requirements / mapped) | | Reuse scope | Within DMN model | Across DMN, BPMN, APIs | For the scenario (reusable \"compute risk score\"): If used only inside other decisions in same DMN model: BKM: clean encapsulation. If invoked from BPMN as standalone decision: Decision: first-class. If invoked both ways: Decision: more versatile. Other decisions can have information requirement on this decision. For the scenario specifically: \"Compute risk score\" sounds like a building block used by other decisions. BKM is a reasonable choice if used within DMN. Decision is appropriate if also called from BPMN. DMN modelling: BKM example: xml if history = \"good\" then amount 0.1 else amount * 0.3 Decision invoking BKM: xml if calculateRiskScore(loanAmount, creditHistory) ` Best practices: Use BKM for pure reusable logic within DMN. Use Decision for invokable units (from BPMN / API). DRD organisation: BKMs shown as helpers; Decisions as primary. Anti-patterns: Decision for trivial reusable logic: overhead. BKM for top-level business decisions: should be Decision. Inline logic everywhere instead of BKMs: violates DRY."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q25",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "mod-send-tasks-40",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helix Insurer publishes 8000 claim events per day to a Kafka topic from Camunda 8.8. The integration team chooses to model the outbound publish step as a BPMN send task and wires a dedicated worker to take the job off the broker and emit each Kafka message.",
+  "question": "Which statement correctly describes how a BPMN send task is executed at runtime in Camunda 8.8?",
+  "options": [
+    { "id": "a", "text": "Entering the send task creates a job of the configured type and the process instance waits for an external job worker to complete it before continuing" },
+    { "id": "b", "text": "Entering the send task triggers a built-in Zeebe message publisher that emits the payload directly without any external job worker being involved at runtime" },
+    { "id": "c", "text": "Entering the send task starts a message correlation timer that fires after the configured duration and continues even if no subscriber acknowledges receipt" },
+    { "id": "d", "text": "Entering the send task evaluates an inline FEEL message body and continues immediately because send tasks complete synchronously without job creation" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Send tasks behave exactly like service tasks: on activation a job of the configured job type is created and the process instance waits for an external job worker to complete it before the flow advances." },
+    "b": { "text": "Incorrect. Jobs for send tasks are not processed by Zeebe itself; a job worker must be provided to take the job and perform the outbound publication." },
+    "c": { "text": "Incorrect. Send tasks are job-based outbound publication elements; they do not use timer correlation semantics to advance the flow." },
+    "d": { "text": "Incorrect. Send tasks are not synchronous inline operations; they create a job and require an external worker to complete that job before continuing." }
+  },
+  "explanation": "Send tasks share their execution semantics with service tasks. On activation Zeebe creates a job of the configured type, and the process instance waits for an external job worker to complete that job before continuing.",
+  "docs": [
+    { "title": "BPMN send tasks", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/send-tasks/" }
+  ]
+}

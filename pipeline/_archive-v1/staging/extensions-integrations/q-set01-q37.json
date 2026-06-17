@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q37",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A loan approval process uses a Business Rule Task that calls a DMN decision evaluating the applicant's eligibility. The DMN takes a FEEL input column expression applicantBirthDate < date(\"2008-01-01\") to check whether the applicant is at least 18 years old as of a fixed regulatory cutoff. Production users start reporting \"FEEL evaluation failure: cannot compare strings with dates\" incidents. Investigation shows that the upstream system sometimes provides applicantBirthDate as a string (\"1990-05-15\") and sometimes as a proper FEEL date (date and time(\"1990-05-15\")), depending on how the data flows in. The team needs a FEEL expression that defensively handles both cases -- string and native date -- and returns a comparable date.",
+  "question": "Which FEEL expression correctly normalises the input?",
+  "options": [
+    {
+      "id": "a",
+      "text": "if applicantBirthDate is string then date(applicantBirthDate) else applicantBirthDate < date(\"2008-01-01\") -- explicit type check before comparison. This expression has a structural problem beyond verbosity: the then branch returns a date value (from the date() conversion), while the else branch returns a boolean (from the < comparison). This mixed-type if-then-else produces inconsistent output types depending on the input shape, which would cause evaluation issues downstream. Additionally, even if restructured correctly to perform the type-conditional comparison, it is significantly more verbose than the idiomatic date(applicantBirthDate) < date(\"2008-01-01\") which handles both types via the overloaded function signature."
+    },
+    {
+      "id": "b",
+      "text": "md (signatures: date(from: string), date(from: date and time), and date(year, month, day)), accepting both ISO-8601 strings and date and time values, returning a date in either case. When applicantBirthDate is already a FEEL date value, date() is a no-op identity conversion; when it is an ISO-8601 string like \"1990-05-15\", it parses and returns the equivalent FEEL date. The resulting date value is then compared with the reference cutoff date(\"2008-01-01\"). This single-line expression handles both input types transparently, making it the idiomatic and robust solution for mixed-type FEEL date inputs."
+    },
+    {
+      "id": "c",
+      "text": "applicantBirthDate as date < date(\"2008-01-01\") -- FEEL as keyword forces type coercion. FEEL has no as keyword for type coercion. , applicantBirthDate is string returns a boolean), and type conversions use built-in conversion functions like date(value), string(value), number(value). The as keyword for casting is a construct from languages like Java and Kotlin that is absent from the FEEL specification. Using this in a DMN input cell would cause a parse error at evaluation time."
+    },
+    {
+      "id": "d",
+      "text": "try date(applicantBirthDate) catch (date(\"1900-01-01\")) < date(\"2008-01-01\") -- try/catch for safe parsing. FEEL does not have try/catch exception handling syntax. ), the result is null, and null propagates through subsequent operations rather than throwing an exception. Try/catch is a Java/JavaScript/Python concept that has no equivalent syntax in the FEEL specification."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL's date(x) built-in function (in conversion functions, NOT temporal -- Pattern #38 doc-link fix) is overloaded: it accepts a string in ISO-8601 format (\"YYYY-MM-DD\") and returns a date; it also accepts a date and time value and extracts the date; and a 3-arg form date(year, month, day). This means date(applicantBirthDate) works for both shapes -- string or date-time -- returning a comparable date in either case. The comparison < date(\"2008-01-01\") then operates on two date values cleanly."
+    },
+    "b": {
+      "text": "Correct. Explicit type checking via if applicantBirthDate is string then ... else ... works but is more code than needed. The date() function's overload handles both cases natively."
+    },
+    "c": {
+      "text": "Incorrect. FEEL does not have an as keyword for type coercion. Type checks are done via is (predicate, e.g., applicantBirthDate is string) and value conversion via function calls like date(), string(), number()."
+    },
+    "d": {
+      "text": "Incorrect. FEEL does not have try/catch syntax. Error handling in FEEL is via null-propagation (operations on null return null) and the Camunda Extension get or else(value, default) per feel-built-in-functions-boolean.md:70-93, NOT exceptions."
+    }
+  },
+  "explanation": "Explicit type checking via if applicantBirthDate is string then ... else ... works but is more code than needed. The date() function's overload handles both cases natively.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-conversion/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q37",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

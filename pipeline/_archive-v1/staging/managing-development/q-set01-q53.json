@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q53",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has a production process with hundreds of in-flight instances at process version 1.5. A new version 1.6 fixes a critical bug in the \"Verify Customer Identity\" step -- instead of calling a deprecated KYC vendor, it calls a new compliant one. The team wants the in-flight instances to be migrated to the new version, but to continue from wherever they currently are in the flow -- most are already past the Verify step (don't re-trigger), but some are still at the Verify step (must re-execute with new logic).",
+  "question": "Which Operate feature handles this migration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Process Instance Modification -- manually move each token via the Modification feature in Operate. Process Instance Modification is a per-instance manual operation intended for targeted surgical interventions: moving a single token to a different position, adding or removing a token, updating specific variables on one instance. It requires an operator to select each instance individually in the Operate UI and perform the modification. For hundreds of in-flight instances needing version migration, manual Modification is operationally infeasible -- it would require hundreds of individual operator actions. The batch migration use case is served by Process Instance Migration, which applies a migration plan across selected groups of instances simultaneously."
+    },
+    {
+      "id": "b",
+      "text": "6 (which elements correspond between versions). 6. The migration plan lists source-to-target element ID mappings for all BPMN elements that exist in both versions; elements that have been renamed or restructured require explicit mapping entries. 6 element where the new KYC vendor logic lives. 6 positions and continue from there without re-executing."
+    },
+    {
+      "id": "c",
+      "text": "6 from the beginning. This approach is destructive and unacceptable in this scenario. Cancelling running process instances destroys their complete state: all accumulated variables, the audit trail of completed steps, compensation handler registration, and the instance's current position in the flow. Re-starting from scratch means customers whose identity verification was already approved would need to repeat all earlier steps. For a production process with hundreds of in-flight instances representing real customer interactions, this would cause a significant service disruption and data loss event."
+    },
+    {
+      "id": "d",
+      "text": "Zeebe automatically migrates in-flight instances when a new version is deployed. Zeebe's default behaviour on new process version deployment is strict version isolation: in-flight instances remain locked to the version they were started on and continue executing with that version's logic until they complete. New instances start at the latest deployed version. There is absolutely no automatic migration of in-flight instances to a new version -- this would be dangerous without explicit intent (instance state might not be compatible with structural changes in the new version). Version migration is always an explicit, operator-initiated action using Operate's Process Instance Migration feature."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Process Instance Migration is Operate's dedicated feature for exactly this scenario. The developer defines a migration plan that maps element IDs from the source version (v1.5) to the target version (v1.6) -- telling Operate \"this element corresponds to that element\". When applied, Operate repositions each instance's tokens to the mapped elements in v1.6, preserving variables, history, and current execution state. Instances past the Verify step stay at their current location (mapped); instances at the Verify step continue from there with the new logic."
+    },
+    "b": {
+      "text": "Correct. Modification works for one-off token moves but is manual per instance -- not appropriate for batch migration of hundreds of instances."
+    },
+    "c": {
+      "text": "Incorrect. Cancel and restart loses variables, history, and the customer's progress -- terrible UX."
+    },
+    "d": {
+      "text": "Incorrect. Zeebe does NOT auto-migrate. In-flight instances stay at their deployed version unless explicitly migrated."
+    }
+  },
+  "explanation": "Modification works for one-off token moves but is manual per instance -- not appropriate for batch migration of hundreds of instances.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/process-instance-migration/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q53",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

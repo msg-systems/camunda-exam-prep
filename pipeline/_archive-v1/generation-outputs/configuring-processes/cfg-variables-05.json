@@ -1,0 +1,27 @@
+{
+  "id": "cfg-variables-05",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Logistics models a shipping process with an embedded subprocess in Camunda 8.8. The team handles 12000 shipments per day and needs to reason about how a variable named priority defined inside the subprocess interacts with a same-named variable in the root scope of the process instance.",
+  "question": "How does a variable defined in a subprocess scope behave when a variable with the same name already exists in a higher scope?",
+  "options": [
+    { "id": "a", "text": "It is rejected at deployment as variable name collisions across nested scopes are validated and blocked by the Zeebe deployment service" },
+    { "id": "b", "text": "It replaces the higher-scope variable globally for the lifetime of the process instance, with the engine resolving variable names from the deepest scope upward" },
+    { "id": "c", "text": "It covers the higher-scope variable inside the subprocess, so activities in that scope observe only the local value while outer activities still see the original" },
+    { "id": "d", "text": "It is silently merged with the higher-scope value into an array variable, with same-named variables in nested scopes concatenated by the engine at activation" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Deployment does not reject same-named variables across nested scopes. The docs describe scope-based visibility and shadowing at runtime, not a deployment-time validation rule that blocks repeated variable names across nested scopes." },
+    "b": { "text": "Incorrect. A variable in a deeper scope does not replace the higher-scope variable globally. It covers the higher-scope value only inside its own scope, leaving the higher scope intact for activities outside the subprocess." },
+    "c": { "text": "Correct. The variables concept page states that when a variable in a deeper scope has the same name as one in a higher scope it covers the higher-scope variable, so activities in the deeper scope observe only the local value while outer activities see the original." },
+    "d": { "text": "Incorrect. There is no implicit concatenation or array merge for same-named variables across scopes. Visibility is controlled by scope nesting and shadowing, as described in the variables documentation page." }
+  },
+  "explanation": "Variable scopes define visibility. A variable in a deeper scope with the same name as one in a higher scope covers the higher-scope value inside the deeper scope only. Outer activities continue to observe the original higher-scope variable, because shadowing is scope-local rather than global to the process instance.",
+  "docs": [
+    { "title": "Variables", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+  ]
+}

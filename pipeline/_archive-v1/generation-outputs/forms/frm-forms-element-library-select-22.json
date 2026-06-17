@@ -1,0 +1,27 @@
+{
+  "id": "frm-forms-element-library-select-22",
+  "topic": "forms",
+  "subtopic": "form-element-library - select",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Orbis Bank onboards 18000 customers per month through a Camunda 8.8 form that uses a Select dropdown bound to the variable accountType. The options source lists checking, savings, and premium, but the upstream service occasionally seeds the task with the legacy string current. The team needs to understand how the rendered Select behaves within 2 seconds of the customer opening the task when the inbound value does not match any of the configured options.",
+  "question": "What happens when the inbound variable value does not match any option defined in the Select's options source?",
+  "options": [
+    { "id": "a", "text": "The Select treats the value as unmatched and ignores it, leaving no option pre-selected when the form renders for the customer" },
+    { "id": "b", "text": "The Select pre-selects the first option in the options source so the form always renders with a single visible selection for the customer" },
+    { "id": "c", "text": "The Select raises a runtime validation error during render that blocks the customer task from being claimed until the value is corrected" },
+    { "id": "d", "text": "The Select coerces the value into a new option on the fly so the original variable still appears as the selected entry for the customer" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The Select correlates the bound data value with the options defined in the options source, and if no option is found the data is simply ignored, so the dropdown renders with nothing selected." },
+    "b": { "text": "Incorrect. Auto-selecting the first option would silently change the customer's data, which is not how the Select handles an unmatched value. The Default value property only applies when no input data exists at all and only for static options sources." },
+    "c": { "text": "Incorrect. The Select does not block rendering on an unmatched value. Validation rules such as Required check submission, not the inbound value, so the task remains claimable even when no option matches." },
+    "d": { "text": "Incorrect. The Select does not synthesize new options at runtime. Options come only from the configured options source, so an unmatched value cannot materialise as a selected entry in the dropdown." }
+  },
+  "explanation": "A Select correlates the bound data value with the options provided by its options source. When no matching option is found, the inbound data is simply ignored and the dropdown renders with no selection, which is why the Default value property exists only for static sources and only when no input data is present.",
+  "docs": [
+    { "title": "Forms element library - Select", "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-select/" }
+  ]
+}

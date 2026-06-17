@@ -1,0 +1,63 @@
+{
+  "id": "imp-set04-q51",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A modeler in Web Modeler creates a procurement-approval process. The BPMN has an XOR Gateway with two outgoing flows that both lack condition expressions. The modeler clicks Deploy.",
+  "question": "What happens?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 Web Modeler performs design-time validation of BPMN models and highlights issues such as Exclusive Gateway outgoing flows missing conditions. Zeebe rejects the deployment of a process where an XOR Gateway has multiple outgoing sequence flows but none of them specify a condition expression."
+    },
+    {
+      "id": "b",
+      "text": "Zeebe does not deploy BPMN processes where Exclusive Gateways have multiple unconditioned outgoing flows. The claim that it deploys successfully and picks the first alphabetical flow conflicts with BPMN semantics -- deployment is rejected with a validation error. Even if deployment somehow succeeded, selecting a path alphabetically would be an undocumented behavior not aligned with BPMN semantics. Exclusive Gateways require exactly one outgoing flow to be taken based on evaluated conditions."
+    },
+    {
+      "id": "c",
+      "text": "Zeebe does not deploy processes with unconditioned multi-path XOR Gateways with merely a warning -- it rejects the deployment outright with a hard error. Web Modeler may show a warning at design time, but the deployment attempt fails. The distinction between warning and error is important: a warning allows deployment to proceed, whereas Zeebe validation failures prevent deployment entirely. Missing conditions on XOR Gateway flows are hard deployment-blocking errors."
+    },
+    {
+      "id": "d",
+      "text": "Zeebe does not randomly select paths on XOR Gateways with missing conditions -- this would produce non-deterministic, unrepeatable process behavior, violating process model integrity guarantees. Random path selection is not part of BPMN semantics or Zeebe implementation. Unconditioned multi-path XOR Gateways fail at deployment time, preventing any runtime behavior from occurring. The deployment rejection ensures the broken model never reaches execution. ###"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Per exclusive-gateways.md:11: \"all sequence flows except one must have a conditionExpression to define when the flow is taken. The gateway can have one sequence flow without conditionExpression, which must be defined as the default flow.\" Web Modeler's lint validates BPMN against Zeebe execution rules; XOR with multiple unconditional outgoing flows fails design-time validation. Fix: add conditions on all but one and designate that one as default. Note: even if you bypass design-time lint, at runtime \"If no condition is fulfilled, it takes the default flow. If the gateway has no default flow, an incident is created\" (exclusive-gateways.md:15)."
+    },
+    "b": {
+      "text": "Incorrect. No alphabetical fallback in BPMN semantics."
+    },
+    "c": {
+      "text": "Incorrect. This is an error, not a warning."
+    },
+    "d": {
+      "text": "Incorrect. Random selection isn't BPMN semantics."
+    }
+  },
+  "explanation": "Per exclusive-gateways.md:11: \"all sequence flows except one must have a conditionExpression to define when the flow is taken. The gateway can have one sequence flow without conditionExpression, which must be defined as the default flow.\" Web Modeler's lint validates BPMN against Zeebe execution rules; XOR with multiple unconditional outgoing flows fails design-time validation. Fix: add conditions on all but one and designate that one as default. Note: even if you bypass design-time lint, at runtime \"If no condition is fulfilled, it takes the default flow. If the gateway has no default flow, an incident is created\" (exclusive-gateways.md:15).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/validation"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q51",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-question-too-short",
+        "severity": "block",
+        "message": "question length 13 < 20 (catastrophically short)",
+        "where": "question"
+      }
+    ]
+  }
+}

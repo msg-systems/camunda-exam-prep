@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task approve-purchase must be visible to multiple users in the candidate group purchasing-managers. Any of them can claim and complete it.",
+  "question": "Which configuration fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set the assignee property to a comma-separated list of manager usernames. The assignee field on a Zeebe User Task accepts a single user identifier and assigns the task directly to that one person at activation time. Comma-separated values are not parsed as a list of candidates; the entire string is treated as one user identity, which would fail to match any valid single-user login in Tasklist."
+    },
+    {
+      "id": "b",
+      "text": "zeebe:assignmentDefinition candidateGroups=\"purchasing-managers\" (static group name or FEEL expression) -- places the task into Tasklist's candidate pool for all members of the group. Any member can see and claim the task; once claimed, that member becomes the exclusive assignee and the task is removed from others' queues. This is the canonical multi-candidate group pattern in Camunda 8, widely used for approval workflows requiring any-of-group completion."
+    },
+    {
+      "id": "c",
+      "text": "Create five parallel User Tasks -- one explicitly assigned to each purchasing manager. This requires knowing the number and identity of all managers at design time, hard-coding them into the model. It creates five simultaneous approval tasks for a decision that requires only one approval, meaning up to five managers could each independently approve the same purchase, leading to duplicate or conflicting decisions."
+    },
+    {
+      "id": "d",
+      "text": "Multi-Instance subprocess iterating over a collection of manager IDs. Multi-Instance creates one task instance per element in a list, running them in parallel or sequentially. All instances must complete before the Multi-Instance finishes."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. candidateGroups exposes the task to all group members in Tasklist. First user to claim becomes assignee; others can no longer claim."
+    },
+    "b": {
+      "text": "Correct. assignee is single-user."
+    },
+    "c": {
+      "text": "Incorrect. 5 tasks for one piece of work."
+    },
+    "d": {
+      "text": "Incorrect. MI runs many instances; here one task should be picked from a pool."
+    }
+  },
+  "explanation": "assignee is single-user.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q13",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

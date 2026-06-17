@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-54",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Logistics runs 7500 shipments per day on Camunda 8.8. The redesigned process adds a message event subprocess with a message start event named M to handle escalations, and active instances are currently waiting at a service task A. The migration team provides a single mapping from service task A to service task A in the target and wants to know the effect on the message subscription after migration.",
+  "question": "What happens to the message subscription on the new event subprocess start event after migration with the mapping A to A?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The process instance keeps no message subscription and the engine requires an explicit mapping of the new event subprocess start event before it can be activated"
+    },
+    {
+      "id": "b",
+      "text": "The process instance keeps only its prior subscriptions and the new message event subprocess in the target stays inactive until the next instance is started fresh"
+    },
+    {
+      "id": "c",
+      "text": "The process instance is newly subscribed to the message event subprocess start event after migration because a new subscription is opened during the migration step"
+    },
+    {
+      "id": "d",
+      "text": "The process instance opens both old and new subscriptions and waits for either path, with the engine cancelling the duplicate after one of the messages is received"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The documentation states that the new message event subprocess start event becomes a target of a new subscription during migration even when only the active element A is mapped to A."
+    },
+    "b": {
+      "text": "Incorrect. The new message event subprocess does not stay inactive for the in-flight instance; a new subscription is opened on migration when the catch event is not the target of a mapping instruction."
+    },
+    "c": {
+      "text": "Correct. The documentation states that after migrating active element A with mapping A to A, the process instance is newly subscribed to the added message start event because a new subscription is opened during migration."
+    },
+    "d": {
+      "text": "Incorrect. There is no duplicate-subscription behavior described; only the new subscription is opened for the added message event subprocess start event during migration."
+    }
+  },
+  "explanation": "When a catch event is added in the target and not the target of a mapping instruction, the engine opens a new subscription during migration. The active service task only needs to be mapped to itself for the new message event subprocess to take effect.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "ext-build-your-own-client-18",
+  "topic": "extensions-integrations",
+  "subtopic": "build-your-own-client",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Bank builds a custom HTTP client against Camunda 8.8 SaaS that issues 4500 requests per day to the Zeebe gateway. The team requests an OAuth bearer token via a POST to the Auth URL with client_id, client_secret, audience zeebe.camunda.io, and grant_type client_credentials, and they must decide for how long the issued token may be cached before a new one is fetched.",
+  "question": "How long is the OAuth access token valid in the documented authentication flow?",
+  "options": [
+    { "id": "a", "text": "The access token is valid for 3600 seconds and clients must fetch a fresh bearer token from the Auth URL roughly every hour during a working day" },
+    { "id": "b", "text": "The access token is valid for 86400 seconds and clients may cache the bearer token for up to 24 hours before fetching a new one from the Auth URL" },
+    { "id": "c", "text": "The access token is valid for 600 seconds and clients must fetch a fresh bearer token from the Auth URL roughly every ten minutes during long sessions" },
+    { "id": "d", "text": "The access token is valid for 7200 seconds and clients may cache the bearer token for up to two hours before fetching a new one from the Auth URL" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documented response shows expires_in 86400, not 3600, so a one-hour cache lifetime understates the documented validity by a factor of 24." },
+    "b": { "text": "Correct. The documented token response carries expires_in 86400 seconds, which is 24 hours; the docs advise caching the token for that duration before requesting a new one." },
+    "c": { "text": "Incorrect. The documented response shows expires_in 86400, so a ten-minute lifetime is far shorter than the actual 24-hour validity returned by the Auth URL." },
+    "d": { "text": "Incorrect. The documented response shows expires_in 86400, which is 24 hours, not two hours, so a two-hour cache window under-uses the issued token." }
+  },
+  "explanation": "The OAuth response from the Auth URL contains expires_in 86400, meaning the bearer token is valid for 86400 seconds or 24 hours. Custom clients should cache the token for that duration before re-requesting one.",
+  "docs": [
+    { "title": "Build your own client", "url": "https://docs.camunda.io/docs/apis-tools/build-your-own-client/" }
+  ]
+}

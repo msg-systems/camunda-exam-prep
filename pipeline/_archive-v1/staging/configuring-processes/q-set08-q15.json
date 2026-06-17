@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A document-management process uploads files via Document Handling. The team has practical concerns about document size limits -- they handle some very large files (200 MB legal contracts) and want to know the design guidance.",
+  "question": "What's the recommended design guidance regarding Document Handling and file sizes?",
+  "options": [
+    {
+      "id": "a",
+      "text": "). Best practice: don't pass large files as process variables (that would bloat broker state); use Document Handling to store the binary externally and pass only the document reference in process variables. For very large files (>100 MB), use cloud storage with multipart upload directly to S3 / object storage and let Camunda Documents reference it."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 Document Handling enforces a hard 10 KB size limit per document, making it unsuitable for any file content larger than a few kilobytes -- this limit is entirely invented and has no basis in the documentation. Document Handling is specifically designed for large binary payloads including PDF reports, images, spreadsheets, and other business documents that are far too large for process variables. The feature stores documents in dedicated external storage, precisely to remove the size constraints that apply to Zeebe process variable data."
+    },
+    {
+      "id": "c",
+      "text": "Always store file content directly as inline Base64-encoded strings in BPMN process variables for simplicity -- this approach severely bloats Zeebe broker state and degrades performance. Process variables are stored in Zeebe's journal and replicated across all broker nodes. Large binary payloads encoded as Base64 in process variables increase message sizes for every operation, degrade throughput, and consume disproportionate storage. Document Handling was created specifically to address this anti-pattern by moving binary content to dedicated external storage while keeping only lightweight document references in process variables."
+    },
+    {
+      "id": "d",
+      "text": "Document Handling supports unlimited files with absolutely no design considerations or operational tradeoffs to account for when architecting solutions -- this overstates the feature's simplicity. While Document Handling removes the process variable size constraint, teams should still consider document lifecycle and retention policies, access control for document reference tokens, storage backend capacity planning, and costs for large volumes of documents. Documents are subject to the same data retention policies as other process data, and document references in process variables should be treated as sensitive credentials."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Document Handling's value proposition is exactly this: separate large binary content from process state. The broker's state remains small (just references); the binaries live in configurable storage backends (in-memory for dev, S3 / object storage / file system for production). Best practice: never embed large binaries in process variables; always use Document Handling references. For very large files, design the upload to go directly to your storage backend (multipart S3 upload) and have Camunda's Document Handling reference the result."
+    },
+    "b": {
+      "text": "Incorrect. No hard 10 KB; that would be impractical."
+    },
+    "c": {
+      "text": "Incorrect. Inlining large binaries kills broker performance."
+    },
+    "d": {
+      "text": "Incorrect. Always design with storage backend capacity in mind."
+    }
+  },
+  "explanation": "Document Handling's value proposition is exactly this: separate large binary content from process state. The broker's state remains small (just references); the binaries live in configurable storage backends (in-memory for dev, S3 / object storage / file system for production). Best practice: never embed large binaries in process variables; always use Document Handling references. For very large files, design the upload to go directly to your storage backend (multipart S3 upload) and have Camunda's Document Handling reference the result.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/getting-started/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q15",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

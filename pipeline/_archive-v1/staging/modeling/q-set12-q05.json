@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A company has 3 organisational roles: Sales, Operations, Compliance. The team's BPMN has tasks that should be visually assigned per role. They model with one Pool, three Lanes.",
+  "question": "Best practice for using Lanes to represent roles?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Assuming Lanes automatically assign tasks to the matching organisational role is a common misconception about BPMN. Lanes are purely a visual construct for organising tasks by role or department within a single Pool. They do not carry any execution-time semantics in Camunda 8 Zeebe. Task assignment for User Tasks is controlled via the zeebe:assignmentDefinition extension element using candidateGroups and candidateUsers attributes, not by Lane membership. Modelers must configure both the Lane placement (for readability) and the assignment definition (for execution)."
+    },
+    {
+      "id": "b",
+      "text": "Using separate Pools to represent different organisational roles within the same company process is the wrong BPMN construct for this scenario. Pools in BPMN represent separate participants (often different organisations, systems, or autonomous process executors) that communicate via Message flows. Three internal organisational roles within a single company process should be modeled as Lanes within one Pool, not as three separate Pools. Separate Pools would imply separate deployable process definitions with cross-process communication, which is overly complex and architecturally incorrect for internal role separation."
+    },
+    {
+      "id": "c",
+      "text": "One Lane per role: Sales Lane, Operations Lane, Compliance Lane. Place each task in its respective Lane based on which role performs it. Note: Lanes are visual; they don't auto-assign tasks. Actual assignment uses assignmentDefinition (candidateUsers / candidateGroups) on User Tasks -- set these to match the Lane's role conceptually. Lanes communicate intent visually to readers; assignment configures execution. Both layers should align."
+    },
+    {
+      "id": "d",
+      "text": "0. Lanes remain a first-class BPMN element supported in Camunda 8 Web Modeler and Desktop Modeler. They provide valuable visual organisation for role-based process diagrams, making it immediately clear to stakeholders which department or role is responsible for each step. Many enterprise BPMN process models rely on Lanes as the primary mechanism for documenting organisational responsibilities and accountability."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Lanes are visual subdivisions within a Pool -- for organising activities by role / department / responsibility. Important distinction: Visual layer (Lanes): communicates \"which role / team does this work.\" Readers see which Lane a task is in. Execution layer (assignmentDefinition): actually configures who can claim / complete the task. Sets candidateGroups / candidateUsers. Lanes do NOT auto-assign tasks. They're documentation / visual organisation. Camunda's User Task assignment (which controls who can pick the task in Tasklist) uses assignmentDefinition attributes, NOT the Lane. Best practice for role-based modelling: 1. Define Lanes per role: Sales, Operations, Compliance. 2. Place each User Task in the appropriate Lane. 3. For each User Task, configure assignmentDefinition with the matching role's group: e.g., candidateGroups = \"sales-team\". 4. The visual (Lane) and execution (assignment) align consistently. If a task's Lane and assignmentDefinition diverge, it confuses readers and may indicate a modelling error."
+    },
+    "b": {
+      "text": "Incorrect. Visual only."
+    },
+    "c": {
+      "text": "Correct. Pools = participants."
+    },
+    "d": {
+      "text": "Incorrect. Standard."
+    }
+  },
+  "explanation": "Pools = participants.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/bpmn-coverage/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q05",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

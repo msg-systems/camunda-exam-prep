@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q18",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task has zeebe:taskDefinition type=\"payment\" but no worker is currently subscribed to that type. An instance activates the task. What happens?",
+  "question": "What happens when a Service Task activates but no worker is subscribed to its type?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe's job lifecycle separates orchestration from worker availability by design. When a Service Task activates and creates a job, the job enters the broker's activatable pool and waits without any automatic failure mechanism. No failure event is raised; no retries are decremented; no incident is created solely due to worker absence. The job remains in the pool indefinitely until a worker subscribing to that job type eventually picks it up. Worker health monitoring and Timer Boundary Events on the Service Task are the recommended mechanisms for detecting and responding to prolonged worker absence."
+    },
+    {
+      "id": "b",
+      "text": "Claiming the process instance is automatically cancelled when no worker is subscribed to a Service Task's job type does not reflect the actual behavior. Zeebe's design principle is to decouple orchestration from worker availability. The process instance remains alive and the Service Task remains in an \"active\" state in the broker while the job waits for a worker to subscribe. No cancellation occurs automatically. The instance only ends when the process flow reaches an End Event, when a BPMN cancel/terminate event fires, or when an operator explicitly cancels it via Operate or the API."
+    },
+    {
+      "id": "c",
+      "text": "The description of jobs retrying indefinitely is partially misleading. Job retries in Zeebe are a mechanism for handling job failures (when a worker reports a job as failed with remaining retries). When no worker is subscribed at all, the job is not in a failure state and no retry counting occurs. Instead, the job simply waits in the activatable pool without any retry countdown. The job will never automatically reach \"zero retries\" simply due to the absence of a worker. Retries only decrement when a worker explicitly fails the job."
+    },
+    {
+      "id": "d",
+      "text": "The job is created in the broker's activatable pool, waiting for a worker to subscribe and pick it up. The job sits indefinitely until a worker subscribes; no automatic timeout / failure. Visibility: in Operate, the activity shows as \"active\" (not stuck per se -- just waiting for a worker). Detection: monitor with metrics (\"jobs not activated within X seconds\") or alerts; investigate worker fleet health. Mitigations:"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe's job lifecycle when no worker subscribed: Job created: Service Task activates; Zeebe creates a job of the configured type; job enters the broker's activatable pool. Waiting for activation: The job sits in the pool waiting for a worker to subscribe and request jobs of this type. No timeout; no auto-failure; sits indefinitely. Instance state: \"active\" at this activity (the activity is \"in progress\" -- just hasn't had a worker yet). Why this design: Zeebe is designed to decouple process orchestration from worker availability. Workers can come and go without blocking process advancement. When a worker eventually subscribes, queued jobs activate. Detection / monitoring: Metric: jobs_pending per type -- alert if > threshold. Operate: filter activities by state; see how long they've been active without a worker. SLA-aware: instances with critical SLAs should have Timer Boundary to escalate if no worker by deadline. Common causes for no worker: Deployment gap: Service Task type changed in BPMN; worker still subscribes to old type. Worker crash / network issue: worker process down; needs restart. Configuration mismatch: worker subscribed to wrong type. Resolutions: Verify worker fleet health (logs, metrics). Confirm subscription to correct task type. Modify Instance if recovery needed."
+    },
+    "b": {
+      "text": "Incorrect. No auto-fail."
+    },
+    "c": {
+      "text": "Incorrect. Instance stays."
+    },
+    "d": {
+      "text": "Correct. Waits, not retries per se."
+    }
+  },
+  "explanation": "Waits, not retries per se.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q18",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

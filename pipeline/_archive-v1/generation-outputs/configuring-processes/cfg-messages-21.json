@@ -1,0 +1,27 @@
+{
+  "id": "cfg-messages-21",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Stellar Bank publishes 'fraud_review' messages to a Camunda 8.8 message start event for fraud-suspect onboarding flows. Each publish sets a correlationKey of the customer id, sets a messageId, and uses a TTL of 10 minutes (PT10M). Roughly 25% of publishes are retries that carry the same name, correlation key, and message id triple.",
+  "question": "Which combination of conditions, per the correlation overview table, must hold for the broker to start a new process instance from such a publish?",
+  "options": [
+    { "id": "a", "text": "No instance with that correlationKey set at start is active during the lifetime of the message, and there is no equal message already buffered for that name, correlationKey, and messageId" },
+    { "id": "b", "text": "No instance with that correlationKey is active at the moment of the publish, and the messageId value is unique across the cluster regardless of message name or correlationKey value" },
+    { "id": "c", "text": "An instance with that correlationKey was active at some point during the last lifetime window, and the buffer holds no message of the same name regardless of its messageId value" },
+    { "id": "d", "text": "An instance with that correlationKey is currently active, and no other equal message with the same name and messageId has ever been published since the process was deployed" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The overview table row for correlationKey set, messageId set, TTL greater than 0, and a start-event receiver states that a new instance is started only when no instance with that correlation key set at start is active during the lifetime and no equal message is already in the buffer." },
+    "b": { "text": "Incorrect. Uniqueness is defined by the triple of name, correlationKey, and messageId together; the messageId alone is not evaluated as globally unique across the cluster." },
+    "c": { "text": "Incorrect. The required condition is the absence of an active instance with that correlationKey during the lifetime, not the past presence of one, and the buffer check also considers the messageId." },
+    "d": { "text": "Incorrect. The table requires the absence, not the presence, of an active instance with that correlationKey, and the buffer comparison is against the current buffer, not the full deployment history." }
+  },
+  "explanation": "For a start-event receiver with correlationKey set, messageId set, and TTL greater than zero, the overview table requires two conditions: no instance with that correlation key set at start is active during the lifetime, and no equal message (same name, correlationKey, and messageId) is currently buffered. Only then is a new instance started.",
+  "docs": [
+    { "title": "Messages", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+  ]
+}

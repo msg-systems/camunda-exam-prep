@@ -1,0 +1,50 @@
+{
+  "id": "cfg-variables-05",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "hard",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A job worker completes task `B` (inside an embedded subprocess) with the variables `b`, `c`, and `d`. Variable `b` already exists on the process-instance root scope, `c` already exists on the embedded-subprocess scope, and `d` does not exist anywhere. Without local-variable semantics, where does each variable end up?",
+  "options": [
+    {
+      "id": "a",
+      "text": "All three are created as local variables on task `B`'s element scope."
+    },
+    {
+      "id": "b",
+      "text": "`b` updates the root-scope variable, `c` updates the embedded-subprocess variable, and `d` is created as a new variable in the root scope."
+    },
+    {
+      "id": "c",
+      "text": "`b`, `c`, and `d` are all created fresh on the embedded-subprocess scope, shadowing any same-named root-scope variables."
+    },
+    {
+      "id": "d",
+      "text": "`b` and `c` are duplicated on the embedded-subprocess scope; `d` is rejected because it doesn't exist anywhere."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Local-variable semantics must be requested explicitly; by default, variable propagation is on, not off."
+    },
+    "b": {
+      "text": "Per the docs, each variable propagates upward from the activity scope and stops at the first scope that already contains it, updating that value. If no scope contains it, it is created as a new variable in the root scope."
+    },
+    "c": {
+      "text": "Variables do not default to the closest subprocess scope; default propagation walks up to find an existing same-named variable and falls back to the root scope."
+    },
+    "d": {
+      "text": "Variables that do not exist in any scope are created in the root scope — they are not rejected."
+    }
+  },
+  "explanation": "On job completion, each variable propagates from the activity scope toward the root, stopping at the first scope that already contains a variable of the same name and updating its value there. Variables that do not exist in any scope are created at the root scope. To pin a variable to a specific scope regardless of any existing definition, the worker must set it as a local variable, which deactivates propagation.",
+  "docs": [
+    {
+      "title": "Variables",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ]
+}

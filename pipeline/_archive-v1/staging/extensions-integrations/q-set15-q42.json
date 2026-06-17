@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Java SDK setup using Builder pattern: ZeebeClient.newClient() or similar. Team wonders preferred initialisation.",
+  "question": "Java SDK Builder pattern usage?",
+  "options": [
+    {
+      "id": "a",
+      "text": "CamundaClient in the Camunda 8 Java SDK can only be instantiated via constructor injection and does not support a Builder pattern â€” this approach has limitations. build(). This Builder pattern enables readable, flexible client configuration without requiring constructor parameter ordering or complex overloads."
+    },
+    {
+      "id": "b",
+      "text": "newClientBuilder() Builder pattern provides a fully programmatic approach requiring no external files. Both approaches are valid and serve different contexts: Spring Boot autoconfiguration handles property-file setup automatically; the builder is used in non-Spring applications, tests, and cases requiring runtime-dynamic connection parameters."
+    },
+    {
+      "id": "c",
+      "text": "The Camunda 8 Java client requires no configuration -- it auto-discovers the cluster from the environment with no setup needed -- this approach has limitations. The CamundaClient must be explicitly configured with connection details. ). newCloudClientBuilder() with cluster ID, region, client ID, and client secret. Without correct connection configuration the client cannot communicate with the Zeebe gateway and all API calls will fail."
+    },
+    {
+      "id": "d",
+      "text": "md:93-95, :147-149, :227-229, :343-345. ), NOT raw host:port strings. newCloudClientBuilder() for SaaS per :421. md:223-225; manual builder rarely needed in Spring apps. try-with-resources preferred to ensure close()` is called."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Java SDK Builder: Example: CamundaClient setup (8.8): For Self-Managed (no auth) per java-client/getting-started.md:93-95: `java try (CamundaClient client = CamundaClient.newClientBuilder() .grpcAddress(URI.create(\"http://localhost:26500\")) .restAddress(URI.create(\"http://localhost:8080\")) .build()) { // use client } For SaaS (OAuth) per java-client/getting-started.md:421: java try (CamundaClient client = CamundaClient.newCloudClientBuilder() .withClusterId(\"...\") .withClientId(\"...\") .withClientSecret(\"...\") .withRegion(\"...\") .build()) { // use client } Camunda Spring Boot Starter (auto-configured) per camunda-spring-boot-starter/getting-started.md:223-225: java @Autowired private CamundaClient client; // auto-configured from application.yaml Builder use rare with Spring Boot Starter; framework handles. Builder benefits: Immutability: built client is immutable. Fluent: readable chain. Optional params: easy to add new config without breaking existing code. Validation: builder can validate before building. Common CamundaClient.newClientBuilder() methods (8.8): grpcAddress(URI): target Zeebe gRPC gateway (default :26500). restAddress(URI): target Orchestration Cluster REST (default :8080). credentialsProvider(provider): OAuth / custom auth. defaultJobWorkerName(name): identify worker. defaultJobTimeout(duration): activation timeout. numJobWorkerExecutionThreads(n): thread pool size. defaultJobPollInterval(duration): poll frequency. build(): construct client. SaaS-specific entry point: CamundaClient.newCloudClientBuilder() with .withClusterId() / .withClientId() / .withClientSecret() / .withRegion(). Lifecycle: java CamundaClient client = CamundaClient.newClientBuilder()...build(); try { // use client client.newDeployResourceCommand()...; client.newCreateInstanceCommand()...; } finally { client.close(); // release resources } Try-with-resources (preferred -- doc snippets use this consistently): java try (CamundaClient client = CamundaClient.newClientBuilder()...build()) { // use client } // auto-closed For workers: java client.newWorker() .jobType(\"send-email\") .handler(new EmailHandler()) .name(\"email-worker\") .timeout(Duration.ofMinutes(2)) .open(); Worker as separate fluent builder. For Spring Zeebe: @JobWorker annotation registers automatically. No manual builder. Configuration sources: Application config (Camunda Spring Boot Starter) per camunda-spring-boot-starter/getting-started.md:200-213: yaml camunda: client: mode: saas auth: client-id: client-secret: cloud: cluster-id: region: Camunda Spring Boot Starter reads; configures CamundaClient bean. Manual builder (non-Spring): Read config from properties / env vars. Pass to builder. For testing: TestContainers: spin up Zeebe; configure client. Mock: mock ZeebeClient for unit tests. Best practices: Use Camunda Spring Boot Starter for Spring apps: less boilerplate, auto-config of CamundaClient bean. Use Builder directly for non-Spring. Configure via env / secrets: not hardcoded. One CamundaClient instance per app: share across workers. Close on shutdown: release resources. Anti-patterns: Multiple CamundaClient instances: wasteful. Hardcoded credentials: use secrets. Not closing client: resource leak. Using ZeebeClient symbol in new 8.8 code: removed/renamed -- use CamundaClient`."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/getting-started/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q42",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

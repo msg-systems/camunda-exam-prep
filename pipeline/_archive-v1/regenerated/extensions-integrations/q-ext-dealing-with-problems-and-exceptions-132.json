@@ -1,0 +1,50 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-132",
+  "topic": "extensions-integrations",
+  "subtopic": "problems-and-exceptions",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Junction Lender models a Camunda 8.8 onboarding process for 5200 loans per day at a regional lender. The check-creditworthiness service task returns the customer's credit rating most of the time, but sometimes the ID it received does not match any known person and no rating can be produced; the team needs to model these two situations cleanly inside one BPMN diagram.",
+  "question": "Which rule of thumb does the best-practices guide give for modeling expected results versus situations where the result cannot be reached?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Model every deviation, including expected business outcomes and unreachable results, with the same boundary error event so the BPMN diagram has a single uniform fallback path that downstream readers can follow easily"
+    },
+    {
+      "id": "b",
+      "text": "Deal with expected results of activities by means of gateways, and model exceptional errors that hinder reaching the expected result as boundary error events on the activity that produced the deviation in the model"
+    },
+    {
+      "id": "c",
+      "text": "Treat both expected results and unreachable results as message events emitted by the service task and let a downstream event-based gateway choose which downstream path the instance takes when each message arrives"
+    },
+    {
+      "id": "d",
+      "text": "Replace the exclusive gateway with a script task that reads the result variable and uses sequence flow conditions only for the unreachable-result case, while expected results continue along the default flow of the diagram"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The page distinguishes expected results from exceptional errors; it does not collapse them into one boundary error event."
+    },
+    "b": {
+      "text": "Correct. The rule of thumb states: expected results of activities (creditworthy yes/no) are handled with gateways, while exceptional errors that hinder reaching the expected result (ID not associated with any known person) are modeled with boundary error events."
+    },
+    "c": {
+      "text": "Incorrect. Message events and an event-based gateway are not the documented pattern here; the pattern uses XOR gateways for expected results and boundary error events for exceptions."
+    },
+    "d": {
+      "text": "Incorrect. The page keeps the exclusive gateway for the expected result; the exceptional path is modeled as a boundary error event, not via sequence flow conditions."
+    }
+  },
+  "explanation": "The Distinguishing between exceptions and results section gives the rule of thumb: an exclusive gateway handles expected results such as creditworthy yes or no, while a boundary error event handles the case where the result cannot be obtained, such as an unknown customer ID. Both can lead to the same downstream consequence, but they remain visually and semantically distinct in the BPMN model.",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

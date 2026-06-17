@@ -1,0 +1,50 @@
+{
+  "id": "mod-multi-instance-67",
+  "topic": "modeling",
+  "subtopic": "multi-instance",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Apex Insurer wraps a parallel multi-instance call activity that processes 600 policies per batch in Camunda 8.8. An interrupting boundary error event must abort the batch if a critical exception fires, and the team needs the exact effect on the running instances and the output collection.",
+  "question": "What happens to active inner instances when an interrupting boundary event triggers on a multi-instance activity?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The multi-instance body is terminated and active inner instances keep running until each completes, then the outputCollection is propagated upward as a final batch result"
+    },
+    {
+      "id": "b",
+      "text": "The multi-instance body and every active inner instance are terminated, and the outputCollection variable is not propagated to the parent scope as a final batch result"
+    },
+    {
+      "id": "c",
+      "text": "The multi-instance body is paused and every active inner instance is suspended, then both resume once a job worker resolves the related boundary event incident"
+    },
+    {
+      "id": "d",
+      "text": "The multi-instance body completes normally and the outputCollection is propagated to the parent scope as the final batch result for the boundary handler to inspect"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The documentation states that active instances are terminated when an interrupting boundary event triggers; they do not keep running, and no outputCollection is propagated upward to the parent scope."
+    },
+    "b": {
+      "text": "Correct. The documentation states that when an interrupting boundary event is triggered, the multi-instance body and all active instances are terminated, and the outputCollection variable is not propagated to the parent scope."
+    },
+    "c": {
+      "text": "Incorrect. Interrupting boundary events terminate the scope rather than pausing it; there is no documented suspend-and-resume cycle linked to a related boundary event incident."
+    },
+    "d": {
+      "text": "Incorrect. The multi-instance body does not complete normally on an interrupting boundary trigger; the body and its instances are terminated and no outputCollection is propagated outward."
+    }
+  },
+  "explanation": "An interrupting boundary event on a multi-instance activity terminates the body together with all active inner instances and suppresses propagation of the outputCollection variable to the parent scope.",
+  "docs": [
+    {
+      "title": "BPMN multi-instance",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "cfg-feel-built-in-functions-conversion-107",
+  "topic": "configuring-processes",
+  "subtopic": "feel-built-in-functions",
+  "difficulty": "easy",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A FEEL condition calls `date and time(\"2024-06-31T10:00:00\")` to parse a value coming from an external system. What does the call return?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`null`"
+    },
+    {
+      "id": "b",
+      "text": "`date and time(\"2024-06-31T10:00:00\")` exactly as written."
+    },
+    {
+      "id": "c",
+      "text": "`date and time(\"2024-07-01T10:00:00\")`, automatically rolling over to the next valid day."
+    },
+    {
+      "id": "d",
+      "text": "An incident, because parsing fails at the engine boundary."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state that `date and time(from: string)` returns `null` when the string is not a valid calendar date, and call out exactly this case: `\"2024-06-31T10:00:00\"` is invalid because June only has 30 days."
+    },
+    "b": {
+      "text": "The value is not returned as-is. The FEEL conversion function validates the calendar date and rejects June 31 because June has only 30 days."
+    },
+    "c": {
+      "text": "FEEL does not auto-roll invalid calendar dates to the next valid day. Invalid input yields `null`, not a corrected value."
+    },
+    "d": {
+      "text": "Invalid input to a FEEL built-in returns `null`; it does not raise an incident on its own. An incident only follows if downstream logic cannot cope with `null`."
+    }
+  },
+  "explanation": "`date and time(from: string)` parses the string and returns `null` whenever the string is not a valid calendar date. The docs use `\"2024-06-31T10:00:00\"` as the canonical example because June has only 30 days.",
+  "docs": [
+    {
+      "title": "FEEL conversion functions",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-conversion/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "date and time(\"2024-06-31T10:00:00\")"
+  }
+}

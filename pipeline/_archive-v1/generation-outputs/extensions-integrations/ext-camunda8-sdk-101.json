@@ -1,0 +1,27 @@
+{
+  "id": "ext-camunda8-sdk-101",
+  "topic": "extensions-integrations",
+  "subtopic": "typescript-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "HelixHealth, a hospital network deploying 24 microservices on Camunda 8.8, ships a Node.js TypeScript service that must upload a process.bpmn file at startup. The team wants the SDK call that reads a local file path and returns the deployed processDefinitionId so the worker can log it after deployment, and they wrap the call in an async main function because network operations return promises.",
+  "question": "Which TypeScript SDK call deploys the local process.bpmn file in the documented quickstart?",
+  "options": [
+    { "id": "a", "text": "Call camunda.uploadResourceFile(path.join(process.cwd(), 'process.bpmn')) and read processes[0].processDefinitionId from the resolved upload response payload for logging" },
+    { "id": "b", "text": "Call camunda.deployProcess({ file: path.join(process.cwd(), 'process.bpmn') }) and read processes[0].processDefinitionId from the resolved deploy response payload for logging" },
+    { "id": "c", "text": "Call camunda.newDeployResourceCommand().addResourceFile('process.bpmn').send() and read processes[0].processDefinitionId from the resolved deploy response payload for logging" },
+    { "id": "d", "text": "Call camunda.deployResourcesFromFiles([path.join(process.cwd(), 'process.bpmn')]) and read processes[0].processDefinitionId from the resolved deploy response payload for logging" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. There is no uploadResourceFile method; the documented deployment call is deployResourcesFromFiles, which accepts an array of file paths and returns the deploy response." },
+    "b": { "text": "Incorrect. The documented call is deployResourcesFromFiles taking an array of paths; deployProcess with a file option is not the documented method shape." },
+    "c": { "text": "Incorrect. The fluent newDeployResourceCommand builder is the Java client style; the TypeScript SDK exposes deployResourcesFromFiles directly on the Camunda8 instance." },
+    "d": { "text": "Correct. The quickstart awaits camunda.deployResourcesFromFiles with an array of absolute paths, then logs deployResponse.processes[0].processDefinitionId after the promise resolves." }
+  },
+  "explanation": "The documented deployment step calls camunda.deployResourcesFromFiles([path.join(process.cwd(), 'process.bpmn')]) inside an async main function, then reads deployResponse.processes[0].processDefinitionId.",
+  "docs": [
+    { "title": "Camunda 8 TypeScript SDK", "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/" }
+  ]
+}

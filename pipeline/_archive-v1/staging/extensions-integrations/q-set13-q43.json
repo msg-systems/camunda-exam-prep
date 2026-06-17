@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q43",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A REST Outbound Connector fetches data from an external paginated API: ?page=1&pageSize=100 returns 100 items + nextPage = 2. Team needs to fetch all pages until exhausted. They wonder how to model this in BPMN.",
+  "question": "Pagination pattern for REST Connector?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:138-140, Pattern #51): - Initialize: preceding task sets page=1, items=[] via Output Mapping. nextPage. = null loops back to REST task; =page = null exits to downstream processing. items) builds the full item list across iterations. Alternative: use a custom job worker that paginates internally -- simpler BPMN with less Operate observability, preferred for large datasets where per-page tokens create noise."
+    },
+    {
+      "id": "b",
+      "text": "The Camunda 8 REST Outbound Connector automatically handles pagination for any paginated API by detecting the nextPage field in API responses and issuing subsequent requests until all pages are fetched, storing the accumulated results in the output variable. The standard REST Outbound Connector makes a single HTTP request per invocation and has no built-in pagination logic. Auto-pagination would require explicit configuration or a future Connector version with dedicated pagination support."
+    },
+    {
+      "id": "c",
+      "text": "This misrepresents the documented behavior. Each loop iteration can invoke the REST Connector with updated parameters."
+    },
+    {
+      "id": "d",
+      "text": "The REST Outbound Connector supports only single-page API calls; fetching multiple pages requires either multiple separate BPMN tasks chained in sequence with hardcoded page numbers, or redesigning the API to return all data in a single response. While the Connector does execute one HTTP call per task invocation, BPMN loops created with Exclusive Gateways allow the same task to execute repeatedly with changing page parameters. This pattern handles dynamic pagination without knowing the total page count in advance."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Pagination patterns in Camunda 8: Standard REST Outbound Connector: Single HTTP call per invocation; doesn't auto-paginate. For pagination: need loop logic in BPMN or in a custom worker. Pattern 1: Exclusive Gateway + back-edge (canonical C8 loop pattern -- Standard Loop marker is NOT implemented per bpmn-coverage.md:138-140, Pattern #51): ` [Start] → [Initialize: page=1, items=[]] → [REST Call (page)] ↓ [Output Mapping: append items, set page] ↓ [Exclusive Gateway] / \\ page != null page = null ↺ (back-edge) ↓ (exit) Initialize via Output Mapping on Start Event (or preceding Service Task). REST Connector Service Task with ?page=$page template. Output Mapping appends response items into items accumulator, sets next page from response.body.nextPage. Exclusive Gateway with =page != null loop-back vs =page = null exit. Each iteration visible in Operate as a separate token activation on the REST task. Pattern 2: External worker handles full pagination: Service Task with custom job worker. Worker code paginates internally: js let allItems = []; let page = 1; while (true) { const resp = await fetch(/api?page=${page}); const data = await resp.json(); allItems.push(...data.items); if (!data.nextPage) break; page = data.nextPage; } return { items: allItems }; ` Process sees single Service Task; pagination invisible. Pros: simpler BPMN; cons: less observable (no per-page progress in Operate). Pattern 3: Camunda 8.x Connector auto-pagination (verify per version): Some Connectors / future versions may have built-in pagination support. Configure: pagination type (page-number / cursor / link-header), max pages, etc. Trade-offs: | Aspect | BPMN loop | Worker pagination | Connector built-in | |---|---|---|---| | Observability | High (each call visible) | Low | Medium | | Complexity | High (state management) | Low | Low if available | | Performance | Slower (BPMN overhead per call) | Faster | Best | | Process duration impact | Long-running | Short | Short | | Error handling | Per-call retries | Per-page in worker | Built-in | Best practices: Small pagination (few pages): BPMN loop fine. Large pagination (many pages): worker preferred; less Operate noise. Streaming results downstream: BPMN loop with per-page processing in sub-tasks. Cap max pages: prevent runaway loops on misbehaving APIs."
+    },
+    "b": {
+      "text": "Incorrect. Verify per Connector."
+    },
+    "c": {
+      "text": "Incorrect. Option d) -- Partial."
+    },
+    "d": {
+      "text": "Incorrect. Partially correct."
+    }
+  },
+  "explanation": "Pagination patterns in Camunda 8: Standard REST Outbound Connector: Single HTTP call per invocation; doesn't auto-paginate. For pagination: need loop logic in BPMN or in a custom worker. Pattern 1: Exclusive Gateway + back-edge (canonical C8 loop pattern -- Standard Loop marker is NOT implemented per bpmn-coverage.md:138-140, Pattern #51): ` [Start] → [Initialize: page=1, items=[]] → [REST Call (page)] ↓ [Output Mapping: append items, set page] ↓ [Exclusive Gateway] / \\ page != null page = null ↺ (back-edge) ↓ (exit) Initialize via Output Mapping on Start Event (or preceding Service Task). REST Connector Service Task with ?page=$page template. Output Mapping appends response items into items accumulator, sets next page from response.body.nextPage. Exclusive Gateway with =page != null loop-back vs =page = null exit. Each iteration visible in Operate as a separate token activation on the REST task. Pattern 2: External worker handles full pagination: Service Task with custom job worker. Worker code paginates internally: js let allItems = []; let page = 1; while (true) { const resp = await fetch(/api?page=${page}); const data = await resp.json(); allItems.push(...data.items); if (!data.nextPage) break; page = data.nextPage; } return { items: allItems }; ` Process sees single Service Task; pagination invisible. Pros: simpler BPMN; cons: less observable (no per-page progress in Operate). Pattern 3: Camunda 8.x Connector auto-pagination (verify per version): Some Connectors / future versions may have built-in pagination support. Configure: pagination type (page-number / cursor / link-header), max pages, etc. Trade-offs: | Aspect | BPMN loop | Worker pagination | Connector built-in | |---|---|---|---| | Observability | High (each call visible) | Low | Medium | | Complexity | High (state management) | Low | Low if available | | Performance | Slower (BPMN overhead per call) | Faster | Best | | Process duration impact | Long-running | Short | Short | | Error handling | Per-call retries | Per-page in worker | Built-in | Best practices: Small pagination (few pages): BPMN loop fine. Large pagination (many pages): worker preferred; less Operate noise. Streaming results downstream: BPMN loop with per-page processing in sub-tasks. Cap max pages: prevent runaway loops on misbehaving APIs.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/available-connectors-overview/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q43",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

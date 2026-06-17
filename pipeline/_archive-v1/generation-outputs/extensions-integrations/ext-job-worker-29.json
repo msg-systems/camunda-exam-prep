@@ -1,0 +1,27 @@
+{
+  "id": "ext-job-worker-29",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client-job-worker",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A payments fintech runs a Camunda 8.8 Java job worker that processes 5400 jobs per day with maxJobsActive set to 10 and a pollInterval of 100 ms. The lead engineer needs to predict when the worker fetches more jobs from the cluster while jobs from the previous activation batch are still being handled in memory by the worker's executor.",
+  "question": "When does a Camunda 8.8 Java job worker poll the cluster for more jobs after it has already activated a batch under maxJobsActive set to 10?",
+  "options": [
+    { "id": "a", "text": "Once the count of unhandled buffered jobs drops below 30 percent of maxJobsActive rounded up (which is 3 of the original 10), the worker triggers an additional poll for more jobs from the cluster" },
+    { "id": "b", "text": "Once half of the originally activated jobs have completed (which is 5 of the original 10), the worker triggers an additional poll for more jobs from the cluster regardless of the configured pollInterval" },
+    { "id": "c", "text": "Once the configured pollInterval has elapsed since the previous batch was activated, the worker unconditionally fetches up to maxJobsActive additional jobs from the cluster even while jobs are still queued" },
+    { "id": "d", "text": "Once any single job in the batch has been completed, the worker immediately polls for one replacement job and refills the local buffer back up to maxJobsActive on every individual completion event" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. After each job is handled the worker checks whether the number of unhandled jobs has dropped below 30 percent of maxJobsActive rounded up; the first time the threshold is reached the worker polls again for more jobs from the cluster." },
+    "b": { "text": "Incorrect. The documented threshold is 30 percent of maxJobsActive rounded up, not half of the activated batch; in the example with maxJobsActive 10 the threshold is 3." },
+    "c": { "text": "Incorrect. pollInterval governs polling when the previous poll activated zero jobs; refills during active processing are driven by the 30 percent buffered-job threshold instead." },
+    "d": { "text": "Incorrect. The worker does not poll after every single completion; it waits until unhandled buffered jobs fall below the 30 percent threshold of maxJobsActive before polling again." }
+  },
+  "explanation": "The How-job-workers-work section explains that on open the worker waits pollInterval milliseconds then polls for maxJobsActive jobs. While handling jobs it re-polls only when unhandled buffered jobs drop below 30 percent of maxJobsActive rounded up. If a poll yields no jobs it waits pollInterval ms and tries again; on error responses a backoff is applied.",
+  "docs": [
+    { "title": "How Java client job workers work", "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Outbound HTTP Connector calls a partner API. The team needs to debug an intermittent failure -- they want to see the HTTP response body the partner returned, but don't want the response stored as a process variable (privacy + scope cleanliness).",
+  "question": "Which approach lets the team see the Connector's response body for debugging without persisting it as a process variable?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda automatically logs all HTTP Connector request and response bodies to a centralised application log that is always accessible without additional setup. ). This is not a standardised, always-available feature. Operate's execution details view provides an integrated, always-accessible alternative that does not require setting up a separate log aggregation pipeline."
+    },
+    {
+      "id": "b",
+      "text": "Operate does not provide any visibility into what HTTP Connectors send or receive -- the monitoring UI only shows process instance state and active incidents, with no access to Connector-level request or response data. This claim is inaccurate. Operate's process instance detail page provides execution details for individual flow nodes, including Service Tasks that use Connectors. For HTTP Connectors, the execution context can surface request configuration, response status, response body, and error details. This observability is part of Operate's design as the operational monitoring interface for Camunda 8."
+    },
+    {
+      "id": "c",
+      "text": "The HTTP Connector silently discards the response body after the request completes -- the response status code is checked for success/failure, but the body content is thrown away and cannot be retrieved for debugging. This claim is inaccurate. Connectors retain the response body for Output Mapping (the team may want to map response fields to process variables) and for observability in Operate's execution details. Even when Output Mapping is not configured, the response is available through the Connector runtime's logging and Operate's execution detail view for debugging purposes."
+    },
+    {
+      "id": "d",
+      "text": "Use Operate's execution details view -- for Service Task instances backed by Connectors, Operate shows execution metadata including (where supported) Connector request configuration, HTTP response status, response body content, and error messages. The response data lives in Operate's execution history rather than in process variable scope, so viewing it does not pollute variables with temporary debug data. This is the canonical, zero-configuration observability path for ephemeral debugging: no log aggregation infrastructure needed, no Output Mapping required. For deeper programmatic inspection, configure structured logging in the Connector runtime."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate's instance detail page provides observability into individual flow nodes, including Connector executions. For HTTP Connector calls, you can see the request, response body (where the integration captures it), error messages on failure, and timing. This is the integrated debugging path that doesn't pollute process variables. For deeper inspection, configure structured logging in the Connector runtime."
+    },
+    "b": {
+      "text": "Incorrect. Logs exist but accessing them requires log-aggregation tooling (ELK / Loki etc.). Operate is the integrated, in-product path."
+    },
+    "c": {
+      "text": "Incorrect. Operate does provide visibility."
+    },
+    "d": {
+      "text": "Correct. Connectors don't discard responses; they keep them for Output Mapping / debugging."
+    }
+  },
+  "explanation": "Connectors don't discard responses; they keep them for Output Mapping / debugging.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q34",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

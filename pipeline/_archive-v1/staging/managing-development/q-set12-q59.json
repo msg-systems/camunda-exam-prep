@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q59",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's process has customer profiles (~5 KB JSON), product catalogs (~2 MB JSON), and document attachments (~10 MB PDFs). They wonder which data should be Process Variables vs Documents.",
+  "question": "Best practice: which data fits process variables vs Document Handling?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Storage decisions depend on data size and access pattern. Process variables are suited for small structured data under a few kilobytes that the process needs to reason about in FEEL expressions or gateway conditions -- customer IDs, order status flags, key business values. External storage such as a database or key-value store fits data that has its own independent lifecycle separate from the process or is maintained by external systems -- the process then holds only a reference ID. The general principle is that process variables hold what the engine needs for routing; large content lives externally with references passed as variables."
+    },
+    {
+      "id": "b",
+      "text": "Storing all data including product catalogs (2 MB) and document attachments (10 MB) as process variables does not reflect the actual behavior practice. Process variables have a hard limit of 4 MB per variable, and large variables cause significant problems: bloated process instance state in the Zeebe journal and Elasticsearch indices, slow variable serialization and deserialization at every step, degraded Operate UI performance when viewing instances, and increased storage costs. Variables should hold only the small, BPMN-relevant data that drives routing decisions and Service Task parameters. Large structured data and binary content belong in Camunda 8 Document Handling or external storage with only the reference ID stored as a variable."
+    },
+    {
+      "id": "c",
+      "text": "Routing all data including small structured data like customer profiles (5 KB) through Document Handling would be an over-engineered approach. Document Handling is designed for large content (binaries, large JSON exports, PDFs) that workers receive as opaque blobs and that should not be FEEL-evaluated inline. For small data that drives gateway conditions, FEEL expressions, and task parameters -- such as a 5 KB customer profile used in multiple routing decisions -- storing it as a process variable is more appropriate. The overhead of Document Handling's reference-based lookup mechanism outweighs its benefits for data under approximately 1 KB to 10 KB that the process actively reasons about."
+    },
+    {
+      "id": "d",
+      "text": "Claiming there is no best practice for deciding whether data should go into process variables or Document Handling does not reflect the actual behavior. Camunda 8 documentation and best practices provide clear guidance: use process variables for small, BPMN-accessed data (typically under a few KB) that drives routing decisions; use Document Handling for large content (over approximately 100 KB or binary data) that workers receive as opaque blobs; use external storage with ID-based references for data with its own lifecycle independent of the process. These are well-established architectural principles, not guidelines that vary arbitrarily."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Data placement decision matrix: Process Variables: best for small, BPMN-relevant data: Size: ~100 KB or binary. Access: typically opaque blob accessed by specific workers; not FEEL'd over deeply. Lifecycle: tied to process or configured TTL. Examples: PDFs, images, large structured exports, audio / video. External Storage: best for data with own lifecycle: Size: any. Access: lookup by ID; cached if needed. Lifecycle: independent of process (customer DB, product catalog DB, etc.). Examples: customer profile maintained in CRM; product catalog in product service. For the scenario: Customer profile 5 KB: borderline. If actively used in FEEL (e.g., gateway routing on customer attributes), variable OK. If just passed to one task, external + ID reference. If processed by many tasks, variable OK. Product catalog 2 MB: too large for variable. Document Handling OR external (with product IDs in variables). Document attachments 10 MB: definitely Document Handling. Anti-patterns: Whole-state-in-variable: load up customer + orders + products as one giant variable. Bloats; hurts performance; hard to navigate. Document Handling for tiny data: overhead of reference lookup outweighs savings. < 1 KB stays as variable."
+    },
+    "b": {
+      "text": "Incorrect. Bloats."
+    },
+    "c": {
+      "text": "Incorrect. Option d) -- Wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Data placement decision matrix: Process Variables: best for small, BPMN-relevant data: Size: ~100 KB or binary. Access: typically opaque blob accessed by specific workers; not FEEL'd over deeply. Lifecycle: tied to process or configured TTL. Examples: PDFs, images, large structured exports, audio / video. External Storage: best for data with own lifecycle: Size: any. Access: lookup by ID; cached if needed. Lifecycle: independent of process (customer DB, product catalog DB, etc.). Examples: customer profile maintained in CRM; product catalog in product service. For the scenario: Customer profile 5 KB: borderline. If actively used in FEEL (e.g., gateway routing on customer attributes), variable OK. If just passed to one task, external + ID reference. If processed by many tasks, variable OK. Product catalog 2 MB: too large for variable. Document Handling OR external (with product IDs in variables). Document attachments 10 MB: definitely Document Handling. Anti-patterns: Whole-state-in-variable: load up customer + orders + products as one giant variable. Bloats; hurts performance; hard to navigate. Document Handling for tiny data: overhead of reference lookup outweighs savings. < 1 KB stays as variable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/best-practices/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q59",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

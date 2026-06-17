@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q26",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team modeling tax-calculation rules in DMN creates a Decision Requirements Diagram (DRD) with three decisions: BaseTaxAmount, Deductions, FinalTax. The team draws Information Requirements arrows: BaseTaxAmount → FinalTax AND Deductions → FinalTax. Then, in a moment of confused refactoring, someone draws an arrow from FinalTax back to Deductions (intending to express \"deductions might depend on tax outcome\" -- a misunderstanding). The DMN diagram editor accepts the model. At runtime, Zeebe rejects the deployment with \"Decision Requirements Graph contains a cycle\".",
+  "question": "What is the correct understanding of DRD cycles?",
+  "options": [
+    {
+      "id": "a",
+      "text": "DRDs support cycles via \"iterative evaluation\" -- the engine evaluates the decisions repeatedly, updating intermediate values on each pass, until all values stabilise and converge to a fixed point. There is no iterative-evaluation mode in Camunda 8 or in the DMN specification. DRDs are required to be directed acyclic graphs; the evaluation model traverses dependencies from leaf nodes to root nodes in one pass and cannot resolve circular dependencies regardless of how many iterations are attempted."
+    },
+    {
+      "id": "b",
+      "text": "allowCycles=true in the cluster settings to suppress the warning and enable cyclic evaluation. allowCycles configuration property in Camunda 8. Cycles in DRDs are a hard violation of the DMN specification's requirement for directed acyclic graph structure -- no configuration option enables or allows cyclic dependencies in decision evaluation."
+    },
+    {
+      "id": "c",
+      "text": "Zeebe deploys the model with the cyclic dependency successfully; the \"cycle error\" message appears only in the modeler's validation layer as a design-time warning and does not prevent the deployed decision from being evaluated at runtime. Zeebe enforces DAG structure at deployment time and rejects models containing cyclic dependencies. The deployment failure the scenario describes is a runtime engine rejection, not only a design-time editor warning."
+    },
+    {
+      "id": "d",
+      "text": "DRDs must be acyclic (Directed Acyclic Graphs -- DAG) -- no decision node can depend on another decision that transitively depends back on the first. The DMN evaluation engine traverses dependencies from leaf nodes to root nodes in a single pass and cannot resolve circular dependencies, as these would cause infinite recursion. The team must redesign their model -- most likely by splitting the \"Deductions that depend on preliminary tax\" requirement into a separate intermediate decision node that breaks the cyclic dependency cleanly."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. A DRD must be a directed acyclic graph (DAG). The engine evaluates decisions by traversing dependencies from leaves to roots -- cycles would prevent termination. The DMN spec requires DAG semantics; Zeebe enforces this at deployment time. The team must redesign to remove the cycle, typically by introducing an intermediate decision that breaks the cyclic dependency."
+    },
+    "b": {
+      "text": "Incorrect. No iterative-evaluation mode for DRDs."
+    },
+    "c": {
+      "text": "Incorrect. No configuration toggle allows cycles."
+    },
+    "d": {
+      "text": "Correct. Zeebe rejects cyclic DRDs at deployment, not just at editor time."
+    }
+  },
+  "explanation": "Zeebe rejects cyclic DRDs at deployment, not just at editor time.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-requirements-graph/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q26",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

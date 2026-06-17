@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q35",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A customer-onboarding process sends a welcome email with a PDF brochure attached. The email body is dynamically composed (customer name, plan details). The team is using the Email Outbound Connector from Camunda's catalog. The PDF is referenced by a Document Handling document reference variable welcomePdf.",
+  "question": "How should the Email Connector be configured to send the welcome email with attachment?",
+  "options": [
+    {
+      "id": "a",
+      "text": "firstName, the Body with an HTML or plain-text template referencing process variables, and the Attachments field with =[welcomePdf] (a FEEL list containing the Document Handling reference variable). The Connector resolves each document reference to its binary content from the Document Handling service and attaches the PDF to the outgoing email automatically."
+    },
+    {
+      "id": "b",
+      "text": "Email Connectors in Camunda 8 do not support file attachments natively; teams must work around this limitation by converting the PDF to a base64-encoded string and embedding the encoded content directly in the email body as a downloadable link or inline attachment using custom MIME encoding within the body field. The Connector resolves each reference and attaches the file content without any base64 conversion required."
+    },
+    {
+      "id": "c",
+      "text": "Bypass Camunda's Email Connector entirely and send the email via an Outbound HTTP Connector calling the SendGrid or Mailgun REST API directly, constructing the multipart MIME payload manually in FEEL expressions, because Camunda's built-in Email Connector lacks attachment capability. Camunda's Email Outbound Connector does support attachments through Document Handling references. Replacing it with a raw HTTP call to SendGrid adds implementation complexity, requires manual MIME construction, and forfeits the Connector's built-in authentication, retry, and configuration abstractions for no benefit."
+    },
+    {
+      "id": "d",
+      "text": "Use two separate Service Tasks: the first calls the Document Handling API to retrieve the PDF and base64-encodes it into a process variable, and the second sends the email using the Email Connector with the base64-encoded binary passed as an attachment string parameter. Base64-encoding a PDF and storing the result as a process variable would immediately exceed Zeebe's 4 MB variable size limit for any non-trivial document. The Attachments field in the Email Connector accepts Document Handling references directly, making the base64 intermediate step both unnecessary and harmful."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda's Email Outbound Connector natively supports attachments via document references. The Attachments field accepts a list of Document Handling references; the Connector resolves each reference to its content and attaches it to the email. FEEL expressions can dynamically compose To/Subject/Body fields from process variables."
+    },
+    "b": {
+      "text": "Incorrect. Email Connectors DO support attachments via document references."
+    },
+    "c": {
+      "text": "Incorrect. Camunda's Email Connector supports attachments; rebuilding it is unnecessary."
+    },
+    "d": {
+      "text": "Incorrect. Manual base64 conversion is unnecessary and inflates variable size."
+    }
+  },
+  "explanation": "Camunda's Email Outbound Connector natively supports attachments via document references. The Attachments field accepts a list of Document Handling references; the Connector resolves each reference to its content and attaches it to the email. FEEL expressions can dynamically compose To/Subject/Body fields from process variables.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q35",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

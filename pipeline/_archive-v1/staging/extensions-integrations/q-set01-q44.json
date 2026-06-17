@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q44",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team builds a Java Job Worker using the Camunda Spring Boot Starter (the canonical 8.8 framework -- per camunda-spring-boot-starter/getting-started.md:16-22 verbatim \"replaces the Spring Zeebe SDK as of version 8.8\" and the Spring Zeebe SDK is being removed in version 8.10). They want a single Spring Boot application to host three workers subscribed to different job types: validate-claim, enrich-claim-data, archive-claim. Each worker has its own business logic. A junior developer attempts to register the workers by creating three classes each with a @Component annotation and a method named handle. The expectation is that the library auto-discovers them. After deployment, no worker subscribes to the broker.",
+  "question": "Which annotation pattern correctly registers multiple workers in a Camunda Spring Boot Starter application?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Each worker class is annotated with @Component and @WorkerScope(\"validate-claim\") -- class-level scope tells the framework which job type to subscribe. The @WorkerScope annotation is absent from the Camunda Spring Boot Starter library. \"), not at the class level via any scope annotation. A class annotated only with @Component is recognised by Spring as a bean but the Camunda framework ignores it for job worker registration unless it contains methods annotated with @JobWorker. This is why the junior developer's approach resulted in no subscriptions."
+    },
+    {
+      "id": "b",
+      "text": "Each worker method must be inside a class annotated with @RestController for the framework to detect it. That conflates two completely different Spring concepts. @RestController is the Spring MVC annotation for HTTP REST endpoint controllers -- it marks classes whose methods handle HTTP requests and return responses serialised to JSON. It has no relationship to Camunda job worker registration. Worker methods must be in classes that are Spring beans (annotated with @Component, @Service, or similar), but @RestController is not an appropriate annotation for a job worker class, and using it alone would not register any Zeebe subscriptions."
+    },
+    {
+      "id": "c",
+      "text": "Each worker method is annotated with @JobWorker(type = \"validate-claim\"), @JobWorker(type = \"enrich-claim-data\"), @JobWorker(type = \"archive-claim\"). The Camunda Spring Boot Starter auto-discovers all methods with @JobWorker and subscribes each to its declared job type. Method parameters can be enriched with @Variable / @VariablesAsType for variable binding. The three worker methods can live in the same class or across multiple @Component/@Service classes -- the framework scans the entire Spring application context for @JobWorker-annotated methods. Each discovered method results in a separate JobWorker subscription to the broker with the specified job type. Default autoComplete = true means the framework calls completeJob automatically based on the method's return value unless the developer configures otherwise."
+    },
+    {
+      "id": "d",
+      "text": "The Camunda Spring Boot Starter supports only one worker per JVM; deploy three separate applications. This is completely incorrect -- running multiple workers in a single Spring Boot application is not just supported but is the standard and recommended pattern. The framework auto-discovers all methods annotated with @JobWorker across all Spring beans in the application context and creates independent subscriptions for each. Having three worker methods in a single application (or across multiple bean classes within the same application) is explicitly the intended use case."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Camunda Spring Boot Starter uses the @JobWorker(type = \"...\") method-level annotation (in package io.camunda.spring.client.annotation) to identify worker methods. Each annotated method becomes a separate subscription to the broker. The library auto-discovers all @JobWorker annotations at startup and registers them. The junior developer's mistake was using @Component alone without @JobWorker per method -- auto-discovery doesn't trigger without the specific annotation. By default autoComplete = true per configuration.md:530-532 -- the framework handles completeJob automatically based on method return value."
+    },
+    "b": {
+      "text": "Incorrect. @WorkerScope is not a real annotation. Worker registration is method-level via @JobWorker."
+    },
+    "c": {
+      "text": "Correct. @RestController is for HTTP REST endpoints, unrelated to job worker registration."
+    },
+    "d": {
+      "text": "Incorrect. Many workers per JVM is supported and is the standard pattern."
+    }
+  },
+  "explanation": "@RestController is for HTTP REST endpoints, unrelated to job worker registration.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q44",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

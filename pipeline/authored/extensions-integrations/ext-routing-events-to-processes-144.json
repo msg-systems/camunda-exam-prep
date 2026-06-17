@@ -1,0 +1,50 @@
+{
+  "id": "ext-routing-events-to-processes-144",
+  "topic": "extensions-integrations",
+  "subtopic": "events",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Inside a `@JobWorker` you must deliver a payment notification to another, already running process instance. Which Zeebe client command does the docs sample use?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`newPublishMessageCommand()` with a `messageName` and a `correlationKey` (e.g., `orderId`)."
+    },
+    {
+      "id": "b",
+      "text": "`newCreateInstanceCommand()` with the recipient's instance key passed as the `bpmnProcessId`."
+    },
+    {
+      "id": "c",
+      "text": "`newSignalBroadcastCommand()` with the recipient's instance key used as the signal name."
+    },
+    {
+      "id": "d",
+      "text": "`newThrowErrorCommand()` targeting the recipient's instance."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The 'Sending messages to other processes' code sample shows a `@JobWorker(type=\"notifyOrder\")` calling `zeebeClient.newPublishMessageCommand().messageName(\"MsgPaymentReceived\").correlationKey(orderId).variables(...).send()`."
+    },
+    "b": {
+      "text": "`newCreateInstanceCommand` starts a brand-new process instance; the docs show it for the 'route to a new instance' case, not for correlating to a running one."
+    },
+    "c": {
+      "text": "Signal broadcasts target all instances subscribed to a signal name, not one specific running instance addressed by a correlation key."
+    },
+    "d": {
+      "text": "`newThrowErrorCommand` raises a BPMN error against the current job; it is not a cross-process notification mechanism."
+    }
+  },
+  "explanation": "When one process must talk to another already-running process instance, the documented pattern is to publish a named message and let Zeebe correlate it via a correlation key (e.g., an `orderId`). The sample worker uses `newPublishMessageCommand().messageName(...).correlationKey(...).variables(...).send()`; for starting a brand-new instance, the sibling sample uses `newCreateInstanceCommand().bpmnProcessId(...).latestVersion()`.",
+  "docs": [
+    {
+      "title": "Routing events to processes - best practices",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/routing-events-to-processes/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q56",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team wants to validate that a complex BPMN process correctly handles its DMN decisions. They want to step through the process flow interactively, providing values for the DMN inputs at each Business Rule Task, and observe the DMN's output before continuing. The process has 10+ Business Rule Tasks across various branches.",
+  "question": "Which Camunda 8 feature supports this interactive validation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Deploy the current version of the BPMN process to a dedicated test cluster, start a process instance through the REST API, and then open Operate on that test cluster to monitor the instance's progress through each step, manually triggering each Business Rule Task's worker and inspecting Operate's Decision Instance view to see what each DMN table returned. Deploying to a test cluster and monitoring via Operate is a valid approach but is operationally heavier than Play mode -- it requires a separate cluster, manual deployment steps, worker invocations, and navigating between multiple tools. Play mode provides the same result inline in Web Modeler with one click."
+    },
+    {
+      "id": "b",
+      "text": "Use Camunda's process testing framework (camunda-process-test JUnit 5 extension) with stubbed DMN decision results, writing automated test cases for each branch that provide mock inputs and assert the DMN tables return the expected outputs without actually executing the DMN engine. The process testing framework with stubbed DMN responses is designed for automated regression testing in CI/CD pipelines, not exploratory interactive validation. Stubbed tests bypass actual DMN logic, making them unsuitable for manually stepping through 10+ Business Rule Tasks to observe real DMN evaluation results in context."
+    },
+    {
+      "id": "c",
+      "text": "Play mode -- Web Modeler's Zeebe-powered playground (the Play tab on a BPMN diagram). md:21); Play then executes all logic of the process and its linked files, such as FEEL, forms, DMN tables, and outbound connectors (line 72). At each step the user supplies inputs (incl. DMN inputs for Business Rule Tasks) and observes the actual DMN evaluation result inline; Rewind lets you go back to an earlier element and replay branches."
+    },
+    {
+      "id": "d",
+      "text": "Manually trigger each Business Rule Task's DMN decision in isolation using Web Modeler's DMN editor test panel, providing sample inputs for each decision table individually and observing the outputs one table at a time, outside the context of the BPMN flow. The DMN editor's test panel tests individual DMN tables in isolation -- it does not exercise the Decision Tables in the context of the BPMN flow, does not respect inter-table data dependencies passed through the process, and cannot validate which branch of the BPMN flow leads to which DMN evaluation under what conditions."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per web-modeler/validation/play-your-process.md, Play is the Zeebe-backed interactive playground inside Web Modeler. It auto-deploys the current process plus all linked dependencies (DMN files, called processes, forms, connectors) to the selected development cluster; executes all logic -- FEEL, forms, DMN tables, outbound connectors -- exactly as the runtime would; lets the operator drive the process step-by-step from each start event/task, supply variables / DMN inputs at each step, and observe the actual decision result inline. For a process with 10+ Business Rule Tasks across branches, Play is the canonical tool to interactively traverse and validate each DMN evaluation in flow context."
+    },
+    "b": {
+      "text": "Incorrect. Test cluster deployment works but lacks the interactive step-through."
+    },
+    "c": {
+      "text": "Correct. Process testing framework with stubbed responses is for automated tests, not exploratory validation."
+    },
+    "d": {
+      "text": "Incorrect. DMN editor tests DMN in isolation, not within the BPMN flow."
+    }
+  },
+  "explanation": "Process testing framework with stubbed responses is for automated tests, not exploratory validation.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/validation/play-your-process/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q56",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

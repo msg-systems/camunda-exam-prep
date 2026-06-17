@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q01",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A BPMN diagram has two Pools: one isExecutable=true (the company's internal process -- Zeebe deploys it) and one isExecutable=false (a customer participant, descriptive only). Message Flows cross between them. The team wonders what Zeebe does with the descriptive Pool on deployment. What happens with a Pool marked isExecutable=false during Zeebe deployment?",
+  "question": "What happens with a Pool marked isExecutable=false during Zeebe deployment?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Both pools deploy as separate process definitions -- this misunderstands how Zeebe handles multi-pool collaborations. In a two-pool diagram, Zeebe evaluates each pool's isExecutable attribute individually. Only pools with isExecutable=\"true\" produce deployable process definitions in the cluster. Deploying both as separate definitions would require both pools to be marked executable. Having one executable and one descriptive is a common documentation pattern, not a deployment-doubling mechanism."
+    },
+    {
+      "id": "b",
+      "text": "Zeebe ignores the descriptive Pool for execution -- only the executable Pool deploys as a process definition. md:20 the BPMN process XML attribute is <bpmn:process id=\"Process_1\" isExecutable=\"true\">; if set to false, Zeebe does not create a deployable process definition from that Pool. The descriptive Pool exists in the BPMN XML for diagram readability (showing the external participant and the Message Flows crossing into / out of it) but doesn't become a runnable process in the cluster. From a deployment perspective: only one process definition is created (the executable one). The descriptive Pool informs readers but isn't orchestrated."
+    },
+    {
+      "id": "c",
+      "text": "Descriptive pool causes deployment validation error -- this is a misunderstanding of how Zeebe handles multi-pool BPMN files. Including a pool with isExecutable=\"false\" alongside an executable one is a well-established pattern and passes Zeebe's deployment validation without errors. The descriptive pool represents external participants such as customers, partners, or third-party systems shown for documentation purposes, and its presence in the BPMN XML is entirely valid."
+    },
+    {
+      "id": "d",
+      "text": "Zeebe automatically converts the descriptive pool to an executable one -- this misrepresents how deployment works. Zeebe strictly respects the isExecutable attribute on each <bpmn:process> element and does not alter it during deployment. Changing executability is a modelling decision, not an engine behaviour. Teams must explicitly set isExecutable=\"true\" if they want a pool to become a deployable process definition."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN's isExecutable attribute on controls deployability: isExecutable=\"true\": this Pool's process is intended for engine execution. Zeebe deploys it as a process definition with version tracking. isExecutable=\"false\": this Pool is descriptive / for documentation. Zeebe doesn't create a process definition from it. In multi-Pool collaborations: The executable Pool represents your company's internal process -- what Zeebe orchestrates. Descriptive Pools represent external participants (customers, partners, regulators) whose processes you don't orchestrate but want to show for context. Message Flows between Pools formalise the inter-participant exchanges visually; at runtime, Zeebe handles only the Message Throw / Catch events in the executable Pool (sends to external; waits for external messages via correlation). Common patterns: Multi-Pool diagram for documentation; only one Pool executable per BPMN file. Multiple BPMN files (each with its own executable Pool); cross-file collaboration through Message correlation."
+    },
+    "b": {
+      "text": "Correct. Only executable."
+    },
+    "c": {
+      "text": "Incorrect. Valid pattern."
+    },
+    "d": {
+      "text": "Incorrect. Respects attribute."
+    }
+  },
+  "explanation": "Only executable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/bpmn-primer/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q01",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

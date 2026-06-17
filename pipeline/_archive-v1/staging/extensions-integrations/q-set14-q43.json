@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q43",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "REST Outbound Connector calls a slow API; default timeout 30s. Team wants 5min timeout for specific calls.",
+  "question": "REST Connector timeout configuration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:191-195: - Connection timeout in seconds (connectionTimeoutInSeconds) -- time to establish a TCP connection. Default 20 s. Set 0 to wait indefinitely. - Read timeout in seconds (readTimeoutInSeconds) -- time to wait for response data after the connection is made. Default 20 s. Set 0 to wait indefinitely. md:11) or via Element Template binding. For very long-running APIs: REST may not be ideal -- consider async patterns (return immediately with operation ID, poll for result)."
+    },
+    {
+      "id": "b",
+      "text": "The REST Outbound Connector does not restrict timeout to the default value only. Both connectionTimeoutInSeconds and eadTimeoutInSeconds are configurable per task header or Element Template binding. The connector provides separate controls for connection and read phases, so teams can apply short connection timeouts with longer read timeouts. Setting a value of \u0000 disables the timeout entirely, allowing indefinitely-slow APIs. md:191-195, defaults apply only when no override is specified."
+    },
+    {
+      "id": "c",
+      "text": "Timeout configuration in the REST Outbound Connector is supported and well-documented. The connector exposes connectionTimeoutInSeconds and eadTimeoutInSeconds as configurable properties in the Element Template or as BPMN task headers. There is no requirement to wrap the connector in an external proxy just to change timeout behavior. Teams can set different timeouts per task, making it straightforward to give a specific slow API call five minutes while other calls use the default."
+    },
+    {
+      "id": "d",
+      "text": "The REST Outbound Connector supports per-task timeout configuration directly via eadTimeoutInSeconds and connectionTimeoutInSeconds task headers. Adding an external intermediary increases latency, deployment complexity, and operational burden. For genuinely async operations an async submit-and-poll pattern may be appropriate, but for simple timeout extension the built-in connector configuration is sufficient."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. REST Connector timeout settings: Timeout types (typical): Connection timeout (connectionTimeoutInSeconds): How long to wait for TCP connection establishment. Default: 20 s (rest.md:193). Tune: 5 s for fast networks; 30+ s for unreliable. Use 0 to wait indefinitely. Read timeout (readTimeoutInSeconds): How long to wait for response data after sending request. Default: 20 s (rest.md:195). Tune: based on API's expected response time. Use 0 to wait indefinitely (e.g., for known-slow APIs that don't fit async). Total timeout (some implementations): Combined max time for whole request. Configuration in BPMN: `xml Verify exact header / property names per Connector version. In Web Modeler / Element Template: Properties for timeouts exposed in UI. Modeler sets values per task. Trade-offs: Short timeout: Pros: fast failure detection; quick retry cycle. Cons: legitimate slow responses fail. Long timeout: Pros: handles slow APIs; fewer false failures. Cons: blocks task for long time; resource consumption; harder to detect actual failures. For 5min timeout: Acceptable for known-slow APIs (e.g., report generation, complex queries). Combine with activation timeout (per Set 14 Q10): activation timeout > read timeout + buffer. Anti-pattern: very long REST timeouts indicate maybe the API should be async. Async patterns (for very long operations): Pattern 1: Submit + poll: REST Connector POST: returns operation ID. Then: Timer wait → REST Connector GET (poll) for status. Loop until completed. Pros: short-lived API calls; resilient to slow processing. Cons: more complex BPMN. Pattern 2: Submit + webhook: REST Connector POST: returns operation ID; partner promises webhook on completion. BPMN waits for Message Catch correlated by operation ID. Pros: no polling; event-driven. Cons: requires partner support; webhook plumbing. Pattern 3: Long-running job worker: Custom worker handling the slow call. Activation timeout long. Idempotent handling for safety. Timeout in Element Template: json { \"label\": \"Read Timeout (seconds)\", \"type\": \"Number\", \"binding\": { \"type\": \"zeebe:taskHeader\", \"key\": \"readTimeoutInSeconds\" }, \"value\": 300, \"constraints\": { \"min\": 1, \"max\": 3600 } } ` Activation timeout coordination: Service Task activation timeout (per Set 13 Q10): must be longer than expected REST call time. If REST timeout = 5min but activation timeout = 1min: broker re-activates while worker still in REST call → duplicate execution. Always: activation timeout > REST timeout + buffer. Best practices: Profile your APIs: P99 response time → timeout = P99 × 2. Different timeouts per call: not all REST calls are the same. Test failure modes: simulate slow responses; verify behavior. Async for very slow: 1-5+ min responses → reconsider sync REST. Coordinate activation timeout: > REST timeout."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "REST Connector timeout settings: Timeout types (typical): Connection timeout (connectionTimeoutInSeconds): How long to wait for TCP connection establishment. Default: 20 s (rest.md:193). Tune: 5 s for fast networks; 30+ s for unreliable. Use 0 to wait indefinitely. Read timeout (readTimeoutInSeconds): How long to wait for response data after sending request. Default: 20 s (rest.md:195). Tune: based on API's expected response time. Use 0 to wait indefinitely (e.g., for known-slow APIs that don't fit async). Total timeout (some implementations): Combined max time for whole request. Configuration in BPMN: `xml Verify exact header / property names per Connector version. In Web Modeler / Element Template: Properties for timeouts exposed in UI. Modeler sets values per task. Trade-offs: Short timeout: Pros: fast failure detection; quick retry cycle. Cons: legitimate slow responses fail. Long timeout: Pros: handles slow APIs; fewer false failures. Cons: blocks task for long time; resource consumption; harder to detect actual failures. For 5min timeout: Acceptable for known-slow APIs (e.g., report generation, complex queries). Combine with activation timeout (per Set 14 Q10): activation timeout > read timeout + buffer. Anti-pattern: very long REST timeouts indicate maybe the API should be async. Async patterns (for very long operations): Pattern 1: Submit + poll: REST Connector POST: returns operation ID. Then: Timer wait → REST Connector GET (poll) for status. Loop until completed. Pros: short-lived API calls; resilient to slow processing. Cons: more complex BPMN. Pattern 2: Submit + webhook: REST Connector POST: returns operation ID; partner promises webhook on completion. BPMN waits for Message Catch correlated by operation ID. Pros: no polling; event-driven. Cons: requires partner support; webhook plumbing. Pattern 3: Long-running job worker: Custom worker handling the slow call. Activation timeout long. Idempotent handling for safety. Timeout in Element Template: json { \"label\": \"Read Timeout (seconds)\", \"type\": \"Number\", \"binding\": { \"type\": \"zeebe:taskHeader\", \"key\": \"readTimeoutInSeconds\" }, \"value\": 300, \"constraints\": { \"min\": 1, \"max\": 3600 } } ` Activation timeout coordination: Service Task activation timeout (per Set 13 Q10): must be longer than expected REST call time. If REST timeout = 5min but activation timeout = 1min: broker re-activates while worker still in REST call → duplicate execution. Always: activation timeout > REST timeout + buffer. Best practices: Profile your APIs: P99 response time → timeout = P99 × 2. Different timeouts per call: not all REST calls are the same. Test failure modes: simulate slow responses; verify behavior. Async for very slow: 1-5+ min responses → reconsider sync REST. Coordinate activation timeout: > REST timeout.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q43",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

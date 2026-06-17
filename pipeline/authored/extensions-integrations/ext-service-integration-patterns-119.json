@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-119",
+  "topic": "extensions-integrations",
+  "subtopic": "message-type-mapping",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "According to the docs, where is the transformation between a technical message type on the wire (e.g. an AMQP message) and the BPMN message type used in the process typically implemented?",
+  "options": [
+    {
+      "id": "a",
+      "text": "In glue code that receives the technical message and calls the workflow engine API."
+    },
+    {
+      "id": "b",
+      "text": "Inside the BPMN message definition via a `messageRef` mapping."
+    },
+    {
+      "id": "c",
+      "text": "In an event-based gateway that branches on the wire format."
+    },
+    {
+      "id": "d",
+      "text": "In a FEEL expression on the receive task's correlation key."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs are explicit: when correlating technical messages (e.g. from AMQP) you typically write glue code that receives the message and calls the workflow engine API, and that glue code can do various transformations between technical and BPMN message types."
+    },
+    "b": {
+      "text": "BPMN's `messageRef` references a message definition; it doesn't transform wire-level message types into BPMN message types."
+    },
+    "c": {
+      "text": "Event-based gateways operate inside the process model on already-correlated BPMN messages — they don't see the wire format."
+    },
+    "d": {
+      "text": "A FEEL correlation key extracts the correlation value from an already-correlated message; it doesn't bridge between wire format and BPMN message type."
+    }
+  },
+  "explanation": "Wire-level message types and BPMN message types do not need to match. The docs recommend doing any mapping — collapsing several queues to one BPMN type, or splitting one queue into different BPMN types based on a header — in the glue code that bridges your messaging client and the Camunda client API.",
+  "docs": [
+    {
+      "title": "Service integration patterns",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

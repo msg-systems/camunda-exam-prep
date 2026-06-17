@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q18",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A loan-origination process accepts customer-uploaded documents (passport scan, income proof). Each file can be 5-30 MB. The team initially stores the binary content as Base64 strings in process variables -- Zeebe rejects with \"variable size exceeds limit\" (Zeebe variable limit ~4 MB). The team needs to pass these documents through several BPMN steps: OCR, compliance check, archive.",
+  "question": "What is the correct Camunda 8 mechanism for handling large documents in process flow?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Increase the Zeebe variable size limit via cluster configuration to accommodate documents up to 30 MB stored directly in process variables. The 4 MB variable size limit is a hard architectural boundary in Zeebe tied to the append-only event log and snapshotting design. Even if the limit could be increased, storing large binary payloads in process state would severely degrade broker performance and is the wrong architectural pattern for document handling."
+    },
+    {
+      "id": "b",
+      "text": "Store the document in an external S3 bucket and pass S3 pre-signed URLs as string process variables. Each Service Task uses the URL to retrieve or update the document independently. This DIY approach works functionally but reinvents capabilities that Camunda 8's built-in Document Handling API already provides -- including managed storage lifecycle, access control, audit integration, and Tasklist form integration. It also creates operational dependencies on S3 credential management outside the Camunda platform."
+    },
+    {
+      "id": "c",
+      "text": ", doc_chunk_1, doc_chunk_2) and reassemble them in a downstream Service Task. Document chunking across multiple process variables is fragile -- it creates ordering dependencies, chunk reassembly races, and significantly bloats the process variable scope. Each chunk still counts against variable storage in the broker's event log and snapshot."
+    },
+    {
+      "id": "d",
+      "text": "Use Camunda 8's Document Handling API: Service Tasks call the API to store the document, receive a document reference (a small JSON object containing documentId and metadata) that fits comfortably within the 4 MB variable limit, and pass this reference as a process variable. Subsequent tasks retrieve the full document content via the reference as needed. This keeps process state lean and provides a uniform document lifecycle abstraction."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8.8's Document Handling API is the canonical mechanism. The Document Handling service stores documents in Camunda's managed storage (or configured external storage) and returns a small document reference (just metadata, fits comfortably in process variables). Each Service Task receives the reference, retrieves the content as needed via the API, and updates the reference if it produces a new version. Lean process state, uniform abstraction."
+    },
+    "b": {
+      "text": "Incorrect. The 4 MB variable limit is a hard architectural bound in Zeebe (log/snapshot design constraint). Even if increasable, storing large binaries in process state would tank performance and is the wrong abstraction."
+    },
+    "c": {
+      "text": "Incorrect. DIY S3 storage works but reinvents Document Handling, missing built-in security, audit, lifecycle, modeler integration."
+    },
+    "d": {
+      "text": "Correct. Chunking is fragile (reassembly races, ordering issues) and still bloats process state. Anti-pattern."
+    }
+  },
+  "explanation": "Chunking is fragile (reassembly races, ordering issues) and still bloats process state. Anti-pattern.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/getting-started/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q18",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

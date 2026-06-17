@@ -1,0 +1,50 @@
+{
+  "id": "mod-receive-tasks-45",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Echo Marketplace declares a Camunda 8.8 receive task waiting for Money collected confirmations across 4000 orders per day. The platform engineer is reviewing the BPMN XML and must place the correlationKey expression in the exact element required by the documented schema.",
+  "question": "In which XML element is the receive task correlationKey expression placed?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The correlationKey is placed on a zeebe:subscription element nested inside bpmn:extensionElements under the bpmn:message referenced by the receive task via messageRef"
+    },
+    {
+      "id": "b",
+      "text": "The correlationKey is placed as a direct XML attribute on the bpmn:receiveTask element alongside the messageRef pointing at the bpmn:message definition in the diagram"
+    },
+    {
+      "id": "c",
+      "text": "The correlationKey is placed on a zeebe:correlation element nested inside bpmn:extensionElements under the bpmn:receiveTask itself rather than under the bpmn:message"
+    },
+    {
+      "id": "d",
+      "text": "The correlationKey is placed on a zeebe:subscription element nested directly under the bpmn:process root so every receive task in the process shares the same correlationKey"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The documented XML wraps the bpmn:message in bpmn:extensionElements containing a zeebe:subscription whose correlationKey attribute holds the FEEL expression referenced through messageRef from the receive task."
+    },
+    "b": {
+      "text": "Incorrect. The documented schema places the correlationKey on the message extension rather than on the receive task element itself, which carries only the messageRef attribute."
+    },
+    "c": {
+      "text": "Incorrect. There is no documented zeebe:correlation element on the receive task; correlation is configured via zeebe:subscription on the referenced bpmn:message instead."
+    },
+    "d": {
+      "text": "Incorrect. The correlationKey is scoped to a specific bpmn:message rather than to the surrounding bpmn:process, so it cannot be shared across all receive tasks through a process-level subscription."
+    }
+  },
+  "explanation": "The Additional resources XML defines a zeebe:subscription with the correlationKey under bpmn:extensionElements on the bpmn:message, which the receive task references through its messageRef attribute.",
+  "docs": [
+    {
+      "title": "BPMN receive tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/receive-tasks/"
+    }
+  ]
+}

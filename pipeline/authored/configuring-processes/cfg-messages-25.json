@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-25",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A message is published with the correlation key set to the empty string, no message ID, and TTL = 0. A process has an intermediate catch event whose subscription was registered with an empty-string correlation key. What happens?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The message is correlated to the active subscription on the empty string."
+    },
+    {
+      "id": "b",
+      "text": "The message is buffered until the next equal message arrives, then both correlate together."
+    },
+    {
+      "id": "c",
+      "text": "The message is broadcast to every active intermediate subscription, regardless of correlation key."
+    },
+    {
+      "id": "d",
+      "text": "The publish is rejected because correlation keys cannot be empty."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The overview table covers this exact case: empty-string correlation key, no message ID, TTL = 0, intermediate event → correlated if a matching subscription to the empty string is active."
+    },
+    "b": {
+      "text": "TTL = 0 means there is no buffer window; the message is not held to wait for further publishes or pairing."
+    },
+    "c": {
+      "text": "Empty string is itself a correlation value; it matches only subscriptions registered with the same empty-string key, not a broadcast."
+    },
+    "d": {
+      "text": "The docs explicitly model empty-string correlation keys. Only the message name is mandatory, not a non-empty correlation key."
+    }
+  },
+  "explanation": "The message correlation overview lists empty-string correlation keys as valid. For an intermediate event with TTL = 0, the message is correlated only when a subscription against the empty string is active at publish time; otherwise it is dropped because nothing is buffered.",
+  "docs": [
+    {
+      "title": "Messages",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

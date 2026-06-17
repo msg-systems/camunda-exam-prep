@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-46",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A process instance waits on task `B`. Task `C` sits inside an interrupting message event subprocess. You modify the instance and add an activation instruction for that interrupting event subprocess. What is the state right after the modification?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Both task `B` and task `C` are active; the activation alone does not interrupt task `B`."
+    },
+    {
+      "id": "b",
+      "text": "Task `B` is terminated automatically and task `C` becomes the only active task."
+    },
+    {
+      "id": "c",
+      "text": "The modification is rejected because activating an interrupting event subprocess requires the original triggering message."
+    },
+    {
+      "id": "d",
+      "text": "The event subprocess is entered but task `C` waits until task `B` completes."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Activating an interrupting event subprocess via modification enters its start event but does not interrupt the process instance, so task `B` keeps running and task `C` is active in parallel."
+    },
+    "b": {
+      "text": "Modification does not auto-terminate sibling instances. To simulate the interrupting behaviour you must add a separate termination instruction for task `B` in the same command."
+    },
+    "c": {
+      "text": "Modification is precisely the supported way to activate an event subprocess without an external trigger; no original message is required."
+    },
+    "d": {
+      "text": "There is no implicit ordering between the new and existing instances; task `C` runs as soon as the start event of the event subprocess is entered."
+    }
+  },
+  "explanation": "Per the docs, activating an interrupting event subprocess via process instance modification enters its start event but does not interrupt the process instance. Task `B` continues alongside task `C`. To simulate the real interrupting behaviour, you must add a termination instruction for task `B` in the same modification command.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

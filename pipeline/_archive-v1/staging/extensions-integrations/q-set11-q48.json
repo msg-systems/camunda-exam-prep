@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q48",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression parses a date from a string: =date(\"not-a-date\") -- what happens? Or =date(\"2026-02-30\") (invalid date)? How does FEEL date() handle invalid input strings?",
+  "question": "How does FEEL date() handle invalid input strings?",
+  "options": [
+    {
+      "id": "a",
+      "text": "date(\"2026-02-30\") returns the closest valid date, such as 2026-02-28, by rounding or truncating to the last valid day -- no such auto-correction or nearest-valid-date substitution exists in FEEL. md:115-116, date() returns null for any invalid calendar date, including impossible day-month combinations like February 30. Silent auto-correction would mask data quality issues and lead to silent bugs in date-dependent business logic."
+    },
+    {
+      "id": "b",
+      "text": "date(\"not-a-date\") returns today's date as a safe default -- this conflates date() string parsing with the separate today() temporal function. date() applied to an invalid string returns null, not today's date. today() is a distinct FEEL temporal expression that returns the current date. = null then date(s) else today()."
+    },
+    {
+      "id": "c",
+      "text": "md:115-116 (note: date() lives in the conversion built-ins category, not temporal) \"Returns null if the string is not a valid calendar date. \" Both syntactic invalidity (\"not-a-date\") and semantic invalidity (\"2026-02-30\", \"2026-13-45\") → null. md:70-91."
+    },
+    {
+      "id": "d",
+      "text": "date() automatically reformats malformed date strings into valid ISO 8601 format -- no such auto-reformatting behaviour exists in FEEL's date() function. The function strictly parses ISO 8601 YYYY-MM-DD format strings and returns null for anything that does not conform to a valid calendar date. Non-ISO format strings like \"30/02/2026\" or \"Feb 30, 2026\" also return null. Teams must pre-validate or pre-normalise input strings before calling date()."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL's date(from) constructor per feel-built-in-functions-conversion.md:111-140: Signature date(from: string): date -- parses an ISO 8601 date string YYYY-MM-DD. Signature date(from: date and time): date -- extracts the date component from a date-and-time value. Returns null on invalid input -- verbatim doc text at :115-116: \"Returns null if the string is not a valid calendar date. For example, \"2024-06-31\" is invalid because June has only 30 days.\" Companion 3-arg constructor date(year, month, day) at :142-159 follows the same null-on-invalid rule per :146-147 (\"Returns null if the components don't represent a valid calendar date\"). This is uniform null-on-invalid behaviour in Zeebe's FEEL -- no implementation-dependent variance for the documented signatures. Best practice for safe parsing: ` =if matches(dateString, \"^[0-9]{4}-[0-9]{2}-[0-9]{2}$\") then date(dateString) else null Or with downstream null check: =if date(dateString) != null then date(dateString) + duration(\"P30D\") else date(\"2026-12-31\") // fallback For external input (form, API response), assume potentially-invalid input; validate / sanitize early. Related edge cases: Empty string: date(\"\") typically returns null or error. Null input: date(null)` typically propagates null per FEEL's null-tolerant semantics."
+    },
+    "b": {
+      "text": "Incorrect. No auto-correction."
+    },
+    "c": {
+      "text": "Correct. No today default."
+    },
+    "d": {
+      "text": "Incorrect. No auto-correction."
+    }
+  },
+  "explanation": "No today default.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-conversion/#datefrom"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q48",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

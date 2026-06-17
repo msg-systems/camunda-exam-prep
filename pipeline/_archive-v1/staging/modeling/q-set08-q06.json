@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q06",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A KYC (Know Your Customer) process has an Inclusive Gateway splitting on three condition checks: requiresIdVerification, requiresAddressProof, requiresPepCheck -- any combination may be true (zero, one, two, or all three). After the active branches complete, the flow converges at an Inclusive Gateway join. The team wonders: does the join wait for all outgoing branches from the split, or only the ones that were actually taken?",
+  "question": "Which best describes the Inclusive Gateway join semantics?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Waits for all outgoing branches from the split to produce tokens before proceeding -- this describes Parallel Gateway join semantics, not Inclusive Gateway semantics. Applying Parallel join logic to an Inclusive split would cause the process to deadlock whenever fewer than all conditions evaluate to true at the split. The untaken branches never produce tokens, so the join waits forever. The Inclusive Gateway join is specifically designed to avoid this deadlock by tracking which branches were actually activated and waiting only for those."
+    },
+    {
+      "id": "b",
+      "text": "Inclusive Gateway join waits only for branches that were actually taken at the corresponding split. The engine looks at which conditions evaluated true at split time, expects tokens from those branches, and proceeds once all of them have arrived. Untaken branches are ignored. This is more sophisticated than Parallel join (which waits for all incoming) and more flexible than Exclusive join (passes through any single token)."
+    },
+    {
+      "id": "c",
+      "text": "Passes through the first arriving token like an Exclusive Gateway join -- this describes XOR merge semantics, not Inclusive merge semantics. If the Inclusive join passed the first token through, flow would continue downstream before the remaining active branches complete their work. The subsequent tokens from sibling branches would then arrive at an already-passed join, potentially triggering additional downstream instances or creating orphaned tokens. The Inclusive join must wait for all active branch tokens to arrive before releasing flow."
+    },
+    {
+      "id": "d",
+      "text": "Waits for the first arriving token and then starts a configurable timeout window during which additional tokens from sibling branches can arrive -- this is invented behaviour with no basis in the BPMN specification. Inclusive Gateways have no timeout-based soft-wait semantics. The BPMN specification defines Inclusive join completion based on token availability analysis and path reachability, not timer-based collection windows. This description confuses Inclusive Gateway semantics with a hypothetical complex event processing pattern that has no runtime implementation in Camunda 8 in standard BPMN."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per inclusive-gateways.md:31-34, a converging Inclusive Gateway completes when either \"All incoming sequence flows have been taken at least once\" OR \"No path exists from any active flow node to the inclusive gateway (excluding incoming paths to the inclusive gateway that have already been taken).\" In practice this means the join \"waits for whatever branches were actually taken\" -- untaken branches don't block because no active token can reach them. This makes Inclusive cleaner than Parallel when only a subset of branches activates: with Parallel join, the unfired branches would never produce tokens and the join would deadlock. For complex topologies (loops, multiple Inclusive splits intersecting) the second condition (path-from-active-flow analysis) is what handles edge cases; for the standard split-then-join pattern shown in the scenario, the first condition (all taken) is what matches."
+    },
+    "b": {
+      "text": "Correct. Parallel join waits for every incoming arrow's token. With Inclusive split that may not produce all tokens, Parallel join would deadlock."
+    },
+    "c": {
+      "text": "Incorrect. Exclusive join passes the first token through; siblings keep running, downstream proceeds prematurely."
+    },
+    "d": {
+      "text": "Incorrect. No such timeout-based semantic."
+    }
+  },
+  "explanation": "Parallel join waits for every incoming arrow's token. With Inclusive split that may not produce all tokens, Parallel join would deadlock.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/inclusive-gateways/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q06",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q06",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A municipal government processes construction permit applications with three independent parties: the applicant (citizen submitting), the planning office (reviewing zoning), and a certified inspector (validating engineering plans). All three are independent organisations with separate process engines. The BPMN model has three Pools: \"Applicant\", \"Planning Office\", \"Certified Inspector\". When the applicant submits, the planning office reviews; then the planning office sends to the certified inspector; once inspected, results return to planning office. The developer initially drew Sequence Flows between Pools and the BPMN validator rejected the model with \"Sequence Flow cannot cross Pool boundary\".",
+  "question": "What is the correct BPMN construct for communication between Pools?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Add Parallel Gateways at each cross-pool point and route Sequence Flow branches into the other Pool to represent the handover. Parallel Gateways fork and join within a single process pool. 0 spec violation that the validator already rejected. Adding a gateway does not solve the fundamental constraint."
+    },
+    {
+      "id": "b",
+      "text": "Replace cross-pool Sequence Flows with Message Flows. Each cross-pool handover uses a Send Task or Message Throw Event on the sender side and a Receive Task or Message Catch Event on the receiver side. Zeebe correlates messages via a correlationKey expression such as =permit_id. 0's designated construct for communication between separate Pools representing independent organisations or process engines."
+    },
+    {
+      "id": "c",
+      "text": "Merge the three Pools into one Pool with three Lanes to represent the three parties. Lanes are visual subdivisions within a single Pool that represent different roles or departments within the same organisation sharing a single process engine. Using Lanes for three independent organisations with separate engines misrepresents the architecture and loses the explicit async handover semantics that Message Flow provides."
+    },
+    {
+      "id": "d",
+      "text": "Use Signal Events to broadcast the permit status between Pools, with each organisation listening for signals. Signal Events broadcast globally to all subscribed processes without a specific target or correlation key -- they are designed for one-to-many announcements, not point-to-point handovers between specific counterparties. Using signals here would route permit updates to any process subscribing to that signal name, not just the intended recipient."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Sequence Flow is intra-pool only in BPMN 2.0; Message Flow is the cross-pool construct representing async message passing between separate organisations/engines. Each handover (applicant→planning, planning→inspector, inspector→planning) uses Send/Throw on the sender and Receive/Catch on the receiver, correlated via a key like =permit_id."
+    },
+    "b": {
+      "text": "Correct. Parallel Gateway forks within a single process; cross-pool Sequence Flow from the gateway is the same BPMN violation."
+    },
+    "c": {
+      "text": "Incorrect. Lanes are visual subdivisions within one Pool representing roles in one organisation -- not for three independent organisations."
+    },
+    "d": {
+      "text": "Incorrect. Signal Events broadcast to all listening processes globally; not for point-to-point handover between specific counterparties."
+    }
+  },
+  "explanation": "Parallel Gateway forks within a single process; cross-pool Sequence Flow from the gateway is the same BPMN violation.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q06",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

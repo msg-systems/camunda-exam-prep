@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A custom Connector calls a payment API. Due to Zeebe's at-least-once delivery, the Connector might be invoked twice for the same job activation (e.g., transient network error causes re-activation). The team is concerned about double-charging customers.",
+  "question": "Which Connector design pattern prevents double-charging?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Increase the Service Task retries attribute to 0 to prevent duplicate payment charges -- this actually makes the system more fragile, not more idempotent. The retries attribute controls how many times Zeebe re-activates a job after failure. Setting retries to 0 means any failure immediately creates an incident requiring manual intervention instead of automatic retry. The idempotency problem is not caused by failed retries -- it occurs because Zeebe's at-least-once delivery model may activate the same job multiple times even when no failure occurs. Reducing retries addresses failure recovery, not duplicate activation prevention."
+    },
+    {
+      "id": "b",
+      "text": "Attach a Boundary Error Event to the Service Task to intercept and handle any errors raised by duplicate payment charges -- Boundary Error Events handle exceptional error conditions but do not prevent duplicate Connector activations. The idempotency problem occurs because Zeebe's at-least-once delivery may activate the same job multiple times before the first activation is acknowledged. A Boundary Error Event only triggers after the Connector throws an explicit BPMN error; it cannot intercept the duplicate activation before the second payment attempt is made. Idempotency must be handled at the payment provider level through transaction deduplication."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 guarantees exactly-once delivery for all Connector and job activations -- each job is activated exactly once regardless of network failures, broker restarts, or worker crashes -- this description does not reflect the actual behaviour. Camunda 8 uses an at-least-once delivery model. Zeebe guarantees that every job will be activated at least once but may activate the same job multiple times in failure and recovery scenarios. Exactly-once semantics for job processing is the developer's responsibility to implement. The standard approach is using idempotency keys in external API calls so duplicate activations of the same job produce the same result without duplicate side effects."
+    },
+    {
+      "id": "d",
+      "text": ", the BPMN element instance key, or a business-level idempotency key like paymentId). md:138: \"Zeebe is an 'at least once' system with respect to job delivery and ... worker code must be idempotent\". The payment API uses the key to deduplicate -- repeated calls with same key are recognised and don't re-charge. The Connector includes the key in its API call."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. At-least-once delivery is a fundamental property of distributed messaging systems including Zeebe. Combined with worker timeouts, network blips, and retries, a single logical operation may produce multiple API calls. Idempotency is the engineering recourse: design the downstream API call so that repeated invocations with the same idempotency key are recognized and produce the same effect as a single call. For payments, the API typically accepts an Idempotency-Key header (Stripe convention, PSP standard); pass a deterministic key derived from the BPMN context (e.g., the process instance key + element ID). Implementation: in the Connector's execute(), build the idempotency key as processInstanceKey + \"-\" + elementId (or a business-level paymentId if available), pass to the payment API. The API deduplicates; result: customer is charged exactly once regardless of how many times the Connector is invoked."
+    },
+    "b": {
+      "text": "Incorrect. Retries don't address re-activation duplicates."
+    },
+    "c": {
+      "text": "Incorrect. Error Boundary handles errors, not duplicates."
+    },
+    "d": {
+      "text": "Correct. Zeebe is at-least-once."
+    }
+  },
+  "explanation": "Zeebe is at-least-once.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q34",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

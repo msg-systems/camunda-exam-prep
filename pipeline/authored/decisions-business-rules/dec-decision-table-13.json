@@ -1,0 +1,50 @@
+{
+  "id": "dec-decision-table-13",
+  "topic": "decisions-business-rules",
+  "subtopic": "decision ID",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A DRG contains an upstream decision whose `id` was set to `pricing-rules`, and a downstream decision that lists `pricing-rules` as a required decision. What does this kebab-case ID cause at runtime?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The dependent decision cannot access the upstream decision's result"
+    },
+    {
+      "id": "b",
+      "text": "Both decisions are rejected at deployment and never reach the cluster"
+    },
+    {
+      "id": "c",
+      "text": "The upstream decision evaluates, but its result is silently coerced to `null`"
+    },
+    {
+      "id": "d",
+      "text": "Only the Camunda Modeler complains; runtime evaluation is unaffected"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "When a decision ID contains a special character or symbol, the docs state that its result cannot be accessed in a dependent decision. The `-` in kebab-case is one such forbidden character."
+    },
+    "b": {
+      "text": "The docs describe a runtime access failure in the dependent decision, not a deployment-time rejection of the decisions."
+    },
+    "c": {
+      "text": "There is no `null`-coercion rule documented for results of decisions with invalid IDs."
+    },
+    "d": {
+      "text": "Runtime is affected: any dependent decision explicitly cannot read the result of a decision whose ID contains a special character."
+    }
+  },
+  "explanation": "A decision ID may not contain any special characters or symbols. If it does, the decision result cannot be accessed in a dependent decision. The deployment itself is not described as rejected, but the result is unreachable from any decision that lists it as a required decision.",
+  "docs": [
+    {
+      "title": "DMN decision table",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ]
+}

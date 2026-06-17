@@ -1,0 +1,50 @@
+{
+  "id": "mng-selections-operations-77",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An on-call engineer at Riverstone Bank inspects 950 Camunda 8.8 loan-application instances stuck on an incident caused by a misconfigured downstream API. The API has been decommissioned and the affected instances cannot be salvaged; the team needs to clear them from the active list without retrying them so the next 24 hours of work are unblocked.",
+  "question": "Which selection-and-operation sequence in Operate is appropriate for clearing these unsalvageable instances?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Build a selection of the affected process instances by checking the boxes, then apply a batch cancellation operation; confirm and monitor progress in the Operations panel"
+    },
+    {
+      "id": "b",
+      "text": "Build a selection of the affected process instances by checking the boxes, then apply a batch retry operation; the broker will then prune any instance whose downstream API has been removed"
+    },
+    {
+      "id": "c",
+      "text": "Delete the deployed process definition from the deployments view; Operate then cascades a cancellation to every running instance of that definition automatically"
+    },
+    {
+      "id": "d",
+      "text": "Apply a batch retry operation across the entire process definition without building a selection; Operate scopes the retry only to instances currently in an incident state"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. When stuck instances cannot be salvaged, the documented pattern is to check the boxes to build a selection, pick the batch cancellation operation, confirm it, and follow progress in the Operations panel."
+    },
+    "b": {
+      "text": "Incorrect. A batch retry tries to resume execution; it does not prune unsalvageable instances. To remove them, the operator applies a batch cancellation operation on the selection instead."
+    },
+    "c": {
+      "text": "Incorrect. Operate does not document a cascading cancellation triggered by deleting a process definition; cancellations are applied through selections and the cancel operation on the instance list view."
+    },
+    "d": {
+      "text": "Incorrect. Operations are applied to a selection the operator builds by checking the boxes; there is no documented option to run a retry across an entire definition while implicitly scoping it to incidents."
+    }
+  },
+  "explanation": "Operate models bulk work as selections plus operations. To remove unsalvageable instances, the operator builds a selection of the affected instances, picks the batch cancellation operation, confirms it, and watches the Operations panel for progress.",
+  "docs": [
+    {
+      "title": "Selections and operations",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/selections-operations/"
+    }
+  ]
+}

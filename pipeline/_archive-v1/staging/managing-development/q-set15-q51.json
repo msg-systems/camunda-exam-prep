@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q51",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team uses Operate batch operations API for bulk retries. Wonders how to monitor batch progress.",
+  "question": "Operate batch operations monitoring?",
+  "options": [
+    {
+      "id": "a",
+      "text": "8 batch operations expose state via the Orchestration Cluster REST API + dedicated Operate UI page. md:29-36): Resolve incidents, Modify, Migrate, Cancel, Delete process instances, Delete decision instances. Lifecycle states: Created / Active / Completed / Partially completed / Suspended / Canceled / Failed. Operate UI: Operations > Batch operations page shows Operation, Batch state, Items (successful/failed/pending), Actor, Start date -- click row for per-item failure details. REST endpoints include search-batch-operations, cancel-process-instances-batch-operation, and others per :83-90. Canceling in-flight does NOT rollback already-produced changes. Authorization requires BOTH batch-op permission AND item-level process-definition permissions."
+    },
+    {
+      "id": "b",
+      "text": "8 introduced a dedicated Batch Operations page in Operate (Operations > Batch operations) that provides real-time visibility: per-batch state (Created/Active/Completed/Partially completed/Failed), item counts (successful/failed/pending), actor, and start date. Clicking a batch row shows per-item failure details. The Orchestration Cluster REST API also exposes search-batch-operations for programmatic status checks. 8 release, not an afterthought."
+    },
+    {
+      "id": "c",
+      "text": "8. The API call creates the batch operation and returns a batch ID immediately; processing happens in the background across partitions. The Operate UI and REST API (search-batch-operations) provide async status monitoring: the batch progresses through Created → Active → Completed states. \"Partially completed\" state occurs when the operation succeeds on some partitions but fails on others. Treating batch ops as synchronous would be incorrect for large-scale operations affecting thousands of process instances."
+    },
+    {
+      "id": "d",
+      "text": "8 provides structured batch monitoring: the Operate Batch Operations page shows exact counts (successful/failed/pending items) for each batch operation. The REST search-batch-operations endpoint returns these counts programmatically. Per-item failure reasons are accessible by clicking into the batch detail view. Manual instance counting is a primitive workaround that would be impractical for batches involving thousands of process instances and provides no per-item failure context."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Batch operations monitoring: Async batch flow: 1. POST batch operation: e.g., \"retry all incidents matching filter.\" 2. Receive batch ID: handle for tracking. 3. Poll status endpoint: get progress. 4. Completion: all items processed. Doc-grounded item counters (Operate Batch Operations page columns per operate/overview/batch-operations-overview.md:13-25): Items: count of successful / failed / pending items in the batch. Batch state: Created / Active / Completed / Partially completed / Suspended / Canceled / Failed per concepts/batch-operations.md:46-56. Actor: user or client that triggered the operation. Start date: when the batch started. ⚠️ Partially completed is a 8.8-specific state -- succeeds on at least one partition AND fails on at least one. Don't confuse with Failed (failed on ALL partitions). Polling pattern: `python # Pseudocode batch = api.create_batch_operation( type=\"RETRY_INCIDENT\", filter={...} ) batch_id = batch['id'] while True: status = api.get_batch_status(batch_id) print(f\"Processed: {status['processed']}/{status['total']}\") if status['status'] in ('COMPLETED', 'FAILED'): break time.sleep(5) # Inspect results For monitoring large batches: Progress reporting: Periodic status updates. Estimate completion time based on rate. Error tracking: Per-item failures logged. Investigate failures separately. Cancellation / suspend / resume per concepts/batch-operations.md:38-42: Depending on batch state, you can suspend (pauses), resume, or cancel (permanently stops) -- canceled operations cannot be resumed. ⚠️ Cancel does NOT rollback already-produced changes (per :40-42 warning). Permissions to suspend / resume / cancel = batch-op permission only (no item-level permission needed) per :71. Operate UI per operate/userguide/monitor-batch-operations.md:14-21: Operations > Batch operations` → dedicated Batch Operations page. Click a row → batch operation details page. Expand a failed item row → reveals the failure reason inline. For very large batches (10,000+): Pattern: chunking: Split into smaller batches (e.g., 500 each). Run sequentially or parallel. Better progress tracking; less risk if one batch fails. Pattern: parallel batches: Multiple batches in parallel. Monitor each independently. Combine results at end. Caution: Cluster load: large batches consume resources. Rate limit: don't overwhelm. Test on small subset first. Best practices: Plan batches: estimate size + time. Monitor progress: don't just wait. Investigate failures: don't ignore. Document operations: audit trail. Communicate: stakeholders aware of bulk operations. For long-running batches: Asynchronous monitoring: don't block on completion. Notifications: webhook on completion. Persistent state: survive client restarts. For audit: Log who triggered: accountability. Log inputs: what was selected. Log results: what happened. Anti-patterns: Fire and forget: no progress visibility. No error investigation: failures accumulate. Single huge batch: hard to control. For the scenario (monitor batch progress): Poll status endpoint with batch ID. Show progress to user / dashboard. Handle errors per-item."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Batch operations monitoring: Async batch flow: 1. POST batch operation: e.g., \"retry all incidents matching filter.\" 2. Receive batch ID: handle for tracking. 3. Poll status endpoint: get progress. 4. Completion: all items processed. Doc-grounded item counters (Operate Batch Operations page columns per operate/overview/batch-operations-overview.md:13-25): Items: count of successful / failed / pending items in the batch. Batch state: Created / Active / Completed / Partially completed / Suspended / Canceled / Failed per concepts/batch-operations.md:46-56. Actor: user or client that triggered the operation. Start date: when the batch started. ⚠️ Partially completed is a 8.8-specific state -- succeeds on at least one partition AND fails on at least one. Don't confuse with Failed (failed on ALL partitions). Polling pattern: `python # Pseudocode batch = api.create_batch_operation( type=\"RETRY_INCIDENT\", filter={...} ) batch_id = batch['id'] while True: status = api.get_batch_status(batch_id) print(f\"Processed: {status['processed']}/{status['total']}\") if status['status'] in ('COMPLETED', 'FAILED'): break time.sleep(5) # Inspect results For monitoring large batches: Progress reporting: Periodic status updates. Estimate completion time based on rate. Error tracking: Per-item failures logged. Investigate failures separately. Cancellation / suspend / resume per concepts/batch-operations.md:38-42: Depending on batch state, you can suspend (pauses), resume, or cancel (permanently stops) -- canceled operations cannot be resumed. ⚠️ Cancel does NOT rollback already-produced changes (per :40-42 warning). Permissions to suspend / resume / cancel = batch-op permission only (no item-level permission needed) per :71. Operate UI per operate/userguide/monitor-batch-operations.md:14-21: Operations > Batch operations` → dedicated Batch Operations page. Click a row → batch operation details page. Expand a failed item row → reveals the failure reason inline. For very large batches (10,000+): Pattern: chunking: Split into smaller batches (e.g., 500 each). Run sequentially or parallel. Better progress tracking; less risk if one batch fails. Pattern: parallel batches: Multiple batches in parallel. Monitor each independently. Combine results at end. Caution: Cluster load: large batches consume resources. Rate limit: don't overwhelm. Test on small subset first. Best practices: Plan batches: estimate size + time. Monitor progress: don't just wait. Investigate failures: don't ignore. Document operations: audit trail. Communicate: stakeholders aware of bulk operations. For long-running batches: Asynchronous monitoring: don't block on completion. Notifications: webhook on completion. Persistent state: survive client restarts. For audit: Log who triggered: accountability. Log inputs: what was selected. Log results: what happened. Anti-patterns: Fire and forget: no progress visibility. No error investigation: failures accumulate. Single huge batch: hard to control. For the scenario (monitor batch progress): Poll status endpoint with batch ID. Show progress to user / dashboard. Handle errors per-item.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/batch-operations/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q51",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

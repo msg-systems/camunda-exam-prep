@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's HTTP Outbound Connector calls a partner API. The partner is occasionally flaky -- returns 503 Service Unavailable. The team wants the Connector to retry automatically with exponential backoff without explicit BPMN-level Error Boundary.",
+  "question": "Can Connectors have built-in retry-with-backoff configuration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Automatic retry with exponential backoff is not a universal default for all Connectors. Whether a specific Connector applies automatic retry and backoff depends on that Connector's individual configuration. The BPMN-level retry mechanism using zeebe:taskDefinition retries combined with a retryBackoff task header is the always-available approach, but it must be explicitly configured on the task definition. Assuming all Connectors auto-retry without explicit configuration can result in missing retry logic in production."
+    },
+    {
+      "id": "b",
+      "text": "Depends on the Connector: some out-of-the-box Connectors expose internal retry / backoff configuration directly. The BPMN-level approach uses zeebe:taskDefinition retries=\"N\" for initial retry count plus a separate zeebe:taskHeader with key=\"retryBackoff\" for the inter-retry delay (ISO 8601 duration like PT30S) -- NOT a retryBackoff attribute on taskDefinition. md:35-52. Combination: Connector-internal retry (if available) handles low-level retries; BPMN-level retries + retryBackoff handle remaining cases."
+    },
+    {
+      "id": "c",
+      "text": "The BPMN-level retry mechanism is independent of whether a specific Connector has its own internal retry logic. When a Connector job fails, the Zeebe engine decrements the retry counter and re-activates the job after the configured backoff duration. This mechanism applies universally to all job-based Connectors."
+    },
+    {
+      "id": "d",
+      "text": "Custom retry code would only be necessary if you need HTTP-specific behaviours like honouring a Retry-After response header or implementing true exponential backoff that grows dynamically with each attempt. For standard fixed-interval retry, the BPMN-level retries and retryBackoff configuration is sufficient without any custom code."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Retry handling in Camunda 8 Connectors operates at two layers: BPMN-level retries (always available): zeebe:taskDefinition retries=\"N\" sets initial retry count. A SEPARATE zeebe:taskHeader key=\"retryBackoff\" carries the inter-retry delay as an ISO 8601 duration (e.g., PT30S) per outbound.md:35-52 -- the connector runtime auto-recognizes this reserved header for all outbound connectors and applies the backoff before re-activation. There is NO retryBackoff attribute on zeebe:taskDefinition itself. When the Connector returns failure (via bpmnError for caught errors or jobError for retriable errors per index.md:313-343), Zeebe decrements retries; if > 0, re-activates after backoff; if 0, Incident. Connector-internal retries (Connector-specific): some Connectors implement internal retry logic (e.g., handle transient HTTP errors internally before reporting failure). Verify per Connector -- features vary. For an HTTP Connector facing flaky partner: declare BPMN retries = 5 on the task, plus a retryBackoff task header with value PT10S (linear 10-second). Note: the runtime applies the same backoff between every retry (linear) -- true exponential backoff requires the Connector's internal jobError(message, vars, retries, retryBackoff) FEEL return per index.md:321-328 to dynamically compute a new backoff each failure. For more aggressive retry policies, custom Connectors can implement HTTP-specific retry logic (e.g., honour Retry-After header) before reporting failure to Zeebe."
+    },
+    "b": {
+      "text": "Correct. Per-Connector."
+    },
+    "c": {
+      "text": "Incorrect. BPMN-level retries available."
+    },
+    "d": {
+      "text": "Incorrect. For OOB Connectors, BPMN retries suffice."
+    }
+  },
+  "explanation": "Per-Connector.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/outbound/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q45",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

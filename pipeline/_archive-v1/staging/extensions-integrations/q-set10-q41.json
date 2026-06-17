@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Java Camunda Spring Boot Starter worker subscribes to process-payment. The team wants to limit concurrency -- at most 5 payment jobs processing simultaneously across this worker -- to respect a partner API's rate limit.",
+  "question": "Which Camunda Spring Boot Starter configuration limits per-worker concurrency?",
+  "options": [
+    {
+      "id": "a",
+      "text": "There is no configuration option in the Camunda Spring Boot Starter to limit concurrent job processing -- the worker processes as many jobs as the thread pool allows -- this description does not reflect the actual behaviour. yaml provides precise control over how many jobs a single worker activates concurrently. This property creates a cap on the number of simultaneously active jobs, causing the broker to queue remaining jobs until a currently active job completes."
+    },
+    {
+      "id": "b",
+      "text": "md:1221). The worker activates at most maxJobsActive jobs concurrently from the broker; subsequent eligible jobs remain queued at the broker until an active job slot becomes available. Combined with appropriate worker thread pool sizing, this setting precisely caps concurrent processing per worker instance."
+    },
+    {
+      "id": "c",
+      "text": "Set zeebe:taskDefinition retries to 5 in the BPMN to control how many concurrent jobs the worker processes simultaneously -- this confuses two completely different configuration dimensions. The retries property in BPMN controls how many times a failed job is retried after reporting failure, which is a resilience mechanism for error recovery. Concurrency is controlled by maxJobsActive on the worker, which limits how many jobs are activated simultaneously during normal healthy processing."
+    },
+    {
+      "id": "d",
+      "text": "Deploy exactly 5 separate worker process instances to cap total concurrency at 5 because each process handles one job at a time -- this is a heavyweight and inflexible approach. Running multiple processes increases infrastructure costs, deployment complexity, and coordination overhead. The maxJobsActive configuration controls per-worker concurrency without requiring multiple processes. A single worker with maxJobsActive = 5 achieves the same concurrency limit more efficiently than running 5 separate worker instances."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. maxJobsActive is the Camunda Spring Boot Starter's per-worker concurrency cap (Pattern #18 -- Spring Zeebe SDK was renamed to Camunda Spring Boot Starter; the old spring-zeebe-sdk/ URL is 404 in 8.8). Behaviour: Worker activates up to maxJobsActive jobs at a time. When a job completes (success or failure), worker can activate the next. Excess jobs remain queued at the broker (other workers / same worker on next free slot can pick them up). Combined considerations: Thread pool sizing: ensure your worker's thread pool can handle maxJobsActive jobs concurrently. Otherwise threads bottleneck. External rate limits: if the partner allows 5 concurrent requests, set maxJobsActive = 5 to respect. Across worker fleet: if you run multiple worker instances, the per-instance maxJobsActive × instances = total concurrency. Coordinate fleet sizing. For very strict rate limiting (e.g., 5 requests per second, not per concurrent), use a token bucket / rate limiter in worker code in addition to maxJobsActive."
+    },
+    "b": {
+      "text": "Correct. Configurable."
+    },
+    "c": {
+      "text": "Incorrect. retries is failure-retry count."
+    },
+    "d": {
+      "text": "Incorrect. Per-worker concurrency tunable."
+    }
+  },
+  "explanation": "Configurable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q41",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

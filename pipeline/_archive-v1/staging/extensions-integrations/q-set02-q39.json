@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q39",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression must merge two context (object) variables customer and orderDetails into a single context for downstream use. Both have non-overlapping keys. The team writes various attempts but none compile cleanly.",
+  "question": "Which FEEL expression correctly merges two contexts?",
+  "options": [
+    {
+      "id": "a",
+      "text": "context merge([customer, orderDetails]) -- FEEL's canonical context merge function takes a list of context values and returns a new context that is the union of all entries from all contexts in the list. If the same key appears in multiple contexts, the value from the last context in the list overrides the earlier ones."
+    },
+    {
+      "id": "b",
+      "text": "{customer, orderDetails} -- use a FEEL spread operator syntax inspired by Python's ` dictionary unpacking or JavaScript's ... object spread to unpack both context objects into a new combined context literal. ) for context merging. FEEL context literals use explicit key-value pairs like {key: value}, not destructuring spread syntax from other languages. The context merge()` built-in function is the correct FEEL mechanism for combining two context values."
+    },
+    {
+      "id": "c",
+      "text": "customer + orderDetails -- apply the FEEL + addition operator between the two context variables to merge their key-value pairs into a single combined context, similar to how + concatenates strings or adds numbers. FEEL's + operator is defined for numeric addition, string concatenation, date-plus-duration, and list concatenation. It is not defined for context values -- applying + to two contexts produces a type error rather than a merged context. The correct function is context merge([customer, orderDetails])."
+    },
+    {
+      "id": "d",
+      "text": "put all(customer, orderDetails) -- call the legacy Camunda FEEL extension function put all() passing the two contexts as separate positional arguments to produce a merged context that includes all keys from both. ) is a real but deprecated Camunda FEEL extension function that was replaced by context merge(). Additionally, the canonical signature of put all() expects a list argument, not positional context arguments -- so even in legacy usage, put all([customer, orderDetails]) (list form) was the correct call. ]) instead."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Per feel-built-in-functions-context.md lines 130-155: context merge(contexts: list): context returns a new context that includes all entries of the given contexts; if a key exists in multiple contexts, later values override earlier ones. The function takes a list of contexts (e.g. context merge([{x:1}, {y:2}])), not multiple separate arguments. The doc explicitly states this function replaced the legacy put all() extension -- put all() is deprecated and should not be used in new code."
+    },
+    "b": {
+      "text": "Incorrect. FEEL doesn't have spread operator ** or .... That's Python/JavaScript syntax."
+    },
+    "c": {
+      "text": "Incorrect. FEEL + is for numeric addition, string concatenation, date+duration, etc., not context merge."
+    },
+    "d": {
+      "text": "Incorrect. put all(...) IS a real (Camunda-extension) FEEL function, but it is deprecated (replaced by context merge) and the call form put all(customer, orderDetails) with positional context arguments is non-canonical even in legacy usage. New code should always use context merge([...])."
+    }
+  },
+  "explanation": "Per feel-built-in-functions-context.md lines 130-155: context merge(contexts: list): context returns a new context that includes all entries of the given contexts; if a key exists in multiple contexts, later values override earlier ones. The function takes a list of contexts (e.g. context merge([{x:1}, {y:2}])), not multiple separate arguments. The doc explicitly states this function replaced the legacy put all() extension -- put all() is deprecated and should not be used in new code.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-context/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q39",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

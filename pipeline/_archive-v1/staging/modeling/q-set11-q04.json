@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A polling pattern: keep calling an external API until response says \"READY,\" then continue. The team is choosing between: Standard Loop activity (BPMN's \"while-loop\" marker on an activity). Worker-side loop in the Service Task's code (the worker internally retries until READY, returning only when ready).",
+  "question": "Which approach better fits \"poll until ready\" in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Worker-side loop (or explicit BPMN loop via Gateway + back-edge sequence flow) is the only viable pattern in Camunda 8. md:127-139 -- the <LoopSvg /> symbol carries no className=\"implemented\" flag, in contrast to neighbouring symbols (Multi-Instance, Compensation) which do. Deployment-time validation rejects activities carrying <bpmn:standardLoopCharacteristics>. \" → if yes continue, if no back-edge to Timer + Service Task. The explicit loop is visible in the diagram; worker-internal is more compact."
+    },
+    {
+      "id": "b",
+      "text": "Standard Loop activity always works reliably for \"poll until ready\" scenarios in Zeebe -- this overstates the Standard Loop marker's availability. md:127-139, the <LoopSvg /> symbol carries no className=\"implemented\" marker, in contrast to neighbouring symbols like Multi-Instance and Compensation which do. Deployment-time validation rejects activities carrying <bpmn:standardLoopCharacteristics>. Teams should instead use worker-side loops (internal polling in the job worker code) or explicit BPMN gateway back-edge loops."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 has no pattern for polling an external API until a condition is met -- this understates the available approaches. Worker-side polling (the job worker internally loops until the external system reports ready) and explicit BPMN loops (Service Task → XOR Gateway → Timer Intermediate Event → back-edge) are both well-supported patterns. Multiple well-documented strategies exist for implementing \"wait and check\" behaviour in Camunda 8, and teams routinely build polling processes using either approach."
+    },
+    {
+      "id": "d",
+      "text": "Use Multi-Instance subprocess with a completionCondition to model the poll loop -- this is an awkward fit for unbounded polling scenarios. Multi-Instance works well for known-cardinality parallel processing, but for \"poll until READY\" with an indeterminate number of attempts, it requires artificially setting a high maximum cardinality and breaking early via the completionCondition. This approach is less intuitive, harder to read in the BPMN diagram, and harder to maintain than an explicit BPMN back-edge loop or a worker-side retry pattern."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. \"Poll until ready\" patterns in Camunda 8: Pattern 1: Worker-side loop (compact) Service Task's worker code internally polls external API with a delay between attempts; returns when READY (or fails after max iterations). Pros: compact; one BPMN activity; worker controls the loop. Cons: hides the polling from BPMN readers; worker holds the job activation throughout (long-running worker). Pattern 2: BPMN-level explicit loop ` [Service Task: Check Status] → [XOR Gateway: ready?] → yes → [continue downstream] → no → [Timer Intermediate Event: wait 30s] → [back to Check Status] Pros: visible in BPMN; per-iteration observability (each \"Check Status\" execution in Operate); explicit timer between attempts. Cons: more elements; back-edge can look messy. Pattern 3: Standard Loop marker (NOT IMPLEMENTED) BPMN spec: with a loop condition. Zeebe does NOT implement Standard Loop per bpmn-coverage.md:127-139 -- lacks the className=\"implemented\" marker. Deployment of activities carrying standardLoopCharacteristics` is rejected. For Camunda 8 production, Pattern 2 (explicit BPMN loop) is most robust + observable; Pattern 1 is compact but hides polling; Pattern 3 cannot be deployed."
+    },
+    "b": {
+      "text": "Incorrect. Standard Loop NOT implemented in Zeebe per bpmn-coverage.md:139."
+    },
+    "c": {
+      "text": "Incorrect. Multiple patterns."
+    },
+    "d": {
+      "text": "Incorrect. MI for known iterations."
+    }
+  },
+  "explanation": "\"Poll until ready\" patterns in Camunda 8: Pattern 1: Worker-side loop (compact) Service Task's worker code internally polls external API with a delay between attempts; returns when READY (or fails after max iterations). Pros: compact; one BPMN activity; worker controls the loop. Cons: hides the polling from BPMN readers; worker holds the job activation throughout (long-running worker). Pattern 2: BPMN-level explicit loop ` [Service Task: Check Status] → [XOR Gateway: ready?] → yes → [continue downstream] → no → [Timer Intermediate Event: wait 30s] → [back to Check Status] Pros: visible in BPMN; per-iteration observability (each \"Check Status\" execution in Operate); explicit timer between attempts. Cons: more elements; back-edge can look messy. Pattern 3: Standard Loop marker (NOT IMPLEMENTED) BPMN spec: with a loop condition. Zeebe does NOT implement Standard Loop per bpmn-coverage.md:127-139 -- lacks the className=\"implemented\" marker. Deployment of activities carrying standardLoopCharacteristics` is rejected. For Camunda 8 production, Pattern 2 (explicit BPMN loop) is most robust + observable; Pattern 1 is compact but hides polling; Pattern 3 cannot be deployed.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/bpmn-coverage/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

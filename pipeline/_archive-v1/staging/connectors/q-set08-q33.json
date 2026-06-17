@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team integrates with a partner API that doesn't support webhooks -- they only allow polling. The team is evaluating whether to use a Polling Inbound Connector or a custom Service Task that polls on its own.",
+  "question": "Which is the trade-off between Polling Inbound Connector vs custom polling Service Task?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An Inbound Connector is significantly slower than custom job worker code because the Connector framework adds multiple layers of abstraction that increase latency compared to a direct HTTP endpoint implementation -- this description does not reflect the actual behaviour. Both approaches rely on similar underlying HTTP processing. The Connector framework's overhead for incoming request handling is comparable to what a custom webhook implementation would implement itself. Performance differences are negligible for typical webhook patterns. The key decision factor is development speed and maintainability, not throughput, where the declarative Connector approach provides advantages over custom implementation."
+    },
+    {
+      "id": "b",
+      "text": "md:1-15 -- an Intermediate-Event template \"built on top of the REST connector\" that polls an endpoint at regular intervals. Declarative config: Method (GET/POST/…), URL, Headers, Query Parameters, Interval (ISO 8601 duration, default 50s per :49), Connection Timeout, Authentication (Basic/OAuth/Bearer/API Key via REST connector auth section per :39-41), Correlation key, Activation condition. Process automatically activates when condition becomes true; observable in Operate. Custom Service Task polling: write code, manage cursor state, trigger downstream BPMN manually. For typical polling, HTTP Polling connector is declarative and easier; custom code is for unusual / non-HTTP polling."
+    },
+    {
+      "id": "c",
+      "text": "Custom job worker code is always preferable to using a declarative Inbound Connector because custom code provides more control, better performance, and greater flexibility for all integration scenarios -- this description does not reflect the actual behaviour. For standard integration patterns like webhook reception, polling external APIs, and event subscriptions, declarative Connectors provide faster implementation, built-in error handling, standardised configuration through Element Templates, and reduced maintenance burden. Custom code is preferred only when the integration pattern has specific requirements that declarative Connector capabilities cannot address."
+    },
+    {
+      "id": "d",
+      "text": "A Polling Inbound Connector has no runtime implementation in Camunda 8 in Camunda 8 -- Inbound Connectors only support push-based webhook reception and cannot implement polling patterns where the Connector periodically queries an external source -- this description does not reflect the actual behaviour. Polling is a documented Inbound Connector pattern in Camunda 8. A Polling Inbound Connector periodically queries an external system, such as checking an email inbox or polling a message queue, and triggers a process instance when new items are found. Both webhook push and scheduled polling patterns are supported Inbound Connector types in the Camunda Connector framework."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The trade-off is declarative vs imperative: Polling Inbound Connector (declarative): configure URL, polling interval, auth, response-to-message mapping. The Connector runtime handles the polling lifecycle, retry on errors, BPMN event triggering. Visible in Operate / Connector Runtime. Less code, more configuration. Custom Service Task polling (imperative): write Java/TypeScript code that polls in a worker, manages state (last-fetched cursor), and triggers downstream BPMN (via Message Publish or by setting variables). More flexible for complex / non-standard polling logic. For standard \"poll URL X every Y seconds, trigger process on result\" patterns, Inbound Connector wins on simplicity and observability."
+    },
+    "b": {
+      "text": "Correct. Performance comparable."
+    },
+    "c": {
+      "text": "Incorrect. Declarative tools save engineering for standard patterns."
+    },
+    "d": {
+      "text": "Incorrect. Polling Inbound Connector documented."
+    }
+  },
+  "explanation": "Performance comparable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/polling/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q33",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-templates-26",
+  "topic": "connectors",
+  "subtopic": "connector-templates",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "At Verdant Marketplace, a Camunda 8.8 process waits 24 hours after order placement for a courier delivery callback. The team models an intermediate catch event with the HTTP Webhook inbound connector template and must correlate 12000 instances per day against courier payloads keyed by trackingNumber so each callback resumes the right waiting instance.",
+  "question": "Which two properties on the inbound intermediate catch event template must the team configure so each webhook payload correlates to the right waiting instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Correlation key (process), bound to bpmn:Message#zeebe:subscription#property correlationKey, plus Correlation key (payload), bound to zeebe:property correlationKeyExpression, both with feel: required"
+    },
+    {
+      "id": "b",
+      "text": "Webhook ID, bound to inbound.context, plus Condition, bound to inbound.activationCondition, both with feel: required so the catch event matches on the URL segment and a FEEL filter expression"
+    },
+    {
+      "id": "c",
+      "text": "HMAC secret key and HMAC header in the endpoint group, both with feel: optional, so the catch event correlates payloads by validating the signature header value against the stored shared secret"
+    },
+    {
+      "id": "d",
+      "text": "Variables, bound to inbound.variableMapping, plus the generated UUID hidden field bound to bpmn:Message#property name, both providing implicit correlation through the payload variable map"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The inbound intermediate catch event template defines Correlation key (process) bound to bpmn:Message#zeebe:subscription#property name correlationKey and Correlation key (payload) bound to zeebe:property correlationKeyExpression; both are feel: required and notEmpty."
+    },
+    "b": {
+      "text": "Incorrect. Webhook ID identifies the URL path and Condition gates activation; neither field is documented as performing message correlation between the waiting catch event and the inbound payload."
+    },
+    "c": {
+      "text": "Incorrect. HMAC fields authenticate the request signature; the template does not describe them as the FEEL extractors that pick a correlation key value out of the payload."
+    },
+    "d": {
+      "text": "Incorrect. Variables maps the payload into process variables and the generated UUID is the message name; neither is the FEEL expression that selects the correlation key value."
+    }
+  },
+  "explanation": "The intermediate catch event template adds two FEEL-required correlation properties: Correlation key (process), bound via bpmn:Message#zeebe:subscription#property name correlationKey, and Correlation key (payload), bound to zeebe:property correlationKeyExpression. Together they correlate inbound webhook payloads with the waiting message subscription on the catch event.",
+  "docs": [
+    {
+      "title": "Connector templates - Inbound intermediate catch event",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-templates/"
+    }
+  ]
+}

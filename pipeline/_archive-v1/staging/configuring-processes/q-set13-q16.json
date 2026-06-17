@@ -1,0 +1,63 @@
+{
+  "id": "imp-set13-q16",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Element Template has a property with value: \"default-channel\" AND binding: { type: \"zeebe:input\", name: \"channel\" }. The team wonders what value does vs binding. Property value vs binding in Element Template?",
+  "question": "Property value vs binding in Element Template?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Same thing -- wrong; distinct."
+    },
+    {
+      "id": "b",
+      "text": "The value field in an Element Template property is read-only and cannot be changed by modelers using the template -- partial; value actually serves as the editable default value that is pre-populated in the property panel when the template is applied. Modelers can change the value to something other than the default if needed for their specific use case. The value provides a sensible starting point that reduces manual input for common configurations. Read-only behavior is achieved through the separate editable: false property on the template property definition, not through the value field itself."
+    },
+    {
+      "id": "c",
+      "text": "Different concepts: in an Element Template property definition, value and binding serve distinct purposes. value provides the default value pre-populated in the property panel when the template is applied -- it is what the modeler sees and can change. binding declares the destination in BPMN where the value is written -- for example zeebe:input puts it in the input mapping, taskHeader sets a job header, property sets a BPMN attribute. A template property needs both to be functional: binding without value leaves the field empty; value without binding has nowhere to write the data."
+    },
+    {
+      "id": "d",
+      "text": "Without a value, modelers see an empty field and must know what to enter. With a value like \"general\" for a Slack channel property, modelers can accept the default for common cases and only override when their use case differs. Good templates reduce friction; value is an important UX contributor."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Element Template property schema: value (default value): Optional default pre-populated in Web Modeler property panel when the template is applied. Modeler can change to a different value. Use cases: sensible defaults that most modelers will keep; example values for new users. Example: \"value\": \"general\" for a Slack channel property defaults to general channel. binding (where value goes): Required: declares the destination of the property's value in BPMN. Types: zeebe:input: writes to a mapping. The value becomes a task-local variable named per binding.name. zeebe:output: similarly for Output Mapping. zeebe:taskHeader: writes to a Task Header with key per binding.key. zeebe:property: writes to a Zeebe-extension property on the element. property: writes to a BPMN element's own attribute (e.g., name). Determines how the worker / engine sees the value at runtime. Example combined: json { \"label\": \"Slack Channel\", \"type\": \"String\", \"value\": \"general\", \"binding\": { \"type\": \"zeebe:input\", \"name\": \"channel\" } } Modeler sees a property \"Slack Channel\" with default \"general\". At runtime, the value (whatever the modeler set) becomes a local task variable channel via Input Mapping. The worker reads channel from job variables. In BPMN XML (resulting): xml ``"
+    },
+    "b": {
+      "text": "Incorrect. Distinct."
+    },
+    "c": {
+      "text": "Correct. value is default, editable."
+    },
+    "d": {
+      "text": "Incorrect. value provides UX."
+    }
+  },
+  "explanation": "value is default, editable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/element-templates/about-templates/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q16",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 20.1 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

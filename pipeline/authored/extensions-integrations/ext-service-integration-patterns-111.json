@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-111",
+  "topic": "extensions-integrations",
+  "subtopic": "service-integration",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A service worker publishes an order over AMQP and blocks until a response message arrives on the corresponding reply queue before completing the job. Per the service-integration-patterns docs, which communication pattern is this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Asynchronous request/response — asynchronous technical communication, synchronous business behaviour."
+    },
+    {
+      "id": "b",
+      "text": "Synchronous request/response — because the worker blocks on the response."
+    },
+    {
+      "id": "c",
+      "text": "Asynchronous messages or events — because AMQP itself is a messaging system."
+    },
+    {
+      "id": "d",
+      "text": "Fire-and-forget — there is no HTTP status code, so no acknowledgement is implied."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs define this pattern exactly: two independent asynchronous messages (the request and the reply), but the sender blocks until the response is received, 'hence logically making it a request/response'. AMQP and JMS are the named technologies."
+    },
+    "b": {
+      "text": "Synchronous request/response is reserved for synchronous transports such as HTTP; the table assigns 'Synchronous' to the technical column, which AMQP is not."
+    },
+    "c": {
+      "text": "'Asynchronous messages or events' is the pattern where the business behaviour itself is asynchronous (no immediate response expected); blocking for a reply keeps the business behaviour synchronous."
+    },
+    "d": {
+      "text": "Fire-and-forget is not one of the three named patterns; the docs explicitly list synchronous request/response, asynchronous request/response, and asynchronous messages or events."
+    }
+  },
+  "explanation": "The service-integration-patterns page distinguishes three options by combining technical and business communication style. The asynchronous request/response pattern uses asynchronous transports (AMQP, JMS) but is logically a request/response because the sender blocks on a reply — which matches the worker that waits for the response message before completing.",
+  "docs": [
+    {
+      "title": "Service integration patterns - best practices",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

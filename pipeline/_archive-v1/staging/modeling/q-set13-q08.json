@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q08",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has an Embedded Subprocess containing User Tasks + Service Tasks. They wonder if a Boundary Event attached to the subprocess element can use FEEL referencing variables set inside the subprocess.",
+  "question": "Can Boundary Event expressions (e.g., Timer Date FEEL) reference variables set inside the subprocess host?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Boundary Event evaluates at activation time -- typically when its host activity activates. , by inner activities) aren't available yet. For Timer Boundary on subprocess: the duration / date FEEL evaluates when the subprocess starts; inner subprocess variables don't exist yet. Workarounds: - Compute the timer value before the subprocess (in an upstream Service Task / Output Mapping). - Use a Timer inside the subprocess (on an inner activity) if the timer depends on inner state."
+    },
+    {
+      "id": "b",
+      "text": "Boundary Event FEEL expressions can reference any variable including those set by future inner activities -- wrong; evaluation timing fundamentally prevents this. The Boundary Event's FEEL expression is evaluated at the moment the host activity activates, not at some future point. At activation time, inner-subprocess variables do not exist yet because the inner activities have not executed. A variable set by an inner Service Task inside the subprocess cannot influence a Timer Boundary that already activated and started its countdown before that inner task ran. Workaround: compute the timer value before the subprocess in a preceding activity."
+    },
+    {
+      "id": "c",
+      "text": "Boundary Events always use static hardcoded values and cannot reference process variables -- partial; this overstates the restriction. FEEL expressions are fully supported in Timer Boundary date and duration fields, allowing them to reference process variables. The key nuance is timing: the FEEL expression is evaluated at host activation, not continuously. Variables available in the outer process scope at the moment the activity starts can be referenced correctly. Only variables that do not yet exist (created by inner activities after activation) are unavailable. So FEEL is supported -- timing of availability determines what can be referenced."
+    },
+    {
+      "id": "d",
+      "text": "Boundary Event FEEL expressions cannot reference any variables at all -- wrong; they can reference variables that exist in scope at the time the host activity activates. Variables from the process root scope, ancestor subprocess scopes, or variables set before the host activity started are all accessible in the Boundary FEEL expression. This enables dynamic timer durations based on process data (for example, a deadline calculated from contract terms stored in process variables set before the subprocess began). The restriction is only on variables that do not yet exist at activation time."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Boundary Event evaluation timing: At host activation: Timer Boundary's duration / date FEEL evaluates. Message Boundary's correlation key FEEL evaluates. The variables in scope at that moment determine the result. For a Boundary on a subprocess: \"Host activation\" = subprocess starts. At that moment: parent's scope variables are available; subprocess's inner variables don't exist yet (the subprocess's inner activities haven't run). FEEL expression can reference parent's variables, but not inner-subprocess-only variables. Variables for the Boundary's FEEL: Available: anything in the subprocess's outer scope (process root, ancestor scopes' variables). NOT available: variables created by inner activities inside the subprocess (they don't exist yet at activation). Workarounds for \"boundary depends on inner state\": Compute before: a Service Task before the subprocess sets the duration variable; Boundary's FEEL reads it. Move the timer inside: attach Timer Boundary to a specific inner activity that has the right context. Multi-level timing: chain timer-based subprocesses if dependent timings are required. Plan timer placement based on data availability."
+    },
+    "b": {
+      "text": "Incorrect. Evaluation timing matters."
+    },
+    "c": {
+      "text": "Incorrect. FEEL supported."
+    },
+    "d": {
+      "text": "Incorrect. Can reference scope."
+    }
+  },
+  "explanation": "Boundary Event evaluation timing: At host activation: Timer Boundary's duration / date FEEL evaluates. Message Boundary's correlation key FEEL evaluates. The variables in scope at that moment determine the result. For a Boundary on a subprocess: \"Host activation\" = subprocess starts. At that moment: parent's scope variables are available; subprocess's inner variables don't exist yet (the subprocess's inner activities haven't run). FEEL expression can reference parent's variables, but not inner-subprocess-only variables. Variables for the Boundary's FEEL: Available: anything in the subprocess's outer scope (process root, ancestor scopes' variables). NOT available: variables created by inner activities inside the subprocess (they don't exist yet at activation). Workarounds for \"boundary depends on inner state\": Compute before: a Service Task before the subprocess sets the duration variable; Boundary's FEEL reads it. Move the timer inside: attach Timer Boundary to a specific inner activity that has the right context. Multi-level timing: chain timer-based subprocesses if dependent timings are required. Plan timer placement based on data availability.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q08",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

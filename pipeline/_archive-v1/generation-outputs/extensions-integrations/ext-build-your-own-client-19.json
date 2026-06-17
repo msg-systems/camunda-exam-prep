@@ -1,0 +1,27 @@
+{
+  "id": "ext-build-your-own-client-19",
+  "topic": "extensions-integrations",
+  "subtopic": "build-your-own-client",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Tessera Logistics wires a custom Go client to Camunda 8.8 SaaS that drives 12000 jobs per day over gRPC. Before writing code the team verifies connectivity with grpcurl, importing the gateway.proto file fetched from the zeebe repository, exporting the OAuth ACCESS_TOKEN, and pointing the call at the cluster id host so that the response prints the cluster topology JSON.",
+  "question": "Which gRPC method does the documented grpcurl call invoke against the SaaS cluster id host on port 443?",
+  "options": [
+    { "id": "a", "text": "The grpcurl call invokes gateway_protocol.Gateway/Status on the cluster id host on port 443 with a bearer ACCESS_TOKEN supplied in the Authorization header for verification" },
+    { "id": "b", "text": "The grpcurl call invokes gateway_protocol.Zeebe/Topology on the cluster id host on port 26500 with a bearer ACCESS_TOKEN supplied in the Authorization header for verification" },
+    { "id": "c", "text": "The grpcurl call invokes gateway_protocol.Gateway/Topology on the cluster id host on port 443 with a bearer ACCESS_TOKEN supplied in the Authorization header for verification" },
+    { "id": "d", "text": "The grpcurl call invokes zeebe.Gateway/Topology on the cluster id host on port 9090 with a bearer ACCESS_TOKEN supplied in the Authorization header for verification" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documented method is Topology, not Status; the proto file exposes gateway_protocol.Gateway/Topology as the call used to retrieve cluster information." },
+    "b": { "text": "Incorrect. The fully qualified service is gateway_protocol.Gateway/Topology and the SaaS endpoint uses port 443, not the internal broker port 26500." },
+    "c": { "text": "Correct. The documented invocation runs gateway_protocol.Gateway/Topology against $CLUSTER_ID.zeebe.camunda.io:443 with the bearer ACCESS_TOKEN header, returning the topology JSON." },
+    "d": { "text": "Incorrect. The proto package is gateway_protocol with service Gateway, and the SaaS endpoint listens on port 443, not on a custom port 9090." }
+  },
+  "explanation": "The documented gRPC verification step invokes gateway_protocol.Gateway/Topology on $CLUSTER_ID.zeebe.camunda.io:443 with an Authorization bearer header, using the proto file imported from /tmp/gateway.proto.",
+  "docs": [
+    { "title": "Build your own client", "url": "https://docs.camunda.io/docs/apis-tools/build-your-own-client/" }
+  ]
+}

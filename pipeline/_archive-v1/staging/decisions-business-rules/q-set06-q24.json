@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q24",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A discount-level DMN has output value list: [\"MAX\", \"HIGH\", \"MID\", \"LOW\"] (priority-ordered). Multiple rules can match. The team wants the list of all matching outputs ordered by their output priority.",
+  "question": "Which hit policy fits in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "3 specification as the hit policy for ordering results by declared output priority. However it is absent from Camunda 8's supported hit policy set. Selecting OUTPUT ORDER in the modeler produces a deployment error because the engine has no implementation for it."
+    },
+    {
+      "id": "b",
+      "text": "3 specification hit policy that is also absent from Camunda 8's supported five-policy set. 3 spec, PRIORITY returns a single highest-priority matching value rather than a list. Both OUTPUT ORDER and PRIORITY are unavailable in Camunda 8 and would cause deployment errors if selected. Teams building on Camunda 8 should consider this when designing process models for production deployment."
+    },
+    {
+      "id": "c",
+      "text": "RULE ORDER with rules authored physically in output-priority order (MAX-producing rules first, LOW last). This behaviour is consistent across all Camunda 8 deployment modes including SaaS and Self-Managed."
+    },
+    {
+      "id": "d",
+      "text": "COLLECT with no aggregator returns a list of all matching outputs in an arbitrary order that is not guaranteed to follow the declared output priority list. Using COLLECT here would produce an unordered list. The order may vary between evaluations, making it unreliable for priority-ordered discount selection."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per decision-table-hit-policy.md:103-110, RULE ORDER \"result contains the output of all satisfied rules in the order of the rules in the decision table\" -- so authoring rules in MAX→HIGH→MID→LOW order produces the desired priority-ordered list."
+    },
+    "b": {
+      "text": "Incorrect. Pattern #7: OUTPUT ORDER appears in DMN-1.3 spec but is NOT in the 5-policy supported list. Selecting it in the modeler produces a deployment error."
+    },
+    "c": {
+      "text": "Correct. PRIORITY isn't in C8's supported set either, and even per spec returns a single value, not a list."
+    },
+    "d": {
+      "text": "Incorrect. COLLECT (no aggregator) explicitly returns an arbitrary order per :114. With an aggregator it would collapse to one entry, not a list."
+    }
+  },
+  "explanation": "PRIORITY isn't in C8's supported set either, and even per spec returns a single value, not a list.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q24",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

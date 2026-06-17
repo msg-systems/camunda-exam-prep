@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A high-throughput worker subscribes to process-payment. Many jobs queue at the broker. The team wonders if Zeebe activates jobs in FIFO order (first created first activated) or by some priority.",
+  "question": "What order does Zeebe activate jobs in for a given task type?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Claiming Zeebe activates jobs in random order misrepresents the engine's behavior. Within a single Zeebe partition, jobs are stored in the partition's event log in creation order. When a worker polls for jobs, the broker delivers available jobs in roughly the order they were created on that partition. While cross-partition ordering has no global guarantee, within a partition the activation follows a chronological tendency rather than any random selection. Random activation would make performance and behavior unpredictable, which is contrary to Zeebe's design goals."
+    },
+    {
+      "id": "b",
+      "text": "Claiming Zeebe sorts job activation by a process variable called \"priority\" does not reflect the actual behavior. The standard Zeebe job API does not include a native priority attribute that the broker uses to reorder activation. All jobs of the same task type are treated equally in the activation queue regardless of any process variable values they may carry. There is no configuration for Zeebe to evaluate a priority variable on each job and sort accordingly. Prioritization must be implemented at the architectural level via separate task types and dedicated worker configurations."
+    },
+    {
+      "id": "c",
+      "text": "Claiming Zeebe activates most-recently-created jobs first (LIFO order) does not reflect the actual behavior. Zeebe's job activation follows a roughly chronological FIFO tendency within each partition, not a LIFO (last-in, first-out) stack ordering. Jobs created earlier on a partition tend to be activated first when a worker polls. LIFO behavior would cause older jobs to starve indefinitely if new jobs kept arriving, which would be a critical reliability issue for long-running processes and SLA compliance."
+    },
+    {
+      "id": "d",
+      "text": "By default, Zeebe activates jobs in roughly chronological / FIFO order -- jobs created earlier tend to be activated first. The exact ordering depends on partition distribution and worker polling patterns. No native job priority mechanism in the standard Zeebe API; jobs are treated equally within a task type. , process-payment-high, process-payment-normal) and dedicated workers / different maxJobsActive per priority class."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe's job activation is roughly chronological per partition: Within a partition: jobs are stored as events in the partition's log; activation tends to follow creation order. Across partitions: parallel; no global ordering guarantee. Across workers: each worker polls; the broker delivers available jobs. No native priority: there's no \"priority\" attribute on jobs that the broker uses to reorder activation. All jobs of the same type are treated equally. Patterns for prioritisation: Separate task types by priority: process-payment-high (handled by dedicated workers), process-payment-normal (handled by other workers). The BPMN uses gateways to route to the appropriate task type based on priority. Dedicated worker fleets: high-priority workers process high-priority task type with higher maxJobsActive / more workers. Normal-priority workers scale based on volume. Worker-side filtering: a worker fetches jobs and decides priority client-side; not ideal because client-side prioritisation doesn't help when jobs are already activated. For true priority, the separate-task-types pattern is the canonical Zeebe approach."
+    },
+    "b": {
+      "text": "Incorrect. Chronological."
+    },
+    "c": {
+      "text": "Incorrect. No native priority."
+    },
+    "d": {
+      "text": "Correct. Chronological (older first tendency)."
+    }
+  },
+  "explanation": "Chronological (older first tendency).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

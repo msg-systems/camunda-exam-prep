@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-modification-39",
+  "topic": "configuring-processes",
+  "subtopic": "modification",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Zenith Bank runs a card dispute process on Camunda 8.8 with a non-interrupting message event subprocess containing task C. Across 4200 dispute instances, task A completed and task B is active; the upstream messaging system has been down for 3 hours and cannot deliver the message payload. The operator wants to activate task C and supply the variables that the missing message would have provided as local to the event subprocess.",
+  "question": "How does the modification command set the message variables so they behave as local to the non-interrupting event subprocess at Zenith Bank?",
+  "options": [
+    { "id": "a", "text": "Include a variable instruction without a scope on the modification command at Zenith Bank, so the engine writes the variables globally in the root scope of the dispute process instance" },
+    { "id": "b", "text": "Issue a separate set-variables command after activating task C at Zenith Bank, so the engine writes the variables only after the input mappings of task C have executed" },
+    { "id": "c", "text": "Include a variable instruction that defines a scope inside task C at Zenith Bank, so the engine writes the variables as local to task C before its input mappings execute" },
+    { "id": "d", "text": "Include a variable instruction whose scope is the event subprocess flow scope on the activation at Zenith Bank, so the engine writes the variables as local to the event subprocess before activating task C" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Omitting the scope writes the variables globally in the root scope of the process instance, which is not local to the event subprocess as the operator requires." },
+    "b": { "text": "Incorrect. The docs describe variable instructions on the modification itself; the engine sets the variables before activating the element so they are available during input mappings and subscriptions." },
+    "c": { "text": "Incorrect. The variable scope must be a flow scope of the activating element; setting variables local to task C itself is not the documented mechanism for making them local to the event subprocess." },
+    "d": { "text": "Correct. The docs state that a variable instruction can define a scope, that the scope must be a flow scope of the activating element, and that scoped variables are written as local to that scope, for example the event subprocess." }
+  },
+  "explanation": "Variable instructions on a modification set variables before the target element is activated, so they are available for input mappings and event subscriptions. With a scope, variables are local to that flow scope of the activating element; without a scope, they are written globally to the root scope.",
+  "docs": [
+    { "title": "Process instance modification", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Inbound Webhook Connector receives callbacks from a partner. The partner authenticates via simple API key in a header (X-Api-Key: ...), not HMAC.",
+  "question": "Which Webhook auth setting fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Leaving the Webhook with no authentication makes it a public endpoint accepting requests from anyone without verification. This is a security risk in production environments where only the authorized partner should be able to trigger the webhook. An API key validation mechanism should always be configured when a partner provides credentials. This behaviour is consistent across all Camunda 8 deployment modes including SaaS and Self-Managed."
+    },
+    {
+      "id": "b",
+      "text": "Requiring HMAC signature validation forces the partner to implement request signing with a shared secret and a cryptographic hash algorithm. The scenario specifies the partner uses a simple API key header, not HMAC. Imposing HMAC is inflexible and incompatible with the partner's simpler authentication approach."
+    },
+    {
+      "id": "c",
+      "text": "Mutual TLS requires managing client certificates on both sides. For a simple API key requirement it is disproportionate overhead involving certificate lifecycle management. The Webhook Connector supports simpler API key authentication that perfectly matches the partner's approach without certificate complexity. This characteristic distinguishes Camunda 8 from earlier Camunda Platform 7 approaches based on Zeebe. Proper understanding of this is required for the professional exam."
+    },
+    {
+      "id": "d",
+      "text": "headers[\"x-api-key\"]). The Connector validates the extracted key against the expected value before correlating. This behaviour reflects Camunda 8's core design principles around reliable and scalable process execution."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Webhook supports multiple auth schemes per http-webhook.md:22-78: HMAC signature, API Key (with API Key locator FEEL expression -- flexible: header, body, query, anywhere in request), JWT authorization. Configure API Key expected value (via secret) + API Key locator to extract from request."
+    },
+    "b": {
+      "text": "Incorrect. Always require auth."
+    },
+    "c": {
+      "text": "Incorrect. Partner may not support HMAC; API key option exists."
+    },
+    "d": {
+      "text": "Correct. mTLS overkill for simple API key requirement."
+    }
+  },
+  "explanation": "mTLS overkill for simple API key requirement.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q34",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "cfg-feel-temporal-expressions-98",
+  "topic": "configuring-processes",
+  "subtopic": "feel-temporal-expressions",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A FEEL output mapping uses the expression `duration(\"PT26H\").hours` to populate a process variable. What value does the property return?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`2`"
+    },
+    {
+      "id": "b",
+      "text": "`26`"
+    },
+    {
+      "id": "c",
+      "text": "`1`"
+    },
+    {
+      "id": "d",
+      "text": "`null`"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs define `hours` on a `days-time-duration` as \"the normalized hours component as number `[0..23]`\". `PT26H` normalizes to `P1DT2H`, so `.hours` returns `2`."
+    },
+    "b": {
+      "text": "`26` would be the total hours, but the `hours` property returns the *normalized* hours component constrained to `[0..23]`, not the raw total. The 24-hour overflow is shifted into the `days` component."
+    },
+    "c": {
+      "text": "`1` is the value of the `days` component (`PT26H` normalizes to `P1DT2H`), not the `hours` component."
+    },
+    "d": {
+      "text": "`hours` is defined for `days-time-duration`, and `PT26H` is a valid days-time-duration, so the property returns a number rather than `null`."
+    }
+  },
+  "explanation": "FEEL exposes `days`, `hours`, `minutes`, and `seconds` on a `days-time-duration` as the *normalized* components. Hours are constrained to `[0..23]` with the 24-hour overflow rolled into `days`. `PT26H` normalizes to `P1DT2H`, so `.days` is `1` and `.hours` is `2`.",
+  "docs": [
+    {
+      "title": "FEEL temporal expressions",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-temporal-expressions/"
+    }
+  ]
+}

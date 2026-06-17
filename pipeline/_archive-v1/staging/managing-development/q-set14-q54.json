@@ -1,0 +1,63 @@
+{
+  "id": "imp-set14-q54",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team uses corporate SSO (Okta). Users authenticate to Tasklist via Okta. Team wonders how to provision users + groups from Okta to Camunda Identity.",
+  "question": "SSO user provisioning patterns?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Manual user creation -- wrong typically."
+    },
+    {
+      "id": "b",
+      "text": "Camunda Self-Managed fully supports single sign-on through Identity's external IdP integration. Identity can be configured to delegate authentication to external providers including Microsoft Entra ID (Azure AD), Okta, Keycloak, and other OIDC-compliant identity providers. Users authenticate with their existing corporate credentials, and Camunda Identity grants access based on mapped roles and group claims from the IdP token. SSO eliminates the need for separate Camunda-specific user accounts, greatly simplifying user lifecycle management, onboarding, and security governance across the entire organization. All Camunda platform components share the same IdP configuration."
+    },
+    {
+      "id": "c",
+      "text": "Camunda Identity does not limit authentication to only direct LDAP integration. Identity supports configuring external OIDC-compliant identity providers, which may themselves be backed by LDAP or Active Directory user directories. 0. This pattern supports enterprise SSO scenarios where corporate LDAP or AD directories are exposed through Microsoft Entra ID, Okta, or self-managed Keycloak as the OIDC layer."
+    },
+    {
+      "id": "d",
+      "text": "md:5-31: Identity supports Microsoft Entra ID (Azure AD), Okta, and generic OIDC providers as external authentication sources. Configuration requires the IdP discovery URL or explicit authorization and token endpoints, client credentials, and role claim mapping rules. Users authenticate via their corporate IdP and Identity maps the incoming claims to Camunda component roles. This enables unified SSO for all Camunda Self-Managed components including Operate, Tasklist, and Optimize, centralizing authentication and eliminating per-component credential management overhead."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. SSO + user provisioning in Camunda: Camunda Identity layer: Self-Managed: Identity = Camunda's auth service (often Keycloak-based). SaaS: Camunda Console handles users; can integrate external IdP. SSO setup with Okta (or similar IdP): OIDC (OpenID Connect -- recommended): Modern protocol; built on OAuth 2.0. Identity (Keycloak) configured with Okta as identity broker. User → Camunda → redirect to Okta → authenticate → back to Camunda. SAML: Older but widely supported. Similar flow; different protocol. Setup steps (Self-Managed): 1. Configure Okta with new application (OIDC / SAML). 2. Get client ID + secret + endpoints from Okta. 3. Configure Camunda Identity (Keycloak realm) with Okta as identity provider. 4. Test login flow. User provisioning models: Model 1: Just-in-time (JIT): User logs in via Okta. First time: Camunda creates user record automatically. Subsequent: existing user authenticated. Pros: minimal setup; users created on demand. Cons: user records appear only after first login. Model 2: SCIM (NOT a documented Camunda Identity feature in 8.8): SCIM is the industry standard for IdP-push user/group provisioning to apps. As of 8.8 docs there is no SCIM endpoint in Camunda Management Identity (only OIDC/SAML/LDAP/AD per configure-external-identity-provider.md:5). Treat any exam option that claims \"Okta SCIM pushes users to Camunda Identity in 8.8\" as wrong unless the docs change later. Model 3: Periodic sync: Script / cron job pulls users from Okta API; syncs to Camunda. Custom; less standardized. Model 4: Pre-provisioned via API: Operations team creates users in Camunda directly. Updates as people join / leave. Pros: full control; Cons: manual. Group mapping: Goal: Okta groups → Camunda groups / roles / candidate groups. Pattern A: Group claims in token: Okta includes group memberships in OIDC token. Camunda reads claims; assigns to internal groups. Pattern B: SCIM-pushed groups: Okta pushes group memberships via SCIM. Camunda updates internal mappings. Pattern C: Mapping config: Static mapping in Camunda Identity config. okta-group-X → camunda-role-Y. Authorization model: Camunda authorities: Users: individuals. Groups: collections of users. Roles: collections of permissions. Tenants: multi-tenancy boundary. For BPMN: candidateGroups on User Tasks (per Set 14 Q22): reference group names. Group names must align with provisioning (Okta group → Camunda group). Provisioning best practices: Source of truth: Okta (or central IdP) -- don't manage users in Camunda directly. Automate: minimise manual user management. Deprovision promptly: when users leave Okta, remove from Camunda. Audit: log auth events; track who accessed what. Test: verify SSO works for various user / group scenarios. For SaaS: Camunda Console handles users via Camunda's auth. Some plans support external IdP integration. Verify per plan tier. Service accounts (not human users): For worker / API auth: OAuth client credentials (per Set 13 Q11). Separate from human user provisioning. Managed in cluster settings / Identity. Common issues: Issue 1: Group names don't match BPMN: BPMN uses \"reviewers\"; Okta group is \"review-team-emea\". Fix: align naming OR use mapping in Identity. Issue 2: Stale users after Okta deprovisioning: User removed in Okta; still exists in Camunda. Fix: SCIM or periodic sync; remove stale users. Issue 3: Auth failures: Token validation issues; clock skew; misconfigured endpoints. Fix: review logs; check config; test step by step."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/components/management-identity/overview/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q54",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 17.0 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

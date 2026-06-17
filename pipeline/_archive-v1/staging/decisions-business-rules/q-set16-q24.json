@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q24",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL list items = [\"a\", \"b\", \"c\"]. Team wonders items[1] returns \"a\" or \"b\".",
+  "question": "FEEL list indexing -- 0-based or 1-based?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL list indexing is 1-based per the DMN specification, not 0-based as in JavaScript, Python, or Java arrays. For the list [\"a\", \"b\", \"c\"], items[1] returns \"a\" (the first element), items[2] returns \"b\", and items[3] returns \"c\". The index items[0] is invalid in FEEL and evaluates to null rather than the first element, which can silently hide off-by-one bugs for developers transitioning from 0-based languages. Some FEEL engines support negative indices (items[-1] for last element) but this should be verified per version. FEEL follows mathematical and spreadsheet convention rather than programming language convention for indexing."
+    },
+    {
+      "id": "b",
+      "text": "FEEL list indexing is definitively 1-based per the DMN specification, not configurable or implementation-dependent. This is not a matter of two valid interpretations; it is a fixed part of the FEEL language specification. items[1] always returns the first element and items[0] returns null (invalid index) in any compliant FEEL engine including Camunda 8's. The 1-based convention follows spreadsheet and mathematical tradition, distinguishing FEEL from programming languages like JavaScript or Python that use 0-based indexing."
+    },
+    {
+      "id": "c",
+      "text": "FEEL list indexing is 1-based per DMN spec: items[1] returns the first element \"a\", items[2] returns \"b\", items[3] returns \"c\". The index items[0] is invalid and returns null. This 1-based convention is inherited from mathematical and spreadsheet tradition and is standard across all compliant FEEL engines. Developers coming from 0-based languages (JavaScript, Python, Java arrays) must explicitly adjust their mental model when writing FEEL expressions, as items[0] will silently return null rather than throwing an error, potentially hiding bugs."
+    },
+    {
+      "id": "d",
+      "text": "FEEL list indexing convention is not a runtime configuration or engine option; it is fixed by the DMN FEEL specification as 1-based. All compliant FEEL engines, including Camunda 8's built-in evaluator, implement 1-based indexing without any configuration option. Allowing configurable indexing base would make DMN expressions non-portable between engines and violate the specification. Organizations that need to interface FEEL with 0-based data structures must account for the offset in their expressions explicitly."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL list indexing: 1-based convention per DMN spec: `feel [\"a\", \"b\", \"c\"][1] → \"a\" (first) [\"a\", \"b\", \"c\"][2] → \"b\" (second) [\"a\", \"b\", \"c\"][3] → \"c\" (third) [\"a\", \"b\", \"c\"][4] → null (out of bounds; may error) [\"a\", \"b\", \"c\"][0] → null (invalid; may error) Why 1-based: DMN FEEL inherits from spreadsheet conventions: 1-based common in business. Distinguishes from programming: BPMN/DMN for business users. Common pitfalls: For developers from 0-based languages: Easy mistake: write items[0] expecting first. Result: null / error. Adjust mental model: +1 vs typical. Negative indexing: Some FEEL implementations: feel items[-1] → last element (per implementation) items[-2] → second-to-last Verify per version. Range indexing: feel items[1..2] → [\"a\", \"b\"] items[2..3] → [\"b\", \"c\"] Slice notation; same 1-based convention. For accessing last element: Pattern 1: count-based: feel items[count(items)] → last element Pattern 2: negative index (if supported): feel items[-1] For empty lists: feel [] → empty list [][1] → null count([]) → 0 For nested: feel matrix = [[1, 2], [3, 4], [5, 6]] matrix[1] → [1, 2] matrix[1][2] → 2 Chained indexing. In Decision Tables: Input entries don't use indexing typically. Output expressions may use for accessing list items. For for-loops: feel for item in items return item Iterates all elements; no explicit indexing. For filter expressions: feel items[item = \"a\"] → filtered list with matching Predicate-based; not index-based. For specific position by predicate: feel items[item.priority = \"high\"][1] → first high-priority item Combined filter + index. In BPMN context: Same FEEL rules apply. Input Mapping / Output Mapping: 1-based indexing. Best practices: Remember 1-based: explicit comment if helpful. Defensive on bounds: check count before index. Avoid magic numbers: prefer named indices. Anti-patterns: Assuming 0-based: bugs. Index without bounds check: null surprises. Hardcoded indices: brittle. For"
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-data-types/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q24",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-scenario-too-short",
+        "severity": "block",
+        "message": "scenario length 76 < 80 (catastrophically short)",
+        "where": "scenario"
+      }
+    ]
+  }
+}

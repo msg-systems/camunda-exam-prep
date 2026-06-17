@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's cluster experiences growing load -- process instances per minute climbing. They wonder about vertical vs horizontal scaling of Camunda 8 components.",
+  "question": "Vertical vs horizontal scaling -- which fits which Camunda 8 components?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Horizontal scaling is critical for Camunda 8's core engine -- Zeebe brokers scale horizontally through partitioning, where adding more broker nodes allows the cluster to host more partitions and process more concurrent process instances. Spring Boot components like Operate, Tasklist, and Web Modeler scale horizontally by running multiple stateless instances behind a load balancer. Connector Runtimes and Zeebe job workers also scale horizontally by running additional instances to handle more parallel job processing. Vertical scaling alone cannot achieve the throughput required for high-volume production workloads."
+    },
+    {
+      "id": "b",
+      "text": "Claiming that all Camunda 8 components only scale horizontally without any benefit from vertical scaling is only partially correct. While many components scale primarily horizontally, vertical scaling remains valuable in specific scenarios. Elasticsearch or OpenSearch, which backs Operate, Tasklist, and Optimize, benefits from both: bigger nodes (vertical) improve per-query speed and reduce latency for complex queries, while more nodes (horizontal) increase total capacity. Individual Zeebe broker nodes benefit from more CPU and memory (vertical) for handling their assigned partitions' workloads more efficiently. Horizontal scaling is the primary mechanism for capacity, but vertical scaling tuning is complementary."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 was specifically designed for distributed, cloud-native deployments with horizontal scalability as a core architectural principle. Zeebe's partition-based design allows adding broker nodes to scale throughput linearly. The stateless Spring Boot components scale horizontally via Kubernetes auto-scaling. Elasticsearch provides both horizontal and vertical scaling. Camunda 8 SaaS manages this scaling automatically; Self-Managed deployments require operators to manage Kubernetes resource allocations and partition configurations to achieve target throughput levels."
+    },
+    {
+      "id": "d",
+      "text": "Different Camunda 8 components have different scaling profiles. Zeebe brokers scale horizontally via partitioning -- each partition is managed by one broker, so adding broker nodes allows more partitions and higher concurrent throughput. The stateless Spring Boot components -- Operate, Tasklist, Optimize, and Web Modeler -- scale horizontally by running multiple instances behind a load balancer without shared state. Elasticsearch or OpenSearch, which backs Operate, Tasklist, and Optimize, benefits from both horizontal scaling for capacity and vertical scaling for per-query performance. Zeebe job workers scale horizontally by running additional instances to process more parallel jobs. Connector Runtimes similarly scale horizontally. Understanding each component's scaling profile helps teams allocate resources correctly and avoid bottlenecks."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Component-specific scaling strategies: Zeebe brokers (the runtime engine): Horizontal: more brokers → more partitions → more throughput. Partition count (configured at cluster init): tune for expected peak throughput. Replication factor: typically 3 for fault tolerance; affects how many brokers needed (minimum = replication factor). Per broker: each broker handles partition leadership + replica roles; CPU / memory / disk I/O per broker matters for individual partition performance. Practical: start with 3 brokers + 3 partitions; scale up as needed. Elasticsearch / OpenSearch: Horizontal (more nodes + shards): more total query / write capacity. Vertical (bigger nodes): faster per-query response; useful for hot data. Read replicas: scale read load. Spring Boot apps (Operate, Tasklist, Web Modeler, Identity): Horizontal: multiple instances behind LB. State: in databases / shared ES; instances typically stateless / session-less. Health checks + auto-scaling: standard Kubernetes patterns. Connector Runtime: Horizontal: more Connector Runtime instances for more concurrent Connector executions. Per-instance tuning: thread pool sizes, concurrency caps. Workers: Horizontal: more worker processes (containers / pods) for more parallel job processing. Per-worker tuning: maxJobsActive, thread pool. Capacity planning: Load test: measure where bottlenecks emerge. Monitor: metrics on each component; scale where needed. Tune incrementally: changes one component at a time; observe impact."
+    },
+    "b": {
+      "text": "Incorrect. Horizontal critical."
+    },
+    "c": {
+      "text": "Incorrect. Vertical also valuable."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/zeebe/technical-concepts/clustering/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q58",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[1]"
+      }
+    ]
+  }
+}

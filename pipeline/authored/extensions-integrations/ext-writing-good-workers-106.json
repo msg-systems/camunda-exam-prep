@@ -1,0 +1,53 @@
+{
+  "id": "ext-writing-good-workers-106",
+  "topic": "extensions-integrations",
+  "subtopic": "java-worker",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A Spring Boot worker calls a blocking `RestTemplate` REST endpoint and then `.join()`s on the complete command, using the default `ZeebeClient` configuration. What does the docs observe about parallelism?",
+  "codeBlocks": {
+    "stem": "@JobWorker(type = \"rest\", autoComplete = false)\npublic void blockingRestCall(final JobClient client, final ActivatedJob job) {\n  String response = restTemplate.getForObject(PAYMENT_URL, String.class);\n  client.newCompleteCommand(job.getKey()).send().join();\n}"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "Jobs are processed sequentially because the default `numJobWorkerExecutionThreads` is `1`; you must raise it to scale blocking code."
+    },
+    {
+      "id": "b",
+      "text": "Jobs run in parallel — the SDK automatically grows the thread pool to match the number of CPU cores."
+    },
+    {
+      "id": "c",
+      "text": "Jobs run in parallel because `autoComplete = false` makes the SDK call complete on a background thread for you."
+    },
+    {
+      "id": "d",
+      "text": "Parallelism equals the broker's partition count, since the polling component subscribes one worker thread per partition."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs explicitly call out that the default thread pool size in the Java client is one. With blocking code, this limits throughput to one job at a time and you must call `numJobWorkerExecutionThreads(5)` (or the Spring Boot Starter equivalent) to scale."
+    },
+    "b": {
+      "text": "There is no CPU-core auto-sizing in the Java client; the default is hard-coded to one thread and you must opt in to a larger pool."
+    },
+    "c": {
+      "text": "`autoComplete = false` means the SDK does not call complete for you; it does not move work off the calling thread. Parallelism is still bounded by the worker execution thread pool."
+    },
+    "d": {
+      "text": "The Java client's worker execution thread pool is independent of partition count; activation may receive jobs from many partitions, but blocking handler invocations still serialize on the configured threads."
+    }
+  },
+  "explanation": "The Java client's default `numJobWorkerExecutionThreads` is `1`. With blocking code (`RestTemplate` + `.join()`), each in-flight job occupies that single thread for the full I/O round-trip, so jobs execute sequentially. To scale blocking handlers you must build the client with a larger thread pool (e.g. `.numJobWorkerExecutionThreads(5)`).",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

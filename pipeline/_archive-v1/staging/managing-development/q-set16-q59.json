@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q59",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team uses Git for BPMN files. Two devs edit same BPMN; merge conflict. Wonders best practices.",
+  "question": "BPMN file Git workflow?",
+  "options": [
+    {
+      "id": "a",
+      "text": "BPMN in Git: best practices: - Source-controlled: BPMN files committed. - Diff challenges: XML diffs hard to read for visual changes. - Merge conflicts: even harder than code. - Avoid concurrent edits: lock or coordinate. - Web Modeler integration: may help vs raw Git. - Diff tools: BPMN-aware diff (verify availability). - Branching: feature branches; merge to main carefully."
+    },
+    {
+      "id": "b",
+      "text": "Don't use Git -- this is poor advice. BPMN files are text-based XML and benefit from source control just like application code: version history, commit attribution, branching for feature development, pull request reviews, and CI/CD automation for deployment. Camunda's official guidance and community best practices strongly recommend Git-based BPMN management. Web Modeler supports GitHub integration for synchronizing BPMN between Web Modeler and Git repositories. Avoiding Git means losing version history, audit trails, and the ability to roll back broken process definitions."
+    },
+    {
+      "id": "c",
+      "text": "BPMN files are XML documents and are subject to the same merge conflicts as any other XML or code file when multiple developers edit the same file concurrently. , both editing the same gateway's sequence flow conditions, or both adding tasks in overlapping regions) will produce conflicting changes that Git cannot auto-merge. The XML nature of BPMN makes conflicts particularly difficult to resolve manually because the structural context is complex. Preventing concurrent edits through process ownership or branching strategies is the recommended mitigation."
+    },
+    {
+      "id": "d",
+      "text": "Manual merge always -- this is only partially correct as a last resort. While BPMN XML conflicts sometimes require manual resolution (understanding the intended visual structure from raw XML is challenging), the recommended approach is to prevent conflicts in the first place through process file ownership (one responsible developer per BPMN), feature branches, task coordination, or Web Modeler's collaborative editing features. For unavoidable conflicts, BPMN-aware diff tools can help visualize differences, and re-importing to a modeler to verify the merged result is essential before committing."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. BPMN Git workflow: Storing BPMN in Git: Pros: Version history: who changed what. Branching: feature development. Code review: PRs. CI/CD: automated deploys. Backup: distributed. Cons: XML diffs: hard to read visual changes. Merge conflicts: complex. Binary-like behavior: small visual change = large XML diff. Diff challenges: Visual BPMN change: Move task: small visual. XML diff: large (coordinates changed). Semantic change: Add new task: meaningful. XML diff: new element added. Both look similar in diff: hard to distinguish. For diff tools: bpmn-diff tools (community): show visual difference. Web Modeler diff (built-in): visual. Manual review: inspect XML carefully. For merge conflicts: Avoid: Lock files: e.g., manual coordination. Short-lived branches: minimize divergence. One author per file at a time: process discipline. Resolve: Open in Modeler: render to see. Manual resolution: compare visually. Test post-merge: deploy + verify. Branching strategy: Pattern 1: Feature branches: main = canonical. Feature branches: per change. PR to main: review. Pattern 2: Long-lived release branches: develop, release/v1.2: parallel versions. More complex: BPMN risks. Pattern 3: Trunk-based: All to main: short-lived branches. Feature flags: in BPMN if needed. Simpler for BPMN. For Web Modeler integration: Web Modeler is authoritative: editing happens there. Git sync: export from Web Modeler. Or: edit in Web Modeler, commit periodically. For Desktop Modeler: Files in Git: direct edit. Open in Modeler: visual. Save: commit. CI/CD pipeline: `yaml on: push: branches: [main] jobs: deploy: runs-on: ubuntu-latest steps: uses: actions/checkout@v3 name: Lint BPMN run: bpmnlint diagrams/*/.bpmn # per Set 14 Q59 name: Test run: ./test-bpmn.sh name: Deploy run: ./deploy-bpmn.sh ` Source-controlled + automated. For BPMN templates / shared libraries: Shared repo: org-wide templates. Reuse via Element Templates. For multi-team: Per-team repos: ownership. Cross-team integrations: shared interfaces. For DMN / Forms: Similar: source-controlled. Same workflow: branching, PRs. For Web Modeler-only workflow: Web Modeler version history: per Set 13 Q57. No external Git: simpler for non-Git teams. Trade-off: less code-control. Hybrid: Web Modeler primary: visual editing. Export to Git: backup / audit. Periodic sync. For collaboration: Web Modeler real-time collab (per Set 15 Q56): multi-user edit. Git async collab: PRs. Mix: per team preference. For CI checks: BPMN lint (per Set 14 Q59). Schema validation. Unit tests (process tests if framework). Smoke deploy + test in dev. For change management: PRs require review. Approvers: senior modelers. CI green: automated checks pass. For audit: Git log: who committed. PR records: reviewer. Deploy logs: who deployed. For rollback: Git revert: revert commit. Re-deploy old: from history. Best practices: Source-control BPMN. Short-lived branches: minimize merge conflicts. PR reviews: catch issues. Lint + test in CI: prevent broken deploys. Use Web Modeler + Git hybrid: best of both. Document Git workflow: team standards. Anti-patterns: Long-lived branches: merge hell. No PR reviews: bugs slip. Direct edits to main: no review. No CI checks: broken BPMN deployed. For the scenario (merge conflict): Best avoid: Coordinate edits. Short branches. Communicate. Resolve when happens: Open in Modeler. Visual compare. Manual merge. Test."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "BPMN Git workflow: Storing BPMN in Git: Pros: Version history: who changed what. Branching: feature development. Code review: PRs. CI/CD: automated deploys. Backup: distributed. Cons: XML diffs: hard to read visual changes. Merge conflicts: complex. Binary-like behavior: small visual change = large XML diff. Diff challenges: Visual BPMN change: Move task: small visual. XML diff: large (coordinates changed). Semantic change: Add new task: meaningful. XML diff: new element added. Both look similar in diff: hard to distinguish. For diff tools: bpmn-diff tools (community): show visual difference. Web Modeler diff (built-in): visual. Manual review: inspect XML carefully. For merge conflicts: Avoid: Lock files: e.g., manual coordination. Short-lived branches: minimize divergence. One author per file at a time: process discipline. Resolve: Open in Modeler: render to see. Manual resolution: compare visually. Test post-merge: deploy + verify. Branching strategy: Pattern 1: Feature branches: main = canonical. Feature branches: per change. PR to main: review. Pattern 2: Long-lived release branches: develop, release/v1.2: parallel versions. More complex: BPMN risks. Pattern 3: Trunk-based: All to main: short-lived branches. Feature flags: in BPMN if needed. Simpler for BPMN. For Web Modeler integration: Web Modeler is authoritative: editing happens there. Git sync: export from Web Modeler. Or: edit in Web Modeler, commit periodically. For Desktop Modeler: Files in Git: direct edit. Open in Modeler: visual. Save: commit. CI/CD pipeline: `yaml on: push: branches: [main] jobs: deploy: runs-on: ubuntu-latest steps: uses: actions/checkout@v3 name: Lint BPMN run: bpmnlint diagrams/*/.bpmn # per Set 14 Q59 name: Test run: ./test-bpmn.sh name: Deploy run: ./deploy-bpmn.sh ` Source-controlled + automated. For BPMN templates / shared libraries: Shared repo: org-wide templates. Reuse via Element Templates. For multi-team: Per-team repos: ownership. Cross-team integrations: shared interfaces. For DMN / Forms: Similar: source-controlled. Same workflow: branching, PRs. For Web Modeler-only workflow: Web Modeler version history: per Set 13 Q57. No external Git: simpler for non-Git teams. Trade-off: less code-control. Hybrid: Web Modeler primary: visual editing. Export to Git: backup / audit. Periodic sync. For collaboration: Web Modeler real-time collab (per Set 15 Q56): multi-user edit. Git async collab: PRs. Mix: per team preference. For CI checks: BPMN lint (per Set 14 Q59). Schema validation. Unit tests (process tests if framework). Smoke deploy + test in dev. For change management: PRs require review. Approvers: senior modelers. CI green: automated checks pass. For audit: Git log: who committed. PR records: reviewer. Deploy logs: who deployed. For rollback: Git revert: revert commit. Re-deploy old: from history. Best practices: Source-control BPMN. Short-lived branches: minimize merge conflicts. PR reviews: catch issues. Lint + test in CI: prevent broken deploys. Use Web Modeler + Git hybrid: best of both. Document Git workflow: team standards. Anti-patterns: Long-lived branches: merge hell. No PR reviews: bugs slip. Direct edits to main: no review. No CI checks: broken BPMN deployed. For the scenario (merge conflict): Best avoid: Coordinate edits. Short branches. Communicate. Resolve when happens: Open in Modeler. Visual compare. Manual merge. Test.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q59",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[3]"
+      }
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "cfg-feel-temporal-expressions-93",
+  "topic": "configuring-processes",
+  "subtopic": "feel-temporal-expressions",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "At runtime, a Zeebe expression evaluates the FEEL snippet below to set a process variable. What value does the expression return?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`null`"
+    },
+    {
+      "id": "b",
+      "text": "`date(\"2020-04-13\")`"
+    },
+    {
+      "id": "c",
+      "text": "`duration(\"P1D\")`"
+    },
+    {
+      "id": "d",
+      "text": "A parse error is thrown before the value is bound."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The FEEL addition table only defines `date + duration` (and `duration + date`); it does not list `date + date`. The docs state that for any combination not in the table, \"the result is `null`\", so the expression evaluates to `null`."
+    },
+    "b": {
+      "text": "Adding two dates is not the same as adding a 7-day duration to the first one; you cannot derive a third date by summing two calendar dates in FEEL."
+    },
+    "c": {
+      "text": "`duration(\"P1D\")` is what FEEL `subtraction` of these two dates would produce. Subtraction maps `date - date` to a `days-time-duration`; addition is not defined for date+date."
+    },
+    "d": {
+      "text": "The snippet is syntactically valid FEEL. Only the operator-type combination is undefined at evaluation time, and FEEL silently returns `null` rather than raising a parse error."
+    }
+  },
+  "explanation": "FEEL temporal addition is only defined for the type combinations listed in the addition table: date/time/date-time with a duration in either order, and duration with duration. `date + date` is not a listed combination, so the docs' rule \"if a value has a different type, the result is `null`\" applies and the expression yields `null`.",
+  "docs": [
+    {
+      "title": "FEEL temporal expressions",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-temporal-expressions/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "date(\"2020-04-06\") + date(\"2020-04-07\")"
+  }
+}

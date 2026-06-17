@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q11",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Service Task with taskDefinition.type \"pricing-calculator\". Worker built with Spring Zeebe @JobWorker. Under 500 concurrent instances, 30% Service Tasks stuck in \"ACTIVATED\" state. Worker has CPU/memory headroom. Config: maxJobsActive=32, pollInterval=100ms, timeout=PT5M.",
+  "question": "Which configuration change resolves the activation lag?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Scale out by deploying multiple worker instances all subscribed to the same pricing-calculator job type. Each worker instance establishes its own independent long-poll connection to the Zeebe broker and activates jobs up to its own maxJobsActive limit. Because Zeebe distributes available jobs across all competing workers, the effective total throughput scales linearly with the number of worker pods. This is the canonical distributed-systems approach -- add capacity where the bottleneck is."
+    },
+    {
+      "id": "b",
+      "text": "Increase maxJobsActive to 200 on the existing single worker instance. Setting a higher maxJobsActive value tells the worker to hold more jobs in-flight concurrently from the broker, but the ceiling is the single JVM's thread pool and available CPU. Once the single JVM's threads are saturated, increasing this limit only increases queue depth, not throughput. The activation lag remains because the bottleneck is single-worker execution capacity, not how many jobs are fetched per request."
+    },
+    {
+      "id": "c",
+      "text": "Decrease pollInterval to 10 ms so the worker checks for new jobs more frequently. Reducing the poll interval means the worker sends more activateJobs requests to the broker per second. Aggressive short polling at 10 ms risks overloading the broker with redundant requests and does not increase actual job processing throughput -- it only increases broker-side load without resolving the single-worker CPU saturation."
+    },
+    {
+      "id": "d",
+      "text": "Increase timeout to PT15M so jobs have more time to complete before the lock expires. The timeout parameter controls the duration of the exclusive job lock -- how long a worker holds the job before Zeebe re-activates it for another worker. Increasing this setting does not increase the rate at which jobs are processed; it only changes the re-activation threshold. Jobs would still accumulate in ACTIVATED state at the same rate, because the worker's execution throughput is unchanged. The timeout setting addresses lock-expiry re-activation scenarios, not activation lag from insufficient capacity."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Holds more concurrent jobs but single JVM has finite capacity. Bottleneck is single-worker throughput."
+    },
+    "b": {
+      "text": "Incorrect. Long-polling default 100ms is adequate; excessive polling overloads broker."
+    },
+    "c": {
+      "text": "Incorrect. Horizontal scaling is canonical distributed-systems answer. Multiple workers share load; broker distributes available jobs."
+    },
+    "d": {
+      "text": "Incorrect. timeout is job lock duration, not activation latency. Wrong axis."
+    }
+  },
+  "explanation": "Holds more concurrent jobs but single JVM has finite capacity. Bottleneck is single-worker throughput.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q11",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

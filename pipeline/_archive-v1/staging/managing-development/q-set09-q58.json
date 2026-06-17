@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An ops team wants to set up Prometheus / Grafana monitoring for their Self-Managed Camunda 8 cluster. They want to know which metrics are most important to monitor.",
+  "question": "Which Camunda 8 metrics are typically monitored in production?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 components expose a rich set of Prometheus metrics covering cluster health, throughput, latency, error rates, and resource utilisation. Limiting monitoring to simple up/down status means missing early warning signs of performance degradation, accumulating incidents, exporter failures, or replication lag -- all of which could lead to undetected production problems before they become critical outages."
+    },
+    {
+      "id": "b",
+      "text": "Teams do not need to instrument the Camunda components themselves -- they need to configure their Prometheus scraper to collect the existing metrics and build Grafana dashboards on top of them. Custom metrics are appropriate only for application-specific KPIs that the platform does not already expose."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 Self-Managed components expose extensive metrics through Spring Boot Actuator integration. The Prometheus metrics endpoint is available at <server>:9600/actuator/prometheus (management port, separate from the application port :8080). Exposed actuator endpoints include health checks, Prometheus metrics, loggers, usage metrics, and backup status. These metrics are ready to be scraped by a Prometheus instance and visualised in Grafana without any additional instrumentation work."
+    },
+    {
+      "id": "d",
+      "text": "The key Prometheus metric categories to monitor in production Camunda 8 include: cluster health (broker liveness, partition health, replication lag); throughput (instances and jobs per second per task type); latency (instance duration and job activation percentiles p50/p95/p99); errors (incident counts, gRPC error rates, exporter failures); resource utilisation (CPU, memory, disk, network per component); and Connector Runtime (subscription health, polling success rates). Expose via <server>:9600/actuator/prometheus and aggregate in Grafana with alerting thresholds."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 components (Zeebe gateway, Operate, Tasklist, Identity, Connector Runtime) are Spring Boot applications exposing standard Prometheus metrics on the management port :9600 via /actuator/prometheus (separate from app port :8080 -- common Pattern #9 trap). Categories worth monitoring: Cluster health: are brokers up? Partitions healthy? Replication caught up? ES / opensearch reachable? Throughput: how many instances / jobs / messages / decisions per second? Is the system keeping up with load? Latency: instance durations? Job activation delays? Time-to-completion percentiles? Errors: are incidents accumulating? Are gRPC errors elevated? Are exporters failing? Resources: CPU / memory / disk / network usage of each component? Application-specific: Connector Runtime subscription / polling health, worker queue depths. Set alerts: incidents > N, gRPC error rate > X%, p99 latency > Y seconds, disk usage > 80%, replication lag > Z seconds. Tune to your SLAs. Use Camunda's recommended dashboards / Helm charts (where available) as starting templates."
+    },
+    "b": {
+      "text": "Incorrect. Rich metrics."
+    },
+    "c": {
+      "text": "Incorrect. Standard metrics + custom for app-specific."
+    },
+    "d": {
+      "text": "Correct. Metrics exposed."
+    }
+  },
+  "explanation": "Metrics exposed.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/components/orchestration-cluster/core-settings/concepts/monitoring/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q58",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

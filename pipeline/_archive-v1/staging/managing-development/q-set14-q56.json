@@ -1,0 +1,69 @@
+{
+  "id": "imp-set14-q56",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team has dev / staging / prod clusters. Same Web Modeler project. They wonder if they can deploy to different clusters from the same Web Modeler project.",
+  "question": "Multi-cluster deployment from Web Modeler?",
+  "options": [
+    {
+      "id": "a",
+      "text": "One project per cluster -- overstates."
+    },
+    {
+      "id": "b",
+      "text": "Web Modeler fully supports deploying BPMN, DMN, and form resources directly to Camunda clusters without any external tooling required. The Deploy button in the modeling screen opens a cluster selection dialog. md:32-33, deployment to production clusters requires Admin or organization-owner role; non-Admin users can deploy to dev, test, or stage clusters only. The Process Applications feature bundles dependent diagrams and forms for atomic deployment, ensuring consistency across related resources. Role-based access control applies to each cluster target independently."
+    },
+    {
+      "id": "c",
+      "text": "md:25-54: Click Deploy in the modeling screen and select the target cluster from the available-clusters list. Role-based access (:32-33) restricts production deployments to Admin or organization-owner roles only. For Self-Managed, the target cluster is defined in Web Modeler configuration. Process Applications bundle the process with all dependent diagrams and forms for atomic deployment. Successive deploys of the same resource to dev, test, and prod clusters implement a controlled promotion workflow without re-uploading files."
+    },
+    {
+      "id": "d",
+      "text": "Deployment from Camunda Web Modeler is available through both the UI and the API, not exclusively via API. The Web Modeler UI provides an integrated Deploy button accessible directly during the active modeling session. The Modeler API also enables programmatic deployment for CI/CD pipeline automation scenarios. Describing deployment as API-only ignores the primary user-facing deployment mechanism and overlooks how most development teams deploy processes during iterative modeling, testing, and incremental production promotions without leaving the modeling environment entirely."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Multi-cluster deployment from Web Modeler: Cluster targets: Dev: development cluster; experimentation. Staging: pre-prod; validation. Prod: production; live processes. Web Modeler integration with Console: Console manages clusters. Web Modeler knows about user's clusters. At deploy: pick target. Deployment from Web Modeler: Steps (typical): 1. Open file in Web Modeler. 2. Click \"Deploy\" button. 3. Select target cluster from dropdown. 4. Confirm; deployment happens. 5. View deployment status. Authentication: Each cluster has its own API credentials. Web Modeler uses appropriate credentials per target. User's permissions per cluster determine access. Promotion workflow: Step 1: Develop in dev: Edit BPMN; deploy to dev cluster. Test with sample data. Iterate. Step 2: Promote to staging: When dev-tested, deploy same file to staging. Validate with prod-like data. User acceptance testing. Step 3: Promote to prod: After staging approval, deploy to prod. Monitor; verify production behavior. Workflows: Manual promotion: Person clicks \"Deploy to staging,\" then later \"Deploy to prod.\" Simple; works for low-frequency deploys. API-based CI/CD: Pipeline (Jenkins / GitHub Actions / etc.) calls deploy API. Automated; reproducible. Better for high-frequency deploys. Tag / version promotion: Web Modeler may support tags / versions per file. Promote specific version (not latest). Avoid promoting in-progress work. Cluster credentials management: Per-cluster client credentials: Each cluster has its own client_id + client_secret. Web Modeler stores / uses appropriately. User permissions per cluster control access. Best practices: Same BPMN across environments: ensure dev/staging/prod use identical models. Environment-specific config via secrets / variables: not in BPMN. Version files in Web Modeler: tag versions for promotion clarity. CI/CD for production: avoid manual prod deploys. Approval gates: prod requires approval / review. Rollback plan: prior version deployable if new fails. Common patterns: Pattern A: Single Web Modeler project, multi-cluster: All envs target same project. Promote by deploy. Simple; works for small teams. Pattern B: Project per environment: Separate Web Modeler projects for dev / staging / prod. File copies / syncs between projects. More isolation; more management overhead. Pattern C: Git-based source of truth: BPMN files in Git. CI deploys to clusters based on branch / tag. Web Modeler edits via Git integration (if supported) or in-place. Considerations: Schema compatibility across clusters: same Camunda version typically. Cluster size differences: prod may be larger; ensure load tests. Migration impact: deploying new version may need in-flight migration (per Q53). Anti-patterns: Different BPMN per env: drift; hard to debug. Hard-coded env-specific URLs in BPMN: use secrets / variables. Direct prod deploys without staging: high risk."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/run-or-publish-your-process/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q56",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[2]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 15.3 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

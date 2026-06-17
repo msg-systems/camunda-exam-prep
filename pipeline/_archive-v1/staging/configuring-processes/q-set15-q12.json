@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task has a priority attribute set to 100. Team wonders if Tasklist orders tasks by priority.",
+  "question": "User Task priority for Tasklist sorting?",
+  "options": [
+    {
+      "id": "a",
+      "text": "User Tasks in Camunda 8 do not support priority attributes and Tasklist does not use priority for sorting â€” this approach has limitations. Camunda 8 User Tasks support a zeebe:taskHeaders entry or the dedicated priority configuration that Tasklist reads for task ordering. Priority values are configurable per task in the BPMN model or through dynamic FEEL expressions. Tasklist exposes sort-by-priority as a default or configurable ordering option, allowing agents to work high-priority tasks first. This enables SLA-based task routing and urgency-driven workqueue management."
+    },
+    {
+      "id": "b",
+      "text": "Priority in Camunda 8 User Tasks is primarily a metadata hint surfaced to the Tasklist UI for sorting and filtering, and to the Tasks API for programmatic query ordering. Priority is a UX-level concern used to help human workers identify what to work on next, not a hard execution ordering constraint."
+    },
+    {
+      "id": "c",
+      "text": "md:85-95. tier = \"VIP\" then 100 else 50). The value is captured at task activation and surfaced in Tasklist for sorting/filtering and in the Tasks API for programmatic ordering. Priority is a UX-level metadata hint -- the engine does not enforce execution ordering by priority. Dynamic FEEL expressions enable context-sensitive priority (VIP customers, SLA escalation, risk-based queues)."
+    },
+    {
+      "id": "d",
+      "text": "User Task priority in Camunda 8 can only be set as a static integer value at design time -- this approach has limitations. The zeebe:priorityDefinition extension element supports both static values and dynamic FEEL expressions for the priority attribute. , priority=\"80\") sets a fixed priority for all task instances. tier = \"premium\" then 80 else 50) evaluates at task activation time using current process variable values. Dynamic priorities enable context-aware task ordering based on customer tier, SLA thresholds, risk scores, or other runtime factors."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. User Task priority semantics: Priority attribute per user-tasks.md:85-95: In BPMN: integer 0-100 (default 50) OR FEEL expression returning integer in range. At task activation: priority captured for the task instance. Tasklist behavior: Sort by priority: list tasks high-to-low by priority. Filter by priority: e.g., show only high-priority. Visual indicator: badge / color for high-priority. Conventions (Camunda 8 is fixed by spec): Higher number = more urgent, integer 0-100, default 50 (user-tasks.md:93-94). Setting priority: Static (verbatim element / attribute names per user-tasks.md:87-91): `xml Dynamic (FEEL): priority: =if customer.tier = \"VIP\" then 100 else if customer.tier = \"premium\" then 80 else 50 Use cases: Use case 1: Customer tier priority: VIP customers → high priority tasks. Standard → medium. Free tier → low. Use case 2: SLA escalation: Task age > SLA → priority bumped. Combined with Timer Boundary updating priority. Use case 3: Risk-based: High-risk transactions → higher priority for review. Use case 4: Time-sensitive: Deadline approaching → bump priority. Priority vs assignee: Priority: hint to whoever can do the task -- \"do this first.\" Assignee: who specifically does it. Combined: assignee sees their list sorted by priority. In Operate / Tasklist API: Tasks include priority field. Query/sort by priority. Custom UI can build advanced workflows. For the scenario (priority=100): High priority in typical conventions. Tasklist shows this task prominently. Sort: this task appears near top. Best practices: Define org-wide priority scale: 0-100 or 1-10; document. Use dynamic priority for context-aware: VIP / SLA / risk. Don't overload priority: keep semantics clear. Train users: how to interpret priority. Anti-patterns: Inconsistent scales: 1-10 in some tasks, 0-100 in others. Priority inflation: everything \"high\" → meaningless. Hardcoded priorities: misses context. For automated triage: Multiple tasks queued; assign highest-priority first. Combine with skill-based routing. Custom Tasklist UI: Custom prioritisation logic: e.g., compute \"effective priority\" = base + age + tier. Pull task data; render with custom sorting. Support level in 8.8: zeebe:priorityDefinition is the canonical extension element for Zeebe user tasks per user-tasks.md:85-95`. Tasklist and Tasks API surface the value; sorting/filtering is client-side concern."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q12",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

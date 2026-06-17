@@ -1,0 +1,50 @@
+{
+  "id": "mod-service-tasks-11",
+  "topic": "modeling",
+  "subtopic": "service-tasks",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Logistics dispatches 12000 shipments per day in Camunda 8.8 through a single service task. The team must route each job to a different worker pool by priority group, so the taskDefinition type must be computed at service task activation from the priorityGroup process variable rather than being a fixed literal value.",
+  "question": "Which taskDefinition type configuration routes each job to the worker pool computed from the priorityGroup variable?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A type expression of = \"shipment-\" + priorityGroup on the service task that the engine evaluates when activating the task and resolves to a FEEL string used as the job type"
+    },
+    {
+      "id": "b",
+      "text": "A static type of shipment with the priorityGroup variable wired through the retries property so that the retries default of three steers jobs to the right worker pool at runtime"
+    },
+    {
+      "id": "c",
+      "text": "A type expression of = priorityGroup + 3 on the service task that the engine evaluates at deployment time and resolves to a numeric value the worker uses as its job type"
+    },
+    {
+      "id": "d",
+      "text": "A static type of shipment-priorityGroup on the service task that the engine substitutes on activation with the current priorityGroup process variable value at the time of the job"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The taskDefinition type can be a FEEL expression prefixed by an equals sign; the engine evaluates it on activating the service task and the result must be a string, which becomes the job type that worker pools subscribe to."
+    },
+    "b": {
+      "text": "Incorrect. retries is an unrelated optional taskDefinition property whose default is three; it controls how many times a failed job is retried, not the job type or worker pool routing."
+    },
+    "c": {
+      "text": "Incorrect. The type expression must result in a string for the job type; an expression that evaluates to a number violates the documented contract for taskDefinition type."
+    },
+    "d": {
+      "text": "Incorrect. Static values are taken as literal job type strings; the engine does not substitute embedded variable names when the type is configured as a static value rather than an expression."
+    }
+  },
+  "explanation": "A service task taskDefinition has a required type and an optional retries that defaults to three. The type may be a static string or a FEEL expression prefixed by equals; expressions are evaluated on activating the service task and must yield a string for the job type and a number for retries.",
+  "docs": [
+    {
+      "title": "BPMN service tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/service-tasks/"
+    }
+  ]
+}

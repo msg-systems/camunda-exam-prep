@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q50",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A high-throughput worker maintains a long-lived gRPC connection to the Zeebe gateway. The team wonders about connection pooling / reuse in gRPC clients.",
+  "question": "Does the Zeebe gRPC client pool / reuse connections?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Zeebe gRPC client creates a new TCP connection for every individual API call -- this would make high-throughput workers extremely inefficient due to repeated TLS handshakes. gRPC is built on HTTP/2, which multiplexes multiple concurrent requests over a single persistent TCP connection. The Zeebe SDKs create one gRPC Channel at initialisation and reuse it for all subsequent ActivateJobs, CompleteJob, PublishMessage, and other calls throughout the worker's lifetime."
+    },
+    {
+      "id": "b",
+      "text": "The gRPC connection pool size is configurable per worker to tune throughput -- while some gRPC client implementations expose pool or concurrency configuration, the primary mechanism in Zeebe SDKs is HTTP/2 multiplexing on a single Channel rather than a traditional pool of multiple connections. The Camunda Spring Boot Starter manages the Channel lifecycle automatically. For throughput tuning, adjusting maxJobsActive on the worker is more commonly used than pool configuration."
+    },
+    {
+      "id": "c",
+      "text": "gRPC connection management is a minor implementation detail irrelevant to Zeebe worker performance -- this underestimates the performance impact. Connection reuse is a major performance factor for high-throughput workers. Avoiding repeated TLS handshakes (which are cryptographically expensive), leveraging HTTP/2 multiplexing for concurrent request handling, and maintaining warm connections for lower latency are all critical for production worker performance at scale."
+    },
+    {
+      "id": "d",
+      "text": "Yes -- gRPC clients pool connections by design. A single gRPC Channel (Java) or equivalent multiplexes multiple requests over a single TCP connection (HTTP/2). ). Connection reuse is critical for performance -- avoiding new TLS handshakes per call."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. gRPC's underlying transport is HTTP/2, which natively multiplexes multiple streams over a single TCP connection. Zeebe SDKs leverage this: Single Channel (Java) / equivalent abstraction created at SDK initialisation. Multiple operations (ActivateJobs, CompleteJob, PublishMessage, etc.) reuse the same Channel. HTTP/2 multiplexing: multiple concurrent requests share the same TCP connection without head-of-line blocking. Benefits of connection reuse: Avoid TLS handshake overhead per call (handshake is expensive). Lower latency for subsequent calls (warm connection). Reduced resource usage (fewer sockets, fewer file descriptors). Practical implications: Don't create new clients per call -- share the SDK client across handlers within the same application. Camunda Spring Boot Starter (the canonical 8.8 Spring integration -- formerly known as spring-zeebe-sdk, since renamed per apis-tools/camunda-spring-boot-starter/) manages this automatically -- one client per application. Worker scaling: increase maxJobsActive rather than spawning multiple clients. For connection failure handling: SDKs typically auto-reconnect on transient network issues; retry policies handle gRPC-level errors."
+    },
+    "b": {
+      "text": "Incorrect. Pooled / reused."
+    },
+    "c": {
+      "text": "Incorrect. Auto-managed typically."
+    },
+    "d": {
+      "text": "Correct. Major factor."
+    }
+  },
+  "explanation": "Major factor.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/zeebe-api/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q50",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

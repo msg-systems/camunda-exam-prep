@@ -1,0 +1,50 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-97",
+  "topic": "extensions-integrations",
+  "subtopic": "saga-compensation",
+  "difficulty": "hard",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "In a process modelled with the Saga pattern, the task `Add customer` completes successfully; later a downstream task triggers compensation. What does BPMN compensation actually do for the already-completed `Add customer`?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It runs the compensating activity attached to `Add customer` (e.g. `Deactivate customer`) — undoing the work, since rollback across systems is not possible."
+    },
+    {
+      "id": "b",
+      "text": "It rolls back the original `Add customer` task atomically via a technical ACID transaction spanning the workflow engine and the CRM system."
+    },
+    {
+      "id": "c",
+      "text": "It re-queues `Add customer` for retry until it eventually completes again, then resumes the main flow."
+    },
+    {
+      "id": "d",
+      "text": "It raises a new BPMN error on `Add customer`, creating an incident in Operate that requires manual resolution."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The Saga pattern says: when you can't roll back, you _undo_. BPMN compensation events link each task to a compensating activity (here, `Deactivate customer`), which the engine executes for every successfully completed task in scope when compensation is thrown."
+    },
+    "b": {
+      "text": "Distributed ACID transactions across the workflow engine and external services are impossible — exactly the reason Saga and compensation exist."
+    },
+    "c": {
+      "text": "Compensation is the opposite of retry: the task already completed successfully, so it is _undone_, not retried."
+    },
+    "d": {
+      "text": "Triggering compensation does not raise an incident on the original task; the engine just runs the compensating activity that was modelled for it."
+    }
+  },
+  "explanation": "Saga handles long-running, distributed transactions by pairing each task with a compensating activity that semantically undoes it. In BPMN this is modelled with compensation events: when compensation is thrown later in the flow, the engine runs the compensating activity of every successfully completed task in scope. For an `Add customer` task, that might be a `Deactivate customer` activity, because the CRM API may not allow outright deletion.",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Spring Boot app configures Zeebe client via application.yaml. Same property is also set via environment variable CAMUNDA_CLIENT_BROKER_URL. The team wonders which wins.",
+  "question": "Spring config override hierarchy?",
+  "options": [
+    {
+      "id": "a",
+      "text": "yaml wins over environment variables -- the YAML file is the authoritative configuration source in Spring Boot because it is explicitly committed to the project and represents the intended configuration. This misrepresents the documented behavior. yaml. url via Spring Boot's relaxed binding (uppercase with underscores replaces dots), and this environment variable will override the YAML value. This behaviour makes container deployments straightforward: YAML holds defaults; environment variables inject deployment-specific overrides."
+    },
+    {
+      "id": "b",
+      "text": "yaml in the resolution hierarchy. When the same property is set in both sources, the environment variable wins. yaml. url value from YAML via Spring Boot's relaxed binding."
+    },
+    {
+      "id": "c",
+      "text": "yaml is loaded before environment variables are scanned, YAML values take precedence over environment variables. This misrepresents the documented behavior. Spring Boot follows a fixed precedence order regardless of loading sequence. Environment variables are ranked higher than application YAML in the documented precedence list. The loading order of individual files does not determine which source wins; the product documentation defines the priority hierarchy."
+    },
+    {
+      "id": "d",
+      "text": "Spring Boot selects randomly between environment variable and YAML values when both define the same property, making override behaviour unpredictable in multi-source configurations. This misrepresents the documented behavior. Spring Boot property resolution is fully deterministic and follows a documented precedence hierarchy. For any given property, the source with the highest precedence rank always wins. There is no randomness involved. Teams can rely on the documented order -- environment variables override YAML -- to predictably manage configuration across development, staging, and production environments."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Spring Boot property-resolution precedence (high to low, simplified): Standard order: 1. DevTools global settings (~/.spring-boot-devtools.properties in dev mode). 2. @TestPropertySource annotations in tests. 3. Command line arguments: java -jar app.jar --foo=bar. 4. Properties from SPRING_APPLICATION_JSON. 5. ServletConfig init parameters. 6. ServletContext init parameters. 7. JNDI attributes from java:comp/env. 8. Java System properties: -Dfoo=bar. 9. OS environment variables: FOO=bar in shell. 10. @PropertySource annotations. 11. application-{profile}.yaml/properties for active profile. 12. application.yaml/properties (default). 13. @PropertySource annotations in @Configuration. 14. Default properties (e.g., set via SpringApplication.setDefaultProperties). For the scenario: application.yaml: position 12 (default profile) or 11 (active profile). CAMUNDA_CLIENT_BROKER_URL: environment variable (position 9) -- wins over yaml. Property name mapping: YAML: camunda.client.broker.url. Env var: CAMUNDA_CLIENT_BROKER_URL (uppercased, dots → underscores). Spring Boot's relaxed binding handles the mapping. Profiles: application-prod.yaml (active profile): wins over application.yaml. But env var still wins over both. Practical implications: Container deployments: env vars are the standard way to override config -- works with Kubernetes / Docker secrets / etc. Local dev: application.yaml convenient. Tests: @TestPropertySource overrides yaml for test scenarios. Anti-patterns: Mixing config sources: setting same property in 3+ places → confusion. Pick canonical source. Secrets in application.yaml: anti-pattern; use env vars or external secret managers. Verify exact Spring Boot version's docs for full precedence list (changes over versions)."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. Incorrect."
+    },
+    "d": {
+      "text": "Incorrect. Incorrect."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q41",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

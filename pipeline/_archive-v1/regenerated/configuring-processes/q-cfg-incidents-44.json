@@ -1,0 +1,50 @@
+{
+  "id": "cfg-incidents-44",
+  "topic": "configuring-processes",
+  "subtopic": "incidents",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Granite Insurer has 1200 claims stuck on incidents in Camunda 8.8 because a job worker failed with malformed variables on the activated job. The operations developer must resolve each incident through the Java client by repairing the variables, restoring retries and clearing the incident on the broker.",
+  "question": "Which sequence of Java client commands resolves a job-related incident caused by malformed variables according to the incidents docs?",
+  "options": [
+    {
+      "id": "a",
+      "text": "newPublishMessageCommand then newCancelProcessInstanceCommand then newDeployResourceCommand, executed in order against the broker by the operator"
+    },
+    {
+      "id": "b",
+      "text": "newResolveIncidentCommand alone, with updating variables and incrementing retries done implicitly by the broker on resolve in Camunda 8.8 anyway"
+    },
+    {
+      "id": "c",
+      "text": "newSetVariablesCommand for the element instance, then newUpdateRetriesCommand on the job, then newResolveIncidentCommand on the incident key"
+    },
+    {
+      "id": "d",
+      "text": "newCreateProcessInstanceWithResultCommand to replay the activity, then newCompleteJobCommand to mark success, then newResolveIncidentCommand last on the key"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Publishing a message, cancelling the instance and deploying a resource are unrelated to fixing the variables on a stuck job; the docs prescribe set-variables, update-retries and resolve-incident in sequence."
+    },
+    "b": {
+      "text": "Incorrect. The broker does not implicitly update variables or retries on resolve; the docs explicitly require the client to update the variables, increase the remaining retries and then mark the incident as resolved."
+    },
+    "c": {
+      "text": "Correct. The docs show the Java client calling newSetVariablesCommand on the element instance, newUpdateRetriesCommand on the job and newResolveIncidentCommand on the incident, in that order, to recover a job-related incident."
+    },
+    "d": {
+      "text": "Incorrect. CreateProcessInstanceWithResult creates a new instance and complete-job completes a job at the worker; the docs prescribe set-variables, update-retries and resolve-incident for an existing stuck instance."
+    }
+  },
+  "explanation": "For a job-related incident caused by bad variables, the incidents docs walk through three Java client steps: newSetVariablesCommand against the element instance key, newUpdateRetriesCommand against the job key with a positive count, and newResolveIncidentCommand against the incident key. After resolve, the job can be activated by a worker again.",
+  "docs": [
+    {
+      "title": "Incidents",
+      "url": "https://docs.camunda.io/docs/components/concepts/incidents/"
+    }
+  ]
+}

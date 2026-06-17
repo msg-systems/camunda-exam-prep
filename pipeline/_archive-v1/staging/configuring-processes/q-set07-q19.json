@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q19",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process must wait until tomorrow at 8:00 AM local time before continuing. The current time isn't known in advance -- the timer must compute the moment dynamically based on now().",
+  "question": "Which Timer Date FEEL expression fits a \"next day 8 AM\" relative computation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A FEEL expression combining today() (returns today's date), adding duration(\"P1D\") (one day), and combining with time(\"08:00:00\") to form a date and time value. Example: =date and time(today() + duration(\"P1D\"), time(\"08:00:00\")) (exact form varies by FEEL implementation). The Timer Date type accepts FEEL date and time expressions, so this is dynamic per instance."
+    },
+    {
+      "id": "b",
+      "text": "A static ISO 8601 datetime value like 2026-05-15T08:00:00 hardcoded directly in the Timer Date field -- this approach fires exactly once for that specific calendar moment and then becomes permanently stale. For every process instance that starts after that timestamp, the timer would already have its target time in the past, causing it to fire immediately rather than waiting until tomorrow's 8 AM."
+    },
+    {
+      "id": "c",
+      "text": "A natural language string \"tomorrow at 8 AM\" typed directly into the Timer Date expression field -- FEEL is a structured expression language with a precise grammar for date and time values; it has no natural language processing capability. Strings like \"tomorrow,\" \"next Monday,\" or \"in two hours\" are not FEEL syntax and cannot be parsed by the FEEL engine. The Timer Date field requires either a FEEL expression that evaluates to a date and time value, an ISO 8601 datetime literal, or a duration expression. Natural language inputs would cause a runtime error when the timer activates."
+    },
+    {
+      "id": "d",
+      "text": "FEEL cannot compute a timer value relative to the current moment -- there is no way to express \"tomorrow at 8 AM\" dynamically, and the timer must always use a fixed absolute datetime. This claim is inaccurate. FEEL provides the now() function (returns the current date and time value) and today() (returns today's date), along with date arithmetic operations using durations like duration(\"P1D\"). Composing these temporal functions with date-and-time constructors enables any relative moment computation, making dynamic relative timers fully supported in Camunda 8."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. FEEL provides date constructors (date(), time(), date and time(), today(), now()) and duration arithmetic (duration(\"P1D\")). Compose them to express any relative moment. The Timer Date attribute accepts a FEEL expression; at activation, the expression evaluates and the timer is scheduled for the resulting absolute moment. This pattern works for any \"X days from now at time T\" requirement."
+    },
+    "b": {
+      "text": "Incorrect. A literal ISO datetime fires once at that specific moment. For an instance that activates later, it might be in the past -- timer fires immediately. Not \"relative tomorrow.\""
+    },
+    "c": {
+      "text": "Incorrect. Natural language isn't a FEEL syntax."
+    },
+    "d": {
+      "text": "Incorrect. FEEL temporal arithmetic is the canonical solution."
+    }
+  },
+  "explanation": "FEEL provides date constructors (date(), time(), date and time(), today(), now()) and duration arithmetic (duration(\"P1D\")). Compose them to express any relative moment. The Timer Date attribute accepts a FEEL expression; at activation, the expression evaluates and the timer is scheduled for the resulting absolute moment. This pattern works for any \"X days from now at time T\" requirement.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-temporal/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q19",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

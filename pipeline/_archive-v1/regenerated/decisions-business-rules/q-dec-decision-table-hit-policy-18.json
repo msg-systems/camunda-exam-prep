@@ -1,0 +1,50 @@
+{
+  "id": "dec-decision-table-hit-policy-18",
+  "topic": "decisions-business-rules",
+  "subtopic": "hit policy",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Catalyst Insurance runs a Camunda 8.8 DMN bonus decision table inside its payroll process that tallies tenure-based salary bonuses for 4000 employees per month. For an employee with 3.5 years of tenure, the first three rules each match and the team wants the decision table to return a single output equal to 600 euros once all matching rules have fired.",
+  "question": "Which COLLECT hit policy and aggregator combination returns a single output equal to the sum of every satisfied rule's output value in the table?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use the COLLECT hit policy with the COUNT aggregator so the result is one entry equal to the number of rules that contributed to the total"
+    },
+    {
+      "id": "b",
+      "text": "Use the COLLECT hit policy with the SUM aggregator so the result is one entry equal to the sum of all satisfied rule outputs in the table"
+    },
+    {
+      "id": "c",
+      "text": "Use the COLLECT hit policy with the MAX aggregator so the result is one entry equal to the largest of the satisfied rule outputs in the table"
+    },
+    {
+      "id": "d",
+      "text": "Use the COLLECT hit policy with no aggregator so the result returns all satisfied rule outputs as a single arbitrary-order list of entries"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. COUNT returns the number of satisfied rules, not the sum of their outputs. The docs example with the salary bonus table and COUNT returns 3 for an input of 4 years, which is the rule count rather than the 600 total."
+    },
+    "b": {
+      "text": "Correct. The DMN docs describe the SUM aggregator as summing up all outputs from the satisfied rules; in the salary bonus example with 3.5 years of tenure the first three rules match and the table returns 600 because the outputs are summed."
+    },
+    "c": {
+      "text": "Incorrect. MAX returns the largest output value among the satisfied rules rather than their sum; for the salary bonus table that would yield a single bonus amount instead of the combined total of 600 euros."
+    },
+    "d": {
+      "text": "Incorrect. COLLECT without an aggregator returns the list of all satisfied outputs in arbitrary order, so the result is a list rather than the single summed number that the bonus calculation needs."
+    }
+  },
+  "explanation": "The COLLECT hit policy with the SUM aggregator produces a single output entry equal to the sum of all satisfied rule outputs. The docs salary bonus example with 3.5 years matches three rules and returns 600 because the outputs are summed.",
+  "docs": [
+    {
+      "title": "DMN decision table hit policy",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ]
+}

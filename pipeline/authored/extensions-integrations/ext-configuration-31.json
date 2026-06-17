@@ -1,0 +1,53 @@
+{
+  "id": "ext-configuration-31",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A `@JobWorker(type = \"foo\", fetchVariables = {\"a\", \"b\"})` is defined in Java, and the same worker is also configured in `application.yml` under `camunda.client.worker.override.foo.fetch-variables` with `[x, y]`. Per the Control variable fetching docs, which variables are activated for each `foo` job?",
+  "codeBlocks": {
+    "stem": "@JobWorker(type = \"foo\", fetchVariables = {\"a\", \"b\"})\npublic void handle(JobClient c, ActivatedJob j) { ... }\n\n# application.yml\ncamunda:\n  client:\n    worker:\n      override:\n        foo:\n          fetch-variables:\n            - x\n            - y"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "Only `x` and `y` — the properties-defined `fetch-variables` overrides all other detection strategies."
+    },
+    {
+      "id": "b",
+      "text": "Only `a` and `b` — annotation values take precedence over external configuration in Spring Boot."
+    },
+    {
+      "id": "c",
+      "text": "All four — `a`, `b`, `x`, and `y` — the SDK merges annotation and properties lists."
+    },
+    {
+      "id": "d",
+      "text": "All variables of the process instance — having both sources defined cancels filtering and falls back to fetch-all."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The Control variable fetching docs include an explicit caution: using the properties-defined way of fetching variables will override all other detection strategies, so the YAML list `[x, y]` wins over the annotation."
+    },
+    "b": {
+      "text": "The opposite holds: the properties-defined `fetch-variables` overrides the annotation rather than the annotation overriding the properties."
+    },
+    "c": {
+      "text": "The docs describe override semantics, not a merge — there is no union of annotation and properties values."
+    },
+    "d": {
+      "text": "Fetch-all behaviour requires `fetchAllVariables = true` on the annotation or `force-fetch-all-variables: true` on the properties; setting `fetch-variables` does not fall back to fetch-all."
+    }
+  },
+  "explanation": "Variable fetching can be controlled by `fetchVariables` on `@JobWorker` or by `camunda.client.worker.override.<type>.fetch-variables` in properties. The docs caution that the properties-defined list overrides every other detection strategy, including the annotation, so a YAML entry silently replaces what the code declares.",
+  "docs": [
+    {
+      "title": "Spring Boot Starter configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

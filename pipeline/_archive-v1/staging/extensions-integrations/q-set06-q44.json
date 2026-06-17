@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q44",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's gRPC client receives error NOT_FOUND when calling Zeebe to publish a message. The error code suggests the message correlation didn't find a waiting subscription. Is NOT_FOUND from publishMessage always a problem?",
+  "question": "Is NOT_FOUND from publishMessage always a problem?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The assumption that NOT_FOUND always indicates a missing process instance is inaccurate for Zeebe's publishMessage RPC. Messages are buffered for timeToLive milliseconds after publishing, waiting for a future subscription. The absence of a waiting subscription at publish time does not itself trigger NOT_FOUND. The error code has a different documented trigger. Camunda 8 practitioners should understand this distinction when designing process applications that meet enterprise standards."
+    },
+    {
+      "id": "b",
+      "text": "The assumption that NOT_FOUND means the message was rejected and discarded is also inaccurate. Zeebe does not discard messages when no subscription is found. Messages buffer for timeToLive and can be consumed by subscriptions that open later. The NOT_FOUND error from publishMessage has a specific documented cause unrelated to subscription availability. 0 in Camunda 8."
+    },
+    {
+      "id": "c",
+      "text": "No -- not the typical correlation-missing case. publishMessage returns NOT_FOUND specifically for multi-tenancy mismatch scenarios: when multi-tenancy is enabled and the tenantId is blank or invalid, or when multi-tenancy is disabled and a non-<default> tenantId is supplied. No waiting subscription alone is not an error -- the message is buffered for timeToLive milliseconds. Investigate tenantId configuration when this error appears."
+    },
+    {
+      "id": "d",
+      "text": "The claim that NOT_FOUND is never returned by publishMessage overstates the case in the opposite direction. The error code can appear in documented multi-tenancy scenarios involving invalid or missing tenantId values. The correct guidance is to investigate tenantId configuration when NOT_FOUND appears, not to assume it never occurs. Understanding this characteristic is essential for the Camunda 8 Certified Professional examination."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. PublishMessage NOT_FOUND is specifically a multi-tenancy error code per gateway-service.md:1145-1152 (blank/invalid tenantId, wrong tenant for the deployment scope). Message correlation does NOT require a pre-existing subscription -- broker buffers for timeToLive. Investigate tenantId before assuming \"no subscription\" is the cause."
+    },
+    "b": {
+      "text": "Incorrect. Buffering is the design."
+    },
+    "c": {
+      "text": "Correct. Not rejected."
+    },
+    "d": {
+      "text": "Incorrect. NOT_FOUND can appear in other gRPC contexts; investigate."
+    }
+  },
+  "explanation": "Not rejected.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/zeebe-api/gateway-service/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q44",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

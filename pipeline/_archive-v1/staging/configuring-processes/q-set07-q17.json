@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q17",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A custom Connector's Element Template has a property Slack Channel. Modellers must enter a value starting with # (e.g., #general, #alerts). The team wants the template to reject non-conforming input at design time -- before deployment.",
+  "question": "Which Element Template constraint enforces this format?",
+  "options": [
+    {
+      "id": "a",
+      "text": "startsWith: \"#\" to the property definition in the Element Template JSON -- this is not a real Element Template constraint property. Element Template constraints are defined by a specific JSON schema with a limited set of constraint types: notEmpty, minLength, maxLength, and pattern (regex). A startsWith constraint has no place in this schema; modellers who invent constraint names will find that Web Modeler either ignores the unknown property or surfaces a schema validation error. The correct approach is to use the pattern constraint with an appropriate regular expression."
+    },
+    {
+      "id": "b",
+      "text": "Add a regex pattern constraint in the property's JSON definition: \"constraints\": { \"pattern\": { \"value\": \"^#[a-zA-Z0-9_-]+$\", \"message\": \"Channel must start with # followed by alphanumerics, underscores, or hyphens\" } }. When a modeller enters a value that does not match the regex, Web Modeler flags the error at design time before saving or deploying. This provides immediate feedback and prevents invalid configurations from reaching the cluster. The message field customises the error message shown to the modeller, making the constraint self-documenting."
+    },
+    {
+      "id": "c",
+      "text": "Element Templates do not support regex constraints at all -- modellers can only set simple boolean flags like notEmpty. This claim is inaccurate. The Element Template constraints schema explicitly supports pattern (a regex-based constraint), minLength, and maxLength in addition to the basic notEmpty constraint. The pattern constraint with a custom message is specifically designed for format enforcement like the #channel-name requirement. Denying regex support would leave modellers without a design-time enforcement mechanism for format conventions."
+    },
+    {
+      "id": "d",
+      "text": "Use a FEEL precondition expression on the Element Template property to enforce the format -- FEEL expressions are evaluated at process runtime when the BPMN executes, not at design time in Web Modeler or Desktop Modeler. The requirement is to catch invalid values before the model is even deployed, making runtime validation useless for this scenario. By the time a FEEL expression could check the channel name format, the BPMN is already deployed and an instance is running. Design-time constraints via the Element Template schema are the correct tool for this enforcement requirement."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Element Template constraints include pattern (regex), notEmpty, minLength, maxLength. The pattern constraint with a meaningful message provides immediate design-time feedback in Web Modeler / Desktop Modeler -- the modeller sees the error before deploying. This catches typos and convention violations early."
+    },
+    "b": {
+      "text": "Correct. No such field. Modellers sometimes invent names hoping they match; for exact constraint names check the docs."
+    },
+    "c": {
+      "text": "Incorrect. Regex pattern is part of the Element Template constraints schema."
+    },
+    "d": {
+      "text": "Incorrect. FEEL runs at process runtime -- when the Service Task activates and the Connector evaluates its config. By then the BPMN is already deployed. To catch issues at design time, use Element Template constraints."
+    }
+  },
+  "explanation": "No such field. Modellers sometimes invent names hoping they match; for exact constraint names check the docs.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/element-templates/manage-element-templates/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q17",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

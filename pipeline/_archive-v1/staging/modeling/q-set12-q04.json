@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Embedded Subprocess processes orders. The team wants layered error handling: (1) specific business errors caught at the activity level (e.g., INVALID_DATA caught and recovered with manual review); (2) any unhandled error caught at the subprocess level (logs + sends notification, then continues). They have both Error Boundary and Event Subprocess inside the subprocess.",
+  "question": "Can Error Boundary (activity-level) AND Event Subprocess (subprocess-level) coexist?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes -- layered error handling is a recognised pattern: - Error Boundary on specific activity: catches specific errors (matching errorCode) from that activity. Handles them locally; activity is cancelled; flow routes via boundary's arrow. - Event Subprocess with Error Start: catches errors propagated to the subprocess scope (not caught by inner activity-level boundaries). Logs / notifies; can be interrupting (kills the main flow) or non-interrupting (runs alongside). Combined: specific errors handled near their source; unhandled errors caught broadly at subprocess scope. The two layers complement; both can exist."
+    },
+    {
+      "id": "b",
+      "text": "BPMN and Camunda 8 fully support having both constructs simultaneously within the same subprocess scope. They serve complementary roles: the Error Boundary catches errors from a specific activity at the activity level, while the Event Subprocess's Error Start catches errors that propagate to the subprocess scope. The two handlers form complementary layers in the same error-handling design."
+    },
+    {
+      "id": "c",
+      "text": "Restricting a subprocess to only a single error handler element (either Boundary or Event Subprocess, but not both) has no basis in the BPMN specification or Camunda 8 implementation. A single subprocess may have multiple Error Boundary Events on different activities (each catching different errorCodes from those specific activities) and one or more Event Subprocesses with Error Start Events for scope-level catch-all handling. Multiple handlers are supported and encouraged for comprehensive error coverage."
+    },
+    {
+      "id": "d",
+      "text": "Claiming that the Event Subprocess overrides or replaces the Error Boundary is only partially accurate and misleading. Both the Error Boundary and the Event Subprocess Error Start fire at their respective scopes when a matching error reaches them. The Error Boundary fires first (activity scope), consuming the error so it does not propagate further. Only if no activity-level Boundary matches does the error propagate to the subprocess scope where the Event Subprocess can catch it. They work in sequence, not in competition."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Layered error handling combines: Layer 1: Activity-specific Error Boundary Catches specific errors from a specific host activity (matching errorCode). Handles them with local recovery logic. Routes flow via Boundary's outgoing arrow. Doesn't propagate further (error consumed). Layer 2: Subprocess-scope Event Subprocess with Error Start Catches errors propagated to the subprocess scope (not caught by inner activity-level Boundaries). \"Catch-all\" for the subprocess. Can be interrupting (main flow cancelled) or non-interrupting (runs alongside). Logs / notifies / handles broadly. Propagation rules: 1. Activity throws error. 2. Engine checks activity-level Error Boundaries (matching code) -- if match, fire; error consumed; route via Boundary. 3. If no match: propagate to scope (subprocess). 4. Engine checks scope-level Event Subprocess with Error Start (matching code) -- if match, fire. 5. If no match: propagate to outer scope (process root). 6. If no match anywhere: unhandled → Incident. Layered design lets you handle expected errors specifically (Layer 1) and catch unknowns broadly (Layer 2). Both add value; both can be modelled."
+    },
+    "b": {
+      "text": "Incorrect. Coexist."
+    },
+    "c": {
+      "text": "Incorrect. Multiple supported."
+    },
+    "d": {
+      "text": "Incorrect. Both fire at their respective scopes."
+    }
+  },
+  "explanation": "Layered error handling combines: Layer 1: Activity-specific Error Boundary Catches specific errors from a specific host activity (matching errorCode). Handles them with local recovery logic. Routes flow via Boundary's outgoing arrow. Doesn't propagate further (error consumed). Layer 2: Subprocess-scope Event Subprocess with Error Start Catches errors propagated to the subprocess scope (not caught by inner activity-level Boundaries). \"Catch-all\" for the subprocess. Can be interrupting (main flow cancelled) or non-interrupting (runs alongside). Logs / notifies / handles broadly. Propagation rules: 1. Activity throws error. 2. Engine checks activity-level Error Boundaries (matching code) -- if match, fire; error consumed; route via Boundary. 3. If no match: propagate to scope (subprocess). 4. Engine checks scope-level Event Subprocess with Error Start (matching code) -- if match, fire. 5. If no match: propagate to outer scope (process root). 6. If no match anywhere: unhandled → Incident. Layered design lets you handle expected errors specifically (Layer 1) and catch unknowns broadly (Layer 2). Both add value; both can be modelled.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

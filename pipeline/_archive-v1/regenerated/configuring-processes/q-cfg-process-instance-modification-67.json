@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-67",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Vector Energy authored a Camunda 8.8 outage-handling workflow with 800 instances live at any time. To repair one instance, an operator submits a single modification command containing one activation instruction for a new compensation task and one termination instruction for the last active task in a parallel branch of that instance.",
+  "question": "How does the engine order these two instructions and what happens if one of them cannot be applied?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The engine applies the activation instruction first, then the termination instruction, and rolls back the entire command if either instruction cannot be applied."
+    },
+    {
+      "id": "b",
+      "text": "The engine applies the termination instruction first, then the activation instruction, and rolls back the entire command if either instruction cannot be applied."
+    },
+    {
+      "id": "c",
+      "text": "The engine applies both instructions concurrently in a non-deterministic order and commits whichever succeeds while silently ignoring the one that fails."
+    },
+    {
+      "id": "d",
+      "text": "The engine applies the instructions in the order they were submitted and commits each one independently, leaving residual state behind if a later instruction fails."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs explicitly state activations are applied first and then terminations, and that the command is transactional: either all instructions succeed or none do."
+    },
+    "b": {
+      "text": "Incorrect. The documented order is activations first; reversing it would risk terminating the last active instance before the new branch from the activation exists."
+    },
+    "c": {
+      "text": "Incorrect. The engine applies the activation and termination phases sequentially, not concurrently, and never commits a partial result of a modification command."
+    },
+    "d": {
+      "text": "Incorrect. Submission order does not drive execution; activations always run before terminations and the whole command is all-or-nothing rather than per-instruction."
+    }
+  },
+  "explanation": "A modification command's instructions are applied in two phases: first all activations, then all terminations. This ordering ensures the process instance still has an active element when an activation replaces a soon-to-be-terminated one, and the whole command is applied transactionally as all or nothing.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-creation-50",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-creation",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Sable Airlines wants to test a single parcel-shipping branch of its 30-step fulfillment process in a Camunda 8.8 staging cluster covering 3000 shipments per day. QA needs to run only the ship_parcel element and terminate immediately afterward, without exercising the rest of the model.",
+  "question": "Which combination of CreateProcessInstance instructions executes only that single segment of the process?",
+  "options": [
+    { "id": "a", "text": "Provide a startInstructions entry with elementId ship_parcel, plus a runtimeInstructions entry of type TERMINATE_PROCESS_INSTANCE with afterElementId ship_parcel on the same command." },
+    { "id": "b", "text": "Provide a startInstructions entry with elementId ship_parcel and rely on the default none start event to terminate the instance once ship_parcel completes naturally on its own." },
+    { "id": "c", "text": "Provide only a runtimeInstructions entry of type TERMINATE_PROCESS_INSTANCE with afterElementId ship_parcel; the engine will activate ship_parcel from the start to satisfy it." },
+    { "id": "d", "text": "Provide a single instruction of type START_AND_TERMINATE_AT with elementId ship_parcel; the engine will both start the instance at and end the instance at that element." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Combining a startInstructions entry that targets ship_parcel with a runtimeInstructions entry of TERMINATE_PROCESS_INSTANCE afterElementId ship_parcel is the documented way to run only that segment of the process." },
+    "b": { "text": "Incorrect. The none start event is the default initial element only when no startInstructions are supplied; it does not automatically terminate the instance after a downstream element completes." },
+    "c": { "text": "Incorrect. Runtime instructions do not activate elements; without a startInstructions entry, the instance starts at the default initial element rather than at ship_parcel." },
+    "d": { "text": "Incorrect. There is no START_AND_TERMINATE_AT instruction in Camunda 8; you compose the behavior from a startInstructions entry and a runtimeInstructions entry." }
+  },
+  "explanation": "Start instructions define where to activate the process instance and runtime instructions of type TERMINATE_PROCESS_INSTANCE define where to end it, and they may be combined on the same CreateProcessInstance command to execute only a specific segment.",
+  "docs": [
+    { "title": "Process instance creation", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/" }
+  ]
+}

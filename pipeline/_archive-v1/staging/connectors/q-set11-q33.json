@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team developing a Connector wonders if they can inline a secret value (e.g., apiKey: \"actual-secret-value\") in the BPMN for quick testing, vs always going through cluster secrets ({{secrets.API_KEY}}).",
+  "question": "Is it OK to inline secrets in BPMN for development?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Inlining secrets in BPMN is acceptable for development environments but not for production -- this underestimates the risk of development-time secret exposure. BPMN files are typically committed to Git, shared with team members, exported as backups, and processed by CI/CD pipelines. Inlining even a development-only API key in BPMN exposes it to Git history (which persists after deletion), shared project members, and CI artifact logs. NAME}} placeholders."
+    },
+    {
+      "id": "b",
+      "text": "No -- never inline secrets in BPMN, even for development. BPMN files are typically committed to Git, deployed to clusters, shared with team members; inlining a secret leaks it to: (1) version control history (hard to scrub even after removal); (2) deployment artifacts; (3) any reader of the file. NAME}} placeholders; for dev environments, provision dev-specific secrets with non-production values (test API keys, sandbox accounts). The same pattern as production; just different secret values per environment."
+    },
+    {
+      "id": "c",
+      "text": "Inlining secrets in BPMN is acceptable if the secret value is encrypted before embedding -- this is better than plain-text inlining but still inferior to cluster secrets. Encrypted values in BPMN XML still live in Git history, require key management for decryption, and add complexity. NAME}} placeholders are simpler, standardised, and completely decouple secret values from BPMN files, making rotation and environment-specific overrides straightforward."
+    },
+    {
+      "id": "d",
+      "text": "The only permitted way to provide secrets to Connectors is by embedding them directly in the BPMN file using string literals -- this inverts the documented best practice. Direct embedding of secret values in BPMN is explicitly an anti-pattern. NAME}} placeholders) is the documented standard approach that keeps sensitive credentials out of BPMN files entirely, separating configuration from code and enabling per-environment secret management without modifying the BPMN."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Inlining secrets in BPMN is a persistent security risk: Git history: even if you remove the secret later, Git keeps the entire history; the secret is recoverable from earlier commits. Shared files: BPMN files are shared via Web Modeler, exported as ZIP for backup, included in CI artifacts, etc. -- many touchpoints for leakage. Audit / compliance: secret-in-file violates most security policies. Always use cluster secrets: Production: real production secrets in production cluster. Dev: dev-specific secrets in dev cluster (non-production credentials, sandbox accounts). CI: secrets from CI provider (GitHub Actions secrets, GitLab CI variables, Vault). BPMN files contain only {{secrets.NAME}} placeholders -- safe to commit, share, deploy. Migration: if a secret was accidentally committed, rotate the credential immediately (revoke + issue new), scrub Git history (carefully -- easy to mess up), audit downstream usage."
+    },
+    "b": {
+      "text": "Correct. Dev leakage also risky."
+    },
+    "c": {
+      "text": "Incorrect. Cluster secrets simpler standard."
+    },
+    "d": {
+      "text": "Incorrect. Cluster secrets best practice."
+    }
+  },
+  "explanation": "Dev leakage also risky.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/console/manage-clusters/manage-secrets/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q33",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

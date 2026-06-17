@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A customer support platform models its ticket lifecycle in Camunda 8. After a User Task \"Investigate Ticket\" is assigned to an agent, the SLA requires the agent to start the investigation within 4 hours. If 4 hours pass without the agent claiming the task, the system must escalate by notifying the team lead without cancelling the underlying task -- the original agent should still be able to claim it. If another 8 hours pass after escalation (12h total) and the task is still unclaimed, the system must cancel the original task and reassign to a senior agent via a different path.",
+  "question": "Which combination of Boundary Events models this requirement correctly?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Attach two Non-interrupting Timer Boundary Events to the User Task -- one at 4h (notify team lead), one at 12h (reassign). A Non-interrupting Timer Boundary Event fires at the specified time and spawns a new parallel token following its outgoing sequence flow, while the original User Task remains active and claimable. Attaching two Non-interrupting boundaries to the same User Task is valid in Camunda 8; both can fire independently without affecting the original task's lifecycle. The 4h boundary would correctly trigger a \"Notify Team Lead\" path in parallel. The 12h boundary would also spawn a new token following a \"Reassign to Senior\" path, but the original User Task continues to exist, so the agent could still claim it simultaneously with the senior."
+    },
+    {
+      "id": "b",
+      "text": "Attach one Interrupting Timer Boundary Event at 4h that cancels the task and triggers a Service Task \"Notify Team Lead\" → then re-instantiates the User Task with a new 8h deadline. An Interrupting Timer Boundary Event at 4h would cancel the original User Task when the timer fires, removing it from Tasklist and ending its lifecycle. A subsequent Service Task could notify the team lead, and then a new User Task could be created downstream with a fresh 8h timer."
+    },
+    {
+      "id": "c",
+      "text": "Place the User Task inside an Event Subprocess and attach two Timer Start Events (non-interrupting at 4h, interrupting at 12h) to the event subprocess. An Event Subprocess lives inside a parent scope -- either the top-level process or an enclosing Subprocess -- and is triggered by its Start Event when the parent scope is active. A Non-interrupting Timer Start Event inside an Event Subprocess fires at the specified interval and executes the Event Subprocess flow while leaving the parent scope alive; an Interrupting Timer Start Event cancels the parent scope when it fires."
+    },
+    {
+      "id": "d",
+      "text": "Attach one Non-interrupting Timer Boundary Event at 4h (notify team lead, task continues) and one Interrupting Timer Boundary Event at 12h (cancel task, reroute flow). The Non-interrupting Timer Boundary Event fires at 4 hours and spawns a new parallel token following its outgoing sequence flow -- typically routing to a \"Notify Team Lead\" Service Task -- while the original User Task remains live and claimable by the original agent. The Interrupting Timer Boundary Event fires at 12 hours, cancels the User Task (removing it from Tasklist), and routes the token to the reassignment path."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Two non-interrupting boundaries fire both notifications correctly, but neither cancels the User Task at 12h -- both fire and the task continues indefinitely. The requirement says \"hard cancel at 12h\" which requires an interrupting boundary."
+    },
+    "b": {
+      "text": "Incorrect. Non-interrupting + Interrupting on the same activity is the canonical pattern for \"soft warning then hard timeout\". The non-interrupting boundary at 4h spawns a new token following its outgoing flow (\"Notify Team Lead\") while leaving the User Task alive and claimable. The interrupting boundary at 12h cancels the User Task and the token follows the boundary's outgoing flow."
+    },
+    "c": {
+      "text": "Incorrect. Cancelling at 4h and re-instantiating breaks the requirement: \"the original agent should still be able to claim it.\" Re-instantiating creates a new task instance with a new ID -- original agent's claim history and any partial work are lost."
+    },
+    "d": {
+      "text": "Correct. Event Subprocess with Timer Start Events fires when the enclosing scope matches the trigger condition, but you cannot attach it to a single User Task -- Event Subprocess lives inside a parent scope (process or subprocess), not on an activity. Wrong construct for activity-level timeouts."
+    }
+  },
+  "explanation": "Event Subprocess with Timer Start Events fires when the enclosing scope matches the trigger condition, but you cannot attach it to a single User Task -- Event Subprocess lives inside a parent scope (process or subprocess), not on an activity. Wrong construct for activity-level timeouts.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

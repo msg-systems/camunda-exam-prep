@@ -1,0 +1,50 @@
+{
+  "id": "con-http-webhook-12",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "negative",
+  "camundaVersion": "8.8",
+  "question": "While making an HTTP Webhook connector executable, which statement about its configuration is FALSE?",
+  "options": [
+    {
+      "id": "a",
+      "text": "When no HMAC scopes are specified, the default scope is `BODY` and the signature is generated from the body of the webhook request."
+    },
+    {
+      "id": "b",
+      "text": "An Activation Condition like `=(request.body.status = \"OK\")` triggers the webhook only when the inbound body's `status` field equals `\"OK\"`."
+    },
+    {
+      "id": "c",
+      "text": "For Basic authorization, you must base64-encode the Username and Password yourself before entering them into the template properties."
+    },
+    {
+      "id": "d",
+      "text": "Variable Mapping uses a FEEL expression such as `={ myDocumentId: request.body.id }` to project payload fields onto process variables."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "True per the docs: `BODY` is listed as the default HMAC scope, and the signature data is generated from the body of the webhook request when only `BODY` (or empty) is set. So this is not the false statement."
+    },
+    "b": {
+      "text": "True per the docs: leaving the Activation Condition empty triggers the webhook every time; setting `=(request.body.status = \"OK\")` triggers it only when the body's `status` is `\"OK\"`. So this is not the false statement."
+    },
+    "c": {
+      "text": "This is the false statement. The docs say explicitly: \"Provide the values in plain text, not base64-encoded.\" The runtime base64-encodes the credentials when validating the incoming `Authorization: Basic ...` header."
+    },
+    "d": {
+      "text": "True per the docs: Variable Mapping uses a FEEL Result Expression such as `={ myDocumentId: request.body.id }` to extract payload fields into process variables. So this is not the false statement."
+    }
+  },
+  "explanation": "Per the Webhook connector docs, the Username and Password for Basic authorization must be provided in plain text — the runtime handles base64-encoding them when comparing against the inbound `Authorization: Basic ...` header. Manually base64-encoding the values would cause the comparison to fail. The other three statements (default HMAC `BODY` scope, FEEL Activation Condition syntax, FEEL Variable Mapping syntax) match the documented behavior.",
+  "docs": [
+    {
+      "title": "HTTP Webhook connector",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ]
+}

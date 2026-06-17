@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team migrating from Camunda 7 had Sequence Flow conditions using scripts (Groovy / JavaScript). They wonder how to convert these for Camunda 8.",
+  "question": "How does Camunda 8 handle Sequence Flow conditions vs C7's script-based conditions?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL (Friendly Enough Expression Language) is the only expression language for conditions, gateways, input/output mappings, and other expression contexts. Existing Groovy conditions must be rewritten in FEEL."
+    },
+    {
+      "id": "b",
+      "text": ") work in Camunda 8 Sequence Flow conditions. The engine automatically detects the language type and evaluates accordingly, providing backward compatibility with Camunda 7 script conditions. FEEL is the only expression language supported in Camunda 8. Script languages have no runtime in Camunda 8. The architecture was simplified to use a single declarative expression language instead of multiple scripting runtimes."
+    },
+    {
+      "id": "c",
+      "text": "The replacement is FEEL (Friendly Enough Expression Language) -- a declarative, business-friendly language designed for decision logic. Convert script conditions to FEEL: variable comparisons, logical operators, and arithmetic translate directly; complex imperative logic needs decomposition into explicit BPMN Service Tasks with downstream FEEL condition checks."
+    },
+    {
+      "id": "d",
+      "text": "For Sequence Flow conditions that used scripts in Camunda 7, the correct migration approach in Camunda 8 is to evaluate the script externally through a dedicated Service Task worker that computes the result and stores it as a boolean variable. The gateway then reads that variable. FEEL handles the vast majority of what C7 scripts did, directly inline in the condition expression without any intermediate Service Task."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. C8's design choice: replace heterogeneous script languages with FEEL. Rationale: Determinism: FEEL has well-defined semantics; scripts varied across engines (Groovy vs JavaScript vs Python). Security: scripts could execute arbitrary code; FEEL is sandboxed by design. Business-friendliness: FEEL syntax is closer to natural language than imperative scripts. Performance: FEEL evaluator is optimised; scripts had unpredictable performance. Migration: most C7 script conditions translate to FEEL straightforwardly. Variable comparisons, logical operators (and/or/not), arithmetic, list functions, date functions all have FEEL equivalents. Complex imperative logic (loops, mutable state) needs to be decomposed into BPMN flow elements (e.g., a Service Task that performs the computation, returning a boolean variable that the gateway then reads)."
+    },
+    "b": {
+      "text": "Incorrect. No Groovy in C8."
+    },
+    "c": {
+      "text": "Correct. Only FEEL."
+    },
+    "d": {
+      "text": "Incorrect. FEEL handles most cases inline."
+    }
+  },
+  "explanation": "Only FEEL.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q12",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

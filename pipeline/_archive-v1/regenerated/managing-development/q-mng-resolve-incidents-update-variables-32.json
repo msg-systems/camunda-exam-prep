@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-32",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Aurora Logistics operator opens an incident in Camunda 8.8 Operate after 750 instances stalled at a gateway. Operate displays: Expected to evaluate condition 'orderValue>=100' successfully, but failed because: Cannot compare values of different types: STRING and INTEGER. The operator must explain what the message tells them about the failure before editing anything.",
+  "question": "What does this Operate incident message tell the operator about the cause of the failure?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The gateway condition orderValue>=100 could not be evaluated because the orderValue variable is a STRING while the literal 100 is an INTEGER, producing a type-mismatch error"
+    },
+    {
+      "id": "b",
+      "text": "The gateway condition orderValue>=100 was evaluated successfully and returned false, so the instance took a path with no outgoing sequence flow and stopped at the gateway"
+    },
+    {
+      "id": "c",
+      "text": "The gateway condition orderValue>=100 timed out after the broker's default condition evaluation budget, so the broker rolled back the transition and raised an incident"
+    },
+    {
+      "id": "d",
+      "text": "The gateway condition orderValue>=100 evaluated against a missing variable, so the broker raised an incident asking the operator to add orderValue before the instance can continue"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The message states that evaluation failed because the values being compared have different types: STRING and INTEGER. The fix is to make orderValue an integer so the >= comparison can succeed."
+    },
+    "b": {
+      "text": "Incorrect. The message explicitly says evaluation failed, not that it returned false. A successful evaluation that just chose another path would not raise this type-mismatch incident at all."
+    },
+    "c": {
+      "text": "Incorrect. The message describes a type-comparison failure, not a timeout; it points to the operand types STRING and INTEGER as the root cause, not an evaluation budget."
+    },
+    "d": {
+      "text": "Incorrect. The message reports a type mismatch between STRING and INTEGER, meaning orderValue exists but holds a string; if it were missing, the error would be about an undefined variable instead."
+    }
+  },
+  "explanation": "Operate surfaces incident messages directly from the engine. This one explains that the condition orderValue>=100 could not be compared because the operands have different types (STRING vs INTEGER), so the operator must change orderValue from a string to an integer before retrying.",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ]
+}

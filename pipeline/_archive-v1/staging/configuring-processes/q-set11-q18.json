@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q18",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Timer Boundary needs duration computed from a variable -- e.g., the customer's SLA tier (bronze = PT24H, gold = PT4H). The team wants the timer expression to use FEEL referencing the tier.",
+  "question": "Can Timer durations use FEEL expressions referencing process variables?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Timer durations in Camunda 8 must be static ISO 8601 literals and cannot reference process variables -- this contradicts the documented capability. md:41-48, timers can be defined as either a static value or as an expression. FEEL expressions in timer fields are evaluated at timer creation time, enabling variable-driven durations like SLA-tier-based timeouts or context-aware deadlines. Static-only timers would severely limit process adaptability."
+    },
+    {
+      "id": "b",
+      "text": "Timer durations can only reference process variables through a DMN decision lookup table -- this understates the inline FEEL capability. While a DMN lookup is a valid pattern for complex duration logic, FEEL expressions in timer fields can directly reference process variables and evaluate conditional logic inline. tier = \"GOLD\" then duration(\"PT4H\") else duration(\"PT24H\") works without any DMN table. DMN is one option among several, not the only path."
+    },
+    {
+      "id": "c",
+      "text": "Add a Service Task before the timer to compute the duration value and store it in a variable, then reference that variable in a static timer field -- this is a workable but unnecessarily heavy approach. FEEL expressions in timer fields can compute the duration value directly from available process variables without needing a preceding Service Task. Inline timer expressions are concise, require fewer diagram elements, and achieve the same result in a single configuration."
+    },
+    {
+      "id": "d",
+      "text": "g. tier = \"GOLD\" then duration(\"PT4H\") else duration(\"PT24H\") (or a DMN lookup table). Engine evaluates on activation of the timer catch event per :48; the timer fires after the resolved duration. Supported for Timer Boundary (Date / Duration / Cycle types via FEEL)."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Timer Events in Camunda 8 accept FEEL expressions for duration / date / cycle. The FEEL expression evaluates at timer creation (when the timer is attached -- e.g., User Task activation for Boundary, instance start for Start Event): Duration expression: =duration(\"PT4H\") literal or =if cond then duration(\"PT4H\") else duration(\"PT24H\") dynamic. Date expression: =date and time(\"2026-12-31T23:59:59Z\") literal or computed. Cycle expression: =cycle(R5/PT1H) (where supported) or FEEL constructing the cycle string. Patterns: Tier-driven SLA: as shown -- if-then-else on customer tier. DMN lookup: a DMN decision returns the duration; Business Rule Task sets a variable; Timer FEEL references it. Variable-based: =customer.slaTimer where customer.slaTimer is a duration variable set earlier. Practical: parameterise timers based on business context. SLA-aware processes adapt automatically."
+    },
+    "b": {
+      "text": "Incorrect. FEEL supported."
+    },
+    "c": {
+      "text": "Incorrect. Inline works too."
+    },
+    "d": {
+      "text": "Correct. FEEL inline."
+    }
+  },
+  "explanation": "FEEL inline.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q18",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

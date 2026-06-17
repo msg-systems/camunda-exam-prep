@@ -1,0 +1,50 @@
+{
+  "id": "mng-what-is-optimize-109",
+  "topic": "managing-development",
+  "subtopic": "Optimize",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Sable Bank runs 250000 instances per week of its loan-origination process through Camunda 8.8 and is evaluating Optimize for executive dashboards. The platform team is concerned that running analytical queries on the live runtime would slow down the brokers, so they need to know how Optimize obtains and persists its data.",
+  "question": "How does Optimize collect and persist process data for its dashboards in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Optimize makes REST API calls to the Camunda server to collect new historical data and stores that data in its own Elasticsearch database for analytical querying"
+    },
+    {
+      "id": "b",
+      "text": "Optimize queries the Zeebe brokers directly through their gRPC API, then caches the results in a local file store on disk for analytical querying from each dashboard"
+    },
+    {
+      "id": "c",
+      "text": "Optimize subscribes to the runtime broker log over a Kafka topic and stores the consumed events in a PostgreSQL database that powers all of its dashboards and reports"
+    },
+    {
+      "id": "d",
+      "text": "Optimize embeds the runtime view from Operate inside its dashboards and keeps no storage layer of its own, so each dashboard query reads directly from the runtime store"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs state Optimize makes REST API calls to the Camunda server to collect new historical data and stores it in its Elasticsearch database for offline analysis."
+    },
+    "b": {
+      "text": "Incorrect. Optimize ingests via REST API calls and persists into Elasticsearch; the documented path is not direct gRPC traffic to the brokers or a local file-based cache layer."
+    },
+    "c": {
+      "text": "Incorrect. The Optimize ingestion path documented for Camunda 8 is REST-based collection into Elasticsearch; no Kafka topic feeding a PostgreSQL store is described here."
+    },
+    "d": {
+      "text": "Incorrect. Optimize maintains its own Elasticsearch store of collected historical data so analysts can query reports and dashboards independently without affecting the runtime."
+    }
+  },
+  "explanation": "Optimize calls the Camunda server through its REST API to collect new historical data and persists it in an Elasticsearch database, allowing reports to be queried without touching the runtime.",
+  "docs": [
+    {
+      "title": "What is Optimize",
+      "url": "https://docs.camunda.io/docs/components/optimize/what-is-optimize/"
+    }
+  ]
+}

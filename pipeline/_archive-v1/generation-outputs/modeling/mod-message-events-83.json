@@ -1,0 +1,27 @@
+{
+  "id": "mod-message-events-83",
+  "topic": "modeling",
+  "subtopic": "events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Logistics tracks 7000 shipments per day in Camunda 8.8. An intermediate message catch event named Money collected must match a specific waiting instance by the orderId process variable when a payment service publishes a confirmation.",
+  "question": "How does the engine route a published message to one waiting instance at an intermediate message catch event?",
+  "options": [
+    { "id": "a", "text": "The engine evaluates the correlationKey expression on the throw site of the publisher and matches the result against the catch event name supplied in the BPMN definition" },
+    { "id": "b", "text": "The engine evaluates the correlationKey expression only against the process definition id and ignores any per-instance variable value when routing a published message" },
+    { "id": "c", "text": "The engine evaluates the correlationKey expression on activating the catch event and matches the resulting value against the correlation key carried by the published message" },
+    { "id": "d", "text": "The engine evaluates the correlationKey expression on the process start event and reuses that value as the routing key for every later catch event in the same process" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The correlationKey expression is evaluated on the catch event side, not on the publishing client; the client only supplies a message name and a correlation key value." },
+    "b": { "text": "Incorrect. The documentation describes the correlationKey expression as one that accesses a process variable, not the process definition id; per-instance values are exactly what drive routing." },
+    "c": { "text": "Correct. The documentation says the correlationKey is evaluated on activating the message event and must result in a string or number, which is then matched against the correlation key of the published message." },
+    "d": { "text": "Incorrect. Each catch event evaluates its own correlationKey expression on activation; the start event does not pin a single routing key for every later catch event in the process." }
+  },
+  "explanation": "At an intermediate message catch event the correlationKey expression is evaluated on activation and the resulting value is matched against the correlation key supplied by the publisher of the named message.",
+  "docs": [
+    { "title": "BPMN message events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Multi-Instance subprocess has inputCollection = items. Items is empty []. Team wonders what happens at MI activation.",
+  "question": "MI with empty collection behavior?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A Multi-Instance subprocess with an empty inputCollection does not fail or create an incident. The engine treats an empty collection as zero iterations to spawn, immediately completes the Multi-Instance activity with no work performed, and advances the process flow normally. An incident would occur only if the inputCollection expression evaluates to null rather than an empty list. Expecting a failure on an empty collection misunderstands the standard BPMN Multi-Instance zero-iteration completion behavior."
+    },
+    {
+      "id": "b",
+      "text": "A Multi-Instance activity with an empty collection does not enter a wait state or block indefinitely. With zero items in the input collection there are no inner instances to spawn and no completion condition to evaluate. The element completes immediately because zero iterations is a valid terminal state from the engine's perspective. Indefinite waiting would only occur if active inner instances existed with an unmet completion condition, which cannot happen when no instances are created from an empty collection."
+    },
+    {
+      "id": "c",
+      "text": "Standard behavior: MI activates and immediately completes -- no inner instances spawn (zero iterations). Process flow proceeds past MI as if no work happened. No error, no incident. Output: outputCollection (if configured) is empty []. \"). For \"must have items\" semantic: add Gateway BEFORE MI that checks count(items) > 0; route differently or fail."
+    },
+    {
+      "id": "d",
+      "text": "Multi-Instance does not create a default or fallback instance when the collection is empty. The number of inner instances spawned equals exactly the number of elements in the inputCollection -- zero items means zero instances. BPMN specification defines no default instance concept for Multi-Instance activities; the element simply completes with no iterations performed. Adding a gateway before the Multi-Instance to handle empty input is the recommended defensive pattern when business logic requires special handling of that case."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. MI empty-collection semantic: Standard behavior (per BPMN spec + Camunda): MI activates; engine evaluates inputCollection. Collection is empty: zero instances to spawn. MI immediately \"completes\" (with no work done). Flow proceeds past MI to next element. outputCollection (if configured): empty list []. No error / no incident: Engine treats \"zero items\" as valid input; just nothing to iterate. Process flow unaffected; continues. Common pitfalls: Pitfall 1: Downstream assumes non-empty results: Downstream task references outputCollection[1] or similar → null/error. Fix: handle empty case with Gateway after MI. Pitfall 2: Treating MI as validation: Modeler thinks \"MI fails if no items\" → wrong; MI accepts empty. Fix: add explicit check before MI. Defensive pattern: ` [Compute items] → [XOR Gateway: count(items) > 0?] ├─ Yes → [MI Subprocess] → [Process results] └─ No → [Handle empty case] Alternative: in MI, use Output Mapping to set a flag indicating if any iterations ran: outputCollection: results outputElement: =result After MI: =count(results) > 0 check. MI for \"process all customers\" pattern: If customers is empty: no error; MI completes; process continues. Downstream may need to differentiate \"no customers\" vs \"all customers processed.\" Combine with completionCondition (per Set 13 Q13): With empty collection: no iterations; completionCondition irrelevant (no iteration completions to evaluate). MI completes immediately. Sequential vs Parallel (both behave the same on empty): Sequential: no instance starts; complete. Parallel: no instances spawn; complete. Best practices: Validate collection upstream: check size before MI if \"non-empty\" is a precondition. Handle empty in downstream: don't assume results. Document the semantic: tell consumers that \"empty input = no-op.\" Edge case: null collection: inputCollection = null: typically causes Incident (can't iterate null). Defensive FEEL: =if items != null then items else []` → handles null gracefully."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q12",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

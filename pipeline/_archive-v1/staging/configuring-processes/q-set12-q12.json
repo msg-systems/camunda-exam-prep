@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task review-request has a priority attribute (in some BPMN tooling). The team wonders if Tasklist uses this for sorting or visual cues. Does User Task priority attribute affect Tasklist behaviour?",
+  "question": "Does User Task priority attribute affect Tasklist behaviour?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The claim that priority always sorts in Tasklist oversimplifies the situation. 6, the sorting behavior in Tasklist depends on the specific version deployed and how the Tasklist UI is configured. In older versions, priority may have been stored but not surfaced as a sort control in the UI. Additionally, sorting by priority is a user-controlled option in Tasklist, not an automatic default; users must switch the sort control to Priority to use it."
+    },
+    {
+      "id": "b",
+      "text": "Treating User Task priority as purely informational (display-only with no functional effect) is an incomplete characterization. 6+, the zeebe:priorityDefinition priority attribute is functionally integrated into Tasklist's sort/filter functionality and is also returned by the Orchestration Cluster REST API in task search results. Custom applications can use the priority value for programmatic task routing and distribution logic. While priority does not auto-assign tasks, it is more than decorative metadata."
+    },
+    {
+      "id": "c",
+      "text": "md:85-95. Use the zeebe:priorityDefinition extension element with a priority attribute (integer 0-100, default 50, higher = more important). The value can be static OR a FEEL expression evaluated at user task activation that must yield an integer in the same range. Tasklist surfaces priority in the task list (sort / filter); Operate and the Orchestration Cluster REST API also expose it."
+    },
+    {
+      "id": "d",
+      "text": "Claiming there is no priority support in Camunda 8 User Tasks is factually wrong. 6, User Task priority is a first-class feature defined by the zeebe:priorityDefinition extension element in the BPMN XML. The priority value is an integer from 0 to 100 with a default of 50. It can be set statically or computed dynamically via a FEEL expression at task activation time. Both Tasklist and the Orchestration Cluster REST API expose and support priority for task management purposes."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. User Task priority handling in Camunda 8 (per user-tasks.md:85-95): zeebe:priorityDefinition extension element on the user task with priority attribute. Integer 0-100; default 50 if not specified. Static or FEEL expression: prefix the expression with =; evaluated at user task activation; must return an integer in 0-100. Higher = more important. Tasklist usage: Sort by priority: in Tasklist, switch the Sort by control to Priority per the using-tasklist guide. Filter / display indicators: Tasklist surfaces priority alongside due date, follow-up date, candidate groups, etc. Orchestration Cluster REST API: priority is in user task search results / get responses; custom apps can read / sort on it. Best practices: Set priority dynamically with FEEL: =if customer.tier = \"GOLD\" then 80 else 50. Evaluated at activation. Stick to a small set of well-known values (e.g., 20 / 50 / 80) for readability across reports. Document priority semantics: what each level means for ops; align with SLA tiers. Note: the zeebe:priorityDefinition element is a Camunda extension; the value lives in the BPMN XML attribute, not as a process variable. For \"process-variable-driven priority\" use a FEEL expression =order.priority so the activation reads from a variable but stores the resolved integer on the task."
+    },
+    "b": {
+      "text": "Incorrect. Depends on version."
+    },
+    "c": {
+      "text": "Correct. Functional in many versions."
+    },
+    "d": {
+      "text": "Incorrect. Supported."
+    }
+  },
+  "explanation": "Functional in many versions.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/tasklist/userguide/using-tasklist/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q12",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

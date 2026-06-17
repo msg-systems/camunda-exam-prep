@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task send-notification must pass a static configuration to the worker -- the channel \"SMS\" and a template ID \"WELCOME_001\". The team doesn't want to use a process variable since these values are constant per modeled task.",
+  "question": "Which configuration delivers static config to the worker?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Input Mapping with literal FEEL values defined on the Service Task. Input Mappings inject values into the task's local variable scope before job activation. While this technically delivers static values to the worker, it pollutes the process variable scope with per-task constants that have no business meaning outside that task. Task Headers are the more idiomatic Camunda 8 mechanism for static per-task configuration metadata."
+    },
+    {
+      "id": "b",
+      "text": "Process variable set globally on the Start Event. Start Event variables are placed into the root process scope and are visible to every element throughout the entire process lifetime. Storing per-task static config like \"SMS\" or \"WELCOME_001\" as global process variables is semantically wrong because these values are properties of a specific task, not shared business state across the whole process instance."
+    },
+    {
+      "id": "c",
+      "text": "Hardcode the channel and template values directly inside the worker's source code. Embedding per-task configuration inside worker business logic tightly couples the task-specific settings to the implementation. Changing the channel or template ID requires a code change, build, and redeployment of the worker service instead of a simple model update, violating the principle of configuration-in-model promoted by Camunda 8 process design."
+    },
+    {
+      "id": "d",
+      "text": "Task Headers (zeebe:taskHeader) defined on the Service Task in the BPMN model. Task Headers attach static key-value metadata to a specific Service Task without affecting the process variable scope. getCustomHeaders()."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Task Headers (zeebe:taskHeader) attach static key/value config to a specific Service Task instance. The worker reads them from activatedJob.getCustomHeaders(). Designed exactly for \"per-task static config.\""
+    },
+    "b": {
+      "text": "Incorrect. Input Mapping with literal FEEL works, but headers are more idiomatic for static metadata that shouldn't pollute the variable scope."
+    },
+    "c": {
+      "text": "Incorrect. Start Event variables are global, not per-task."
+    },
+    "d": {
+      "text": "Correct. Worker code shouldn't bake in per-task config."
+    }
+  },
+  "explanation": "Worker code shouldn't bake in per-task config.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Inside an Embedded Subprocess, a Service Task should signal \"this subprocess is done with an error\" -- propagating outward to a parent's Error Boundary. The team wonders whether to use Error End Event or Error Throw Intermediate Event.",
+  "question": "Error End Event vs Error Throw Intermediate Event -- which to use inside a subprocess?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Claiming Error End Event and Error Intermediate Throw Event behave identically inside a subprocess does not reflect the actual behavior. 0 spec would throw the error and then continue flow on the same path. Additionally, in Camunda 8, only Error End Event is actually implemented for execution; the Intermediate Throw variant is absent from the supported coverage list."
+    },
+    {
+      "id": "b",
+      "text": "Claiming that only Error Throw Intermediate Event works inside a subprocess is doubly wrong. First, the premise is inverted -- it is the Error End Event, not the Intermediate Throw, that is the supported and canonical choice. Second, in Camunda 8, Error Intermediate Throw Event is not included in the BPMN coverage as an implemented element. Modelers who draw an Intermediate Throw Event shape may place it in their diagram, but Zeebe will not execute it. The Error End Event is both implemented and semantically appropriate for subprocess failure scenarios."
+    },
+    {
+      "id": "c",
+      "text": "Error End Event is the canonical (and in Camunda 8 the ONLY) way to throw an error from within a process. md:401, :408 only ErrorBoundaryEventSvg and ErrorEndEventSvg carry className=\"implemented\" -- Error Intermediate Throw Event is NOT implemented in Camunda 8 (no ErrorIntermediateThrowEventSvg entry in the coverage table). The Error End Event terminates the current flow path AND throws the error; the error propagates up the scope hierarchy until caught by a matching errorCode on an Error Boundary or Error Start of an Event Subprocess. For the typical subprocess-error scenario (\"we failed; bubble up to parent\"), Error End Event is the only execution-supported choice."
+    },
+    {
+      "id": "d",
+      "text": "Restricting Error End Event usage to only the top-level process does not reflect the actual behavior. \" When an Error End Event fires inside a subprocess, the engine propagates the error outward through the scope hierarchy until a matching Error Boundary Event or Error Start Event (in an Event Subprocess) catches it by errorCode."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per bpmn-coverage.md:401, :408 Camunda 8 implements only two Error event shapes for execution: ErrorBoundaryEventSvg (catch on activity boundary) and ErrorEndEventSvg (throw at end of a path). ErrorIntermediateThrowEventSvg is absent from the coverage table -- Error Intermediate Throw Event is not implemented; modeller may draw such a symbol but Zeebe rejects/does not execute it. Error End Event (only executable throw form): Throws the error. Terminates the current flow path (acts as End Event). Subprocess scope reaches its end via this path; nothing further in the path. Typical: \"this branch fails; that's the end of this path.\" Error Intermediate Throw Event (modeller-visible, NOT executable in C8): In BPMN 2.0 spec it would throw + continue, but in Camunda 8 it's not on the supported list per bpmn-coverage.md. Don't model it as an executable element. For \"subprocess fails; bubble up to parent's Error Boundary\": Error End Event in subprocess. The error propagates from inside the subprocess to its boundary on the parent's side; flow routes via the Boundary's outgoing arrow. Reach to parent: the Error End Event throws error in subprocess scope; engine looks for matching Error Boundary (matching errorCode) on subprocess element (in parent); if found, Boundary fires, subprocess cancelled, parent flow continues via Boundary's outgoing arrow. If no match in any enclosing scope, an Incident is raised per error-events.md."
+    },
+    "b": {
+      "text": "Incorrect. Only End is execution-supported; Throw Intermediate is not implemented."
+    },
+    "c": {
+      "text": "Correct. Only End is supported; Intermediate Throw is NOT in bpmn-coverage.md."
+    },
+    "d": {
+      "text": "Incorrect. End in subprocess valid."
+    }
+  },
+  "explanation": "Only End is supported; Intermediate Throw is NOT in bpmn-coverage.md.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q02",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-modification-37",
+  "topic": "configuring-processes",
+  "subtopic": "modification",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Meridian Insurance runs a claims process on Camunda 8.8 with an embedded subprocess containing tasks A, B, and C joined by an inclusive gateway. Across 2500 claim instances, task A completed and the engine waited on task B; task C did not start because the worker for A returned an unexpected value. The operator wants to activate task C inside the same running subprocess instance with one modification command.",
+  "question": "How does the engine handle the activation of task C nested inside the existing embedded subprocess instance at Meridian Insurance?",
+  "options": [
+    { "id": "a", "text": "The engine creates a new instance of the embedded subprocess and activates task C inside the new instance, leaving task B running in the original subprocess instance at Meridian Insurance" },
+    { "id": "b", "text": "The engine activates task C inside the existing instance of the embedded subprocess so task B and task C are both active in the same subprocess instance at Meridian Insurance" },
+    { "id": "c", "text": "The engine activates the start event of the embedded subprocess again and then activates task C, applying input variable mappings of the subprocess once more at Meridian Insurance" },
+    { "id": "d", "text": "The engine rejects the modification command because nested activation inside an already running embedded subprocess instance is not allowed by the modification API at Meridian Insurance" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The docs state the engine activates the element in an existing instance of the subprocess; a new subprocess instance is created only if no active instance exists." },
+    "b": { "text": "Correct. The docs describe exactly this case: activating a nested element places it in the existing instance of the embedded subprocess, so task B and task C run together in the same subprocess instance." },
+    "c": { "text": "Incorrect. Even when the engine has to create a new subprocess instance, the docs state it does not activate the start event of the subprocess or apply input variable mappings; here the existing instance is reused." },
+    "d": { "text": "Incorrect. Nested activation is supported; the command is only rejected when the subprocess has more than one active instance and the engine cannot decide which to target." }
+  },
+  "explanation": "Activating a nested element targets the existing instance of the surrounding embedded or event subprocess. If no active instance exists the engine creates one without firing its start event or input mappings. The command is rejected only when multiple subprocess instances exist.",
+  "docs": [
+    { "title": "Process instance modification", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/" }
+  ]
+}

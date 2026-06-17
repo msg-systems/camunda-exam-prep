@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A subscription-management BPMN handles three different external events: a renewal-payment message, a cancellation message, and a refund-request message. They can arrive at any time during the process; each requires a distinct handling path. The team wants a single mechanism to listen for all three message types concurrently.",
+  "question": "Which BPMN pattern fits \"listen for multiple external event types concurrently throughout the process\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Multiple Event Subprocesses within the main process, each with a Message Start Event subscribed to a different message name. Event Subprocesses activate when their start message arrives; they can be interrupting (cancels the main flow) or non-interrupting (runs alongside the main flow). This is the BPMN-canonical pattern for scope-level event listening across the entire process lifetime. One Event Subprocess per message type, each with its own distinct handling logic and Message Start Event subscription."
+    },
+    {
+      "id": "b",
+      "text": "Add three Receive Tasks in parallel branches at the start of the process to listen for all three message types simultaneously. They do not provide ambient event listening throughout the entire process lifecycle. Once the parallel gateway merges after message receipt, listening stops. Event Subprocesses provide the continuous throughout-process listening needed here."
+    },
+    {
+      "id": "c",
+      "text": "Place three Boundary Message Events on the entire process to capture all three message types throughout execution. This approach has a fundamental placement problem. Boundary Events attach to specific individual activities, not to an entire process scope. The canonical mechanism for process-level event listening that remains active throughout the entire process lifecycle is the Event Subprocess, not a Boundary Event on the process itself."
+    },
+    {
+      "id": "d",
+      "text": "Process-level event listening throughout a running process instance is not a feature available in Camunda 8, so a workaround using external polling or a separate watcher process would be needed. Event Subprocesses are in fact the standard BPMN mechanism precisely for this scenario and are fully supported in Camunda 8. They provide continuous scope-level event monitoring from process start to end."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Event Subprocesses are BPMN's mechanism for scope-level event listening. Placed inside the main process (or any subprocess), an Event Subprocess has a typed Start Event that triggers when the event arrives. While the main flow runs, the Event Subprocess sits dormant; on event match, it activates. Key properties: Interrupting (solid border on the Start Event): activation cancels the main flow scope; only the Event Subprocess runs to completion. Non-interrupting (dashed border): activation runs the Event Subprocess alongside the main flow. Per-event subprocess: one Event Subprocess per event type; each with its own handling logic. For three different message types: three Event Subprocesses, each with its own Message Start Event subscribed to a specific message name. They concurrently listen throughout the main flow. Each activates only when its specific message arrives."
+    },
+    "b": {
+      "text": "Incorrect. Receive Tasks at the start pause initial flow waiting for a single message; doesn't provide ongoing throughout-the-process listening."
+    },
+    "c": {
+      "text": "Incorrect. Boundary Events attach to specific host activities, not to \"the process.\" For process-level listening, Event Subprocesses are the mechanism."
+    },
+    "d": {
+      "text": "Incorrect. Event Subprocesses supported and canonical."
+    }
+  },
+  "explanation": "Event Subprocesses are BPMN's mechanism for scope-level event listening. Placed inside the main process (or any subprocess), an Event Subprocess has a typed Start Event that triggers when the event arrives. While the main flow runs, the Event Subprocess sits dormant; on event match, it activates. Key properties: Interrupting (solid border on the Start Event): activation cancels the main flow scope; only the Event Subprocess runs to completion. Non-interrupting (dashed border): activation runs the Event Subprocess alongside the main flow. Per-event subprocess: one Event Subprocess per event type; each with its own handling logic. For three different message types: three Event Subprocesses, each with its own Message Start Event subscribed to a specific message name. They concurrently listen throughout the main flow. Each activates only when its specific message arrives.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

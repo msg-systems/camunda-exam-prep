@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q50",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team is building an RPA bot that logs into the corporate SAP UI, navigates menus, runs a report, exports CSV. They want to deploy the bot as a worker that subscribes to RPA-typed Service Tasks in a BPMN.",
+  "question": "Which Camunda 8 RPA worker pattern fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Embedding an RPA bot script as a BPMN Script Task is technically unsupported for Robot Framework scripts -- Script Tasks in Camunda 8 execute FEEL or other embedded scripting languages through the script engine, not full Robot Framework test suites. Robot Framework has external runtime dependencies (Python, libraries, browser drivers) that cannot be embedded in a BPMN Script Task payload. The dedicated RPA Connector handles proper Robot Framework script deployment and execution."
+    },
+    {
+      "id": "b",
+      "text": "Using a Service Task with HTTP Connector calling an RPA vendor API is a generic REST integration approach -- not Camunda-native RPA integration. This would work if the RPA vendor provides a REST API trigger, but it lacks the tight lifecycle integration that the Camunda RPA Connector provides: direct Robot Framework script deployment from Web Modeler, job variable injection into the script, and result variable extraction back into the process via the Camunda library."
+    },
+    {
+      "id": "c",
+      "text": "Using a hardcoded task type string like camunda::rpa in a Service Task and having an RPA worker subscribe to it is a custom integration pattern -- not the standard Camunda 8 RPA approach. While any task type string can be used with custom workers, the Camunda 8 RPA Connector provides the official integration path with Web Modeler deployment support, Robot Framework library integration, and managed execution. Custom task type strings bypass these platform capabilities."
+    },
+    {
+      "id": "d",
+      "text": "The Camunda 8 RPA integration uses Robot Framework with the Camunda library. The RPA script is authored in Robot Framework, deployed via Web Modeler, and executed via the RPA Connector in Camunda SaaS or a Self-Managed RPA worker. The BPMN process contains an RPA Connector-type Service Task. The Camunda library for Robot Framework provides keywords for completing Zeebe jobs, setting output variables, and handling errors. This is the first-class Camunda 8 RPA integration pattern. ###"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per rpa/getting-started.md:57-60: in Modeler \"add a new task and change the type to an RPA connector\" (a first-class task type, not a hand-typed Service Task string); configure it with the deployed RPA script ID. The RPA worker pairs to tasks via labels per rpa/production.md:39-54 (camunda.rpa.zeebe.worker-tags=...) -- default label default on both sides when none is configured. RPA scripts authored in Robot Framework with the Camunda library."
+    },
+    "b": {
+      "text": "Incorrect. Script Task runs FEEL on the broker or a script-worker shim; not Robot/Python bots."
+    },
+    "c": {
+      "text": "Incorrect. Calling an external RPA vendor API works but uses no Camunda-native RPA features (no labels, no Camunda RPA worker)."
+    },
+    "d": {
+      "text": "Correct. camunda::rpa is NOT a Camunda 8 task type. The Modeler exposes \"RPA connector\" as the task type; worker affinity is via labels (job-tagging), not via a hand-typed type-string subscription."
+    }
+  },
+  "explanation": "camunda::rpa is NOT a Camunda 8 task type. The Modeler exposes \"RPA connector\" as the task type; worker affinity is via labels (job-tagging), not via a hand-typed type-string subscription.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/rpa/getting-started/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q50",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

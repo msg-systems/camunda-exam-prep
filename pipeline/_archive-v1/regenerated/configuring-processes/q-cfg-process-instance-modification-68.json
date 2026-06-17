@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-68",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Northgate Hospital migrated its Camunda 7 patient-intake process to Camunda 8.8 and now needs to repair 35 instances. The on-call engineer wants to use a modification command to activate a boundary error event attached to a user task so the process picks up a compensation path, instead of waiting for a new error from the worker.",
+  "question": "What will Camunda 8.8 do when this modification command is submitted?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The engine rejects the modification because activating a boundary event is one of the documented limitations of the modification command in Camunda 8.8."
+    },
+    {
+      "id": "b",
+      "text": "The engine applies the modification and triggers the boundary event, but only if the attached user task is still active at the moment the command is received."
+    },
+    {
+      "id": "c",
+      "text": "The engine applies the modification by creating a new token on the outgoing sequence flow of the boundary event without firing the boundary event itself."
+    },
+    {
+      "id": "d",
+      "text": "The engine applies the modification and synthesises a synthetic error variable so the boundary error event treats the activation as if it were raised by the worker."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs list boundary events among the BPMN element types that cannot be activated via a modification command, so the engine rejects the command rather than applying it."
+    },
+    "b": {
+      "text": "Incorrect. The restriction on boundary events is unconditional in the documented limitations and does not depend on whether the host activity is still active at the time."
+    },
+    "c": {
+      "text": "Incorrect. There is no documented workaround that converts a boundary event activation into a sequence-flow token; activating sequence flows is also explicitly disallowed."
+    },
+    "d": {
+      "text": "Incorrect. Modification cannot fabricate an error to fire a boundary error event; the only documented behaviour for activating boundary events is outright rejection."
+    }
+  },
+  "explanation": "The documented list of activation limitations includes boundary events, start events of a process or subprocess, events of an event-based gateway, elements inside multi-instance subprocesses, and sequence flows. Submitting any such activation causes the modification command to be rejected outright.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

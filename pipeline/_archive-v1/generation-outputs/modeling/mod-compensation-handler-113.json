@@ -1,0 +1,27 @@
+{
+  "id": "mod-compensation-handler-113",
+  "topic": "modeling",
+  "subtopic": "compensation-handler",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Logistics runs a Camunda 8.8 returns process where a compensation throw event invokes several handlers, processing 4000 orders per day. The team must stop running compensation handlers cleanly when the surrounding scope is interrupted by an error event subprocess in the same flow.",
+  "question": "Which situation triggers termination of running compensation handlers according to the compensation handler page?",
+  "options": [
+    { "id": "a", "text": "Running compensation handlers are terminated only when the process instance is cancelled by an external API call from outside the process in the orchestration cluster" },
+    { "id": "b", "text": "Running compensation handlers are terminated when the compensation throw event that invoked them is interrupted by a terminate end event or an interrupting event subprocess in scope" },
+    { "id": "c", "text": "Running compensation handlers continue to completion regardless of any interrupting event in the surrounding scope of the compensation throw event that invoked them at the start" },
+    { "id": "d", "text": "Running compensation handlers are terminated only when a non-interrupting event subprocess is triggered in the same scope as the compensation throw event that invoked the handler" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The Interrupting compensation handlers section lists several in-process interruption sources, including terminate end events and interrupting event subprocesses, not only external cancellation of the instance." },
+    "b": { "text": "Correct. The page states a compensation handler is terminated when the invoking compensation throw event is interrupted, for example by a terminate end event, an interrupting event subprocess, or interruption of the embedded subprocess containing the throw event." },
+    "c": { "text": "Incorrect. The page explicitly states that compensation handlers can be interrupted by these scope-level events; they do not always run to completion under all circumstances in the surrounding scope." },
+    "d": { "text": "Incorrect. Non-interrupting event subprocesses do not interrupt the throwing scope; the documented interruption sources are interrupting events such as a terminate end or an interrupting event subprocess in scope." }
+  },
+  "explanation": "Compensation handlers stop when the compensation throw event that invoked them is interrupted. This happens on process cancellation, when a terminate end event is entered, when an interrupting event subprocess is triggered, or when an embedded subprocess containing the throw event is interrupted.",
+  "docs": [
+    { "title": "BPMN compensation handler", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-handler/" }
+  ]
+}

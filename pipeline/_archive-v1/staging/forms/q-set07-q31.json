@@ -1,0 +1,63 @@
+{
+  "id": "imp-set07-q31",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A medical-intake form has a Numeric field \"Number of dependents.\" The team needs the field to be mandatory (user must fill it), but 0 is a valid value (a single person has 0 dependents). They're nervous that \"required\" might confuse with \"non-zero.\"",
+  "question": "Which validation expresses \"user must enter a value, including 0\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set Required on the Number element's Validation block. \" The number 0 is a valid, present value that satisfies the presence requirement. So Required correctly allows 0 while still blocking form submission when the field is left completely blank. This is the canonical Camunda Forms validation property for mandatory numeric fields, and it composes cleanly with min and max for range constraints."
+    },
+    {
+      "id": "b",
+      "text": "Set Minimum = 0 on the Number element's validation -- this covers the constraint \"value must be zero or greater\" but does not address the presence requirement. When a user leaves the field blank, the Minimum validation has no value to compare against and does not trigger. The renderer applies Min/Max constraints only when a value has been entered; a blank field bypasses numeric range validators entirely. \""
+    },
+    {
+      "id": "c",
+      "text": "Apply a Regex pattern constraint ^[0-9]+$ to the Number element to ensure only digits are entered, treating the numeric field as a text-pattern-validated string. The Number element's validation set in Camunda Forms consists specifically of Required, Minimum, and Maximum -- there is no Pattern (regex) property on Number elements. Pattern validation belongs exclusively to text-entry elements like Textfield and Textarea. \""
+    },
+    {
+      "id": "d",
+      "text": "Mark the Number element with a notNullable: true property in the form schema JSON to prevent null or empty submissions. The notNullable attribute has no presence in the Camunda Forms element library or schema vocabulary. It is an invented property name that sounds plausible given familiarity with database column constraints or other frameworks. Camunda Forms' validation vocabulary for the Number element is limited to required (presence check), min (numeric lower bound), and max (numeric upper bound). No notNullable or equivalent alias exists."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda Forms' required: true enforces presence -- a value must be entered. For numeric fields, this means the user submitted a number (any number, including 0). The semantic gap between \"required\" (presence) and \"non-zero\" (numeric value) is well-defined: required = \"did you fill it?\"; min/max = \"is the value in range?\" They compose: required: true, min: 0 means \"fill it, and the number must be ≥ 0.\""
+    },
+    "b": {
+      "text": "Incorrect. min: 0 checks numeric bounds when a value is present. If the user leaves the field blank, min has nothing to compare and doesn't trigger. Use required for presence."
+    },
+    "c": {
+      "text": "Incorrect. Regex on numeric inputs is generally a code smell; numeric validation has dedicated tools (min, max, step). The regex ^[0-9]+$ would technically work but is opaque."
+    },
+    "d": {
+      "text": "Incorrect. notNullable isn't a Camunda Forms attribute."
+    }
+  },
+  "explanation": "Camunda Forms' required: true enforces presence -- a value must be entered. For numeric fields, this means the user submitted a number (any number, including 0). The semantic gap between \"required\" (presence) and \"non-zero\" (numeric value) is well-defined: required = \"did you fill it?\"; min/max = \"is the value in range?\" They compose: required: true, min: 0 means \"fill it, and the number must be ≥ 0.\"",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-number/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q31",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[3]"
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q27",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN decision needs to return a fixed list of strings: [\"VIP\", \"ESCALATED\", \"PRIORITY\"] regardless of input. The team is choosing how to express this in Camunda 8.",
+  "question": "Which Camunda-8-supported DMN body type produces a fixed list?",
+  "options": [
+    {
+      "id": "a",
+      "text": "typeRef=\"string\" (returns List<String> -- typeRef represents element type per DMN spec). md:23-28 enumerates only two Decision body types supported in Camunda 8: Decision Tables and Literal Expressions. A Literal Expression combined with a FEEL list literal is the canonical idiom for a decision that returns a fixed list. The list is stored as the decision output variable and can be consumed by downstream BPMN FEEL expressions using standard list operations like filter, count, and item_in for membership testing."
+    },
+    {
+      "id": "b",
+      "text": "Boxed List body type -- a DMN specification body type designed to return an ordered list of values as the decision result through a structured list definition. md. A Boxed List definition fails deployment validation in Camunda 8. To return a list from a DMN decision in Camunda 8, use a Literal Expression body type containing a FEEL list literal like [\"GDPR\", \"PCI-DSS\", \"SOX\"] or a dynamically constructed FEEL list expression based on input conditions."
+    },
+    {
+      "id": "c",
+      "text": "Decision Table with COLLECT hit policy and one rule per list item -- one row returning GDPR, one returning PCI-DSS, one returning SOX -- with always-true input conditions so all rules always match and all outputs are collected into a list. md:112-120, which confirms COLLECT produces a list of all matched outputs. Each compliance requirements change requires adding or removing table rows. A Literal Expression returning a FEEL list literal is dramatically simpler and more maintainable for fixed constant outputs."
+    },
+    {
+      "id": "d",
+      "text": "DMN decisions can only return scalar values like strings and numbers -- returning a fixed list of strings as a decision output has no basis in the DMN specification or Camunda 8 capabilities -- this description does not reflect the actual behaviour. FEEL includes a first-class list type, and a DMN Literal Expression body can return any valid FEEL value including list literals. The expression [\"GDPR\", \"PCI-DSS\", \"SOX\"] is a valid FEEL literal that evaluates to a list of three strings. This list is the decision result and can be stored in a process variable and consumed by downstream FEEL expressions using standard list operations like item_in, count, and filter."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda 8 supports only two Decision body types (per dmn.md:23-28): Decision Table and Decision Literal Expression. For a fixed list output, use a Literal Expression body with a FEEL list literal: =[\"VIP\", \"ESCALATED\", \"PRIORITY\"]. The `` declares element type. This is the simplest and idiomatic C8 form."
+    },
+    "b": {
+      "text": "Incorrect. Boxed List is a DMN-1.3 spec body type but absent from Camunda 8's supported element list at dmn.md:23-28. (Pattern #41 -- 3rd cumulative.)"
+    },
+    "c": {
+      "text": "Incorrect. A Decision Table with COLLECT hit policy returns a list per decision-table-hit-policy.md:112-120, but for a constant output the table adds no value over a one-line Literal Expression."
+    },
+    "d": {
+      "text": "Incorrect. Lists are supported; a FEEL list literal in a Literal Expression body works."
+    }
+  },
+  "explanation": "Camunda 8 supports only two Decision body types (per dmn.md:23-28): Decision Table and Decision Literal Expression. For a fixed list output, use a Literal Expression body with a FEEL list literal: =[\"VIP\", \"ESCALATED\", \"PRIORITY\"]. The `` declares element type. This is the simplest and idiomatic C8 form.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-literal-expression/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q27",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

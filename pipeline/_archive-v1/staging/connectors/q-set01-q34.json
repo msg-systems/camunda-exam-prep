@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A retail merchant integration uses an Inbound HTTP Webhook Connector to receive payment notifications from a payment gateway. The webhook is configured on a Message Start Event in the BPMN process. The payment gateway sends an HTTPS POST with a JSON body to the Camunda 8 SaaS cluster's webhook URL. The Inbound Connector parses the body, correlates the payment to a running process instance, and triggers the Message Catch Event. The team observes that for high-volume merchants (some webhooks are received multiple times due to gateway retries), the same payment notification triggers the process twice, leading to duplicate fulfillment.",
+  "question": "What is the canonical Camunda 8 mechanism to deduplicate webhook deliveries at the Inbound Connector level?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Configure the webhook's Correlation key (payload) as the deduplication key. The Correlation key (payload) is a FEEL expression that extracts a value from the incoming request body to use as the message correlation value -- it routes the message to the correct running process instance by matching the message subscription. orderId routes the payment notification to the instance that started with that orderId. This is about routing, not deduplication -- it does not prevent the same correlation from happening twice if the webhook is delivered again. Deduplication requires the separate Message ID expression field."
+    },
+    {
+      "id": "b",
+      "text": "Increase the Message TTL on the Message Start Event to buffer duplicate webhooks. Message TTL (Time-to-Live) controls how long an unsubscribed message is held in the Zeebe broker before expiry -- it applies when a message arrives but no matching subscription exists yet. Once a subscription is active (the process instance is running), the TTL setting has no bearing on whether a second identical delivery will be accepted or rejected. Increasing TTL would actually worsen the situation by holding more unsubscribed duplicates in the broker longer, not preventing correlated duplicates from triggering process instances."
+    },
+    {
+      "id": "c",
+      "text": "Implement Connector-side deduplication by maintaining a list of seen transaction IDs in a database. ). The Zeebe broker already provides this deduplication guarantee natively via the Message ID field within the TTL window, making the custom database approach unnecessary over-engineering."
+    },
+    {
+      "id": "d",
+      "text": "transactionId). The message ID serves as a unique identifier used by the broker for deduplication within the message TTL window. Per :566, when a webhook request is processed more than once using the same Message ID, the correlation object is empty (no duplicate process instance is created)."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per http-webhook.md:112-124, the Inbound HTTP Webhook Connector exposes a Message ID expression field that \"allows you to extract the message ID from the incoming request. The message ID serves as a unique identifier for the message and is used for message correlation.\" Verbatim :117: \"It is useful if you want to ensure message deduplication or achieve a certain message correlation behavior.\" Per :566: \"If a Webhook request is processed more than once using the same _Message ID_ (for example, because of a retry), the correlation object is empty.\" This leverages Zeebe broker-level message uniqueness within the message TTL window per concepts/messages.md -- the canonical Pattern #4 from project history."
+    },
+    "b": {
+      "text": "Incorrect. The Correlation key (payload) per http-webhook.md:100-110 is the FEEL expression used to route the message to a running instance (matches the Correlation key (process) subscription value). It is NOT for deduplication -- separate concern from Message ID."
+    },
+    "c": {
+      "text": "Incorrect. Message TTL controls how long an unsubscribed message is buffered waiting for a subscriber. It does not deduplicate identical messages."
+    },
+    "d": {
+      "text": "Correct. A custom DB-backed dedup table reinvents what Message ID + broker uniqueness provides natively at zero extra cost."
+    }
+  },
+  "explanation": "A custom DB-backed dedup table reinvents what Message ID + broker uniqueness provides natively at zero extra cost.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q34",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

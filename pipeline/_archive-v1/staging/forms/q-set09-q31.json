@@ -1,0 +1,63 @@
+{
+  "id": "imp-set09-q31",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has a Form with 10 fields. The assignee fills the form and clicks \"Complete Task.\" The team wonders when the form data is written to process variables -- at every keystroke, on submit, or asynchronously?",
+  "question": "When are Form data values written to process variables?",
+  "options": [
+    {
+      "id": "a",
+      "text": "\" Before completion, data lives in the form's local UI state (browser memory) but isn't yet in Zeebe. Failures before completion (browser crash, lost connection) lose the unsaved data; the task remains active for re-entry. Some Forms / Tasklist versions support \"save draft\" for partial-fill persistence; verify the docs."
+    },
+    {
+      "id": "b",
+      "text": "Writing form data to process variables on every keystroke would generate an enormous number of write operations to the Zeebe process engine. With ten fields and hundreds of concurrent users each typing multiple characters per second, the engine would be overwhelmed. Real-time per-keystroke persistence is not how Camunda Forms work -- data is held in the browser's local UI state until the user explicitly completes the task."
+    },
+    {
+      "id": "c",
+      "text": "An asynchronous background save every 5 seconds is not the default form data persistence behaviour in Camunda Forms. Some versions of Tasklist or custom Form implementations may offer a \"save draft\" feature for long forms, but this is version-specific and not the canonical default. The standard behaviour is that form data becomes a process variable only when the user clicks Complete, not on any timer-driven background interval."
+    },
+    {
+      "id": "d",
+      "text": "Form data is not purely visual -- it is the mechanism by which user input enters the process. When a user completes a task, the form's field values are written to the process instance's variable scope according to the field bindings defined in the form schema. The form is the primary human interface for providing data to the running process, and its data absolutely writes to variables upon task completion."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The canonical model: Form data writes to process variables when the user completes the task (clicks Complete). Before that, data is local to the user's browser (UI state). This means: Browser crash before Complete = data lost; task remains active; user re-enters. User can change values multiple times before Complete; only the final state is persisted. On Complete, the form's data merges into process scope according to the form's field bindings (with Output Mapping rules if configured). Some Forms / Tasklist versions add \"save draft\" functionality for long forms -- allows persisting partial state without completing. Verify per current version. Without draft support, users finishing a long form should be aware that browser-level recovery is on them."
+    },
+    "b": {
+      "text": "Incorrect. Per-keystroke writes would overwhelm."
+    },
+    "c": {
+      "text": "Incorrect. Auto-save varies by version."
+    },
+    "d": {
+      "text": "Incorrect. Form data writes on complete."
+    }
+  },
+  "explanation": "The canonical model: Form data writes to process variables when the user completes the task (clicks Complete). Before that, data is local to the user's browser (UI state). This means: Browser crash before Complete = data lost; task remains active; user re-enters. User can change values multiple times before Complete; only the final state is persisted. On Complete, the form's data merges into process scope according to the form's field bindings (with Output Mapping rules if configured). Some Forms / Tasklist versions add \"save draft\" functionality for long forms -- allows persisting partial state without completing. Verify per current version. Without draft support, users finishing a long form should be aware that browser-level recovery is on them.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/tasklist/userguide/using-tasklist/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q31",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[2]"
+      }
+    ]
+  }
+}

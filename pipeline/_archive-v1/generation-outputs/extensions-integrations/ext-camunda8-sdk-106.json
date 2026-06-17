@@ -1,0 +1,27 @@
+{
+  "id": "ext-camunda8-sdk-106",
+  "topic": "extensions-integrations",
+  "subtopic": "typescript-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Zenith Bank, a wholesaler lender that runs 6800 loans per week on Camunda 8.8, queries the historical record of a finished checkout instance from a Node.js TypeScript script. The team observes that even when the instance just completed, the response state field sometimes reports ACTIVE rather than COMPLETED, and they must explain that behaviour to a reviewer before publishing the worker.",
+  "question": "Why does camunda.getProcessInstance sometimes return state ACTIVE for an instance that just completed in the SDK quickstart?",
+  "options": [
+    { "id": "a", "text": "The getProcessInstance call reads from the broker write path which always reports the previous state for 10 seconds before the new state is broadcast to attached SDK consumers" },
+    { "id": "b", "text": "The getProcessInstance call returns cached responses for 30 seconds inside the Camunda8 SDK client, so the state field reflects the prior state until the cache expires for that key" },
+    { "id": "c", "text": "The getProcessInstance call refuses to return COMPLETED instances unless awaitCompletion was true on the original create call, so the lookup downgrades the state to ACTIVE in the response" },
+    { "id": "d", "text": "The getProcessInstance call reads historical data from the Zeebe exporter which lags behind the actual system state and is eventually consistent, so the state may still read ACTIVE" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The lag is not a fixed 10-second broker hold; the docs explain it as eventual consistency of historical data read from the Zeebe exporter behind the API." },
+    "b": { "text": "Incorrect. The SDK does not document a 30-second client-side response cache for getProcessInstance; the lag comes from the exporter that feeds the historical API." },
+    "c": { "text": "Incorrect. The API does not downgrade the state based on the original awaitCompletion flag; the state may read ACTIVE because the exporter has not yet caught up to the broker." },
+    "d": { "text": "Correct. The docs note that getProcessInstance reads historical data from the Zeebe exporter, which is eventually consistent and lags behind the actual state, so a just-finished instance can still appear ACTIVE." }
+  },
+  "explanation": "camunda.getProcessInstance reads from the historical store fed by the Zeebe exporter. This data is eventually consistent and lags behind the live broker state, so the response state field may still show ACTIVE for an instance that has actually completed.",
+  "docs": [
+    { "title": "Camunda 8 TypeScript SDK", "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/" }
+  ]
+}

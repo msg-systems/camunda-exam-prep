@@ -1,0 +1,63 @@
+{
+  "id": "imp-set13-q50",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's worker connects to Zeebe via gRPC over public internet. Security team requires TLS. They wonder how to enable + verify TLS in the SDK.",
+  "question": "gRPC TLS configuration + verification?",
+  "options": [
+    {
+      "id": "a",
+      "text": "TLS configuration is optional by default --"
+    },
+    {
+      "id": "b",
+      "text": "Zeebe gRPC connections always use unencrypted plaintext; TLS encryption for the client-broker connection is not part of the documented feature set in either SaaS or Self-Managed Camunda 8 deployments. This misrepresents the documented behavior. Camunda 8 SaaS endpoints require TLS for all gRPC connections by default. For Self-Managed deployments, TLS is configurable via the Zeebe gateway security settings and is strongly recommended for production environments. Camunda SDKs default to TLS-enabled connections and require explicit configuration to use plaintext for local development."
+    },
+    {
+      "id": "c",
+      "text": "TLS for Zeebe gRPC connections can only be achieved by placing an external TLS-terminating proxy (such as Envoy, nginx, or HAProxy) in front of the Zeebe gateway; the Zeebe gateway itself has no native TLS support and must always receive plaintext connections. security configuration settings (certificate chain and private key paths). Native TLS is available without any external proxy requirement."
+    },
+    {
+      "id": "d",
+      "text": "Camunda SDKs default to TLS for gRPC connections, particularly for SaaS endpoints. The gRPC address scheme (https:// vs http://) controls TLS; ZEEBE_USE_PLAINTEXT=false is the SDK default. enabled: true plus certificate chain and private key paths. For clients connecting to a self-signed or private CA certificate, configure caCertificatePath or import the CA into the JVM truststore. Plaintext is enabled only explicitly for local development via ZEEBE_USE_PLAINTEXT=true or equivalent SDK flag."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe gRPC TLS configuration: SaaS (production-ready TLS by default): Endpoint: ..zeebe.camunda.io:443 (typically). TLS enabled and required. SDK validates server cert against public CA. No additional client-side TLS config needed beyond authentication. Self-Managed broker (Zeebe gateway TLS via Spring config -- application.yaml): zeebe.broker.gateway.security.enabled: true zeebe.broker.gateway.security.certificateChainPath: /path/to/cert.pem zeebe.broker.gateway.security.privateKeyPath: /path/to/key.pem Client side: validates server cert against the JVM truststore ($JAVA_HOME/lib/security/cacerts) by default; provide a custom CA via caCertificatePath or import into the truststore. SDK client configuration (Pattern #18 -- modern artifact is io.camunda:camunda-spring-boot-starter, NOT the legacy spring-zeebe / spring-zeebe-sdk): `yaml camunda: client: mode: self-managed # or 'saas' / 'oidc' / 'basic' grpc-address: https://zeebe.example.com:26500 rest-address: https://camunda.example.com:8080 auth: client-id: ${CLIENT_ID} client-secret: ${CLIENT_SECRET} https:// scheme implies TLS for both gRPC and REST endpoints. For node SDK / typescript: @camunda8/sdk (per apis-tools/typescript/camunda8-sdk/) -- usePlaintext: false is the default; set ZEEBE_GRPC_ADDRESS=https://... (which by itself implies TLS). Node SDK: js const zbc = new ZeebeClient({ ZEEBE_ADDRESS: \"zeebe.example.com:26500\", ZEEBE_USE_PLAINTEXT: \"false\", // explicit, but default // ... auth }); Verification methods: Method 1: Connection logs: SDK logs \"TLS handshake\" or similar at INFO / DEBUG level. Method 2: Network inspection: openssl s_client -connect host:port: see cert details. Verify cert chain, expiry, DNS SAN matches. Method 3: Plaintext test: Try usePlaintext: true` against TLS-required broker → connection rejected. Confirms broker enforces TLS. Method 4: Server-side audit: Broker logs incoming connections; verify TLS protocol version. Common issues: DNS / hostname mismatch: cert valid for hostname but client uses IP → fails verification. Self-signed cert without trust: SDK rejects; configure custom CA or import to truststore. Expired cert: production fail; rotation needed. Old TLS version: TLS 1.0 / 1.1 deprecated; ensure 1.2 or 1.3. Best practices: Always TLS in production: never plaintext over public internet. Cert rotation automation: avoid expiry incidents. Monitor TLS handshakes: alert on TLS errors. mTLS (client certs): optional extra; verify SDK support."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. Incorrect."
+    },
+    "d": {
+      "text": "Correct. Partially correct."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q50",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 13.7 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

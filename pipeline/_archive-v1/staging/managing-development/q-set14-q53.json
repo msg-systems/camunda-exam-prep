@@ -1,0 +1,69 @@
+{
+  "id": "imp-set14-q53",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Process definition V2 deployed; 1,000 V1 instances in-flight need migration. Team wonders about migration tooling -- manual via API or UI features.",
+  "question": "Process migration tooling?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No migration support -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "md): A migration plan maps source flow-node IDs to target flow-node IDs on a newer process version. Running instances move to the new version mid-flight without being cancelled. Migrate can be initiated via the Operate UI for individual or batch instances, or programmatically via the Orchestration Cluster REST API batch-create endpoint."
+    },
+    {
+      "id": "c",
+      "text": "Process instance migration in Camunda 8 is available through both the Operate web UI and the REST API, not exclusively via API. The Operate UI provides a guided migration workflow where users select source and target process versions and define the element mapping interactively. The API endpoint enables automation for large-scale migrations or CI/CD pipeline integration. Restricting migration to API-only ignores the UI-driven path that operations teams commonly use for ad-hoc migrations."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 migration supports bulk batch operations for migrating thousands of instances simultaneously, not only manual one-by-one interaction. The Operate UI's batch migration feature and the Orchestration Cluster REST API both operate on filtered sets of instances. A migration plan is defined once and applied across all selected instances. Requiring manual per-instance clicks for each of potentially thousands of running instances would be operationally impractical and error-prone."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Migration tooling options: Migration plan: Definition: maps V1 element IDs to V2 element IDs. Auto-mapping: elements with same ID in both versions. Explicit mapping: for renamed / restructured elements. JSON / API format: programmatic. API-based migration: Endpoint (verify per version): POST migration plan + target process instance(s). Pattern: `python # 1. Define migration plan plan = { \"sourceProcessDefinitionKey\": \"process-v1-key\", \"targetProcessDefinitionKey\": \"process-v2-key\", \"mappingInstructions\": [ {\"sourceElementId\": \"ReviewTask\", \"targetElementId\": \"ReviewTask\"}, {\"sourceElementId\": \"OldStep\", \"targetElementId\": \"NewStep\"} ] } # 2. Find V1 instances v1_instances = api.search_instances(processDefinitionKey=\"v1-key\") # 3. Migrate in batches for batch in chunks(v1_instances, 100): api.migrate_instances(plan, [i.key for i in batch]) time.sleep(1) # 4. Verify Operate UI migration per operate/userguide/process-instance-migration.md: 8.8 includes a visual migration UI in Operate. Visual element-mapping with preview impact. Apply to selected instances; runs as a batch operation (per Q52 -- one of the 6 batch types in concepts/batch-operations.md:33`). For 1,000 instances: Approach A: Scripted API migration: Define plan. Iterate instances in batches. Monitor progress. Pros: repeatable, auditable. Cons: requires API access + scripting. Approach B: Cohabitation (no migration): V1 instances continue with V1. New instances on V2. Wait for V1 to drain naturally. Pros: simplest; no migration risk. Cons: V1 logic must remain available; longer transition. Approach C: Hybrid: Migrate critical V1 instances (newly-blocked, escalations). Let routine V1 instances finish naturally. Migration safety: Pre-migration checks: Compatible plan: all V1 active elements map to valid V2 elements. Variables compatible: per Set 14 Q18. Test in staging: migrate sample instances first. Migration execution: Dry-run: if API supports; preview without applying. Batch sizes: 50-200 typical; balance speed vs cluster load. Rate limit: pause between batches. Post-migration verification: Spot-check: pick migrated instances; verify state correct. Re-activate workers: ensure they process migrated instances. Monitor errors: incident rate post-migration. Risks + mitigations: Risk: Plan mismatch (element ID not in V2): Mitigation: validate plan against V2 model before deploying. Risk: Variables incompatible: Mitigation: pre-migration Modify API to set new variables; or defensive V2 logic. Risk: In-flight tokens at incompatible state: Mitigation: check token positions; some may not migrate cleanly. Risk: Cluster overload during bulk migration: Mitigation: small batches; rate limit; monitor. Rollback: Migration is one-way typically. Backup before for emergency restore. Test migration in staging: validate before prod. Best practices: Define migration plan early: as part of V2 development. Test migration in dev / staging: with real-like data. Document migration runbook: step-by-step. Communicate: stakeholders aware of migration window. Monitor: post-migration health."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q53",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 16.4 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

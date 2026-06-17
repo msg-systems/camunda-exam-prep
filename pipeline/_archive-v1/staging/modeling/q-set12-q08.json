@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q08",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A document-approval process has a User Task review-document. If the reviewer requests changes, the document goes back for revision (a Service Task), then to review again. This back-and-forth loop can repeat several times until approved.",
+  "question": "Which BPMN pattern fits a rework loop with potential multiple iterations?",
+  "options": [
+    {
+      "id": "a",
+      "text": "\" → if Yes → continue downstream; if No → Service Task \"Revise Document\" → back-edge sequence flow → User Task (re-enters). The loop continues until \"approved\" branch is taken. The back-edge is a sequence flow from the revise task back to the review User Task."
+    },
+    {
+      "id": "b",
+      "text": "Multi-Instance subprocesses or tasks are designed for iterating over a data collection (an array of items) either in parallel or sequentially. They are the wrong construct for a conditional rework loop where the number of iterations is unknown in advance and continuation depends on reviewer approval. MI requires a predefined inputCollection and processes each element once. A document-review rework loop is driven by a decision (\"approved or not\"), not by a known set of items. The correct pattern is an explicit XOR Gateway with a back-edge sequence flow."
+    },
+    {
+      "id": "c",
+      "text": "md:127-139, where the <LoopSvg /> entry has no className=\"implemented\" flag. Unlike neighbouring BPMN symbols that carry the implemented class, the Standard Loop marker lacks execution support in Zeebe. Modelers who apply this marker may see it in the Web Modeler diagram, but the engine will disregard it during execution. The explicit Gateway plus back-edge sequence flow is the only fully executable looping pattern in Camunda 8 for conditional rework scenarios."
+    },
+    {
+      "id": "d",
+      "text": "Compensation Events are designed for the saga rollback pattern -- undoing previously completed activities when a downstream failure requires reversal of already-completed work. Compensation is not designed for iterative rework where the same activity is repeated until a condition is satisfied. Using Compensation for a review-revision loop would be architecturally incorrect, adding unnecessary complexity to what should be a simple explicit loop pattern with a Gateway and back-edge sequence flow."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Rework loops in BPMN: explicit Gateway + back-edge sequence flow: ` [Submit Document] → [Review (User Task)] → [XOR Gateway: approved?] → Yes → [Publish] → [End] → No → [Revise (Service Task)] ─┐ ┌───────────────────────────────────────────────────────┘ └─ back-edge: revise → re-enters Review ` Properties: Visible: readers see the loop structure in the diagram. Trackable in Operate: each iteration shows as a distinct User Task activation; you can see how many revisions happened. Variable handling: variables update each iteration; ensure no unintended state carries over. Termination: loop exits via the \"approved\" branch. Safety: consider a max-iteration safeguard (e.g., after 5 revisions, escalate). Achieve via a counter variable + condition; or wrap in a Subprocess with Timer Boundary. Best practice for back-edges: Visual clarity: route the back-edge clearly; avoid crossing other elements. Annotate: comment to explain the loop's purpose."
+    },
+    "b": {
+      "text": "Incorrect. MI iterates a collection."
+    },
+    "c": {
+      "text": "Incorrect. Pattern #51 -- Standard Loop marker carries no implemented flag in bpmn-coverage.md:127-139 (compare to siblings with className=\"implemented\"). Zeebe rejects/does not execute Standard Loop activities. Explicit Gateway + back-edge is the only canonical option."
+    },
+    "d": {
+      "text": "Incorrect. Compensation = saga rollback."
+    }
+  },
+  "explanation": "Rework loops in BPMN: explicit Gateway + back-edge sequence flow: ` [Submit Document] → [Review (User Task)] → [XOR Gateway: approved?] → Yes → [Publish] → [End] → No → [Revise (Service Task)] ─┐ ┌───────────────────────────────────────────────────────┘ └─ back-edge: revise → re-enters Review ` Properties: Visible: readers see the loop structure in the diagram. Trackable in Operate: each iteration shows as a distinct User Task activation; you can see how many revisions happened. Variable handling: variables update each iteration; ensure no unintended state carries over. Termination: loop exits via the \"approved\" branch. Safety: consider a max-iteration safeguard (e.g., after 5 revisions, escalate). Achieve via a counter variable + condition; or wrap in a Subprocess with Timer Boundary. Best practice for back-edges: Visual clarity: route the back-edge clearly; avoid crossing other elements. Annotate: comment to explain the loop's purpose.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q08",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

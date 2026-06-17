@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q48",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL: check if value is a string. Wonders is operator. FEEL is operator for type check?",
+  "question": "FEEL is operator for type check?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No type check -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Type checking must be done via manual string comparison -- this is overcomplicated. While it might be possible to serialize a value to a string and compare its format as a workaround, this approach is fragile, error-prone, and completely unnecessary. md:184-221. The operator supports 12 documented type names including string, number, boolean, date, time, list, and context."
+    },
+    {
+      "id": "c",
+      "text": "md:184-221 (Pattern #43 -- type(x) function is FABRICATED; Grep ^## type\\( across components/modeler/feel/ returns 0 hits): the syntax is x instance of T where T is one of the 12 documented type names: boolean, number, string, date, time, date and time, days and time duration, years and months duration, list, context, function, or Any. The operator returns a boolean. Use x instance of Any to check for non-null values (returns true for any non-null, false for null). Use chained if-then-else with multiple instance of checks when type discrimination across several types is needed. 8 FEEL."
+    },
+    {
+      "id": "d",
+      "text": "FEEL has no type checking capability -- this does not accurately reflect the behavior. The FEEL language as defined by the OMG DMN specification includes the instance of operator for runtime type checking. md:184-221 with 12 supported type names. The operator enables defensive programming patterns, polymorphic decision logic, and input validation within FEEL expressions. 8 FEEL -- only the instance of operator is available."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL type checking: instance of operator (DMN FEEL spec): x instance of T: boolean. T: type name (e.g., string, number, boolean, date). Examples: `feel \"hello\" instance of string → true 42 instance of number → true true instance of boolean → true date(\"2026-05-20\") instance of date → true \"hello\" instance of number → false null instance of string → false (null special) Verify exact syntax per FEEL version. type() function NOT in Camunda FEEL (Pattern #43 -- Grep ^## type\\( across components/modeler/feel/ returns 0 hits): No type(x) function documented in Camunda 8.8 FEEL. Use x instance of T chained for type discrimination instead: feel typeName: if x instance of string then \"string\" else if x instance of number then \"number\" else if x instance of boolean then \"boolean\" else if x instance of list then \"list\" else if x instance of context then \"context\" else \"other\" Use cases: Use case 1: Defensive checks: feel parsedAmount: if amount instance of number then amount else if amount instance of string then number(amount) else 0 Handle mixed input types. Use case 2: Polymorphic handling: feel display: if value instance of string then value else if value instance of number then string(value) else if value instance of date then string(value) else \"unknown\" Use case 3: Validation: feel isValidInput: customerId instance of string and customerId != \"\" For null handling: feel isNonNullString: value != null and value instance of string Combine null check + type check. For list types: feel items instance of list → true if items is a list items[1] instance of number → check first element For object types: feel obj instance of context → true if obj is a structured context Verify support. For custom types (DMN type definitions): feel customer instance of \"tCustomer\" Custom-defined types in DMN. Compared with other languages: | Language | Type check | |----------|-----------| | Java | obj instanceof String | | JS | typeof x === \"string\" | | Python | isinstance(x, str) | | FEEL | x instance of string | Similar concept. For input validation: feel validateInput: if input instance of string and input != \"\" then \"valid\" else \"invalid\" For decision tables: Input entries may use type check. Less common: type usually pre-validated. For polymorphic decisions: feel // Decision row: Input: customer.id Entry: instance of string → \"by-string-id\" Entry: instance of number → \"by-number-id\" Route by type. For null type: Null in FEEL: special. null instance of T: typically false. For type coercion: feel // Don't coerce; explicit check if value instance of string then number(value) else value Type-safe conversion. For complex types: feel if customer instance of context and customer.id instance of string then \"valid\" Nested type checks. For function arguments: feel // In BKM or inline function function(input) if input instance of number then input * 2 else 0 Defensive in functions. For DMN with strong typing: Decision inputs typed: no runtime check needed typically. Type check for: untyped inputs / context. Performance: Type check cheap: O(1). No issues. For testing: Test with various types: verify type-aware logic. Edge cases: null, empty strings, etc. For Operate visibility: Variable types: visible. Helps debugging. For migration: Type assumptions change: across versions. Test post-migration. Anti-patterns: Over-defensive: type check everywhere; clutter. No type check when needed: brittle. Best practices: Type check at boundaries: from external data. Trust internal: less defensive. Combine with null check: comprehensive. For the scenario (check is string): feel value instance of string Standard syntax. For multi-type check: feel value instance of (string or number) ` Verify FEEL supports union types. For FEEL versions: Type check syntax: stable per DMN spec. Edge cases: per implementation."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Overcomplicated."
+    },
+    "c": {
+      "text": "Correct. overcomplicated."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-boolean-expressions/#instance-of"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q48",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 23 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 25.7 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q25",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A logistics DMN determines if a package qualifies for \"fragile handling\". The team writes a Decision Table with two input columns: weightKg and containsGlass (boolean). The team writes one row: weightKg = - (any value) and containsGlass = true → output \"fragile\". For all other cases, the table should return \"standard\".",
+  "question": "How does the team configure the \"default\" or \"fall-through\" case?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Configure the DMN decision table's built-in \"default output\" property at the table level to return \"standard\" whenever no rule matches the input. 3 specification, and Camunda 8's DMN implementation does not expose this as a configurable table property. When no rule matches in a UNIQUE, FIRST, or COLLECT table, the result is null (or an empty list for COLLECT) rather than any configured default value."
+    },
+    {
+      "id": "b",
+      "text": "Add a catch-all bottom rule to the decision table with both input columns set to - (the don't-care wildcard that matches any value) and output set to \"standard\". With FIRST hit policy, the engine evaluates rules top-down: the specific \"containsGlass = true\" rule on row 1 fires when that condition is met; the catch-all row at the bottom fires only when no preceding rule matched. This is the canonical idiomatic DMN pattern for implementing default outputs within the decision table itself."
+    },
+    {
+      "id": "c",
+      "text": "Use an Exclusive Gateway in the BPMN downstream of the Business Rule Task to check the decision output variable: if null (no rule matched), route to a default \"standard\" handling path; otherwise route based on the returned value. While this approach technically works, it violates the principle that decision logic should be self-contained within the DMN artifact. Business analysts who maintain the decision table cannot see or modify the default behavior without also updating the surrounding BPMN, reducing the DMN encapsulation benefit."
+    },
+    {
+      "id": "d",
+      "text": "DMN automatically returns the output column's default value (configured in the output column header) when no decision rule matches the given input combination. DMN output columns do not have an auto-default mechanism in the Camunda 8 implementation. When no rule matches in a UNIQUE-policy table, the result is null and no default substitution occurs automatically. Output column headers define the variable name and type, not fallback values for unmatched inputs."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. DMN handles defaults via a catch-all bottom rule with all input columns set to - (don't-care, matches anything). Combined with FIRST hit policy (or single-matching policy), the catch-all fires only when no preceding rule matched. This is the canonical idiomatic DMN approach for defaults."
+    },
+    "b": {
+      "text": "Correct. No \"default output\" property at table level in standard DMN."
+    },
+    "c": {
+      "text": "Incorrect. Pushing default handling into BPMN works but defeats the encapsulation that DMN provides."
+    },
+    "d": {
+      "text": "Incorrect. DMN doesn't auto-return defaults -- without a matching rule, the result is null (or empty)."
+    }
+  },
+  "explanation": "No \"default output\" property at table level in standard DMN.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q25",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

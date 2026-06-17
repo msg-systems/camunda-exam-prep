@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN with UNIQUE hit policy is evaluated, but no rule matches the input -- perhaps the rules don't cover this combination. The team wants to know what happens.",
+  "question": "What happens when a DMN evaluates with no matching rule?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The behaviour when no rules match is not a uniform \"always returns null silently\" -- it depends entirely on which hit policy the decision table uses and whether default output values are configured on output columns. For UNIQUE, FIRST, and ANY policies, no match can produce a null result or raise an evaluation error that surfaces as a BPMN incident. For COLLECT and RULE ORDER without aggregators, an empty list is returned. Assuming silent null return for all cases can lead to unhandled null references in downstream logic."
+    },
+    {
+      "id": "b",
+      "text": "md:60), no match returns null / evaluation error (which surfaces as a BPMN Incident when called from a Business Rule Task) unless a default output value is configured on the output column. For RULE ORDER / COLLECT (no aggregator), an empty list is returned (no match = no items collected). For COLLECT + COUNT aggregator returns 0; COLLECT + SUM returns 0. Best practice: design DMN tables with full coverage (catch-all rule with - wildcards in all inputs) or configure default output to avoid no-match errors."
+    },
+    {
+      "id": "c",
+      "text": "Not every hit policy raises an exception on no-match. For COLLECT and RULE ORDER policies, an empty list is returned when no rules match, which is a valid and non-exceptional result. Exceptions or null results occur specifically for UNIQUE, FIRST, and ANY (the single-result policies). The no-match behaviour is policy-dependent, so saying \"always raises an exception\" is an oversimplification that would mislead teams designing DMN tables."
+    },
+    {
+      "id": "d",
+      "text": "Ensuring complete coverage of all possible input combinations is entirely the modeller's responsibility. Best practice is to add an explicit catch-all rule at the bottom of the table -- a row where all input entries use the dash (-) wildcard, which matches any value. This ensures the table always produces a result regardless of which input combination is encountered."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. No-match handling depends on hit policy + configuration (Camunda 8 supports exactly 5 hit policies per decision-table-hit-policy.md:26-53 -- UNIQUE/ANY/FIRST/RULE ORDER/COLLECT; PRIORITY and OUTPUT ORDER are DMN-1.3 spec only, not in C8): UNIQUE, FIRST, ANY: single-result policies per :60. No-match returns null / raises evaluation error → BPMN Incident if called from Business Rule Task. Mitigations: (1) design a catch-all rule that always matches (last row with all unary tests as - wildcard); (2) configure a default output value on the output column. COLLECT (no aggregator): returns empty list when no match. No error. COLLECT with SUM/COUNT: COUNT returns 0 (count of zero matches); SUM returns 0 (sum of empty list). RULE ORDER: empty list (similar to COLLECT no-aggregator). Best practice: design DMN tables with explicit coverage (catch-all rule at bottom) for UNIQUE-style policies; rely on empty-list semantics for RULE ORDER / COLLECT."
+    },
+    "b": {
+      "text": "Correct. Behaviour depends on policy."
+    },
+    "c": {
+      "text": "Incorrect. Only some policies raise errors."
+    },
+    "d": {
+      "text": "Incorrect. No auto-generation."
+    }
+  },
+  "explanation": "Behaviour depends on policy.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q29",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

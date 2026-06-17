@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's process has variables with large JSON payloads (50 KB per instance: customer data with many nested fields). They wonder about variable size limits.",
+  "question": "Are there size limits on Camunda 8 process variables?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No limits -- wrong; practical limits exist."
+    },
+    {
+      "id": "b",
+      "text": "The claim of a hard 4 KB per-variable limit does not reflect the actual behavior by several orders of magnitude. md:53 is a 4 MB per process-instance payload cap (covering all variables combined plus engine-internal data), not 4 KB per individual variable. A 50 KB customer JSON object as a single variable is well within bounds -- in fact 80 times larger than the incorrectly claimed limit. The actual limit is at the process-instance level for the entire payload, not at the individual variable level."
+    },
+    {
+      "id": "c",
+      "text": "The suggestion that process variables cannot exceed 1 byte is clearly and dramatically incorrect. Process variables in Camunda 8 can hold JSON values of substantial size -- strings, numbers, booleans, arrays, and nested objects -- easily ranging from a few bytes to tens of kilobytes for typical business data. The documented hard cap is 4 MB per process-instance payload (all variables combined), and individual variables can be sized up to a meaningful fraction of that limit without issue. A 1-byte limit would make Camunda 8 completely unusable for real-world processes."
+    },
+    {
+      "id": "d",
+      "text": "Yes -- Zeebe has documented payload limits. md:51-57 verbatim: \"The payload of a process instance is limited to 4 MB. This limit includes both process variables and workflow engine-internal data, so less than 4 MB is available for variables alone. 5 MB is considered safe for commands or events that include variables, such as starting a process instance or completing a job. \""
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Practical limits on variable size and instance state: Per-instance payload limit: Hard cap 4 MB per variables.md:53 (variables + engine-internal data combined). Safe target ~1.5 MB for command/event payloads (:55); engine may temporarily duplicate the payload in a follow-up record within the batch. Recommended ≤1 MB for headroom (:57). Overall instance state size: Larger state increases broker memory, replication bandwidth, snapshot size. Affects performance under high throughput. gRPC request size: When activating a job, Zeebe serialises variables into the gRPC response. Large variables increase response size; can hit gRPC limits. Mitigations for large data: 1. Document Handling (recommended for binaries / large structured data): Upload to storage backend; variable holds reference. Per Sets 4/10 discussions. 2. Variable hygiene: Don't carry whole-object state; project specific fields. Use Input Mappings to pull just what each task needs. Use Output Mappings to write only relevant fields. 3. External storage for very large: Customer profiles, big JSON blobs, etc. → dedicated store (database, KV store). Variables hold reference (customer ID, key). Workers fetch on demand. 4. Monitoring: Track variable size as cluster health metric. Alert on large variables. For 50 KB JSON: well within the 4 MB hard cap and below the ≤1 MB recommended ceiling -- should be safe, but multiply by per-instance count and concurrent batches before assuming \"no risk.\" Best practice: assess if all 50 KB is needed throughout the process, or if you can carry just an identifier and fetch on demand."
+    },
+    "b": {
+      "text": "Incorrect. Limits exist."
+    },
+    "c": {
+      "text": "Incorrect. Configurable."
+    },
+    "d": {
+      "text": "Correct. Way more."
+    }
+  },
+  "explanation": "Way more.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q22",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 13.3 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

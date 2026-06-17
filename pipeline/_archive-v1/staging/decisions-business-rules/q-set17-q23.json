@@ -1,0 +1,56 @@
+{
+  "id": "imp-set17-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "DMN input column declared as number. Caller passes string \"42\". Wonders strict vs lenient.",
+  "question": "DMN strict vs lenient type checking?",
+  "options": [
+    {
+      "id": "a",
+      "text": "DMN/FEEL is type-strict per spec (per Set 13 Q22): - Declared type number + string input → mismatch. \" - For lenient handling: convert at boundary (Input Mapping / FEEL number(string)). - Camunda FEEL has NO auto-coercion: string \"42\" never equals number 42. - Best practice: type discipline; convert explicitly."
+    },
+    {
+      "id": "b",
+      "text": "Type strictness in FEEL depends on the operator and context. FEEL is strongly typed in that comparing incompatible types typically yields false or null rather than an error. The behavior is nuanced based on which FEEL operator or built-in function is applied."
+    },
+    {
+      "id": "c",
+      "text": "DMN type handling in Camunda 8 is always lenient and silently coerces or ignores all type mismatches -- this does not accurately reflect the behavior. FEEL enforces type safety meaningfully. Arithmetic operations on non-numeric values result in null. Date and time operations require properly typed values. String functions applied to non-string types do not silently coerce. While some operations are forgiving--inequality comparisons between incompatible types return false rather than crashing--blanket leniency is not accurate."
+    },
+    {
+      "id": "d",
+      "text": "There is no global strictness toggle on decision tables. Type handling is governed by FEEL semantics and the declared type annotations on input and output columns. Type annotations help the engine parse incoming values correctly, converting strings to numbers or dates as needed. The degree of type enforcement emerges from FEEL operator behavior rather than a configurable parameter."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. DMN type strictness: FEEL type semantics: Type-strict (per Set 13 Q22): no auto-coercion. \"42\" ≠ 42: string vs number. In DMN cells: Cell condition => 100 (numeric): Input value 42 (number): matches. Input value \"42\" (string): doesn't match. Silent: rule doesn't apply. Mitigations: Pattern 1: Convert at BPMN layer: `xml Convert before passing to decision. Pattern 2: Convert at DMN layer: In decision logic: feel amount: number(amountStr) Inside decision; less clean. Pattern 3: Declare untyped: Input without type: more flexible. Less safe: type errors deeper. For Camunda 8 specific behavior: Strict by default + always per FEEL spec: no implicit coercion. Function invocation with wrong arg types returns null per feel-functions.md:23-28 verbatim. = and unary-test comparisons across types silently evaluate to false/no-match. No \"lenient mode\" toggle: convert at boundary or in cell with number(str) / string(num) / date(str). Best practice: don't expect coercion -- it never happens. For Decision Table input types: Declared: number, string, date, boolean, etc. Used for: input validation + range expressions. Strict typing: predictable behavior. For Decision Table output types: Output values: declared type. FEEL evaluation result: must match. Mismatch: invalid output. For complex input types: Object types: nested fields. List types: items typed. Custom types: defined. For evolution: Tightening types (untyped → typed): breaks lenient callers. Loosening types (typed → untyped): generally safe. For debugging type mismatches: Symptoms: Rule doesn't match expected. Output is null. No error message; silent. Diagnosis: Inspect inputs in Operate. Check types: string vs number visible in JSON. Fix at boundary: convert before invocation. For DMN testing: Unit tests with various input types: ensure type discipline. Test cases with string-when-number expected: verify rejection. For Camunda 8 implementation: Decisions typed via XML: typeRef attributes. Engine enforces per spec. For lenient handling globally: Avoid coercing inputs to DMN: Validate before invocation. Reject invalid: explicit error. For business users: Decision authors may not realize types matter. Document expected types. Test with realistic data. For external API contracts: JSON types: standard. String vs number distinct. Use schema validation (per Set 16 Q46). For FEEL evaluation: Engine evaluates per spec: strict. No surprise coercions. For decision migration: Adding type declarations: breaks lenient callers. Coordinate: notify callers. Best practices: Always declare types: clarity + safety. Convert at boundary: cleanest. Document contracts: input types per decision. Test edge cases: type mismatches. Anti-patterns: Relying on coercion: brittle. Untyped inputs everywhere: loose; bugs. Different types per caller: confusion. For the scenario (number type, string \"42\"): Strict mismatch. Convert via number(\"42\")`: at Input Mapping or in decision. For Camunda 8 versioning: Type semantics: may evolve. Test current version: verify behavior."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "DMN type strictness: FEEL type semantics: Type-strict (per Set 13 Q22): no auto-coercion. \"42\" ≠ 42: string vs number. In DMN cells: Cell condition => 100 (numeric): Input value 42 (number): matches. Input value \"42\" (string): doesn't match. Silent: rule doesn't apply. Mitigations: Pattern 1: Convert at BPMN layer: `xml Convert before passing to decision. Pattern 2: Convert at DMN layer: In decision logic: feel amount: number(amountStr) Inside decision; less clean. Pattern 3: Declare untyped: Input without type: more flexible. Less safe: type errors deeper. For Camunda 8 specific behavior: Strict by default + always per FEEL spec: no implicit coercion. Function invocation with wrong arg types returns null per feel-functions.md:23-28 verbatim. = and unary-test comparisons across types silently evaluate to false/no-match. No \"lenient mode\" toggle: convert at boundary or in cell with number(str) / string(num) / date(str). Best practice: don't expect coercion -- it never happens. For Decision Table input types: Declared: number, string, date, boolean, etc. Used for: input validation + range expressions. Strict typing: predictable behavior. For Decision Table output types: Output values: declared type. FEEL evaluation result: must match. Mismatch: invalid output. For complex input types: Object types: nested fields. List types: items typed. Custom types: defined. For evolution: Tightening types (untyped → typed): breaks lenient callers. Loosening types (typed → untyped): generally safe. For debugging type mismatches: Symptoms: Rule doesn't match expected. Output is null. No error message; silent. Diagnosis: Inspect inputs in Operate. Check types: string vs number visible in JSON. Fix at boundary: convert before invocation. For DMN testing: Unit tests with various input types: ensure type discipline. Test cases with string-when-number expected: verify rejection. For Camunda 8 implementation: Decisions typed via XML: typeRef attributes. Engine enforces per spec. For lenient handling globally: Avoid coercing inputs to DMN: Validate before invocation. Reject invalid: explicit error. For business users: Decision authors may not realize types matter. Document expected types. Test with realistic data. For external API contracts: JSON types: standard. String vs number distinct. Use schema validation (per Set 16 Q46). For FEEL evaluation: Engine evaluates per spec: strict. No surprise coercions. For decision migration: Adding type declarations: breaks lenient callers. Coordinate: notify callers. Best practices: Always declare types: clarity + safety. Convert at boundary: cleanest. Document contracts: input types per decision. Test edge cases: type mismatches. Anti-patterns: Relying on coercion: brittle. Untyped inputs everywhere: loose; bugs. Different types per caller: confusion. For the scenario (number type, string \"42\"): Strict mismatch. Convert via number(\"42\")`: at Input Mapping or in decision. For Camunda 8 versioning: Type semantics: may evolve. Test current version: verify behavior.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-data-types/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

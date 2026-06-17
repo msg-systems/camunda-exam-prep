@@ -1,0 +1,50 @@
+{
+  "id": "ext-configuration-32",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Bank runs a Camunda 8.8 Spring Boot worker that settles 8000 payments per day. When the downstream settlement endpoint times out, the team wants the job to fail in a controlled way that decrements the remaining retries and delays the next activation by 10 seconds, without raising a BPMN error event in the process model. The team uses the helpers exposed by the Spring Boot Starter to throw the right typed error from inside the @JobWorker method.",
+  "question": "Which Spring Boot Starter helper fails the job in a controlled way with custom retries and a retryBackoff?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Throw CamundaError.bpmnError with an error code and message; the helper returns a BpmnError that drives the matching BPMN error event handler"
+    },
+    {
+      "id": "b",
+      "text": "Throw CamundaError.jobError with errorMessage, variables, retries, and retryBackoff; the helper returns a JobError that fails the job with that retry policy"
+    },
+    {
+      "id": "c",
+      "text": "Throw a plain RuntimeException with retries and retryBackoff fields; the Spring integration converts the exception into a job failure with that retry policy"
+    },
+    {
+      "id": "d",
+      "text": "Throw CamundaError.fail with errorMessage and a Duration only; the helper returns a generic failure that decrements retries by one and applies that retryBackoff"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. CamundaError.bpmnError raises a BPMN error event for business problems; it does not control retries or retryBackoff, so it is not the controlled-failure helper the docs describe."
+    },
+    "b": {
+      "text": "Correct. The docs describe CamundaError.jobError as the static helper that returns a JobError taking errorMessage, variables, retries, and retryBackoff so the job fails in a controlled way."
+    },
+    "c": {
+      "text": "Incorrect. A plain RuntimeException does not carry retries or retryBackoff parameters; the documented mechanism is the JobError returned by the CamundaError.jobError helper."
+    },
+    "d": {
+      "text": "Incorrect. The docs do not describe a CamundaError.fail helper; the controlled-failure helper is CamundaError.jobError, which takes five parameters including variables."
+    }
+  },
+  "explanation": "The Camunda Spring Boot Starter exposes CamundaError.jobError as the static helper that returns a JobError; throwing it from a @JobWorker method fails the job with the supplied errorMessage, optional variables, retries, and retryBackoff Duration.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A document workflow uses Document Handling. The team wants to generate a pre-signed URL via the Camunda Documents API (rather than the underlying S3 / cloud provider directly).",
+  "question": "Does Camunda's Documents API provide pre-signed URL generation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes, the Camunda Documents API provides pre-signed URL generation universally for all storage backends with no version concerns -- this overstates the coverage. mdx:42, the POST /documents/{documentId}/links endpoint is currently supported only for document stores of type AWS and GCP. 8. Teams using unsupported backends must fall back to the underlying storage SDK or proxy the document through their own service."
+    },
+    {
+      "id": "b",
+      "text": "8 API capabilities. 8 added the POST /documents/{documentId}/links endpoint, which provides time-limited link generation through the Camunda API rather than requiring direct storage SDK access. This simplifies external sharing workflows by keeping all document operations behind the Camunda API surface, though the feature is currently limited to AWS and GCP backends."
+    },
+    {
+      "id": "c",
+      "text": "Pre-signed URLs are not a relevant concept for Camunda document handling workflows -- this dismisses a legitimate and explicitly supported use case. Pre-signed URLs are essential for sharing stored documents with external recipients such as customers, partners, or auditors who should access a document without requiring Camunda credentials. 8 exists precisely to enable this external sharing pattern through time-limited access links."
+    },
+    {
+      "id": "d",
+      "text": "mdx:32-40. Limitation per :42: currently supported only for document stores of type AWS and GCP (not the in-memory or filesystem backends). md:47-55. md:30 is 30 days, override via per-document metadata at upload."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8.8 exposes a first-class endpoint for time-limited link generation: POST /documents/{documentId}/links per apis-tools/orchestration-cluster-api-rest/specifications/create-document-link.api.mdx:32-40 -- returns a signed URL the caller can pass to external recipients. Backend coverage per :42: only AWS S3 and GCP document stores; other backends (in-memory, filesystem) do not support this endpoint. Fallback for unsupported backends: caller fetches document reference (GET /documents/{documentId} per display-and-download-document.md:47-55), then either (a) proxies via the caller's own service (preferred for filesystem) or (b) goes directly to the storage backend's SDK (S3 / Azure Blob / etc.) for pre-signed URL generation. Per-document TTL can be set at upload via metadata per create-document.api.mdx; default file TTL is 30 days per getting-started.md:30. Best practice for sharing external links: Short TTL: minimise the window of exposure (e.g., 1 hour). Single-use where possible: regenerate per recipient. Audit logging: track URL generation for compliance."
+    },
+    "b": {
+      "text": "Incorrect. Verify per version."
+    },
+    "c": {
+      "text": "Incorrect. Some versions add API-level."
+    },
+    "d": {
+      "text": "Correct. Valid use case."
+    }
+  },
+  "explanation": "Valid use case.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/getting-started/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q14",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

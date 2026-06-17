@@ -1,0 +1,63 @@
+{
+  "id": "imp-set15-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A custom Inbound Connector polls an external system every 30 seconds. Team wonders if polling interval is configurable.",
+  "question": "Connector Inbound polling interval?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The HTTP Polling Connector always uses a fixed 60-second interval -- this approach has limitations. md:49 (verbatim: \"The default interval is 50 seconds\"). The Interval property (Optional, ISO 8601 duration) allows custom values: PT30S for 30 seconds, PT5M for 5 minutes, PT1H for hourly. The connector is placed on a BPMN Intermediate Event (per :31), not a Service Task. Short intervals reduce latency but increase load; the default 50 s balances both. For event-driven scenarios, prefer Webhook (HTTP push) or Kafka Connector over polling."
+    },
+    {
+      "id": "b",
+      "text": "The HTTP Polling Connector interval is hardcoded and cannot be customized by the process modeler -- this approach has limitations. The Interval property is explicitly configurable in the Element Template for the HTTP Polling Connector. , PT30S, PT5M, PT1H). md:49. Configuring the interval is a standard part of HTTP Polling Connector setup and is documented as a first-class modeler property, not a hidden or hardcoded parameter."
+    },
+    {
+      "id": "c",
+      "text": "All Camunda 8 inbound connectors use push-based delivery and none support polling -- this approach has limitations. , external systems that do not support webhooks). The connector is placed on a BPMN Intermediate Event and repeatedly polls the configured endpoint at the specified interval. Both push (Webhook Connector, Kafka Connector) and pull (HTTP Polling Connector) integration patterns are supported out of the box. Teams choose based on whether the external system can push events or only expose a queryable API endpoint."
+    },
+    {
+      "id": "d",
+      "text": "md:31, :49. Default is 50 seconds (verbatim :49). Accept values: PT30S, PT5M, PT1H, etc. The connector polls the configured endpoint and correlates results via Correlation key (process) + Correlation key (payload) + Activation Condition (:56-74). Reserved process variable names to avoid: body, url, method, headers, authentication, queryParameters, connectionTimeoutInSeconds, httpRequestInterval. Execution exceptions during a poll are ignored -- retried at next interval (:24-27). Caution: pollingInterval (camelCase) is a fabricated property name -- the correct name is Interval."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Inbound polling Connectors: Polling-based Inbound Connectors: Mechanism: Connector Runtime periodically calls external system. Each poll: checks for new events / data. On match: correlates Message to Camunda. Examples: Email Inbound (IMAP polling): check inbox every N seconds. Database Inbound: query DB for new records. REST polling Inbound: GET endpoint for new data. File polling: watch directory. Configuration (HTTP Polling Connector, the built-in 8.8 polling Inbound): Interval property (per polling.md:49): Configured via Element Template property panel (not raw zeebe:taskHeader); ISO 8601 duration string; default 50 s. From doc examples (:103, :139): PT10M (every 10 minutes) -- GitHub-issue monitor scenario. PT1H (every hour) -- stock-level monitor scenario. Behind the Element Template, the value lands in connector input -- common fabrications to flag in exam questions: pollingInterval (camelCase), frequency, raw seconds without ISO format. Trade-offs: Short interval (e.g., 1-5s): Pros: low event-detection latency. Cons: high load on source; many empty polls. Medium interval (e.g., 30s-1min): Balance latency / load. Long interval (e.g., 5min-1hr): Pros: low load. Cons: events delayed. For event detection latency: Average detection latency = interval / 2 (in worst case = interval). 30s interval → up to 30s before detecting event. For real-time: not suitable; use push-based Connectors. Alternative: push-based (event-driven): Webhook Inbound (per Set 14 Q46): external system pushes events. Kafka Inbound (per Set 13 Q33): broker pushes. No polling: immediate detection. Pros: low latency, low resource use. Cons: requires partner support / Kafka infra. When polling fits: Source doesn't push: only readable on demand (e.g., DB, IMAP, files). Acceptable latency: minutes OK. Simpler architecture: no webhook plumbing. When push is better: Real-time needs: sub-second. High event volume: polling overhead too high. Source supports push: prefer. For polling efficiency: Conditional fetch: HTTP If-Modified-Since header. Cursor / offset tracking: only fetch new data since last poll. Bulk vs single: fetch batch per poll. Camunda implementation: Connector Runtime: schedules polls. Each Connector instance: independent schedule. Multiple BPMN models using same Connector type: each gets its own polling. Best practices: Match interval to event rate: don't poll faster than events arrive. Backoff on idle: longer interval when no events. Monitor resource usage: polls consume both source + Camunda. Use push where possible: better architecture. Anti-patterns: 1s polling for low-frequency events: waste. Hour polling for time-sensitive events: too slow. No deduplication: same event detected multiple polls. For the scenario (30s polling): Reasonable balance for most use cases. Configurable; team can adjust. Document why this interval chosen."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/polling/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q34",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[3]"
+      }
+    ]
+  }
+}

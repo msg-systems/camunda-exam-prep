@@ -1,0 +1,27 @@
+{
+  "id": "cfg-variables-17",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "hard",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Bank is configuring two input mappings on a single Camunda 8.8 service task processing 9,000 transactions per hour. The first mapping has source =customer and target sender.name, and the second mapping has source =iban and target sender.iban, with process variables customer: \"John\" and iban: \"DE456\" already defined.",
+  "question": "Which local variable does the engine create on the service task in this case, per the input-mapping examples in the variables docs?",
+  "options": [
+    { "id": "a", "text": "A single local variable sender with the value {name: 'John', iban: 'DE456'}, built from the two nested-property targets that share the same root variable name in the defined order." },
+    { "id": "b", "text": "Two separate local variables sender.name = 'John' and sender.iban = 'DE456' stored with literal dotted names rather than combined into one nested object variable on the task scope." },
+    { "id": "c", "text": "A local variable sender = 'John' because the second mapping fails when its target reuses the same root variable, leaving only the first mapping's effect on the activity scope of the task." },
+    { "id": "d", "text": "A local variable sender = 'DE456' because the last mapping always replaces earlier mappings that share the same root variable name in the same ioMapping block, regardless of nesting." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The docs' input-mapping examples show that nested-property targets build a single object variable, so combining sender.name and sender.iban produces one sender object with both fields populated." },
+    "b": { "text": "Incorrect. Targets like sender.iban are not stored as flat dotted names; the engine creates or updates a nested property on the single root variable sender on the task scope." },
+    "c": { "text": "Incorrect. The second mapping does not fail; the docs example shows the engine extending the existing sender object with the iban field rather than aborting the second mapping." },
+    "d": { "text": "Incorrect. Successive mappings to nested properties of the same root variable extend that variable rather than overwriting the entire root with the last mapping's value during evaluation." }
+  },
+  "explanation": "When an input mapping's target uses a nested property like sender.name, the engine creates or updates that property on the root variable. The example in the variables docs shows that two such mappings combine into a single object sender containing both nested fields after evaluation.",
+  "docs": [
+    { "title": "Variables", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+  ]
+}

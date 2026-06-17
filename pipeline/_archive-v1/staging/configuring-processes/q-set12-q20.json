@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's process has multiple running instances of the same processId. They publish a Message with name = \"OrderShipped\" and correlationKey = \"ORD-123\". Multiple instances have orderId = \"ORD-123\" (mistaken data). What happens?",
+  "question": "What happens when correlation matches multiple instances?",
+  "options": [
+    {
+      "id": "a",
+      "text": "In Camunda 8 Zeebe, message correlation is strictly 1-to-1: a single published message is delivered to exactly one matching subscription, not broadcast to all matches. When multiple process instances have subscribed with the same correlation key, Zeebe selects one -- typically the first or oldest -- and delivers the message to it. The remaining subscriptions continue waiting. This is a design guarantee: Zeebe does not fan-out messages. If your process design accidentally allows duplicate correlation keys, you have a data quality bug. Use globally-unique business keys (UUID) or composed keys like customerId + \"-\" + orderId to ensure uniqueness."
+    },
+    {
+      "id": "b",
+      "text": "Zeebe does not treat multiple matches as an error condition that causes the message to be discarded. Instead, the broker selects one of the matching subscriptions and correlates the message to it. The message is successfully processed and one instance receives it. Only if zero subscriptions match the name and correlationKey does the message potentially sit in the buffer (per its TTL) or fail to correlate. Multiple matches result in selection, not rejection."
+    },
+    {
+      "id": "c",
+      "text": "Zeebe correlates the message to exactly one of the matching subscriptions -- typically the first found or oldest based on subscription creation order. The remaining subscriptions continue waiting and are not notified. This is the documented 1-to-1 guarantee: a single message publish activates exactly one subscription. Zeebe picks one and delivers to it exclusively. Best practice is to design correlation keys to uniquely identify a single waiting subscription using UUIDs or composite business keys so the selection is deterministic and intentional rather than accidental. Multiple matches indicate a data quality issue that should be investigated and resolved at the process design level."
+    },
+    {
+      "id": "d",
+      "text": "Describing the selection as random when multiple subscriptions match is partially misleading. Zeebe's selection is not random -- it follows a deterministic algorithm (typically selecting the first or oldest matching subscription based on internal ordering). While the exact selection algorithm is an implementation detail that could theoretically change across Zeebe versions, it is not random in the probabilistic sense. However this is less accurate than option c because it doesn't address the best practices for unique correlation keys that prevent this situation from occurring."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Message correlation in Zeebe is 1-to-1 -- each published Message correlates to at most one waiting subscription (not broadcast like Signal). When multiple subscriptions match: The broker picks one (typically the first / oldest matching). Other matching subscriptions remain waiting; they'll correlate to a future Message with the same key (if one arrives) or expire per their own lifecycle. Best practice -- unique correlation keys: Design keys to identify exactly one waiting subscription at any time. Global unique IDs: UUIDs guarantee uniqueness. Compose composite keys: customerId + \"-\" + orderId is unique if customers don't share orderIds. Avoid shared keys: don't reuse the same correlation key for parallel running instances unless intentional. If you observe multiple-match in production: Audit: which instances share the key? Why? Likely data issue: customer / order systems duplicated identifiers; investigate upstream. Resolve: fix the upstream data; or cancel the duplicate instances. Edge case -- intentional multi-match: Some scenarios may legitimately want to fan out (e.g., a price-change event affecting many orders). Pattern: use Signal (broadcast) instead of Message (1-to-1). Signal correlates to all subscriptions matching the signal name."
+    },
+    "b": {
+      "text": "Incorrect. Message is 1-to-1."
+    },
+    "c": {
+      "text": "Correct. One selected."
+    },
+    "d": {
+      "text": "Incorrect. First-found typically."
+    }
+  },
+  "explanation": "One selected.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q20",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

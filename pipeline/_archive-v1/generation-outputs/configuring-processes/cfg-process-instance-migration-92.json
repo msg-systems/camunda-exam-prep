@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-92",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A retailer with 5000 instances begins a migration. During the validation step, the engine detects that one mapping instruction references a source element id that does not exist in the source process definition. The operations team needs to understand whether the migration proceeds for the other elements or whether the entire command is rejected before any changes are applied.",
+  "question": "What is the engine's behavior when the validation step of a migration plan fails for one of the active elements?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The migration is rejected with a message explaining the validation failure and the process instance remains in its current state with none of the planned changes applied at all"
+    },
+    {
+      "id": "b",
+      "text": "The migration continues for the active elements whose mappings validated successfully and skips only the active element whose mapping reference was rejected during validation"
+    },
+    {
+      "id": "c",
+      "text": "The migration rolls back only the failed element instance and marks an incident on the process instance so an operator can resolve the mapping conflict and resume the migration later"
+    },
+    {
+      "id": "d",
+      "text": "The migration retries the failed element three times before rejecting the command, and intermediate successful migrations on other elements are kept once the retries are exhausted"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. If any step in process instance migration fails, the migration is rejected and a rejection message that explains the reason is returned. The process instance is not modified at all and remains in its current state. The migration runs in a transactional all-or-nothing manner."
+    },
+    "b": {
+      "text": "Incorrect. Migration is transactional: either every active element migrates or none does. Partial migration of only the successfully validated elements is never performed by the engine, so no element is silently skipped."
+    },
+    "c": {
+      "text": "Incorrect. Validation failures do not create incidents on the process instance. The migration command itself is rejected with an explanatory message and the instance state is left untouched until the operator submits a corrected plan."
+    },
+    "d": {
+      "text": "Incorrect. The migration command has no built-in retry behaviour for validation failures, and partial successes are never persisted. The command is rejected outright and the process instance remains in its pre-migration state."
+    }
+  },
+  "explanation": "Process instance migration is transactional: it migrates all active elements or nothing. If any validation or migration step fails, the engine rejects the command with an explanatory message and the process instance keeps its current state.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

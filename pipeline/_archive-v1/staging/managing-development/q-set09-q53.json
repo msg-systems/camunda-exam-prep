@@ -1,0 +1,63 @@
+{
+  "id": "imp-set09-q53",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team prepares a Process Instance Migration plan from order-v3 to order-v4. Before applying it to 500 production instances, they want to validate the plan -- catch issues like unmapped flow nodes or type mismatches.",
+  "question": "Does Operate support pre-migration validation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Pre-migration validation does exist in Operate before the migration is applied. The Operate migration UI includes a preview step that shows how elements are mapped between source and target process versions, and the UI restricts target element selections to only those that Zeebe supports for migration. This filtering at selection time prevents obvious invalid mappings before any migration operation is executed. Claiming validation only happens at apply time is incomplete and could lead teams to overlook the available pre-validation tools."
+    },
+    {
+      "id": "b",
+      "text": "md:32-34). After selecting source instances and mapping source → target nodes, clicking Next shows a preview of the migration plan -- how elements are mapped and how many instances are expected to migrate. md#supported-bpmn-elements). A final Confirm step requires typing MIGRATE to start the operation (:38-40). md); only then run the full set."
+    },
+    {
+      "id": "c",
+      "text": "Migration validation is explicitly supported in Operate through the preview step in the migration UI. After defining source instance selections and source-to-target element mappings, the UI shows a preview of how instances will be migrated before the operation is confirmed. The target element dropdown also filters to only valid migration targets. A confirmation gate requiring the user to type MIGRATE provides an additional safety check before the operation proceeds."
+    },
+    {
+      "id": "d",
+      "text": "Migrating all instances and then rolling back on issues is problematic at production scale because Operate does not provide automatic rollback for migrations. If something goes wrong after migrating 500 instances, you would need to create and apply a reverse migration plan manually, which is error-prone and time-consuming. The best practice is to validate the migration plan by running it on a small sample of representative instances first, verifying outcomes, and only then migrating the full set with active monitoring."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Pre-migration safety in Operate (per process-instance-migration.md): Operate UI Preview step (:32-34): after mapping, Next shows preview of how elements map and how many instances will migrate. Mapping-time enforcement (:30): target dropdowns offer only elements supported by Zeebe's migration mechanism -- invalid mappings are not selectable. Confirm gate (:38-40): typing MIGRATE in the text box before clicking Confirm prevents accidental triggers. Batch monitoring (per monitor-batch-operations.md): post-migration, failed items are visible in Operations > Batch operations; failure rows expand to show reason. Best practice: 1. Small sample run: pick a few representative running instances; apply migration; verify outcomes via batch operation detail. 2. Iterate: fix mapping issues in the plan; re-run preview. 3. Apply at scale with monitoring: full migration with active batch-operation watch. 4. Rollback plan: have a clear mitigation path -- Operate does NOT auto-rollback failed migrations. Production migrations are operations to be done carefully; the preview + small-sample workflow prevents many surprises. There is no separate \"REST API validate-and-report\" mode -- the migration is a batch operation that succeeds/fails per instance and reports via batch-operation details."
+    },
+    "b": {
+      "text": "Correct. Pre-validation exists."
+    },
+    "c": {
+      "text": "Incorrect. Supported."
+    },
+    "d": {
+      "text": "Incorrect. Validation prevents the need."
+    }
+  },
+  "explanation": "Pre-validation exists.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/process-instance-migration/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q53",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[1]"
+      }
+    ]
+  }
+}

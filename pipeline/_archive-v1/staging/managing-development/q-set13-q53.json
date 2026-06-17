@@ -1,0 +1,63 @@
+{
+  "id": "imp-set13-q53",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A parallel branch in a process needs to be cancelled while another branch continues. Operator wonders if Modify Process Instance API can cancel just one branch.",
+  "question": "Modify API for partial branch cancellation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Process Instance Modification is an all-or-nothing operation -- when used, it must either cancel the entire process instance or leave it completely unchanged; targeting a single branch in isolation is not possible. This misrepresents the documented behavior. The Modify API supports per-element-instance instructions. The Terminate instruction (:137-165) cancels a specific active element instance -- one branch -- while all other active element instances continue executing. Multiple Activate, Terminate, and Move instructions can be combined in a single atomic modification command. Use with caution: terminating a branch can cause parallel-join gateways to hang if they were waiting for the terminated branch."
+    },
+    {
+      "id": "b",
+      "text": "md:33-37, :137-165). Three instruction types can be combined in one modification command: Terminate cancels a specific active element instance (the target branch); Activate starts a new element instance (jump into a parallel branch); Move atomically terminates one and activates another. All instructions in a modification command apply atomically. Activation instructions are applied before termination instructions to prevent accidentally ending the process if the only active instance is being replaced. Available via both the Operate UI modification wizard and the Orchestration Cluster REST API."
+    },
+    {
+      "id": "c",
+      "text": "Process Instance Modification is available both through the Operate UI (visual wizard) and through the Orchestration Cluster REST API via POST /process-instances/{key}/modification. The REST API enables programmatic and scripted modification for automated operations, batch cancellations, and integration into operational tooling."
+    },
+    {
+      "id": "d",
+      "text": "The Camunda 8 Process Instance Modification API does not support cancellation of specific element instances; the only termination operation available via API is cancelling the entire process instance using the standard process instance termination endpoint. This misrepresents the documented behavior. The Process Instance Modification API specifically supports the Terminate instruction, which targets individual active element instances by their element instance key. This enables partial cancellation of branches, sub-processes, and active tasks without affecting other concurrent element instances in the same process."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Modify Process Instance API capabilities: Operations (typical): Activate: start a new element instance (jump into the middle of process). Terminate: cancel a specific element instance (one branch / wait state). Move: combination -- terminate old + activate new (jump). Variable modification: scoped variable updates as part of modification. Partial branch cancellation: Process has parallel branches: Branch A, B, C. Branch B has incident; want to abandon B but keep A and C. Modify operation: terminate the active element instance in Branch B. Process state: A + C continue; B is gone. Eventual completion when all remaining branches reach end. For diamond / join with parallel-gateway: Parallel join: waits for all branches. If one branch terminated mid-flight: behavior depends on engine semantics. Typical: terminated branch counts as completed for join purposes (verify per version). Else: join may hang waiting for cancelled branch (anti-pattern, avoid via specific configurations). Operate UI vs API: Operate UI: visual modify wizard; safer for ad-hoc one-off. API: programmatic / scripted; for automation, batch operations. Same underlying operations. Use cases: Case 1: Stuck branch: Branch waiting on external system; external system down indefinitely. Cancel branch; let other branches complete; deal with stuck case separately. Case 2: Business decision change: Mid-process, business decides not to pursue one branch anymore. Cancel that branch; continue. Case 3: Recovery from data error: Branch processing wrong data; cancel + restart with correct data via Modify. Caution: Audit trail: log every Modify operation; who, when, why. Avoid as routine workflow: if branches need to be cancellable, model with Boundary Cancel Events instead. Test patterns: validate Modify works as expected before applying to production."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. Partially correct."
+    },
+    "d": {
+      "text": "Incorrect. Incorrect."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q53",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

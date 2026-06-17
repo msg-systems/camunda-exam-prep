@@ -1,0 +1,27 @@
+{
+  "id": "ext-getting-started-26",
+  "topic": "extensions-integrations",
+  "subtopic": "java-spring-boot-starter",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Bank runs a Java Spring Boot service that orchestrates 7500 transactions per hour against a Camunda 8.8 SaaS cluster. The platform engineer configures the Camunda Spring Boot Starter through application.yaml and must select the correct mode and authentication block so that the service obtains an OIDC token at start-up and reaches the gRPC and REST addresses provided by the SaaS cluster.",
+  "question": "Which application.yaml mode and auth combination connects the Camunda Spring Boot Starter to a Camunda 8.8 SaaS cluster?",
+  "options": [
+    { "id": "a", "text": "Set camunda.client.mode to saas and provide camunda.client.auth with client-id, client-secret, and token-url; populate grpc-address and rest-address as absolute URIs pointing at the SaaS endpoints" },
+    { "id": "b", "text": "Set camunda.client.mode to self-managed with auth.method basic and provide username and password under camunda.client.auth along with grpc-address and rest-address pointing at the SaaS endpoints" },
+    { "id": "c", "text": "Set camunda.client.mode to self-managed with auth.method none and supply grpc-address and rest-address pointing at the SaaS endpoints without any further authentication block configured" },
+    { "id": "d", "text": "Set camunda.client.mode to saas with auth.method oidc and supply audience, scope, client-id, and client-secret in camunda.client.auth along with grpc-address and rest-address" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The SaaS block of the docs uses camunda.client.mode set to saas with a camunda.client.auth block containing client-id, client-secret, and token-url; both grpc-address and rest-address must be absolute URIs of the form scheme://host(:port)." },
+    "b": { "text": "Incorrect. Basic authentication is documented under self-managed mode for clusters protected by HTTP basic auth; SaaS clusters expect OIDC client credentials rather than username and password." },
+    "c": { "text": "Incorrect. The no-authentication block targets self-managed clusters running without auth; SaaS always requires OIDC client credentials issued by the Camunda Console for the Orchestration Cluster." },
+    "d": { "text": "Incorrect. The saas block in the docs lists only client-id, client-secret, and token-url under camunda.client.auth; audience and scope are documented under the self-managed OIDC block, not saas mode." }
+  },
+  "explanation": "For SaaS, the Camunda Spring Boot Starter is configured with camunda.client.mode: saas and a camunda.client.auth block containing client-id, client-secret, and token-url. The gRPC and REST addresses must be absolute URIs. Basic authentication and the no-auth method are documented under self-managed mode only.",
+  "docs": [
+    { "title": "Get started with the Camunda Java Client", "url": "https://docs.camunda.io/docs/apis-tools/java-client/getting-started/" }
+  ]
+}

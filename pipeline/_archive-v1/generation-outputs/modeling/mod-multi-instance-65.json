@@ -1,0 +1,27 @@
+{
+  "id": "mod-multi-instance-65",
+  "topic": "modeling",
+  "subtopic": "multi-instance",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Zenith Wholesaler iterates 50 orders per day in Camunda 8.8 through a multi-instance service task whose inputCollection FEEL expression evaluates to an array of order items. Each instance must access only the current item without leaking its value into sibling instances.",
+  "question": "How is the current iteration element exposed inside each multi-instance activity instance?",
+  "options": [
+    { "id": "a", "text": "The inputElement variable names a process variable that holds the entire inputCollection so each instance can read neighbouring elements by index inside the iteration" },
+    { "id": "b", "text": "The inputElement variable names a system variable that holds the current loopCounter so each instance can compute its own index inside the inputCollection array" },
+    { "id": "c", "text": "The inputElement variable names a local variable in the instance that stores the current element of the inputCollection so the instance accesses only that element" },
+    { "id": "d", "text": "The inputElement variable names a job header that the worker reads at runtime to fetch the current element from the inputCollection by a separate remote lookup" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documentation describes inputElement as the current element, not the whole inputCollection; access to neighbouring elements by index is not part of the documented contract." },
+    "b": { "text": "Incorrect. loopCounter and inputElement are distinct documented variables; inputElement holds the current element of the inputCollection rather than the iteration index." },
+    "c": { "text": "Correct. The documentation states that the inputElement is stored as a local variable of the instance under the given name, holding the current element of the inputCollection for that iteration." },
+    "d": { "text": "Incorrect. The current element is exposed as a local variable on activation, not as a job header that the worker must read and resolve through a remote lookup." }
+  },
+  "explanation": "The inputElement is stored as a local variable of each instance and holds the current element of the inputCollection so each iteration can access only its own element of the collection.",
+  "docs": [
+    { "title": "BPMN multi-instance", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/" }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "imp-set10-q60",
+  "topic": "dev-environment",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A developer downloads Camunda 8 Run to start local development. They have Java 11 installed on their machine. They wonder if it will work with Camunda 8 Run.",
+  "question": "What Java version does Camunda 8 Run require?",
+  "options": [
+    {
+      "id": "a",
+      "text": "8. Each major Camunda 8 version has raised the minimum Java requirement as Spring Boot's baseline has increased. md:38. Java 11 is no longer supported. 8 requires 21."
+    },
+    {
+      "id": "b",
+      "text": "Java 8 remains compatible with Camunda 8 Run because Camunda maintains backward compatibility with older JVM versions -- this description does not reflect the actual behaviour. Java 8 support was dropped many releases ago. 8 components, requires a minimum of Java 17 as its baseline. md:38. 8 component on Java 8 produces incompatibility errors before the application can initialise."
+    },
+    {
+      "id": "c",
+      "text": "8. ); set JAVA_HOME and verify via java -version in a NEW terminal (per :44)."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 Run requires no Java installation because it is built entirely with Go and runs as a native binary without JVM dependencies -- this description does not reflect the actual behaviour. exe launcher on Windows is a Go-compiled supervisor process, but the Orchestration Cluster components it manages -- Zeebe, Operate, Tasklist, and the Connector Runtime -- are all JVM-based Spring Boot applications. These components require an appropriate Java runtime. Only the thin launcher wrapper is Go; the substantial workloads run on the JVM."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8.8 components (Zeebe, Operate, Tasklist, Connector Runtime -- Identity split into Management Identity / Orchestration Cluster Admin in 8.8) all run on the JVM under Spring Boot 3.x. Camunda 8.8 Run hard requirement per verbatim c8run.md:38: OpenJDK 21-25. Lower-bound history (for context, not the answer): Camunda 8.5 / 8.6: Java 17 (Spring Boot 3.0) Camunda 8.7: Java 17/21 transition Camunda 8.8: Java 21-25 (current) For Camunda 8.8 Run setup: Install JDK 21-25 (Adoptium / Temurin, OpenJDK, Oracle JDK, Liberica, etc.). Set JAVA_HOME to the install path. Per c8run.md:44: verify with java -version in a new terminal (so updated PATH takes effect). Camunda 8 Run launcher scripts (per c8run.md:65, :80, :590, :597): Linux / macOS start: ./start.sh (or ./c8run start per :71) Windows start: .\\c8run.exe start (per :80) -- NOT start.bat (.bat files are a recurring fabrication; the 8.8 distribution ships an .exe launcher, no batch wrappers -- Pattern #9 across the question bank) Linux / macOS stop: ./shutdown.sh (per :590) Windows stop: .\\c8run.exe stop (per :597) If only Java 11 is present, Camunda 8.8 Run will fail at startup. Install JDK 21-25 alongside (or replace) Java 11 and update JAVA_HOME."
+    },
+    "b": {
+      "text": "Incorrect. Camunda 8.8 Run requires JDK 21-25 per c8run.md:38."
+    },
+    "c": {
+      "text": "Correct. Java 8 long deprecated; Spring Boot 3.x floors at 17, 8.8 raises to 21."
+    },
+    "d": {
+      "text": "Incorrect. JVM-based. (Only the c8run.exe supervisor is a Go binary; the Orchestration Cluster runs on the JVM.)"
+    }
+  },
+  "explanation": "Java 8 long deprecated; Spring Boot 3.x floors at 17, 8.8 raises to 21.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/c8run/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q60",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 7.0 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

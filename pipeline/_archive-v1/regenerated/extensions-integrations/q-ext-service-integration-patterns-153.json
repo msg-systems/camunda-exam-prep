@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-153",
+  "topic": "extensions-integrations",
+  "subtopic": "Communication patterns",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Logistics integrates a partner carrier API in Camunda 8.8 for 4200 shipment confirmations per day. The carrier accepts an AMQP request and publishes the confirmation as a separate AMQP message arriving hours later, so the broker is asynchronous in both directions. The team must classify this integration against the three communication patterns documented for Camunda 8.",
+  "question": "Which communication pattern does the carrier integration match in the Camunda 8 guidance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Asynchronous request/response, where AMQP or JMS messages exchange the request and reply and the sender waits for the matching response message before continuing"
+    },
+    {
+      "id": "b",
+      "text": "Synchronous request/response, where the caller uses an HTTP protocol and blocks the worker thread for the entire round-trip until the carrier returns the result"
+    },
+    {
+      "id": "c",
+      "text": "Asynchronous messages or events, where the response is not connected to a specific outbound request and is handled as a fully independent message hours later"
+    },
+    {
+      "id": "d",
+      "text": "Synchronous messages or events, where AMQP or Kafka are used technically but the business level treats the carrier exchange as a blocking call from the sender"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs define asynchronous request/response as two independent asynchronous messages (for example over AMQP or JMS) where the sender still waits for the matching reply, which is exactly the carrier exchange described here."
+    },
+    "b": {
+      "text": "Incorrect. Synchronous request/response in the table uses HTTP and blocks for the result, but the carrier here exchanges AMQP messages and the reply arrives later, so the technical style is not synchronous."
+    },
+    "c": {
+      "text": "Incorrect. Asynchronous messages or events covers cases where the response is not tied to a specific request, but here the carrier reply is the response to a specific shipment request, so the pattern is request/response."
+    },
+    "d": {
+      "text": "Incorrect. The docs only list synchronous request/response, asynchronous request/response, and asynchronous messages or events; there is no synchronous messages or events row in the pattern table."
+    }
+  },
+  "explanation": "Camunda 8 documents three integration patterns: synchronous request/response (HTTP), asynchronous request/response (AMQP/JMS messages tied to one reply), and asynchronous messages or events (AMQP, Kafka). A carrier reply that arrives as a separate AMQP message tied to a specific outbound request is asynchronous request/response.",
+  "docs": [
+    {
+      "title": "Service integration patterns",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

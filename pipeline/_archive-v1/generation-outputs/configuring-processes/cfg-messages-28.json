@@ -1,0 +1,27 @@
+{
+  "id": "cfg-messages-28",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Bank operates 9000 transactions per day in Camunda 8.8 and a developer needs to know when a message subscription opens and closes during the lifetime of a message catch event in a running process instance to debug a stuck correlation.",
+  "question": "When is a message subscription opened and closed during a process instance's lifetime according to the messages concept page?",
+  "options": [
+    { "id": "a", "text": "A subscription is opened when the process instance awaits the message, for example on entering a message catch event, and closed when the element or its scope is left" },
+    { "id": "b", "text": "A subscription is opened at process definition deployment time and closed only when the same definition is undeployed from the cluster gateway by the operator" },
+    { "id": "c", "text": "A subscription is opened when the broker publishes a message that matches the catch event and closed as soon as that single message is correlated to the instance" },
+    { "id": "d", "text": "A subscription is opened when a worker activates a job on the catch event and closed when the worker calls CompleteJob through the gateway to mark success" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The Message subscriptions section states that a subscription is opened when a process instance awaits a message, for example when entering a message catch event, and closed when the element or its scope is left." },
+    "b": { "text": "Incorrect. Subscriptions are per-instance runtime entities, not deployment-time entries; deploying or undeploying a definition does not by itself open or close subscriptions on instances." },
+    "c": { "text": "Incorrect. The subscription is created when the catch event activates and waits for a message, not when a message arrives; otherwise no message could ever be correlated to an instance." },
+    "d": { "text": "Incorrect. Catch events are not job-worker tasks; the subscription lifecycle is tied to the activation and exit of the catch event itself, not to CompleteJob being called by a worker." }
+  },
+  "explanation": "Subscriptions open when the catch event activates and the instance awaits the message, and close when the element or its enclosing scope is left. Once opened, a subscription is not updated, even if the process variable referenced by the correlation key expression changes later.",
+  "docs": [
+    { "title": "Messages", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+  ]
+}

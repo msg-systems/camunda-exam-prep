@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's Java Spring Boot service hosts multiple workers subscribing to different task types (process-payment, validate-claim, send-email, ...). Each worker has slightly different processing time characteristics -- process-payment is fast (seconds), validate-claim is slow (~minutes). The team wants to set a default job-activation timeout at the worker level that applies unless overridden per worker.",
+  "question": "Where in Camunda Spring Boot Starter is the default timeout configured, and how is it overridden per worker?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set on the BPMN element via zeebe:taskDefinition extension attribute -- this is an incorrect layer. The zeebe:taskDefinition extension carries only type (the string that workers use to subscribe) and retries (how many times to retry on failure). The activation timeout is how long a worker holds a job before Zeebe considers it lost and makes it re-activatable for the next worker poll. This is a worker-side subscription concern, not a task definition concern. Multiple workers can subscribe to the same type with completely different timeout values, making it logically impossible to store the timeout in the BPMN element itself."
+    },
+    {
+      "id": "b",
+      "text": "yaml -- this is also the wrong location. The Zeebe broker configuration covers broker-level concerns such as partition count, log segment size, cluster replication, and gateway connection settings. \" The broker follows the client-specified timeout rather than imposing its own default. Changing the broker config would have no effect on the worker-side activation duration."
+    },
+    {
+      "id": "c",
+      "text": "Activation timeout is fixed at 5 minutes for all workers and cannot be changed -- this claim is inaccurate. yaml. Teams running fast jobs (seconds) set shorter timeouts to release locks quickly; teams with slow jobs (minutes) increase the timeout to prevent premature re-activation and duplicate processing. The 5-minute value is a common safe default in some SDK versions, not a hard-coded immutable value."
+    },
+    {
+      "id": "d",
+      "text": "md:911 -- @JobWorker(timeout=60000)). The annotation value wins when present; otherwise the global default applies. This is the standard Spring Boot configuration cascade: properties as defaults, annotations as overrides. )"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda Spring Boot Starter follows Spring Boot conventions: properties in application.yaml provide defaults, annotation attributes override per usage. The canonical property path is camunda.client.worker.defaults.timeout (env: CAMUNDA_CLIENT_WORKER_DEFAULTS_TIMEOUT) per properties-reference.md:1061; the annotation form is @JobWorker(timeout=) per configuration.md:911. The cascade lets you tune broadly (e.g., 5 min global) while customising slow workers (e.g., @JobWorker(type = \"validate-claim\", timeout = 900_000) for 15 min)."
+    },
+    "b": {
+      "text": "Incorrect. BPMN's zeebe:taskDefinition extension carries type (task type for worker subscription) and retries (retry count on failure). It does not carry activation timeout because timeout is a property of the worker subscription, not the task definition. Multiple workers might subscribe to the same type with different timeouts."
+    },
+    "c": {
+      "text": "Incorrect. Broker config controls broker behaviour (partitions, log settings, etc.). Worker activation timeout is exchanged via the gRPC ActivateJobs call -- the worker tells the broker \"give me jobs and lock them for me for N seconds.\" Broker doesn't set it; client does."
+    },
+    "d": {
+      "text": "Correct. Activation timeout is configurable. Default values vary by SDK version (often 5 min as a safe default); production workers should tune per workload."
+    }
+  },
+  "explanation": "Activation timeout is configurable. Default values vary by SDK version (often 5 min as a safe default); production workers should tune per workload.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

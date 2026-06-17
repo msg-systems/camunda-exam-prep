@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-49",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A modification command terminates an embedded subprocess that contains the only active task in the root process instance. After the command applies, what is the resulting state?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The subprocess is terminated; the process instance keeps waiting for new instructions."
+    },
+    {
+      "id": "b",
+      "text": "The subprocess and its inner task are terminated, and the process instance is also terminated because no active element instances remain."
+    },
+    {
+      "id": "c",
+      "text": "The command is rejected because terminating the only active scope would end the process instance."
+    },
+    {
+      "id": "d",
+      "text": "The subprocess is terminated and a fresh instance of it is automatically created to keep the process alive."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "A process instance with no active element instances cannot wait — the engine ends it as part of the documented termination cascade."
+    },
+    "b": {
+      "text": "Per the docs, terminating a subprocess terminates all active instances inside it, and if the terminating element was the last active instance of the process instance, the process instance itself is also terminated."
+    },
+    "c": {
+      "text": "The rejection rule for ending the last active element applies only to child process instances created by a call activity, not to the root process instance."
+    },
+    "d": {
+      "text": "There is no automatic recreation; the engine simply applies the documented cascade and ends the process."
+    }
+  },
+  "explanation": "The docs spell out the termination cascades: terminating a subprocess terminates all active inner instances; terminating the last active instance inside a subprocess terminates the subprocess; terminating the last active instance of the process instance terminates the process. Here, all three rules fire in sequence, so the root process instance ends.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

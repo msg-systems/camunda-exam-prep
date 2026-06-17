@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-02",
+  "topic": "extensions-integrations",
+  "subtopic": "long-polling",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A team enables long polling on their Zeebe client by setting `request-timeout` on the `ActivateJobs` call. What does the cluster do when no job of the requested type is available?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It holds the request open and completes it as soon as a matching job becomes available, or when `request-timeout` elapses — whichever comes first."
+    },
+    {
+      "id": "b",
+      "text": "It returns an empty response immediately, and the worker re-polls on its own schedule."
+    },
+    {
+      "id": "c",
+      "text": "It starts pushing every future job of that type to the worker over a long-lived stream for the duration of `request-timeout`."
+    },
+    {
+      "id": "d",
+      "text": "It raises an incident on every queued process instance until a worker is available."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Long polling keeps the activate-jobs request open while no jobs are available and completes it as soon as one becomes available; `request-timeout` sets the upper bound on how long the request waits before returning empty."
+    },
+    "b": {
+      "text": "Returning immediately on empty is the ordinary (non-long-polling) behaviour the docs contrast against — it produces many wasted polls, which is exactly what long polling exists to avoid."
+    },
+    "c": {
+      "text": "Long polling holds a single open request; it does not open a persistent push stream beyond that request. Job streaming is a separate Java-client feature."
+    },
+    "d": {
+      "text": "Zeebe queues jobs while no worker is available — that is the docs' 'job queuing' insulation against worker outages — it does not raise incidents for absent workers."
+    }
+  },
+  "explanation": "With long polling, an `ActivateJobs` request is held open while no jobs of the requested type are available and completes as soon as one becomes available — or returns empty when `request-timeout` elapses. This avoids the repeated empty polls of plain polling. Zeebe also queues jobs while no workers are around, decoupling job creation from consumption so the system stays resilient to worker outages.",
+  "docs": [
+    {
+      "title": "Job workers",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

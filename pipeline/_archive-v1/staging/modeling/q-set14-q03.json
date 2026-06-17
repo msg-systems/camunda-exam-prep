@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process should start automatically when a process variable =stockLevel < 10 becomes true (e.g., due to inventory data update). Team wonders if BPMN supports condition-triggered process start.",
+  "question": "Conditional Start Event for process activation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "8, stating it is \"always supported\" without qualification omits the critical detail that root-level conditional start events require an explicit API trigger call to evaluate the condition. They do not fire autonomously on arbitrary variable changes without that API invocation. The option is partially accurate but incomplete, missing the API-trigger requirement that distinguishes conditional start events from purely event-driven patterns like Message or Signal starts."
+    },
+    {
+      "id": "b",
+      "text": "8. md documentation lists ConditionalStartEvent, ConditionalCatchEvent, ConditionalBoundaryEvent, and ConditionalEventSubprocess (both interrupting and non-interrupting variants) all as implemented first-class BPMN elements in the platform. Claiming conditional events are impossible in Camunda 8 significantly overstates any limitation. 8."
+    },
+    {
+      "id": "c",
+      "text": "Using a Timer Start Event with a polling interval plus a downstream condition check gateway is a valid workaround when the Conditional Start Event is impractical. 8 natively supports the Conditional Start Event via API trigger, the Timer polling approach is an unnecessary alternative rather than the recommended solution for this scenario."
+    },
+    {
+      "id": "d",
+      "text": "md:23-33. Deploying a process with a conditional start event creates a subscription; when the FEEL condition evaluates to true, the engine starts a new process instance. The condition must be unique across a process definition; deploying a new version replaces the prior version's subscription. md#trigger-root-level-conditional-start-events-via-api). 8. For the scenario (stockLevel < 10): model a root-level conditional start event with <bpmn:condition>= stockLevel < 10</bpmn:condition> and trigger evaluation via the REST API when inventory data changes."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Conditional Start Event in Camunda 8.8 (per conditional-events.md:7-33): Verified implementation status -- bpmn-coverage.md:459-489 lists FOUR conditional event kinds, all with className=\"implemented\": ConditionalStartEvent, ConditionalEventSubprocess (interrupting + non-interrupting), ConditionalCatchEvent, ConditionalBoundaryEvent (interrupting + non-interrupting). Fully first-class -- not a workaround. Triggering semantics (conditional-events.md:23-33): Deployment creates a subscription bound to the condition's FEEL expression. When the condition evaluates to true, the engine starts a new process instance. Condition must be unique across the process definition (validation error on duplicate). Deploying a new version replaces the prior version's subscription. How conditions are re-evaluated (conditional-events.md:64-111): Engine derives which variables trigger evaluation by parsing the FEEL expression. Inside running instances: variable changes (create/update) re-evaluate; can be filtered via zeebe:conditionalFilter variableEvents=\"create, update\". At root level (start events): triggered via API rather than process-variable changes (see \"Trigger via API\" link in doc). API-triggered root-level start (conditional-events.md:32-33): Orchestration Cluster REST API, Zeebe gRPC API, or Camunda Client SDK. External system (e.g., inventory DB CDC trigger) calls the API on relevant data changes; engine re-evaluates the condition. For the scenario (stockLevel = stockLevel . Inventory-update sources invoke the trigger-root-level-conditional-start-events API endpoint with the current stockLevel value. Engine starts a new instance whenever the API call evaluates the condition to true. Pattern 2: Timer Start + condition gate: Process: timer-cycle Start (e.g., every 5 min). Gateway after start: checks condition; if true → continue; if false → end early. Pros: simple, no external dependencies. Cons: polling -- wastes resources when condition rarely true. Pattern 3: Inbound Connector for data source: Custom Connector watches inventory DB changes. On change: evaluates condition; correlates Message to start process. Pros: event-driven; Cons: custom build effort. Pattern 4: Signal Start for system-wide events: System publishes \"LOW_STOCK\" Signal when condition met. All listeners (including process Start Event) react. Pros: 1-to-N fanout; Cons: less targeted than Message. Decision matrix: | Need | Pattern | |------|---------| | True event-driven | Message Start + external evaluator | | Simple, low-frequency | Timer Start + gate | | System-wide | Signal Start | | Native conditional (if supported) | Conditional Start | Conditional Start Event is the canonical Camunda-8.8 solution -- alternative patterns (Message/Timer/Signal) are only needed when external systems can't call the trigger-root-level-conditional-start-events API."
+    },
+    "b": {
+      "text": "Incorrect. \"Always supported\" is correct for 8.8 but doesn't capture the API-trigger requirement at root level."
+    },
+    "c": {
+      "text": "Incorrect. Conditional Start IS available in C8 8.8 (per bpmn-coverage.md and conditional-events.md)."
+    },
+    "d": {
+      "text": "Correct. Timer Start polling is one workaround; not needed when Conditional Start fits."
+    }
+  },
+  "explanation": "Timer Start polling is one workaround; not needed when Conditional Start fits.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/conditional-events/conditional-events/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

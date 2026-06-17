@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q60",
+  "topic": "dev-environment",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A developer running Camunda 8 Run locally wants to test authentication -- provision an API client, get OAuth2 token, call APIs with the token. They wonder about Identity setup in local Camunda 8 Run.",
+  "question": "How is authentication / Identity configured in local Camunda 8 Run?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Claiming that Camunda 8 Run has no authentication at all is only partially accurate. By default, Camunda 8 Run starts with unprotected-api: true, meaning APIs can be accessed without credentials, making it easy for developers to get started quickly. method: BASIC configuration is active, and API calls can use Basic auth credentials with -u demo:demo. enabled: true."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 Run bundles its own consolidated authentication system locally -- it does not require a connection to Camunda's cloud Identity services. The local c8run process starts with Spring profiles including consolidated-auth and identity, providing Identity capabilities at http://localhost:8080/identity. For testing Basic auth locally, developers use the bundled demo:demo credentials. External Keycloak or cloud Identity services are not required, making local development completely self-contained."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 Run uses HTTP Basic authentication with the default credentials demo:demo and bundles an embedded consolidated-auth plus identity Spring profile -- it does not require a separate Keycloak server or any external identity provider. By default, unprotected-api: true means APIs are accessible without credentials for easy getting-started experience. yaml. The bundled Identity component is available locally at http://localhost:8080/identity and supports Basic auth testing. For testing full OAuth2 or OIDC client-credentials flows, the complete Self-Managed Helm chart with Keycloak is needed rather than Camunda 8 Run."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 Run starts with Spring profiles that include identity and consolidated-auth, making the Identity component available locally at http://localhost:8080/identity. For testing full OIDC flows, the complete Self-Managed Helm chart with Keycloak is needed."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 Run uses BASIC auth (NOT OAuth2/Keycloak) by default for local dev simplicity: What's bundled per c8run.md:309-312: Spring profiles active: broker,consolidated-auth,identity,tasklist -- Zeebe broker + auth + Identity + Tasklist all in one process. Default user: demo / password demo per :289-291 (also configurable via --username / --password CLI flags per :242-243). Auth method: BASIC per :294 -- HTTP Basic auth, not OAuth2. unprotected-api: true per :295 -- APIs accessible without credentials by default (override with custom application.yaml and --config ). Initial setup flow: 1. Start Camunda 8 Run: Linux/Mac: ./start.sh or ./c8run start (the start.sh is a thin wrapper for c8run start). Windows: .\\c8run.exe start (there is NO start.bat script in 8.8 -- Pattern #9 9th cumulative). 2. Wait for all components to initialise; browser auto-opens to http://localhost:8080/operate per :86. 3. All UIs at http://localhost:8080/ (consolidated cluster): /operate, /tasklist, /identity (depending on config). 4. Sign in with demo / demo (or your --username / --password overrides). 5. API calls: curl -u demo:demo http://localhost:8080/v2/topology per :554-558. Enable authentication enforcement (optional, more prod-like) per :521-547: Supply application.yaml with unprotected-api: false + authorizations.enabled: true. Start with ./c8run start --config application.yaml (Linux) or .\\c8run.exe start --config application.yaml (Windows). Add additional users with roles via camunda.security.initialization.users + defaultRoles.admin.users per :561-576. NO OAuth2 / Keycloak in c8run: c8run does NOT bundle Keycloak or expose OIDC token endpoints (no localhost:18080/auth/realms/...). No OAuth2 client_credentials flow against c8run by default. For realistic OIDC/OAuth2 testing matching SaaS-prod, use the full Self-Managed Helm chart (Keycloak-backed Identity), not c8run. Realistic dev testing: Provision additional users with roles via defaultRoles map per :572-576. Test BASIC auth flow: pass -u user:pw on every request, or use the Authorization: Basic header. Test failure modes: bad credentials, missing roles (when authorizations.enabled: true). Shutdown: Linux/Mac: ./shutdown.sh per :590. Windows: .\\c8run.exe stop per :597."
+    },
+    "b": {
+      "text": "Incorrect. Depends."
+    },
+    "c": {
+      "text": "Correct. Local bundled."
+    },
+    "d": {
+      "text": "Incorrect. Bundled."
+    }
+  },
+  "explanation": "Local bundled.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/c8run/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q60",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-creation-29",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-creation",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon, a SaaS provider running on Camunda 8.8, exposes an internal 'Start onboarding' API that must respond in under 200 ms even when downstream service tasks run for several minutes. The BPMN begins with a none start event and handles roughly 4000 onboarding requests per day across customer tenants in production.",
+  "question": "Which Camunda 8.8 command starts a process from a none start event and responds with the process instance key before execution begins?",
+  "options": [
+    { "id": "a", "text": "CreateProcessInstance creates a new process instance and immediately responds with the process instance key, while execution of the process occurs asynchronously after the response is sent to the client" },
+    { "id": "b", "text": "CreateProcessInstanceWithResult creates the instance, blocks the response until execution is complete, and returns the final result variables alongside the process instance key in the same call" },
+    { "id": "c", "text": "PublishMessage with the start event's message name creates an instance synchronously, returns the process instance key, and waits for the first user task to be activated before returning the response" },
+    { "id": "d", "text": "DeployResource with a fresh BPMN payload creates a single instance as a deployment side effect, returns its process instance key, and continues execution after the deployment commit completes" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. CreateProcessInstance starts a process from a none start event, immediately responds with the new process instance key and definition identifiers, and the execution of the process continues asynchronously after that response is sent to the client." },
+    "b": { "text": "Incorrect. CreateProcessInstanceWithResult deliberately delays the response until execution is complete, which would break the sub-200 ms latency budget the onboarding API depends on." },
+    "c": { "text": "Incorrect. None start events are started by an explicit create command, not by publishing a message; only message start events are reached via publish or correlate calls." },
+    "d": { "text": "Incorrect. DeployResource publishes BPMN resources to the cluster and does not create a process instance as a side effect; instance creation requires a separate command." }
+  },
+  "explanation": "CreateProcessInstance is the documented command for a none start event: it creates a new instance and immediately responds with the process instance key, and the execution of the process occurs asynchronously after that response is sent.",
+  "docs": [
+    { "title": "Process instance creation", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/" }
+  ]
+}

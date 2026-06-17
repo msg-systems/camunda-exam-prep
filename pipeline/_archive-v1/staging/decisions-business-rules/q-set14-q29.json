@@ -1,0 +1,76 @@
+{
+  "id": "imp-set14-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A complex DMN decision has 50+ rules. Team wants to test it thoroughly before deployment. They wonder about DMN testing strategy.",
+  "question": "DMN testing strategy?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Manual testing only -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Multi-layered DMN testing approach: (1) Unit tests -- use Camunda's DMN testing utilities or JUnit DMN test runner to test decision tables with specific input/output pairs without deploying; (2) Integration tests -- deploy to a test cluster and invoke via API with representative inputs; (3) Coverage tests -- ensure every rule row has at least one test case. The Camunda Modeler provides a built-in decision table simulation feature for ad-hoc testing. Automated test pipelines should catch regressions before DMN changes reach production."
+    },
+    {
+      "id": "c",
+      "text": "Testing DMN decisions directly in production is a high-risk practice that can affect live business processes and create auditable incorrect decisions before issues are caught. Decision tables encode business rules that may directly drive process routing, pricing, risk scoring, or compliance outcomes. Changes should be validated in a development or staging environment first, using representative input data that covers all rule combinations. Production testing bypasses the safety net of pre-production validation."
+    },
+    {
+      "id": "d",
+      "text": "DMN decision tables require testing as much as any code. Decision tables can contain logical errors such as gaps (no rule matches a valid input combination), overlaps (multiple rules match when only one should under UNIQUE policy), or incorrect output values. These defects produce wrong business outcomes -- incorrect pricing, wrong routing, failed compliance checks -- that are difficult to detect without structured test cases. Automated testing of decision tables is a professional practice, not optional."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. DMN testing strategy: Layered testing pyramid: Layer 1: Unit tests per decision: What: Pre-deployment: feed inputs, assert outputs. Validates logic per decision. Tools available in Camunda 8.8: Web Modeler Play mode per play-your-process.md:11-21: deploys BPMN + associated DMN to a dev cluster; manually start instances and observe decision evaluation via the linked Business Rule Task. Useful for end-to-end happy-path validation; not a dedicated DMN unit-test harness. FEEL Playground per feel-playground.md: validates FEEL expressions used in input entries / output entries / unary tests against sample context data; runs the FEEL Scala engine and surfaces validation issues. EvaluateDecision API (POST /decision-definitions/evaluation REST or EvaluateDecision gRPC, per Q28): driver-script invocation of standalone decisions with fixture inputs -- base for programmatic test suites. Java: embed camunda-dmn-engine (or call EvaluateDecision via the Java client) from JUnit; assert outputs. Other languages: invoke EvaluateDecision via the REST/gRPC API from any test framework. Spec files: declarative test cases (JSON / YAML mapping inputs to expected outputs) driven by the harness above. Note: there is no dedicated \"DMN Tester\" component shipped with Camunda 8 -- combine Play + EvaluateDecision API + community libraries. Example test cases: ` Test 1: amount=50, customerTier=\"basic\" → discount=0 Test 2: amount=150, customerTier=\"basic\" → discount=5 Test 3: amount=50, customerTier=\"premium\" → discount=10 Test 4: amount=150, customerTier=\"premium\" → discount=15 Coverage: Each rule hit at least once: ensures rule logic exercised. Hit policy paths: for FIRST, test which rule matches; for COLLECT, test list / aggregator. Boundary tests: amount=100 (just below threshold). amount=101 (just above). amount=null` (defensive). Default rule: test inputs that fall to default. Layer 2: Integration tests: What: Decision invoked from BPMN process or API. Validates wiring + IO mapping. Approach: Spin up Camunda 8 (dev / test cluster). Deploy DMN + BPMN. Start process / invoke decision; assert outcomes. Use Spring Zeebe Test (or equivalent) for assertions. Layer 3: Regression tests: What: When decision changes, re-run previous test cases. Catches unintended behavior changes. Approach: Maintain historical test suite. Run on every change. Fail build if regression. Layer 4: End-to-end tests: What: Full flow: input → process → decision → downstream effects. Less common for DMN; high-value for complex orchestrations. Testing edge cases: Edge case 1: Null inputs: DMN may handle gracefully or produce null result. Test both with and without nulls. Edge case 2: Type mismatches: String where number expected (per Set 13 Q26). Test conversion behavior. Edge case 3: Empty list inputs: For decisions with collection-based inputs. Verify quantifier behavior (per Q24). Edge case 4: Boundary values: Right at threshold (>=, >, <, <=). Off-by-one bugs. Edge case 5: Multiple matches (for FIRST): Ensure deliberate order; first match wins. Test that \"wrong rule\" doesn't accidentally win. Continuous integration: DMN tests run on every commit / PR. Fail CI if tests fail. Block deployment on test failures. Best practices: Test rules incrementally: as rules added, add tests. Document test rationale: why does this case matter? Use realistic data: production-like inputs. Separate test data: don't hard-code; use fixtures. Performance tests: for high-throughput decisions, benchmark evaluation latency. For 50+ rules: Aim for 50-100 test cases (rule coverage + edge cases). Group tests by domain / scenario. Use parameterised tests (one test function, many input rows). Anti-patterns: Test only happy path: misses edge cases; production surprises. No regression tests: changes break silently. Test in production: customer-visible bugs. Manual-only: doesn't scale; not repeatable."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q29",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 29 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 18.6 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

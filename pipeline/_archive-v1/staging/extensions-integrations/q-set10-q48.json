@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q48",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression handles dates from multiple time zones -- orders come from EU customers and Asia customers. The team needs to compare dates correctly across time zones.",
+  "question": "How does FEEL handle time zones in date and time values?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL ignores time zone information in date and time values and treats all timestamps as local time without zone context -- this description does not reflect the actual behaviour. FEEL's date and time type explicitly supports time zone information in two forms: UTC offset notation such as +02:00 or Z for UTC, and IANA time zone ID notation using the @ prefix such as @Europe/Berlin. Both forms are preserved in date and time values, and comparisons between values with different zones correctly normalise to the same instant."
+    },
+    {
+      "id": "b",
+      "text": "While FEEL comparisons between date and time values with different zones do reduce both sides to the same UTC instant for comparison purposes, the values themselves retain their original zone information. A value with @Europe/Berlin keeps that zone; it is not stored as UTC. Normalisation happens during comparison operations, not at storage time."
+    },
+    {
+      "id": "c",
+      "text": "md:227, :248). Comparisons (<, >, =) normalise across time zones -- both sides reduced to the same instant. Constructors live in the conversion category, not the temporal category: single-string form date and time(\"2018-04-29T09:30:00@Europe/Berlin\") per :236-249, and zone-conversion form date and time(@\"2020-07-31T14:27:30@Europe/Berlin\", \"America/Los_Angeles\") per :292-302. Best practice: store / compare in UTC; convert for display."
+    },
+    {
+      "id": "d",
+      "text": "Converting a date and time value from one time zone to another requires a Service Task with custom Java or JavaScript code because FEEL has no time zone conversion capability -- this description does not reflect the actual behaviour. FEEL provides a native zone-conversion constructor form: date and time(value, timezone) that takes an existing date and time value and a target IANA timezone string and returns a new date and time value in the target zone. This conversion is available in any FEEL expression context without requiring external code."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL's temporal types support time zones (constructors are documented in the conversion category, not the temporal category -- Pattern #38 frequently mis-cited): date and time: optional timezone component appended either as UTC offset (+01:00 or Z) or as IANA timezone ID prefixed with @ (@Europe/Berlin) per verbatim feel-built-in-functions-conversion.md:227 \"either as offset (e.g., +01:00 or Z), as IANA timezone ID (e.g., @Europe/Berlin)\". Combined-offset form 2018-04-29T09:30:00+02:00[Europe/Berlin] also accepted (:251-252). Comparisons: when comparing two date and time values with different zones, FEEL reduces both to the same instant. 2026-05-14T09:00:00Z and 2026-05-14T11:00:00+02:00 represent the same moment; FEEL treats them as equal. Zone-conversion constructor: date and time(value: date and time, timezone: string): date and time per :281-302 -- e.g., date and time(@\"2020-07-31T14:27:30@Europe/Berlin\", \"America/Los_Angeles\") → date and time(\"2020-07-31T05:27:30@America/Los_Angeles\"). Best practice for multi-zone applications: Storage: store in UTC (Z suffix); avoid implicit local-zone storage. Display: convert to user's preferred zone with the zone-conversion constructor. Comparison: FEEL handles transparently when both values carry zones. Edge cases: a date and time without any zone/offset is local-only; comparing it to a zoned value is implementation-dependent -- always prefer zoned literals."
+    },
+    "b": {
+      "text": "Incorrect. Supported."
+    },
+    "c": {
+      "text": "Correct. Depends on value's actual zone."
+    },
+    "d": {
+      "text": "Incorrect. FEEL native."
+    }
+  },
+  "explanation": "Depends on value's actual zone.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-conversion/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q48",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

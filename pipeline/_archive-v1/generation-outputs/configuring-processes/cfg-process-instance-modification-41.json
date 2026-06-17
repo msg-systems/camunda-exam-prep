@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-modification-41",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "hard",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Orion Bank runs 4000 instances per day in Camunda 8.8 inside a payments orchestration. After 2 hours of stuck workers, operations sends a modification command that contains both activation and termination instructions to repair a batch of in-flight process instances and needs to know exactly how the engine sequences and commits the instructions to preserve subprocess context.",
+  "question": "How does the engine sequence and commit activation and termination instructions inside a single modification command?",
+  "options": [
+    { "id": "a", "text": "The engine applies all activation instructions first, then all termination instructions, and rejects the whole command if any single instruction fails to apply to the instance." },
+    { "id": "b", "text": "The engine applies all termination instructions first, then all activation instructions, and rejects the whole command if any single instruction fails to apply to the instance." },
+    { "id": "c", "text": "The engine applies activations and terminations in the client-provided order and commits each instruction independently to the partition log of the instance." },
+    { "id": "d", "text": "The engine applies activations first and terminations second and commits each instruction independently without rolling back outcomes from a failed instruction." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The engine applies all activation instructions first and then all termination instructions, and it treats the modification command transactionally: if any single instruction cannot be applied, the engine rejects the command and leaves the process instance unchanged." },
+    "b": { "text": "Incorrect. The documented order is activations before terminations, which keeps a scope alive when a termination would otherwise empty it before activations have run." },
+    "c": { "text": "Incorrect. The engine does not commit each instruction independently and does not honour a client-provided order across activations and terminations; it applies the two phases in a fixed sequence and atomically." },
+    "d": { "text": "Incorrect. The modification command is transactional and applies all or nothing; partial application after a failed instruction is explicitly ruled out by the documented behaviour." }
+  },
+  "explanation": "A modification command runs activations first, terminations second, and is transactional. The phased order keeps scopes alive long enough for new activations to attach, and the all-or-nothing commit guarantees the instance stays in its prior state on rejection.",
+  "docs": [
+    { "title": "Process instance modification", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/" }
+  ]
+}

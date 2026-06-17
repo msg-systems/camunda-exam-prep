@@ -1,0 +1,27 @@
+{
+  "id": "cfg-feel-context-expressions-73",
+  "topic": "configuring-processes",
+  "subtopic": "feel-context-expressions",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Bank summarizes 22000 transactions per day in Camunda 8.8. A modeler writes a FEEL context literal that defines key a with value 2 and key b with value a * 2, expecting the result to be the context {a:2, b:4} as shown in the FEEL context expressions reference for the Literal section.",
+  "question": "How does a FEEL context literal allow the entry for key b to reference the value of entry a inside the same expression?",
+  "options": [
+    { "id": "a", "text": "The literal is evaluated twice, with a second pass recomputing b once every earlier entry has been resolved as a variable into the surrounding scope" },
+    { "id": "b", "text": "Earlier entries are visible to later entries inside the same literal, so the expression for b can read a directly during a single evaluation of the context" },
+    { "id": "c", "text": "The reference is rewritten by the engine into a lookup against the surrounding variable scope, so a must already be defined outside the literal to satisfy b" },
+    { "id": "d", "text": "Only entries whose key is a quoted string can be referenced by later entries, while entries declared with a name key remain private to their own row in the literal" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. There is no documented two-pass evaluation of a FEEL context literal; the documented behavior is that previous entries are simply in scope while later entries are being evaluated as part of a single pass over the literal." },
+    "b": { "text": "Correct. The FEEL context expressions reference states that inside the context the previous entries can be accessed, so a single evaluation of the literal lets the expression for b read the freshly defined value of a and return the documented result {a:2, b:4}." },
+    "c": { "text": "Incorrect. The reference resolves against the entries already defined within the same context literal and not against the surrounding variable scope, so there is no requirement that a be defined outside the literal for the example to evaluate." },
+    "d": { "text": "Incorrect. The documentation states that the key of a context entry is either a name or a string, and both forms are equally accessible to later entries inside the same context literal." }
+  },
+  "explanation": "Inside a FEEL context literal the previous entries are in scope while later entries are being evaluated, so an expression such as b: a * 2 can read the value just defined for a in the row above and the literal evaluates to the documented context {a:2, b:4}.",
+  "docs": [
+    { "title": "FEEL context expressions", "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-context-expressions/" }
+  ]
+}

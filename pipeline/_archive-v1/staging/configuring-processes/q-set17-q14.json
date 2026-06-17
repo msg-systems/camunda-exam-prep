@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Many process instances; external system references them by business-meaningful ID like orderId = \"ORD-100\". Team wonders correlate by business key.",
+  "question": "Process correlation by business key?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Auto business key -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Correlating process instances by a business-meaningful identifier is not possible in Camunda 8 -- this does not accurately reflect the behavior. Store the business identifier such as orderId as a process variable. Query instances using the Orchestration Cluster REST API with a variable filter. Message correlation also uses variable-based correlation keys for routing messages to the correct instance."
+    },
+    {
+      "id": "c",
+      "text": "The only way to correlate process instances by business key in Camunda 8 is through an external database -- this overstates the constraint. While external indexing improves query performance, the Orchestration Cluster REST API v2 supports searching process instances by variable value natively without an external database. An external database is a performance optimization for large-scale deployments, not a mandatory prerequisite for basic business-key correlation scenarios."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 has NO first-class businessKey attribute (unlike Camunda 7). , orderId), then query instances using the Orchestration Cluster REST API v2 with a variable filter matching that name and value. For Message correlation, set the correlationKey in the Message subscription to the same business identifier. This variable-convention approach replaces the Camunda 7 explicit businessKey property."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Business key correlation in Camunda 8: Process instance key vs business key: Process instance key: Engine-generated: 64-bit number. Unique across cluster. Not human-friendly: numeric. Returned at creation. Business key (concept): Business-meaningful identifier: orderId, customerId, ticketId, etc. Set as process variable. For querying / correlation. In Camunda 7: Explicit \"businessKey\" attribute: first-class. Set at process creation. In Camunda 8 (definitive -- no first-class businessKey): No businessKey attribute: not part of CreateProcessInstance request fields. Convention: use a process variable (e.g., businessKey or orderId). Query by variable: via Orchestration Cluster REST v2 POST /process-instances/search. For lookup (Orchestration Cluster REST API v2): ` POST /v2/process-instances/search Body: { \"filter\": { \"variables\": [ { \"name\": \"orderId\", \"value\": \"ORD-100\" } ] } } Legacy Operate /v1/process-instances/search was Operate-API-only; in 8.8 the orchestration-cluster API is the canonical query surface. For Message correlation (per Set 13 Q20): Correlation key in Message. Often business-meaningful (orderId, customerId). Routes Message to right instance. Pattern: Process variable as business key: xml Correlation key orderId from message payload. For starting via Message: Publish Message with payload including orderId`. Process starts with orderId as variable. Subsequent operations: identify by orderId. For querying by business key: Approach 1: Operate API: Filter by variable value. Approach 2: Custom indexing: Maintain external DB: business key → process instance key. Query DB for lookup; then Operate / Tasklist. For audit / linking external systems: External order system: knows orderId. Camunda process: knows orderId as variable. Link: lookup by orderId. For multi-instance with same business key: One process per business key: typical. Multiple processes: each with own (potentially different) business key. For composite business keys (per Set 13 Q20): Combine fields: customerId + orderId. For uniqueness. For Tasklist user search: Find tasks by orderId: variable filter. Tasklist API supports. For audit logging: Log entries: include business key. Traceable. For SaaS: Variable indexing: for fast queries. Performance: depends on indexing. For Camunda 8 evolution: Business key feature: may be added as first-class. Currently: via variable convention. Check version's specific features. Best practices: Always set business key: as variable at start. Document convention: which variable. Index for performance: ensure variable indexed. Use for all external lookups. Anti-patterns: No business key: lose external linkage. Different keys across processes: lose correlation. Process instance key in external systems: opaque. For the scenario (correlate by orderId): Store orderId as variable. Query by variable. Use for Message correlation if needed. For complex correlation: Multiple variables: composite query. Time-based: variable + date range."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q14",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 27 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 17.7 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "cfg-variables-08",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Bank models an authorization service task in Camunda 8.8 across 22000 transactions per day. The job returns a results object with status and transactionId. The team defines a single output mapping that maps status to paymentStatus but does not define any mapping for transactionId, and wants to predict which variables are merged into the parent process scope.",
+  "question": "Which variables are merged into the parent scope when at least one output mapping is defined on a service task?",
+  "options": [
+    { "id": "a", "text": "All results variables are merged into the parent scope, and any output mappings are applied in addition to produce extra derived variables alongside them on the parent" },
+    { "id": "b", "text": "Only the variables produced by the configured output mappings are merged into the parent scope, while results variables without a mapping remain local and are not merged" },
+    { "id": "c", "text": "Only the original results variables are merged into the parent scope, while output mappings overwrite them in place but never add new variables to the parent scope" },
+    { "id": "d", "text": "All results variables and all output mapping targets are merged twice into the parent scope, first as locals and then as merged copies sharing the same name pairs" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. When at least one output mapping is defined, results variables without a mapping are not merged into the parent scope. The mappings determine what propagates upward, not the raw results variables alongside the mapped outputs." },
+    "b": { "text": "Correct. The Output mappings section states that if one or more output mappings are defined, results variables are first set as local variables, then the mappings are applied to create new variables in the scope, and only those mapped variables are merged into the parent scope." },
+    "c": { "text": "Incorrect. Output mappings do not overwrite results variables in place at the parent scope. Mapped results become local variables in the task scope, then the mapping outputs are merged into the parent scope as new variables." },
+    "d": { "text": "Incorrect. There is no double-merge of results and mappings into the parent scope. Results variables become local to the task scope, and only the configured mapping outputs are merged upward into the parent scope." }
+  },
+  "explanation": "When one or more output mappings are defined, results variables are set as local variables in the task scope. The output mappings then create new variables in that scope, and those new variables are merged into the parent scope. Results variables that have no mapping are not merged. If no output mappings are defined, all results variables are merged into the process instance.",
+  "docs": [
+    { "title": "Variables", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+  ]
+}

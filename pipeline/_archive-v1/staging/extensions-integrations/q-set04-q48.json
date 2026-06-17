@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q48",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression must decode a JSON-string variable (payload = '{\"orderId\": \"ABC\", \"amount\": 100}') into a usable context.",
+  "question": "Which FEEL handles this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Structuring the variable at the process boundary so it arrives as a properly typed FEEL context (not a JSON string) is the cleanest architectural approach. If the inbound webhook or API integration stores the payload as a parsed context variable rather than a raw string, no parsing is needed in FEEL. This requires the Connector or inbound hook to deserialize JSON to FEEL context at the process boundary. This is the best-practice approach: handle parsing at integration boundaries, keep process logic clean."
+    },
+    {
+      "id": "b",
+      "text": "parse(payload) is not a FEEL built-in function. FEEL does not have a parse() function. The correct FEEL built-in for converting a JSON string to a FEEL value is from json(payload). Using an undefined function name causes FEEL to raise a function-not-found error at evaluation time. loads() in Python must use the FEEL-specific from json() function name when working in Camunda 8 expressions."
+    },
+    {
+      "id": "c",
+      "text": "from json(payload) is the FEEL built-in function that parses a JSON string into the corresponding FEEL value -- a context if the JSON is an object, a list if an array, or a primitive for scalar values. The function is defined in the FEEL standard and supported in Camunda 8. orderId. This is the appropriate FEEL mechanism when a process variable contains a raw JSON string that must be parsed before field access."
+    },
+    {
+      "id": "d",
+      "text": "orderId directly when payload is a raw JSON string does not work in FEEL. field) operates on FEEL context values -- structured objects. A raw string like {\"orderId\":\"123\"} is treated as a plain string by FEEL, not a context. orderId on a string value returns null rather than the expected value. The string must first be parsed using from json(payload) before field access is possible. ###"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Structuring at boundary works (variables stored as JSON-typed objects are accessed directly), but the scenario explicitly has a JSON string; in that case use from json(). Per feel-built-in-functions-conversion.md:346-369."
+    },
+    "b": {
+      "text": "Incorrect. No parse() in FEEL."
+    },
+    "c": {
+      "text": "Correct. FEEL exposes from json(value: string): Any in the conversion built-ins per feel-built-in-functions-conversion.md:346-369. Signature with space (not camelCase): from json(\"{\\\"a\\\": 1}\") → {a: 1}. Returns null if the string isn't valid JSON."
+    },
+    "d": {
+      "text": "Incorrect. Dot access on a string returns null; the value must be parsed first."
+    }
+  },
+  "explanation": "FEEL exposes from json(value: string): Any in the conversion built-ins per feel-built-in-functions-conversion.md:346-369. Signature with space (not camelCase): from json(\"{\\\"a\\\": 1}\") → {a: 1}. Returns null if the string isn't valid JSON.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-conversion/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q48",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

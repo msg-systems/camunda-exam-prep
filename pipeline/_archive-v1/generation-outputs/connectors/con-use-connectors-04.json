@@ -1,0 +1,27 @@
+{
+  "id": "con-use-connectors-04",
+  "topic": "connectors",
+  "subtopic": "BPMN error examples",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Insurance, an insurer processing 12000 requests per day, calls a third-party rating API from a Camunda 8.8 REST outbound connector. The team needs HTTP 404 responses to raise a BPMN error coded 404 and HTTP 500 responses to raise a BPMN error coded 500 so two distinct boundary events route each case to the correct support queue.",
+  "question": "Which header configuration matches the documented HTTP errors to BPMN errors example for this requirement?",
+  "options": [
+    { "id": "a", "text": "Set a header named errorMapping with a FEEL list of error codes such as [404, 500] so the connector automatically raises a matching BPMN error with that code for each entry at runtime" },
+    { "id": "b", "text": "Set a header named httpErrors with a JSON object mapping each HTTP status code to a BPMN error code, which the connector interprets at runtime without any FEEL expression being involved" },
+    { "id": "c", "text": "Set a header named errorExpression with a FEEL expression that returns bpmnError(\"404\", \"Got a 404\") when error.code = \"404\", bpmnError(\"500\", \"Got a 500\") when error.code = \"500\", else null" },
+    { "id": "d", "text": "Set a header named bpmnErrorCodes containing the values 404,500 as a comma-separated string so the runtime auto-generates BPMN errors with those codes on each HTTP failure that occurs" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documented header name is errorExpression and its value is a FEEL expression, not a list of codes; the connector does not auto-map a code list to BPMN errors." },
+    "b": { "text": "Incorrect. The documented mechanism is a header named errorExpression containing a FEEL expression; a static JSON mapping object is not interpreted by the connector at runtime." },
+    "c": { "text": "Correct. The HTTP errors to BPMN errors recipe uses a header named errorExpression with a FEEL expression that branches on error.code and returns a bpmnError call for each handled status, else null." },
+    "d": { "text": "Incorrect. There is no bpmnErrorCodes header in the documented example; the mechanism is a header named errorExpression containing a FEEL expression that explicitly constructs each bpmnError." }
+  },
+  "explanation": "The HTTP errors to BPMN errors example uses a header named errorExpression. The header value is a FEEL expression that inspects error.code and returns a bpmnError with a code and message for each handled HTTP status, otherwise null so the regular result path continues.",
+  "docs": [
+    { "title": "How to use connectors - BPMN error examples", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/" }
+  ]
+}

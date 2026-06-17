@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q60",
+  "topic": "dev-environment",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A developer running a local Camunda 8 stack (Self-Managed via Docker Compose or Camunda 8 Run) wants to programmatically check the health of each component (Zeebe gateway, Operate, Tasklist, Identity). They want a shell command they can put in a CI smoke test or local readiness check.",
+  "question": "Which endpoints expose component health?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No health check endpoints are exposed by Camunda 8 components -- teams must resort to process-level checks (inspecting container process lists or Docker health check commands) to verify component health. This is inaccurate. 8) exposes Spring Boot Actuator endpoints on the management port :9600, including /actuator/health/readiness and /actuator/health/liveness. These are standard, documented HTTP endpoints designed precisely for CI smoke tests, Kubernetes probes, and load balancer health checks."
+    },
+    {
+      "id": "b",
+      "text": "Only the Operate web UI shows health status for Camunda 8 components -- the dashboard visually indicates whether Zeebe, Operate, and Tasklist are connected and healthy, but there is no HTTP API endpoint for programmatic health queries. This claim is inaccurate. While the Operate UI does show connection status indicators, the canonical programmatic health check path is the Spring Boot Actuator exposed on the management port :9600. Shell commands can curl these endpoints and check HTTP status codes (200 = healthy, non-200 = unhealthy) for use in CI pipelines and container orchestration readiness probes."
+    },
+    {
+      "id": "c",
+      "text": "8) exposes its Spring Boot Actuator on the dedicated management port :9600 -- curl http://localhost:9600/actuator/health/readiness (Kubernetes readiness), :9600/actuator/health/liveness (liveness), :9600/actuator/prometheus (metrics). Per component health within the cluster is path prefixed on the same port: :9600/operate/actuator/health/readiness, :9600/tasklist/actuator/health/readiness. Identity (separate process) runs its own actuator on its own management port. md:33 35."
+    },
+    {
+      "id": "d",
+      "text": "SSH into the Zeebe broker container and run internal inspection commands (checking process health, memory usage, or log file output) to determine component status -- this provides deep system-level visibility. While container-level inspection is occasionally necessary for deep debugging, it is entirely inappropriate as a CI smoke test or readiness check. SSH access to production containers is typically restricted, the technique is not scriptable across distributed deployments, and it cannot be integrated into Kubernetes liveness/readiness probe configurations. The HTTP Actuator endpoints on port :9600 provide clean, automatable, role-appropriate health checks."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8.8 consolidates the Orchestration Cluster -- Zeebe broker, Operate, Tasklist, and Orchestration Cluster Admin run inside a single Spring Boot JVM. The Spring Boot Actuator is bound to the dedicated management port :9600 (separate from app port :8080 which serves Operate/Tasklist/Admin UIs and the v2 REST API). Per monitoring.md:33-35 the exposed endpoints are: :9600/actuator/health/readiness, :9600/actuator/health/liveness, :9600/actuator/prometheus. For per-component health (e.g., Tasklist's own readiness vs. the cluster aggregate), use the path prefix per deployment/helm/install/production/index.md:583, :595: :9600/operate/actuator/health/readiness, :9600/tasklist/actuator/health/readiness. Camunda 8 Run inherits this layout (metrics at localhost:9600/actuator/prometheus per c8run.md:637). For C8 Run topology check, curl http://localhost:8080/v2/topology (per c8run.md:555) is a complementary liveness signal. Identity (when used) runs separately; its actuator binds to its own management port (default 8082 per self-managed/components/management-identity/miscellaneous/application-monitoring.md:16). No per-component-port-with-/actuator/health pattern in 8.8 -- that was Camunda 7 / pre-consolidation 8.x."
+    },
+    "b": {
+      "text": "Incorrect. Actuator endpoints are standard."
+    },
+    "c": {
+      "text": "Correct. UI shows visual health but programmatic check via HTTP is canonical."
+    },
+    "d": {
+      "text": "Incorrect. Container-level inspection is far less useful than HTTP health endpoints."
+    }
+  },
+  "explanation": "UI shows visual health but programmatic check via HTTP is canonical.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/components/orchestration-cluster/core-settings/concepts/monitoring/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q60",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

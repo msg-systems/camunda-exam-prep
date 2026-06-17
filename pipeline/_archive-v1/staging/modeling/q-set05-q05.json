@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A complex fraud-detection process has multiple parallel branches investigating different aspects. If one branch definitively detects fraud, the team wants to immediately stop all branches and the entire process instance, ending without normal completion.",
+  "question": "Which End Event fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Regular None End Event placed in a parallel branch. The None End Event consumes only the one token that reaches it, leaving all other active tokens in parallel branches to continue running independently. When one branch definitively detects fraud, the other investigation branches would keep running, which conflicts with the requirement to immediately stop all active branches and the entire process instance."
+    },
+    {
+      "id": "b",
+      "text": "Error End Event. An Error End Event throws a BPMN error upward in the process scope hierarchy, which is caught by an Error Boundary Event or Error Event Subprocess at a higher level. It does not automatically cancel sibling parallel branches within the same scope. Without a catching error boundary above, the error terminates only that token's path and does not achieve the goal of stopping all concurrent branches immediately."
+    },
+    {
+      "id": "c",
+      "text": "Terminate End Event -- when reached by any token, it terminates the entire process instance scope immediately, cancelling all active tokens regardless of which branch they are running in. In a parallel multi-branch fraud-detection scenario, reaching this end event from any detecting branch kills all other investigation branches and ends the process without waiting for others to complete."
+    },
+    {
+      "id": "d",
+      "text": "Cancel End Event. In BPMN, the Cancel End Event is paired with Transaction Subprocesses and a Cancel Boundary Event to compensate a transaction when it needs to be rolled back. It is not designed for cancelling parallel branches in normal flow. Furthermore, Transaction Subprocess support in Camunda 8 is limited, making the Cancel End Event unsuitable for this parallel-branch termination use case."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Terminate End Event is BPMN's \"kill everything in this scope\" event. When reached, all active tokens in the same scope (process or subprocess) are cancelled. Designed exactly for \"stop everything now.\""
+    },
+    "b": {
+      "text": "Incorrect. None End just consumes one token -- other parallel branches continue."
+    },
+    "c": {
+      "text": "Correct. Error End throws an error upward; doesn't cancel siblings in same scope unless caught."
+    },
+    "d": {
+      "text": "Incorrect. Cancel End is paired with Transaction Subprocess + Cancel Boundary Event in BPMN spec -- not for parallel-branch termination in normal flow. Doubly wrong here: per bpmn-coverage.md:577 Cancel End Event has no implemented class in the BPMN coverage table -- Camunda 8 does not execute Cancel End (the Transaction Subprocess on which it depends is itself not implemented per bpmn-coverage.md:47-48)."
+    }
+  },
+  "explanation": "Error End throws an error upward; doesn't cancel siblings in same scope unless caught.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/terminate-events/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q05",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

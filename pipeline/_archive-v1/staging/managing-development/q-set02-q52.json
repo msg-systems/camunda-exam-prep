@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q52",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team uses Camunda 8 SaaS for development. They have three environments (dev cluster, staging cluster, production cluster) and want client credentials scoped per environment -- the dev token cannot access staging or production, etc.",
+  "question": "Which Camunda 8 SaaS configuration enforces this isolation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Create a single shared Client in Camunda Console and configure environment-specific access by passing different OAuth2 scope parameters when requesting tokens for each environment -- use scope=dev for the dev cluster and scope=prod for the production cluster, allowing the same Client to access different environments based on the requested scope. Camunda SaaS Clients are scoped at the Client level to a specific cluster, not via OAuth2 scope parameters. ) the token grants, not which cluster it authenticates against. One Client per cluster is the correct isolation model."
+    },
+    {
+      "id": "b",
+      "text": "Per-environment credential isolation is a limitation of Camunda SaaS that requires using Self-Managed deployment instead, where teams can configure separate Identity instances for each environment with full RBAC policies, preventing dev credentials from ever being used against production APIs. Per-environment isolation is natively supported in Camunda SaaS through per-cluster Clients in Console. Each Client is bound to one specific cluster and its credentials authenticate only against that cluster."
+    },
+    {
+      "id": "c",
+      "text": "Create separate Clients in Camunda Console for each environment (dev-client, staging-client, prod-client). Each Client is bound to a specific cluster at creation time -- its clientId and clientSecret authenticate only against that cluster's OAuth2 token endpoint and can only call that cluster's Orchestration Cluster REST API, Zeebe gRPC API, and related services. Because the token endpoint is cluster-specific, a dev-client token is physically incapable of authorising calls to the staging or production cluster's APIs. This cluster-scoped Client model is the canonical Camunda SaaS isolation mechanism. Teams store each set of credentials in environment-specific CI/CD secret stores to prevent accidental cross-environment use."
+    },
+    {
+      "id": "d",
+      "text": "Configure Identity-based IAM policies in Camunda Console that restrict a single shared Client to specific cluster IDs at request time -- when the Client calls the dev cluster API the policy allows it, and when it tries to access the production cluster API the policy blocks it based on the target cluster ID in the request. Camunda SaaS Console does not have IAM policies that dynamically restrict Client access based on target cluster ID at request time. Client isolation is achieved by creating separate Clients per cluster, not by applying policies to a shared Client."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 SaaS Clients are scoped per cluster by design. Creating one Client per environment (dev/staging/prod) gives clean isolation -- each Client's credentials authenticate only against its target cluster's OAuth2 token endpoint and gRPC/REST APIs. Credential leakage in dev doesn't compromise production."
+    },
+    "b": {
+      "text": "Incorrect. SaaS Clients are cluster-scoped at the Client level, not via OAuth2 scopes."
+    },
+    "c": {
+      "text": "Correct. SaaS does support per-environment isolation through per-cluster Clients."
+    },
+    "d": {
+      "text": "Incorrect. SaaS doesn't have IAM policies as described."
+    }
+  },
+  "explanation": "SaaS does support per-environment isolation through per-cluster Clients.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/console/manage-clusters/manage-api-clients/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q52",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

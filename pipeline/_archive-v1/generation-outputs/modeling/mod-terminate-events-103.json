@@ -1,0 +1,27 @@
+{
+  "id": "mod-terminate-events-103",
+  "topic": "modeling",
+  "subtopic": "events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lyric Marketplace operates an order-fulfillment process in Camunda 8.8 that fans out to two concurrent tasks B and C handling roughly 9000 orders per day. When task C completes a terminate end event is reached at the process level, and the team needs to predict precisely what happens to the still-active token at task B in the same flow scope.",
+  "question": "What does the engine do when the process instance reaches the terminate end event at the process level?",
+  "options": [
+    { "id": "a", "text": "The engine terminates all element instances in the same flow scope as the end event, including the active task B, and the process instance completes without taking outgoing flows" },
+    { "id": "b", "text": "The engine completes the token at task C and leaves task B active until it completes naturally, after which the process instance finally ends and reports completion" },
+    { "id": "c", "text": "The engine compensates the already-completed task C and waits for task B to complete before considering the process instance terminated by the end event" },
+    { "id": "d", "text": "The engine terminates only the token that reached the end event and lets task B continue independently as a detached element instance until a separate cancel is issued" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. When a process instance reaches a terminate end event, the engine terminates all element instances in the same flow scope as the end event, so any concurrent token such as the one on task B is cancelled along with the rest of that scope." },
+    "b": { "text": "Incorrect. The terminate end event does not wait for concurrent activities to finish naturally; it actively cancels the other element instances in the same flow scope on arrival." },
+    "c": { "text": "Incorrect. The terminate end event terminates element instances in the flow scope; it does not trigger compensation of already-completed activities such as task C." },
+    "d": { "text": "Incorrect. A terminate end event affects the whole flow scope rather than just the arriving token, so concurrent activities like task B are cancelled rather than left running as detached instances." }
+  },
+  "explanation": "A terminate end event is the only kind of terminate event. When a process instance reaches it, all element instances in the same flow scope are terminated, which is the documented way to cancel concurrent flows that are no longer required.",
+  "docs": [
+    { "title": "BPMN terminate events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/terminate-events/" }
+  ]
+}

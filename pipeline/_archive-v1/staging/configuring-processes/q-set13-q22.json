@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Input Mapping has Source: =amountStr, Target: amount. amountStr is \"123.45\" (string from form input). The team wonders if Zeebe auto-converts to number.",
+  "question": "Does Input Mapping auto-coerce string to number when the target expects number?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes, FEEL automatically coerces types in Input Mapping expressions -- wrong; FEEL operates with strict type semantics that do not include implicit conversion. 45. Downstream FEEL arithmetic operations like =amount * 100 would fail with a type error. Explicit conversion using the number() built-in function is required: =number(amountStr) converts the string to a numeric value suitable for calculations."
+    },
+    {
+      "id": "b",
+      "text": "Whether auto-coercion occurs depends on the type declared for the target variable in the BPMN model -- partial; Camunda 8 / Zeebe process variables are dynamically typed without BPMN-level type declarations. There is no schema or type annotation on process variables that would tell the engine to coerce a string to a number. Variables hold whatever value the expression produces, preserving the original type. This dynamic typing is flexible but requires explicit conversion in expressions when type transformation is needed, rather than relying on any implicit coercion triggered by target-side type declarations."
+    },
+    {
+      "id": "c",
+      "text": "The Input Mapping always fails with a type error when a string is assigned to a variable that is used numerically downstream -- wrong; the mapping itself succeeds silently. FEEL accepts strings as valid values and assigns them without error. The failure occurs later when a downstream expression attempts arithmetic operations (like =amount * 100) on the string-typed variable. At that point, a type mismatch error occurs. This delayed failure makes debugging harder -- the process instance progresses past the Input Mapping and fails mid-execution rather than at a clearly identifiable conversion step."
+    },
+    {
+      "id": "d",
+      "text": "No -- FEEL doesn't auto-coerce types. The Input Mapping evaluates the source expression as-is; if amountStr is a string, the target amount becomes a string. Explicit conversion required: =number(amountStr) parses the string to a number; target becomes number. Without explicit conversion, downstream arithmetic / numeric comparisons on the target would fail. General principle: FEEL is type-strict; convert explicitly via number(s), string(n), date(s), etc."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL's type-strict semantics: No auto-coercion: \"123\" + 5 → type error (can't add string and number). number(\"123\") + 5 → 128 (explicit conversion). \"123\" = 123 → false (string vs number; never equal). Input Mapping with type mismatch: Source: =amountStr, Target: amount where amountStr = \"123.45\" Result: amount = \"123.45\" (still a string in process scope). Downstream =amount 100 would fail (type mismatch). Explicit conversion: Source: =number(amountStr), Target: amount Result: amount = 123.45 (number). Downstream =amount 100 works (= 12345). Common conversions: String → Number: =number(s). String → Date: =date(s) (ISO 8601 format). String → Boolean: no direct function; use comparison =lower case(s) = \"true\". Number → String: =string(n). Date → String: =string(d) (returns ISO 8601 representation). When parsing might fail: =number(\"abc\") returns null (per Set 12 Q48 discussion). Defensive: validate before converting. Form data note: Number Input components in Camunda Forms typically write as native numbers, not strings. Text Input writes as strings. Check the form field type to know what the source is."
+    },
+    "b": {
+      "text": "Incorrect. Type-strict."
+    },
+    "c": {
+      "text": "Incorrect. Variables not BPMN-typed."
+    },
+    "d": {
+      "text": "Correct. Doesn't fail; just preserves type."
+    }
+  },
+  "explanation": "Doesn't fail; just preserves type.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-conversion/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q22",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

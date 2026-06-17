@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-31",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Sable Bank publishes 13000 transactions per day in Camunda 8.8 from an at-least-once webhook source and developers need to deduplicate the messages so the same payment notification is not correlated twice when the upstream publisher retries the same correlation key.",
+  "question": "Which Camunda 8 message attribute provides idempotency so the same message is processed at most once per name and correlation key?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The processInstanceKey on the publish command, which the broker uses to dedupe across instances at the gateway level before correlation happens at all"
+    },
+    {
+      "id": "b",
+      "text": "The timeToLive value, which transparently doubles as a deduplication window for any duplicates that arrive inside that same TTL on the broker"
+    },
+    {
+      "id": "c",
+      "text": "The correlation key alone, with identical correlation keys always rejected by the broker as duplicate correlations within a single process at runtime"
+    },
+    {
+      "id": "d",
+      "text": "The optional message ID, with a message rejected when a message of the same name, correlation key and ID is already buffered on the broker"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Publishing does not target a specific process instance directly; the documented deduplication mechanism is the optional message ID, not a process instance key on the publish command."
+    },
+    "b": {
+      "text": "Incorrect. TTL only controls buffering duration; it does not perform any deduplication of messages with the same name and correlation key on its own without a message ID set."
+    },
+    "c": {
+      "text": "Incorrect. The correlation key alone is not a deduplication key; the docs require the same name, correlation key and message ID together to trigger rejection of a buffered duplicate."
+    },
+    "d": {
+      "text": "Correct. The Message uniqueness section states a message is rejected and not correlated if a message with the same name, the same correlation key and the same ID is already buffered."
+    }
+  },
+  "explanation": "Message uniqueness uses an optional message ID. When set, the broker rejects any new message whose name, correlation key and ID match a message already in the buffer. The uniqueness check is disabled when no message ID is provided on the publish call.",
+  "docs": [
+    {
+      "title": "Messages",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

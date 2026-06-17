@@ -1,0 +1,27 @@
+{
+  "id": "ext-connecting-the-workflow-engine-with-your-world-165",
+  "topic": "extensions-integrations",
+  "subtopic": "connecting-the-workflow-engine",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Insurance runs a Camunda 8.8 Java service that ingests 4200 policies per day from a regional insurer. A developer using the Zeebe Java client must start a new process instance for every incoming policy and later correlate an asynchronous broker message back to the waiting instance using the documented client API calls.",
+  "question": "Which Zeebe Java client commands does the best-practices guide use to start a new process instance and correlate a message to an existing instance?",
+  "options": [
+    { "id": "a", "text": "Call zeebeClient newDeployResourceCommand to start a process instance and zeebeClient newSetVariablesCommand to inject a payload into the instance that should receive the broker message" },
+    { "id": "b", "text": "Call zeebeClient newCreateInstanceCommand with bpmnProcessId, latestVersion, and variables to start an instance, and zeebeClient newPublishMessageCommand with messageName, messageId, correlationKey, and variables to correlate a message" },
+    { "id": "c", "text": "Call zeebeClient newWorker with jobType to subscribe a worker that internally creates a process instance, and zeebeClient newThrowErrorCommand to deliver a message to a waiting BPMN instance" },
+    { "id": "d", "text": "Call zeebeClient newCorrelateMessageCommand with correlationKey to start a process instance, and zeebeClient newJobCompleteCommand to forward the inbound message to the targeted process instance" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. newDeployResourceCommand deploys a process definition rather than starting an instance, and newSetVariablesCommand updates variables on an existing instance instead of correlating a message." },
+    "b": { "text": "Correct. The Java client snippet uses newCreateInstanceCommand with bpmnProcessId, latestVersion, and variables to start a process instance, and newPublishMessageCommand with messageName, messageId, correlationKey, and variables to correlate a message to a waiting instance." },
+    "c": { "text": "Incorrect. newWorker registers a job worker subscription rather than starting an instance, and newThrowErrorCommand reports a BPMN error from inside a job, not a message correlation." },
+    "d": { "text": "Incorrect. There is no newCorrelateMessageCommand or newJobCompleteCommand on the documented Java client surface; the documented call is newPublishMessageCommand." }
+  },
+  "explanation": "The Calling Zeebe snippet uses two Java client commands. newCreateInstanceCommand starts a process instance by bpmnProcessId, latestVersion, and variables; newPublishMessageCommand correlates a message by messageName, a deduplication messageId, the correlationKey from the inbound message, and any variables that should be merged into the receiving instance.",
+  "docs": [
+    { "title": "Connecting the workflow engine with your world", "url": "https://docs.camunda.io/docs/components/best-practices/development/connecting-the-workflow-engine-with-your-world/" }
+  ]
+}

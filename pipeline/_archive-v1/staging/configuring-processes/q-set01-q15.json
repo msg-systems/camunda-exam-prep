@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Clinical-trial system: Parallel Multi-Instance Subprocess (200-2000 forms per batch). Rule: complete batch as soon as 95% of forms processed -- downstream reporting starts; stragglers shouldn't block.",
+  "question": "Which MI configuration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "95 on the Multi-Instance Subprocess. After each inner instance completes, Zeebe evaluates this condition. When 95% of forms have been processed and placed into the results collection, the condition evaluates to true. At that moment, Zeebe cancels all remaining in-flight inner instances (the slowest 5%) and moves the parent token forward to the next BPMN element. Variables accumulated in results are accessible downstream. This is the canonical BPMN pattern for early multi-instance completion."
+    },
+    {
+      "id": "b",
+      "text": "Set completionCondition and when it evaluates to true at the 95% threshold, Zeebe allows the remaining 5% of inner instances to continue executing in the background as detached tokens while the parent process has already moved forward. This would allow background completion without blocking the main flow. Any design relying on background continuation is fundamentally wrong."
+    },
+    {
+      "id": "c",
+      "text": "Set the inputCollection expression to select only the first 95% of forms, effectively pre-filtering which forms the Multi-Instance Subprocess processes. The remaining 5% would be stored separately and handled by a downstream Service Task. Pre-filtering the input collection changes the problem space entirely and doesn't address late-arriving stragglers during runtime."
+    },
+    {
+      "id": "d",
+      "text": "Wrap the Multi-Instance Subprocess inside an outer Subprocess and attach an Interrupting Timer Boundary Event to that outer Subprocess. Configure the timer's FEEL expression to calculate a wall-clock threshold. When the timer fires, the outer Subprocess is interrupted and the parent token moves forward. While Interrupting Timer Boundaries do fire and can stop multi-instance execution, a wall-clock timer doesn't represent a progress-based threshold -- it would fire after a fixed duration regardless of whether 95%, 50%, or 0% of forms have been processed. Progress-based completion requires condition evaluation, not time-based interruption."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. completionCondition evaluated after each inner completion. When true, Zeebe cancels remaining in-flight inner instances; parent token moves forward."
+    },
+    "b": {
+      "text": "Incorrect. Detached-background semantics do not exist; wishful thinking."
+    },
+    "c": {
+      "text": "Incorrect. Requires knowing slow ones upfront."
+    },
+    "d": {
+      "text": "Incorrect. Timer Boundary is wall-clock, not progress-based."
+    }
+  },
+  "explanation": "completionCondition evaluated after each inner completion. When true, Zeebe cancels remaining in-flight inner instances; parent token moves forward.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q15",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set16-q44",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "SDK auth typically OAuth client credentials. Team needs custom auth (e.g., signed JWT, mTLS). Wonders if extensible.",
+  "question": "Custom credentials provider in SDK?",
+  "options": [
+    {
+      "id": "a",
+      "text": "While the SDK includes a built-in OAuthCredentialsProvider for standard OAuth client credentials flow, it also exposes a CredentialsProvider interface for custom authentication. Implementing applyCredentials(Metadata headers) allows injecting any authentication header (signed JWT, HMAC signatures, API keys, or mTLS metadata) for every gRPC call. credentialsProvider(myProvider) on the CamundaClient builder. This extensibility is essential for enterprise security requirements that go beyond standard OAuth client credentials."
+    },
+    {
+      "id": "b",
+      "text": "Manual headers -- this is only partially accurate. While it is theoretically possible to add authorization headers manually to individual requests in some API patterns, the Camunda Java SDK's proper extensibility point for authentication is the CredentialsProvider interface. A custom provider registered on the CamundaClient builder applies credentials to every gRPC call automatically, without needing to inject headers into each individual request. Manual header injection would not work with the gRPC interceptor model and would miss requests made transparently by the SDK internals. The CredentialsProvider is the correct, maintainable abstraction for custom authentication."
+    },
+    {
+      "id": "c",
+      "text": "Camunda SDKs support custom credentials providers (verify per SDK version): the Java SDK provides a CredentialsProvider interface with applyCredentials(Metadata headers) and shouldRetryRequest(StatusRuntimeException e) methods. Custom implementations can inject any authentication header (signed JWT, HMAC signatures, mTLS client certificate metadata, API keys) for every gRPC call. build(). This allows teams to implement non-standard authentication schemes without modifying Camunda SDK internals."
+    },
+    {
+      "id": "d",
+      "text": "The Camunda Java SDK explicitly provides the CredentialsProvider interface as an extension point for custom authentication. Multiple built-in implementations exist (OAuth2-based OAuthCredentialsProvider) and teams are expected to implement custom providers for non-standard authentication needs such as signed JWTs, mTLS, or proprietary API key schemes. Not supporting custom credentials would make the SDK unusable for enterprises with security requirements beyond standard OAuth client credentials flow, which is not the case."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Custom credentials provider: Java SDK interface (typical): `java public interface CredentialsProvider { void applyCredentials(io.grpc.Metadata headers) throws Exception; boolean shouldRetryRequest(StatusRuntimeException e); } Custom implementation: java public class CustomCredentialsProvider implements CredentialsProvider { private final String apiKey; public CustomCredentialsProvider(String apiKey) { this.apiKey = apiKey; } @Override public void applyCredentials(Metadata headers) { Metadata.Key authKey = Metadata.Key.of( \"x-api-key\", Metadata.ASCII_STRING_MARSHALLER ); headers.put(authKey, apiKey); } @Override public boolean shouldRetryRequest(StatusRuntimeException e) { return false; // or smart retry logic } } Use with client (8.8 canonical -- Pattern #54): java // Camunda 8.8: CamundaClient replaces ZeebeClient; dual gRPC + REST addresses CamundaClient client = CamundaClient.newClientBuilder() .grpcAddress(URI.create(\"https://...\")) .restAddress(URI.create(\"https://...\")) .credentialsProvider(new CustomCredentialsProvider(\"my-api-key\")) .build(); // Legacy ZeebeClient.newClientBuilder().gatewayAddress(host:port) is deprecated. For OAuth-like custom flow: java public class JwtCredentialsProvider implements CredentialsProvider { private String cachedToken; private long tokenExpiry; @Override public void applyCredentials(Metadata headers) { if (System.currentTimeMillis() > tokenExpiry - 60000) { refreshToken(); } headers.put(BEARER_KEY, \"Bearer \" + cachedToken); } private void refreshToken() { // Sign JWT with private key // Or call custom token endpoint cachedToken = createJwt(); tokenExpiry = System.currentTimeMillis() + 3600000; // 1h } } Custom token logic; SDK handles via interface. For mTLS (certificate-based): Different mechanism: TLS layer, not credentials provider. Configure SSL context: client certificate + private key. Server validates: client certificate. java SslContext sslContext = GrpcSslContexts.forClient() .keyManager(clientCertFile, clientKeyFile) .trustManager(serverCertFile) .build(); ManagedChannel channel = NettyChannelBuilder.forAddress(host, port) .sslContext(sslContext) .build(); Lower-level gRPC configuration. For combination (mTLS + auth header): mTLS for transport. Credentials provider for header. Both apply. For multi-tenant credentials: Per-tenant provider: different credentials per tenant. Dynamic selection: based on context. For testing: MockCredentialsProvider: for tests. No real auth needed: in test environments. For Spring Zeebe: Built-in support for OAuth + bearer. Custom provider: configure via Spring beans. Verify SDK version's extension points. For Node SDK: Similar concepts: custom auth via configuration. Per SDK version: verify extensibility. For REST API auth (not gRPC): HTTP headers: standard. Less SDK-specific: use HTTP library directly. For SaaS authentication: OAuth client credentials: standard. Camunda Console: provides credentials. SDK built-in: usually sufficient. For Self-Managed authentication: More variation: Identity / Keycloak / external IdP. Custom provider: when standards don't fit. Common custom auth scenarios: Scenario 1: Signed JWT: Service has private key. Signs JWT per request (or cached). Camunda Identity validates with public key. Scenario 2: Custom headers: Proprietary auth header format. Custom provider sets header. Scenario 3: HMAC signatures: Sign each request with HMAC. Sender + secret. Scenario 4: Mutual TLS: Both client and server present certificates. Strong identity verification. Best practices: Use built-in when possible: standard OAuth. Implement custom: only when truly needed. Test thoroughly: auth bugs subtle. Cache tokens: don't auth per call. Handle expiry: refresh before expired. Log auth events: audit + debugging. Anti-patterns: No caching: auth on every call (slow). Hardcoded credentials: in custom provider. No expiry handling: stuck on expired token. Reinventing OAuth: when standard works. For the scenario (custom auth): Implement CredentialsProvider. Custom logic in applyCredentials`. Set on client builder. Test in dev."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q44",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

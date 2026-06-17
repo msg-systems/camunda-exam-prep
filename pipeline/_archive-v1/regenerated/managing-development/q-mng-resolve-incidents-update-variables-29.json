@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-29",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Cascade Payments runs a Camunda 8.8 order-flow tutorial for 4 onboarding engineers. After deploying the model, the team needs to advance an instance past the Payment Received intermediate message catch event so it reaches the downstream XOR gateway. The instance carries 1 outstanding correlationKey value of 1234 that must match the catch event.",
+  "question": "Which zbctl command advances the instance past the Payment Received intermediate message catch event in this tutorial?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Run zbctl publish message \"payment-received\" with the correlationKey flag set to 1234 so the broker correlates the message to the waiting instance"
+    },
+    {
+      "id": "b",
+      "text": "Run zbctl create instance for the payment-received process id with variables set to a correlationKey of 1234 so a new instance is started"
+    },
+    {
+      "id": "c",
+      "text": "Run zbctl create worker payment-received with a cat handler so the broker pushes the catch event to the worker for completion"
+    },
+    {
+      "id": "d",
+      "text": "Run zbctl complete job payment-received with the correlationKey flag set to 1234 so the broker closes the open catch event job"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The tutorial advances the instance past the Payment Received intermediate message catch event by publishing a message named payment-received with correlationKey 1234, which the broker correlates to the waiting instance."
+    },
+    "b": {
+      "text": "Incorrect. Creating a new instance does not unblock the existing one; intermediate message catch events are advanced by publishing a correlated message, not by starting another instance."
+    },
+    "c": {
+      "text": "Incorrect. Intermediate message catch events do not produce jobs for workers; they wait for a published message correlated by name and correlationKey, so a worker subscription does not unblock them."
+    },
+    "d": {
+      "text": "Incorrect. There is no zbctl complete-job command that correlates messages by key; message catch events are advanced by publishing a message, not by completing a job from the CLI."
+    }
+  },
+  "explanation": "Intermediate message catch events in Camunda 8 wait for a message published with a matching name and correlationKey. The Operate tutorial uses zbctl publish message \"payment-received\" --correlationKey=1234 to unblock the waiting instance so it can progress to the XOR gateway.",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-77",
+  "topic": "extensions-integrations",
+  "subtopic": "modeling-errors",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "A fintech credit team at Meridian Bank checks customer creditworthiness for 6000 loan applications per day in Camunda 8.8. The modeler must decide how to represent two situations in the BPMN: a customer who is not credit-worthy and a customer ID that is not associated with any known real person discovered while attempting the check.",
+  "question": "Which mapping correctly represents 'not credit-worthy' and 'customer ID not found' in the Camunda 8.8 best-practice model?",
+  "options": [
+    { "id": "a", "text": "Both 'not credit-worthy' and 'customer ID not found' are modeled as boundary error events on the check task, treating both situations as exceptions that prevent the activity from producing an expected result for the process" },
+    { "id": "b", "text": "'Not credit-worthy' is modeled as a branch off an exclusive gateway downstream of the check task and 'customer ID not found' is modeled as a boundary error event on the check task that diverts the flow before any result is produced" },
+    { "id": "c", "text": "Both 'not credit-worthy' and 'customer ID not found' are modeled as branches of one exclusive gateway downstream of the check task, treating each situation as a valid business outcome returned by the worker as a process variable" },
+    { "id": "d", "text": "'Not credit-worthy' is modeled as a boundary error event on the check task and 'customer ID not found' is modeled as a branch off an exclusive gateway downstream of the check task that reads the result variable on success" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. As a rule of thumb the expected result of an activity, such as a not-credit-worthy outcome, is handled via an exclusive gateway; only situations that hinder reaching a result, such as the missing ID, are modeled as boundary error events." },
+    "b": { "text": "Correct. The expected result of an activity is handled via an exclusive gateway downstream of the task, while a situation that hinders reaching the expected result, such as discovering the customer ID is not associated with any known real person, is modeled as a boundary error event." },
+    "c": { "text": "Incorrect. Both branches cannot live on one gateway because a missing customer ID prevents the check task from producing the credit-worthiness result at all and must therefore be a boundary error event, not a gateway branch fed by a result variable." },
+    "d": { "text": "Incorrect. The roles are inverted: 'not credit-worthy' is the expected result of the activity and belongs on the exclusive gateway, while a missing customer ID hinders the activity from producing a result and belongs on a boundary error event." }
+  },
+  "explanation": "The best-practice rule treats expected results of an activity (such as 'not credit-worthy') with an exclusive gateway downstream and treats situations that hinder reaching that expected result (such as the lookup discovering the customer ID is not associated with any real person) with a boundary error event on the activity itself.",
+  "docs": [
+    { "title": "Dealing with problems and exceptions", "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/" }
+  ]
+}

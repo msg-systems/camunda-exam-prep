@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A delivery-routing process needs to geocode customer addresses -- convert \"123 Main St, Sofia, Bulgaria\" to latitude/longitude. The team uses Google Maps Geocoding API.",
+  "question": "How does the team integrate Google Maps Geocoding via Camunda?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Whether a dedicated built-in Geocoding Connector exists depends on the specific Camunda version and the available Connector library at that time. Connector libraries evolve between releases. If no dedicated Geocoding Connector is available, the generic HTTP Outbound Connector is the canonical and always-available path for calling any REST API including the Google Maps Geocoding API."
+    },
+    {
+      "id": "b",
+      "text": "The Google Maps Geocoding API is a standard REST endpoint that accepts an address query parameter and an API key, and returns JSON with latitude and longitude coordinates. The HTTP Connector can call this endpoint, pass the address as a query parameter, authenticate with the API key stored as a secret, and extract coordinates via FEEL output mappings."
+    },
+    {
+      "id": "c",
+      "text": "This is a simple HTTP GET request to a well-documented REST endpoint that returns standard JSON. Building a custom Connector adds development effort, maintenance overhead, and deployment complexity for a use case that the generic HTTP Outbound Connector handles natively without any custom code."
+    },
+    {
+      "id": "d",
+      "text": "GOOGLE_MAPS_API_KEY}}). The connector issues a GET request and receives a JSON response. lng via FEEL Output Mapping into process variables."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Most third-party REST APIs (Google Maps, Twilio, Stripe, etc.) integrate via the generic HTTP Outbound Connector: URL: the API endpoint. Method: typically GET (Geocoding) or POST. Auth: API key in query parameter or header -- store as cluster secret, reference via {{secrets.GOOGLE_MAPS_API_KEY}}. Query params / body: FEEL expression building the request. Output Mapping: parse the response JSON, extract relevant fields into process variables. For Google Maps Geocoding specifically: GET to https://maps.googleapis.com/maps/api/geocode/json?address=...&key=..., response includes results[0].geometry.location.lat and lng. Output Mapping: Target: lat, Source: =response.results[1].geometry.location.lat (FEEL 1-indexed)."
+    },
+    "b": {
+      "text": "Incorrect. Specific Connectors come and go; HTTP is the always-available baseline."
+    },
+    "c": {
+      "text": "Incorrect. HTTP Connector covers it."
+    },
+    "d": {
+      "text": "Correct. Simple GET; no custom code needed."
+    }
+  },
+  "explanation": "Simple GET; no custom code needed.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q34",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

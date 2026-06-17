@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q48",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DevOps team automates the deployment of BPMN processes from a Git repository to multiple Camunda 8 SaaS clusters (dev, staging, production). They want a script that: 1. Reads BPMN files from the Git repo 2. Uploads/updates the corresponding files in Web Modeler 3. Triggers deployment to the designated Zeebe cluster 4. Verifies successful deployment",
+  "question": "Which Camunda 8 API automates the Web Modeler operations (upload/update/deployment)?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe gRPC API -- broker-level direct deployment via the deployResource command. Direct Zeebe deployment (via deployResource gRPC command or its REST equivalent POST /deployments) does push resources to the Zeebe engine, but it entirely bypasses the Web Modeler layer. The team's scenario specifically requires syncing BPMN files from Git into Web Modeler (updating the Web Modeler resource view) and then deploying from Web Modeler to clusters. Using Zeebe direct deployment would keep the BPMN in the Zeebe engine but leave Web Modeler's project view out of sync with the deployed state, defeating the purpose of the CI/CD pipeline's second step."
+    },
+    {
+      "id": "b",
+      "text": "Administration API -- cluster admin tasks include deployment. The Administration API does not handle BPMN resource management or deployments. Its scope is limited to control-plane governance: user accounts, groups, role assignments, cluster configuration, and organisational settings in Camunda Console. \"Cluster admin tasks\" in the Camunda API surface means managing the cluster's operational configuration, not deploying process definitions to it. The Administration API has no endpoints for creating, reading, updating, or deleting BPMN/DMN/Form resources."
+    },
+    {
+      "id": "c",
+      "text": "Web Modeler API -- REST API for programmatic access to Web Modeler resources (projects, files, deployments). Supports CRUD on files, deployments to clusters, and access management. For the CI/CD pipeline, the script uses the Web Modeler API to: look up or create the target file in the appropriate project (step 2 -- upload/update), update the file's content with the BPMN XML from Git, and then trigger a deployment from that file to the designated Zeebe cluster (step 3). After deployment, the pipeline polls the deployment status (step 4). Authentication is via OAuth2 client credentials with appropriate Web Modeler API scopes."
+    },
+    {
+      "id": "d",
+      "text": "Operate API -- Operate is the deployment dashboard; deployments happen via Operate. Operate is a runtime monitoring tool, not a deployment tool. Its API provides read-only access to process instance data, variables, incidents, and audit history for running and completed instances. Operate does not have endpoints for uploading BPMN files, creating or updating Web Modeler resources, or triggering new process definition deployments to Zeebe clusters. The confusion may arise from the fact that Operate shows which process definitions are currently deployed -- but it reads that information from the broker; it does not control what gets deployed."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Web Modeler API provides programmatic access to Web Modeler's resource management -- projects, files (BPMN, DMN, Forms), folder structures, sharing/permissions -- and triggering deployments to Camunda 8 clusters from those files. For CI/CD pipelines deploying BPMN from Git, Web Modeler API is the canonical integration: the script syncs Git contents to Web Modeler, then uses Web Modeler's deployment trigger to push to target clusters."
+    },
+    "b": {
+      "text": "Incorrect. Direct Zeebe deployResource skips the Web Modeler audit/sharing layer; works for raw deployment but doesn't keep Web Modeler's resource view in sync with Git contents."
+    },
+    "c": {
+      "text": "Correct. Administration API is for user/cluster admin, not file management or deployments."
+    },
+    "d": {
+      "text": "Incorrect. Operate is for operational viewing, not deployment."
+    }
+  },
+  "explanation": "Administration API is for user/cluster admin, not file management or deployments.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/web-modeler-api/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q48",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

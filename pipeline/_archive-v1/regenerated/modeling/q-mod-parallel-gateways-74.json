@@ -1,0 +1,50 @@
+{
+  "id": "mod-parallel-gateways-74",
+  "topic": "modeling",
+  "subtopic": "gateways",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Ridge Bank fans out parallel risk checks for 4000 loans per day in Camunda 8.8 by routing each loan through a diverging parallel gateway and joining the branches downstream at a converging parallel gateway. The platform engineer needs the documented runtime semantics.",
+  "question": "How are the outgoing paths of a diverging parallel gateway executed in Zeebe?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The outgoing paths execute on separate stream processors across partitions so each path migrates to a different partition through internal cluster rebalancing decisions"
+    },
+    {
+      "id": "b",
+      "text": "The outgoing paths execute concurrently on a single stream processor per partition, and all records of the process instance are written to the same partition"
+    },
+    {
+      "id": "c",
+      "text": "The outgoing paths execute in parallel threads inside one broker so each outgoing path is scheduled on its own thread for true CPU-level parallel execution at runtime"
+    },
+    {
+      "id": "d",
+      "text": "The outgoing paths execute sequentially in the XML declaration order so the next outgoing path starts only after the previous outgoing path has fully completed first"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The documentation states that all records of a process instance are written to the same partition, so the outgoing paths do not migrate across partitions during execution of a parallel gateway."
+    },
+    "b": {
+      "text": "Correct. The documentation notes that outgoing paths of a parallel gateway are executed concurrently rather than on parallel threads, and that all records of a process instance are written to the same partition handled by a single stream processor."
+    },
+    "c": {
+      "text": "Incorrect. The documentation explicitly says paths are not parallel in the sense of parallel threads; concurrency is handled by a single stream processor per partition, not by per-path thread scheduling."
+    },
+    "d": {
+      "text": "Incorrect. A parallel gateway activates all outgoing flows concurrently rather than executing them in XML declaration order, which would describe a sequential pattern instead of an AND-gateway."
+    }
+  },
+  "explanation": "Parallel gateway outgoing paths execute concurrently inside a single stream processor per partition; concurrency is logical at the process instance level rather than realized through parallel threads.",
+  "docs": [
+    {
+      "title": "BPMN parallel gateways",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/parallel-gateways/"
+    }
+  ]
+}

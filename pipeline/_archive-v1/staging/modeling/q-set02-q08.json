@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q08",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An e-commerce platform routes outbound shipments to three carriers based on destination geography -- DHL for international, UPS for North America domestic, and a regional carrier for last-mile within Europe. A single order can have multiple line items going to different destinations, so for one order the process may need to dispatch to one, two, or all three carriers in parallel. After all dispatches finish, the order moves to \"Confirm Shipment\" once and only once. The current model uses an Inclusive Gateway with three conditional flows (each checking destination region), three Service Tasks (one per carrier), and an Exclusive Gateway downstream to merge. Production traffic shows incorrect behaviour: when two carriers are activated, \"Confirm Shipment\" runs twice, producing duplicate confirmation emails to the customer.",
+  "question": "What is the correct join construct for \"wait for only the activated parallel paths to complete\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Replace the downstream Exclusive Gateway with an Inclusive Gateway. The joining Inclusive Gateway waits specifically for the activated paths (tracked by the engine based on which conditions were true at the fork) before releasing the token. Per Camunda 8 docs, the converging Inclusive Gateway merges when all incoming flows that were taken at least once have arrived, or no active token in the process can reach it via an untaken inflow. This prevents the duplicate-confirmation problem while correctly handling one, two, or three carrier activations."
+    },
+    {
+      "id": "b",
+      "text": "Replace the downstream Exclusive Gateway with a Parallel Gateway. The Parallel join gateway waits unconditionally for ALL incoming sequence flows before releasing its token -- regardless of how many were actually activated by the fork. If only two carrier paths were activated, the Parallel join would block indefinitely waiting for a token from the third path that was never started, causing the process instance to hang permanently."
+    },
+    {
+      "id": "c",
+      "text": "Convert the three Service Tasks into a Multi-Instance Subprocess with completionCondition: =count(results) = count(carriers). Multi-Instance executes the same subprocess logic repeatedly for each element in an input collection. Here the three carrier Service Tasks are heterogeneous -- different APIs, different payloads, different response handling for DHL, UPS, and the regional carrier. Forcing three structurally different operations into MI iterations is a significant modelling distortion that loses semantic clarity and per-carrier observability in Operate."
+    },
+    {
+      "id": "d",
+      "text": "Keep the Exclusive Gateway downstream and add a Service Task that polls the Operate API for all parallel task completions before proceeding. The Operate API is an eventually-consistent read model designed for human-facing operational queries, not runtime control flow decisions. Using it inside a BPMN flow introduces latency, race conditions between Operate's indexing lag and the polling check, and architectural coupling between the process engine and its monitoring layer. BPMN already has native gateway semantics for this use case."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Inclusive Gateway is BPMN's construct for conditional fan-out with matching conditional join. At fan-out, it evaluates the FEEL conditions and activates only matching paths. Per the Camunda 8 docs, a converging inclusive gateway \"is completed and merges incoming sequence flows if one of the following conditions is met: (1) all incoming sequence flows have been taken at least once, or (2) no path exists from any active flow node to the inclusive gateway (excluding incoming paths that have already been taken).\" Condition (2) is what guarantees the gateway does NOT block on never-activated paths -- once no active token in the process can reach the gateway via an untaken inflow, the merge completes. This delivers the precise \"wait for all activated branches, not for all defined inflows\" semantics the scenario requires."
+    },
+    "b": {
+      "text": "Incorrect. Parallel Gateway expects ALL incoming flows (whether activated or not) -- it would block indefinitely waiting for tokens from paths that were never activated at the fork. Wrong dimension: parallel = unconditional, inclusive = conditional."
+    },
+    "c": {
+      "text": "Incorrect. Multi-Instance executes the same activity N times with different inputs. Here we have three heterogeneous Service Tasks (different APIs, different payloads). Wrapping them into MI is a mismodelling."
+    },
+    "d": {
+      "text": "Incorrect. Operate API is eventually consistent and meant for human/admin querying, not runtime control flow. Polling for state in a Service Task adds latency, race conditions, and brittleness -- and bypasses BPMN's native join semantics."
+    }
+  },
+  "explanation": "The Inclusive Gateway is BPMN's construct for conditional fan-out with matching conditional join. At fan-out, it evaluates the FEEL conditions and activates only matching paths. Per the Camunda 8 docs, a converging inclusive gateway \"is completed and merges incoming sequence flows if one of the following conditions is met: (1) all incoming sequence flows have been taken at least once, or (2) no path exists from any active flow node to the inclusive gateway (excluding incoming paths that have already been taken).\" Condition (2) is what guarantees the gateway does NOT block on never-activated paths -- once no active token in the process can reach the gateway via an untaken inflow, the merge completes. This delivers the precise \"wait for all activated branches, not for all defined inflows\" semantics the scenario requires.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/gateways/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q08",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

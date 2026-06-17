@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q25",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Business Rule Task invokes decision creditCheck. Decision needs customerId, loanAmount. Process variables are customer.id, loan.amount. Team wonders how to map.",
+  "question": "Decision input variable mapping?",
+  "options": [
+    {
+      "id": "a",
+      "text": "All process variables are automatically available to the decision engine when the Business Rule Task executes -- Input Mapping is optional, not required. id vs customerId), Input Mapping provides the necessary renaming via FEEL source expressions. Simply claiming the decision auto-finds variables is partially accurate but misses the scenario's key challenge of name mismatch between process variables and decision inputs."
+    },
+    {
+      "id": "b",
+      "text": "md:66-78 verbatim: \"All variables in scope of the business rule task are available to the decision engine when the decision is evaluated. id directly if its FEEL references them that way. Use Input Mapping to shape/decouple:"
+    },
+    {
+      "id": "c",
+      "text": "DMN decision tables are fundamentally input-driven -- they evaluate input expressions against rule input entries to select matching rules and produce outputs. Input expressions reference variables provided by the evaluation context. Without variables as inputs, a decision table has no basis for selecting rules and produces no meaningful output. All practical DMN decision tables require input data; the claim that decisions require no inputs contradicts the core architecture of DMN decision evaluation."
+    },
+    {
+      "id": "d",
+      "text": "Business Rule Task invocation of DMN decisions is handled automatically by the Camunda 8 engine when the process reaches that element -- no manual external API call is required. The calledDecision element in the task configuration specifies the decision ID to invoke, and the engine evaluates the decision using the available task-scope variables. Manual API calls to the DMN evaluation REST endpoint are an alternative for standalone invocations outside process context, not the required mechanism for Business Rule Tasks."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Business Rule Task variable mapping: Standard pattern: Input Mapping (BPMN-side): Maps process variables to decision-required input names. Uses FEEL expressions for transformation. `xml Flow: 1. Process reaches Business Rule Task. 2. Input Mapping evaluates; creates task-scope variables customerId, loanAmount. 3. Decision invoked with these variables. 4. Decision evaluates; produces result. 5. Result stored in creditDecision (process variable per resultVariable). 6. Output Mapping (optional): shapes result for downstream use. For the scenario: Source expressions extract from nested structures. Target names match decision's expected input names. Decision sees clean, top-level variables. Alternative: decision-direct access: If decision references nested paths directly: e.g., decision uses customer.id directly in FEEL -- works without mapping. Trade-off: decision coupled to process variable structure; harder to reuse across processes with different variable shapes. Best practice: Input Mapping for decoupling: process and decision evolve independently. Reuse decisions: same decision usable from processes with different variable structures (each maps). Clear contract: decision documents required inputs; processes adapt. Variable types: Decision input types matter (per Set 13 Q26). Mapping should produce correct types: =number(amountStr) if process has string but decision expects number. Defensive null handling. Output Mapping: Decision output structure (e.g., {approved: true, limit: 5000}) shaped for process consumers. Or store entire decision output and let downstream access fields. For multi-output decisions (Decision Table with multiple output columns): Result is a structure (or list for COLLECT). Output mapping extracts specific fields. Result variable: resultVariable` attribute: name of process variable to hold decision result. Without resultVariable: result lost unless Output Mapping captures it. Versioning concerns (per Set 13 Q28): Decision binding (latest vs sticky) affects which decision version invoked. Input names must match the invoked version's expectations."
+    },
+    "b": {
+      "text": "Correct. Depends on direct access vs mapping."
+    },
+    "c": {
+      "text": "Incorrect. Option d) -- Overstates."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "Depends on direct access vs mapping.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q25",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

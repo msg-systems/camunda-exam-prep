@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-80",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Bank is migrating 240 loans that are currently waiting at user task Approve with a one-week timer boundary event. 5 days have already elapsed on the timer. The new process version adds a follow-up task after the timer fires, and the team wants the remaining two days of the timer preserved so the migrated instances fire when the original deadline would have triggered.",
+  "question": "Which mapping instructions must the migration plan provide to preserve the timer subscription so the instances only wait the remaining two days?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Map the active user task A to A and map timer boundary event Timer1 to Timer2 so the engine migrates the timer subscription and the elapsed five days carry over to the target boundary event"
+    },
+    {
+      "id": "b",
+      "text": "Map the active user task A to A only and omit the timer mapping so the engine keeps the existing timer subscription and counts the elapsed five days against the new target duration"
+    },
+    {
+      "id": "c",
+      "text": "Map the timer boundary event Timer1 to Timer2 only and omit the user task mapping so the engine migrates the timer subscription without touching the active user task scope"
+    },
+    {
+      "id": "d",
+      "text": "Map the active user task A to A and add a variable instruction setting elapsedDuration to PT120H so the engine resumes the timer from the recorded value in the target process"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Providing mappings for both the active element and the catch event migrates the timer subscription. The five days already elapsed are preserved, so the migrated instance waits only the remaining time before the timer fires on the target boundary event."
+    },
+    "b": {
+      "text": "Incorrect. Without a mapping for the catch event, the existing timer subscription is closed and a new one is opened against the target boundary event. The timer effectively restarts and the previously elapsed time is lost."
+    },
+    "c": {
+      "text": "Incorrect. The migration plan must map every active element. Omitting the user task mapping causes the validation step to reject the migration command, so no subscription migration takes place at all."
+    },
+    "d": {
+      "text": "Incorrect. There is no elapsedDuration variable contract in process instance migration. Mapping the catch event itself is what preserves the subscription and remaining duration; no variable instruction is involved in catch event migration."
+    }
+  },
+  "explanation": "Mapping a catch event during process instance migration preserves its event subscription, so a timer boundary event that has already advanced keeps its progress on the target boundary event. The active element it is attached to must also be mapped so the validation step accepts the plan.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

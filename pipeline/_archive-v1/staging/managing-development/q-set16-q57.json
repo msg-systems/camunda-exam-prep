@@ -1,0 +1,76 @@
+{
+  "id": "imp-set16-q57",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Operate shows incidents but team wants to categorise -- input errors, network failures, business errors. Wonders incident classification.",
+  "question": "Incident classifications / types?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Single type -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "mdx:113-130 -- 16 documented values: JOB_NO_RETRIES (worker exhausted retries), EXTRACT_VALUE_ERROR (FEEL expression evaluation failed), CONDITION_ERROR (gateway condition error), IO_MAPPING_ERROR (input/output mapping failed), DECISION_EVALUATION_ERROR (DMN decision failed), CALLED_DECISION_ERROR, CALLED_ELEMENT_ERROR, FORM_NOT_FOUND, UNHANDLED_ERROR_EVENT (BPMN error not caught), MESSAGE_SIZE_EXCEEDED, RESOURCE_NOT_FOUND, EXECUTION_LISTENER_NO_RETRIES, TASK_LISTENER_NO_RETRIES, AD_HOC_SUB_PROCESS_NO_RETRIES, UNKNOWN, and UNSPECIFIED. Categorise via the errorType field plus free-text errorMessage for detailed incident triage and routing."
+    },
+    {
+      "id": "c",
+      "text": "Manual categorisation -- this is only partially applicable. mdx:113-130) with 16 distinct values. These cover categories like JOB_NO_RETRIES (worker failures), EXTRACT_VALUE_ERROR (FEEL evaluation failures), IO_MAPPING_ERROR (variable mapping failures), and UNHANDLED_ERROR_EVENT (uncaught BPMN errors). Building a fully custom classification from scratch when the platform already provides structured type information would be redundant effort."
+    },
+    {
+      "id": "d",
+      "text": "Each incident also carries a free-text errorMessage for additional context. These types are queryable via the API and visible in Operate, enabling programmatic incident routing and filtering."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Incident types in Camunda 8: Built-in incident types per apis-tools/orchestration-cluster-api-rest/specifications/get-incident.api.mdx:113-130 IncidentErrorTypeEnum: JOB_NO_RETRIES: Worker called job.fail() repeatedly. Retries exhausted (0). Most common type. EXTRACT_VALUE_ERROR: FEEL expression evaluation failed. E.g., null pointer in customer.tier. CONDITION_ERROR: Gateway condition expression error. Failed to evaluate. IO_MAPPING_ERROR: Input / Output Mapping failed. E.g., type mismatch, missing variable. UNHANDLED_ERROR_EVENT: BPMN error thrown. No matching Boundary Event. EXECUTION_LISTENER_NO_RETRIES: Execution Listener failed and exhausted retries. DECISION_EVALUATION_ERROR / CALLED_DECISION_ERROR: DMN evaluation failed or referenced decision unavailable. RESOURCE_NOT_FOUND / FORM_NOT_FOUND / CALLED_ELEMENT_ERROR: Referenced process / decision / form / call-activity target missing. MESSAGE_SIZE_EXCEEDED / AD_HOC_SUB_PROCESS_NO_RETRIES: Message payload over limit / ad-hoc subprocess listener exhausted. TASK_LISTENER_NO_RETRIES: User Task Listener failed and exhausted retries. In Operate: Incident detail: type + error message. Filter by type: incidents of specific kind. Search by error: text search. Custom categorisation: Via error message content: Worker includes structured info in error message. Operate / dashboards parse / categorise. Via BPMN error codes: Per Set 13 Q59: structured error codes. INVALID_VAT_NUMBER, INSUFFICIENT_FUNDS, etc. Routes to specific handlers. For dashboards: Group by incident type: `promql count by (incident_type) (zeebe_incidents_active) ` Trend: incident rate per type over time. For analysis: Pattern: top incident causes: List incidents grouped by error message. Identify common issues. Fix systematically. Pattern: per-process incident rate: Group by process definition. Spot problematic processes. For automation: Auto-classification: Regex match on error message. Assign category. Route to appropriate ops team. For root cause analysis: Trace incident: Process instance context. Variables at incident time. Stack trace (worker logs). Combine signals: Operate incident details. Worker logs (correlated). Cluster metrics. For SaaS: Console may show high-level incident summary. Operate for detail. Best practices: Use specific error codes: better than generic. Structured error messages: parseable. Classify: route to right team. Track trends: identify systemic issues. For audit: All incidents logged. Resolution tracked: when retried / resolved. For alerting: Per-type thresholds: alert on specific patterns. Sudden spike: investigate. For Webhook incidents: Auth failures: separate from process errors. Categorise: validation vs auth vs process. For RPA incidents: Bot failures: timeout, element-not-found, etc. Categorise: similar to other workers. Anti-patterns: Single generic error: hard to classify. No structured info: lost context. Ignoring incidents: pile up. For the scenario (categorise incidents): Approach: 1. Use built-in incident types as primary categories. 2. Custom error codes for business errors. 3. Dashboards: aggregate by type. 4. Tickets: categorise per type. For maturity model: Level 1: incidents tracked. Level 2: incidents categorised. Level 3: trends analysed. Level 4: prevention proactive. For \"incident classifications\" reporting: Weekly review: top incident types. Action items: fixes scheduled."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q57",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 21 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 30.8 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

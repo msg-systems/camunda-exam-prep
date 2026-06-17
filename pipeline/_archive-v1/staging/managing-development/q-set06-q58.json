@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Ops keeps Operate open on a high-traffic process dashboard. They wonder how often Operate refreshes.",
+  "question": "Which describes Operate's update model?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Camunda 8 Operate backend service is responsible for consuming the Zeebe event stream via a Kafka topic and indexing all process instance events directly into Elasticsearch. Operate connects to Kafka using a dedicated consumer group configuration, and the index mapping templates are managed by the Operate application on startup, ensuring that all data required for the process monitoring views is available in the configured Elasticsearch cluster."
+    },
+    {
+      "id": "b",
+      "text": "Data export to Elasticsearch is handled by the Camunda 8 Connector Runtime, which includes a built-in Elasticsearch sink connector. The Connector Runtime subscribes to all Zeebe job types prefixed with camunda:export and writes the received payloads to the configured Elasticsearch indices. This design allows the export pipeline to be scaled independently by adding Connector Runtime instances without changing the Zeebe broker configuration."
+    },
+    {
+      "id": "c",
+      "text": "The Tasklist backend is responsible for data export to Elasticsearch in a Self-Managed deployment. Tasklist receives process and user task events from Zeebe via gRPC streaming and indexes them into Elasticsearch using pre-defined mapping templates. The Operate component then reads from the same Elasticsearch indices that Tasklist maintains, creating a shared data layer that is managed exclusively by the Tasklist service."
+    },
+    {
+      "id": "d",
+      "text": "The Zeebe Elasticsearch Exporter is a configurable exporter plugin that runs inside the Zeebe broker process. It consumes all internal broker records, including process instance events, job events, and variable updates, and writes them to Elasticsearch indices in real time. Operate and Tasklist both read from these Elasticsearch indices to power their monitoring and task management views, making the exporter the central data bridge between the broker and the UI components."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate is near-real-time -- its data comes from broker exporters into Elasticsearch/OpenSearch; UI polls/refreshes at intervals. Not millisecond-real-time push."
+    },
+    "b": {
+      "text": "Incorrect. Operate isn't push."
+    },
+    "c": {
+      "text": "Incorrect. Updates more frequently."
+    },
+    "d": {
+      "text": "Correct. Auto-refresh exists."
+    }
+  },
+  "explanation": "Auto-refresh exists.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/components/orchestration-cluster/zeebe/exporters/elasticsearch-exporter/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q58",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

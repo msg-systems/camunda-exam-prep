@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q32",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A form needs to validate input -- Email must match RFC 5322 pattern; ZIP code must be 5 digits. Team wonders Form validation options.",
+  "question": "Form validation -- regex vs custom?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 Forms text field validation is not limited to the required field check alone. 164 format) or a Custom regex pattern. Multiple validators apply simultaneously and all must pass. Using only required would leave fields vulnerable to empty strings or format violations. The full validation set enables forms to enforce business rules before task completion without downstream processing."
+    },
+    {
+      "id": "b",
+      "text": "The text field component provides built-in validation properties including required, minLength, maxLength, and pattern (regex) that cover the vast majority of validation scenarios without custom code. Custom JavaScript would only be necessary for highly specialized validation requirements that cannot be expressed through the built-in validators. Using custom code when native validators exist adds unnecessary complexity and maintenance burden."
+    },
+    {
+      "id": "c",
+      "text": "md:21-26: the Text Field component supports required (field must be non-empty on submit), minLength / maxLength (character count bounds), and pattern (regex validation against a regular expression). These validators are configured in the Form editor's validation section without custom code. +; for a ZIP code: pattern [0-9]{5}; for required 6-char codes: minLength=6, maxLength=6, required=true."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 Forms provide several built-in validation options for text fields that prevent invalid submissions without requiring custom JavaScript. The required, minLength, maxLength, and pattern validators are configured in the Form editor's property panel and enforced client-side in Tasklist before form submission. Claiming that no built-in validation exists would mislead modelers into building unnecessary custom validation infrastructure when the platform already provides sufficient validation capabilities."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda Forms validation capabilities: Built-in validators: Required: Field must have a value. Empty string typically counts as missing. Length validators (for strings): minLength: minimum string length. maxLength: maximum. Value validators (for numbers): min: minimum value. max: maximum. Pattern (regex): Field value must match regex pattern. Common patterns: Email: ^[^@]+@[^@]+\\.[^@]+$ (simple; real RFC 5322 is more complex). ZIP (US 5-digit): ^\\d{5}$. Phone: depends on locale. SSN, IBAN, etc. Type-specific: Email type: built-in format validation (may or may not be RFC-strict). Number type: digits only. Date type: valid date format. Custom validation (verify per version): FEEL expression: e.g., =zip = null or matches(zip, \"^\\\\d{5}$\"). Custom validator function: if Forms support extensibility. Multiple validators per field: All must pass for field to be valid. Example: ZIP field with required + pattern: ^\\d{5}$ + maxLength: 5. Validation timing: On blur: when user leaves field. On submit: before form submits. Live (typing): as user types (more disruptive, less common). Error display: Inline error message below field. Form-level summary: all errors at top. Visual indicator: red border, icon. Error messages: Default messages: \"This field is required\" etc. Custom messages: per validator. For the scenario: Email field: Type: Email (built-in format validation). Required: Yes. Pattern: optional additional regex for stricter validation. ZIP field: Type: Text Field. Pattern: ^\\d{5}$. Custom error message: \"ZIP code must be 5 digits.\" JSON example: `json { \"type\": \"textfield\", \"key\": \"email\", \"label\": \"Email\", \"validate\": { \"required\": true, \"validationType\": \"email\" } }, { \"type\": \"textfield\", \"key\": \"zip\", \"label\": \"ZIP Code\", \"validate\": { \"required\": true, \"pattern\": \"^\\\\d{5}$\", \"minLength\": 5, \"maxLength\": 5 } } ` Server-side validation: Form validates client-side: UX feedback. Process logic re-validates: defense in depth (e.g., FEEL validation after submit). Don't trust client: malicious clients can bypass. Validation patterns: Pattern 1: Form + process double-check: Form validates for UX. Process Service Task validates programmatically. Reject invalid submissions before continuing. Pattern 2: Validation-driven flow: If invalid: error path returns user to form. Loop until valid. Pattern 3: Async validation: Pre-submit: call API to validate (e.g., check if email exists). For complex business validation. Best practices: Use built-in validators first: simpler, well-tested. Add patterns for stricter rules: complement type-based. Clear error messages: tell user what's wrong. Test edge cases: empty, very long, special chars."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q32",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

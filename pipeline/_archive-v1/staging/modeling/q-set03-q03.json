@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A high-end restaurant manages table reservations through Camunda 8. When a reservation is created, a User Task \"Confirm Reservation\" is assigned to the guest (via Tasklist link). The hospitality manager wants two reminders attached to this task: at 24 hours before the reservation, send a friendly reminder (notification only -- guest's task continues); at 2 hours before, if still unconfirmed, cancel the reservation automatically and free the table. Previous attempts used two Interrupting Boundary Events -- the first one fired at 24 hours and cancelled the User Task immediately, preventing the guest from confirming. Restaurant got complaints from confused guests whose task disappeared when they finally got around to confirming.",
+  "question": "Which Boundary Event configuration models this two-stage flow correctly?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Two Interrupting Timer Boundary Events -- the first one fires at 24 hours before and its outgoing flow re-instantiates the User Task with a new 22-hour window to reset the countdown. This approach cancels the original User Task at 24h, losing the guest's original task link and any Tasklist bookmark they may have set. The re-instantiation creates a new task assignment, confusing guests who return to confirm and find their previous task link broken."
+    },
+    {
+      "id": "b",
+      "text": "Two Non-interrupting Timer Boundary Events -- both timers fire reminder notifications and a downstream Exclusive Gateway reads a phase variable to choose whether to trigger the cancellation handler. Because both boundaries are Non-interrupting, neither timer ever cancels the User Task. When 2h-before arrives, the task continues running while the Exclusive Gateway tries to route to cancellation logic -- the task remains active, violating the restaurant's hard-cancel requirement."
+    },
+    {
+      "id": "c",
+      "text": "Place the User Task inside an Event Subprocess with two Timer Start Events configured for 24h and 2h. Event Subprocesses fire based on scope-level triggers, not activity-level triggers. , the process or subprocess), not relative to the specific User Task lifecycle -- incorrect scope for this requirement."
+    },
+    {
+      "id": "d",
+      "text": "Attach one Non-interrupting Timer Boundary Event at 24h-before (notify guest, task continues to be claimable) and one Interrupting Timer Boundary Event at 2h-before (cancel task, free the table). The Non-interrupting event spawns a parallel token for the reminder flow while leaving the User Task alive and claimable. The Interrupting event at 2h cancels the task and routes to free-table logic -- the canonical mixed-semantics boundary pattern."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Non-interrupting at 24h-before spawns a new token following its outgoing flow (the reminder path) while leaving the User Task alive and claimable -- the guest can still confirm at any point. Interrupting at 2h-before cancels the task and the token follows the boundary's outgoing flow (cancellation + free-table path). Two different timers, two different semantics -- canonical \"soft reminder then hard timeout\" pattern."
+    },
+    "b": {
+      "text": "Incorrect. Cancelling at 24h-before and re-instantiating loses the guest's task link and bookmark -- confusing UX. Plus it's complexity without benefit."
+    },
+    "c": {
+      "text": "Incorrect. Two Non-interrupting boundaries means at 2h-before the task continues when the hospitality manager wanted it cancelled. Both fire reminders but the task is never terminated."
+    },
+    "d": {
+      "text": "Correct. Event Subprocess fires when an enclosing scope matches the trigger, not when a specific User Task triggers an event. Wrong scope."
+    }
+  },
+  "explanation": "Event Subprocess fires when an enclosing scope matches the trigger, not when a specific User Task triggers an event. Wrong scope.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/events/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

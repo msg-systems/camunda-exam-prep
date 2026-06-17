@@ -1,0 +1,58 @@
+{
+  "id": "con-use-connectors-03",
+  "topic": "connectors",
+  "subtopic": "error-handling",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A REST connector's **Error Expression** must raise a BPMN error with code `FAILED` whenever the response body has `status` equal to `\"failed\"`, and otherwise let the connector complete normally. Which FEEL expression meets this requirement?",
+  "options": [
+    {
+      "id": "a",
+      "text": "First expression"
+    },
+    {
+      "id": "b",
+      "text": "Second expression"
+    },
+    {
+      "id": "c",
+      "text": "Third expression"
+    },
+    {
+      "id": "d",
+      "text": "Fourth expression"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "This is the exact pattern from the docs: when the condition holds, call `bpmnError(code, message, variables)` to produce a BPMN error object; otherwise return `null` to allow the connector to complete normally."
+    },
+    "b": {
+      "text": "Returning an empty string is non-null, and the docs say the Error Expression must return `null`, an empty context, or a BPMN error object. A non-null, non-error value would still be treated as an error trigger and is incorrect."
+    },
+    "c": {
+      "text": "FEEL has no `throw` keyword; `bpmnError(...)` is itself the BPMN-error producer function and is returned as a value, not thrown."
+    },
+    "d": {
+      "text": "Returning a raw context like `{errorCode: \"FAILED\"}` does not produce a valid BPMN error object — the docs require the result to come from the `bpmnError(...)` or `jobError(...)` FEEL functions."
+    }
+  },
+  "explanation": "A connector's **Error Expression** is a FEEL expression that must yield a BPMN error object, a `null`, or an empty context. The recommended idiom is `if <condition> then bpmnError(code, message, variables) else null` — `bpmnError(...)` constructs the error and triggers a ThrowError to the engine; returning `null` lets the connector complete normally. Inside the expression you can reference `response`, `error`, `job`, and any variables produced by **Result Variable**/**Result Expression**.",
+  "docs": [
+    {
+      "title": "Use connectors",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "codeBlocks": {
+    "perOption": {
+      "a": "if response.body.status = \"failed\" then bpmnError(\"FAILED\", \"The action failed\", response.body) else null",
+      "b": "if response.body.status = \"failed\" then bpmnError(\"FAILED\", \"The action failed\", response.body) else \"\"",
+      "c": "if response.body.status = \"failed\" then throw bpmnError(\"FAILED\") else null",
+      "d": "if response.body.status = \"failed\" then {errorCode: \"FAILED\"} else null"
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q19",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "BPMN Service Task has but no extension. Team wonders deployment behavior.",
+  "question": "Service Task without taskDefinition?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Deployment likely fails or process behavior undefined: the <zeebe:taskDefinition> extension element is required for Service Tasks in Camunda 8 -- it specifies the job type string used to route created jobs to the correct worker. Without this element, the engine has no type value to publish when the task is reached at runtime. Modern Camunda 8 validators may reject the deployment outright, returning a validation error. In older versions, the BPMN deploys but the process becomes stuck or raises an incident when reaching the Service Task at runtime. Web Modeler and the Camunda Modeler desktop app both warn about missing task definitions during editing. The fix is adding <zeebe:taskDefinition type=\"my-job-type\"/>."
+    },
+    {
+      "id": "b",
+      "text": "The type field is a required configuration that must be explicitly set by the process modeler. There is no convention or fallback that would allow the engine to route the job to any worker. The absence of this element means the engine has no information about which worker should handle the task, resulting in deployment rejection or a broken runtime state."
+    },
+    {
+      "id": "c",
+      "text": "Skipping would mean the task executes with no effect and the process advances, which would hide a configuration error and silently break the intended process logic. Instead, the behavior is either a deployment-time validation error (preventing the broken process from being deployed) or a runtime failure when the engine tries to create a job without a valid type. Neither outcome involves a silent skip."
+    },
+    {
+      "id": "d",
+      "text": "A Service Task without <zeebe:taskDefinition> does not function correctly in Camunda 8. The task definition containing the job type is required for the engine to create and route a job to the appropriate worker. Without it, the engine either rejects the deployment during validation or fails to create a job at runtime, leaving the process stuck or raising an incident. Modern Camunda 8 modelers warn or prevent saving a Service Task without the required job type."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Service Task taskDefinition requirement: Camunda 8 requirements: Service Task requires: extension element. Specifies type for worker routing. Without taskDefinition: Possibilities: Possibility 1: Deployment rejection: Camunda validates BPMN at deployment. Missing taskDefinition → reject deploy. Error message indicating issue. Possibility 2: Job creation fails at runtime: Process reaches Service Task. Engine can't create job (no type to route). Incident or process stuck. Possibility 3: Process stuck: Less likely; usually validator catches. Behavior may vary per Camunda 8 version; verify with empirical test. In Web Modeler: Property panel warns: missing required fields. Type field: must be filled. Visual indicator: red asterisk or similar. In Desktop Modeler: Similar warnings. Save may proceed but show issue. For BPMN linting (per Set 14 Q59): Rule: Service Tasks must have taskDefinition with type. Rule: type must be non-empty. For Connector tasks: Use specific types: io.camunda:http-json:1, etc. Element Templates typically set type automatically. For custom Service Tasks: Type matches worker registration (per Set 16 Q7 -- type attribute). Required for engine to know which worker to invoke. Validation flow: At deployment: Schema validation: structural BPMN check. Camunda semantic validation: required extensions. Rejection: with descriptive error. At runtime: Should not reach without validation. If reached: incident or stuck. For Service Task variants: Send Task: May require different extensions. For sending Messages. Receive Task: Different semantics; waits for Message. Business Rule Task: Requires instead. Different extension element. User Task: Requires / typically. For deployment automation: CI checks: lint BPMN before deploy. Catch errors early: not in production. Common modeller mistakes: Forgot to set type: most common. Wrong element type: used Service Task when meant User Task. Type typo: doesn't match worker. Recovery: Add taskDefinition: in BPMN XML or Web Modeler property panel. Redeploy. Verify worker registered for type. For the scenario: Deployment fails or process broken. Fix: add . Best practices: Validate at modeling: tools catch. Lint in CI: prevent broken deploys. Element Templates: ensure correct extensions. Anti-patterns: Manual BPMN editing without validation: missing extensions. No CI linting: production surprises. Bypassing modeler warnings: bugs."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Service Task taskDefinition requirement: Camunda 8 requirements: Service Task requires: extension element. Specifies type for worker routing. Without taskDefinition: Possibilities: Possibility 1: Deployment rejection: Camunda validates BPMN at deployment. Missing taskDefinition → reject deploy. Error message indicating issue. Possibility 2: Job creation fails at runtime: Process reaches Service Task. Engine can't create job (no type to route). Incident or process stuck. Possibility 3: Process stuck: Less likely; usually validator catches. Behavior may vary per Camunda 8 version; verify with empirical test. In Web Modeler: Property panel warns: missing required fields. Type field: must be filled. Visual indicator: red asterisk or similar. In Desktop Modeler: Similar warnings. Save may proceed but show issue. For BPMN linting (per Set 14 Q59): Rule: Service Tasks must have taskDefinition with type. Rule: type must be non-empty. For Connector tasks: Use specific types: io.camunda:http-json:1, etc. Element Templates typically set type automatically. For custom Service Tasks: Type matches worker registration (per Set 16 Q7 -- type attribute). Required for engine to know which worker to invoke. Validation flow: At deployment: Schema validation: structural BPMN check. Camunda semantic validation: required extensions. Rejection: with descriptive error. At runtime: Should not reach without validation. If reached: incident or stuck. For Service Task variants: Send Task: May require different extensions. For sending Messages. Receive Task: Different semantics; waits for Message. Business Rule Task: Requires instead. Different extension element. User Task: Requires / typically. For deployment automation: CI checks: lint BPMN before deploy. Catch errors early: not in production. Common modeller mistakes: Forgot to set type: most common. Wrong element type: used Service Task when meant User Task. Type typo: doesn't match worker. Recovery: Add taskDefinition: in BPMN XML or Web Modeler property panel. Redeploy. Verify worker registered for type. For the scenario: Deployment fails or process broken. Fix: add . Best practices: Validate at modeling: tools catch. Lint in CI: prevent broken deploys. Element Templates: ensure correct extensions. Anti-patterns: Manual BPMN editing without validation: missing extensions. No CI linting: production surprises. Bypassing modeler warnings: bugs.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/service-tasks/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q19",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-scenario-too-short",
+        "severity": "block",
+        "message": "scenario length 73 < 80 (catastrophically short)",
+        "where": "scenario"
+      }
+    ]
+  }
+}

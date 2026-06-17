@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A pharmaceutical clinical-trial enrollment process runs a Parallel Multi-Instance Subprocess that fans out to 100 institutional review board (IRB) reviewers for opinion. The business rule requires the trial to advance when at least 60% of reviewers have responded (regardless of approve/reject outcomes), with the assumption that 60% gives statistical validity. The current implementation waits for all 100 reviewers, which takes 7-10 days because some reviewers are slow. The team wants to add a completionCondition to advance the flow earlier when the 60% threshold is hit.",
+  "question": "Which Multi-Instance configuration achieves this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "6 on the Multi-Instance marker. Configure outputCollection = reviews so the FEEL expression can reference accumulated child outputs. When the condition evaluates to true after any inner instance completes, Zeebe cancels the remaining in-flight instances and advances the parent token to the outgoing flow. This delivers the 60% early-exit behaviour without waiting for slow reviewers and without wall-clock timers."
+    },
+    {
+      "id": "b",
+      "text": "thresholdPercent=60 on the Multi-Instance marker to declare that the subprocess should complete when 60% of inner instances have finished, with Zeebe automatically computing and enforcing the threshold. There is no such property in Zeebe's BPMN extension schema. The standard mechanism for percentage-based early completion is a FEEL completionCondition expression using the built-in count() function to check the ratio."
+    },
+    {
+      "id": "c",
+      "text": "Set completionCondition on the Multi-Instance Subprocess, but the engine only evaluates it after all 100 inner instances finish -- partial early completion based on a subset completing first is absent from Zeebe's Multi-Instance implementation. Zeebe evaluates completionCondition after each individual inner instance completes. When the expression returns true, the engine immediately cancels the remaining in-flight instances and advances the parent token. Early completion is fully supported and is a documented, tested feature."
+    },
+    {
+      "id": "d",
+      "text": "Add a downstream Timer Boundary Event at 5 days on the Multi-Instance Subprocess so that if reviews take too long the subprocess is interrupted and the trial advances regardless of how many reviewers responded. Timer Boundary Events fire based on wall-clock elapsed time, not on the percentage of reviewers who responded. If reviews arrive faster than expected, the timer wastes 5 days waiting; if reviews arrive more slowly, the timer may fire before even 60% respond -- the wrong axis entirely for a progress-percentage requirement."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Multi-Instance completionCondition is a FEEL expression evaluated after each inner instance completes. When it returns true, Zeebe cancels the remaining in-flight inner instances and advances the parent token to the outgoing flow. count(reviews) >= count(reviewers) * 0.6 checks current completion ratio; with outputCollection = reviews, each child's output is appended to the reviews list, giving the FEEL expression visibility into progress."
+    },
+    "b": {
+      "text": "Incorrect. thresholdPercent is not a Zeebe property; the FEEL completionCondition is the standard mechanism."
+    },
+    "c": {
+      "text": "Incorrect. Zeebe DOES support early completion via completionCondition -- it cancels remaining instances when the condition becomes true. This is documented behaviour."
+    },
+    "d": {
+      "text": "Incorrect. Timer Boundary fires on wall-clock time, not on progress percentage. If reviews come in faster than expected, the timer wastes time waiting. If slower, the timer fires before 60% -- wrong axis."
+    }
+  },
+  "explanation": "Multi-Instance completionCondition is a FEEL expression evaluated after each inner instance completes. When it returns true, Zeebe cancels the remaining in-flight inner instances and advances the parent token to the outgoing flow. count(reviews) >= count(reviewers) * 0.6 checks current completion ratio; with outputCollection = reviews, each child's output is appended to the reviews list, giving the FEEL expression visibility into progress.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q15",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

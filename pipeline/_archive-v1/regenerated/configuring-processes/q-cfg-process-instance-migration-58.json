@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-58",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Bank operates a Camunda 8.8 service task that creates jobs with the static type send_mail. A new version of the process definition changes the job type to a FEEL expression =order.next_step. The platform team migrates 15000 instances of the existing process to the new definition and wants to know how previously activated jobs will behave once the migration has completed on the target definition.",
+  "question": "What happens to an existing service task job after migrating its process instance when the target job type expression differs?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The engine reevaluates the new job type expression and updates the existing job to the resolved type before the worker can poll it again"
+    },
+    {
+      "id": "b",
+      "text": "The engine cancels the existing job and recreates a fresh job using the new job type expression from the target service task definition"
+    },
+    {
+      "id": "c",
+      "text": "The existing job keeps every property it had before the migration including its original job type and the new expression is not evaluated for it"
+    },
+    {
+      "id": "d",
+      "text": "The migration command is rejected because a change in the job type expression of a target service task counts as an unsupported difference"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The docs are explicit that expressions of active elements are not reevaluated and static values are not adjusted across the two process definitions during migration."
+    },
+    "b": {
+      "text": "Incorrect. Migration does not recreate jobs of active elements. Cancellation and recreation would only happen via process instance modification, not as part of a normal migration."
+    },
+    "c": {
+      "text": "Correct. The docs state that jobs, expressions, and input mappings of active elements are not recreated or reevaluated, so the job keeps all its previous properties including its original job type."
+    },
+    "d": {
+      "text": "Incorrect. A different job type expression is not a rejection reason; the migration succeeds and simply leaves the existing job untouched on the new definition."
+    }
+  },
+  "explanation": "During migration the engine does not recreate jobs, reevaluate expressions, or reapply input mappings of active elements. An already activated service task job keeps its previous properties, including its job type, even when the target definition changes the expression.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

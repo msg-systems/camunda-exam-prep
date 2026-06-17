@@ -1,0 +1,27 @@
+{
+  "id": "cfg-signals-42",
+  "topic": "configuring-processes",
+  "subtopic": "signals",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helix Marketplace runs a Camunda 8.8 cluster with 24 partitions handling 250 orders per second. The team is considering broadcasting a daily clearAllCarts signal to reset every running checkout instance and wants to understand the performance impact before rolling the broadcast out to production.",
+  "question": "What performance impact does broadcasting this signal have on the cluster according to the documented signal cardinality?",
+  "options": [
+    { "id": "a", "text": "The signal is broadcast to all 24 partitions with traffic that scales linearly with partition count, and triggers all matching subscriptions which can keep many processes executing." },
+    { "id": "b", "text": "The signal is broadcast only to the partition that owns each affected process instance, so the per-broadcast traffic is independent of the total number of partitions in the cluster." },
+    { "id": "c", "text": "The signal is broadcast to a single leader partition that then distributes execution work to peers via a batched fan-out, capping the traffic per broadcast at a constant value." },
+    { "id": "d", "text": "The signal is broadcast only to instances on the same node as the broadcaster, so the impact stays local and does not scale with the cluster's overall partition count at all." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The docs warn that signals are broadcast to all partitions with traffic that scales linearly with partition count, and that triggering all matching subscriptions can lead to continued execution of many processes." },
+    "b": { "text": "Incorrect. Broadcasts are not partition-scoped to the owning instance; the docs explicitly state that broadcasts reach all partitions in the cluster regardless of which one owns an instance." },
+    "c": { "text": "Incorrect. There is no documented leader-only fan-out for signals; each broadcast hits every partition directly and the traffic therefore does not stay capped at a constant value." },
+    "d": { "text": "Incorrect. Broadcasts are cluster-wide and not local to the node where the broadcast was issued, so the impact scales with the total partition count rather than staying on one node." }
+  },
+  "explanation": "The signal docs caution that broadcasting cluster-wide produces network traffic that scales linearly with the number of partitions and triggers every matching subscription. Both effects matter when planning broadcast frequency and timing for signals in production-sized clusters.",
+  "docs": [
+    { "title": "Signals", "url": "https://docs.camunda.io/docs/components/concepts/signals/" }
+  ]
+}

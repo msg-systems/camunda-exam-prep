@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q53",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process instance has an active token at Service Task T-Failure that's in an error state. Ops wants to cancel this specific token without killing the whole instance -- perhaps another parallel branch is fine and should continue.",
+  "question": "Does Modify Process Instance support per-token cancellation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Modify Process Instance feature in Operate provides surgical control at the individual token level. Operators can select a specific flow node where a token is active and cancel just that token, leaving other parallel branches and their active tokens running unaffected. This enables recovery from partial failures without discarding the progress made by healthy parallel branches. The Cancel Instance button in the Operate UI cancels tokens at a specific flow node, not the entire process instance."
+    },
+    {
+      "id": "b",
+      "text": "Modify Process Instance in Operate supports per-flow-node token cancellation, allowing operators to cancel a specific active token without affecting the rest of the running process instance. The operator selects the specific flow node where the problematic token is active and cancels just that token. Other tokens in parallel branches continue running unaffected. This surgical control is valuable for recovering from partial failures where one branch is stuck or in an error state while other parallel branches are progressing normally. Canceling the entire process instance would discard all the progress made by healthy branches, making per-token cancellation the preferred recovery path when only one branch needs intervention."
+    },
+    {
+      "id": "c",
+      "text": "Operate provides two distinct cancellation mechanisms: Cancel Process Instance (terminates the entire instance and all active tokens) and the Modify Process Instance's Cancel Token feature (cancels tokens at a specific flow node without affecting the rest of the instance). These are separate operations with very different impacts. Using Cancel Process Instance when only one parallel branch needs to be stopped would unnecessarily destroy the progress of all other branches in the process."
+    },
+    {
+      "id": "d",
+      "text": "Operate's Modify Process Instance feature explicitly includes per-flow-node token cancellation as one of its core operations. Operators can select a flow node with an active token, cancel the tokens there, optionally activate new tokens at a different position, and optionally update variable values -- all in a single atomic modification operation. This surgical capability is specifically designed for the scenario described: recovering a process that has a problem in one branch while preserving work done in other parallel branches."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Modify Process Instance provides surgical control over individual tokens within an instance: Operations: Cancel tokens at specific flow nodes: pick the troubled tokens; cancel only those. Activate new tokens at specific flow nodes: create tokens at downstream / alternate positions. Update variables in specific scopes: set / change variable values. All in one atomic operation: combine cancel + activate + variable update. Use case for per-token cancellation: ` Process has Parallel split: Branch A: [Validate] → [Process A] → [Ship A] Branch B: [Validate] → [Process B] → [Ship B] Branch B's [Process B] is in error state. Branch A is healthy. ` Without Modify: cancel whole instance → loses Branch A's progress. With Modify: cancel just Branch B's token at [Process B]; Branch A continues; instance reaches Parallel join eventually (with Branch B's token absent -- verify join semantics). Or: cancel Branch B's token + activate new token at [Ship B] with variables to skip the failed step. Caveats: Parallel join semantics: cancelling a token at a Parallel split's downstream branch may cause join to wait forever (Parallel join expects all branches). Modify carefully or use Inclusive join semantics. Compensation: cancelled tokens don't trigger their activities' compensation; consider whether undo is needed. Audit: Modify operations are logged in Operate; ops should document the why."
+    },
+    "b": {
+      "text": "Correct. Per-token."
+    },
+    "c": {
+      "text": "Incorrect. Cancel kills whole."
+    },
+    "d": {
+      "text": "Incorrect. Supported."
+    }
+  },
+  "explanation": "Per-token.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/process-instance-modification/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q53",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

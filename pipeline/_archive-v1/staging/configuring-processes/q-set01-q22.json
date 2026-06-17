@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Telco order process handles 10K orders/hour; Service Task \"Validate Address\" calls 3rd-party API returning transient HTTP 503 (1-2%). Each 503 creates immediate Incident -- no auto-retry. Worker is Spring Zeebe; Service Task taskDefinition has no explicit retries.",
+  "question": "Correct configuration for automatic retry?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set retries=\"3\" on the zeebe:taskDefinition AND additionally configure retryBackoff=\"PT5S\" to introduce a 5-second delay between each retry attempt. The retryBackoff parameter documents a backed-off retry interval so the worker waits before the next activation instead of immediately retrying a transiently unavailable third-party API. This combination correctly configures both the retry count and the backoff delay, addressing both the \"no retry at all\" problem and the \"immediate retry into a still-unavailable service\" problem."
+    },
+    {
+      "id": "b",
+      "text": "The retry count for Service Tasks is configured at the cluster level through broker settings files, not in the BPMN model itself. All Service Tasks in the cluster would share the same retry budget configured centrally. This contradicts how Zeebe actually works -- retries are configured per Service Task via the zeebe:taskDefinition retries attribute in the BPMN XML, allowing different tasks to have different retry budgets. There is no cluster-wide default retry count setting applicable across all job types."
+    },
+    {
+      "id": "c",
+      "text": "The retries=\"3\" attribute on the zeebe:taskDefinition is only a hint that the broker stores with the job; the actual retry decrement must be performed explicitly by the worker by calling failJob(jobKey, retries: currentRetries - 1). Without this explicit call, the broker does not automatically decrement the counter and the job will not be retried. This reasoning is flawed for Spring Zeebe-based workers: the Camunda Spring Boot Starter (and the older Spring Zeebe SDK) automatically calls failJob with a decremented retry count when the @JobWorker method throws an uncaught exception, without requiring explicit failJob invocation."
+    },
+    {
+      "id": "d",
+      "text": "Set zeebe:taskDefinition retries=\"3\" on the Service Task BPMN element. When the Spring Boot Starter's @JobWorker method throws an exception, the framework automatically calls failJob on the broker with retries: currentRetries - 1. Zeebe decrements the retry counter and schedules the job for re-activation, making it available for the worker to pick up again. When the retry counter reaches zero and the job fails again, Zeebe creates an Incident rather than retrying further, allowing an operator to investigate."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. retries=\"3\" sets the retry budget. Spring Zeebe auto-decrements when worker handler throws an exception. Incident created at retries=0."
+    },
+    "b": {
+      "text": "Incorrect. retryBackoff is documented in Zeebe; combining with retries is valid. Option (a) covers the core mechanism."
+    },
+    "c": {
+      "text": "Incorrect. Per-task in BPMN, not cluster-wide."
+    },
+    "d": {
+      "text": "Correct. Spring Zeebe handles decrement implicitly via exception."
+    }
+  },
+  "explanation": "Spring Zeebe handles decrement implicitly via exception.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q22",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

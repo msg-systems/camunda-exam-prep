@@ -1,0 +1,50 @@
+{
+  "id": "cfg-signals-30",
+  "topic": "configuring-processes",
+  "subtopic": "signals",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A process is deployed that has a signal start event for the signal named `OrderCancelled`. What does the deployment create, and what happens when `OrderCancelled` is later broadcasted?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Nothing is created at deployment; only running process instances can react to a broadcast."
+    },
+    {
+      "id": "b",
+      "text": "A signal subscription is created at deployment; broadcasting `OrderCancelled` triggers the subscription and starts a new process instance."
+    },
+    {
+      "id": "c",
+      "text": "A correlation key must be supplied with the broadcast; without it the broadcast is buffered until a process instance starts."
+    },
+    {
+      "id": "d",
+      "text": "The signal start event is registered only on the partition that owns the deployment record; broadcasts on other partitions are ignored."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state that deploying a process with a signal start event creates a new signal subscription at deploy time, not only at instance creation."
+    },
+    "b": {
+      "text": "Per the Signal subscriptions section, deploying a process with a signal start event creates a new signal subscription, and a matching broadcast triggers it to start a new process instance."
+    },
+    "c": {
+      "text": "Signals match by name only — they do not use a correlation key, unlike messages."
+    },
+    "d": {
+      "text": "Signal subscriptions are not partition-local; signals are broadcast to all partitions."
+    }
+  },
+  "explanation": "The Signal subscriptions section explains that a signal catch event creates a subscription when it is reached at runtime, while a signal start event creates its subscription at process deployment time. When a signal with a matching name is broadcasted, the start-event subscription is triggered and a new process instance is started. Matching is by signal name only — no correlation key is involved.",
+  "docs": [
+    {
+      "title": "Signals",
+      "url": "https://docs.camunda.io/docs/components/concepts/signals/"
+    }
+  ]
+}

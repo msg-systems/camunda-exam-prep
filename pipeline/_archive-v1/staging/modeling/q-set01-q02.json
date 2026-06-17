@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A B2C insurance platform processes claim submissions through Camunda 8 SaaS. After a claim is received, the system sends an SMS asking the claimant to upload supporting photos via a secure link. The process must wait for either the photo upload (a Message correlated by claim_id) or a 48-hour timeout -- whichever happens first. If photos arrive in time, the flow proceeds to \"Auto-assess Claim\"; if the timer fires first, the flow routes to \"Send Reminder + Re-prompt\". The current model uses a Parallel Gateway with two parallel paths -- one waiting on a Message Catch Event, one with a Timer -- joined by an Exclusive Gateway. This is producing strange behaviour in Operate: after a successful photo upload, the timer path continues to count down for the full 48 hours, leaving a stale token in the process and occasionally firing the Reminder days after the claim was already processed. The developer needs to model \"wait for the first of two events to fire, and cancel the other\" cleanly.",
+  "question": "Which BPMN element correctly models this requirement?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An Inclusive Gateway with two conditional flows -- one checking photos_received = true, one checking time_elapsed >= 48h -- joined by another Inclusive Gateway downstream. The diverging Inclusive Gateway evaluates FEEL boolean conditions against current variable values at the moment the token arrives, activating all paths whose condition evaluates to true. This makes it useful for conditional fan-out where multiple paths may run in parallel based on data, then synchronise at the converging Inclusive Gateway once all activated paths complete."
+    },
+    {
+      "id": "b",
+      "text": "A Receive Task with an attached Interrupting Timer Boundary Event set to 48 hours. If the message arrives first, the task completes normally and flow follows its outgoing sequence flow; if the timer fires first, the Interrupting Boundary Event cancels the Receive Task and the token follows the boundary event's outgoing path instead. The Interrupting Timer Boundary Event removes the message subscription when it fires, preventing any delayed message from creating duplicate continuations."
+    },
+    {
+      "id": "c",
+      "text": "An Event-Based Gateway followed by a Message Intermediate Catch Event (photo upload) and a Timer Intermediate Catch Event (48h). Whichever fires first activates its outgoing flow and the gateway automatically cancels the other catching event. When the token arrives at the Event-Based Gateway, Zeebe simultaneously subscribes to both the message correlation key and the 48-hour timer. The first event to occur claims the token; Zeebe immediately unsubscribes from the other event, ensuring no stale timers remain active and no duplicate correlations can occur. The outgoing sequence flow from the winning event leads to its dedicated downstream path -- the message path to \"Auto-assess Claim\" and the timer path to \"Send Reminder + Re-prompt\"."
+    },
+    {
+      "id": "d",
+      "text": "A Parallel Gateway with two paths (one Message, one Timer) joined by a Terminate End Event in each branch, so whichever path completes first terminates the process. The diverging Parallel Gateway creates two independent tokens simultaneously -- one subscribes to the photo-upload message and the other starts the 48-hour countdown timer. When the first path reaches its Terminate End Event, it terminates the entire process instance scope including all other active tokens. , \"Auto-assess Claim\" or \"Send Reminder\") can run after the race resolves, defeating the purpose of having different outgoing paths."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Event-Based Gateway is the BPMN construct designed for this \"wait for the first of N events\" pattern in Camunda 8. The gateway is followed by exactly one Intermediate Catch Event of each event type (Message, Timer, Signal). The token reaches the gateway and waits; the first event that triggers wins, and all others are cancelled -- no stale timers, no leaked tokens."
+    },
+    "b": {
+      "text": "Incorrect. Inclusive Gateway evaluates boolean conditions on variables, NOT awaits events. It evaluates immediately and routes based on current variable state. You would need a separate waiting mechanism to populate photos_received and time_elapsed, which puts you back at the original broken design."
+    },
+    "c": {
+      "text": "Correct. Receive Task + Interrupting Timer Boundary technically models \"wait for message OR timeout\" -- the boundary event cancels the task and the timer firing replaces it with the boundary path. Works for a single message but doesn't generalise to 3+ events cleanly. Event-Based Gateway is the idiomatic BPMN choice."
+    },
+    "d": {
+      "text": "Incorrect. Parallel Gateway opens both paths simultaneously and both run independently -- exactly the broken behaviour described. Terminate End Event would kill the entire process instance including in-flight downstream activities -- wrong scope."
+    }
+  },
+  "explanation": "Receive Task + Interrupting Timer Boundary technically models \"wait for message OR timeout\" -- the boundary event cancels the task and the timer firing replaces it with the boundary path. Works for a single message but doesn't generalise to 3+ events cleanly. Event-Based Gateway is the idiomatic BPMN choice.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-based-gateways/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q02",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "cfg-incidents-27",
+  "topic": "configuring-processes",
+  "subtopic": "incidents",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Bank runs 9000 process instances per day in Camunda 8.8. A payments job worker exhausts its 3 retries while a downstream ledger service is unreachable, and the broker needs to mark the process instance as stuck so an operator can intervene and resolve the situation in Operate.",
+  "question": "Which situation creates an incident in Camunda 8 according to the documented list?",
+  "options": [
+    { "id": "a", "text": "A job fails and the retry counter on the activated job is still above zero, so the broker reactivates the job for the next worker" },
+    { "id": "b", "text": "A condition on a sequence flow evaluates to true and routes the token forward along the active branch without raising any signal" },
+    { "id": "c", "text": "A job fails and it has no retries left, so the process instance is stuck at the activity and requires user interaction to resolve" },
+    { "id": "d", "text": "A timer expression returns a valid ISO 8601 duration that the engine schedules on the timer normally without flagging the instance" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. While retries remain on the activated job, the broker reactivates it for another worker attempt; an incident is created only after all retries are exhausted." },
+    "b": { "text": "Incorrect. A condition that returns true or false routes execution normally. An incident is created when the condition does not return true or false at all." },
+    "c": { "text": "Correct. The incidents documentation lists a failed job with no retries left as a situation that creates an incident, leaving the process instance stuck until user interaction resolves it." },
+    "d": { "text": "Incorrect. A timer expression that returns the expected type schedules normally; an incident is created only when the timer expression does not return the expected type." }
+  },
+  "explanation": "Incidents represent problems in process execution that leave an instance stuck until a user resolves them. The documented triggers include a failed job with no retries left, a condition that does not return true or false, a timer expression with an unexpected return type, a decision that cannot be evaluated, and an uncaught BPMN error.",
+  "docs": [
+    { "title": "Incidents", "url": "https://docs.camunda.io/docs/components/concepts/incidents/" }
+  ]
+}

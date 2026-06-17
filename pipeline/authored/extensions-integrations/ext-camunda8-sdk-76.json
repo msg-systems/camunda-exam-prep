@@ -1,0 +1,50 @@
+{
+  "id": "ext-camunda8-sdk-76",
+  "topic": "extensions-integrations",
+  "subtopic": "typescript-sdk",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Right after a process instance completes, your code calls `camunda.getProcessInstance({ processInstanceKey })` and the response shows `state: 'ACTIVE'` instead of `COMPLETED`. According to the docs, why can this happen?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`getProcessInstance` reads historical data from the Zeebe exporter, which lags behind the actual system state — it is eventually consistent."
+    },
+    {
+      "id": "b",
+      "text": "The TypeScript SDK keeps a local in-memory cache that has not yet been invalidated after completion."
+    },
+    {
+      "id": "c",
+      "text": "The Operate UI refreshes its rendered state only every 30 seconds and the API mirrors that refresh interval."
+    },
+    {
+      "id": "d",
+      "text": "The gRPC topology response reports every partition as `ACTIVE` and overrides the instance state."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The Retrieve a process instance section notes the state may appear as `ACTIVE` rather than `COMPLETED` because the data read over the API is historical data from the Zeebe exporter and lags behind the actual state of the system — it is eventually consistent."
+    },
+    "b": {
+      "text": "The SDK is not described as keeping a local instance-state cache; the lag is documented as eventual consistency in the exporter pipeline."
+    },
+    "c": {
+      "text": "The discrepancy is about exporter lag, not Operate UI refresh intervals; the API is read directly, not from rendered HTML."
+    },
+    "d": {
+      "text": "Topology reports cluster/partition health and is unrelated to per-instance state."
+    }
+  },
+  "explanation": "`getProcessInstance` queries the historical view exported by Zeebe (the same data Operate exposes). Because the exporter pipeline is eventually consistent, a freshly completed instance can still appear as `ACTIVE` for a short window. Using `consistency.waitUpToMs` lets the SDK wait for the read view to catch up.",
+  "docs": [
+    {
+      "title": "Camunda 8 TypeScript SDK",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ]
+}

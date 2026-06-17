@@ -1,0 +1,27 @@
+{
+  "id": "con-http-webhook-11",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Halton Insurance, a regional insurer routing 45000 claims per month, configures a Camunda 8.8 HTTP Webhook intermediate catch event. The webhook receives payloads shaped {\"claimId\": \"C-882\", \"status\": \"OK\"}, and the modeler must wire the correlation key so the runtime correlates each inbound message to the waiting process instance via the claimId process variable.",
+  "question": "Which pair of FEEL expressions correctly fills the Correlation key (process) and Correlation key (payload) fields?",
+  "options": [
+    { "id": "a", "text": "Correlation key (process) =request.body.claimId and Correlation key (payload) =claimId so the runtime maps the inbound body onto the variable name" },
+    { "id": "b", "text": "Correlation key (process) =claimId and Correlation key (payload) =request.body.claimId so the runtime extracts claimId from the inbound request body" },
+    { "id": "c", "text": "Correlation key (process) =claimId and Correlation key (payload) =body.claimId so the runtime extracts claimId from the polled response body context" },
+    { "id": "d", "text": "Correlation key (process) =\"claimId\" and Correlation key (payload) =\"request.body.claimId\" so both fields receive literal quoted string values" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The two fields are reversed; Correlation key (process) names the correlation variable on the waiting instance, and Correlation key (payload) extracts the value from the inbound body." },
+    "b": { "text": "Correct. Correlation key (process) is a FEEL expression naming the process correlation variable, and Correlation key (payload) is evaluated in the connector runtime to extract the matching value from the incoming request body." },
+    "c": { "text": "Incorrect. The HTTP Webhook connector exposes the inbound payload under request.body, not body; the body context is the convention for the HTTP Polling connector instead." },
+    "d": { "text": "Incorrect. Both correlation fields are FEEL expressions, so wrapping the variable name and the path in quotes would correlate against fixed string literals rather than evaluated values." }
+  },
+  "explanation": "Correlation key (process) is a FEEL expression that names the process correlation variable, and Correlation key (payload) is a FEEL expression evaluated in the connector runtime against the incoming request to extract the matching value, prefixed with request.body for the HTTP Webhook connector.",
+  "docs": [
+    { "title": "HTTP Webhook connector - Correlation", "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/" }
+  ]
+}

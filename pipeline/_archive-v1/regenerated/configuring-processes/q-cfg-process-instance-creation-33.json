@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-creation-33",
+  "topic": "configuring-processes",
+  "subtopic": "start-events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Bank runs a settlement process in Camunda 8.8 across 7000 transactions per day. The platform team needs to start one process instance every 4 hours from a timer start event, and also needs separate instances created whenever a payments message arrives that matches a message start event on the same process.",
+  "question": "Which behavior describes how Camunda 8 timer and message start events create process instances?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Timer start events queue all triggers and create one batched instance per timer interval, while message start events buffer messages and create one instance per batch arrival"
+    },
+    {
+      "id": "b",
+      "text": "Timer start events fire once at deployment and create a single instance, while message start events create one instance per process definition version after the first message arrives"
+    },
+    {
+      "id": "c",
+      "text": "Timer start events require a paired message correlation key to create instances, while message start events can also trigger periodically when no matching message has arrived"
+    },
+    {
+      "id": "d",
+      "text": "Timer start events create an instance when the timer is triggered and can fire periodically, while message start events create one new instance per new matching message published"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Each new matching message produces a new instance; there is no documented batching of timer triggers or message arrivals into single combined instances."
+    },
+    "b": {
+      "text": "Incorrect. Timer start events can fire periodically rather than only at deployment, and each new matching message creates its own instance for message start events."
+    },
+    "c": {
+      "text": "Incorrect. Timer start events do not require a message correlation key, and message start events do not fire periodically without a matching published message arriving."
+    },
+    "d": {
+      "text": "Correct. The instance is created when the timer is triggered, timers can also fire periodically, and a new instance is created for each new matching message published."
+    }
+  },
+  "explanation": "Timer start events create an instance when triggered and can fire periodically; message start events create one new instance per matching published message.",
+  "docs": [
+    {
+      "title": "Process instance creation",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/"
+    }
+  ]
+}

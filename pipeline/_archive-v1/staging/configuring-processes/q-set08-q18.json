@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q18",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An AI Agent Connector orchestrates a customer-service agent. The team needs to configure the system prompt -- the persistent instructions that shape the agent's behaviour (\"You are a helpful customer-service agent. Be polite. Don't make refund commitments without checking policy.\").",
+  "question": "Where is the system prompt configured in the AI Agent Connector?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Store the system prompt as a constant configuration value in the LLM provider's account settings so it applies automatically to all API calls made with that API key -- this description does not reflect actual behaviour for Camunda's AI Agent Connector. System prompts are process-specific configuration managed within the Connector's properties in the BPMN model, not at the provider account level. Provider-level configuration applies globally to all callers of that API key, making it impossible to use different system prompts for different Camunda processes or to update prompts independently without modifying provider account settings."
+    },
+    {
+      "id": "b",
+      "text": "While externalising prompts to a configuration service is a valid enterprise pattern for organisations managing large prompt libraries, Camunda's AI Agent Connector is designed to configure the system prompt inline within the Connector's properties in the BPMN model, co-locating the prompt with the process definition for integrated version control and deployment."
+    },
+    {
+      "id": "c",
+      "text": "Camunda Connectors are designed to be configured through BPMN properties, not through source code modifications. Embedding prompts in source requires recompiling and redeploying the entire Connector runtime for every prompt change, creating a heavyweight deployment pipeline for what should be a simple configuration update in the BPMN process model."
+    },
+    {
+      "id": "d",
+      "text": "md:124-128. , customer name into prompt). Configured per Service Task instance of the AI Agent (subprocess variant) or AI Agent Task."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. AI Agent Connectors expose configuration properties for the agent's behaviour: systemPrompt (instructions for the LLM), model (which LLM to use), temperature (creativity / determinism balance), maxTokens (response length cap), apiKey (via secrets), etc. The system prompt typically supports FEEL templating so dynamic content (customer name, conversation history, business rules) can be injected at activation time. Multiple Service Task instances of the same AI Agent can use different prompts (variant agents) by setting different property values."
+    },
+    "b": {
+      "text": "Incorrect. LLM provider accounts typically don't have a \"global system prompt\" -- prompts are per-request."
+    },
+    "c": {
+      "text": "Incorrect. Advanced setups may externalise prompts; the Connector property is the standard Camunda path."
+    },
+    "d": {
+      "text": "Correct. Connector reads from configuration, not hardcoded."
+    }
+  },
+  "explanation": "Connector reads from configuration, not hardcoded.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/agentic-ai-aiagent/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q18",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

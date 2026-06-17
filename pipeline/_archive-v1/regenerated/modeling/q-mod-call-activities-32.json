@@ -1,0 +1,50 @@
+{
+  "id": "mod-call-activities-32",
+  "topic": "modeling",
+  "subtopic": "call-activities",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Orion Logistics models call activities in Camunda 8.8 for 4500 shipments per day. The team writes BPMN XML by hand and needs a call activity that always pins the called process child-process-a to the version that was deployed together with the parent definition, so that one coordinated release advances both processes in lockstep without surprises.",
+  "question": "Which XML configuration on the call activity pins it to the version of child-process-a deployed together with the parent?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A zeebe:calledElement with processId child-process-a and bindingType set to latest is placed inside the extensionElements of the call activity"
+    },
+    {
+      "id": "b",
+      "text": "A zeebe:calledElement with processId child-process-a and bindingType set to versionTag is placed inside the extensionElements of the call activity"
+    },
+    {
+      "id": "c",
+      "text": "A zeebe:calledElement with processId child-process-a and bindingType set to deployment is placed inside the extensionElements of the call activity"
+    },
+    {
+      "id": "d",
+      "text": "A zeebe:calledDecision with decisionId child-process-a and bindingType set to deployment is placed inside the extensionElements of the call activity"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The latest bindingType resolves the called process to the most recent deployed version at activation time, which would let the child drift ahead of the parent release rather than stay pinned."
+    },
+    "b": {
+      "text": "Incorrect. The versionTag bindingType selects the latest deployed version annotated with a specific tag and also requires a versionTag attribute, so it does not pin the child to the parent's deployment."
+    },
+    "c": {
+      "text": "Correct. The deployment bindingType pins the call activity to the version of the called process that was deployed alongside the current parent process definition, advancing both together."
+    },
+    "d": {
+      "text": "Incorrect. The zeebe:calledDecision element belongs to business rule tasks that evaluate DMN decisions. A call activity uses zeebe:calledElement to reference a child BPMN process."
+    }
+  },
+  "explanation": "A call activity is configured through the zeebe:calledElement extension element. Setting its bindingType to deployment pins the called process to whichever version was deployed together with the currently running parent process definition.",
+  "docs": [
+    {
+      "title": "BPMN call activities",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/"
+    }
+  ]
+}

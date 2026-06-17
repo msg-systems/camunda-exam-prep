@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-06",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A job worker's `StreamActivatedJobs` receive method is blocked, causing the gateway's send buffers to fill. The gateway marks this client as `not-ready`. What does the gateway do with the next pushed job for that job type?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Re-route the job to another logically equivalent worker; if none on this gateway are ready, return the job to the broker."
+    },
+    {
+      "id": "b",
+      "text": "Drop the job and decrement its `remaining retries` so it eventually creates an incident."
+    },
+    {
+      "id": "c",
+      "text": "Hold the job in the gateway buffer indefinitely until the slow client recovers."
+    },
+    {
+      "id": "d",
+      "text": "Immediately fail the job and emit a `Job.YIELD` command back to the client."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Per the docs, if a client is not ready, the gateway tries to re-route the job to another logically equivalent worker. If that fails (e.g. all such workers on the gateway are not ready), the job is returned to the broker, which may retry to another gateway."
+    },
+    "b": {
+      "text": "Backpressure-driven rerouting does not decrement retries; retries are unrelated to client readiness."
+    },
+    "c": {
+      "text": "The gateway does not hold jobs indefinitely — that would defeat backpressure and could exhaust gateway memory."
+    },
+    "d": {
+      "text": "`Job.YIELD` is a log-level signal of backpressure activity, not a per-job failure command sent to the client."
+    }
+  },
+  "explanation": "Backpressure relies on gRPC/HTTP-2 flow control. When a client stalls, its send buffers fill on the gateway and it becomes `not-ready`. The gateway first reroutes the job to another logically equivalent worker on the same gateway; only if none are ready does the job go back to the broker, which may then try a different gateway with a logically equivalent worker.",
+  "docs": [
+    {
+      "title": "Job workers",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

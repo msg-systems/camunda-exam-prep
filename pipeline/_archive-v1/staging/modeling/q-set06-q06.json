@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q06",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A document-approval User Task should send an escalation notification to a manager if it's been waiting > 24 hours, but the task should still remain active for the original approver. The escalation must fire only once even if it remains pending longer.",
+  "question": "Which Boundary Event fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Interrupting Escalation Boundary Event would cancel the host User Task when it fires. The original approver would lose access to the task immediately upon escalation, which violates the requirement that the task remains active. The interrupting variant terminates the host activity scope, making further approver action impossible. Understanding this characteristic is essential for the Camunda 8 Certified Professional examination."
+    },
+    {
+      "id": "b",
+      "text": "Non-interrupting Timer Boundary Event (configured as a duration PT24H) fires after 24 hours and routes to a notification task for the manager. Because it is non-interrupting, the host User Task remains active for the original approver. The timer fires once and does not repeat, satisfying the single-fire requirement precisely. Teams building on Camunda 8 should consider this when designing process models for production deployment."
+    },
+    {
+      "id": "c",
+      "text": ", R/PT1H) would fire repeatedly every hour as long as the task is active. The question specifies \"fire only once,\" so a repeating cycle timer violates the single-fire constraint and would send repeated escalations to the manager unnecessarily. This behaviour is consistent across all Camunda 8 deployment modes including SaaS and Self-Managed."
+    },
+    {
+      "id": "d",
+      "text": "Cancel Boundary Event is specifically designed for Transaction Subprocesses and cancels the transaction scope when a Cancel End Event fires inside it. It has no applicability to User Task escalation scenarios and cannot model timed notifications on non-transactional activities. This pattern is covered in the official Camunda 8 documentation."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Practical pattern: Non-interrupting Timer Boundary fires after 24h → branch throws Escalation → caught (or routes directly to notify-manager). Key word: non-interrupting = host task stays active; single fire = configured timer expires once."
+    },
+    "b": {
+      "text": "Correct. Interrupting cancels the host User Task -- original approver can no longer respond."
+    },
+    "c": {
+      "text": "Incorrect. Cycle timer fires repeatedly; question says \"fire only once.\""
+    },
+    "d": {
+      "text": "Incorrect. Cancel Boundary is for transaction subprocesses."
+    }
+  },
+  "explanation": "Interrupting cancels the host User Task -- original approver can no longer respond.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/escalation-events/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q06",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task approve-claim has both a dueDate attribute and the team is considering adding an Interrupting Timer Boundary Event for the same duration. They wonder if dueDate and Timer Boundary are equivalent or different. What's the difference between User Task dueDate and an Interrupting Timer Boundary?",
+  "question": "What's the difference between User Task dueDate and an Interrupting Timer Boundary?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The dueDate attribute and an Interrupting Timer Boundary Event are equivalent mechanisms in Camunda 8 -- both enforce a deadline on the User Task and both cancel the task when the deadline passes. Since they do the same thing, using both would be redundant and the team should choose one based on preference. The two serve entirely different purposes. dueDate is informational metadata visible in Tasklist. An Interrupting Timer Boundary is a structural BPMN element that actually cancels the task and redirects flow."
+    },
+    {
+      "id": "b",
+      "text": "Different purposes: dueDate is metadata (informational) -- displayed in Tasklist for assignee awareness via overdue indicators, used for sorting and filtering tasks by urgency. It does not auto-cancel the task when the date passes; the task remains active indefinitely until completed or explicitly cancelled. An Interrupting Timer Boundary auto-cancels the task when it fires and routes process flow to the boundary's outgoing path. Use dueDate for soft UI hints and Timer Boundary for hard deadlines."
+    },
+    {
+      "id": "c",
+      "text": "When the dueDate of a User Task passes in Camunda 8, the engine automatically cancels the task and routes the process flow via an escalation path, similar to how an Interrupting Timer Boundary Event would function. This is the intended auto-enforcement behavior of the dueDate feature. The dueDate is actually purely informational metadata. Past the due date, the task remains active without any engine action. Only an Interrupting Timer Boundary Event can automatically cancel a task based on elapsed time."
+    },
+    {
+      "id": "d",
+      "text": "An Interrupting Timer Boundary Event on a User Task is informational only, similar to dueDate -- it displays the deadline in Tasklist for the assignee but does not automatically cancel or modify the task's execution. Since it is informational, it does not redirect process flow when the time expires. Timer Boundary Events are structural BPMN elements with real execution consequences. When an Interrupting Timer Boundary fires, it cancels the host activity and routes flow via its outgoing sequence arrow to a timeout handler path."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Clear separation: dueDate (User Task attribute): metadata declaring \"by when this task should ideally be done.\" Tasklist UI uses it to show overdue badges, sort tasks by urgency, etc. Doesn't change execution semantics -- past the dueDate, the task remains active until explicitly completed or cancelled. Purely informational. Interrupting Timer Boundary: structural BPMN element that fires when the timer expires. Interrupting variant cancels the host task and routes via the boundary's outgoing arrow to a \"timeout handler\" path. Hard deadline. Use cases together: set dueDate for assignee awareness (\"complete by Tuesday\"), and a Timer Boundary for the absolute hard deadline (\"if not done by Friday, auto-route to escalation\"). The two work in parallel -- dueDate gives the soft cue, Timer Boundary enforces the hard limit."
+    },
+    "b": {
+      "text": "Correct. Different purposes."
+    },
+    "c": {
+      "text": "Incorrect. dueDate is informational."
+    },
+    "d": {
+      "text": "Incorrect. Timer Boundary is structural."
+    }
+  },
+  "explanation": "Different purposes.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q13",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

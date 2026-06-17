@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process performs an atomic series of activities -- \"book flight, charge card, send confirmation.\" If any fails, all should be reverted. Team wonders modelling for atomic transactions.",
+  "question": "Transaction Subprocess + Cancel End Event?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use try/catch -- wrong; not BPMN."
+    },
+    {
+      "id": "b",
+      "text": "Database transaction -- this approach addresses a different layer of the problem. A relational database transaction provides atomicity within a single database, but the scenario involves distributed external service calls (flight booking API, card charge, email confirmation) that each operate in separate systems. BPMN's Transaction Subprocess and Compensation events address the orchestration-level saga pattern: each step's undo action is modeled as a compensation handler, and the process engine coordinates rollback when failures occur. Database-level transactions cannot span HTTP service calls or external APIs."
+    },
+    {
+      "id": "c",
+      "text": "md:47-49, the Saga pattern using an Embedded Subprocess, per-activity Compensation Boundaries, and explicit Compensation Throws is fully supported. This allows modeling all-or-nothing semantics for distributed workflows where each step has a documented undo operation."
+    },
+    {
+      "id": "d",
+      "text": "md:47-49 (TransactionalSubprocessSvg has NO className=\"implemented\") and Cancel events similarly absent. Use the Saga pattern instead: wrap activities in an Embedded Subprocess, attach a Compensation Boundary Event to each compensable activity (book flight, charge card, send confirmation), connect each to a compensation handler Service Task that performs the undo action. On failure, route to a Compensation Intermediate Throw Event that invokes all completed handlers. md:31-35; use activityRef on separate Throw events for explicit ordering."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Saga pattern in Camunda 8 (Transaction Subprocess is NOT implemented per bpmn-coverage.md:47-49): Why no Transaction Subprocess in C8: per bpmn-coverage.md:47-49 the TransactionalSubprocessSvg has NO className=\"implemented\" -- runtime semantics for transactional cancel are not supported. Cancel End Event + Cancel Boundary Event also absent. Canonical Saga pattern: Embedded Subprocess containing: Activities (Service Tasks, etc.) that form the transaction. Compensation Boundary on each compensable activity per compensation-events.md:10-13 -- connects to a compensation handler. Error Boundary on the subprocess (or explicit failure path inside) routes to Compensation Intermediate Throw Event when rollback is needed. Compensation invocation per compensation-events.md:24-35: Process instance enters Compensation Throw → invokes all compensation handlers of COMPLETED activities in scope. Handlers of active or terminated activities are NOT invoked. Handlers fire at once without any specific order (NOT LIFO/reverse). For ordered compensation, use multiple Compensation Throws with activityRef per :73-83. Compensation handlers: Per activity: defines what to undo. Compensation Boundary attached to activity. Connected to handler (Service Task etc.). Example: ` [Transaction Subprocess] [Book Flight] → [Charge Card] → [Send Confirm] → [End] │ comp │ comp │ comp [Cancel Booking] [Refund] [Send Cancellation] Plus: [Cancel End Event] reachable from \"Charge Card\" failure path ` If \"Charge Card\" fails → Cancel End → engine compensates: 1. Send Cancellation (most recent if reached) -- actually no, if charge failed, only \"Book Flight\" completed. 2. Cancel Booking compensates. For the scenario (book flight, charge card, send confirm -- all-or-nothing): Approach: 1. Transaction Subprocess wrapping all three. 2. Each activity: has Compensation Boundary + handler. 3. Failure path: routes to Cancel End within transaction. 4. On Cancel End: engine compensates completed activities. Camunda 8 transaction subprocess support: Verify per version -- Cancel End Event + transactional semantics historically supported in Camunda 7 more explicitly; Camunda 8 may have specific limitations. Alternative patterns if not fully supported: Pattern: Manual saga: Embedded Subprocess (not Transaction). Each activity + Compensation Boundary. Error Boundary on subprocess: catches failures. Error handler: explicitly throws Compensation. Pattern: Process-level orchestration: Sequential Service Tasks. On error: route to \"compensation\" path. Each compensation as Service Task. Distributed transaction considerations: External systems (flight booking API, payment): each has own transactionality. BPMN orchestrates undo: calls compensating actions. Not ACID across systems: compensation can fail. Eventually consistent: design accordingly. For saga pattern: Forward: each step + commit at external system. Backward: each step's compensation called on failure. Idempotent: compensations safe to retry. Best practices: Use Transaction Subprocess when BPMN supports + saga semantics fit. Use saga pattern manually when more control needed. Idempotent compensations: critical for retries. Document compensation actions: per activity. Anti-patterns: No compensation handlers: failures leave partial state. Non-idempotent compensations: retries cause issues. Forgetting to test compensation paths: works in happy path, broken on failure. For Camunda 8: Verify exact Cancel End Event + Transaction Subprocess support. May need manual saga pattern with embedded subprocess + explicit compensation throw."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q03",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 18.7 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

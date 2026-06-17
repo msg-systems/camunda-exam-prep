@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-53",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Meridian Bank runs 5000 instances per day on Camunda 8.8 and is preparing a migration where several catch events exist on both the source and target process definitions. The platform team is reviewing what a mapping instruction between a source catch event and a target catch event actually guarantees before deciding which events to map.",
+  "question": "What does providing a mapping instruction between a source catch event and a target catch event ensure?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The catch event in the target process is rebuilt and a fresh event subscription is opened against the target on completion of the active element scope"
+    },
+    {
+      "id": "b",
+      "text": "The event subscription in the source process is preserved after the migration and the engine carries it forward against the target catch event element"
+    },
+    {
+      "id": "c",
+      "text": "The catch event in the source process is replayed and any unprocessed messages are redelivered against the target catch event during the migration step"
+    },
+    {
+      "id": "d",
+      "text": "The event subscription is closed when the migration finalizes and a new subscription is opened only when the next instance reaches the catch event element"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. A mapping does not rebuild the target catch event nor open a fresh subscription; the documentation states the existing source subscription is preserved across migration."
+    },
+    "b": {
+      "text": "Correct. The documentation states that providing a mapping between catch events ensures the event subscription in the source process is preserved after the migration."
+    },
+    "c": {
+      "text": "Incorrect. Mapping does not replay or redeliver historical messages; the documented guarantee is that the existing subscription is preserved across the migration."
+    },
+    "d": {
+      "text": "Incorrect. Mapping preserves the subscription rather than closing it; closing the subscription is what happens when no mapping is provided for a source catch event."
+    }
+  },
+  "explanation": "A mapping instruction between source and target catch events guarantees that the existing event subscription is migrated rather than closed, so the in-flight instance keeps reacting to the same events through the new definition.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

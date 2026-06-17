@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q01",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process has 3 outgoing flows from an Inclusive Gateway with conditions: =amount > 100, =amount > 500, =customer.type = \"VIP\". For amount=1000, type=\"VIP\", all three conditions are true. The team wonders how Inclusive Gateway handles overlapping matches.",
+  "question": "Inclusive Gateway with all conditions true?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An Exclusive Gateway (XOR) selects only the first outgoing flow whose condition evaluates true, stopping evaluation after that match. This contrasts sharply with the Inclusive Gateway, which evaluates all conditions independently and activates every flow returning true. Selecting only the first true flow describes XOR semantics, not OR semantics, so this option confuses the two gateway types and their distinct routing behaviors."
+    },
+    {
+      "id": "b",
+      "text": "Inclusive Gateway activates ALL outgoing flows whose conditions evaluate true (in contrast to XOR which picks exactly one -- the first true). For amount=1000, type=\"VIP\": all 3 flows activate; 3 parallel branches start. Downstream join: typically uses Inclusive Join Gateway (waits for all activated branches, but NOT all possible branches -- only those that activated). Implication: model carefully to ensure proper join semantics."
+    },
+    {
+      "id": "c",
+      "text": "No BPMN gateway selects an outgoing flow randomly. Gateways operate deterministically: XOR evaluates conditions and picks the first match, Parallel activates all flows unconditionally, and Inclusive activates every flow whose condition is true. Random selection would produce non-deterministic process behavior, contrary to the reproducible execution guarantees that BPMN process engines like Camunda 8 are designed to provide."
+    },
+    {
+      "id": "d",
+      "text": "The Camunda 8 engine does not throw an error when multiple conditions on an Inclusive Gateway evaluate true simultaneously. Overlapping conditions are the expected, intended use case for OR semantics: all matching flows activate and create parallel branches. An error would only arise if no condition evaluates true and no default flow is configured, resulting in a process incident due to no available outgoing path from the gateway."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Inclusive Gateway (OR) semantics: Activation: Evaluates ALL outgoing flow conditions independently. Activates every flow whose condition is true. All activated flows execute in parallel. For the scenario: amount > 100: true (1000 > 100). amount > 500: true (1000 > 500). customer.type = \"VIP\": true. All 3 branches activate; 3 parallel tokens flow downstream. Comparison with other gateways: | Gateway | Activation | |---------|-----------| | XOR (Exclusive) | First true flow only; if multiple match → modelling error (or first by document order) | | OR (Inclusive) | All true flows | | Parallel | All flows unconditionally (no conditions evaluated) | Join semantics: Inclusive Join: waits for tokens from all activated branches -- knows which branches activated (from the diverging Inclusive Gateway). Parallel Join: waits for tokens from ALL incoming flows -- would deadlock if some branches weren't activated. Best practice: pair Inclusive diverge with Inclusive join. Default flow: Inclusive Gateway supports a default flow (per Set 13 Q1). Activates when NO other conditions are true. Without default + no true: process incident (no path). Use cases: Multiple notifications: send email + SMS + push based on user preferences (any combination). Multiple validations: run all applicable rules in parallel. Conditional fan-out: launch only relevant subprocesses. Anti-pattern: Using Inclusive when XOR fits: overhead of parallel execution + join coordination. Using XOR when overlap intended: silently drops conditions after first match."
+    },
+    "b": {
+      "text": "Correct. That's XOR."
+    },
+    "c": {
+      "text": "Incorrect. Option d) -- Wrong. OR semantics."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "That's XOR.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/inclusive-gateways/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q01",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

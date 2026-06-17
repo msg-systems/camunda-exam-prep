@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q06",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A finance-process Service Task transfer-funds has two Compensation Boundary Events attached: one connected to handler reverse-transfer (full reversal), another to handler partial-rollback (partial). The team wonders if multiple Compensation Boundaries per activity are supported.",
+  "question": "Can an activity have multiple Compensation Boundary Events?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes, multiple Compensation Boundary Events are allowed and the engine selects one at compensation time -- this misrepresents the BPMN specification and Zeebe's behaviour. Per the compensation semantics, each compensation handler is invoked when the associated boundary fires. Multiple boundaries on one activity would cause both handlers to execute, undermining the \"either/or\" design intent."
+    },
+    {
+      "id": "b",
+      "text": "One Compensation Boundary per activity is the canonical pattern -- it's the conceptual \"undo for this activity,\" with a single Compensation Handler attached. md:31-35 the engine \"invokes all compensation handlers at once without any specific order\" within scope -- so both handlers fire concurrently, which is rarely what the modeller intends. Best practice: one Compensation Boundary → one handler per activity. , =rollbackType = \"FULL\"). For ordered per-activity rollback across multiple compensable steps, use a chain of Compensation Intermediate Throw events with activityRef per :73-83."
+    },
+    {
+      "id": "c",
+      "text": "Yes, all compensation boundaries on an activity execute in parallel simultaneously -- this describes unintended concurrent rollback behaviour. md:31-35. The best practice is one boundary with conditional logic inside a subprocess handler."
+    },
+    {
+      "id": "d",
+      "text": "Compensation Events are a feature that Camunda 8 has not yet added to its BPMN coverage -- this is factually wrong. md, including Compensation Boundary Events, Compensation Intermediate Throw Events, and Compensation End Events. Compensation patterns enable saga-style rollback in BPMN processes and are a documented, production-ready capability used for multi-step undo flows in financial, order, and inventory processes."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN's compensation model: one compensation handler per compensable activity. The Compensation Boundary Event represents \"this is the undo path for this activity.\" Modelling multiple boundaries with different handlers creates ambiguity about which should execute when compensation fires. Best practices for compensation: One Compensation Boundary per activity → one Compensation Handler. Handler can be a subprocess: if compensation logic is complex (conditional on state, multiple sub-steps), wrap in a subprocess inside the handler. Branching, conditional logic, etc., live inside the handler. Handler activity types: typically Service Task (call API to reverse), but can be User Task (manual rollback), Subprocess (multi-step), etc. For the scenario's \"full vs partial rollback\" requirement: Recommended: one Compensation Boundary → handler subprocess with internal Exclusive Gateway choosing \"full\" or \"partial\" based on a variable (e.g., rollbackType = \"FULL\" vs \"PARTIAL\"). The variable is set elsewhere in the process (or based on the trigger context). Zeebe's documented behaviour: per compensation-events.md:26-29, :31-35 compensation throw \"invokes all compensation handlers of completed activities\" within scope \"at once without any specific order\" -- so two boundaries on the same activity with different handlers would both fire concurrently when compensation is broadcast, defeating the \"either / or\" intent."
+    },
+    "b": {
+      "text": "Correct. Not standard semantic."
+    },
+    "c": {
+      "text": "Incorrect. Parallel-compensation not standard."
+    },
+    "d": {
+      "text": "Incorrect. Supported."
+    }
+  },
+  "explanation": "Not standard semantic.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q06",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

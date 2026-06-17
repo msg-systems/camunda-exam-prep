@@ -1,0 +1,27 @@
+{
+  "id": "cfg-feel-built-in-functions-conversion-140",
+  "topic": "configuring-processes",
+  "subtopic": "feel-built-in-functions-conversion",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Stellar Healthcare runs Camunda 8.8 across 3500 tasks per day and ingests appointment strings such as \"2018-04-29T09:30:00\" and \"2024-06-31T10:00:00\" on the process instance. A modeller wants the documented behaviour of the date and time(from: string) signature on the conversion functions page for both a valid calendar date and an invalid calendar date such as June 31.",
+  "question": "What does date and time(from) on the conversion functions page return for \"2018-04-29T09:30:00\" and for \"2024-06-31T10:00:00\"?",
+  "options": [
+    { "id": "a", "text": "date and time(\"2018-04-29T09:30:00\") returns date and time(\"2018-04-29T09:30:00\") and date and time(\"2024-06-31T10:00:00\") returns null when the string is not a valid calendar date such as June 31 which does not exist" },
+    { "id": "b", "text": "date and time(\"2018-04-29T09:30:00\") returns date and time(\"2018-04-29T09:30:00\") and date and time(\"2024-06-31T10:00:00\") returns date and time(\"2024-07-01T10:00:00\") with the overflow day rolled into the next month" },
+    { "id": "c", "text": "date and time(\"2018-04-29T09:30:00\") returns date and time(\"2018-04-29T09:30:00\") and date and time(\"2024-06-31T10:00:00\") returns date and time(\"2024-06-30T10:00:00\") with the day clamped to the last day of June" },
+    { "id": "d", "text": "date and time(\"2018-04-29T09:30:00\") returns date and time(\"2018-04-29T09:30:00\") and date and time(\"2024-06-31T10:00:00\") raises an incident on the process instance and interrupts FEEL evaluation immediately" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The conversion functions page documents date and time(from: string): date and time. It returns null if the string is not a valid calendar date and cites \"2024-06-31T10:00:00\" as invalid because June has only 30 days. It shows date and time(\"2018-04-29T09:30:00\") returning date and time(\"2018-04-29T09:30:00\")." },
+    "b": { "text": "Incorrect. The conversion functions page does not document overflow roll-over for date and time(from); it returns null when the string is not a valid calendar date, rather than rolling the day into the next month." },
+    "c": { "text": "Incorrect. The conversion functions page does not document day clamping for date and time(from); it returns null when the string is not a valid calendar date, rather than adjusting the day to 30." },
+    "d": { "text": "Incorrect. The function does not raise an incident on an invalid calendar date; the conversion functions page states it returns null, allowing FEEL evaluation to continue and the caller to handle the null result." }
+  },
+  "explanation": "date and time(from: string): date and time parses the given string into a date and time, and returns null if the string is not a valid calendar date. The conversion functions page cites \"2024-06-31T10:00:00\" as invalid because June has only 30 days and shows date and time(\"2018-04-29T09:30:00\") returning date and time(\"2018-04-29T09:30:00\").",
+  "docs": [
+    { "title": "FEEL built-in functions: conversion", "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-conversion/" }
+  ]
+}

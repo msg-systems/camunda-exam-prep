@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q43",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A custom Java Connector has an Element Template property bound via zeebe:input named apiUrl. The Connector function needs to read this at execution time.",
+  "question": "Which Connector SDK API exposes the bound input to Java code?",
+  "options": [
+    {
+      "id": "a",
+      "text": "*}} placeholder resolution) into the class instance fields. Alternatively, use field-level annotations such as @TemplateProperty for declarative metadata like validation rules, default values, and UI grouping. This pattern is type-safe, IDE-friendly, and clearly documents the connector's expected input contract."
+    },
+    {
+      "id": "b",
+      "text": "getenv(\"apiUrl\") -- environment variables are JVM-process-wide configuration that applies to every instance of the connector regardless of the process data. Connector inputs bound via zeebe:input are per-job-instance values that differ between different process instances and activations. They are passed in the job's activation payload, not set as environment variables. getenv() would either return null (if the variable isn't set) or return a hardcoded global value that ignores the per-instance BPMN configuration entirely."
+    },
+    {
+      "id": "c",
+      "text": "Parse the BPMN XML at runtime by fetching the process definition from the Zeebe API and deserialising the XML to extract the zeebe:input element value for apiUrl. The Connector SDK entirely abstracts away the BPMN XML representation. By the time the execute(context) method is called, the SDK has already resolved the element template bindings, applied Input Mappings, and evaluated any FEEL expressions. The context object provides type-safe access to the resolved input values without any need for raw BPMN XML parsing."
+    },
+    {
+      "id": "d",
+      "text": "Configure an Output Mapping on the task to receive the apiUrl as a process variable when the connector completes -- Output Mapping controls what the connector writes back to process scope after completion. Output Mappings extract values from the connector's result and propagate them as process variables. bindVariables() via the Input Mapping declared in the element template's zeebe:input binding."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Connector SDK exposes a type-safe binding API. The canonical pattern: declare a Java class (e.g., MyConnectorInput) with fields matching template properties; in execute(context), call context.bindVariables(MyConnectorInput.class) to get a populated instance. Annotations like @TemplateProperty declare per-field metadata (validation, default values, group). This approach is type-safe, IDE-supported, and refactor-friendly."
+    },
+    "b": {
+      "text": "Incorrect. Environment variables aren't Connector inputs. Connectors operate per-task-instance; env vars are JVM-process-wide."
+    },
+    "c": {
+      "text": "Incorrect. SDK abstracts the BPMN; you don't parse it manually."
+    },
+    "d": {
+      "text": "Incorrect. Output Mapping comes after task completion; inputs come from zeebe:input mappings + context."
+    }
+  },
+  "explanation": "Connector SDK exposes a type-safe binding API. The canonical pattern: declare a Java class (e.g., MyConnectorInput) with fields matching template properties; in execute(context), call context.bindVariables(MyConnectorInput.class) to get a populated instance. Annotations like @TemplateProperty declare per-field metadata (validation, default values, group). This approach is type-safe, IDE-supported, and refactor-friendly.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q43",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

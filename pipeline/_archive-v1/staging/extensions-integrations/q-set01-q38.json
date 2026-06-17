@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q38",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team is computing a customer's monthly spending category breakdown using FEEL. The input is a process variable transactions -- a list of objects, each with category (string) and amount (number). The team needs to produce a single FEEL expression returning a filtered subset: only the transactions where category is \"groceries\" AND amount > 50.",
+  "question": "Which FEEL expression is correct?",
+  "options": [
+    {
+      "id": "a",
+      "text": "return projection with conditional. return construct is a mapping/projection operation in FEEL -- it applies a transformation to each element and always produces a list of the same length as the input. Using a conditional inside it produces a list where non-matching items become null rather than being excluded. To get a clean filtered list, you would then need a second step: for t in transactions return ... = null] or use count. This two-step approach is verbose and non-idiomatic compared to the bracket filter syntax which directly yields only matching items."
+    },
+    {
+      "id": "b",
+      "text": "amount > 50) -- JavaScript-style filter. FEEL is not JavaScript. reduce() methods -- these functional-style methods belong to JavaScript/TypeScript array prototypes. The -> arrow function syntax is also JavaScript/TypeScript. In FEEL, the logical AND operator is the literal word and (not &&), OR is or (not ||), and NOT is not(expression). This expression would cause a FEEL parse error at evaluation time and is a classic \"trapping by language familiarity\" distractor."
+    },
+    {
+      "id": "c",
+      "text": "category = \"groceries\"] -- bracket comprehension syntax. FEEL has no bracket comprehension syntax in the form [variable in collection : predicate]. This syntax resembles Python list comprehensions or certain functional DSL patterns but is absent from FEEL. A search across the Camunda FEEL documentation (docs/components/modeler/feel/) yields zero hits for this pattern. The correct FEEL list filter syntax is list[predicate] -- square brackets after the list expression with the predicate referencing item fields implicitly via the special item variable, not through an explicit comprehension declaration."
+    },
+    {
+      "id": "d",
+      "text": "md:75: \"the current element is assigned to the variable item and its entries can be accessed by their key\". amount -- without needing an explicit loop variable declaration. The FEEL engine evaluates the predicate for each element and includes only elements where the predicate returns true. The result is a properly filtered list containing only matching transaction objects."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL's list filter syntax uses square brackets after the list expression with a predicate inside. The predicate references item attributes implicitly (no need for variable name like t) -- FEEL implicitly scopes each item's fields and binds the per-item element to item per feel-list-expressions.md:75. Multi-condition filters use FEEL's logical operators and, or. This produces a filtered list of matching items."
+    },
+    "b": {
+      "text": "Incorrect. The for...return is projection (mapping) per feel-control-flow.md:35-53, not filter -- with the conditional it produces a list with nulls for non-matching items. Need [remove null values] post-filter or use the bracket filter directly."
+    },
+    "c": {
+      "text": "Incorrect. FEEL is not JavaScript. There is no .filter() method on lists, no -> arrow functions, and && is and in FEEL."
+    },
+    "d": {
+      "text": "Correct. FEEL does not have bracket-comprehension syntax [a in b : c]. Grep across docs/components/modeler/feel/ returns 0 hits. The bracket-on-list form list[predicate] is the filter syntax (option a), not comprehension."
+    }
+  },
+  "explanation": "FEEL does not have bracket-comprehension syntax [a in b : c]. Grep across docs/components/modeler/feel/ returns 0 hits. The bracket-on-list form list[predicate] is the filter syntax (option a), not comprehension.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-list-expressions/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q38",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

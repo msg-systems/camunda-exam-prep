@@ -1,0 +1,50 @@
+{
+  "id": "ext-writing-good-workers-105",
+  "topic": "extensions-integrations",
+  "subtopic": "job-streaming",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Workers on a large Zeebe cluster see noticeable delays — on the order of seconds — before a new job is picked up, even with long polling enabled. Which change does the docs recommend?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Enable job streaming so jobs are pushed from the broker to workers instead of relying on per-partition long polling."
+    },
+    {
+      "id": "b",
+      "text": "Increase the long-polling timeout so each poll waits longer for jobs to appear."
+    },
+    {
+      "id": "c",
+      "text": "Have each worker poll every partition more aggressively (shorter interval) so new jobs are found faster."
+    },
+    {
+      "id": "d",
+      "text": "Reduce the number of partitions in the cluster so there are fewer endpoints for the worker to poll."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs' performance best-practice recommendation for reducing job activation latency is to enable job streaming. Long polling forces workers to periodically poll every partition; on large clusters this adds delay in the order of seconds, which job streaming eliminates."
+    },
+    "b": {
+      "text": "Longer poll timeouts only change how long an idle request waits; they do not solve the per-partition polling overhead the docs call out."
+    },
+    "c": {
+      "text": "More aggressive polling is precisely what the docs warn against — it increases broker load when no jobs are available without actually solving the latency on large clusters."
+    },
+    "d": {
+      "text": "Reducing partition count is a major topology change with throughput and fault-tolerance trade-offs; the docs do not propose it as the latency fix here."
+    }
+  },
+  "explanation": "On large clusters, long polling forces workers to poll every partition and balance aggression with broker load, which can add delays measured in seconds. The docs' explicit performance best-practice fix is to enable job streaming, so jobs are pushed to workers as soon as they appear.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

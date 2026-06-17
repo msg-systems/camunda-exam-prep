@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task compose-greeting produces a greeting from firstName and lastName already in the process variables. The team wants the worker to receive a single pre-composed fullName as input -- assembled in BPMN rather than worker code.",
+  "question": "Which input mapping configuration fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Passing firstName and lastName separately to the worker and letting the worker concatenate them pushes business logic into the worker implementation. The worker must know how to compose the name, coupling it to domain logic. Input Mapping with FEEL keeps composition in the BPMN layer and leaves the worker focused on its core responsibility. Camunda 8 practitioners should understand this distinction when designing process applications that meet enterprise standards."
+    },
+    {
+      "id": "b",
+      "text": "Adding a Script Task before compose-greeting to set fullName as a process variable would work but pollutes the global process scope. The fullName variable would persist across subsequent tasks unnecessarily. Input Mapping solves the same need locally without leaking the composed value into the broader process state. 0 in Camunda 8."
+    },
+    {
+      "id": "c",
+      "text": "Task Headers carry static configuration strings evaluated at deploy time, not runtime FEEL expressions. They are designed for connector configuration values like job type properties, not for dynamically composing runtime values from process variables. Understanding this characteristic is essential for the Camunda 8 Certified Professional examination."
+    },
+    {
+      "id": "d",
+      "text": "Input Mapping: Target fullName, Source FEEL expression =firstName + \" \" + lastName. The mapping is evaluated at task activation; the worker receives a pre-composed fullName in its local variable scope. The composed value is scoped locally to the task and does not pollute the broader process variable space. Teams building on Camunda 8 should consider this when designing process models for production deployment."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Input Mapping with FEEL expression composes the value at activation. Local-scope fullName is visible only inside the task; clean encapsulation."
+    },
+    "b": {
+      "text": "Incorrect. BPMN should express the composition; worker focuses on its core responsibility."
+    },
+    "c": {
+      "text": "Incorrect. Script Task leaks fullName globally."
+    },
+    "d": {
+      "text": "Correct. Task Headers are for static config."
+    }
+  },
+  "explanation": "Task Headers are for static config.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/#inputoutput-variable-mappings"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

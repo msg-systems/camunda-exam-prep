@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A health-insurance carrier evaluates pre-authorization requests against a DMN Decision Table medical-necessity. Each row encodes a condition (diagnosis code, treatment type, age range, plan tier) and yields output \"approved\" or \"requires_review\". The compliance officer specifies: \"If MULTIPLE rules match a request, ALL matching rules MUST yield the SAME output -- otherwise the table is logically inconsistent and should error out.\" This guarantees the rule set is unambiguous.",
+  "question": "Which Hit Policy enforces this \"multiple-match-must-agree\" semantics?",
+  "options": [
+    {
+      "id": "a",
+      "text": "ANY -- multiple rules can simultaneously match the same input, but the DMN engine verifies that all matching rule outputs are identical. When all matching outputs agree, the engine returns that single agreed-upon value as the decision result. If any two matching rules produce different outputs, the engine raises an evaluation error -- signalling a logical inconsistency in the rule table. \""
+    },
+    {
+      "id": "b",
+      "text": "UNIQUE -- exactly one rule must match; if multiple rules match the same input the engine raises an evaluation error. UNIQUE forbids multiple matches entirely -- it would reject valid cases where two or more rules correctly match the same request. The compliance officer's requirement explicitly allows multiple matches as long as they all agree on the output, which UNIQUE cannot accommodate."
+    },
+    {
+      "id": "c",
+      "text": "PRIORITY -- multiple rules can match simultaneously; the engine returns the output with the highest declared priority from among all matching rules. PRIORITY selects a single winner from multiple matches based on a predefined priority ordering -- it does not verify that all matching outputs agree. Two rules with different outputs can both match and PRIORITY would silently return one without any agreement check or error."
+    },
+    {
+      "id": "d",
+      "text": "COLLECT with no aggregator -- returns a list containing all outputs from all matching rules. COLLECT aggregates all matching outputs into a list without checking whether those outputs are consistent with each other. Two rules that matched could return contradictory outputs and COLLECT would include both in the list without raising an error. This does not enforce the agreement requirement the compliance officer specified."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The ANY hit policy allows multiple rules to match but enforces that all matching outputs are identical -- semantically \"any of the matches gives the right answer because they all agree\". If the outputs disagree, the DMN engine raises an evaluation error (indicating the rule set has a consistency bug). This precisely matches the compliance officer's requirement: multiple matches are allowed, but the answer must be unambiguous."
+    },
+    "b": {
+      "text": "Incorrect. UNIQUE forbids multiple matches entirely -- different semantics. Compliance officer wants multiple OK, just must agree."
+    },
+    "c": {
+      "text": "Incorrect. PRIORITY picks one winner among multiple matches based on output priority -- doesn't enforce agreement."
+    },
+    "d": {
+      "text": "Incorrect. COLLECT returns a list of all outputs without checking agreement."
+    }
+  },
+  "explanation": "The ANY hit policy allows multiple rules to match but enforces that all matching outputs are identical -- semantically \"any of the matches gives the right answer because they all agree\". If the outputs disagree, the DMN engine raises an evaluation error (indicating the rule set has a consistency bug). This precisely matches the compliance officer's requirement: multiple matches are allowed, but the answer must be unambiguous.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

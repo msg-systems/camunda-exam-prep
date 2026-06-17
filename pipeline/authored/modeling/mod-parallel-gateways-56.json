@@ -1,0 +1,50 @@
+{
+  "id": "mod-parallel-gateways-56",
+  "topic": "modeling",
+  "subtopic": "parallel gateways",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "negative",
+  "camundaVersion": "8.8",
+  "question": "A process has a parallel (AND) gateway splitting into three outgoing sequence flows, joined later by a second parallel gateway. Which statement about this construct in Camunda 8.8 is NOT true?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Entering the split gateway causes all three outgoing sequence flows to be taken concurrently."
+    },
+    {
+      "id": "b",
+      "text": "The join gateway waits until each of its incoming sequence flows has been taken before continuing."
+    },
+    {
+      "id": "c",
+      "text": "The concurrent paths run as concurrent tokens on the same Zeebe partition, not as parallel OS threads."
+    },
+    {
+      "id": "d",
+      "text": "The split gateway evaluates each outgoing flow's condition expression and takes only those whose condition is `true`."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "True. When a parallel gateway with multiple outgoing sequence flows is entered, all flows are taken and the resulting paths execute concurrently and independently."
+    },
+    "b": {
+      "text": "True. A parallel join waits at the gateway until each incoming sequence flow has been taken before the instance continues."
+    },
+    "c": {
+      "text": "True. The docs note that outgoing paths of a parallel gateway are concurrent rather than parallel in the sense of OS threads; all records of a process instance are written to the same partition."
+    },
+    "d": {
+      "text": "False. Parallel gateways do not evaluate conditions on their outgoing flows. Conditional routing is the job of exclusive or inclusive gateways; a parallel gateway always activates all outgoing flows."
+    }
+  },
+  "explanation": "A parallel (AND) gateway unconditionally splits the flow into all of its outgoing sequence flows and joins by waiting until each incoming flow has produced a token. It never inspects condition expressions on its outgoing flows — that is the role of exclusive and inclusive gateways. The concurrency is logical: records run on a single Zeebe partition, not on separate OS threads.",
+  "docs": [
+    {
+      "title": "BPMN parallel gateways",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/parallel-gateways/"
+    }
+  ]
+}

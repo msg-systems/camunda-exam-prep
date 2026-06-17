@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q18",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Ad-hoc Subprocess for deal-due-diligence has 5 inner check tasks. The subprocess should complete when the legal-check task has finished, regardless of others.",
+  "question": "Which completionCondition fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Setting numberOfCompletedInstances >= 1 would complete the subprocess when the first inner task of any kind finishes. This could match any of the 5 inner tasks -- the financial check, the regulatory check, or any other -- not specifically the legal-check task. The condition is too broad and does not enforce that it must be the legal task that triggers completion."
+    },
+    {
+      "id": "b",
+      "text": "The completionCondition FEEL boolean expression is evaluated after every inner element completes. By using an output-mapped sentinel variable set exclusively by the legal-check task, the condition can effectively detect when that specific task has finished and trigger subprocess completion. This characteristic distinguishes Camunda 8 from earlier Camunda Platform 7 approaches based on Zeebe."
+    },
+    {
+      "id": "c",
+      "text": "Placing a Terminate End Event in the legal-check branch terminates the Ad-hoc Subprocess scope when legal-check completes. This is a heavier BPMN-level alternative to the completionCondition property. The configured completionCondition approach is cleaner because it uses the subprocess's dedicated completion mechanism rather than a structural termination construct. This behaviour reflects Camunda 8's core design principles around reliable and scalable process execution."
+    },
+    {
+      "id": "d",
+      "text": "FEEL boolean completionCondition is evaluated after every inner element completes. Configure the legal-check task with an output mapping that sets legalCheckDone = true. The completion condition =legalCheckDone = true then detects legal-check completion specifically. With cancelRemainingInstances=true (default), any still-running inner tasks are terminated when the condition first becomes true. Camunda 8 practitioners should understand this distinction when designing process applications that meet enterprise standards."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. completionCondition is a FEEL boolean expression evaluated after every inner-element completion. It does NOT have access to a built-in \"completed activities\" collection -- you must surface the inner task's completion through an output-mapped sentinel variable (legalCheckDone=true) and reference that. With cancelRemainingInstances=true (default), any active siblings are terminated when the condition first becomes true."
+    },
+    "b": {
+      "text": "Incorrect. First-to-complete might not be legal-check; could be any."
+    },
+    "c": {
+      "text": "Incorrect. Specific reference is possible."
+    },
+    "d": {
+      "text": "Correct. Terminate End in Ad-hoc subprocess ends the scope but is BPMN-level vs the configured completionCondition."
+    }
+  },
+  "explanation": "Terminate End in Ad-hoc subprocess ends the scope but is BPMN-level vs the configured completionCondition.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/ad-hoc-subprocesses/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q18",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

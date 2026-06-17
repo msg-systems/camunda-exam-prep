@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q07",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team migrating a complex BPMN process from Camunda 7 to Camunda 8 encounters Multi-Instance configuration that worked in 7 but fails to deploy in 8. The Camunda 7 model has a Multi-Instance Service Task with these BPMN extension properties: `xml ` When imported into Camunda 8 Web Modeler and deployed, the engine rejects the model with \"missing multi-instance input collection\". The developer is puzzled -- the collection IS specified.",
+  "question": "What is the correct Camunda 8 Multi-Instance syntax?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The syntax is identical between Camunda 7 and 8; the deployment failure is from a different cause. The BPMN extension namespaces are genuinely different between the two versions. 0). Zeebe silently ignores elements from unrecognised namespaces, which is precisely why the collection appears configured but fails at runtime."
+    },
+    {
+      "id": "b",
+      "text": "There is no such pre-population requirement. The Multi-Instance loop characteristics configuration directly specifies the FEEL expression for the input collection inline, using zeebe:inputCollection=\"=items\" where the = prefix denotes a FEEL expression. No Script Task intermediary is needed."
+    },
+    {
+      "id": "c",
+      "text": "Multi-Instance is fully supported in Camunda 8 (Zeebe) for both sequential and parallel modes. The issue is not missing support but rather a namespace migration trap: properties must be declared using zeebe:inputCollection and zeebe:inputElement rather than the Camunda 7 equivalents."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 uses Zeebe namespace extensions: zeebe:inputCollection=\"=items\" and zeebe:inputElement=\"item\" where the = prefix denotes a FEEL expression rather than the JUEL ${} syntax used in Camunda 7. The Camunda 7 camunda:collection and camunda:elementVariable properties are silently ignored by Zeebe because they belong to a different XML namespace that Zeebe does not parse. This namespace mismatch is the root cause of the runtime error."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 7 and Camunda 8 use different BPMN XML extension namespaces. Camunda 7's camunda: extensions (e.g., camunda:collection, camunda:elementVariable) belong to the http://camunda.org/schema/1.0/bpmn namespace. Camunda 8's zeebe: extensions belong to http://camunda.org/schema/zeebe/1.0. Zeebe silently ignores anything not in its namespace -- the deployment \"succeeds\" structurally but the Multi-Instance has no recognised collection binding, producing the runtime error. Plus FEEL syntax replaces JUEL: =items (FEEL expression prefix) instead of ${items} (JUEL)."
+    },
+    "b": {
+      "text": "Incorrect. The syntaxes are genuinely different; namespace + expression language both changed."
+    },
+    "c": {
+      "text": "Incorrect. No pre-population requirement -- the Multi-Instance is configured with the collection FEEL expression directly."
+    },
+    "d": {
+      "text": "Correct. Camunda 8 fully supports Multi-Instance with its own configuration namespace."
+    }
+  },
+  "explanation": "Camunda 8 fully supports Multi-Instance with its own configuration namespace.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q07",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

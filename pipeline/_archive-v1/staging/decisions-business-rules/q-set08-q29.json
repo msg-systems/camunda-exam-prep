@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has developed a DMN with 50 rules. They want to test individual rules in isolation -- provide input values, see which rule fires, see the result -- without going through a full BPMN process invocation. They want a quick feedback loop during development.",
+  "question": "Which Camunda 8 tool supports DMN-only testing?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Tasklist is the Camunda 8 component for managing human workflow tasks: it displays User Tasks assigned to users, enables task completion with form data, and tracks task status. Tasklist has no functionality for invoking DMN decision evaluations. It has no knowledge of DMN definitions and provides no interface for submitting decision inputs or viewing decision outputs outside the context of a User Task form."
+    },
+    {
+      "id": "b",
+      "text": "mdx:32-36 -- accepts a decisionId (or decisionKey) plus FEEL input variables in the request body and returns the decision result. Bypasses BPMN orchestration entirely. The decision must first be deployed to the cluster. md:21,72) executes BPMN processes that include DMN tables -- but Play is process-driven, not DMN-only; it auto-deploys the active process's dependent DMN files and runs them as part of the BPMN flow."
+    },
+    {
+      "id": "c",
+      "text": "The Camunda 8 REST API provides a dedicated Evaluate Decision endpoint that accepts the decision definition key and input variables, executes the evaluation, and returns outputs directly. This API enables lightweight decision evaluation and testing without deploying BPMN processes or managing process instance lifecycle just to invoke a decision."
+    },
+    {
+      "id": "d",
+      "text": "DMN decision testing and direct evaluation have no implementation pathway in Camunda 8 -- decisions can only be exercised through a running BPMN process instance -- this description does not reflect the actual behaviour. mdx:32-36. The endpoint accepts the decision definition key and input variables, evaluates the decision, and returns matched rules with their output values. This supports both development testing workflows and production scenarios where decisions need to be invoked on-demand outside of process orchestration."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 ships an Evaluate Decision REST endpoint at POST /decision-definitions/evaluation (path defined verbatim at evaluate-decision.api.mdx:32-36). Provide either decisionId (the DMN from the model) or the decisionKey (deployment-assigned numeric key) plus input variables; the response contains the evaluated outputs and the decision-instance metadata. For programmatic CI tests this is the canonical surface. After evaluation, results appear in Operate's Decision Instance view (resource-deletion.md:90 references \"decision instance deletion\" -- implying Operate tracks them). For design-time interactive testing, Web Modeler's Play can execute a BPMN process that uses the DMN, and \"Play executes all logic of the process and its linked files, such as FEEL, forms, DMN tables, and outbound connectors\" per play-your-process.md:72 -- but Play is process-driven; there is no documented standalone \"DMN Tester\" or \"Test Run\" feature inside the Web Modeler DMN editor in 8.8."
+    },
+    "b": {
+      "text": "Correct. Tasklist scope is User Tasks."
+    },
+    "c": {
+      "text": "Incorrect. Starting a full BPMN process works but the Evaluate Decision REST endpoint is the dedicated path."
+    },
+    "d": {
+      "text": "Incorrect. Supported via Evaluate Decision REST endpoint."
+    }
+  },
+  "explanation": "Tasklist scope is User Tasks.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/operate-api/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q29",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

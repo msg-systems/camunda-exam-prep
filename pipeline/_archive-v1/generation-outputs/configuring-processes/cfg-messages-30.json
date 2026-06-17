@@ -1,0 +1,27 @@
+{
+  "id": "cfg-messages-30",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Quanta Payments runs 12000 transactions per day in Camunda 8.8 across 3 deployed versions of the same payment process and a developer must understand how a single published message is correlated when several subscriptions match on the same BPMN process across these versions.",
+  "question": "How does Camunda 8 correlate one published message when several subscriptions exist on the same BPMN process across multiple instances or versions?",
+  "options": [
+    { "id": "a", "text": "The message is correlated to every open subscription on every instance of the process, allowing fan-out across all versions in parallel by the broker" },
+    { "id": "b", "text": "The message is correlated to the newest version of the process only, with subscriptions on older versions skipped by the broker silently at correlation time" },
+    { "id": "c", "text": "The message is correlated only once to a given process (by BPMN process ID) across all versions of that process, so only one of the matching subscriptions receives it" },
+    { "id": "d", "text": "The message is correlated only to the instance that has been waiting the shortest amount of time, applying a freshness rule per process definition on the broker" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The cardinality section states a message is correlated only once to a process across all versions, not fanned out to every matching subscription on that process at the same time." },
+    "b": { "text": "Incorrect. Version is not the selector; correlation is per BPMN process ID across all versions and only one of the matching subscriptions is chosen by the broker." },
+    "c": { "text": "Correct. The Message cardinality section states a message is correlated only once to a process based on the BPMN process ID across all versions, so only one of multiple matching subscriptions receives it." },
+    "d": { "text": "Incorrect. The docs do not describe a freshness rule based on waiting time; selection is per BPMN process ID across versions with no time-based tie-breaker documented in the section." }
+  },
+  "explanation": "Message cardinality states that a message is correlated only once to a process (by BPMN process ID) across all versions. If multiple subscriptions on the same process are open, only one of them receives the message. When subscriptions exist on different processes, the message is correlated to all of them.",
+  "docs": [
+    { "title": "Messages", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+  ]
+}

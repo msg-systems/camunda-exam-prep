@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process has an Embedded Subprocess \"Validate Order.\" Inside, a Service Task throws a BPMN error \"INVALID_FORMAT\". There's no Error Boundary inside the subprocess but there IS an Error Boundary on the subprocess element itself (in the parent scope). The team wonders how propagation works.",
+  "question": "What's the error propagation path from inside the subprocess?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Error is lost because no Error Boundary exists inside the subprocess -- this misunderstands BPMN scope propagation. When an activity throws a BPMN error and no matching boundary event exists at that activity's level, the error propagates upward to the enclosing scope rather than disappearing. The error travels through the scope hierarchy until a matching Error Boundary Event catches it or it becomes an unhandled incident at the process root."
+    },
+    {
+      "id": "b",
+      "text": "Error stops at the subprocess border without firing -- this confuses error boundary catching with blocking. The Error Boundary on the subprocess element is specifically designed to catch errors propagating out of the subprocess's interior. When an error reaches the boundary, it fires and cancels the subprocess scope (if interrupting). It does not silently block or discard the error; it actively handles it."
+    },
+    {
+      "id": "c",
+      "text": "The error propagates upward through scope boundaries: from the throwing Service Task → looking for matching Error Boundary on the task itself (none) → propagating to the subprocess scope → looking for Error Boundary on the subprocess (found, matching errorCode) → boundary fires; the entire subprocess is cancelled (interrupting boundary) and flow routes via the boundary's outgoing arrow."
+    },
+    {
+      "id": "d",
+      "text": "Errors only propagate one level up from where they originate -- this limits the actual BPMN scope hierarchy traversal. This means an error thrown deep inside a nested subprocess hierarchy can bubble all the way to the root process scope before being caught."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN error propagation follows the scope hierarchy: 1. Throwing activity: when a Service Task / Send Task / etc. throws an error (via worker job.error() call), the engine first checks for matching Error Boundary Events on that specific activity. 2. If no match: error propagates to the enclosing scope (the subprocess containing the activity). 3. At subprocess scope: engine checks for matching Error Boundary on the subprocess element itself, OR Error Start Event in an Event Subprocess at this scope level. 4. If no match: continues propagating upward to grandparent scope. 5. At process root, unmatched: produces an Incident (unhandled error). For the scenario: error → no inner boundary → up to subprocess scope → Error Boundary on subprocess (with matching errorCode) catches → interrupting boundary cancels the entire subprocess (and all activities still running inside) → flow routes via boundary's outgoing arrow. This hierarchy enables layered error handling: specific activities catch specific errors; subprocess-level boundaries catch \"anything from inside this subprocess\"; process-level boundaries catch \"anything from the whole process.\""
+    },
+    "b": {
+      "text": "Incorrect. Propagation continues."
+    },
+    "c": {
+      "text": "Correct. Propagation reaches subprocess border and the boundary catches."
+    },
+    "d": {
+      "text": "Incorrect. Multi-level propagation."
+    }
+  },
+  "explanation": "Propagation reaches subprocess border and the boundary catches.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q02",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

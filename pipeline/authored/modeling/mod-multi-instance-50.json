@@ -1,0 +1,53 @@
+{
+  "id": "mod-multi-instance-50",
+  "topic": "modeling",
+  "subtopic": "multi-instance",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A parallel multi-instance service task is configured with `inputCollection = items` and `inputElement = item`. When the multi-instance body activates, the variable `items` evaluates to `[]`. What happens?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The multi-instance body is completed immediately and no instances are created; the activity behaves as if it were skipped."
+    },
+    {
+      "id": "b",
+      "text": "The engine waits at the multi-instance body until `items` becomes non-empty before creating any instances."
+    },
+    {
+      "id": "c",
+      "text": "An incident is raised because `inputCollection` must contain at least one element."
+    },
+    {
+      "id": "d",
+      "text": "A single instance is created with `item = null` so that the activity is still executed once."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "If the `inputCollection` value is empty, the multi-instance body is completed immediately and no instances are created; the docs describe this as the activity behaving like it is skipped."
+    },
+    "b": {
+      "text": "The `inputCollection` expression is evaluated when the multi-instance body is activated. The engine does not wait for the variable to change later."
+    },
+    "c": {
+      "text": "An empty `inputCollection` is a normal, supported case. It does not raise an incident; it simply skips the activity."
+    },
+    "d": {
+      "text": "No fallback instance with `item = null` is created. With zero elements, zero instances are created and the body completes."
+    }
+  },
+  "explanation": "Camunda 8.8 evaluates the multi-instance `inputCollection` expression once, when the multi-instance body is activated. If the result is an empty array, the body completes immediately with no inner instances created — effectively skipping the activity — and `outputCollection`, if defined, is propagated as an empty array.",
+  "docs": [
+    {
+      "title": "BPMN multi-instance",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "inputCollection: = items\ninputElement:    item"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Java Spring Zeebe worker handles process-payment. The worker needs to call a PaymentService Spring bean. They wonder about dependency injection. Can Spring Zeebe workers use @Autowired (Spring DI)?",
+  "question": "Can Spring Zeebe workers use @Autowired (Spring DI)?",
+  "options": [
+    {
+      "id": "a",
+      "text": "When using the Camunda Spring Boot Starter (formerly Spring Zeebe), worker classes are standard Spring-managed beans. They can be annotated with @Component or @Service and use @Autowired for field injection, or rely on constructor injection for their dependencies. The @JobWorker annotation on a method tells the Camunda Spring Boot Starter to subscribe that method as a Zeebe task handler. The full Spring application context is available, including other beans, repositories, configuration properties, and transactional support. Workers integrate seamlessly with the entire Spring ecosystem."
+    },
+    {
+      "id": "b",
+      "text": "Camunda Spring Boot Starter workers are standard Spring-managed beans with full Spring DI support. 8. Worker classes are annotated with @Component or @Service, and their dependencies are injected via @Autowired or constructor injection. The @JobWorker annotation on a method registers it as a Zeebe task handler. The full Spring application context is available: other beans, repositories, @Value configuration properties, transactional support via @Transactional, AOP interceptors, and Spring Security. Workers integrate seamlessly with the entire Spring ecosystem."
+    },
+    {
+      "id": "c",
+      "text": "Claiming that only constructor injection is supported in Spring Zeebe workers is only partially correct. The Camunda Spring Boot Starter workers are standard Spring beans and support all three standard Spring injection styles: field injection via @Autowired on instance fields, constructor injection via a constructor with Spring-managed parameters, and setter injection via @Autowired on setter methods. While constructor injection is the recommended style for testability and immutability, the framework does not restrict workers to constructor injection only. Field injection and setter injection are equally functional, just less preferred from a design perspective."
+    },
+    {
+      "id": "d",
+      "text": "Manually created instances are not managed by the Spring container, meaning they do not benefit from Spring's transaction management, AOP proxies, configuration injection, lifecycle callbacks, or scope management. While the code technically compiles and may run, it bypasses the benefits of the IoC container and creates tightly coupled, harder-to-test code. Using @Autowired or constructor injection with Spring-managed beans is the correct approach and requires no additional configuration beyond registering the worker class as a Spring component."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Spring Zeebe is built on Spring Boot; worker classes are first-class Spring beans: @Component / @Service: register the worker class as Spring bean. @Autowired (field / constructor / setter): inject any other Spring beans. @JobWorker annotation: tells Spring Zeebe to subscribe this method to a Zeebe task type. @Variable annotation: inject process variables as method parameters. Full Spring features available: Dependency injection: services, repositories, configuration. Aspects: AOP for cross-cutting concerns (logging, transactions). Profiles: @Profile(\"prod\") for env-specific beans. Configuration: @ConfigurationProperties for typed config. Best practices: Constructor injection preferred: makes dependencies explicit; easier to test. Avoid field injection in production code: harder to test; reflection-based. Don't new services in handlers: defeats DI. Example with constructor injection: `java @Component public class PaymentWorker { private final PaymentService paymentService; public PaymentWorker(PaymentService paymentService) { this.paymentService = paymentService; } @JobWorker(type = \"process-payment\") public PaymentResult handle(@Variable String orderId) { return paymentService.process(orderId); } } ` Standard Spring DI integration -- Spring Zeebe doesn't reinvent the wheel."
+    },
+    "b": {
+      "text": "Correct. DI works."
+    },
+    "c": {
+      "text": "Incorrect. All injection styles work."
+    },
+    "d": {
+      "text": "Incorrect. works but defeats DI."
+    }
+  },
+  "explanation": "DI works.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q41",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[2]"
+      }
+    ]
+  }
+}

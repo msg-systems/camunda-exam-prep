@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q44",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "SDK auth fails: \"Invalid OAuth client credentials.\" Team wonders error handling approach.",
+  "question": "SDK invalid OAuth client error handling?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Camunda 8 SDK silently ignores invalid OAuth client credentials and continues trying indefinitely without surfacing an error â€” this approach has limitations. When the Camunda SDK encounters invalid OAuth credentials (wrong client ID, wrong client secret, wrong token URL), it throws an authentication exception during the credentials refresh cycle. The exception is propagated to the worker or client code. Workers attempting to activate jobs will encounter authentication errors and the errors will surface through the exception handler or error callback. Teams should implement proper error handling and alerting for authentication failures."
+    },
+    {
+      "id": "b",
+      "text": "The SDK does implement token caching and token refresh for OAuth credentials: when a cached token expires, the SDK automatically fetches a new one before the next API call."
+    },
+    {
+      "id": "c",
+      "text": "g. ClientStatusException wrapping a 401/403, or token-fetch HTTP exception from the OAuth credentials provider). Worker won't activate jobs: continuously fails to authenticate. Logs: SDK logs auth errors prominently. Diagnosis: verify credentials, OAuth endpoint (auth URL), audience, network access. Recovery: fix credentials in config; restart or token refresh on next attempt."
+    },
+    {
+      "id": "d",
+      "text": "Authentication errors propagate as exceptions (typically ClientStatusException or OAuth token fetch failures) and are logged prominently. , if @Deployment fails on startup and is not wrapped in error handling). Worker job activation loops simply stop activating jobs while auth is broken. The proper resolution is to fix credentials in configuration and restart, not to crash-handle the exception."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. SDK auth error handling: Auth failure modes: Mode 1: Initial auth fails at startup: SDK attempts token fetch when first API call needed. Returns 401 / auth error. Symptoms: workers can't activate jobs; client APIs fail. Mode 2: Token refresh fails (expired credentials): Auto-refresh (per Set 14 Q44) attempts; fails. Existing token expired; new auth blocked. Symptoms: working app suddenly stops processing. Mode 3: OAuth endpoint unreachable: Network issue to token endpoint. Symptoms: timeout errors; auth never succeeds. Common causes: Wrong credentials: Client ID / secret typo. Wrong environment (dev credentials in prod). Credentials revoked. Wrong OAuth endpoint: Misconfigured token URL. Wrong cluster region. Wrong audience: Audience mismatch with target API. Auth provider rejects. Network issues: Firewall blocks OAuth endpoint. DNS resolution fails. Scope / permissions issues: Credentials valid but lack required scopes. Auth succeeds; subsequent API calls fail with 403. SDK behavior: Exceptions thrown: AuthorizationException or similar. Status codes: 401 (auth fail), 403 (forbidden). Wraps original error: HTTP response details. Logging: SDK typically logs auth failures at WARN / ERROR. Sensitive data redaction: don't log secrets (per Set 13 Q11 LOGFIRE_TRACKING). Retry behavior: Per-call retry: SDK may retry once with new token. No infinite retry: avoid hammering OAuth endpoint. Eventually: surface error to caller. Diagnosis steps: Step 1: Verify credentials: Echo (carefully) client ID; check expected value. Don't log secret in plain text. Step 2: Test OAuth endpoint: `bash curl -X POST \\ -d \"grant_type=client_credentials\" \\ -d \"client_id=$CLIENT_ID\" \\ -d \"client_secret=$CLIENT_SECRET\" \\ -d \"audience=zeebe.camunda.io\" ` Get token manually; verify works. Step 3: Check config: Token URL correct. Audience correct. Network: can reach OAuth provider? Step 4: Logs: SDK logs detail. Look for response body (may include \"invalid_client\" or similar). Step 5: Audit trail: When was secret last rotated? Did anything in OAuth provider change? Recovery: Immediate: Fix credentials in config (env vars / secrets manager). Restart app or wait for token refresh attempt. Long-term: Alerting on auth failures: alert when error rate spikes. Credential rotation: scheduled rotation. Audit access: who can update credentials. Monitoring: Track auth success / fail metrics. Alert on auth fail rate > threshold. Dashboard for OAuth health. Application response: For workers: SDK keeps retrying; jobs not processed. Health endpoint: report unhealthy. Don't crash app: maintain liveness; allow ops to fix. For client APIs: First call after auth failure: error returned. Caller decides: retry, escalate, alert. For the scenario (Invalid OAuth credentials): Don't silently continue: surface error. Log clearly: ops sees auth issue. Fix credentials: most common cause. Restart or retry: pick up new credentials. Best practices: Centralised secret management: easy rotation. Monitor auth health: catch issues early. Test credentials in CI: smoke-test auth. Document recovery runbook: clear steps. Anti-patterns: Silent failures: process broken; no one notices. Logging full secrets: security risk. No alerting: long outages."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q44",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

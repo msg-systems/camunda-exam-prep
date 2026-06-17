@@ -1,0 +1,27 @@
+{
+  "id": "cfg-messages-20",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "easy",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Retailer routes anonymous 'kiosk opened' events into a Camunda 8.8 message start event during a marketing campaign that produces about 1200 events per hour. The publishing service sends each message with an empty correlationKey, no messageId, and a TTL set to 0, and the retailer wants to confirm what the broker will do for every such publish.",
+  "question": "What does the broker do when a message with an empty correlationKey, no messageId, and TTL set to 0 is published against a message start event?",
+  "options": [
+    { "id": "a", "text": "The broker drops the message because an empty correlationKey is reserved for intermediate catch events that subscribe explicitly to the empty string value" },
+    { "id": "b", "text": "The broker queues the message until a process instance with an empty correlationKey is created and only then correlates the queued publication to that instance" },
+    { "id": "c", "text": "The broker promotes the publish into a synchronous correlate call and returns the new process instance key over the same connection before continuing execution" },
+    { "id": "d", "text": "The broker starts a new process instance for every such publish without any uniqueness check or correlationKey collision check against active instances" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The correlation overview table lists both start events and intermediate events as valid receivers for empty correlation keys; the publish is not dropped because the key is empty." },
+    "b": { "text": "Incorrect. With an empty correlationKey, no messageId, and TTL of zero against a start event, the documented behavior is to start a new instance immediately, not queue against future instances." },
+    "c": { "text": "Incorrect. Publishing a message is a fire-and-forget action and the publish endpoint does not switch into a synchronous correlate response based on the value of the correlation key." },
+    "d": { "text": "Correct. The overview table row for empty correlation key, no messageId, TTL set to 0, start event states simply that a new instance is started, with no buffer or active-instance check applied." }
+  },
+  "explanation": "When the correlation key is the empty string, no message ID is set, and TTL is zero, the messages overview table prescribes that a new process instance is started for a message start event receiver, without any uniqueness or active-instance check.",
+  "docs": [
+    { "title": "Messages", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "id": "imp-set14-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Spring Zeebe worker uses @Variable for individual variables vs @VariablesAsType for whole object. Team wonders when to use which.",
+  "question": "Spring Zeebe @Variable vs @VariablesAsType?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Identical -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "g. g. @VariablesAsType OrderVars vars). Use @Variable for selective, typed access to specific variables; use @VariablesAsType when you need many variables mapped to a structured object. 8."
+    },
+    {
+      "id": "c",
+      "text": "The Camunda Spring Boot Starter supports both @Variable (individual variable binding) and @VariablesAsType (full typed deserialization into a POJO) in job handler method parameters. Restricting usage to only @Variable would prevent developers from leveraging typed POJO deserialization, which improves readability and type safety when a task requires access to multiple variables as a structured object. Both annotations are valid and serve different use cases."
+    },
+    {
+      "id": "d",
+      "text": "@VariablesAsType is a current, supported annotation in the Camunda Spring Boot Starter and has not been deprecated. It enables job handler methods to receive all process variables deserialized into a typed POJO, simplifying handlers that work with structured variable sets. The annotation is documented alongside @Variable as a first-class binding mechanism. Claiming deprecation without evidence creates confusion and may discourage teams from using a useful feature."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Variable injection styles in Spring Zeebe: @Variable (single variable): `java @JobWorker(type = \"process-order\") public Map handle( @Variable String orderId, @Variable BigDecimal amount, @Variable String customerId ) { // use orderId, amount, customerId } Each annotation binds one process variable. Type conversion attempted (JSON → Java type). Pros: explicit; minimal data brought into handler. Cons: many annotations if handler needs many variables. @VariablesAsType (whole object): java public class OrderContext { private String orderId; private BigDecimal amount; private Customer customer; // getters / setters } @JobWorker(type = \"process-order\") public Map handle( @VariablesAsType OrderContext order ) { // use order.getOrderId() etc. } All process variables mapped to a single typed object. Type conversion via Jackson (typical) -- JSON deserialisation. Pros: clean code; type-safe; works with nested structures. Cons: brings all variables (may be inefficient if many unused); fragile if process variables change shape. When to use @Variable: Few variables: 1-3 specific values. Simple types: strings, numbers, booleans. Cherry-pick: only what's needed. Performance: minimal data transfer. When to use @VariablesAsType: Many related variables: structured business data. Complex types: nested objects, lists. Type safety: prefer object-oriented access. Code clarity: less ceremony than many @Variable annotations. Combine both: java @JobWorker(type = \"process-order\") public Map handle( @Variable String orderId, @VariablesAsType OrderDetails details ) { // orderId for logging // details for richer access } Return value handling: Handler returns Map → variables to set in process scope. Or annotated POJO with @VariablesAsType return (verify version). Customising serialisation: Jackson annotations on POJO: @JsonIgnore, @JsonProperty, etc. Custom serialisers / deserialisers for special types. Edge cases: Missing variable: @Variable: may inject null or throw (configurable). @VariablesAsType: missing fields → null in POJO. Type mismatch: @Variable: type conversion fails → error. @VariablesAsType: Jackson deserialisation may fail; handle exceptions. Naming: @Variable(\"explicit_name\"): override default (parameter name). @VariablesAsType: field names match variable names; use Jackson annotations for renames. Best practices: Match style to needs: prefer @Variable for simple cases. Use POJOs for structured data: cleaner code. Document POJO contracts: process variables must match POJO shape. Versioning: changing POJO shape may break in-flight workers. Other annotations: @CustomHeaders: inject task headers. @ActivatedJob job`: access raw job object for advanced needs."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q41",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 19 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 24.6 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

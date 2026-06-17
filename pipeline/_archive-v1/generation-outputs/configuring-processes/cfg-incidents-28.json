@@ -1,0 +1,27 @@
+{
+  "id": "cfg-incidents-28",
+  "topic": "configuring-processes",
+  "subtopic": "incidents",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Insurance processes 6500 claims per day in Camunda 8.8 and finds that a malformed payload broke a job worker on the underwriting service task. The job has 0 retries left, an incident is open in Operate, and the operator needs to follow the documented sequence to clear it on the affected process instance.",
+  "question": "Which sequence resolves a job-related incident caused by malformed variables on a process instance?",
+  "options": [
+    { "id": "a", "text": "Update the process instance variables, increase the job retries, then mark the incident as resolved so the worker can activate the job again" },
+    { "id": "b", "text": "Mark the incident as resolved first, then update the process instance variables, then increase the job retries on the failing job key" },
+    { "id": "c", "text": "Increase the job retries first, then mark the incident as resolved, then update the process instance variables on the activity scope" },
+    { "id": "d", "text": "Update the process instance variables, terminate the failing job key, then create a copy incident that the next worker can activate" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The Resolving a job-related incident steps are: update the variables of the process instance, increase the remaining retries of the job, then mark the incident as resolved. When the incident is resolved, the job can be activated by a worker again." },
+    "b": { "text": "Incorrect. Resolving the incident first would trigger a retry against the unchanged variables and produce a new incident; the docs require fixing the variables and retries before marking it resolved." },
+    "c": { "text": "Incorrect. Increasing retries and resolving before updating variables retries the job against the same broken payload, so the documented order keeps the variable update first." },
+    "d": { "text": "Incorrect. There is no documented terminate-and-copy step; the documented flow updates variables, increases retries, and marks the existing incident as resolved." }
+  },
+  "explanation": "For a variable-related job incident, the documented resolution updates the process instance variables, increases the remaining retries of the job, then marks the incident as resolved so the worker can activate the job again. Operate is the recommended tool, and the client API offers SetVariables, UpdateRetries, and ResolveIncident commands.",
+  "docs": [
+    { "title": "Incidents", "url": "https://docs.camunda.io/docs/components/concepts/incidents/" }
+  ]
+}

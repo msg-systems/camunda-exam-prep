@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q44",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Java Job Worker handles validate-document Service Tasks. The validation produces multiple possible outcomes: SUCCESS, INVALID_FORMAT, EXPIRED, MISSING_DATA. Each outcome should route to a different BPMN path. The team wants the BPMN to use exclusive gateway routing on a clean validationStatus variable.",
+  "question": "Which Job Worker handler pattern produces the cleanest BPMN?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Job Worker throws a BPMN Error with a distinct errorCode for each non-success outcome (INVALID_FORMAT, EXPIRED, MISSING_DATA), and the Service Task has three Error Boundary Events -- one per errorCode -- each routing to the appropriate downstream path. While this technically routes to different paths, it conflates normal business outcomes with exceptional error conditions. BPMN Errors semantically represent unexpected exceptions; using them for normal outcomes like \"document expired\" makes the diagram misleading and harder for business analysts to read."
+    },
+    {
+      "id": "b",
+      "text": "The worker returns the complete validation report object containing all ~50 fields (field-by-field validation results, error codes, timestamps, audit data), and the BPMN Exclusive Gateway evaluates complex FEEL expressions on the raw report object to determine routing. This violates separation of concerns: gateway routing logic should be simple and readable by business analysts. Encoding multi-field validation logic in FEEL gateway conditions makes the diagram opaque, puts business logic in the wrong layer, and tightly couples the BPMN to the validation report schema."
+    },
+    {
+      "id": "c",
+      "text": "Worker returns {validationStatus: \"SUCCESS\"} (or \"INVALID_FORMAT\" / \"EXPIRED\" / \"MISSING_DATA\") as the job-complete variable. The BPMN model has a single Exclusive Gateway after the Service Task that evaluates =validationStatus with four outgoing sequence flows -- one per enum value. Each flow leads to the appropriate downstream handling path. Clean separation: the worker encapsulates validation logic and returns a status; the BPMN gateway handles routing based on that status."
+    },
+    {
+      "id": "d",
+      "text": "For non-success validation outcomes, the worker fails the job with retries=0, immediately creating a Zeebe Incident on the Service Task. An operations person monitors Operate for these incidents, reads the failure message to determine the validation outcome, then manually resolves the incident by modifying a variable and resuming. This misuses the Incident mechanism, which is designed for technical failures requiring remediation, not for normal business routing. It creates operational overhead for every document processed that is not SUCCESS."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Clean separation of concerns: Worker computes the business outcome and returns a simple status enum + supporting variables. BPMN gateway routes on the status. The diagram is readable, business analysts see the routing logic clearly."
+    },
+    "b": {
+      "text": "Incorrect. BPMN Errors are for exceptional cases, not normal business outcomes. Treating \"INVALID_FORMAT\" as an error makes the BPMN harder to read and conflates error handling with normal routing."
+    },
+    "c": {
+      "text": "Correct. Complex FEEL on raw validation reports in the gateway puts business logic in the wrong place."
+    },
+    "d": {
+      "text": "Incorrect. Failing the job creates Incidents; non-success is normal business outcome, not failure."
+    }
+  },
+  "explanation": "Complex FEEL on raw validation reports in the gateway puts business logic in the wrong place.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q44",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-29",
+  "topic": "connectors",
+  "subtopic": "custom-runtime",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A team wraps their `MyConnectorFunction` in `ConnectorJobHandler` and opens a `CamundaClient` job worker on job type `io.camunda:template:1`. Which capabilities does `ConnectorJobHandler` provide out of the box?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It bypasses secret replacement; the function must call `SecretProvider.replaceAll(...)` itself before reading any variable."
+    },
+    {
+      "id": "b",
+      "text": "It provides an `OutboundConnectorContext`, defaults secret management to an environment-variable store (overridable via the `SecretProvider` SPI), and handles Result Variable, Result Expression, and Error Expression mapping."
+    },
+    {
+      "id": "c",
+      "text": "It only handles result mapping; secrets must be wired manually through a separate `SecretStore` bean."
+    },
+    {
+      "id": "d",
+      "text": "It replaces the `CamundaClient` entirely; the `main` method must not construct a `CamundaClient` when this handler is used."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "The handler does the opposite of bypassing secrets — it performs secret replacement on the function's behalf, using the configured `SecretProvider`."
+    },
+    "b": {
+      "text": "The docs list these as the explicit benefits of `ConnectorJobHandler`: it provides an `OutboundConnectorContext` that handles the Camunda-internal job-worker variable API, defaults to an environment-variables-based secret store (overridable via the `io.camunda.connector.api.secret.SecretProvider` SPI), handles result mapping for Result Variable / Result Expression, and supports BPMN error handling via Error Expression."
+    },
+    "c": {
+      "text": "The handler covers secrets, result mapping, and BPMN-error mapping — not just result mapping. There is no `SecretStore` bean concept in this section."
+    },
+    "d": {
+      "text": "The docs' example explicitly constructs a `CamundaClient` (via `CamundaClient.newClientBuilder().build()`) and opens a worker that uses the handler; the client is required, not replaced."
+    }
+  },
+  "explanation": "`ConnectorJobHandler` wraps an `OutboundConnectorFunction` so it can be registered on a Zeebe/Camunda job worker. It provides an `OutboundConnectorContext` for variables, performs secret management with an environment-variables default (overridable via the `SecretProvider` SPI), and handles both result mapping (Result Variable and Result Expression) and BPMN-error handling (Error Expression). The docs include a runnable example that builds a `CamundaClient` and opens a worker on the job type matching the template's `zeebe:taskDefinition.type`.",
+  "docs": [
+    {
+      "title": "Connector SDK",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

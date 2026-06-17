@@ -1,0 +1,25 @@
+{
+  "id": "con-rest-17",
+  "topic": "connectors",
+  "subtopic": "rest",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Halcyon Bank, a self-managed bank with 1,200 engineers on staff, configures Camunda 8.8 to route outbound REST traffic through a corporate proxy via JVM properties so the whole JVM runtime is proxied. The platform team must keep Camunda's internal traffic direct so the Zeebe broker and Keycloak login flows are not blocked by the proxy on the way out of the cluster.",
+  "question": "Which value for the http.nonProxyHosts JVM property keeps internal Camunda traffic from being routed through the proxy?",
+  "options": [
+    { "id": "a", "text": "http.nonProxyHosts must contain camunda-platform-zeebe|camunda-platform-keycloak so the JVM bypasses the proxy for traffic to those internal hostnames" },
+    { "id": "b", "text": "http.nonProxyHosts must contain camunda-zeebe,camunda-keycloak using a comma-separated list of literal internal hostnames as the bypass entries" },
+    { "id": "c", "text": "http.nonProxyHosts must contain *.camunda.local so every Camunda component matches a single wildcard pattern under the local domain for the bypass" },
+    { "id": "d", "text": "http.nonProxyHosts must contain CONNECTOR_HTTP_NON_PROXY_HOSTS=camunda-platform-zeebe to mirror the connector environment variable inside the JVM property value" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The docs note explicitly that, when using JVM properties for the proxy, http.nonProxyHosts must contain camunda-platform-zeebe|camunda-platform-keycloak (pipe separator) so the JVM bypasses the proxy when Camunda components talk to Zeebe and Keycloak internally." },
+    "b": { "text": "Incorrect. The non-proxy hosts list uses a pipe (|) as the pattern separator (not commas), and the documented hostnames are the longer camunda-platform-zeebe and camunda-platform-keycloak rather than shorter aliases." },
+    "c": { "text": "Incorrect. A *.camunda.local wildcard does not match the documented internal service names; the docs require the exact patterns camunda-platform-zeebe and camunda-platform-keycloak to appear in the bypass list." },
+    "d": { "text": "Incorrect. The JVM property value is the bypass-host list itself, not the name of the connector environment variable; CONNECTOR_HTTP_NON_PROXY_HOSTS is configured separately and does not belong inside the JVM property value." }
+  },
+  "explanation": "When configuring a self-managed proxy via JVM properties, http.nonProxyHosts takes a pipe-separated list of host patterns that should bypass the proxy. The docs add an explicit requirement: this list must contain camunda-platform-zeebe|camunda-platform-keycloak so Camunda's internal traffic to Zeebe and Keycloak still flows directly, regardless of the proxy.",
+  "docs": [ { "title": "REST connector", "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/" } ]
+}

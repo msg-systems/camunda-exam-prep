@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q54",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A help-desk team's Tasklist shows 50 unassigned tasks. The team uses round-robin distribution. They wonder if Tasklist can auto-claim tasks for users based on rules (load balancing across candidates).",
+  "question": "Does Tasklist support auto-claim / auto-distribution of tasks?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Tasklist's default behavior requires users to explicitly claim a task before working on it. Auto-claim behavior, where the system automatically assigns tasks to users without explicit human action, is not a built-in default across all Tasklist versions. Where auto-distribution is needed, it must be implemented either through BPMN-driven assignmentDefinition FEEL expressions that compute the assignee at task activation, or through external logic that polls the Tasklist API and uses the assign API to distribute unassigned tasks according to a distribution algorithm."
+    },
+    {
+      "id": "b",
+      "text": "Multiple mechanisms enable automated task distribution. The BPMN zeebe:assignmentDefinition attribute supports a FEEL expression for the assignee field that can compute the target user dynamically at task activation based on business rules, database queries, or round-robin counters. Additionally, custom external services can poll the Tasklist API for unassigned tasks and call the assignment API to distribute them. Native auto-claim features may also be available in specific Tasklist versions."
+    },
+    {
+      "id": "c",
+      "text": "Using BPMN's assignmentDefinition with a FEEL expression to compute the assignee at task activation is a valid and effective approach for automated task distribution, but it represents only one of several available mechanisms. This approach computes the assignee before the task lands in Tasklist, so the task arrives pre-assigned. Neither mechanism is exclusively correct; they address different distribution timing and complexity requirements."
+    },
+    {
+      "id": "d",
+      "text": "Auto-claim and task auto-distribution behavior in Camunda 8 depends on the Tasklist version and the integration approach used. The BPMN zeebe:assignmentDefinition attribute supports a FEEL expression for the assignee field that computes the target user at task activation time -- this is BPMN-driven pre-assignment rather than Tasklist runtime auto-claim. For round-robin distribution across a pool of candidates, an external service can poll the Tasklist API for unassigned tasks and call the assignment API to distribute them programmatically. Some specific Tasklist versions may also offer native auto-claim configuration."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Auto-distribution of tasks in Camunda 8 spans multiple layers: BPMN-driven (compile / activation time): zeebe:assignmentDefinition assignee=\"=...FEEL...\" -- assignee evaluated at task activation. Logic: FEEL expression / DMN call returns assignee (e.g., least-loaded user from queue length, round-robin counter, business rules). Compute the assignee BEFORE the task lands in Tasklist; task arrives pre-assigned. External orchestration: Custom service polls Tasklist API for unassigned tasks; applies distribution algorithm; calls assign API. Sophisticated: factor user availability, skill match, current load, fairness. Externalises the distribution logic; flexible. Tasklist native features: Verify per version -- Tasklist may add auto-claim / auto-distribution features over time. Workforce management integration: Enterprise scenarios: integrate with WFM systems (Verint, Calabrio, etc.) that handle agent allocation. Camunda exposes tasks via API; WFM consumes; assigns; calls back to Camunda. For 50 tasks round-robin: Simple: external service polls every minute; assigns next task to next user in rotation. Stateful counter or random selection. Skill-aware: match task type / priority to user capabilities. Load-balanced: query current load per user; assign to least-loaded. Choose by complexity needs."
+    },
+    "b": {
+      "text": "Incorrect. Explicit claim default."
+    },
+    "c": {
+      "text": "Incorrect. Achievable."
+    },
+    "d": {
+      "text": "Correct. One approach."
+    }
+  },
+  "explanation": "One approach.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q54",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

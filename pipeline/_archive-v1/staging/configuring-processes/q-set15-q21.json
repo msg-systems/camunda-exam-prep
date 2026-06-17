@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Multi-Instance subprocess has variables: outer commonData (set before MI), each iteration has its own itemDetails. Team wonders variable visibility -- can inner iteration write to outer?",
+  "question": "MI variable scope -- inner to outer write?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Multi-Instance variables are all shared in the parent scope â€” inner variables are visible to all parallel instances simultaneously â€” this approach has limitations. Each Multi-Instance element instance has its own isolated variable scope. , customer) is scoped to its individual instance and not visible to sibling instances or the parent process directly. To write data back to the parent scope, the outputElement and outputCollection configuration must be used. Direct assignment to parent scope variables from inside an MI instance requires careful use of variable output mappings; without proper mapping, inner scope changes are lost when the instance completes."
+    },
+    {
+      "id": "b",
+      "text": "Each MI iteration has its own scope in Camunda 8: iterations read outer-scope variables (process scope, MI scope) but writes default to iteration-local scope. The outputCollection configuration on the MI element collects per-iteration outputs into a list at outer scope: outputElement names the iteration variable whose value is collected; at MI completion, the outer outputCollection variable contains a list of all per-iteration results. For sequential MI, Output Mapping at iteration end can write to outer scope (safe -- no concurrency). For parallel MI, avoid direct outer-scope writes from iterations -- race conditions occur; use outputCollection aggregation instead."
+    },
+    {
+      "id": "c",
+      "text": "MI iteration variable writes automatically propagate to the outer process scope -- this approach has limitations. Variable writes within an MI iteration land in the iteration-local scope by default and do not automatically propagate to the outer scope. This is by design to prevent race conditions in parallel MI where multiple iterations might attempt to write to the same outer variable simultaneously. Outer-scope updates from iterations require explicit mechanisms: outputCollection/outputElement configuration for aggregating results, or Output Mapping on the iteration's activities for controlled writes in sequential mode."
+    },
+    {
+      "id": "d",
+      "text": "MI iterations have no access to outer process variables -- they operate in complete isolation -- this approach has limitations. MI iterations DO have read access to outer process scope variables through standard variable inheritance in Camunda 8. An iteration can read commonData defined in the outer process scope, numberOfInstances from the MI scope, and loopCounter (current iteration index). The isolation applies to writes: iterations cannot write directly to outer variables without explicit configuration (outputCollection or Output Mapping). Read access from inner to outer scope is part of standard Camunda 8 variable scoping behavior."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. MI variable scope: Scope hierarchy in MI: ` Process scope (commonData, customerId, etc.) └─ MI subprocess scope (numberOfActiveInstances, outputCollection, etc.) └─ Iteration scope #1 (itemDetails, localResult) └─ Iteration scope #2 (itemDetails, localResult) └─ ... Inner reads outer (typical scope inheritance): Iteration #1 can read commonData from process scope. Iteration #1 can read numberOfActiveInstances from MI scope. Inner writes to iteration scope only: Default behavior. Each iteration's localResult doesn't conflict with others. Each iteration's writes don't bleed up. Collecting iteration outputs: outputCollection (configured on MI): Specifies a list variable at outer scope. Each iteration contributes one element. outputElement (per iteration): Specifies variable within iteration scope whose value goes into outputCollection. Example: xml Each iteration: item = current item. During iteration, set result variable (workers / tasks). At iteration end: result value collected. At MI end: results (outer) contains list of all results. For shared writes across iterations: Problem: Iteration A writes counter = 5. Iteration B doesn't see counter = 5; sees its own scope. Solutions: Solution 1: External storage: Workers write to shared DB. All iterations see same DB state. Solution 2: Use outputCollection: Each iteration's output collected. After MI: aggregate via FEEL (sum, etc.). Solution 3: Sequential MI with accumulator: Sequential mode. Each iteration reads accumulator from outer; updates; writes back via Output Mapping. Pitfalls: Pitfall 1: Race conditions in parallel MI: Parallel iterations writing to same outer variable: race. Avoid: use outputCollection or external sync. Pitfall 2: Variable shadowing: Outer has data; iteration creates local data. Inner references see iteration's data, not outer. Watch for accidental shadowing. Pitfall 3: outputCollection in Sequential: Each iteration appends to outputCollection. Engine handles atomically. For parallel: still atomic typically; verify. Best practices: Use outputCollection for aggregation: standard pattern. Avoid mutating outer state from inner: causes races. External storage for complex shared state. Document expected scope: clarifies for readers. MI special variables (available to iterations): loopCounter: index of current iteration (1-based typical). numberOfInstances: total iterations. numberOfActiveInstances: currently running. numberOfCompletedInstances: done. For sequential MI accumulator pattern: xml Inside iteration: Read accumulator from outer. Compute new value. Output Mapping: accumulator = new_value` (writes to outer). Next iteration sees updated accumulator. Works because sequential -- no race. For parallel MI: Can't safely update single outer variable from multiple iterations. Use outputCollection + aggregate after."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q21",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

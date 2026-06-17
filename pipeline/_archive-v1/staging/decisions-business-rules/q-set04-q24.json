@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q24",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An insurance-rate decision table has 8 rules. The team wants the result to be the sum of all matching rules' premium amounts (additive pricing model).",
+  "question": "Which hit policy + aggregator fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "COLLECT without an aggregator returns a list of all matching rule output values rather than a single aggregated number. When multiple discount rules match, the result is a list such as [5, 3, 2] instead of the summed value 10. To use this result in a calculation, downstream FEEL expressions would need to sum the list manually using the sum() function. COLLECT SUM handles the summation natively within the DMN evaluation, eliminating the need for post-evaluation FEEL aggregation."
+    },
+    {
+      "id": "b",
+      "text": "PRIORITY hit policy requires the decision table to define an output order for each possible output value. Among all matching rules, it returns the output with the highest declared priority rank. This suits scenarios where competing rules should yield the most preferred outcome rather than combining all contributions."
+    },
+    {
+      "id": "c",
+      "text": "COLLECT with SUM aggregator accumulates the numeric outputs of all matching rules by addition. Every rule whose input conditions evaluate to true contributes its output value to the running total. The final result is the arithmetic sum of all matching rule outputs. This precisely models additive discount scenarios where multiple qualifying conditions each contribute a percentage discount that should be stacked. COLLECT SUM is the canonical DMN pattern for additive policy evaluation."
+    },
+    {
+      "id": "d",
+      "text": "RULE ORDER hit policy returns all matching rule outputs as a list ordered by the sequence in which the rules appear in the decision table, from top to bottom. Like COLLECT without aggregator, it produces a list rather than a scalar result. It preserves rule-position ordering in the output list, useful when consuming code depends on processing outputs in table-definition order. For an additive discount calculation, RULE ORDER provides no summation -- the caller must perform the sum manually. ###"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. COLLECT with SUM aggregator returns the sum of all matching rules' output values. Designed for additive aggregation scenarios."
+    },
+    "b": {
+      "text": "Incorrect. COLLECT without aggregator returns a list; the question asks for a sum."
+    },
+    "c": {
+      "text": "Correct. PRIORITY picks one based on priority order."
+    },
+    "d": {
+      "text": "Incorrect. RULE ORDER returns a list ordered by rule order."
+    }
+  },
+  "explanation": "PRIORITY picks one based on priority order.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q24",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

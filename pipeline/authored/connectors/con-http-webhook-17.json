@@ -1,0 +1,50 @@
+{
+  "id": "con-http-webhook-17",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An HTTP Webhook connector is attached to a plain **start event** (no message definition). The **Response expression** references the `correlation` object. Which properties does `correlation` expose in this case?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`processInstanceKey` and `tenantId`."
+    },
+    {
+      "id": "b",
+      "text": "`messageKey` and `tenantId`."
+    },
+    {
+      "id": "c",
+      "text": "`jobKey` and `workerId`."
+    },
+    {
+      "id": "d",
+      "text": "`correlation` is always empty for a start event without a message definition."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Per the docs, a start event without a message definition creates a new process instance, so the `correlation` object exposes `processInstanceKey` together with `tenantId`, e.g. `{\"processInstanceKey\": 6755399441144562, \"tenantId\": \"<default>\"}`."
+    },
+    "b": {
+      "text": "`messageKey` and `tenantId` are returned for a **start event with a message definition**, which correlates by publishing a message — not for the plain start event in this scenario."
+    },
+    "c": {
+      "text": "There are no `jobKey` or `workerId` fields on the webhook `correlation` object; those concepts belong to job workers, not inbound connector responses."
+    },
+    "d": {
+      "text": "`correlation` is populated for a plain start event with the new `processInstanceKey`; it is only empty when a request is reprocessed under the same Message ID."
+    }
+  },
+  "explanation": "In the HTTP Webhook **Response expression**, the available `correlation` object depends on the BPMN element. A start event without a message definition triggers a new process instance, so `correlation` carries `processInstanceKey` and `tenantId`. A start event with a message definition uses message publishing under the hood, so `correlation` carries `messageKey` and `tenantId` (and is empty on a repeated Message ID).",
+  "docs": [
+    {
+      "title": "HTTP Webhook inbound connector",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ]
+}

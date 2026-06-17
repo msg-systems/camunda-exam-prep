@@ -1,0 +1,50 @@
+{
+  "id": "cfg-feel-built-in-functions-conversion-138",
+  "topic": "configuring-processes",
+  "subtopic": "feel-built-in-functions-conversion",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Orion Insurance evaluates renewal anniversaries on Camunda 8.8 over 4500 policies per day and assembles dates from numeric fields like year=2012, month=12, day=25 on the process instance. A modeller needs the documented behaviour of the date(year, month, day) signature on the conversion functions page, in particular what the function returns when components do not represent a valid calendar date such as 2024,6,31.",
+  "question": "What does the conversion functions page state date(year, month, day) returns for valid components and for invalid components such as 2024,6,31?",
+  "options": [
+    {
+      "id": "a",
+      "text": "date(year, month, day) returns the assembled date for valid components and clamps the day to the last day of the month for invalid components, so date(2024, 6, 31) returns date(\"2024-06-30\") and date(2012, 12, 25) returns date(\"2012-12-25\")"
+    },
+    {
+      "id": "b",
+      "text": "date(year, month, day) returns the assembled date for valid components and raises an incident on the process instance for invalid components such as 2024,6,31, so date(2012, 12, 25) returns date(\"2012-12-25\") and date(2024, 6, 31) interrupts the FEEL evaluation"
+    },
+    {
+      "id": "c",
+      "text": "date(year, month, day) returns a FEEL date for valid components and returns null when the components do not represent a valid calendar date, so date(2012, 12, 25) returns date(\"2012-12-25\") and date(2024, 6, 31) returns null on the conversion functions page"
+    },
+    {
+      "id": "d",
+      "text": "date(year, month, day) returns the assembled date for valid components and rolls overflow days into the next month for invalid components, so date(2024, 6, 31) returns date(\"2024-07-01\") and date(2012, 12, 25) returns date(\"2012-12-25\")"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The conversion functions page does not document day clamping; the function returns null when components do not represent a valid calendar date such as 2024,6,31, rather than adjusting the day to 30."
+    },
+    "b": {
+      "text": "Incorrect. The function does not raise an incident on invalid components; the conversion functions page states it returns null, leaving the FEEL evaluation to continue and the caller to handle the null result."
+    },
+    "c": {
+      "text": "Correct. The conversion functions page documents date(year: number, month: number, day: number): date and states that the function returns null if the components do not represent a valid calendar date, citing 2024,6,31 as invalid because June has only 30 days. It shows date(2012, 12, 25) returning date(\"2012-12-25\")."
+    },
+    "d": {
+      "text": "Incorrect. The conversion functions page does not document overflow roll-over; the function returns null when components do not represent a valid calendar date such as 2024,6,31, rather than rolling the day into the next month."
+    }
+  },
+  "explanation": "date(year: number, month: number, day: number): date returns a date from the given components, and returns null if the components do not represent a valid calendar date. The conversion functions page cites 2024,6,31 as invalid because June has only 30 days and shows date(2012, 12, 25) returning date(\"2012-12-25\").",
+  "docs": [
+    {
+      "title": "FEEL built-in functions: conversion",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-conversion/"
+    }
+  ]
+}

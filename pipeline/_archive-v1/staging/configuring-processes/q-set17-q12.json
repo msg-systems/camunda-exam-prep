@@ -1,0 +1,56 @@
+{
+  "id": "imp-set17-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Process has root variables + subprocess local variables. Same name temp at both levels. Team wonders which one seen by inner activity.",
+  "question": "Variable scope shadowing?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Variables in Camunda 8 always resolve to the root process scope regardless of where the reading activity is located -- this does not accurately reflect the behavior. Variable resolution follows a scope chain starting from the innermost enclosing scope outward to the root. An activity inside a subprocess first looks for the variable in the subprocess local scope. Only when no local variable with the matching name exists does the engine fall back to the parent scope, continuing outward until the root. Claiming that root always wins would break the scope-shadowing behavior that Camunda explicitly supports for subprocess isolation."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 raises a runtime error when the same variable name exists at both subprocess and root scope levels -- this does not accurately reflect the behavior. This is the normal variable shadowing behavior: the innermost scope takes precedence, and the outer value is not visible to activities within the inner scope. No error is raised and no conflict is detected at runtime. This allows subprocesses to use local working variables without polluting or conflicting with root process variables."
+    },
+    {
+      "id": "c",
+      "text": "Inner scope shadows outer (per scope inheritance per Set 13 Q21): when a variable with the same name exists in both the subprocess scope and the root process scope, the activity inside the subprocess reads the subprocess-local value. The outer root value is shadowed but not overwritten. This is identical to variable shadowing in programming languages where the innermost enclosing scope wins. To avoid accidental shadowing, best practice is to use distinct variable names at different scope levels."
+    },
+    {
+      "id": "d",
+      "text": "Variable resolution is non-deterministic when the same name exists at multiple scope levels -- this does not accurately reflect the behavior. Variable resolution in Camunda 8 is fully deterministic following a well-defined scope chain: innermost matching scope first, then parent scopes outward to root. There is no randomness. The behavior is consistent and predictable across all executions, making it safe to reason about scope hierarchies when variable names are carefully managed."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Variable scoping rules: Scope hierarchy: ` Process root scope └─ Subprocess scope └─ Activity scope └─ ... Lookup order: 1. Current scope (activity / event subprocess). 2. Enclosing scope (subprocess). 3. Process root. First match wins. Shadowing example: Process root: temp = \"outer\" Subprocess scope: temp = \"inner\" (created via Input Mapping etc.) Inside subprocess: [Service Task reading temp] → \"inner\" Subprocess temp shadows root temp. For different names: Process root: outerData = \"X\" Subprocess: innerData = \"Y\" Inside subprocess: outerData → \"X\" (from root) innerData → \"Y\" (from subprocess) No shadowing; both accessible. For writes: Output Mapping creates in target scope. Default: writes to enclosing scope. Explicit: can target specific scope. For Multi-Instance (per Set 14 Q21): Each iteration own scope. inputElement: per-iteration variable. Doesn't shadow outer typically (different names usually). For Event Subprocess: Event Subprocess has own scope. Same shadowing rules. Common shadowing scenarios: Scenario 1: Input Mapping creates local: Subprocess Input Mapping: temp = \"inner value\" Now subprocess scope has temp. Inside: reads \"inner value\". Scenario 2: Activity Input Mapping: Activity Input Mapping: temp = \"activity local\" Just for this activity scope. Other activities don't see this temp. Scenario 3: Worker creates local: Workers typically write to process scope (via complete). Direct local creation: less common. For debugging shadowing: Operate variables panel: shows scope per variable. Identify: which scope has which value. For best practices: Use distinct names: avoid accidental shadowing. Document scope intentions: which variables where. Test scopes explicitly: verify behavior. For deliberately scoping: Pattern: Subprocess Input Mapping rename: Subprocess Input Mapping: Source: =outerData Target: localData (different name) Avoid shadowing; clear naming. For propagating changes: To outer scope: Subprocess Output Mapping: Source: =localData Target: outerData Explicit write back. For nested scopes: Process root: x = 1 Subprocess 1: x = 2 (shadow) Subprocess 2: x = 3 (shadow) Activity reads x: → 3 Nearest wins. Anti-patterns: Accidental same-name across scopes: subtle bugs. No scope awareness: unexpected values. Shadowing important vars: hard to debug. For FEEL evaluation: Same scoping rules. Variable references: resolved per scope. For Decision invocation: Variables passed: per Input Mapping on Business Rule Task. Decision scope: typically root-level inputs. For Call Activity: Separate process instance: different scope entirely. No shadowing across: explicit Input/Output Mapping. For Operate clarity: Shows scope per variable: useful for diagnosis. Filter by scope: see what's where. For the scenario (same name temp at two levels): Inner activity reads: subprocess-local temp. Shadows root temp`. Root unchanged: still there if no subprocess scope override. For removing shadowing: Rename one: clearer. Document: if intentional shadowing."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q12",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

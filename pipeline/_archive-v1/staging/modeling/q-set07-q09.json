@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q09",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A user-onboarding process is required by SLA to complete within 7 days from instance start. If the 7 days elapse and the process is still running, the entire process must be aborted and the user notified that onboarding timed out. The 7-day cap applies to the whole process, not to any individual task.",
+  "question": "Which BPMN construct fits the overall process-level timeout?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No such attribute exists; the dueDate property belongs to User Tasks and is used by Tasklist purely for display purposes such as \"overdue\" badges and sorting priority. It does not trigger any automatic cancellation or timer behaviour at the process scope level. A BPMN-native timer mechanism is required for actual process-level timeout enforcement in Camunda 8."
+    },
+    {
+      "id": "b",
+      "text": "Wrap the entire process flow (or the relevant section) in a Subprocess and attach an Interrupting Timer Boundary Event with duration P7D to that subprocess. The Timer fires exactly 7 days from subprocess start; being interrupting, it cancels the entire subprocess scope (and all its inner activities) and routes execution via the boundary's outgoing arrow to a \"notify timeout\" path. Wrapping the full main flow gives \"from instance start\" measurement semantics because the subprocess starts when the process starts."
+    },
+    {
+      "id": "c",
+      "text": "Attach a 7-day Interrupting Timer Boundary Event to each task individually -- wasteful and incorrect because this caps each task at 7 days independently (so individual tasks could each take 7 days), not the overall process at a cumulative 7 days total. If task A takes 6 days and task B takes 2 days, the total is 8 days but no individual timer fires. This does not enforce an overall process-level deadline."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 has no mechanism for process-level timeouts -- all timeouts are necessarily task-scoped and there is no pattern for enforcing a cumulative process duration cap. This significantly overstates the limitation: the subprocess-wrap plus Interrupting Timer Boundary Event is the canonical, fully-supported BPMN pattern for expressing process-level timeouts in Camunda 8. Any ISO 8601 duration such as P7D is accepted by the timer configuration."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The canonical pattern for \"process-level overall timeout\" in BPMN: wrap the work in a Subprocess element, attach an Interrupting Timer Boundary Event with the duration. The boundary fires once the timer expires (measured from subprocess start). Being interrupting, it cancels the entire subprocess scope -- all inner activities, in any state -- and routes via the boundary's outgoing arrow to a timeout-handler path. Crucially, the timer starts when the subprocess starts, so wrapping the entire main flow gives you the \"from instance start\" semantics."
+    },
+    "b": {
+      "text": "Correct. There's no native process-level due-date attribute in Camunda 8 that triggers auto-cancellation. User Tasks have dueDate attributes (used by Tasklist for display: \"overdue\" badges, sorting); they don't auto-cancel anything."
+    },
+    "c": {
+      "text": "Incorrect. Per-task Timer Boundaries time each task individually. If task A takes 6 days and task B takes 2 days, that's 8 days total -- but each individual task is under 7 days, so per-task timers don't fire. The aggregate overrun is unbounded."
+    },
+    "d": {
+      "text": "Incorrect. The subprocess + boundary pattern achieves process-level timeout cleanly."
+    }
+  },
+  "explanation": "There's no native process-level due-date attribute in Camunda 8 that triggers auto-cancellation. User Tasks have dueDate attributes (used by Tasklist for display: \"overdue\" badges, sorting); they don't auto-cancel anything.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q09",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

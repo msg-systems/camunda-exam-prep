@@ -5,56 +5,106 @@ function cleanQ(overrides: Partial<Record<string, unknown>> = {}) {
   return {
     id: 'mod-test-01',
     topic: 'modeling',
-    subtopic: 'tasks',
+    subtopic: 'events',
     difficulty: 'medium',
     style: 'scenario',
+    kind: 'single',
     camundaVersion: '8.8',
-    scenario:
-      'NovaPay, a payments fintech, runs an order-fulfilment process that handles around 5000 orders per day; the team must decide how to model the payment-failure path before the 8.8 release ships next week.',
-    question: 'Which modeling element best captures the payment-failure path for the service task?',
+    question: 'Which boundary event variant fires the handler and cancels the attached task?',
     options: [
-      { id: 'a', text: 'Attach a boundary error event to the service task and route to a compensation handler' },
-      { id: 'b', text: 'Place a parallel gateway after the service task and join both branches downstream' },
-      { id: 'c', text: 'Insert a manual review user task before the service task with a default assignee' },
-      { id: 'd', text: 'Catch the failure inside the worker code and write a flag variable back to the process' },
+      { id: 'a', text: 'Interrupting error boundary event' },
+      { id: 'b', text: 'Non-interrupting timer boundary event' },
+      { id: 'c', text: 'Compensation boundary event' },
+      { id: 'd', text: 'Signal boundary event with no isInterrupting attribute' },
     ],
     correctOptionId: 'a',
     optionExplanations: {
-      a: { text: 'Correct. A boundary error event is the BPMN-native way to redirect flow on a failed service task.' },
-      b: { text: 'Incorrect. A parallel gateway forks the flow regardless of outcome and does not catch errors.' },
-      c: { text: 'Incorrect. A user task before the service task does not react to a downstream failure.' },
-      d: { text: 'Incorrect. Catching the failure in worker code skips BPMN semantics and breaks visibility in Operate.' },
+      a: { text: 'Interrupting boundary events cancel the attached activity when fired.' },
+      b: { text: 'Non-interrupting boundary events leave the original task running.' },
+      c: { text: 'Compensation handlers run only after a triggering compensation event.' },
+      d: { text: 'Signal boundary defaults are interrupting; that is not what this option claims.' },
     },
-    explanation: 'Use BPMN error boundary events to model failure paths from service tasks.',
+    explanation: 'Interrupting boundary events cancel the attached activity once the event fires.',
     docs: [{ title: 'BPMN error events', url: 'https://docs.camunda.io/docs/components/modeler/bpmn/error-events/' }],
     ...overrides,
   };
 }
 
+function negativeQ(overrides: Partial<Record<string, unknown>> = {}) {
+  return cleanQ({
+    id: 'mod-negative-01',
+    kind: 'negative',
+    question: 'Which statement about a terminate end event is NOT true?',
+    correctOptionId: 'd',
+    options: [
+      { id: 'a', text: 'It destroys all tokens within its containing scope.' },
+      { id: 'b', text: 'Inside an embedded subprocess it ends only that subprocess.' },
+      { id: 'c', text: 'At the top level it ends the entire process instance.' },
+      { id: 'd', text: 'It automatically triggers compensation handlers in its scope.' },
+    ],
+    optionExplanations: {
+      a: { text: 'True. Terminate kills tokens in its containing scope.' },
+      b: { text: 'True. Inside a subprocess it ends only that subprocess scope.' },
+      c: { text: 'True. At the top level it ends the whole instance.' },
+      d: { text: 'False. Terminate does not run compensation; that is the wrong/false statement.' },
+    },
+    ...overrides,
+  });
+}
+
+function codeBlocksQ(overrides: Partial<Record<string, unknown>> = {}) {
+  return cleanQ({
+    id: 'ext-feel-substring-01',
+    topic: 'extensions-integrations',
+    subtopic: 'feel',
+    question: 'What does the FEEL expression above return?',
+    codeBlocks: {
+      stem: 'substring("Camunda", 4)',
+      perOption: { a: '"Camu"', b: '"unda"', c: '"munda"' },
+    },
+    options: [
+      { id: 'a', text: '"Camu"' },
+      { id: 'b', text: '"unda"' },
+      { id: 'c', text: '"munda"' },
+      { id: 'd', text: 'Error — out of range.' },
+    ],
+    correctOptionId: 'b',
+    optionExplanations: {
+      a: { text: 'Wrong start position; substring is 1-indexed, position 4 is "u".' },
+      b: { text: 'Position 4 of "Camunda" is "u" and substring with no length returns the rest.' },
+      c: { text: 'That would be position 3, not 4.' },
+      d: { text: 'Position 4 is within range; no error is raised.' },
+    },
+    ...overrides,
+  });
+}
+
 describe('content lints', () => {
-  it('clean question produces no findings', () => {
+  it('clean single-correct question produces no findings', () => {
     expect(lintQuestion(cleanQ())).toEqual([]);
   });
 
-  it('flags scenario too short', () => {
-    const f = lintQuestion(cleanQ({ scenario: 'Too short.' }));
-    expect(f.some((x) => x.code === LINT_CODES.SCENARIO_TOO_SHORT)).toBe(true);
+  it('clean negative question produces no findings', () => {
+    expect(lintQuestion(negativeQ())).toEqual([]);
   });
 
-  it('flags scenario missing domain marker', () => {
-    const f = lintQuestion(cleanQ({
-      scenario:
-        'The team is rolling out a new process and must decide how to handle 5 retries before the upcoming release; the deployment is scheduled for next week and every minute counts.',
-    }));
-    expect(f.some((x) => x.code === LINT_CODES.SCENARIO_MISSING_DOMAIN_MARKER)).toBe(true);
+  it('clean code-blocks question produces no findings', () => {
+    expect(lintQuestion(codeBlocksQ())).toEqual([]);
   });
 
-  it('flags scenario missing measurable', () => {
-    const f = lintQuestion(cleanQ({
-      scenario:
-        'A bank is rolling out a new payments process and must decide how to handle the failure path before the upcoming release; the team has been refining the model for several iterations.',
-    }));
-    expect(f.some((x) => x.code === LINT_CODES.SCENARIO_MISSING_MEASURABLE)).toBe(true);
+  it('allows short crisp option text (mock style)', () => {
+    const q = cleanQ();
+    (q.options as Array<{ id: string; text: string }>)[0].text = 'true';
+    (q.options as Array<{ id: string; text: string }>)[1].text = 'false';
+    (q.options as Array<{ id: string; text: string }>)[2].text = 'null';
+    (q.options as Array<{ id: string; text: string }>)[3].text = 'An error.';
+    expect(lintQuestion(q)).toEqual([]);
+  });
+
+  it('allows optional scenario absence', () => {
+    const q = cleanQ();
+    delete (q as Record<string, unknown>).scenario;
+    expect(lintQuestion(q)).toEqual([]);
   });
 
   it('flags question not interrogative', () => {
@@ -62,67 +112,32 @@ describe('content lints', () => {
     expect(f.some((x) => x.code === LINT_CODES.QUESTION_NOT_INTERROGATIVE)).toBe(true);
   });
 
-  it('flags meta-vocabulary in option text', () => {
-    const q = cleanQ();
-    (q.options as Array<{ id: string; text: string }>)[1].text =
-      'Place a parallel gateway after the service task (incorrect; gateways do not catch errors here)';
-    const f = lintQuestion(q);
-    expect(f.some((x) => x.code === LINT_CODES.META_VOCAB_IN_OPTION)).toBe(true);
+  it('flags question too short', () => {
+    const f = lintQuestion(cleanQ({ question: 'Short?' }));
+    expect(f.some((x) => x.code === LINT_CODES.QUESTION_TOO_SHORT)).toBe(true);
   });
 
-  it('flags em-dash in option text', () => {
+  it('flags empty option text', () => {
     const q = cleanQ();
-    (q.options as Array<{ id: string; text: string }>)[2].text =
-      'Insert a manual review user task before the service task \u2014 with a default assignee';
+    (q.options as Array<{ id: string; text: string }>)[2].text = '   ';
     const f = lintQuestion(q);
-    expect(f.some((x) => x.code === LINT_CODES.EM_DASH_IN_OPTION)).toBe(true);
-  });
-
-  it('flags option self-rationale', () => {
-    const q = cleanQ();
-    (q.options as Array<{ id: string; text: string }>)[3].text =
-      'Catch the failure inside the worker code, because BPMN error events are unreliable in practice';
-    const f = lintQuestion(q);
-    expect(f.some((x) => x.code === LINT_CODES.OPTION_SELF_RATIONALE)).toBe(true);
-  });
-
-  it('flags markdown in option text', () => {
-    const q = cleanQ();
-    (q.options as Array<{ id: string; text: string }>)[0].text =
-      'Attach a **boundary error event** to the service task and route to a compensation handler';
-    const f = lintQuestion(q);
-    expect(f.some((x) => x.code === LINT_CODES.MARKDOWN_IN_OPTION)).toBe(true);
-  });
-
-  it('flags internal-ref leak', () => {
-    const q = cleanQ();
-    (q.options as Array<{ id: string; text: string }>)[1].text =
-      'Place a parallel gateway after the service task per modeling.md:1-15 in the docs repository';
-    const f = lintQuestion(q);
-    expect(f.some((x) => x.code === LINT_CODES.INTERNAL_REF_LEAK)).toBe(true);
+    expect(f.some((x) => x.code === LINT_CODES.OPTION_EMPTY)).toBe(true);
   });
 
   it('flags Cyrillic anywhere', () => {
     const q = cleanQ();
     (q.options as Array<{ id: string; text: string }>)[1].text =
-      'Place a parallel gateway after the service task with cyrillic noise \u0413\u0440\u0435\u0448\u043a\u0430 included';
+      'Non-interrupting timer boundary event with cyrillic noise \u0413\u0440\u0435\u0448\u043a\u0430 included';
     const f = lintQuestion(q);
     expect(f.some((x) => x.code === LINT_CODES.CYRILLIC_IN_TEXT)).toBe(true);
   });
 
-  it('flags option length ratio above 1.4', () => {
+  it('flags internal-ref leak in option text', () => {
     const q = cleanQ();
-    (q.options as Array<{ id: string; text: string }>)[0].text =
-      'Attach a boundary error event to the service task and route the token through a compensation subprocess that refunds the customer, audits the failure, and notifies the operations team before completing';
+    (q.options as Array<{ id: string; text: string }>)[1].text =
+      'Non-interrupting timer boundary event per modeling.md:1-15 in the docs repository';
     const f = lintQuestion(q);
-    expect(f.some((x) => x.code === LINT_CODES.OPTION_LENGTH_RATIO)).toBe(true);
-  });
-
-  it('flags option too short', () => {
-    const q = cleanQ();
-    (q.options as Array<{ id: string; text: string }>)[2].text = 'Too short';
-    const f = lintQuestion(q);
-    expect(f.some((x) => x.code === LINT_CODES.OPTION_TOO_SHORT)).toBe(true);
+    expect(f.some((x) => x.code === LINT_CODES.INTERNAL_REF_LEAK)).toBe(true);
   });
 
   it('flags missing version marker', () => {
@@ -141,21 +156,43 @@ describe('content lints', () => {
   });
 
   it('flags missing option explanations', () => {
-    const f = lintQuestion(cleanQ({ optionExplanations: { a: { text: 'Correct. only one.' } } }));
+    const f = lintQuestion(cleanQ({ optionExplanations: { a: { text: 'only one entry of four.' } } }));
     expect(f.some((x) => x.code === LINT_CODES.OPTION_EXPLANATIONS_MISSING)).toBe(true);
-  });
-
-  it('flags explanation verdict mismatch', () => {
-    const q = cleanQ();
-    (q.optionExplanations as Record<string, { text: string }>).a = {
-      text: 'Incorrect. wrong verdict on the correct option.',
-    };
-    const f = lintQuestion(q);
-    expect(f.some((x) => x.code === LINT_CODES.EXPLANATION_VERDICT_MISMATCH)).toBe(true);
   });
 
   it('flags correct id not in options', () => {
     const f = lintQuestion(cleanQ({ correctOptionId: 'z' }));
     expect(f.some((x) => x.code === LINT_CODES.CORRECT_ID_NOT_IN_OPTIONS)).toBe(true);
+  });
+
+  it('flags invalid kind', () => {
+    const f = lintQuestion(cleanQ({ kind: 'multi' }));
+    expect(f.some((x) => x.code === LINT_CODES.KIND_INVALID)).toBe(true);
+  });
+
+  it('flags negative item whose stem omits NOT/FALSE', () => {
+    const q = negativeQ({ question: 'Which statement about a terminate end event is incorrect?' });
+    const f = lintQuestion(q);
+    expect(f.some((x) => x.code === LINT_CODES.NEGATIVE_STEM_MUST_FLAG)).toBe(true);
+  });
+
+  it('accepts negative item whose stem contains FALSE', () => {
+    const q = negativeQ({
+      question: 'Which statement about a terminate end event is FALSE?',
+    });
+    expect(lintQuestion(q)).toEqual([]);
+  });
+
+  it('flags codeBlocks.perOption with non-abcd key', () => {
+    const q = codeBlocksQ() as Record<string, unknown>;
+    (q.codeBlocks as { perOption: Record<string, string> }).perOption.e = '"err"';
+    const f = lintQuestion(q);
+    expect(f.some((x) => x.code === LINT_CODES.CODE_BLOCK_BAD_KEY)).toBe(true);
+  });
+
+  it('lenient mode skips the negative-stem flag', () => {
+    const q = negativeQ({ question: 'Which statement about a terminate end event is incorrect?' });
+    const f = lintQuestion(q, { mode: 'lenient' });
+    expect(f.some((x) => x.code === LINT_CODES.NEGATIVE_STEM_MUST_FLAG)).toBe(false);
   });
 });

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Message Catch Event needs to correlate based on two values -- customerId AND orderId -- for uniqueness. Each individually may not be unique (one customer has multiple orders, one order ID could be reused historically).",
+  "question": "Can Message correlation use multiple correlation keys?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Message correlation natively supports a list of correlation keys so that each must match independently -- wrong; Zeebe message correlation uses exactly one correlation key value per message subscription. There is no native \"multi-key\" feature. The workaround for composite uniqueness is to compose multiple values into a single correlation key string using FEEL concatenation. The correlation key is a single string value matched exactly between the subscriber's correlation expression and the publisher's correlationKey parameter. Using a list of keys would require a different API design that Zeebe's message correlation model does not implement."
+    },
+    {
+      "id": "b",
+      "text": "Use two separate Message Catch Events in sequence to handle both customerId and orderId as independent correlation requirements -- workaround that is significantly more complex and error-prone than FEEL composition. Two sequential catch events would require two separate publish calls from the sender, doubling the coordination complexity. They also do not enforce composite uniqueness atomically -- a message matching the first catch but not the second would leave the process partially correlated. FEEL composition into one key (=customerId + \"-\" + orderId) achieves the same uniqueness guarantee with a single message, single correlation expression, and single publisher call."
+    },
+    {
+      "id": "c",
+      "text": "Compose multiple values into one correlation key string via FEEL: =customerId + \"-\" + orderId. The single correlation key value is the composite; uniqueness via composition. Publisher and subscriber must use the same composition formula to ensure the keys match. For example, when the subscriber's correlation expression evaluates =customerId + \"-\" + orderId to \"C100-ORD5678\", the publisher must send a message with correlationKey: \"C100-ORD5678\". Native \"multiple correlation keys\" is not a BPMN or Zeebe feature; FEEL composition into a single string is the standard canonical pattern. Always validate that neither component value is null to avoid unexpected partial matches."
+    },
+    {
+      "id": "d",
+      "text": "Composite correlation keys are fundamentally unsupported and cannot be achieved in Camunda -- wrong; FEEL expressions provide full string composition capabilities that enable composite correlation keys. By concatenating multiple values with a separator using =customerId + \"-\" + orderId, teams create uniqueness that neither value alone would guarantee. The FEEL expression is evaluated at subscription time to produce the expected correlation key string. As long as the publisher uses the identical composition logic to generate the matching key, the correlation mechanism works perfectly with composite identifiers, supporting any combination of values needed for unique process instance identification."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Single correlation key per message; for composite uniqueness, compose values into one string: Pattern: Correlation expression: =customerId + \"-\" + orderId evaluates to a composite string like \"C-100-ORD-5678\". Publisher: must send Message with correlationKey: \"C-100-ORD-5678\" (using same composition logic). Camunda: matches the composite string; correlates 1-to-1 to the matching subscription. Composition patterns: Hyphen-separated: customerId + \"-\" + orderId -- simple, readable. JSON-like: customerId + \":\" + orderId -- variation; pick consistent format. Hash: =hash(customerId + orderId) if you want fixed-length / opaque keys. Coordination: Publisher and subscriber must agree on composition format. Document the format in a shared spec. Test edge cases: special characters, empty values, etc. Edge cases: Empty value in either part: \"-ORD-5678\" if customerId is empty → may match unintended subscriptions. Use defensive FEEL: =if customerId != null and orderId != null then customerId + \"-\" + orderId else null (null correlation key fails activation per Set 5 Q20). Alternative: hash composite values for fixed length / collision-resistance, but adds opacity. Native \"multi-key\" feature: not a standard BPMN/Zeebe pattern; composition is the canonical approach."
+    },
+    "b": {
+      "text": "Incorrect. Single key."
+    },
+    "c": {
+      "text": "Correct. Composition simpler."
+    },
+    "d": {
+      "text": "Incorrect. FEEL composes."
+    }
+  },
+  "explanation": "Composition simpler.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q20",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

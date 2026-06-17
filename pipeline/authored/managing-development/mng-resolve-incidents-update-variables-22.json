@@ -1,0 +1,58 @@
+{
+  "id": "mng-resolve-incidents-update-variables-22",
+  "topic": "managing-development",
+  "subtopic": "operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "After the variable incident is resolved and the instance advances to `Ship Without Insurance`, which `zbctl` invocation does the guide use to complete the process instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Register a job worker for `ship-without-insurance` with a `cat` handler."
+    },
+    {
+      "id": "b",
+      "text": "Complete a single job by job key, without registering a worker."
+    },
+    {
+      "id": "c",
+      "text": "Publish a `ship-without-insurance` message with the instance's correlation key."
+    },
+    {
+      "id": "d",
+      "text": "Resolve an incident on `ship-without-insurance` from the CLI."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The guide shows `./bin/zbctl --insecure create worker ship-without-insurance --handler cat`, which registers a worker that activates and completes the job, allowing the instance to finish."
+    },
+    "b": {
+      "text": "`zbctl complete job` exists but is not what the guide uses; the guide demonstrates the end-to-end flow by registering a worker."
+    },
+    "c": {
+      "text": "`Ship Without Insurance` is a job-worker task, not a message catch event; publishing a message would not complete it."
+    },
+    "d": {
+      "text": "There is no incident on `Ship Without Insurance` at this point; the earlier gateway incident has already been resolved."
+    }
+  },
+  "explanation": "The guide completes the example instance by registering a worker for the `ship-without-insurance` job type with a simple `cat` handler. The handler echoes the job payload to satisfy the worker contract, the job completes, and the token reaches the end event.",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "codeBlocks": {
+    "perOption": {
+      "a": "./bin/zbctl --insecure create worker ship-without-insurance --handler cat",
+      "b": "./bin/zbctl --insecure complete job <jobKey>",
+      "c": "./bin/zbctl --insecure publish message \"ship-without-insurance\" --correlationKey=\"1234\"",
+      "d": "./bin/zbctl --insecure resolve incident ship-without-insurance"
+    }
+  }
+}

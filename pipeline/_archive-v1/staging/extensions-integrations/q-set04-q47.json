@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q47",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team wants to stream activated jobs efficiently -- instead of polling, they want jobs pushed to the worker as they become available. Spring Zeebe uses the gRPC streamJobs API under the hood.",
+  "question": "What's the benefit of streamJobs over poll-based job activation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Job streaming in Camunda 8 pushes jobs to subscribed workers immediately when they are created, eliminating the polling interval delay inherent in the traditional activate-jobs polling model. With polling, workers wait up to one polling interval (often 100ms to several seconds) before receiving newly available jobs. Streaming reduces this to near-zero latency for time-sensitive processes. The stream connection is long-lived, and the broker pushes jobs over the stream as soon as they become activatable."
+    },
+    {
+      "id": "b",
+      "text": "Job streaming does not reduce broker memory usage compared to polling. The broker must still store job state (activated jobs and their metadata) regardless of whether delivery is via streaming or polling. Streaming changes the delivery mechanism from worker-initiated polling to broker-initiated push, but the broker-side job storage requirements remain the same. The primary benefit is reduced latency and reduced unnecessary polling network traffic, not broker memory optimisation."
+    },
+    {
+      "id": "c",
+      "text": "Job streaming does not provide exactly-once delivery semantics. Zeebe guarantees at-least-once delivery -- a job may be re-delivered if the worker fails to complete it before the activation timeout expires. Exactly-once semantics require idempotent worker implementations regardless of whether polling or streaming delivery is used. Streaming improves latency and reduces polling overhead but does not change the delivery guarantee model -- jobs can still be re-activated after timeout."
+    },
+    {
+      "id": "d",
+      "text": "Job streaming in Camunda 8 is a modern feature specific to the Zeebe architecture and has no backwards compatibility relation to Camunda 7. Camunda 7 uses a completely different engine (not Zeebe), different database (relational vs. Zeebe log), and different job acquisition mechanism. Job streaming does not provide Camunda 7 integration -- it is a Zeebe-native delivery optimisation with no compatibility layer for Camunda 7 clients or workers. ###"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Per apis-tools/zeebe-api/gateway-service.md:1240-1247 \"StreamActivatedJobs RPC ... Opens a long living stream for the given job type, worker name, job timeout, and fetch variables.\" gRPC server-streaming: the gateway pushes jobs to subscribed workers as they're created. Eliminates poll-interval latency. Particularly beneficial when poll interval > job creation rate."
+    },
+    "b": {
+      "text": "Incorrect. Broker memory isn't reduced by streaming model."
+    },
+    "c": {
+      "text": "Incorrect. Zeebe semantics remain at-least-once regardless of polling vs streaming."
+    },
+    "d": {
+      "text": "Incorrect. No C7 compatibility implication."
+    }
+  },
+  "explanation": "Per apis-tools/zeebe-api/gateway-service.md:1240-1247 \"StreamActivatedJobs RPC ... Opens a long living stream for the given job type, worker name, job timeout, and fetch variables.\" gRPC server-streaming: the gateway pushes jobs to subscribed workers as they're created. Eliminates poll-interval latency. Particularly beneficial when poll interval > job creation rate.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/zeebe-api/gateway-service/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q47",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

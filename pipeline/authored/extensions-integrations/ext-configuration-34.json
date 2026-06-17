@@ -1,0 +1,53 @@
+{
+  "id": "ext-configuration-34",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-sdk",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A worker throws the `CamundaError.jobError` above with both `retries` and `retryBackoff` set to `null`. Per the Spring SDK defaults, what does the engine receive?",
+  "codeBlocks": {
+    "stem": "throw CamundaError.jobError(\"rate limit\", null, null, null, e);"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "`retries` defaults to `job.getRetries() - 1` and `retryBackoff` defaults to `PT0S`."
+    },
+    {
+      "id": "b",
+      "text": "`retries` is left unchanged and `retryBackoff` defaults to `PT5M`."
+    },
+    {
+      "id": "c",
+      "text": "`retries` is set to `0`, so the job creates an incident immediately."
+    },
+    {
+      "id": "d",
+      "text": "The SDK throws a `NullPointerException` because `retries` is a primitive `int`."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs list the JobError defaults: `retries` defaults to `job.getRetries() - 1` and `retryBackoff` defaults to `PT0S` when not provided. The SDK sends those to the Fail Job API."
+    },
+    "b": {
+      "text": "There is no `PT5M` default in the docs; the documented `retryBackoff` default is `PT0S`."
+    },
+    "c": {
+      "text": "Retries are only decremented by 1, not zeroed; an incident only appears when retries reach 0 organically."
+    },
+    "d": {
+      "text": "`retries` is typed as `Integer` (not a primitive `int`), so `null` is a valid value and triggers the default behaviour."
+    }
+  },
+  "explanation": "`CamundaError.jobError` takes five parameters: `errorMessage`, `variables`, `retries`, `retryBackoff`, and `cause`. The docs spell out the defaults for the optional ones — `retries` defaults to `job.getRetries() - 1` and `retryBackoff` defaults to `PT0S` — so passing `null` for both decrements retries by 1 with no backoff.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter - Configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

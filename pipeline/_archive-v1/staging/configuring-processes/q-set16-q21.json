@@ -1,0 +1,70 @@
+{
+  "id": "imp-set16-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Worker processes many jobs. Each fetches data from DB. Team wonders if worker can batch DB queries across multiple jobs for efficiency.",
+  "question": "Worker batch processing?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Auto-batched -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Worker can implement batching but requires careful design: the standard Camunda job worker model invokes the handler once per activated job. Custom batching requires the worker to accumulate multiple job keys (without auto-completing them), execute a single bulk database query for all accumulated jobs, then complete each job individually with its result. This pattern must respect the job activation timeout to prevent expired locks, implement per-job error handling so one failure doesn't block others, and bound the batch size to prevent memory issues. Time-window flushing prevents the batch from waiting forever at low job rates."
+    },
+    {
+      "id": "c",
+      "text": "While Camunda 8 does not natively auto-batch jobs, a custom worker can implement batching by accumulating activated jobs and processing them together. Workers are just code: the developer controls how many jobs to hold, when to flush the batch, and how to make the bulk DB query. The Camunda client SDK provides the activateJobs primitive that a worker can call with a larger maxJobsToActivate value, enabling the worker to accumulate multiple jobs before processing. Custom batching is a real and documented optimization pattern for high-throughput worker scenarios."
+    },
+    {
+      "id": "d",
+      "text": "One-at-a-time only -- this is only partially accurate. The default @JobWorker annotation in the Camunda Spring Boot Starter processes one job per handler invocation with auto-complete. Workers using autoComplete = false can accumulate multiple activated jobs, batch their processing, and complete them asynchronously. The Zeebe client's activateJobs call can request multiple jobs at once. The one-at-a-time model is the simple default for correctness; batching requires more complex code but is achievable for performance-sensitive workloads."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Worker batching patterns: Standard worker model: One handler invocation per job. Each independent. SDK doesn't auto-batch. Custom batching: Pattern: Time-window batching: `java // Pseudocode private List batch = new ArrayList<>(); private ScheduledExecutorService scheduler; @JobWorker(type = \"fetch-data\", autoComplete = false) public void handle(ActivatedJob job, JobClient client) { synchronized (batch) { batch.add(new JobToProcess(job, client)); if (batch.size() >= 100) { processBatch(); } } } // Scheduled: flush batch every 5 seconds even if not full private void processBatch() { List toProcess = drain(batch); // Single DB query Map results = db.fetchBatch( toProcess.stream().map(JobToProcess::getId).collect(toList()) ); // Complete each job for (JobToProcess jp : toProcess) { Data data = results.get(jp.getId()); jp.client.newCompleteCommand(jp.job.getKey()) .variables(Map.of(\"data\", data)) .send(); } } ` Considerations: Activation timeout: Jobs activate one-by-one. Batch may delay completion. Risk: timeout if batch waits too long. Solution: aggressive batch flush; shorter timeout window. Per-job error handling: Some jobs in batch fail. Complete successful; fail unsuccessful. Per-job semantics maintained. Concurrency: Multiple worker instances batching independently. Total throughput = sum of batch rates. Memory: Batch held in memory. Bound batch size. For dependent ordering: Jobs may depend on others. Batching may violate. Verify ordering not required. When batching helps: External system latency: per-call overhead high. Bulk APIs available: external supports. High job rate: many jobs/sec. When batching doesn't help: Low rate: not enough to fill batch. Strict ordering: must process sequentially. Heterogeneous jobs: each different. Alternative: bulk-friendly process design: Pattern: Aggregator process: Multiple events arrive. Aggregator collects. Single Service Task processes batch. One job for many items: native batch. Pattern: MI subprocess with shared state: All items in MI. Pre-MI: bulk fetch. Each iteration uses pre-fetched data. Less DB calls overall. For high-throughput Connector: Some Connectors may batch internally. Verify per Connector. Best practices: Profile: identify bottleneck (DB? Network?). Batch when bottleneck is per-call: not per-byte. Bound batch size: avoid huge batches. Monitor: batch fill rates, latency. Test: end-to-end behavior. Anti-patterns: Batch without timeout flush: low-rate jobs stuck. Unbounded batch growth: OOM risk. Complex batching: hard to debug. For the scenario (many jobs fetching DB): Consider DB optimisation first: indexes, connections. Bulk-friendly DB: in queries. Batching pattern: if per-call overhead dominates. Or: redesign process: aggregate before Service Task. For monitoring: Per-batch metrics: size, latency. Compare to non-batched: confirm benefit. For testing: Unit tests: batching logic. Integration: end-to-end behavior. Load test: scaling characteristics."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q21",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 22 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 28.9 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

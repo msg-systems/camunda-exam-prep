@@ -1,0 +1,76 @@
+{
+  "id": "imp-set14-q48",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Financial calculation: decimal(0.125, 2) -- does it round to 0.12 or 0.13? Team wonders FEEL's rounding mode. FEEL decimal rounding mode?",
+  "question": "FEEL decimal rounding mode?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Always rounds up -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "The FEEL decimal function does not simply truncate toward zero for all inputs. 12 -- but FEEL applies the DMN standard rounding mode, which is banker's rounding (round half to even). Non-halfway cases round normally; only the exact halfway case differs. The FEEL spec provides explicit ound down(n, scale) for truncation when that behavior is specifically needed."
+    },
+    {
+      "id": "c",
+      "text": "FEEL decimal(value, scale) uses banker's rounding (round half to even) per DMN spec: when the discarded value is exactly halfway, the result rounds to the nearest even digit. 14 (4 is even). This differs from common round-half-up behavior. FEEL also provides explicit round half up(n, scale) and round half down(n, scale) built-in functions for other modes. md:9-27."
+    },
+    {
+      "id": "d",
+      "text": "The rounding mode for the FEEL decimal function is defined by the DMN specification as banker's rounding (round half to even); it is not a runtime-configurable parameter. Teams cannot pass an additional mode argument to decimal() to switch behavior. If a different rounding mode is needed -- such as round-half-up for financial reporting -- FEEL provides explicit built-in alternatives: ound half up(n, scale), ound half down(n, scale), ound up(n, scale), and ound down(n, scale)."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL decimal rounding: Banker's rounding (round half to even) per DMN spec typically: When the value is exactly halfway between two representable decimals, round to the nearest even digit. Less bias than always rounding up. Examples: `feel decimal(0.125, 2) → 0.12 (half-to-even: 2 is even) decimal(0.135, 2) → 0.14 (half-to-even: 4 is even) decimal(0.145, 2) → 0.14 (half-to-even: 4 is even) decimal(0.155, 2) → 0.16 (half-to-even: 6 is even) decimal(0.124, 2) → 0.12 (round down; not halfway) decimal(0.126, 2) → 0.13 (round up; not halfway) Other rounding modes (for context): Round half up (common in many languages): 0.125 → 0.13 (always rounds .5 up). Round half down: 0.125 → 0.12 (always rounds .5 down). Round half to even (banker's): the DMN FEEL standard. Round half to odd: rare. Round towards zero (truncate): 0.127 → 0.12. Round away from zero: 0.123 → 0.13. Why banker's rounding: Unbiased: half the time rounds up, half down (on average). Financial standard: many financial regulations require banker's rounding. DMN spec: prescribes this mode. For specific rounding modes: Round half up -- use the built-in function: feel round half up(0.125, 2) // 0.13 per feel-built-in-functions-numeric.md:155-179 round half up(-1.126, 2) // -1.13 No need for adjust-and-truncate hacks -- the FEEL spec provides explicit modes. Custom rounding in worker: For complex rounding: do in worker code (Java BigDecimal with explicit RoundingMode). Pass result back as variable. For the scenario: decimal(0.125, 2) → 0.12 (banker's rounding; 2 is even). Surprising if expecting \"round half up.\" Pitfalls: Pitfall 1: Assuming round-half-up: Developers from other languages may expect 0.125 → 0.13. Banker's gives 0.12; surprise. Test rounding behavior explicitly. Pitfall 2: Cumulative rounding errors: Rounding many times accumulates differences. Best practice: round once, at end of calculation. Pitfall 3: Different rounding in process variables vs reports: FEEL banker's; reporting tool may use round-half-up. Reconciliation issues if not consistent. Compare with floor / ceiling: floor(value): round down to integer (truncate towards negative infinity). ceiling(value): round up to integer (truncate towards positive infinity). round(value)`: round to integer (mode depends on FEEL version). Best practices: Test rounding behavior: never assume mode. Document expected rounding: in business spec. Use decimal for final result: avoid float-point artefacts (per Set 13 Q48). Round once at end: avoid cumulative errors. For regulatory rounding: verify FEEL matches required mode; use custom logic if not."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-numeric/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q48",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 26 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 18.5 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

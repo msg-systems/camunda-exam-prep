@@ -1,0 +1,27 @@
+{
+  "id": "con-use-connectors-02",
+  "topic": "connectors",
+  "subtopic": "variable and response mapping",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Insurance, an insurer evaluating 8000 claims per week, configures a Camunda 8.8 REST outbound connector that returns a JSON body. The team needs two flat process variables, claimNumber and claimTotal, mapped from the response body so downstream exclusive gateways can route claims in under 2 seconds without traversing nested fields.",
+  "question": "Which Response Mapping field and reserved temporary variable combination produces this mapping per the documentation?",
+  "options": [
+    { "id": "a", "text": "Use Result Variable with the reserved name response to extract { claimNumber: response.body.number, claimTotal: response.body.total } into multiple process variables on the connector" },
+    { "id": "b", "text": "Use Result Expression with the reserved name response to extract { claimNumber: response.body.number, claimTotal: response.body.total } into multiple process variables on the connector" },
+    { "id": "c", "text": "Use Result Expression with the reserved name result to map result.body.number into claimNumber and result.body.total into claimTotal as two flat process variables for routing" },
+    { "id": "d", "text": "Use Result Variable with the reserved name result.body to write the body directly into the two process variables claimNumber and claimTotal in one mapping step on the connector" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Result Variable declares a single process variable that receives the entire connector response; it does not split a response into multiple flat process variables." },
+    "b": { "text": "Correct. Result Expression maps the connector response into multiple process variables via a FEEL map, and inside that expression the reserved name response holds the connector result." },
+    "c": { "text": "Incorrect. The reserved temporary name inside Result Expression is response, not result; the docs use result only as a sample user-chosen name in the Result Variable field example." },
+    "d": { "text": "Incorrect. Result Variable assigns the whole connector result to one process variable; it cannot accept a path like result.body and split the body into multiple variables in one step." }
+  },
+  "explanation": "Result Variable assigns the entire connector response to one process variable. Result Expression maps the response into multiple process variables via a FEEL map, and within that expression the reserved temporary name response holds the connector result.",
+  "docs": [
+    { "title": "How to use connectors - variable and response mapping", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/" }
+  ]
+}

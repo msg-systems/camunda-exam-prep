@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-21",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Two different processes (different BPMN process IDs) each have a message intermediate catch event for `Payment received` with correlation key `order-42`. Both subscriptions are currently open. A single matching message is published. To how many subscriptions is it correlated?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Both — when subscriptions are opened for different processes, the message is correlated to all of them."
+    },
+    {
+      "id": "b",
+      "text": "Neither — Zeebe discards the message when more than one subscription matches."
+    },
+    {
+      "id": "c",
+      "text": "One — only the first deployed process receives the message."
+    },
+    {
+      "id": "d",
+      "text": "One — only the most recently deployed process version receives the message."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state directly that \"when subscriptions are opened for different processes, the message is correlated to _all_ the subscriptions.\" The once-per-process rule only collapses subscriptions belonging to the *same* BPMN process ID."
+    },
+    "b": {
+      "text": "Multiple matches across different processes are not an error; the message is broadcast to all of them rather than being discarded."
+    },
+    "c": {
+      "text": "The docs do not pick winners based on deployment order across different processes; every distinct process with a matching subscription gets the message."
+    },
+    "d": {
+      "text": "Deployment version only matters within a single BPMN process ID. Across different process IDs, version ordering is irrelevant and both subscriptions are correlated."
+    }
+  },
+  "explanation": "Message cardinality in Zeebe is keyed by BPMN process ID. Within the same process, a message correlates to only one subscription. Across different processes, the same message is delivered to each one. This lets a single publish fan-out to multiple independent workflows.",
+  "docs": [
+    {
+      "title": "Message correlation",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

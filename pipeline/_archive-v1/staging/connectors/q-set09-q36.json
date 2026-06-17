@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A legacy partner system exposes only a SOAP web service (XML-based, not REST). The team needs to call it from BPMN.",
+  "question": "How does the team integrate SOAP from Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "SOAP web services are fully callable from Camunda 8 processes because SOAP is fundamentally an HTTP-based protocol using XML-formatted request and response bodies. The HTTP Outbound Connector can POST SOAP envelope XML to any SOAP endpoint with the appropriate Content-Type header. 2."
+    },
+    {
+      "id": "b",
+      "text": "Whether a dedicated SOAP Connector is available depends on the specific Camunda version and the Connector library available at that time. Connector libraries evolve between releases. If no dedicated SOAP Connector exists for a given version, the generic HTTP Outbound Connector handles SOAP directly by setting the appropriate XML content-type header and providing the SOAP envelope as the request body."
+    },
+    {
+      "id": "c",
+      "text": "HTTP Outbound Connector with content-type application/xml (or text/xml) and the SOAP envelope in the request body -- SOAP is HTTP under the hood with XML bodies. The Connector posts the SOAP envelope, partner replies with SOAP response XML, the team parses via FEEL or a Service Task. ) may be cleaner."
+    },
+    {
+      "id": "d",
+      "text": "Converting SOAP to REST via an intermediary proxy is an overly complex and expensive approach when the HTTP Outbound Connector can call SOAP endpoints directly. Adding a SOAP-to-REST proxy introduces an additional component that must be developed, deployed, and maintained. This increases architectural complexity and introduces a new potential point of failure. The direct HTTP Connector approach with proper SOAP headers and XML body is simpler, more maintainable, and directly supported."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. SOAP is XML over HTTP. The generic HTTP Connector handles it: Method: POST. URL: SOAP endpoint URL. Headers: Content-Type: text/xml; charset=utf-8 (or application/soap+xml for SOAP 1.2), SOAPAction: \"\" (for SOAP 1.1). Body: the SOAP envelope as a string. Often built via FEEL string concatenation with embedded variables. Parse the SOAP response (XML) -- for simple responses, FEEL string functions extract values; for complex responses, a Service Task with a Java SOAP library is cleaner. For complex SOAP (WS-Security, attachments, complex WSDL types), a custom Connector using Apache CXF, JAX-WS, or similar provides better ergonomics than manual SOAP-XML composition."
+    },
+    "b": {
+      "text": "Incorrect. SOAP is HTTP-based."
+    },
+    "c": {
+      "text": "Correct. Dedicated Connectors come and go."
+    },
+    "d": {
+      "text": "Incorrect. HTTP Connector directly handles SOAP."
+    }
+  },
+  "explanation": "Dedicated Connectors come and go.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q36",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

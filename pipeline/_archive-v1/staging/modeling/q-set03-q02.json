@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An HR recruitment platform processes job-applicant responses to interview offers in Camunda 8. After an offer is sent, the process waits for the first of three events: (1) candidate accepts via a \"accepted\" message, (2) candidate declines via a \"declined\" message, (3) 72-hour timer expires with no response. The chosen path leads to different downstream flows. Whichever fires first must cancel the other two waits -- the recruitment ops team has been seeing stale timer subscriptions firing reminders to candidates who already accepted days ago.",
+  "question": "Which BPMN construct correctly models \"first of three events wins, cancel the rest\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A regular Receive Task for \"accepted\" with two Interrupting Boundary Events attached -- one Message Boundary Event for \"declined\" and one Timer Boundary Event for 72h. This asymmetric pattern treats \"accepted\" as the primary happy path and the other outcomes as interrupting exceptions. While mechanically functional, it semantically misrepresents the scenario: candidate declining is a normal business outcome, not an exceptional interrupt on the accepted path. The three-way symmetric race is better expressed by a different construct."
+    },
+    {
+      "id": "b",
+      "text": "An Inclusive Gateway with three conditional flows checking =accepted, =declined, =expired variables set upstream. The Inclusive Gateway evaluates synchronous conditions on process variables -- it does not wait for asynchronous events to arrive. This approach requires some other mechanism to set the flag variable and cannot express the \"wait for whichever of these three events arrives first\" semantic that the scenario requires."
+    },
+    {
+      "id": "c",
+      "text": "An Event-Based Gateway with three catching events attached: two Message Catch Events (\"accepted\", \"declined\") and one Timer Catch Event (72h). The first event to fire claims the token; the engine automatically unsubscribes from the other two, eliminating stale timer subscriptions and orphaned message subscriptions entirely. \""
+    },
+    {
+      "id": "d",
+      "text": "A Parallel Gateway with three parallel branches, where each branch ends with a Terminate End Event. The Parallel Gateway opens all three branches simultaneously without any cancellation mechanism -- this is precisely the broken design described in the scenario that produces stale timer subscriptions. Adding a Terminate End Event in each branch would kill the entire process instance, which is far too destructive for a simple event race scenario."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Event-Based Gateway is BPMN's construct for \"race between N events with automatic cancellation of the losers\". The token arrives at the gateway; the engine subscribes to all attached catching events simultaneously; the first to fire claims the token and the engine automatically unsubscribes from the remaining events -- no stale subscriptions, no leaked timers, no orphaned tokens. Three-way race (two messages + one timer) is exactly its design point."
+    },
+    "b": {
+      "text": "Incorrect. Boundary Events on a Receive Task work for a \"primary wait + interrupts\" asymmetric pattern. Three-way symmetric race fits Event-Based Gateway better; using Boundary Events models \"accepted\" as the primary outcome and \"declined\"/\"timeout\" as exceptions, which is semantically wrong (decline is a normal outcome)."
+    },
+    "c": {
+      "text": "Correct. Inclusive Gateway evaluates synchronous conditions on variables -- it doesn't wait for events. Wrong construct for an event race."
+    },
+    "d": {
+      "text": "Incorrect. Parallel Gateway opens all three branches simultaneously with no cancellation -- exactly the broken design described in the scenario. Terminate End kills the whole instance, too heavy."
+    }
+  },
+  "explanation": "Inclusive Gateway evaluates synchronous conditions on variables -- it doesn't wait for events. Wrong construct for an event race.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-based-gateways/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q02",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

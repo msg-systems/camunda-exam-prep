@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An HTTP Outbound Connector calls a partner API. The response includes both a body (JSON with product data) and headers (rate-limit info, request ID). The team wants both available downstream.",
+  "question": "How does the Connector expose response body AND headers?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The HTTP Outbound Connector only exposes the response body for use in Output Mappings -- headers such as rate limit information, request identifiers, and cache control directives are accessible -- this description does not reflect the actual behaviour. The HTTP Outbound Connector's response object is a structured map containing body, headers, and statusCode fields. All three are available in FEEL expressions used in Output Mappings. Teams can extract any combination of body fields, individual header values, and the HTTP status code into process variables for downstream use."
+    },
+    {
+      "id": "b",
+      "text": "The HTTP Outbound Connector's response is a structured object containing body, headers, and statusCode properties. headers[\"X-RateLimit-Remaining\"] captures a specific header value. Multiple Output Mapping rules within the same Connector task extract different response parts into separate variables for downstream use."
+    },
+    {
+      "id": "c",
+      "text": "The HTTP Outbound Connector's response object already includes all headers from the initial call. headers to extract any specific header value. Making a second API call to retrieve headers would double the external API load and latency without providing any additional capability."
+    },
+    {
+      "id": "d",
+      "text": "A single HTTP Outbound Connector call exposes the complete response including body, headers, and statusCode in a single structured result. Multiple Output Mapping rules can extract different parts of the same response object into separate process variables within the same Connector task activation."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The HTTP Outbound Connector exposes the full HTTP response as a structured object accessible in Output Mapping FEEL: response.body: parsed body (JSON object if Content-Type: application/json; otherwise string). response.headers: object with header keys / values (typically lowercase keys). response.statusCode: HTTP status code (200, 404, etc.). Output Mappings select parts and write to process variables. Example mappings: Target: productData, Source: =response.body.products (extract products array). Target: rateLimitRemaining, Source: =response.headers[\"x-ratelimit-remaining\"] (header value). Target: requestId, Source: =response.headers[\"x-request-id\"]. Downstream activities use these variables -- gateway conditions on rate-limit info, logging the request ID, etc. Different Connectors expose their results in their own schemas (Slack returns a message ID, Email returns delivery status, etc.); verify the response shape in the Connector docs."
+    },
+    "b": {
+      "text": "Correct. Headers accessible."
+    },
+    "c": {
+      "text": "Incorrect. Output Mapping handles."
+    },
+    "d": {
+      "text": "Incorrect. One Connector."
+    }
+  },
+  "explanation": "Headers accessible.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q33",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

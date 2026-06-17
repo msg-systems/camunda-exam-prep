@@ -1,0 +1,53 @@
+{
+  "id": "ext-properties-reference-51",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-sdk-worker-override",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A worker is annotated as shown and the properties also declare `camunda.client.worker.override.charge-card.fetch-variables=[\"customerId\"]`. Which variables does the broker fetch on activation?",
+  "codeBlocks": {
+    "stem": "@JobWorker(type = \"charge-card\", fetchVariables = {\"orderId\", \"amount\"})\npublic void chargeCard(JobClient client, ActivatedJob job) { ... }"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "Only `customerId` — the override replaces the list from the annotation."
+    },
+    {
+      "id": "b",
+      "text": "`orderId`, `amount`, and `customerId` — the override extends the annotation's list."
+    },
+    {
+      "id": "c",
+      "text": "All process variables, because any override implicitly forces fetching everything."
+    },
+    {
+      "id": "d",
+      "text": "Only `orderId` and `amount` — the annotation always wins over the override."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs are explicit: when `fetch-variables` is set in an override, it replaces the list of variables to fetch. So only `customerId` is fetched on activation."
+    },
+    "b": {
+      "text": "Extension behaviour applies only when `fetch-variables` is set in `defaults`. For an override under a specific job type, the list is replaced, not merged."
+    },
+    "c": {
+      "text": "Fetching all variables is controlled by `force-fetch-all-variables`, which is not set here. Setting `fetch-variables` in an override does not force fetching all."
+    },
+    "d": {
+      "text": "The override wins for that job type: it explicitly replaces the annotation's `fetchVariables` list, so the annotation's values are not used."
+    }
+  },
+  "explanation": "Under `camunda.client.worker.override.<job-type>.fetch-variables`, the docs state that when set in an override, the list replaces the variables to fetch. To extend rather than replace, the property must be set under `camunda.client.worker.defaults` instead.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter - properties reference",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/properties-reference/"
+    }
+  ]
+}

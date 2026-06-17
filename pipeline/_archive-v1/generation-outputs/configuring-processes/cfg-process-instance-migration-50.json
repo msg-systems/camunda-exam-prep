@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-migration-50",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "HelixHealth, a hospital network, runs 9000 messages per day through a clinical intake process on Camunda 8.8. A redesign defines three catch events: one is mapped from a source catch event, one exists only in the source process and is not mapped, and one exists only in the target process and is not the target of any mapping instruction. The migration team needs to predict what happens to each event subscription during migration.",
+  "question": "How are the event subscriptions handled for these three catch events during the migration?",
+  "options": [
+    { "id": "a", "text": "Mapped catch events keep their subscription open, source-only events keep their subscription open, and target-only events open a new subscription on activation" },
+    { "id": "b", "text": "Mapped catch events open a new subscription, source-only events close their subscription, and target-only events keep their existing subscription open as is" },
+    { "id": "c", "text": "Mapped catch events migrate their subscription, source-only events close their subscription, and target-only events open a new subscription during migration" },
+    { "id": "d", "text": "Mapped catch events migrate their subscription, source-only events open a new subscription, and target-only events close their subscription during migration" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Source-only catch events that are not mapped do not keep their subscription open; the documentation states the associated subscription is closed during migration." },
+    "b": { "text": "Incorrect. Mapped catch events do not open a new subscription; their existing subscription is migrated. Target-only events also do not start from an existing subscription because none exists in the source." },
+    "c": { "text": "Correct. The documentation states that mapped catch events migrate the associated subscription, unmapped source catch events have their subscription closed, and target catch events that are not the target of a mapping instruction open a new subscription during migration." },
+    "d": { "text": "Incorrect. Source-only events have their subscription closed and target-only events open a new subscription; the documentation does not invert these two behaviors." }
+  },
+  "explanation": "Catch event subscriptions follow the mapping instructions: mapping migrates the subscription, absence of a mapping on the source closes the subscription, and absence of a mapping on the target opens a new subscription during migration.",
+  "docs": [
+    { "title": "Process instance migration", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/" }
+  ]
+}

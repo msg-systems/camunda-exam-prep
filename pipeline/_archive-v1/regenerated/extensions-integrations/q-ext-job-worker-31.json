@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-31",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client-job-worker",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A telco running Camunda 8.8 with 3200 jobs per hour wants to know how many jobs each of its Java workers has activated and handled at any moment. The platform team adds the standard JobWorkerMetrics callback through the Java client without enabling anything else in the worker builder beyond the metrics implementation itself.",
+  "question": "What does the Camunda 8.8 Java client track in JobWorkerMetrics by default before any custom implementation is registered on the worker?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Java client tracks both the number of jobs activated and the number of jobs handled and exposes them automatically through a built-in Micrometer Prometheus registry without any further configuration on the worker"
+    },
+    {
+      "id": "b",
+      "text": "The Java client tracks polling counts and gRPC round-trip latency by default and exposes them through the JobWorkerMetrics interface to OpenTelemetry exporters at application start-up automatically"
+    },
+    {
+      "id": "c",
+      "text": "The Java client tracks nothing by default; JobWorkerMetrics is a callback interface and the caller must register an implementation on the worker builder before any counter is incremented at runtime"
+    },
+    {
+      "id": "d",
+      "text": "The Java client tracks the buffered job count by default and surfaces it through the JobWorkerMetrics interface so that backpressure decisions can be made without further configuration in the worker builder"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The docs note that by default job workers do not track any metrics; built-in Micrometer support is optional and must be wired up explicitly by the caller through the worker builder."
+    },
+    "b": {
+      "text": "Incorrect. The default behaviour is no tracking, and the available counters are jobs-activated and jobs-handled rather than polling counts or round-trip latency."
+    },
+    "c": {
+      "text": "Correct. The Metrics section states that by default job workers track no metrics; JobWorkerMetrics is a callback interface and the caller must register an implementation on the JobWorkerBuilder for the counters to be updated at runtime."
+    },
+    "d": {
+      "text": "Incorrect. The two callbacks exposed are jobActivated(int) and jobHandled(int); the buffered-job count is derived by subtracting the two counters in user code rather than tracked directly."
+    }
+  },
+  "explanation": "The Metrics section describes JobWorkerMetrics as a callback interface with two methods, jobActivated(int) and jobHandled(int). By default the worker does not track any metrics. The caller registers an implementation (for example the optional built-in Micrometer one) via .metrics(...) on the worker builder for the counters to be updated.",
+  "docs": [
+    {
+      "title": "Java client job worker metrics",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

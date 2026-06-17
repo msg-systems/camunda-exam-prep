@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-61",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An active user task `A` has a timer boundary event `Timer1` defined as a 1-week duration; the instance has waited 5 days. The target process renames the timer to `Timer2` and redefines it as a 2-week duration. Mappings `A`->`A` and `Timer1`->`Timer2` are provided. When does the timer fire after migration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "After the remaining 2 days, because the subscription is migrated and the elapsed duration is preserved."
+    },
+    {
+      "id": "b",
+      "text": "After a fresh 2 weeks, because the timer subscription is closed and a new one is opened based on the target definition."
+    },
+    {
+      "id": "c",
+      "text": "After 1 week from the original activation, because the source definition's duration governs the migrated timer."
+    },
+    {
+      "id": "d",
+      "text": "Immediately, because the elapsed 5 days already exceed the duration delta between source and target."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Providing a mapping instruction between source and target catch events migrates the existing subscription. For a timer, the elapsed time is preserved, so the timer fires after the remaining 2 days."
+    },
+    "b": {
+      "text": "A subscription is only closed and reopened when the source catch event is left unmapped. Mapping `Timer1`->`Timer2` migrates the existing subscription rather than restarting it."
+    },
+    "c": {
+      "text": "After migration the timer is associated with the target element `Timer2`; the in-progress duration is preserved, not the original full 1-week setting."
+    },
+    "d": {
+      "text": "Migration preserves the in-progress timer; it does not retroactively fire because the target-side duration changed."
+    }
+  },
+  "explanation": "Mapping a catch event between source and target migrates its event subscription. For a timer boundary event, the already-elapsed time is preserved on the new target element, so the timer fires once the remaining duration elapses — here, the remaining 2 days of the original 1-week timer.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

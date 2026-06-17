@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-157",
+  "topic": "extensions-integrations",
+  "subtopic": "Send and receive tasks",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Bank integrates a credit bureau in a Camunda 8.8 loan process for 2600 applications per day. The bureau response arrives between 30 seconds and 4 hours later, and compliance requires the team to use a self-generated UUID as the correlation key for every request so they can audit retries and reuse the key after process restarts.",
+  "question": "Which BPMN modelling option does the integration patterns guidance recommend for this long-running, self-controlled correlation case?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A send task that issues the request, followed by a receive task that consumes the bureau reply using a self-generated UUID as the correlation key under the team is full control"
+    },
+    {
+      "id": "b",
+      "text": "A single service task that waits on the bureau reply for hours and completes through the Zeebe job key passed to the bureau as a piece of opaque payload metadata in every call"
+    },
+    {
+      "id": "c",
+      "text": "A send task on its own that publishes the request to the bureau and treats the reply as fire and forget without any matching receive element later in the diagram for the bureau answer"
+    },
+    {
+      "id": "d",
+      "text": "A message intermediate throw event followed by a service task that polls the bureau using the workflow engine job key as the correlation identifier between request and reply messages"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The integration patterns table tells teams to use send + receive tasks when the response will take more than a few seconds or when the correlation ID must be self-controlled, which matches the credit bureau scenario."
+    },
+    "b": {
+      "text": "Incorrect. The service-task option is documented for replies within milliseconds and relies on the Zeebe job key; it is not recommended for multi-hour responses or self-controlled correlation IDs."
+    },
+    "c": {
+      "text": "Incorrect. Fire and forget through a lone send task does not let the process consume the bureau reply, so it cannot satisfy the auditable request/response requirement."
+    },
+    "d": {
+      "text": "Incorrect. The guidance compares service tasks and send/receive task combos for request/response, not a throw event plus polling service task."
+    }
+  },
+  "explanation": "Send + receive task combos are recommended when responses take longer than a few seconds or when teams need a self-controlled correlation ID. The team owns the UUID and can replay it after restarts, but must model timeouts and retries explicitly because they are not built in.",
+  "docs": [
+    {
+      "title": "Service integration patterns",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

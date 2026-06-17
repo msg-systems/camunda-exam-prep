@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q60",
+  "topic": "dev-environment",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A developer has Camunda 8 Run started locally. They want to deploy a BPMN from the command line using zbctl. They need the Zeebe gateway address.",
+  "question": "Which is the default Zeebe gateway gRPC address for Camunda 8 Run?",
+  "options": [
+    {
+      "id": "a",
+      "text": "localhost:8080 is the HTTP port for the Camunda 8 REST API and web applications (Tasklist, Operate) in Self-Managed Docker Compose deployments. It serves the HTTP-based Orchestration Cluster REST API used for starting process instances, searching instances, and publishing messages via REST. Job Workers using the Zeebe gRPC client protocol connect to localhost:26500, not localhost:8080. These are distinct protocols on separate ports -- gRPC on 26500, REST on 8080."
+    },
+    {
+      "id": "b",
+      "text": "localhost:9000 is not the default Zeebe gRPC port in Camunda 8 Run or Docker Compose Self-Managed setups. Port 9000 is not associated with any standard Camunda 8 component endpoint in default configurations. The Zeebe gRPC gateway defaults to port 26500, the REST API to port 8080, and monitoring/metrics endpoints to port 9600. Using port 9000 without explicit configuration would result in connection refused errors from Zeebe client SDKs."
+    },
+    {
+      "id": "c",
+      "text": "localhost:26500 is the default gRPC gateway port for Zeebe in Camunda 8 Run and standard Self-Managed Docker Compose setups. js client, Go client, or Python client connect to this gRPC endpoint to subscribe for jobs, complete jobs, publish messages, and deploy processes. The port 26500 is specifically reserved for the Zeebe gRPC API -- it is distinct from the REST API port (typically 8080) and the monitoring ports."
+    },
+    {
+      "id": "d",
+      "text": "https://localhost:443 is the HTTPS default port using TLS encryption. Camunda 8 local development setups (Camunda 8 Run, Docker Compose) use plain HTTP/gRPC on standard ports without TLS by default. The Zeebe gRPC gateway listens on localhost:26500 without TLS in local development. TLS is configured separately for production deployments. Connecting a development Zeebe client to localhost:443 would fail with connection refused unless explicit TLS configuration was applied. ###"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe's gateway exposes gRPC on port 26500 by default -- both in Camunda 8 Run and standard SM deployments. zbctl/SDKs connect there. NOTE: Camunda 8 Run unifies Operate, Tasklist, Identity, and v2 REST APIs on port 8080 (per c8run-troubleshooting.md:24); there is NO separate Tasklist-8081 or Tasklist-8082 in current 8.8 c8run distribution. Operate UI = localhost:8080/operate, Tasklist UI = localhost:8080/tasklist."
+    },
+    "b": {
+      "text": "Incorrect. 8080 is the unified Camunda core HTTP port (Operate/Tasklist/Identity/REST), not Zeebe gRPC."
+    },
+    "c": {
+      "text": "Correct. Not a default port."
+    },
+    "d": {
+      "text": "Incorrect. Not the gRPC default (and 443 is HTTPS-default, not gRPC)."
+    }
+  },
+  "explanation": "Not a default port.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/c8run-troubleshooting/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q60",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

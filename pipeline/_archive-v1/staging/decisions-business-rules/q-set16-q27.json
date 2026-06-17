@@ -1,0 +1,56 @@
+{
+  "id": "imp-set16-q27",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN BKM taxCalc(amount, rate) is invoked from a Decision via FEEL: taxCalc(orderAmount, taxRate). Team wonders if Boxed Invocation is alternative syntax.",
+  "question": "DMN Boxed Invocation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Boxed Invocation is NOT a supported boxed-expression body type in Camunda 8 Modeler (Pattern #41 -- 9th cumulative). md:23-28 Modeler supports only four DMN elements: Decision (tables and literal expressions) / Input data / Knowledge source / BKM. md:48-52 Decision and BKM bodies in C8 are explicitly limited to Decision Tables + Literal Expressions -- no Boxed Invocation / Boxed Context / Boxed Conditional / Boxed Function / Boxed List body type is offered by the editor. Canonical C8 replacement: write taxCalc(orderAmount, taxRate) (positional) or taxCalc(amount: orderAmount, rate: taxRate) (named) directly inside a Decision Literal Expression body."
+    },
+    {
+      "id": "b",
+      "text": "Different runtime -- this misframes the issue. Boxed Invocation and inline FEEL function-call expressions are semantically equivalent at runtime; both produce the same result when invoking a BKM. The relevant distinction is not runtime behavior but editor support: Camunda 8 Modeler does not offer Boxed Invocation as a body type for Decisions or BKMs. Even in DMN tools that do render Boxed Invocation visually, the underlying evaluation is identical to calling the function inline. The visual format is a modeling-time convenience, not a distinct runtime mechanism."
+    },
+    {
+      "id": "c",
+      "text": "Decisions only -- this framing misidentifies the actual limitation. The relevant constraint in Camunda 8 is not whether Boxed Invocation applies only to Decisions vs BKMs, but rather that the C8 Modeler supports only two body types for both Decisions and BKMs: Decision Tables and Literal Expressions. Boxed Invocation is absent from the supported body type list altogether regardless of element type. Teams wishing to invoke BKMs must use inline FEEL function-call syntax within a Literal Expression body, which is the canonical Camunda 8 pattern."
+    },
+    {
+      "id": "d",
+      "text": "md:48-52. The Camunda 8 Modeler restricts Decision and BKM bodies to Decision Tables and Literal Expressions only. Teams wanting to invoke a BKM should write taxCalc(orderAmount, taxRate) as a positional call or taxCalc(amount: orderAmount, rate: taxRate) as a named-parameter call directly inside a Literal Expression body. md:64 also applies."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Boxed Invocation in DMN: Boxed expressions: DMN supports multiple boxed expression types: Literal Expression: single FEEL expression (per Set 13 Q39). Decision Table: tabular rules. Boxed Context: structured name-value (per Set 15 Q39). Boxed Function: function definition. Boxed Invocation: BKM invocation. Boxed List / Iteration: list handling. Boxed Invocation specifics: Visual layout: ` ┌─────────────────────────────────┐ │ Invocation: taxCalc │ ├─────────────┬───────────────────┤ │ Parameter │ Binding │ ├─────────────┼───────────────────┤ │ amount │ orderAmount │ │ rate │ taxRate │ └─────────────┴───────────────────┘ Or similar tabular UI. Effect: Equivalent to FEEL: feel taxCalc(amount: orderAmount, rate: taxRate) Returns: BKM's computed value. Comparison with inline FEEL: Inline FEEL: feel result: taxCalc(orderAmount, taxRate) Compact. In Literal Expression body. Boxed Invocation: Visual table. Per-parameter binding. Easier for non-coders. Equivalent semantically: same result. When to use Boxed Invocation: Pros: Visual clarity: parameters labelled. Modeler-friendly: business users. DMN-native: spec-compliant. Cons: More verbose: tabular vs inline. Less expressive: just invocation; complex expressions in Literal. For Camunda 8: Verify Boxed Invocation support per version: DMN Compliance Level 3 typically includes. Web Modeler / Desktop Modeler UI varies. For decision body choice: | Body type | Use case | |-----------|----------| | Literal Expression | Single formula | | Decision Table | Tabular rules | | Boxed Context | Structured output | | Boxed Invocation | Pure BKM invocation | | Boxed Function | Define function | In DMN file XML: xml taxCalc orderAmount taxRate For BKM (per Set 14 Q25): BKM defined separately. Decision uses Boxed Invocation OR inline FEEL. Same result; different visualization. For complex parameter expressions: Boxed Invocation bindings: can be complex FEEL. Example: binding.parameter.amount = orderAmount * quantity`. For multiple invocations in one decision: One Boxed Invocation per decision body. For multiple: combine in Boxed Context with multiple invocations as fields. Best practices: Use Boxed Invocation when invocation is the whole decision logic. Use Literal Expression when more complex computation. Be consistent: team convention. Anti-patterns: Avoiding Boxed Invocation when it fits: less clear. Over-using Boxed: cluttered diagrams. For tooling: Web Modeler: visual UI for Boxed Invocation. Desktop Modeler: similar. For the scenario: Boxed Invocation = visual BKM invocation. Alternative to inline FEEL. Same engine behavior."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong framing."
+    },
+    "d": {
+      "text": "Incorrect. Correct. Boxed Invocation is not supported in C8 Modeler; canonical replacement = inline FEEL function-call syntax bkm(arg1, arg2) or named-args bkm(p1: x, p2: y) inside a Decision Literal Expression. Plus BKM same-decision-only caveat per dmn.md:64."
+    }
+  },
+  "explanation": "Boxed Invocation in DMN: Boxed expressions: DMN supports multiple boxed expression types: Literal Expression: single FEEL expression (per Set 13 Q39). Decision Table: tabular rules. Boxed Context: structured name-value (per Set 15 Q39). Boxed Function: function definition. Boxed Invocation: BKM invocation. Boxed List / Iteration: list handling. Boxed Invocation specifics: Visual layout: ` ┌─────────────────────────────────┐ │ Invocation: taxCalc │ ├─────────────┬───────────────────┤ │ Parameter │ Binding │ ├─────────────┼───────────────────┤ │ amount │ orderAmount │ │ rate │ taxRate │ └─────────────┴───────────────────┘ Or similar tabular UI. Effect: Equivalent to FEEL: feel taxCalc(amount: orderAmount, rate: taxRate) Returns: BKM's computed value. Comparison with inline FEEL: Inline FEEL: feel result: taxCalc(orderAmount, taxRate) Compact. In Literal Expression body. Boxed Invocation: Visual table. Per-parameter binding. Easier for non-coders. Equivalent semantically: same result. When to use Boxed Invocation: Pros: Visual clarity: parameters labelled. Modeler-friendly: business users. DMN-native: spec-compliant. Cons: More verbose: tabular vs inline. Less expressive: just invocation; complex expressions in Literal. For Camunda 8: Verify Boxed Invocation support per version: DMN Compliance Level 3 typically includes. Web Modeler / Desktop Modeler UI varies. For decision body choice: | Body type | Use case | |-----------|----------| | Literal Expression | Single formula | | Decision Table | Tabular rules | | Boxed Context | Structured output | | Boxed Invocation | Pure BKM invocation | | Boxed Function | Define function | In DMN file XML: xml taxCalc orderAmount taxRate For BKM (per Set 14 Q25): BKM defined separately. Decision uses Boxed Invocation OR inline FEEL. Same result; different visualization. For complex parameter expressions: Boxed Invocation bindings: can be complex FEEL. Example: binding.parameter.amount = orderAmount * quantity`. For multiple invocations in one decision: One Boxed Invocation per decision body. For multiple: combine in Boxed Context with multiple invocations as fields. Best practices: Use Boxed Invocation when invocation is the whole decision logic. Use Literal Expression when more complex computation. Be consistent: team convention. Anti-patterns: Avoiding Boxed Invocation when it fits: less clear. Over-using Boxed: cluttered diagrams. For tooling: Web Modeler: visual UI for Boxed Invocation. Desktop Modeler: similar. For the scenario: Boxed Invocation = visual BKM invocation. Alternative to inline FEEL. Same engine behavior.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/dmn/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q27",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

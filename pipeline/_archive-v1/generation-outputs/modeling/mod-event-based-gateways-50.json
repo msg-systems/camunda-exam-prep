@@ -1,0 +1,27 @@
+{
+  "id": "mod-event-based-gateways-50",
+  "topic": "modeling",
+  "subtopic": "gateways",
+  "difficulty": "hard",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "NovaPay routes 12000 payments per hour through Camunda 8.8. After charging the card, the process must continue when a PaymentDetailsUpdated message arrives or after waiting 1 hour, modelled with an event-based gateway followed by a message catch event and a timer catch event on a second branch.",
+  "question": "Which timer event definition value, taken from the documented XML, makes the event-based gateway branch wait exactly one hour for the message?",
+  "options": [
+    { "id": "a", "text": "The timer intermediate catch event uses a timeCycle of PT1H so the event-based gateway waits one hour for the message." },
+    { "id": "b", "text": "The timer intermediate catch event uses a timeDate of PT1H so the event-based gateway waits one hour for the message." },
+    { "id": "c", "text": "The timer intermediate catch event uses a timeDuration of PT1H so the event-based gateway waits one hour for the message." },
+    { "id": "d", "text": "The timer intermediate catch event uses a timeDuration of P1H so the event-based gateway waits one hour for the message." }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. timeCycle defines a repeating timer expressed with an ISO 8601 cycle, which is not what the documented event-based gateway expects for a single one hour wait on an intermediate catch event." },
+    "b": { "text": "Incorrect. timeDate expects an ISO 8601 timestamp marking a specific point in time, not a duration like PT1H, so it would not express a one hour wait on the gateway branch." },
+    "c": { "text": "Correct. The documented XML places a timeDuration of PT1H on the timer intermediate catch event, which is the ISO 8601 duration for one hour and the supported form on an event-based gateway branch." },
+    "d": { "text": "Incorrect. P1H is not a valid ISO 8601 duration because the time component must be prefixed with T, so the documented duration for one hour is PT1H, not P1H." }
+  },
+  "explanation": "The documented timer definition under the event-based gateway uses timeDuration with the ISO 8601 value PT1H. PT1H is the duration form for one hour and is the correct value on the timer intermediate catch event that races against the message branch.",
+  "docs": [
+    { "title": "BPMN event-based gateway", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-based-gateways/" }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "imp-set09-q57",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Two modelers open the same BPMN in Web Modeler simultaneously. They want to know how Web Modeler handles concurrent edits -- Google-Docs-style simultaneous editing, or some kind of locking?",
+  "question": "How does Web Modeler handle concurrent BPMN edits on the same diagram?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Web Modeler does not use Google-Docs-style OT or CRDT algorithms for simultaneous multi-writer editing. No documentation describes any OT or CRDT merge mechanism in Web Modeler. md:226), but this is read-side propagation of a single writer's changes, not merge of multiple simultaneous writers. The editing model is exclusively single-writer with canvas locking, not multi-writer concurrent merge."
+    },
+    {
+      "id": "b",
+      "text": "Automatic canvas lock with explicit Take-over handover -- CORRECT. md:229-249: \"When a user with edit permissions starts editing a diagram, the canvas is automatically locked. \" Other collaborators can still view the diagram in real time, switch modes, navigate, inspect properties, and add comments (if permitted). Another editor can press the Take over button in the canvas lock bar to release the lock and immediately assume edit control. Undo/redo history resets each time another collaborator makes a change (:251-253). Real-time viewing of edits and an attention-grabber pointer (:255-266) coexist with single-writer editing."
+    },
+    {
+      "id": "c",
+      "text": "A last-write-wins model on save would allow simultaneous concurrent edits to proceed independently and then silently discard all but the final save. This is not how Web Modeler manages concurrent sessions. Instead, the canvas locking mechanism prevents any concurrent edits from happening in the first place. When one user is editing, the canvas is locked and no other user can modify it until the lock is released via a Take-over action, completely preventing the last-write-wins race condition."
+    },
+    {
+      "id": "d",
+      "text": "Web Modeler does provide real-time collaboration features, including real-time viewing of another user's edits, the ability to leave comments, mode-switching and navigation while another user has the canvas locked, and the Take-over button for explicit editorial handover. md. The limitation is that simultaneous concurrent writing by multiple users at the same time is unavailable -- the collaboration model is single-writer with real-time read propagation, not multi-writer simultaneous editing."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. No OT/CRDT mechanism is documented; the merge model is single-writer, not multi-writer."
+    },
+    "b": {
+      "text": "Correct. Not the documented model; canvas-lock prevents the last-write-wins race entirely by serializing writers."
+    },
+    "c": {
+      "text": "Incorrect. Web Modeler uses automatic canvas locking with explicit handover (per collaboration.md:229-266): Auto-lock on edit start: when a user with edit permissions starts editing, the canvas is locked. While locked, no other user can modify (:233). Real-time viewing: other collaborators see edits live, can switch modes, navigate, inspect properties, add comments (:235-242). Take-over button: another edit-permitted user clicks Take over in the canvas lock bar → lock releases, control passes to them (:244-247). Predictable handovers: prevents conflicting edits while keeping the diagram accessible to all viewers (:249). Undo/redo collision: history resets each time another collaborator makes a change (:251-253). Attention grabber pointer (:255-266): non-edit affordance to highlight a region -- pulsates in your avatar color, visible to others in real time. This is NOT Google-Docs-style simultaneous merge editing. It is one-writer-at-a-time with real-time read-side propagation and explicit handover. The exam frequently tests this misconception."
+    },
+    "d": {
+      "text": "Incorrect. Real-time collaboration IS supported -- for viewing, comments, mode-switching, and take-over handover."
+    }
+  },
+  "explanation": "Not the documented model; canvas-lock prevents the last-write-wins race entirely by serializing writers.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/collaboration/collaboration/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q57",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[1]"
+      }
+    ]
+  }
+}

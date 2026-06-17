@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's process needs to query a PostgreSQL database -- read customer records, write order records, etc. They wonder if BPMN should do SQL directly or use a service layer.",
+  "question": "Best practice: BPMN process directly executing SQL vs going through a service?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Claiming that all database access from BPMN should always be done via direct SQL is an anti-pattern for core business processes. Direct SQL from BPMN tightly couples the process model to the database schema: when a table or column changes, the BPMN SQL queries must change. This coupling makes the process brittle, harder to test in isolation, and exposes the BPMN layer to infrastructure details it should not need to know. Dynamic SQL also carries injection risk if not carefully parameterized. While Camunda 8 ships an out-of-the-box SQL Connector for convenience, best practice reserves direct SQL for limited, low-stakes, or administrative use cases rather than core production orchestration."
+    },
+    {
+      "id": "b",
+      "text": "Claiming that a service layer abstraction is always mandatory and direct SQL queries have absolutely no valid use case overstates the constraint. For core production processes handling critical business data, the service-layer pattern is strongly recommended. The guidance is \"generally prefer service-layer abstraction\" rather than an absolute prohibition on direct SQL in every scenario."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 ships an out-of-the-box SQL Connector that supports MariaDB, Microsoft SQL Server, MySQL, PostgreSQL, and Oracle databases. Custom Connectors can also be built using JDBC drivers or database client libraries via the Connector SDK. Additionally, Zeebe job workers can execute arbitrary database queries inline before returning results to the process. Database interaction from BPMN processes is a fully supported scenario with multiple implementation paths available."
+    },
+    {
+      "id": "d",
+      "text": "The recommended best practice for production Camunda 8 processes is to prefer a service-layer abstraction rather than executing raw SQL directly from BPMN. A dedicated service layer encapsulates database interaction behind a domain API, decoupling the process model from the physical database schema. When table structures change, only the service layer updates -- the BPMN remains stable. The service layer also provides centralized transaction management, testability in isolation, and protection against SQL injection through parameterized queries. Camunda 8 ships an out-of-the-box SQL Connector for convenience, but it is best suited for low-stakes or administrative tasks rather than core business process logic where schema coupling poses a long-term maintenance risk."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Architecturally, BPMN orchestrates business logic; databases are infrastructure detail. Best practice: Service-layer pattern (recommended): Microservice or API owns the database; exposes business operations (REST / gRPC). BPMN Service Tasks call services via HTTP Connector (or domain-specific Connector). Benefits: Decoupling: BPMN doesn't know database schema; schema changes contained in service. Testability: services unit-testable independently. Security: service applies auth / authorisation; BPMN doesn't have raw DB credentials. Performance: service can cache, batch, optimise; BPMN consumes results. Evolvability: replace database, refactor schema, change tech without BPMN impact. Direct SQL from BPMN (occasional use): OOB SQL Connector (sql.md:8) executes SQL against MariaDB/MSSQL/MySQL/PostgreSQL/Oracle; configure via URI or detailed host/port/db/credentials; secrets recommended for credentials per :14. Use cases: one-off data migration processes, low-stakes reports, internal admin processes where coupling is acceptable. Avoid for core business processes: tight coupling, harder maintenance. Anti-patterns to watch: SQL with FEEL-templated values: risk of \"SQL injection via FEEL\" if user-supplied data flows in unchecked. Always parameterise. Complex business logic in SQL: belongs in BPMN / service, not buried in queries. Camunda 8.8 ships an OOB SQL Connector per out-of-the-box-connectors/sql.md; use sparingly with the trade-offs in mind."
+    },
+    "b": {
+      "text": "Incorrect. Direct SQL couples."
+    },
+    "c": {
+      "text": "Incorrect. Direct has limited use cases."
+    },
+    "d": {
+      "text": "Correct. Possible."
+    }
+  },
+  "explanation": "Possible.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/best-practices/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q34",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

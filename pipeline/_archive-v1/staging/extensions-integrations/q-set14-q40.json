@@ -1,0 +1,82 @@
+{
+  "id": "imp-set14-q40",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team needs daysBetween = endDate - startDate in FEEL. Wonders syntax / type.",
+  "question": "FEEL date arithmetic -- date subtraction?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No date arithmetic -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Converting dates to days since epoch before subtracting is an unnecessarily complex approach when FEEL natively supports direct date subtraction. The expression date1 - date2 in FEEL returns a duration value directly, with no manual conversion to numeric day counts needed. While conversion to days is technically possible using external tooling or custom functions, it adds complexity and verbosity compared to the idiomatic FEEL approach of using the built-in date arithmetic operator."
+    },
+    {
+      "id": "c",
+      "text": "FEEL supports date arithmetic per DMN spec: subtracting two FEEL date values (date1 - date2) returns a days and time duration value representing the elapsed time between the two dates. For example, date(\"2024-12-31\") - date(\"2024-01-01\") returns a duration of 365 days. days component accessible via path expression."
+    },
+    {
+      "id": "d",
+      "text": "FEEL does not produce an error when subtracting two date values. Date subtraction is a defined operation in the FEEL specification and Camunda 8's FEEL engine, returning a days and time duration. An error would only occur if one of the operands is null, not a date type, or if the expression syntax is malformed. For properly typed date values, subtraction is a valid and well-supported operation that returns the duration between the two dates."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL temporal arithmetic: Types: date: 2026-05-15. time: 09:30:00. date and time: 2026-05-15T09:30:00. days and time duration: PT24H or P1D. years and months duration: P1Y2M. Arithmetic operations: date - date = duration: `feel date(\"2026-05-15\") - date(\"2026-05-10\") → P5D (5 days) date + duration = new date: feel date(\"2026-05-10\") + duration(\"P7D\") → date(\"2026-05-17\") date - duration = earlier date: feel date(\"2026-05-15\") - duration(\"P7D\") → date(\"2026-05-08\") duration + duration = combined: feel duration(\"P5D\") + duration(\"P3D\") → P8D date and time arithmetic: feel date and time(\"2026-05-15T10:00:00\") - date and time(\"2026-05-15T08:30:00\") → PT1H30M Extracting components from duration: days(duration): get days portion (verify exact accessor). hours(duration): hours. minutes(duration): minutes. seconds(duration): seconds. Or via property access (some FEEL implementations): duration.days, duration.hours, etc. For \"daysBetween\" specifically: feel daysBetween = (endDate - startDate).days Or: feel daysBetween = days(endDate - startDate) Verify exact syntax per version. Common date functions: today(): current date. now(): current date and time. year(date), month(date), day(date): extract components. day of week(date): weekday. day of year(date): day number in year. week of year(date): week number. Date construction: feel date(\"2026-05-15\") date and time(\"2026-05-15T09:30:00\") date(2026, 5, 15) // depends on FEEL version Use cases: Use case 1: Age calculation: feel ageInYears = (today() - birthDate).years // years and months duration component Use case 2: Due date check: feel isOverdue = today() > dueDate Use case 3: Business day calculation: Native FEEL doesn't have \"business day\" function. Combine date + day of week + loop. Or pre-compute externally. Use case 4: SLA tracking: feel elapsed = now() - taskStartedAt isOverSLA = elapsed > duration(\"PT2H\") Time zone considerations: date and time with time zone: 2026-05-15T09:30:00+02:00. Arithmetic respects time zones typically. Comparisons: convert to common time zone for clarity. Pitfalls: Pitfall 1: Type mismatch: date + number (without explicit days unit): error. Always use duration for \"add days\". Pitfall 2: Date vs date and time confusion: date(\"2026-05-15\") - date and time(\"2026-05-15T00:00:00\"): type mismatch likely. Convert one to match. Pitfall 3: Negative durations: endDate - startDate` may be negative if endDate < startDate. Be aware in calculations."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-temporal/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q40",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-scenario-too-short",
+        "severity": "block",
+        "message": "scenario length 76 < 80 (catastrophically short)",
+        "where": "scenario"
+      },
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 28 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 17.4 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

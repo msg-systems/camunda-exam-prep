@@ -1,0 +1,27 @@
+{
+  "id": "ext-job-worker-16",
+  "topic": "extensions-integrations",
+  "subtopic": "java-job-worker",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Tessera Insurance recovers from periodic GRPC_STATUS_RESOURCE_EXHAUSTED responses on a Camunda 8.8 Java job worker that handles 5500 claims per day. Engineers want to override the default exponential backoff strategy that the worker applies between failed activate jobs polls so the cluster has more time to recover.",
+  "question": "Which Camunda 8.8 Java client API call replaces the default backoff strategy applied after a failed job activation poll?",
+  "options": [
+    { "id": "a", "text": "Call .pollInterval(Duration) on the JobWorkerBuilder so the Java client substitutes the configured poll interval for the exponential backoff after any failed activate jobs request response from the broker" },
+    { "id": "b", "text": "Call .backoffSupplier(BackoffSupplier) on the JobWorkerBuilder so the Java client uses the supplied retry delay instead of the default exponential backoff after any failed activate jobs poll response" },
+    { "id": "c", "text": "Call .retryPolicy(RetryPolicy) on the CamundaClientBuilder so the broker rejects activate jobs commands according to a custom global retry budget shared across every Java worker on the Camunda client" },
+    { "id": "d", "text": "Call .resourceExhaustedHandler(Handler) on the gateway configuration so Zeebe replaces its broker backpressure mechanism whenever this Java client sends activate jobs requests through the gateway" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The pollInterval governs spacing between polls when no jobs were activated, not the retry delay after a failed poll; the backoff strategy is configured separately." },
+    "b": { "text": "Correct. The retry delay after a failed poll is provided by a BackoffSupplier and is replaced via the .backoffSupplier() method on the JobWorkerBuilder; by default the Java client uses an exponential backoff implementation." },
+    "c": { "text": "Incorrect. There is no .retryPolicy(RetryPolicy) API on CamundaClientBuilder for this purpose; the worker backoff is configured per worker through the BackoffSupplier on the JobWorkerBuilder." },
+    "d": { "text": "Incorrect. Zeebe broker backpressure is a server side mechanism configured separately from the client; clients adjust their own retry delay through the BackoffSupplier on each JobWorkerBuilder." }
+  },
+  "explanation": "The Camunda 8.8 Java client provides the retry delay between failed activate jobs polls through a BackoffSupplier and the JobWorkerBuilder exposes a .backoffSupplier() method to replace the default exponential backoff implementation used by the job worker.",
+  "docs": [
+    { "title": "Java client job worker", "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/" }
+  ]
+}

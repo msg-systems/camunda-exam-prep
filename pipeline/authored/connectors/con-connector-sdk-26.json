@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-26",
+  "topic": "connectors",
+  "subtopic": "validation",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A connector adds the `connector-validation` artifact and annotates its request class with `@NotEmpty` on `message` and `@NotNull @Valid` on a nested `authentication`. When does the SDK actually run the validator on the input data?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only when the developer explicitly calls `Validator.validate(input)` before reading variables."
+    },
+    {
+      "id": "b",
+      "text": "Automatically when the connector calls `bindVariables` (outbound) or `bindProperties` (inbound) on its connector context."
+    },
+    {
+      "id": "c",
+      "text": "Only at modeler deploy time; runtime input data is never re-validated."
+    },
+    {
+      "id": "d",
+      "text": "Only after the connector function returns a result; the validator inspects the result for missing fields."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs say validation is performed automatically through `bindVariables` / `bindProperties`; an explicit `Validator.validate` call is not required."
+    },
+    "b": {
+      "text": "The Validation section of the SDK docs states: \"Validation is performed automatically if you use the `bindVariables` / `bindProperties` methods.\" The context wires up a Hibernate-Validator-backed Jakarta Bean Validation provider and applies the annotations, including `@Valid` to recurse into nested object graphs like `authentication`."
+    },
+    "c": {
+      "text": "Element templates can carry some `constraints` for modeling-time validation, but the runtime SDK validation (via `connector-validation`) runs against the input data passed to the function, not at deploy time."
+    },
+    "d": {
+      "text": "The validator inspects the request object that you bind from the context, not the result your function returns."
+    }
+  },
+  "explanation": "Adding the `connector-validation` artifact wires a Jakarta Bean Validation provider (Hibernate Validator) into the SDK. When your connector calls `context.bindVariables(...)` (outbound) or `context.bindProperties(...)` (inbound), the SDK deserializes the input into your Java class, replaces secrets, and runs the validator across your annotations automatically. `@Valid` causes the validator to recurse into nested objects like `authentication`.",
+  "docs": [
+    {
+      "title": "Connector SDK",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

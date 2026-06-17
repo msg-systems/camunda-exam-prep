@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A modeler accidentally creates a Service Task without setting zeebe:taskDefinition type -- the task has no worker subscription identifier. The team wonders what happens when this BPMN deploys and instances reach the task. What happens if a Service Task has no zeebe:taskDefinition type configured?",
+  "question": "What happens if a Service Task has no zeebe:taskDefinition type configured?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Task automatically uses a default fallback worker type when no zeebe:taskDefinition type is configured -- this description does not reflect the actual behaviour. The type attribute in zeebe:taskDefinition is mandatory for executable Service Tasks; there is no default job type that Zeebe falls back to when the configuration is missing. Worker subscriptions require an explicit type string to match against, and without one, Zeebe cannot create a properly routable job. The validator enforces this requirement at design time or deployment time."
+    },
+    {
+      "id": "b",
+      "text": "Task is skipped automatically and the process token advances to the next element when no type is configured -- this description does not reflect the actual behaviour. Auto-skipping would produce silent data loss and incorrect process execution without any operator visibility. The Zeebe engine treats missing required task configuration as an error condition requiring explicit resolution, not as a reason to bypass the work. No auto-skip mechanism exists for Service Tasks."
+    },
+    {
+      "id": "c",
+      "text": "Task immediately completes with a success status when no zeebe:taskDefinition type is set -- this cannot happen in Camunda 8. Service Task completion requires a job worker to activate the job, execute the business logic, and explicitly call complete on the job with output variables. Without a type configured, no worker can subscribe to receive the job. The task has no auto-complete mechanism and cannot advance the process token without worker interaction."
+    },
+    {
+      "id": "d",
+      "text": "Deployment-time validation fails (or runtime activation produces an Incident) -- zeebe:taskDefinition type is required for Service Tasks. The validator typically flags this at design time (in Web Modeler) or at deployment (Zeebe rejects with a clear error). \" Fix: set the type in Web Modeler's Implementation property panel."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. zeebe:taskDefinition with at minimum type attribute is mandatory for executable Service Tasks. The type is what workers subscribe to (e.g., process-payment); without it, the engine has no way to route the activated job to a worker. Behaviour: Design-time validation: Web Modeler / Desktop Modeler flag missing type as an error in the property panel and (typically) prevent saving / deploying. Deployment-time validation: Zeebe's deployment validator rejects the BPMN with a clear error message. Runtime (if the missing-type somehow slipped through): the activation creates an Incident with reason \"no task type defined.\" Resolution: set the type via Web Modeler's \"Implementation\" property panel under \"Task type.\" Conventional naming: lowercase-kebab-case identifier (e.g., process-payment, validate-claim)."
+    },
+    "b": {
+      "text": "Incorrect. No default; required."
+    },
+    "c": {
+      "text": "Incorrect. No auto-skip."
+    },
+    "d": {
+      "text": "Correct. Can't succeed."
+    }
+  },
+  "explanation": "Can't succeed.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/service-tasks/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

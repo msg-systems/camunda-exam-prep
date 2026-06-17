@@ -1,0 +1,27 @@
+{
+  "id": "dec-decision-table-hit-policy-17",
+  "topic": "decisions-business-rules",
+  "subtopic": "hit policy",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Insurance maintains a Camunda 8.8 DMN decision table that evaluates 12000 claims per week. Several rules may match a single claim for a given insurer customer, and a new developer on the team wants to understand exactly what the COLLECT hit policy returns when no aggregator is configured on the decisionTable XML element.",
+  "question": "What does the COLLECT hit policy return for a DMN decision table when no aggregator is specified on the decisionTable XML element?",
+  "options": [
+    { "id": "a", "text": "Returns a single output produced by summing every satisfied rule's output into one number, regardless of any aggregator setting" },
+    { "id": "b", "text": "Returns the output of only the first satisfied rule and ignores the other rules that also match the inputs for that case" },
+    { "id": "c", "text": "Returns a list of outputs from all satisfied rules in an arbitrary order with no defined ordering between the list entries" },
+    { "id": "d", "text": "Returns a list of outputs from all satisfied rules ordered by their position in the decision table so the sequence is stable" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. SUM is an optional aggregator on the COLLECT hit policy, but COLLECT without any aggregator does not implicitly sum the outputs; the docs describe the no-aggregator case as returning a list of outputs in arbitrary order." },
+    "b": { "text": "Incorrect. Returning only the first matched rule's output is the documented behaviour of the FIRST hit policy, not COLLECT; COLLECT returns the outputs of every satisfied rule rather than just the first one." },
+    "c": { "text": "Correct. The DMN docs state that COLLECT returns the output of all satisfied rules as a list in an arbitrary order, and the page explicitly notes that the list produced by this hit policy has no defined ordering." },
+    "d": { "text": "Incorrect. Ordering by rule position is the behaviour of the RULE ORDER hit policy; the docs explicitly note that the COLLECT output list has no ordering between its entries." }
+  },
+  "explanation": "The Camunda 8.8 DMN docs define COLLECT without an aggregator as returning a list of all satisfied rule outputs in arbitrary order. The page states the list has no ordering, so consumers cannot rely on any deterministic sequence of entries.",
+  "docs": [
+    { "title": "DMN decision table hit policy", "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/" }
+  ]
+}

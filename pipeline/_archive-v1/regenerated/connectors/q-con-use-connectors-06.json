@@ -1,0 +1,50 @@
+{
+  "id": "con-use-connectors-06",
+  "topic": "connectors",
+  "subtopic": "use-connectors",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Travel, a travel marketplace planning 2,500 orders per month, calls a weather REST API from a Camunda 8.8 outbound connector. The team needs three process variables from the response: cityTemp (current_weather.temperature in Celsius), cityWind (current_weather.windspeed), and cityTempF (the same temperature converted to Fahrenheit) for downstream branching in the itinerary process.",
+  "question": "Which Result Expression maps the connector response into the three required process variables?",
+  "options": [
+    {
+      "id": "a",
+      "text": "={cityTemp: response.body.current_weather.temperature, cityWind: response.body.current_weather.windspeed, cityTempF: response.body.current_weather.temperature * 1.8 + 32}"
+    },
+    {
+      "id": "b",
+      "text": "={cityTemp: result.body.current_weather.temperature, cityWind: result.body.current_weather.windspeed, cityTempF: result.body.current_weather.temperature * 1.8 + 32}"
+    },
+    {
+      "id": "c",
+      "text": "={cityTemp: body.current_weather.temperature, cityWind: body.current_weather.windspeed, cityTempF: body.current_weather.temperature * 1.8 + 32}, dropping the response root"
+    },
+    {
+      "id": "d",
+      "text": "Set the Result Variable field to response, then add cityTemp, cityWind, and cityTempF as three more Result Variable entries pointing at the same response root object"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Result Expression FEEL map keys become process variables, and inside the expression the connector's reply is reachable via the reserved response variable, so reading response.body.current_weather.X yields the temperature and wind speed, and the Fahrenheit conversion is done inline with * 1.8 + 32."
+    },
+    "b": {
+      "text": "Incorrect. The reserved name in the Result Expression scope is response, not result; using result. would not resolve against the connector's reply and all three target variables would be left unset on the process instance."
+    },
+    "c": {
+      "text": "Incorrect. Inside a Result Expression the response root is required to reach the body; bare body.* expressions do not bind to the connector's reply because the expression has no access to other process variables either."
+    },
+    "d": {
+      "text": "Incorrect. Result Variable is a single field that names one process variable holding the entire reply; it does not accept multiple comma-separated entries, and Result Expression is the dedicated field for mapping into several variables."
+    }
+  },
+  "explanation": "Connectors expose two response-mapping fields. Result Variable names one process variable that receives the entire reply (status, headers, body). Result Expression is a FEEL map whose keys become process variables; inside it the reserved response variable holds the reply, and you can transform values with FEEL (e.g., temperature * 1.8 + 32 for Fahrenheit).",
+  "docs": [
+    {
+      "title": "How to use connectors",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "id": "imp-set16-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Operator wants to change a process variable mid-flight -- customerTier was \"basic,\" should be \"premium.\" Wonders Modify Variables API.",
+  "question": "Modify variables during execution?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Variables read-only -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 variables are not frozen at process start; they can be modified throughout the process lifecycle. The Orchestration Cluster REST API provides a PUT /element-instances/{elementInstanceKey}/variables endpoint for mid-flight variable updates. Operate UI allows editing variable values directly in the process instance variables panel. This modification capability is essential for operational scenarios like fixing bad data, responding to customer upgrades, or correcting configuration errors without needing to cancel and restart the entire process."
+    },
+    {
+      "id": "c",
+      "text": "While cancelling and restarting a process instance is one way to change initial variables, it destroys all in-flight work and activity state, loses any intermediate results, and may cause external system side effects if the process has already made external calls. Cancel-and-restart should be a last resort only when the process state itself is fundamentally corrupt, not just because a single variable needs updating."
+    },
+    {
+      "id": "d",
+      "text": "The elementInstanceKey can be the root process instance key (to set variables at the top-level scope) or a specific element instance key (to set local scope variables). The local flag controls scope propagation. Operate UI also provides a Variables panel where operators can edit variable values directly during incident resolution. Changes take effect immediately: subsequent FEEL evaluations, gateway decisions, and worker activations pick up the new values. This supports operational corrections without cancelling the process."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Modify Variables during execution: API: Set / update variables per create-element-instance-variables.api.mdx:32-34: ` PUT /element-instances/{elementInstanceKey}/variables { \"variables\": { \"customerTier\": \"premium\" }, \"local\": false // optional: false = propagate up to root scope (default), true = local scope only } elementInstanceKey = process instance key (root scope) OR a specific element instance key (job's elementInstanceKey). Scope handling: Process root scope: default; affects whole instance. Element instance scope: specific to that scope. Variable shadowing: inner scope overrides outer. Operate UI: Variables panel: list with values. Edit button per variable (verify support). Set new value: save. Effects: Immediate: New value visible in next FEEL evaluation. Workers fetching variables: see new value. For in-flight workers: Worker that's already activated: has snapshot of variables. Modification doesn't update the running worker's local copy. Worker completes with original variables. For pending workers: Job activates: gets latest values. Modification reflected. For gateways downstream: Conditional flows evaluate fresh. New variable value used. Use cases: Use case 1: Fix bad data: Process started with wrong customerId. Modify to correct. Continue. Use case 2: Adapt to change: Customer upgraded to premium mid-process. Update tier; relevant logic adapts. Use case 3: Override decision: Manual intervention overrides automated decision. Update variable; downstream uses. Use case 4: Recovery: Stuck due to bad data. Fix data; retry. Caution: Audit: Variable modification logged. Who, when, what changed. Race conditions: Worker might be using variable simultaneously. Modification timing matters. Validation: No engine validation: setting any value allowed. Downstream may fail: if value invalid for FEEL / decision. For bulk modification: Multiple variables at once: in single API call. Multiple instances: batch via bulk operations. For audit + compliance: Log modifications. Authorise carefully. Track who has permission. For testing: Modify in dev / staging. Verify expected behavior. For SDKs: java client.newSetVariablesCommand(processInstanceKey) .variables(Map.of(\"customerTier\", \"premium\")) .send() .join(); ` Java SDK for variable setting. For Self-Managed via Modify Process Instance API: Combine variable change with element modification (per Set 13 Q53). More powerful operation. Best practices: Use sparingly: routine modifications indicate design issue. Document reasons: in audit / ticket. Authorise carefully: not every user. Test after modification: verify expected behavior. Consider Message events instead: cleaner pattern for state changes. For routine state updates: Don't manually modify: design process to handle. Use Receive Task / Message: explicit pattern. Anti-patterns: Routine modifications: process design flaw. No audit: lost accountability. Bypass business logic: skip needed validations. For the scenario (customerTier basic → premium): Use Modify Variables API / Operate UI. Set new value: \"premium\". Document: why changed. Verify downstream: process continues correctly."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. overstates."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q14",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 29 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 19.2 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-configuration-31",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Insurance runs a Camunda 8.8 Spring Boot service that processes 12000 jobs per day for claims intake. A reviewer notices that the @JobWorker(type = \"foo\") handler method finishes its synchronous work and returns a Map of process variables, yet the developers never call client.newCompleteCommand() anywhere in the codebase. The reviewer wants to confirm why the job is still completed every time the handler returns normally on Camunda 8.8.",
+  "question": "How does the Camunda Spring Boot Starter complete a @JobWorker handler that never calls newCompleteCommand?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The autoComplete attribute defaults to true on every @JobWorker, so the Spring integration completes the job after the handler method returns synchronously"
+    },
+    {
+      "id": "b",
+      "text": "The autoComplete attribute defaults to false on every @JobWorker, so the Spring integration completes the job only after a separate retry timer fires"
+    },
+    {
+      "id": "c",
+      "text": "The autoComplete attribute defaults to true only for void handlers, so the Spring integration completes typed return values through a separate annotation parameter"
+    },
+    {
+      "id": "d",
+      "text": "The autoComplete attribute defaults to true only when the broker runs in cluster mode, so the Spring integration completes the job after a broker acknowledgement arrives"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The configuration docs state that autoComplete defaults to true for any @JobWorker; the Spring integration triggers completion right after the synchronous handler returns, and the return value is sent as process variables."
+    },
+    "b": {
+      "text": "Incorrect. The docs state the opposite default; autoComplete is true out of the box, which is exactly why the handler does not need to call newCompleteCommand."
+    },
+    "c": {
+      "text": "Incorrect. Auto-completion applies to every @JobWorker regardless of return type; supported returns include Map, String, InputStream, and any Object that can be serialised to JSON."
+    },
+    "d": {
+      "text": "Incorrect. The auto-complete default is unconditional on the worker side and does not depend on broker topology; the Spring integration completes the job whenever the handler returns normally."
+    }
+  },
+  "explanation": "In the Camunda Spring Boot Starter, the @JobWorker autoComplete attribute defaults to true, so the integration completes the job right after the synchronous handler returns and forwards any returned Map, String, InputStream, or Object as process variables.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

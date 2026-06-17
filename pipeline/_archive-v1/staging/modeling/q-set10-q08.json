@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q08",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process needs initial process variables when an instance starts via API. E.g., when calling POST /v2/process-instances to create an instance of order-fulfillment, the request includes {\"variables\": {\"orderId\": \"ORD-123\", \"customer\": {...}}}. The team wonders if these variables are immediately available to all activities or only after some setup step.",
+  "question": "Are variables passed at instance creation immediately available to all activities?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes -- variables passed in the CreateProcessInstance command (gRPC) or POST /v2/process-instances REST request body become process-scoped variables immediately upon instance creation, before any BPMN element activates. All activities in the instance can read them via FEEL expressions in Input Mappings, Gateway conditions, and other expression contexts. There is no initialisation step or delay before variables are accessible."
+    },
+    {
+      "id": "b",
+      "text": "Variables included in the CreateProcessInstance request are stored in the process scope immediately upon creation, before any BPMN element activates. While activities cannot execute before the Start Event completes, once the first token flows from the Start Event, all creation-time variables are already present in scope and accessible."
+    },
+    {
+      "id": "c",
+      "text": "Only the first activity directly following the Start Event can access variables passed at instance creation -- this misunderstands process-scope variable visibility. Variables set at process creation belong to the root process scope, which all activities throughout the entire process lifetime can access. Whether an activity is the first or the fiftieth in the flow, FEEL expressions referencing those variable names resolve to the creation-time values. Process-scoped variables persist until explicitly modified or the instance completes."
+    },
+    {
+      "id": "d",
+      "text": "Variables must be initialised by the first Service Task worker because process instances start empty -- this contradicts how the Camunda 8 process creation API works. The CreateProcessInstance command in the Zeebe gRPC API and the POST /v2/process-instances REST endpoint both accept a variables payload that is immediately applied to the process scope. No worker activation is required to establish initial variables; they are present before the first task activates and available throughout execution."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Variables passed at instance creation are immediately part of the process's variable state: API contract: CreateProcessInstance gRPC or POST /v2/process-instances REST accept a variables field. The JSON value becomes the initial process-scoped variable set. Visibility: from the moment of instance creation, all activities (when activated) and FEEL expressions (in Gateway conditions, Input Mappings, etc.) can read these variables. No setup step: there's no \"wait for initialisation\" phase; they're part of the instance from creation. This enables passing context at start -- order details, customer info, configuration flags, etc. The process logic then uses these throughout. Note: variables can be added or modified later via API (PATCH /v2/process-instances/{key}/variables), Service Task Output Mappings, etc. The initial set provides the starting context."
+    },
+    "b": {
+      "text": "Incorrect. Available throughout; no \"after Start Event\" wait."
+    },
+    "c": {
+      "text": "Incorrect. Process-scoped from creation."
+    },
+    "d": {
+      "text": "Incorrect. Can pass at creation."
+    }
+  },
+  "explanation": "Variables passed at instance creation are immediately part of the process's variable state: API contract: CreateProcessInstance gRPC or POST /v2/process-instances REST accept a variables field. The JSON value becomes the initial process-scoped variable set. Visibility: from the moment of instance creation, all activities (when activated) and FEEL expressions (in Gateway conditions, Input Mappings, etc.) can read these variables. No setup step: there's no \"wait for initialisation\" phase; they're part of the instance from creation. This enables passing context at start -- order details, customer info, configuration flags, etc. The process logic then uses these throughout. Note: variables can be added or modified later via API (PATCH /v2/process-instances/{key}/variables), Service Task Output Mappings, etc. The initial set provides the starting context.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q08",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

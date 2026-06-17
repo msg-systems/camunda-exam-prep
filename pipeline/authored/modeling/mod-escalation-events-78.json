@@ -1,0 +1,50 @@
+{
+  "id": "mod-escalation-events-78",
+  "topic": "modeling",
+  "subtopic": "escalation events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A subprocess throws an escalation with `escalationCode=\"OUT_OF_STOCK\"` but no catch event in any parent scope references that code, and there is no catch-all event either. What happens?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The escalation is silently ignored; no incident is raised and the process continues normally."
+    },
+    {
+      "id": "b",
+      "text": "An incident is created at the throw event, identical to the behaviour for an unmatched error code."
+    },
+    {
+      "id": "c",
+      "text": "The process instance is terminated because every escalation must be caught somewhere."
+    },
+    {
+      "id": "d",
+      "text": "The escalation propagates indefinitely until a catch event referencing `OUT_OF_STOCK` is deployed in any process definition."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Per the docs, if no escalation catch event matches the `escalationCode`, the escalation is not caught, no incident is raised, and the process continues without escalating."
+    },
+    "b": {
+      "text": "This is the key contrast with error events: unmatched escalations do NOT raise an incident, unlike unmatched errors."
+    },
+    "c": {
+      "text": "Escalations are non-critical; the instance continues from the throw event's outgoing flow rather than terminating."
+    },
+    "d": {
+      "text": "Escalations are scoped to the throwing instance's parent flow scope hierarchy, not broadcast across deployments."
+    }
+  },
+  "explanation": "Escalation events are non-critical. An unmatched escalation is dropped silently — no incident is raised and the process continues along the throw event's outgoing flow. This is a deliberate contrast with error events, where an unmatched error does raise an incident.",
+  "docs": [
+    {
+      "title": "BPMN escalation events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/escalation-events/"
+    }
+  ]
+}

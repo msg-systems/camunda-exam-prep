@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-23",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "hard",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Tessera Insurance, an insurer running 800 active claim instances on Camunda 8.8, calls the message correlation endpoint from a synchronous claims widget. The team needs to know whether a 'claim_filed' publish reached either a message start event or an intermediate catch event, and which process instance accepted it, before the widget renders its next screen.",
+  "question": "Which behavior is documented for the message correlation endpoint compared to the publish message endpoint?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The endpoint buffers the message for up to the configured TTL and asynchronously returns every process instance key whose subscription correlated to the message within that lifetime window"
+    },
+    {
+      "id": "b",
+      "text": "The endpoint correlates synchronously without buffering, returns a single process instance key on success, and prioritizes creating a new instance via a message start event over correlation with existing instances"
+    },
+    {
+      "id": "c",
+      "text": "The endpoint correlates synchronously without buffering, returns the full list of every process instance key that the message reached, and never starts a new process instance from a message start event"
+    },
+    {
+      "id": "d",
+      "text": "The endpoint behaves like the publish endpoint except it returns 204 No Content when no subscription was found and otherwise echoes back the correlationKey value that was used for routing"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The correlation endpoint does not support message buffering; any message published through it is either immediately correlated or not at all, because of the synchronous nature of requiring a response."
+    },
+    "b": {
+      "text": "Correct. The correlation endpoint runs synchronously, does not buffer, returns one process instance key on success, and the response always prioritizes the creation of a new process instance via a message start event over correlation with an existing instance."
+    },
+    "c": {
+      "text": "Incorrect. The response carries only one process instance key even when the message correlated to multiple instances, and start-event creation is explicitly prioritized rather than disabled by the endpoint."
+    },
+    "d": {
+      "text": "Incorrect. The endpoint returns a process instance key on success rather than a 204 with the correlationKey; its response shape is documented to include the process instance key, not simply echo the routing value."
+    }
+  },
+  "explanation": "The message correlation endpoint differs from publish in three documented ways: it does not buffer messages, it returns one process instance key on success, and it prioritizes creating a new instance via a message start event over correlating with an existing message catch event or receive task.",
+  "docs": [
+    {
+      "title": "Messages",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

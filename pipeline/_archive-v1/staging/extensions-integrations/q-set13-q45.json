@@ -1,0 +1,69 @@
+{
+  "id": "imp-set13-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A custom Connector accepts a numeric input. Team wants to validate it's positive non-zero before any side effects. They wonder if Connector SDK provides input validation.",
+  "question": "Connector SDK input validation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No validation support -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "md:465-547). This artifact provides a ValidationProvider implementation backed by Hibernate Validator and the Jakarta Bean Validation API. bindVariables(). Use @Valid for cascading validation of nested objects. Element Template JSON also supports design-time constraints (notEmpty, pattern, minLength) that Web Modeler enforces before deployment. Validation failures surface as ConstraintViolationException, preventing side effects from invalid inputs."
+    },
+    {
+      "id": "c",
+      "text": "Connector SDK validation runs only after the execute method has performed all external side effects, so it is possible to send payment requests or write to a database before discovering that an input value was invalid. This misrepresents the documented behavior. The Connector SDK's validation layer runs before the execute method body reaches any business logic. The recommended pattern is to validate inputs at the very start of execute before any external API calls or database writes, enabling fast-fail behaviour that prevents partial side effects from invalid inputs."
+    },
+    {
+      "id": "d",
+      "text": "Input validation for Connectors must be implemented entirely outside the Connector SDK -- either in a preceding Service Task that checks values before the Connector task executes, or in the process BPMN flow using DMN decision tables. The Connector SDK itself provides no validation facilities. While external pre-validation is a valid complementary approach, the Connector SDK directly supports input validation through Jakarta Bean Validation annotations, the connector-validation artifact, and programmatic checks within the execute method. SDK-internal validation is the primary mechanism for Connector input constraints."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Connector SDK input validation patterns: Java SDK with Jakarta Bean Validation (Hibernate Validator under the hood per connector-sdk.md:505-506): `java import jakarta.validation.constraints.NotNull; import jakarta.validation.constraints.NotEmpty; import jakarta.validation.constraints.Positive; import jakarta.validation.Valid; public class PaymentInput { @NotEmpty private String customerId; @NotNull @Positive private BigDecimal amount; @NotNull @Valid private Authentication authentication; // nested object also validated (graph) // getters / setters } Validation triggered via the SDK context API (the connector-validation artifact installs a ValidationProvider on the context -- see connector-sdk.md:500-506). Validation failure: the validator throws jakarta.validation.ConstraintViolationException; for business-error semantics emit ConnectorException(errorCode, message) per connector-sdk.md:282, :298 so BPMN error events can catch it. Element Template constraints: In JSON template, declare type + constraints: json { \"label\": \"Amount\", \"type\": \"Number\", \"binding\": { ... }, \"constraints\": { \"notEmpty\": true, \"minLength\": 1, \"pattern\": \"^[0-9]+$\" } } Web Modeler validates at design-time (red error indicator if invalid). Some constraints enforced at runtime by Connector framework. Programmatic validation in Connector code: java @Override public Object execute(OutboundConnectorContext context) { PaymentInput input = context.bindVariables(PaymentInput.class); if (input.getAmount().signum() <= 0) { // ConnectorException(errorCode, message) -- surfaces as BPMN-Error // matching a catch event with the same errorCode. throw new ConnectorException( \"AMOUNT_NOT_POSITIVE\", \"Amount must be positive, got: \" + input.getAmount()); } // proceed with logic } Best practices: Fail fast: validate inputs at the top of execute`, before any side effects. Clear error messages: include the bad value + expected constraint. Use Bean Validation: standardised, declarative, less boilerplate. Element Template constraints: catch modeler errors at design-time, before deployment. Layered validation: Design-time: Element Template constraints + Web Modeler checks. Deployment-time: BPMN linter, schema checks. Runtime-pre: framework validates inputs to Connector. Runtime-execute: domain-specific business validation. Verify exact SDK features per version (Java / JS / Python SDKs differ)."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. Incorrect."
+    },
+    "d": {
+      "text": "Incorrect. Partially correct."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q45",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 20.2 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

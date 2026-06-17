@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q52",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Operate's process instance search is slow -- taking 10-20 seconds for queries that should be fast. The team wonders how to troubleshoot.",
+  "question": "How to troubleshoot slow Operate queries?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Wait -- Operate auto-optimises -- this mischaracterises the platform; manual tuning is often required for slow Operate queries. Operate does not self-optimise its backend. Teams must identify slow queries from logs and metrics, check the backend health (Elasticsearch cluster status, shard distribution, node load), analyse query selectivity, and verify that commonly-filtered fields are indexed. Mitigations include scaling ES nodes, adjusting shard count, reducing data retention, and archiving old instances."
+    },
+    {
+      "id": "b",
+      "text": "Switch to Optimize for all process instance queries instead of using Operate -- this confuses the two components' purposes. Optimize is designed for aggregate analytics, trend analysis, and business reporting on historical process data. Operate is the operational tool for monitoring live process instances, investigating incidents, and querying running state. For Operate-specific operational queries, the correct approach is to tune Operate's Elasticsearch backend rather than redirect to Optimize."
+    },
+    {
+      "id": "c",
+      "text": "Multi-step troubleshooting applies: identify the slow query pattern from Operate logs and ES slow logs; check ES cluster health (_cluster/health), shard count and sizing, and node resource utilisation (CPU, memory, disk I/O); analyse the query's selectivity -- broad filters scan many documents while highly selective ones narrow quickly; verify that hot fields are indexed appropriately (keyword vs text mapping in ES). Mitigations: scale ES nodes, reduce retention, archive old data, optimise query patterns to use selective filters first."
+    },
+    {
+      "id": "d",
+      "text": "Operate query performance issues are opaque and cannot be diagnosed or improved -- this ignores the multiple diagnostic levers available. Operate's Elasticsearch backend provides extensive tooling for performance analysis: _cluster/health for node status, ES slow-log for identifying slow query patterns, index statistics for shard distribution and sizing, and node metrics for CPU and memory utilisation. Mitigations including scaling ES nodes, adjusting retention policies, and optimising query selectivity address most performance issues systematically."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate's performance is tied to its Elasticsearch / OpenSearch backend. Troubleshooting slow queries: Identify: Operate's logs may show slow query warnings. ES slow log can capture queries exceeding a threshold. Reproduce manually to confirm reproducibility. ES health: Cluster status (_cluster/health): green, yellow (warning), red (problem). Shard count + size: too many shards or too-large shards hurt performance. Node load: CPU / memory / disk on ES nodes. Query characteristics: Selectivity: highly-selective filters (e.g., unique customer ID) → ES quickly narrows hits → fast. Broad filters (e.g., state = ACTIVE across all definitions) → ES scans many docs → slow. Sort fields: sorting on non-indexed fields can be slow. Cross-field: complex multi-field filters with low selectivity each are slow. Mitigations: Scale ES: more nodes / shards / replicas; better hardware. Custom mappings: ensure hot fields are indexed (keyword for exact match, text for full-text). Reduce retention: less data → smaller indexes → faster queries. Archive old data: cold storage for old instances; ES holds only recent. Query patterns: design UI / API queries to use selective filters first. For production: monitor query latency as a SLI; alert on degradation; capacity-plan ES sizing."
+    },
+    "b": {
+      "text": "Incorrect. Manual tuning often needed."
+    },
+    "c": {
+      "text": "Correct. Optimize is analytics; Operate-specific tuning relevant."
+    },
+    "d": {
+      "text": "Incorrect. Diagnosable."
+    }
+  },
+  "explanation": "Optimize is analytics; Operate-specific tuning relevant.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q52",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

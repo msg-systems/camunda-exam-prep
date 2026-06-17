@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A long-running process needs to handle \"customer cancels\" anytime -- but the main flow should continue while cancellation runs in parallel (e.g., log audit, notify CRM). Team wonders: Event Subprocess (non-interrupting) or Boundary Event.",
+  "question": "Non-interrupting Event Subprocess vs Interrupting Boundary Event?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An Interrupting Boundary Event cancels the activity it is attached to when triggered, then routes the token along the boundary's outgoing flow. This terminates the main flow rather than allowing parallel execution. The scenario requires the main process to continue unaffected while the cancellation handler runs in parallel -- which the Interrupting Boundary Event explicitly prevents. For parallel handling without interrupting the main flow, a Non-interrupting Event Subprocess is the correct modeling pattern."
+    },
+    {
+      "id": "b",
+      "text": "Event Subprocess and Boundary Event serve related but distinct purposes in BPMN modeling. An Event Subprocess is embedded inside a process or subprocess scope and listens for events anywhere within that scope. A Boundary Event attaches directly to a specific activity and fires only while that activity is active. They differ in scope of coverage, visual notation, and applicable use cases -- treating them as interchangeable leads to incorrect model behavior in scope and trigger semantics. Event Subprocesses support non-interrupting behavior (dashed border), allowing the main flow to continue while event handling runs in parallel -- a capability Boundary Events on individual activities do not have."
+    },
+    {
+      "id": "c",
+      "text": "Non-interrupting Event Subprocess fits perfectly: defined inside the parent process scope, it listens for the cancellation Message Event anywhere within that scope. When triggered, the engine spawns a new parallel execution for the handler (audit log, CRM notify) while the main process tokens continue undisturbed. The dashed border marks non-interrupting behavior. Multiple cancellation events can fire multiple times, each spawning a new handler instance. For scope-wide parallel handling without interrupting the main flow, the Non-interrupting Event Subprocess is the canonical and recommended BPMN pattern."
+    },
+    {
+      "id": "d",
+      "text": "Parallel event handling with a continuing main flow is fully supported in Camunda 8 via the Non-interrupting Event Subprocess pattern. The dashed-border visual marking distinguishes it from the interrupting variant. When the configured event fires, a new execution path spawns for the event handler while the original process tokens continue undisturbed. This pattern is commonly used for audit logging, CRM notifications, SLA escalation monitoring, and other parallel side-effects triggered by business events during execution. Multiple non-interrupting subprocesses can be active simultaneously for different events within the same process instance."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Event handler choices: Non-interrupting Event Subprocess: Marker: dashed circle around event icon at subprocess start. Triggers: Message, Signal, Timer, Error, Escalation, etc. Scope: defined inside parent process / subprocess; listens for events anywhere in scope. Multiple firings: can trigger multiple times if event fires repeatedly. Main flow continues: parallel execution. Use case for the scenario: \"Customer cancel\" Message: published anywhere during process. Non-interrupting Event Subprocess with Message Start: triggers on cancel; runs log + CRM notify; main flow continues unaffected. Interrupting Event Subprocess: Marker: solid circle around event icon. Cancels main flow in scope; only event subprocess runs. For \"customer cancel = STOP process\": this is the right choice. Boundary Event (non-interrupting): Attached to specific activity (e.g., a long-running User Task). Triggers only while that activity is active. Use case: \"while waiting for review, also send reminder Timer.\" Boundary Event (interrupting): Attached to activity; cancels it. Use case: \"if Timer fires, cancel User Task and escalate.\" Decision matrix: | Pattern | Choice | |---------|--------| | Handle event anywhere in scope, continue main flow | Non-interrupting Event Subprocess | | Handle event anywhere in scope, cancel main flow | Interrupting Event Subprocess | | Handle event during specific activity, continue activity | Non-interrupting Boundary | | Handle event during specific activity, cancel activity | Interrupting Boundary | Visual cue: Dashed border = non-interrupting (handler doesn't kill main). Solid border = interrupting (handler cancels original). Multiple-trigger semantics: Non-interrupting can fire multiple times if event happens multiple times (e.g., 3 cancellations → 3 audit logs). Each firing spawns a new instance of the event subprocess body. Interrupting fires once (then main is gone)."
+    },
+    "b": {
+      "text": "Incorrect. Stops main."
+    },
+    "c": {
+      "text": "Correct. Option d) -- Wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option d) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q02",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

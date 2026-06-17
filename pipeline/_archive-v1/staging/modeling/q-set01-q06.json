@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q06",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A logistics company models its cross-border parcel handover process as two BPMN Pools -- \"Origin Carrier\" (own Camunda 8 process) and \"Destination Customs\" (external government system). The two organisations communicate via four distinct events: the carrier sends a \"Manifest Submitted\" message, customs returns either \"Cleared\" or \"Hold for Inspection\", and the carrier sends a \"Package Delivered\" notification. The current model attaches Sequence Flows between the two Pools -- the carrier's Service Task has an outgoing Sequence Flow drawn directly to the customs Pool's Receive Task. The model deploys but customs side never receives the manifest.",
+  "question": "What is the correct BPMN construct to model communication between two Pools?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Add a Parallel Gateway in the carrier Pool that forks one branch into the customs Pool via a Sequence Flow, so the carrier process can simultaneously notify customs and continue its own internal flow. The Parallel Gateway splits the token into two concurrent paths: one proceeds with the carrier's internal booking activities, while the other follows a Sequence Flow drawn toward the customs Pool to represent the notification. Each outgoing branch of the Parallel Gateway runs independently; the downstream Parallel join waits for all active branches to complete before the flow continues."
+    },
+    {
+      "id": "b",
+      "text": "Replace the Sequence Flow between the Pools with a Message Flow, and ensure the source side uses a Send Task or a Message Throw Event while the target side uses a Receive Task or Message Catch Event with proper message correlation. 0 is rendered as a dashed arrow between elements in different Pools and represents asynchronous message passing between two separate executable processes or organisations. The sending side publishes a named message with a correlation key; the receiving side subscribes to that message name and correlates incoming messages by matching the key against its active subscriptions. This is the standard BPMN construct for inter-pool communication, explicitly defined in the BPMN specification to distinguish it from intra-pool token flow."
+    },
+    {
+      "id": "c",
+      "text": "Move the customs Pool into the carrier Pool as a Lane and use Sequence Flows freely between the lanes. Lanes in BPMN are visual subdivisions within a single Pool that represent different roles, departments, or systems within the same process. All activities in different lanes of the same Pool share the same token-flow semantics and are part of the same process instance; Sequence Flows can cross lane boundaries freely. Lanes are purely visual organisational elements and carry no execution semantics beyond what their elements define."
+    },
+    {
+      "id": "d",
+      "text": "Use a Signal Throw Event in the carrier Pool to broadcast to all listening processes including the customs Pool. A Signal Throw Event emits a named signal that is received by all Signal Catch Events and Signal Start Events subscribed to that signal name across all active process instances in the cluster. Unlike messages, signals are not correlated to a specific instance by a key -- they broadcast to every subscriber simultaneously. Signal events are useful for cross-process notifications that do not require a specific recipient, such as broadcasting a system-wide status change to multiple independent processes."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. In BPMN 2.0, Sequence Flow is intra-pool only -- it expresses token flow within a single process engine. Message Flow is the cross-pool construct: it represents asynchronous message passing between separate processes/organisations. On the source side a Send Task or Message Throw Event publishes the message; on the target side a Receive Task or Message Catch Event correlates it via correlationKey expression evaluated against incoming message variables."
+    },
+    "b": {
+      "text": "Correct. Parallel Gateway forks a token within a single process, NOT across organisational boundaries."
+    },
+    "c": {
+      "text": "Incorrect. Lanes are visual subdivisions within a single Pool representing roles or responsibilities -- they do not separate independent processes. Merging customs (external system) into the carrier's Pool would imply Camunda 8 controls customs' execution, which is factually wrong."
+    },
+    "d": {
+      "text": "Incorrect. Signal Events broadcast to all subscribed processes globally, NOT specifically to a designated counterparty. Wrong semantic for point-to-point handover."
+    }
+  },
+  "explanation": "Parallel Gateway forks a token within a single process, NOT across organisational boundaries.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q06",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN table with COLLECT hit policy and an aggregator like + (sum), min, max, or count. Team wonders how aggregators change the COLLECT output.",
+  "question": "COLLECT hit policy with aggregator?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:114). COLLECT with aggregator returns a single aggregated scalar. md:129-137; supported values per :144-170: - SUM: the sum of all output values (numeric). - MIN: the smallest output value. - MAX: the largest output value. - COUNT: the number of output values (count of satisfied rules). \""
+    },
+    {
+      "id": "b",
+      "text": "COLLECT hit policy returns a list only when no aggregator is specified. When an aggregator (SUM, MIN, MAX, or COUNT) is configured via the aggregation XML attribute on the decisionTable element, COLLECT returns a single scalar value rather than a list. The list behavior is only the default for plain COLLECT without aggregation. Treating list output as the invariant behavior ignores the aggregator variant, which is the more common production use case for COLLECT."
+    },
+    {
+      "id": "c",
+      "text": "The aggregator has a significant effect on COLLECT hit policy output. Without an aggregator, COLLECT returns a list of all matching rule outputs. With an aggregator, COLLECT transforms that list into a single scalar: SUM adds all numeric outputs, MIN returns the smallest, MAX returns the largest, and COUNT returns the number of matching rules. Claiming the aggregator does nothing directly contradicts the documented behavior in the DMN specification and Camunda 8 implementation."
+    },
+    {
+      "id": "d",
+      "text": "Using COLLECT with a compatible aggregator on a numeric output column does not produce an error. The aggregator is designed to work with COLLECT and produces a valid scalar result. An error would only occur if an aggregator requiring numeric values (SUM, MIN, MAX) is applied to a non-numeric output column, or if COLLECT with aggregator is configured with multiple output columns (which violates the single-output constraint). Valid usage is fully supported and documented."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. COLLECT hit policy variants: COLLECT (no aggregator): Returns a list of all matching rules' outputs. Order: undefined (or implementation-specific). Example: rules output [10, 20, 30] if 3 rules match. COLLECT with aggregator: C+ (Sum): Sums all matching outputs. Outputs [10, 20, 30] → result 60. Use case: total fees, accumulated discounts, points sum. C (Max): Maximum value among matching outputs. Outputs [10, 20, 30] → result 30. Use case: maximum discount, peak risk level. C# (Count): Count of matching rules. Outputs [anything, anything, anything] (3 matches) → result 3. Use case: \"how many rules apply\"; doesn't care about output values. Output type implications: C: list type (use count(), sum(), etc. in downstream FEEL). C+/C: number (single scalar). C#: number (count). Example DMN table (COLLECT C+): ` Inputs: orderAmount, customerTier Outputs: discount (number) Rules: 1. orderAmount > 100, → 5 2. , \"premium\" → 10 3. orderAmount > 500, * → 5 For orderAmount=600, customerTier=\"premium\"`: Rules 1, 2, 3 all match → outputs [5, 10, 5]. C+ aggregates: 5 + 10 + 5 = 20 (total discount %). Practical use cases: Sum (C+): Total tax = sum of applicable tax rules. Total discount = sum of stackable discounts. Total fees = sum of applicable service fees. Min (C): Best offer = max discount among eligible. Severity = max severity across triggered alerts. Count (C#): Compliance check = how many rules applied (for audit). Eligibility = if count > 0, eligible. Output column type: Numeric for C+/C; otherwise error. String list works only with plain C (no aggregator). Anti-patterns: Wrong aggregator type: C+ on string outputs → error. Aggregator without need: use plain C, then downstream FEEL aggregates."
+    },
+    "b": {
+      "text": "Incorrect. Without aggregator."
+    },
+    "c": {
+      "text": "Incorrect. Option d) -- Wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "COLLECT hit policy variants: COLLECT (no aggregator): Returns a list of all matching rules' outputs. Order: undefined (or implementation-specific). Example: rules output [10, 20, 30] if 3 rules match. COLLECT with aggregator: C+ (Sum): Sums all matching outputs. Outputs [10, 20, 30] → result 60. Use case: total fees, accumulated discounts, points sum. C (Max): Maximum value among matching outputs. Outputs [10, 20, 30] → result 30. Use case: maximum discount, peak risk level. C# (Count): Count of matching rules. Outputs [anything, anything, anything] (3 matches) → result 3. Use case: \"how many rules apply\"; doesn't care about output values. Output type implications: C: list type (use count(), sum(), etc. in downstream FEEL). C+/C: number (single scalar). C#: number (count). Example DMN table (COLLECT C+): ` Inputs: orderAmount, customerTier Outputs: discount (number) Rules: 1. orderAmount > 100, → 5 2. , \"premium\" → 10 3. orderAmount > 500, * → 5 For orderAmount=600, customerTier=\"premium\"`: Rules 1, 2, 3 all match → outputs [5, 10, 5]. C+ aggregates: 5 + 10 + 5 = 20 (total discount %). Practical use cases: Sum (C+): Total tax = sum of applicable tax rules. Total discount = sum of stackable discounts. Total fees = sum of applicable service fees. Min (C): Best offer = max discount among eligible. Severity = max severity across triggered alerts. Count (C#): Compliance check = how many rules applied (for audit). Eligibility = if count > 0, eligible. Output column type: Numeric for C+/C; otherwise error. String list works only with plain C (no aggregator). Anti-patterns: Wrong aggregator type: C+ on string outputs → error. Aggregator without need: use plain C, then downstream FEEL aggregates.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

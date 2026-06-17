@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-creation-55",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-creation",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vantage Mortgage, a lender, wants to mark each Camunda 8.8 mortgage-origination instance with up to 12 routing labels covering channel, region, experiment, and trace id across 7000 loans per day. Operators ask which labels survive end-to-end on jobs and how many labels may be attached at creation time.",
+  "question": "Which statement correctly describes how process instance tags behave at creation and downstream in Camunda 8.8?",
+  "options": [
+    { "id": "a", "text": "At most 10 unique tags may be attached at creation; they are immutable after creation, and the broker propagates them onto every activated job for downstream routing decisions." },
+    { "id": "b", "text": "At most 16 unique tags may be attached at creation; they are mutable through a SetTags command on the running instance, and the broker stores them only on the root process instance." },
+    { "id": "c", "text": "At most 10 unique tags may be attached at creation; they may be replaced after creation through an UpdateInstanceTags RPC, and tags are not exported by the default exporters." },
+    { "id": "d", "text": "At most 50 unique tags may be attached at creation; they are immutable but only the first 10 propagate to activated jobs and the remaining tags stay on the process instance only." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The documented limits are a maximum of 10 unique tags per process instance with duplicates ignored; tags are immutable after creation and are inherited by all jobs created from that instance for downstream routing." },
+    "b": { "text": "Incorrect. The cap is 10 unique tags, not 16, and tags are immutable after creation: they cannot be added, changed, or removed via any SetTags command." },
+    "c": { "text": "Incorrect. Tags cannot be replaced after creation through any RPC, and starting in 8.8 they are exported with the process instance and with job entities by the default exporters." },
+    "d": { "text": "Incorrect. The maximum is 10 unique tags, not 50, and all attached tags are inherited by jobs; there is no documented partial-propagation rule that caps job inheritance at 10." }
+  },
+  "explanation": "Process instance tags in Camunda 8.8 are capped at 10 unique values per instance, are immutable after creation, and are inherited by all jobs created from that instance so downstream workers can route or prioritize without inspecting variables.",
+  "docs": [
+    { "title": "Process instance creation", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/" }
+  ]
+}

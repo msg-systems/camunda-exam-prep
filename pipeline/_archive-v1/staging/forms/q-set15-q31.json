@@ -1,0 +1,69 @@
+{
+  "id": "imp-set15-q31",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A form has fields: quantity, pricePerUnit. A total field should auto-compute = quantity × pricePerUnit. Team wonders if Forms support computed fields.",
+  "question": "Form computed field dependency?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:2-3). , =quantity * pricePerUnit) -- note the property name is Target value, not expression; Compute on (:15) controls timing: whenever the result changes (live) or only on form submission; Deactivate if (:16) FEEL boolean skips computation when true. The Expression field renders no visible UI widget -- it is intermediary data for reuse within the form or downstream in the process. To display the result add a separate Text view bound to the same variable."
+    },
+    {
+      "id": "b",
+      "text": "Camunda Forms only support static field values set at design time and cannot compute values dynamically from other form inputs -- this approach has limitations. The Expression field element is specifically designed for dynamic computed values using FEEL expressions that reference other form fields. Additionally, most form fields support FEEL expressions in their Default value property for dynamic initialization. The Expression field's Compute on property (whenever the result changes mode) triggers live recalculation as the user interacts with the form -- for example, recalculating a total price whenever quantity or unit price changes."
+    },
+    {
+      "id": "c",
+      "text": "Computed values in Camunda Forms require custom JavaScript injected into Tasklist -- this partial answer overlooks the built-in Expression field capability. md:17-25. The intended mechanism for client-side computed values is the Expression field with FEEL expressions -- a declarative, secure approach that requires no custom code and is fully supported within the standard Tasklist rendering."
+    },
+    {
+      "id": "d",
+      "text": "The Compute on property (:15) offers two modes: only on form submission (compute once at submit time -- matches this description) AND whenever the result changes (live, client-side recalculation as the user modifies inputs). The live mode enables real-time derived values like running totals, character counts, or conditional fee calculations that update instantly as users type. Both modes are available and the choice depends on the business requirement for immediate feedback versus submit-time computation."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Form computed values via Expression field: Expression field element (forms-element-library-expression.md:2-9): Headless intermediary-data element with FEEL expression (no rendered widget; see :19-23 \"simple way to create intermediary data\"). Auto-updates when Compute on = whenever the result changes (live re-compute as inputs change). Computes once at submit when Compute on = only on form submission. For display: pair with a separate read-only Number field / Text view that reads the same Key variable. Schema example (using actual property names from forms-element-library-expression.md:13-17): `json { \"type\": \"number\", \"key\": \"quantity\", \"label\": \"Quantity\" }, { \"type\": \"number\", \"key\": \"pricePerUnit\", \"label\": \"Price per unit\" }, { \"type\": \"expression\", \"key\": \"total\", \"computeOn\": \"change\", \"expression\": \"=quantity pricePerUnit\" }, { \"type\": \"number\", \"key\": \"total\", \"label\": \"Total\", \"disabled\": true } The first total element computes; the second total (Number field, disabled) displays the computed value. JSON-schema type is expression; properties panel labels are Target value + Compute on + Deactivate if. Behavior: User enters quantity = 5. User enters pricePerUnit = 20. Total field shows 100 immediately. On submit: total saved to process variable. Use cases: Use case 1: Calculated totals: Order total = subtotal + tax + shipping. Auto-display as user fills. Use case 2: Derived values: Age from birthdate. Days until due date. Use case 3: Status indicators: \"Eligible\" / \"Not eligible\" based on income. Use case 4: Validation hints: \"Must be ≥ 18\" computed visibility based on age. Server-side computation (alternative): Form submits raw fields (quantity, price). BPMN Input Mapping or worker computes total. Pros: deterministic, single source of truth. Cons: no preview before submit. Combination: Form shows computed preview (UX). BPMN re-computes after submit (validation / source of truth). Defense in depth: client and server both compute. For complex computations: Multi-step expressions: chain computed fields. Conditional: =if quantity > 100 then quantity pricePerUnit 0.9 else quantity pricePerUnit (volume discount). Performance considerations: Re-compute on every change: real-time. Heavy expressions: may slow UI. For very complex: server-side. Best practices: Show computed values inline: user feedback. Keep expressions simple: complex logic in process. Server-side validation: don't trust client-side compute. Test edge cases: zero, null, very large. Anti-patterns: Sensitive logic only in form: client can manipulate. No server-side validation: form computed value trusted blindly. For dynamic visibility (per Set 14 Q31): Conditional show/hide. Combined with computed values: rich forms. For the scenario: Total field with expression: =quantity * pricePerUnit`. User sees total update live. Optional: BPMN re-computes on submit for validation."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Form computed values via Expression field: Expression field element (forms-element-library-expression.md:2-9): Headless intermediary-data element with FEEL expression (no rendered widget; see :19-23 \"simple way to create intermediary data\"). Auto-updates when Compute on = whenever the result changes (live re-compute as inputs change). Computes once at submit when Compute on = only on form submission. For display: pair with a separate read-only Number field / Text view that reads the same Key variable. Schema example (using actual property names from forms-element-library-expression.md:13-17): `json { \"type\": \"number\", \"key\": \"quantity\", \"label\": \"Quantity\" }, { \"type\": \"number\", \"key\": \"pricePerUnit\", \"label\": \"Price per unit\" }, { \"type\": \"expression\", \"key\": \"total\", \"computeOn\": \"change\", \"expression\": \"=quantity pricePerUnit\" }, { \"type\": \"number\", \"key\": \"total\", \"label\": \"Total\", \"disabled\": true } The first total element computes; the second total (Number field, disabled) displays the computed value. JSON-schema type is expression; properties panel labels are Target value + Compute on + Deactivate if. Behavior: User enters quantity = 5. User enters pricePerUnit = 20. Total field shows 100 immediately. On submit: total saved to process variable. Use cases: Use case 1: Calculated totals: Order total = subtotal + tax + shipping. Auto-display as user fills. Use case 2: Derived values: Age from birthdate. Days until due date. Use case 3: Status indicators: \"Eligible\" / \"Not eligible\" based on income. Use case 4: Validation hints: \"Must be ≥ 18\" computed visibility based on age. Server-side computation (alternative): Form submits raw fields (quantity, price). BPMN Input Mapping or worker computes total. Pros: deterministic, single source of truth. Cons: no preview before submit. Combination: Form shows computed preview (UX). BPMN re-computes after submit (validation / source of truth). Defense in depth: client and server both compute. For complex computations: Multi-step expressions: chain computed fields. Conditional: =if quantity > 100 then quantity pricePerUnit 0.9 else quantity pricePerUnit (volume discount). Performance considerations: Re-compute on every change: real-time. Heavy expressions: may slow UI. For very complex: server-side. Best practices: Show computed values inline: user feedback. Keep expressions simple: complex logic in process. Server-side validation: don't trust client-side compute. Test edge cases: zero, null, very large. Anti-patterns: Sensitive logic only in form: client can manipulate. No server-side validation: form computed value trusted blindly. For dynamic visibility (per Set 14 Q31): Conditional show/hide. Combined with computed values: rich forms. For the scenario: Total field with expression: =quantity * pricePerUnit`. User sees total update live. Optional: BPMN re-computes on submit for validation.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-expression/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q31",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[3]"
+      }
+    ]
+  }
+}

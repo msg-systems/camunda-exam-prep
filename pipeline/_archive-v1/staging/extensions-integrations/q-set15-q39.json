@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q39",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression needs to build a structured value with multiple fields: e.g., {name, age, isVip}. Team wonders FEEL syntax.",
+  "question": "FEEL context expressions for structured values?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL context expression (curly braces {}) creates structured values: {name: \"Alice\", age: 30, isVip: true} → context with three fields. age. Nested contexts and lists are supported to arbitrary depth. In Camunda 8 DMN: no \"Boxed Context\" body type -- only Decision Table and Decision Literal Expression are supported. }. Boxed Context/Invocation/List body types from DMN spec are not supported in the Camunda 8 Modeler. amount), count: count(items)}' composes a context as the mapped value."
+    },
+    {
+      "id": "b",
+      "text": "FEEL only supports flat key-value structures and cannot create nested objects or hierarchical data -- this approach has limitations. FEEL contexts (the {} syntax) support arbitrary nesting: {customer: {name: \"Alice\", address: {city: \"Berlin\", zip: \"10117\"}}, items: [{sku: \"A1\", qty: 2}]}. city. There is no depth limit imposed by the FEEL specification. Nested structures are commonly used in BPMN Output Mapping to compose complex variable values, in DMN Literal Expression bodies to return multi-field results, and in Connector resultExpression to reshape API responses."
+    },
+    {
+      "id": "c",
+      "text": "FEEL expressions cannot work with JSON data -- process variables must use a different format -- this approach has limitations. FEEL's context type maps directly to JSON objects, and FEEL list syntax maps to JSON arrays. Process variables containing JSON objects are accessible in FEEL as contexts with full dot notation field access and list iteration support. JSON that enters the process (from Connector responses, worker completions, API calls) is automatically deserialized into FEEL-compatible context/list structures. Camunda 8 uses JSON as the primary serialization format for process variables, and FEEL is designed to work seamlessly with this structure."
+    },
+    {
+      "id": "d",
+      "text": "While flat variables are simpler to reference and work well for simple processes, structured context variables offer advantages: atomic updates (one variable write instead of many), natural grouping (a customer context bundles all customer fields), and compatibility with downstream FEEL expressions that navigate nested paths. The guideline to avoid very large variables targets size concerns (gRPC limits), not structure depth. Structured context variables are idiomatic in Camunda 8 when data naturally has relational structure."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. FEEL context expressions: Syntax: {field1: value1, field2: value2, ...} -- context literal. Examples: `feel {name: \"Alice\", age: 30, isVip: true} Returns: object with three fields. Field access: feel customer.name → \"Alice\" customer.age → 30 Nested: feel { customer: { name: \"Alice\", address: { city: \"Sofia\", country: \"BG\" } }, order: { id: \"ORD-100\", items: [ {sku: \"A\", qty: 2}, {sku: \"B\", qty: 1} ] } } Computed fields: feel { fullName: firstName + \" \" + lastName, age: today() - birthDate, tier: if revenue > 1000000 then \"enterprise\" else \"standard\" } Use cases: Use case 1: Service Task output: Worker returns structured result. Output Mapping: ={status: \"completed\", details: {processedAt: now(), itemCount: count(items)}}. Use case 2: Connector input shaping: REST Connector body: ={user: {id, name}, items: orderItems}. Use case 3: Decision output: DMN decision with structured output. Boxed Context for clarity. Use case 4: Process variable composition: Combine multiple values into structured variable. DMN Modeler in C8 (Pattern #41 -- clarification): Camunda 8 Modeler supports only Decision Table + Decision Literal Expression body types per dmn.md:23-28 (4 supported element kinds: Decision, Input Data, Knowledge Source, BKM). The Boxed Context visual editor from the DMN-1.3 spec is NOT part of the 8.x DMN modeler. For structured FEEL output use a Decision Literal Expression with the FEEL context literal directly: feel ={ subtotal: sum(items.price), tax: subtotal 0.20, total: subtotal + tax } Same expressive power; no visual two-column \"boxed\" representation. In Output Mapping: xml Accessing nested: feel customer.address.city order.items[1].sku For dynamic field names: feel {[fieldName]: value} Dynamic key (verify FEEL support). For merging contexts: Manual: spread fields. Some FEEL versions: spread operator (verify). Compare with lists: Lists: ordered, indexed. Contexts: named fields. Different access patterns. For complex calculations: feel let breakdown = { subtotal: sum(items.price), tax: subtotal 0.20, total: subtotal + tax } return breakdown Verify let` syntax per FEEL version. Best practices: Structure for clarity: group related fields. Consistent naming: camelCase or snake_case consistently. Type-aware: don't mix types in same field across instances. Document schemas: especially for shared output formats. For BPMN/DMN integration: Workers: receive contexts; access via field names. Tasklist: displays context fields hierarchically (per Set 15 Q14). Operate: visualises structure. Anti-patterns: Deeply nested: hard to navigate. Field-name inconsistency: same data different field names across decisions. No schema"
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "FEEL context expressions: Syntax: {field1: value1, field2: value2, ...} -- context literal. Examples: `feel {name: \"Alice\", age: 30, isVip: true} Returns: object with three fields. Field access: feel customer.name → \"Alice\" customer.age → 30 Nested: feel { customer: { name: \"Alice\", address: { city: \"Sofia\", country: \"BG\" } }, order: { id: \"ORD-100\", items: [ {sku: \"A\", qty: 2}, {sku: \"B\", qty: 1} ] } } Computed fields: feel { fullName: firstName + \" \" + lastName, age: today() - birthDate, tier: if revenue > 1000000 then \"enterprise\" else \"standard\" } Use cases: Use case 1: Service Task output: Worker returns structured result. Output Mapping: ={status: \"completed\", details: {processedAt: now(), itemCount: count(items)}}. Use case 2: Connector input shaping: REST Connector body: ={user: {id, name}, items: orderItems}. Use case 3: Decision output: DMN decision with structured output. Boxed Context for clarity. Use case 4: Process variable composition: Combine multiple values into structured variable. DMN Modeler in C8 (Pattern #41 -- clarification): Camunda 8 Modeler supports only Decision Table + Decision Literal Expression body types per dmn.md:23-28 (4 supported element kinds: Decision, Input Data, Knowledge Source, BKM). The Boxed Context visual editor from the DMN-1.3 spec is NOT part of the 8.x DMN modeler. For structured FEEL output use a Decision Literal Expression with the FEEL context literal directly: feel ={ subtotal: sum(items.price), tax: subtotal 0.20, total: subtotal + tax } Same expressive power; no visual two-column \"boxed\" representation. In Output Mapping: xml Accessing nested: feel customer.address.city order.items[1].sku For dynamic field names: feel {[fieldName]: value} Dynamic key (verify FEEL support). For merging contexts: Manual: spread fields. Some FEEL versions: spread operator (verify). Compare with lists: Lists: ordered, indexed. Contexts: named fields. Different access patterns. For complex calculations: feel let breakdown = { subtotal: sum(items.price), tax: subtotal 0.20, total: subtotal + tax } return breakdown Verify let` syntax per FEEL version. Best practices: Structure for clarity: group related fields. Consistent naming: camelCase or snake_case consistently. Type-aware: don't mix types in same field across instances. Document schemas: especially for shared output formats. For BPMN/DMN integration: Workers: receive contexts; access via field names. Tasklist: displays context fields hierarchically (per Set 15 Q14). Operate: visualises structure. Anti-patterns: Deeply nested: hard to navigate. Field-name inconsistency: same data different field names across decisions. No schema",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-data-types/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q39",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Call Activity invokes a child process. Parent passes variables; child returns variables. Team wonders how data passing differs between Call Activity and Embedded Subprocess.",
+  "question": "Call Activity data passing vs Embedded Subprocess?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Embedded Subprocess and Call Activity use fundamentally different scoping models. Embedded Subprocess shares the parent scope directly through inheritance so inner activities read parent variables without mapping, and they share the same process instance. Call Activity creates an isolated child process instance with its own scope. md:47-53), the underlying isolation model differs structurally from scope inheritance."
+    },
+    {
+      "id": "b",
+      "text": "Call Activity fully supports bidirectional data passing. md:47-53). Input and Output mappings provide optional refinement to restrict which variables flow in each direction. The claim that no data passes between parent and child process instances directly contradicts the documented default propagation behavior of Call Activity in Camunda 8."
+    },
+    {
+      "id": "c",
+      "text": "md:47-53): Embedded Subprocess shares the parent scope through inheritance so inner tasks read parent variables directly; the same process instance runs throughout. Call Activity creates an isolated child process instance, but by default propagateAllParentVariables=true copies all parent scope variables in, and propagateAllChildVariables=true returns all child variables on completion. Input/Output mappings are optional refinements to restrict this bidirectional flow. Choose Call Activity for reusability and independent lifecycle; choose Embedded for inline structuring."
+    },
+    {
+      "id": "d",
+      "text": "Embedded Subprocess uses scope inheritance rather than explicit Input/Output mappings as its primary variable-sharing mechanism. Inner activities directly read and write variables in the enclosing parent scope without any mapping configuration. While optional Output Mappings can be added for specific variable transformations, the default mechanism is scope inheritance, not mapping. Saying Embedded uses mapping \"too\" implies mapping is the default mechanism, which misrepresents how Embedded Subprocess variable access actually works."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Subprocess composition styles + data flow: Embedded Subprocess: Definition: subprocess inlined in parent process model. Visual: rectangle (possibly with [+] expand marker) containing inner elements. Scope: inner activities have their own scope, but parent variables visible. Data flow: Inner reads parent: no mapping needed (scope inheritance). Inner writes: lands in inner scope (or via Output Mapping to parent scope). Lifecycle: same process instance; can't reuse across processes. Call Activity: Definition: refers to a separate process definition by ID via . Visual: rectangle with thick border, calling-out icon. Scope: child process is a separate instance with isolated scope. Data flow (default -- call-activities.md:47-53): Parent → Child: by default propagateAllParentVariables=\"true\", so ALL variables in the call activity's scope are copied to the new process instance. Setting propagateAllParentVariables=\"false\" restricts to only the call activity's local variables (typically those created via Input Mapping). Child → Parent: by default propagateAllChildVariables=\"true\", so ALL variables of the completed child instance are propagated back. Defining Output Mapping(s) at the call activity overrides the default and propagates only the mapped variables back. Input Mapping is OPTIONAL: creates new local variables on the call activity, copied along with everything else to the child. Without mapping or attribute overrides: full propagation both ways (NOT \"nothing flows\"). Lifecycle: separate process instance (visible in Operate as own root); reusable across multiple callers. Configuration example (Call Activity): xml `` Choose Embedded when: One-off composition: subprocess specific to this process. Tight coupling acceptable: parent and inner share data context. Visual clarity: showing the inner steps in the diagram is valuable. Choose Call Activity when: Reusable subprocess: invoked from multiple parent processes. Independent lifecycle: child should be auditable as own instance. Encapsulation: parent shouldn't see child's internal variables. Versioning: child evolves separately from parents. Hybrid patterns: Call Activity wrapping shared logic: standard utilities (e.g., \"Send Notification\" process called from many parents). Embedded for inline structuring: visual organisation without reuse."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong; default propagation is full both ways."
+    },
+    "d": {
+      "text": "Incorrect. Embedded uses scope inheritance, mapping optional."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/call-activities/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q05",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

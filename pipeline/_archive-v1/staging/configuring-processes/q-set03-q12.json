@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An order process has a Message Catch Event waiting for a shipment_status_update from a third-party logistics partner. The partner sends updates correlated by tracking_number. However, the same tracking_number can carry multiple updates over time (pickup, in-transit, out-for-delivery, delivered) -- the process should advance only on the specific update type matching its current expectation (e.g., waiting for \"delivered\"). The team configures correlationKey: =tracking_number. All updates with the same tracking number arrive at the catch event regardless of update type, advancing the process too early.",
+  "question": "Which Camunda 8 mechanism handles this \"filter by update type\" scenario?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Configure the correlation key to include both fields as a composite: correlationKey: =tracking_number + \"-\" + expected_update_type on the catch event, and coordinate with the partner to publish using the same composite key format. This approach technically works -- the catch event would only match a message with both the right tracking number and the right update type encoded in the key."
+    },
+    {
+      "id": "b",
+      "text": "Camunda automatically filters incoming messages by inspecting their content payload and matching them to the correct Message Catch Event based on field values. The team only needs to ensure the correlation key is correct and Zeebe will handle content-based routing. Zeebe matches messages solely on message name and correlation key -- there is no content-inspection or payload-based filtering mechanism. All messages with the same name and correlation key arrive at the catch event regardless of their payload content."
+    },
+    {
+      "id": "c",
+      "text": ", shipment_delivered instead of shipment_status_update) and have the partner publish with the matching name. Zeebe matches messages on both name and correlation key. By using distinct names per update type, each catch event subscribes to exactly the updates it expects. The =tracking_number correlation key still scopes delivery to the correct process instance."
+    },
+    {
+      "id": "d",
+      "text": "Use an Event Subprocess that catches all shipment_status_update messages and routes them internally via an Exclusive Gateway reading the updateType field from the message payload. The Event Subprocess must also handle the case where the wrong update type arrives, adding more conditional logic."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Composite correlation key works but requires the partner to publish with the composite -- coordination overhead. Message name is the cleaner abstraction."
+    },
+    "b": {
+      "text": "Incorrect. Messages in Zeebe are matched on both name and correlation key. Using a generic message name (shipment_status_update) for different events is bad design -- splitting into specific names (shipment_picked_up, shipment_in_transit, shipment_delivered) lets the catch event subscribe specifically to the type it needs. The correlation key (=tracking_number) still scopes to the right process instance."
+    },
+    "c": {
+      "text": "Correct. Camunda doesn't filter messages by arbitrary content -- match is on name + correlation key."
+    },
+    "d": {
+      "text": "Incorrect. Event Subprocess + downstream routing works but is heavier than message-name specificity."
+    }
+  },
+  "explanation": "Camunda doesn't filter messages by arbitrary content -- match is on name + correlation key.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q12",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

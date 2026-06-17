@@ -1,0 +1,27 @@
+{
+  "id": "mod-ad-hoc-subprocesses-37",
+  "topic": "modeling",
+  "subtopic": "subprocesses",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Cobalt Logistics runs an ad-hoc sub-process in Camunda 8.8 that screens 2000 shipments per hour for customs flags by activating several inner checks in parallel. As soon as the completionCondition evaluates to true after an inner element completes, the team needs any still-running inner instances to be terminated immediately so the outer flow can continue without waiting for them to finish.",
+  "question": "Which cancelRemainingInstances setting on the ad-hoc sub-process terminates the remaining active inner instances as soon as the completionCondition is met?",
+  "options": [
+    { "id": "a", "text": "Setting cancelRemainingInstances to false on the ad-hoc sub-process keeps remaining inner instances running until each one completes on its own" },
+    { "id": "b", "text": "Setting cancelRemainingInstances to true on the ad-hoc sub-process terminates remaining inner instances immediately and completes the sub-process" },
+    { "id": "c", "text": "Setting activeElementsCollection to an empty list on the ad-hoc sub-process cancels remaining inner instances as soon as the condition is met" },
+    { "id": "d", "text": "Setting completionCondition to true on the ad-hoc sub-process cancels remaining inner instances and propagates an interruption signal outward" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. With cancelRemainingInstances set to false, the ad-hoc sub-process waits for the completion of all active inner instances before completing itself, rather than terminating them when the completionCondition is satisfied." },
+    "b": { "text": "Correct. The default value true causes Zeebe to terminate all remaining active instances of inner elements when the completionCondition is met, and the ad-hoc sub-process is then completed directly." },
+    "c": { "text": "Incorrect. activeElementsCollection only controls which inner elements are activated when the ad-hoc sub-process is entered; it has no role in terminating instances that are already running on completion." },
+    "d": { "text": "Incorrect. completionCondition is the boolean expression that decides when the ad-hoc sub-process is complete; on its own it does not dictate whether remaining inner instances are terminated or allowed to finish." }
+  },
+  "explanation": "When cancelRemainingInstances is true (the default), satisfying the completionCondition terminates remaining inner-element instances and completes the ad-hoc sub-process immediately; setting it to false makes the sub-process wait for every active inner instance to finish first.",
+  "docs": [
+    { "title": "BPMN ad-hoc sub-processes", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/ad-hoc-subprocesses/" }
+  ]
+}

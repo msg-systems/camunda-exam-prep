@@ -1,0 +1,53 @@
+{
+  "id": "mod-multi-instance-53",
+  "topic": "modeling",
+  "subtopic": "multi-instance",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A parallel multi-instance activity has 10 instances and the completion condition `= numberOfCompletedInstances / numberOfInstances >= 0.5`. The 5th instance finishes successfully. What happens to the remaining 5 active instances?",
+  "options": [
+    {
+      "id": "a",
+      "text": "They are terminated and the multi-instance body completes."
+    },
+    {
+      "id": "b",
+      "text": "They continue running, and the body waits for all 10 instances to complete before propagating `outputCollection`."
+    },
+    {
+      "id": "c",
+      "text": "They keep running but their results are dropped from `outputCollection` because the condition was already met."
+    },
+    {
+      "id": "d",
+      "text": "The completion condition is ignored because `numberOfCompletedInstances` is not exposed as a process variable."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The `completionCondition` is evaluated each time an instance completes. When it evaluates to `true`, any instances that are still active are terminated and the multi-instance body completes."
+    },
+    "b": {
+      "text": "A `completionCondition` exists precisely to short-circuit the wait-for-all behaviour. Once it evaluates to `true`, the body completes without waiting for the remaining instances."
+    },
+    "c": {
+      "text": "The remaining instances are terminated, not allowed to keep running with discarded output. They simply stop."
+    },
+    "d": {
+      "text": "`numberOfCompletedInstances` and the other BPMN multi-instance properties are available specifically for use in the `completionCondition` expression and take precedence over process variables with the same name."
+    }
+  },
+  "explanation": "Camunda 8.8 re-evaluates the `completionCondition` whenever an instance of the multi-instance body completes. When the boolean expression becomes `true`, every still-active instance is terminated and the body itself completes. The properties `numberOfInstances`, `numberOfActiveInstances`, `numberOfCompletedInstances`, and `numberOfTerminatedInstances` are exposed for use in this expression and shadow process variables of the same name.",
+  "docs": [
+    {
+      "title": "BPMN multi-instance",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "= numberOfCompletedInstances / numberOfInstances >= 0.5"
+  }
+}

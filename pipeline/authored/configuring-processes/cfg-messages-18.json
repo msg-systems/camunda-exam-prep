@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-18",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A message intermediate catch event has the correlation key expression `= orderId`. The catch event is activated while `orderId = \"A\"`. Later, before any message arrives, an output mapping updates `orderId` to `\"B\"`. A message is then published with correlation key `\"B\"`. Does it correlate to this subscription?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No — the subscription was opened with correlation key `\"A\"` and is not updated when the referenced variable changes."
+    },
+    {
+      "id": "b",
+      "text": "Yes — Zeebe re-evaluates the correlation key expression every time a message is published."
+    },
+    {
+      "id": "c",
+      "text": "Yes — the latest value of `orderId` always wins, so the subscription now matches `\"B\"`."
+    },
+    {
+      "id": "d",
+      "text": "An incident is raised on the catching instance because the correlation key has been mutated."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs are explicit: the correlation key expression is evaluated *on activating the message catch event*, and \"after a subscription is opened, it is not updated (for example, when the referenced process variable is changed)\". So the subscription stays bound to `\"A\"` and a `\"B\"` message does not correlate."
+    },
+    "b": {
+      "text": "Zeebe evaluates the expression only once, when the subscription opens. It does not re-evaluate the expression each time a candidate message is published."
+    },
+    "c": {
+      "text": "Changing the underlying process variable later has no effect on an already-open subscription. The captured correlation key is frozen at activation time."
+    },
+    "d": {
+      "text": "Mutating a variable that was previously used as a correlation key is not an error condition in Zeebe and does not create an incident; the subscription simply continues to wait for the original key."
+    }
+  },
+  "explanation": "Message correlation in Zeebe is based on subscriptions opened when a process instance enters a message catch event. Both the message name and the correlation key expressions are evaluated *on activation*. The docs state explicitly that the subscription is not updated afterwards, even if the referenced variable changes, so the subscription remains bound to the original value (`\"A\"`).",
+  "docs": [
+    {
+      "title": "Message correlation",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

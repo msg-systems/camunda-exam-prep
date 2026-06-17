@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q06",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team designs a process where instances start from two sources: (1) an API call from a back-office UI, (2) a Message from a partner system. They wonder if they need two Start Events or one.",
+  "question": "Should two trigger sources use one Start Event or two?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Using a single Start Event to handle both an API call and a Message trigger does not reflect the actual behavior. In BPMN, each Start Event type is bound to exactly one trigger mechanism. A None Start Event responds only to explicit process instantiation via the API, while a Message Start Event responds only to a published Message matching its configured name. You cannot configure a single Start Event to respond to both triggers simultaneously. The correct BPMN pattern is to define one Start Event per trigger type and allow them to share the downstream process flow."
+    },
+    {
+      "id": "b",
+      "text": "Two Start Events -- one None Start, one Message Start -- each tied to its trigger source. The downstream BPMN can either: (1) converge immediately via a join (the rest of the process is shared); (2) diverge slightly if back-office and partner-triggered instances need different initial steps before converging. Different triggers, different Start Events is the BPMN-canonical pattern."
+    },
+    {
+      "id": "c",
+      "text": "One BPMN process definition can contain multiple Start Events, each with its own trigger type. Both Start Events then converge to the shared downstream flow. This approach keeps all related process logic in one place, simplifies operations (one deployment, one process in Operate), and avoids duplicating the shared business logic. Separate process definitions are warranted only when the overall process flow differs significantly between trigger sources, not merely the trigger mechanism."
+    },
+    {
+      "id": "d",
+      "text": "md:23-33, but it fires on a FEEL condition over variable state changes (or explicit Orchestration Cluster REST API trigger) -- it is NOT a webhook/API-trigger replacement. Wrong fit for this scenario, not wrong existence."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN supports multiple Start Events per process, each with its own trigger type: None Start Event: triggered by explicit API call (POST /v2/process-instances). Message Start Event: triggered by a published message matching the event's name. Timer Start Event: triggered by a schedule. Signal Start Event: triggered by a broadcast Signal. For \"two trigger sources\" (API + Message): Place a None Start Event for the API trigger. Place a Message Start Event for the partner Message. Common downstream: both Start Events' outgoing arrows converge to the shared first activity (or after a brief diverge for source-specific initial setup, then converge). Single BPMN file; two trigger paths; unified main flow. Operate / monitoring sees instances regardless of trigger source. This is more maintainable than two separate process definitions. Variations: Diverge before converge: each Start Event has 1-2 source-specific initial activities (e.g., logging the trigger source) before converging. Variables for trigger origin: set a triggerSource = \"API\" or \"Message\" variable in Input Mapping at each Start Event for downstream awareness."
+    },
+    "b": {
+      "text": "Correct. Single Start Event has single trigger type."
+    },
+    "c": {
+      "text": "Incorrect. One process with multiple Start Events."
+    },
+    "d": {
+      "text": "Incorrect. Conditional Start IS implemented in Camunda 8 (Pattern #20 / #28) -- bpmn-coverage.md:463 marks it implemented, and conditional-events.md:23-33 describes engine creating a subscription on deploy that fires when a FEEL condition over variable state evaluates true (or via Orchestration Cluster REST API trigger). But it is NOT a webhook/API-trigger surface: HTTP callers don't trigger it. Canonical for HTTP webhooks remains the Webhook Inbound Connector publishing a Message to a Message Start Event."
+    }
+  },
+  "explanation": "Single Start Event has single trigger type.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q06",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

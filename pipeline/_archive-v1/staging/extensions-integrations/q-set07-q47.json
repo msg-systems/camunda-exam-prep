@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q47",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has an RPA bot that automates a Windows-only desktop application (SAP GUI client). Their Linux-based RPA workers can't run it. Adding a Windows worker is the architectural question.",
+  "question": "What does Camunda 8 RPA architecture support for OS-specific bots?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Deploy a Windows based RPA worker dedicated to Windows only automations. md:107 RPA workers are supported on Windows, Linux, macOS, and Docker. worker tags=... , windows sap), and Zeebe routes only that subset to the Windows fleet. Scripts authored in Robot Framework."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 RPA workers only run on Linux -- Windows desktop automation is unsupported, meaning the SAP GUI integration is architecturally impossible within the Camunda RPA framework. This claim is inaccurate. md:107 and lines 119-120, Windows is an officially supported platform for Camunda RPA workers. The RPA worker binary runs natively on Windows without requiring Python as a prerequisite on that platform. Teams can deploy Windows-based RPA worker nodes specifically to run automations targeting Windows-only desktop applications like SAP GUI, enabling heterogeneous worker fleets mixing Linux and Windows nodes."
+    },
+    {
+      "id": "c",
+      "text": "Configure Wine on the Linux RPA worker nodes to emulate the Windows runtime environment, allowing the SAP GUI client to run on Linux through Wine's Windows API compatibility layer. While Wine can run some Windows applications on Linux, enterprise desktop software like SAP GUI, thick-client insurance systems, and Microsoft Office rely on deep Windows OS integration (COM objects, registry access, Windows-specific DLLs) that Wine does not reliably replicate. Wine compatibility for production enterprise applications is fragile and unsupported. The proper solution is to deploy genuine Windows worker nodes for Windows-only automations."
+    },
+    {
+      "id": "d",
+      "text": "Rewrite the SAP GUI Windows desktop application as a cross-platform web application so it can run on Linux workers -- this architectural suggestion is entirely outside the team's control. SAP GUI is a commercial enterprise application owned and maintained by SAP; the team consuming it cannot unilaterally rewrite it as a web service. RPA exists precisely to automate legacy desktop applications that teams cannot modify or replace. The Camunda RPA architecture accommodates this reality by supporting Windows-native worker nodes with label-based routing for OS-specific bots."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda 8 RPA architecture decouples bot scripts from the Zeebe broker. Multiple worker fleets coexist; routing is by label affinity per rpa/production.md:34-54 -- camunda.rpa.zeebe.worker-tags=default,windows-sap on the Windows worker, matching label on the BPMN RPA task. No camunda::rpa hand-typed Service Task type -- modeled as RPA connector task (rpa/getting-started.md:57-60). Pre/post-run scripts (production.md:56-65) can prepare the SAP GUI session; teardown ensures clean app shutdown."
+    },
+    "b": {
+      "text": "Incorrect. Windows workers supported."
+    },
+    "c": {
+      "text": "Incorrect. Wine compatibility for enterprise apps (SAP, MS Office) is unreliable; not for production."
+    },
+    "d": {
+      "text": "Incorrect. Legacy desktop apps often can't be rewritten."
+    }
+  },
+  "explanation": "Camunda 8 RPA architecture decouples bot scripts from the Zeebe broker. Multiple worker fleets coexist; routing is by label affinity per rpa/production.md:34-54 -- camunda.rpa.zeebe.worker-tags=default,windows-sap on the Windows worker, matching label on the BPMN RPA task. No camunda::rpa hand-typed Service Task type -- modeled as RPA connector task (rpa/getting-started.md:57-60). Pre/post-run scripts (production.md:56-65) can prepare the SAP GUI session; teardown ensures clean app shutdown.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/rpa/production/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q47",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

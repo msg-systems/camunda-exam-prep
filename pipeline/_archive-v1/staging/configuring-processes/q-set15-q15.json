@@ -1,0 +1,63 @@
+{
+  "id": "imp-set15-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task has many Task Headers (15+ header keys). Team wonders if there are limits on task header count / size.",
+  "question": "Task Header limits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Task Headers are passed alongside job activation -- practical limits depend on total message size (gRPC limit, per Q13). Each header is a key-value pair (strings); total contributes to message size. Limit considerations: Count: dozens typically fine; hundreds may be excessive. Individual header size: avoid putting large data in headers (intended for metadata, not payloads). Best practice: use headers for configuration / metadata; use variables for data."
+    },
+    {
+      "id": "b",
+      "text": "Task Headers in Camunda 8 are completely unlimited in count and total size -- this approach has limitations. While Camunda 8 does not impose an explicit per-header count limit, headers are passed alongside job activation within the gRPC message payload. The total gRPC message size (default ~4 MB) constrains the combined size of all headers plus job variables. Very large numbers of headers or headers with large values contribute to message size and can cause gRPC \"message too large\" errors. Best practice treats headers as lightweight metadata (configuration URLs, method names, routing hints) rather than data payloads."
+    },
+    {
+      "id": "c",
+      "text": "Task Headers are limited to a maximum of 10 per Service Task -- this specific limit has no basis in Camunda 8 documentation or implementation. There is no documented hard limit of 10 headers. The actual constraint is the gRPC message size limit (default ~4 MB), which bounds the combined payload of headers and variables together. Connectors built on Element Templates regularly use more than 10 headers to configure REST endpoints, authentication, retry behavior, and other settings. The 10-header figure may reflect a rough practical guideline but is not a documented Camunda 8 constraint."
+    },
+    {
+      "id": "d",
+      "text": "Task Headers (zeebe:taskHeaders) have been deprecated and will be removed from Camunda 8 -- this claim is entirely without basis. Task Headers remain a core, actively-used feature of Camunda 8 Service Tasks. They are fundamental to the Connector framework: the built-in REST, Slack, Email, and other Connectors rely heavily on Task Headers (configured via Element Templates) to pass configuration like URLs, auth methods, retry parameters, and result variable names to connector workers. 8."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Task Header design: What Task Headers are: Key-value pairs attached to a Service Task definition. Static or computed: set in BPMN, possibly with FEEL expressions. Available to worker: at job activation. In BPMN XML: `xml Typical uses: Configuration: API URL, method, content type. Connector-specific configuration. Per-task settings (e.g., retry count, timeout). Routing hints: Worker pool selection. Tenant ID. Element Template bindings: Element Templates often use Task Headers for properties. Modeler-friendly UI maps to headers. Vs variables: Variables: process state; flow between activities; subject to Input/Output mappings. Headers: static / per-task configuration; not part of process state. Size considerations: Per Q13: total job message size limit (gRPC ~4 MB default). Headers contribute: Each header (key, value) takes bytes. Many headers + many variables: total size matters. Practical limits: Header count: dozens typical; hundreds excessive. Per-header value size: kilobytes okay; megabytes don't put here. For large config: store in external config; reference by ID. Anti-patterns: Large payloads in headers: should be variables or documents. Dynamic per-instance data in headers: headers are typically static per process definition. Headers vs Element Template properties: Element Template can map property to header binding (per Set 13 Q16). Modeler UI shows property; runtime is header. Element Templates abstract header complexity. For dynamic header values: Standard zeebe:taskHeaders values are static strings (resolved at deploy, not per instance). For per-instance configuration, use Input Mappings to project FEEL expressions onto job variables, or use Connector / Element Template properties that bind to variables (not raw zeebe:header entries). For Connector retry: the reserved retryBackoff` task header (ISO 8601 duration string) per Pattern #37. Best practices: Headers for config: per-task settings, URLs, options. Variables for data: customer info, order details. Document headers: clarify intent. Element Templates: hide header complexity from modelers. For 15+ headers: Generally fine. Consider grouping into structured variables if many are related. Check if Element Template can consolidate. For Connector-heavy BPMN: REST / Email / Slack Connectors use many headers. 15+ is common for richly-configured Connectors. Element Templates provide clean modeler UX."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Task Header design: What Task Headers are: Key-value pairs attached to a Service Task definition. Static or computed: set in BPMN, possibly with FEEL expressions. Available to worker: at job activation. In BPMN XML: `xml Typical uses: Configuration: API URL, method, content type. Connector-specific configuration. Per-task settings (e.g., retry count, timeout). Routing hints: Worker pool selection. Tenant ID. Element Template bindings: Element Templates often use Task Headers for properties. Modeler-friendly UI maps to headers. Vs variables: Variables: process state; flow between activities; subject to Input/Output mappings. Headers: static / per-task configuration; not part of process state. Size considerations: Per Q13: total job message size limit (gRPC ~4 MB default). Headers contribute: Each header (key, value) takes bytes. Many headers + many variables: total size matters. Practical limits: Header count: dozens typical; hundreds excessive. Per-header value size: kilobytes okay; megabytes don't put here. For large config: store in external config; reference by ID. Anti-patterns: Large payloads in headers: should be variables or documents. Dynamic per-instance data in headers: headers are typically static per process definition. Headers vs Element Template properties: Element Template can map property to header binding (per Set 13 Q16). Modeler UI shows property; runtime is header. Element Templates abstract header complexity. For dynamic header values: Standard zeebe:taskHeaders values are static strings (resolved at deploy, not per instance). For per-instance configuration, use Input Mappings to project FEEL expressions onto job variables, or use Connector / Element Template properties that bind to variables (not raw zeebe:header entries). For Connector retry: the reserved retryBackoff` task header (ISO 8601 duration string) per Pattern #37. Best practices: Headers for config: per-task settings, URLs, options. Variables for data: customer info, order details. Document headers: clarify intent. Element Templates: hide header complexity from modelers. For 15+ headers: Generally fine. Consider grouping into structured variables if many are related. Check if Element Template can consolidate. For Connector-heavy BPMN: REST / Email / Slack Connectors use many headers. 15+ is common for richly-configured Connectors. Element Templates provide clean modeler UX.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/service-tasks/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q15",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-question-too-short",
+        "severity": "block",
+        "message": "question length 19 < 20 (catastrophically short)",
+        "where": "question"
+      }
+    ]
+  }
+}

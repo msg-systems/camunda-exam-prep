@@ -1,0 +1,63 @@
+{
+  "id": "imp-set17-q37",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL: lower case(\"ÄÖÜ\") (German umlauts). Wonders Unicode behavior. FEEL lower case / upper case Unicode?",
+  "question": "FEEL lower case / upper case Unicode?",
+  "options": [
+    {
+      "id": "a",
+      "text": "ASCII only -- wrong typically."
+    },
+    {
+      "id": "b",
+      "text": "toUpperCase() semantics apply): German umlauts and other extended Latin characters are handled correctly because the JVM processes the full Unicode Basic Multilingual Plane. md:74-106 shows only ASCII examples, but the underlying JVM implementation covers Unicode beyond ASCII. Edge cases such as the Turkish dotted-I and German Eszett may produce unexpected results. For most business internationalization needs involving Latin, Greek, or Cyrillic scripts, the built-in case functions produce correct results without any custom code."
+    },
+    {
+      "id": "c",
+      "text": "While the JVM Unicode case-folding used by Camunda FEEL handles most Unicode characters correctly, it is not truly locale-aware in the linguistic sense. The functions use Java default locale-insensitive semantics rather than OS-level locale settings. Locale-specific rules like the Turkish dotted-I distinction are not automatically applied. For most business use cases involving Latin scripts, the behavior is accurate and sufficient, but strict locale-specific transformations may require additional handling outside the FEEL expression layer."
+    },
+    {
+      "id": "d",
+      "text": "Manual character-by-character conversion is required for Unicode input -- this does not accurately reflect the behavior. FEEL provides built-in lower case and upper case functions that handle Unicode characters automatically through the underlying JVM implementation. Developers do not need to write custom character mapping logic, maintain lookup tables for individual code points, or implement special transformations for accented characters. The built-in functions cover the vast majority of real-world internationalization needs without any custom code, including most accented European characters."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL case + Unicode: Standard behavior: Unicode code points: handled. Latin extended: Ä → ä, Ö → ö, Ü → ü. Greek, Cyrillic: similar. Examples: `feel lower case(\"ÄÖÜ\") → \"äöü\" lower case(\"HELLO\") → \"hello\" upper case(\"café\") → \"CAFÉ\" upper case(\"naïve\") → \"NAÏVE\" Edge cases: Turkish I: İ (capital with dot) → i (lowercase with dot). I (capital no dot) → ı (lowercase no dot). Standard case folding: may not respect Turkish. Locale-specific case folding: more accurate. German Eszett: ß → uppercase historically SS. Modern Unicode: ẞ (capital sharp S). Behavior varies: per Unicode version. Greek: Σ → σ (middle) or ς (end). Position-dependent: typically not in case functions. For business cases: Use case 1: Email normalisation: lower case(email): consistent storage. Case-insensitive comparison. Use case 2: Name display: upper case for headers. lower case for searchable. Use case 3: Code normalisation: SKU codes: upper case. For contains insensitive: feel contains(lower case(text), lower case(\"search\")) Per Set 13 Q38. For matches: feel matches(text, \"pattern\", \"i\") Per Set 15 Q38. For locale-specific: Standard FEEL: Unicode-aware but not locale-specific. For Turkish, etc.: may need worker-side or custom. For testing: Multilingual inputs: ensure works. Edge cases: ß, İ, etc. For Operate display: Unicode shown correctly: typically. Encoding: UTF-8 throughout. For Form input: User types: Unicode characters. Process variables: store as-is. Case conversion: as needed. For decision inputs: Normalised inputs: lower case at boundary. Consistent comparison. For internationalisation: Different languages: different characters. Test per locale. Performance: Cheap operation: linear in string length. No measurable overhead for typical use. For Unicode normalisation: Different forms: NFC, NFD, NFKC, NFKD. FEEL doesn't typically normalise. For canonical comparison: normalise upstream. For combining characters: é as one char vs e + ´: different. For consistent: normalise. For RTL languages: Arabic, Hebrew: bidirectional. Case functions don't apply to non-cased scripts. For CJK: No case: Chinese, Japanese (mostly), Korean. Functions no-op typically. For emoji: No case concept. Preserved as-is. For special Unicode: Combining diacritics: preserved. Zero-width chars: preserved. Anti-patterns: ASCII-only assumption: breaks for international. No normalisation: surprises. Best practices: UTF-8 throughout: cluster + apps. Normalise at boundaries: consistent forms. Test multilingual: variations. For the scenario (German umlauts): lower case(\"ÄÖÜ\") → \"äöü\"`. Standard Unicode behavior. For Camunda 8 cluster: UTF-8: throughout. No special config: typically. For external systems: Match encoding: UTF-8 expected. Convert at boundary if not. For FEEL spec compliance: Unicode case folding: per DMN spec. Implementation: depends on engine. For language-specific tools: ICU library: more locale-aware. For complex locale: external tool."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-string/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q37",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 20.1 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

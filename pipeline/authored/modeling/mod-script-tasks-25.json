@@ -1,0 +1,50 @@
+{
+  "id": "mod-script-tasks-25",
+  "topic": "modeling",
+  "subtopic": "script tasks",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A script task defined with `zeebe:script` evaluates a FEEL expression that fails (for example, division by zero). What does the runtime do?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The process instance terminates via an error end event."
+    },
+    {
+      "id": "b",
+      "text": "An incident is raised at the script task; when the incident is resolved, the FEEL expression is evaluated again."
+    },
+    {
+      "id": "c",
+      "text": "The job is retried by the Zeebe broker using the default count of three retries."
+    },
+    {
+      "id": "d",
+      "text": "The script task is skipped and the token moves along the outgoing sequence flow."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "FEEL evaluation failure does not end the process; it raises an incident at the script task so the cause can be investigated and evaluation resumed."
+    },
+    "b": {
+      "text": "The docs say if the FEEL expression evaluation is unsuccessful, an incident is raised at the script task, and when the incident is resolved the script task is evaluated again."
+    },
+    "c": {
+      "text": "The FEEL script task implementation does not use jobs or worker retries; the integrated FEEL Scala engine evaluates the expression directly and raises an incident on failure."
+    },
+    "d": {
+      "text": "The script task is not skipped; the engine raises an incident and blocks further progress until the incident is resolved."
+    }
+  },
+  "explanation": "The FEEL-implementation script task is evaluated by Zeebe's integrated FEEL Scala engine. On evaluation failure an incident is raised at the script task; resolving the incident triggers re-evaluation. Worker retries apply only to the alternative job worker implementation, not to the inline FEEL form.",
+  "docs": [
+    {
+      "title": "BPMN script tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/script-tasks/"
+    }
+  ]
+}

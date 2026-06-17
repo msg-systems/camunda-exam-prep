@@ -1,0 +1,53 @@
+{
+  "id": "ext-configuration-33",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Inside the worker above, the handler omits `autoComplete = false` and also calls `client.newCompleteCommand(job.getKey()).send()` explicitly. What does the docs note say this causes?",
+  "codeBlocks": {
+    "stem": "@JobWorker(type = \"foo\")\npublic void handleJobFoo(final JobClient client, final ActivatedJob job) {\n  client.newCompleteCommand(job.getKey()).send();\n}"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "A race condition between the programmatic completion and the Spring integration's auto-complete, leading to unpredictable results."
+    },
+    {
+      "id": "b",
+      "text": "The explicit complete always wins because it is issued before the method returns."
+    },
+    {
+      "id": "c",
+      "text": "The Spring integration detects the explicit complete and silently skips its own complete call."
+    },
+    {
+      "id": "d",
+      "text": "The broker rejects the second completion with a `JOB_ALREADY_COMPLETED` error and the worker continues normally."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs explicitly warn that when completing jobs programmatically you must specify `autoComplete = false`; otherwise there is a race condition between your completion and the Spring integration's, leading to unpredictable results."
+    },
+    "b": {
+      "text": "Order is not guaranteed; the docs frame both completions as racing, not one cleanly winning."
+    },
+    "c": {
+      "text": "There is no automatic detection that suppresses the SDK's auto-complete — that is exactly why `autoComplete = false` must be set manually."
+    },
+    "d": {
+      "text": "The docs do not describe a graceful `JOB_ALREADY_COMPLETED` recovery; the warned-about outcome is unpredictability, not a tidy rejection."
+    }
+  },
+  "explanation": "When the Spring SDK is left with `autoComplete = true` (its default) and the handler also issues an explicit complete command, two completions race against the same job. The docs call this out and instruct developers to set `autoComplete = false` whenever they complete jobs programmatically.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter - Configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

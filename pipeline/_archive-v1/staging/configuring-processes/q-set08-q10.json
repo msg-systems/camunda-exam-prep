@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A loan-processing BPMN sets applicationDate as a process variable at the start. Later in the flow, a Service Task validate-loan sets a local input variable formattedDate (via Input Mapping) for the worker's use. After the task completes, downstream activities reference applicationDate. The team is confirming variable scopes. Which is true about applicationDate and formattedDate?",
+  "question": "Which is true about applicationDate and formattedDate?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Both applicationDate and formattedDate are process-scoped variables visible to all activities throughout the entire process instance -- this description does not reflect the actual behaviour. Input Mapping creates task-local variables that exist only within the scope of the task for which they are defined. The formattedDate variable created by the validate-loan task's Input Mapping is local to that task's execution context and is not written back to the process scope. After the task completes, the local variable is discarded. Process-scoped variables must be created explicitly at the process level or via Output Mapping."
+    },
+    {
+      "id": "b",
+      "text": "Both applicationDate and formattedDate are task-local variables scoped only to their respective task executions -- this description does not reflect the actual behaviour. The applicationDate variable was set at process start, making it a process-scoped variable visible to all activities in the instance throughout its lifetime. Task-local variables are specifically those created by Input Mapping during a task's execution. Variables set at the process level, in Start Events, or via Output Mapping from tasks are process-scoped and persist across the entire process instance."
+    },
+    {
+      "id": "c",
+      "text": "Variable scope in Camunda 8 is undefined and implementation-dependent -- each deployment may behave differently -- this description does not reflect the actual behaviour. Camunda 8 defines variable scopes explicitly and consistently. Process variables are scoped to the process instance and are accessible from any activity within it. Subprocess variables are scoped to their containing subprocess. Task-local variables created by Input Mapping are scoped to the individual task execution and do not propagate to parent scopes. The scoping rules are documented in the variables concept documentation and behave predictably across all deployments."
+    },
+    {
+      "id": "d",
+      "text": "applicationDate is a process-scoped variable set at process start, visible to all activities throughout the entire process instance lifetime. formattedDate is a task-local variable created by Input Mapping for the validate-loan task, visible only inside that task's execution context. After validate-loan completes, the local formattedDate variable goes out of scope and is not available to downstream activities. The process-scoped applicationDate continues to be accessible to all subsequent activities. Input Mapping creates isolated local copies; Output Mapping is required to promote values back to process scope."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 variables have explicit scopes following the BPMN scope hierarchy: process root, embedded subprocesses, and individual activities. The scope where a variable is created determines its lifetime and visibility: Process-scoped (set at process start, via Output Mapping into process scope, or via API): visible to all activities in the instance. Task-local (created by Input Mapping at activation): visible only inside that specific task's scope; discarded when the task completes (unless propagated via Output Mapping). Subprocess-scoped (created inside an Embedded Subprocess): visible only inside that subprocess. This scoping enables clean separation: task-local for ephemeral computations, process-scoped for persistent state. Output Mapping is the bridge from task-local to higher scope."
+    },
+    "b": {
+      "text": "Incorrect. Input Mapping creates task-local variables, not process-scoped."
+    },
+    "c": {
+      "text": "Incorrect. applicationDate was set at process start; it's process-scoped."
+    },
+    "d": {
+      "text": "Correct. Scoping is well-defined."
+    }
+  },
+  "explanation": "Scoping is well-defined.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/#variable-scopes"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-camunda8-sdk-73",
+  "topic": "extensions-integrations",
+  "subtopic": "typescript-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A service worker created with `camunda.createJobWorker({ jobType: \"service-task\", ..., jobHandler })` does its work and then `return`s `undefined` from the handler. What does the TypeScript SDK's type system enforce on `jobHandler`, per the docs?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The handler must return a job completion call such as `job.complete`, `job.fail`, `job.error`, or `job.ignore`; the type system enforces this so every code path responds to Zeebe."
+    },
+    {
+      "id": "b",
+      "text": "Returning `undefined` is treated as a silent success and the SDK calls `complete` for you automatically."
+    },
+    {
+      "id": "c",
+      "text": "Returning `undefined` is treated as a failure and the job is failed with decremented retries."
+    },
+    {
+      "id": "d",
+      "text": "The handler must return `Promise<void>`; the SDK then polls the broker again to learn the job outcome."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The Create a service worker section states the handler must return a job completion function such as `fail`, `complete`, `error`, or `ignore`, and that the type system enforces this to ensure every code path responds to Zeebe after taking a job."
+    },
+    "b": {
+      "text": "There is no auto-complete-on-undefined behaviour for `createJobWorker`; the docs explicitly require a completion call."
+    },
+    "c": {
+      "text": "The SDK does not silently translate `undefined` into a failure with retry decrement; the type system forces an explicit completion call instead."
+    },
+    "d": {
+      "text": "Zeebe is told the job outcome via the completion command sent by the worker — the broker does not poll workers for outcomes."
+    }
+  },
+  "explanation": "`createJobWorker` typing requires every code path in the handler to call a completion function — `job.complete`, `job.fail`, `job.error`, or `job.ignore`. This eliminates a class of bugs where a worker takes a job but never responds, leaving it in flight until the activation times out.",
+  "docs": [
+    {
+      "title": "Camunda 8 TypeScript SDK",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ]
+}

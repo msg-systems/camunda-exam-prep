@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A travel-booking process must invoke a separately-maintained payment-processing BPMN as part of its flow. The payment-processing BPMN is owned by a different team, has its own lifecycle, and is reused by 5 other processes.",
+  "question": "Which BPMN construct invokes another deployed process synchronously?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Call Activity references another deployed BPMN process by its processId. In Camunda 8 / Zeebe, the parent process instance pauses at the Call Activity until the called child process completes. Data flows in via input mappings and returns via output mappings. The called definition maintains its own independent lifecycle and versioning, making it ideal for a shared payment-processing process reused by five other parent processes. No logic is duplicated across callers â€” all use the single deployed child process definition."
+    },
+    {
+      "id": "b",
+      "text": "Send Task publishes a message that can trigger a Message Start Event on a separate process definition, creating an asynchronous fire-and-forget interaction. The parent process continues immediately after sending without waiting for the payment-processing workflow to complete or return results. There is no built-in return-flow mechanism for this pattern. This suits loosely-coupled event notification between systems, not synchronous invocation where the parent needs the child process output variables to continue its flow."
+    },
+    {
+      "id": "c",
+      "text": "Embedded Subprocess encapsulates flow within a collapsible sub-region of the parent process. The logic lives inline inside the parent BPMN file â€” not a separate deployable definition. For a payment-processing subprocess owned by a different team and reused by five other processes, copying the logic inline creates six separate maintenance points. Every change requires updating all six BPMN files. This defeats the reuse objective and violates the DRY principle for shared business processes across teams."
+    },
+    {
+      "id": "d",
+      "text": "Service Task with a fictitious call-process type string is an invented configuration that has no counterpart in Camunda 8 / Zeebe. Service Tasks use zeebe:taskDefinition with a type attribute identifying the subscribing Job Worker. There is no reserved type string for calling another BPMN process â€” invoking another process is the role of the Call Activity element, a dedicated first-class BPMN construct. Using an unrecognised task type results in jobs that sit permanently unactivated, causing process instances to hang. ###"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Call Activity is the canonical BPMN construct for synchronous invocation of another deployed process. The parent suspends, the called process executes, results return via output mapping, parent resumes. Independent lifecycle of the called definition is preserved -- perfect for shared, reusable subprocesses."
+    },
+    "b": {
+      "text": "Incorrect. Send Task + Message Start triggers an asynchronous new instance; no automatic return-flow."
+    },
+    "c": {
+      "text": "Incorrect. Embedded copy means 6 places to maintain the same logic."
+    },
+    "d": {
+      "text": "Incorrect. No call-process Service Task type; Call Activity is its own BPMN element."
+    }
+  },
+  "explanation": "Call Activity is the canonical BPMN construct for synchronous invocation of another deployed process. The parent suspends, the called process executes, results return via output mapping, parent resumes. Independent lifecycle of the called definition is preserved -- perfect for shared, reusable subprocesses.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

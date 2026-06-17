@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q53",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A production cluster has 50,000 in-flight process instances. The team needs to find all instances of process definition OrderProcess that are currently waiting at a specific Service Task \"validate-payment\" AND have variable priorityCustomer = true. They will manually intervene on those (modify variables, retry).",
+  "question": "Which Operate query mechanism is best for this targeted search?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Query Zeebe's broker directly via a gRPC ListProcessInstances API call, filtering by process definition key, current element ID validate-payment, and the priorityCustomer variable value. Zeebe's gRPC API is a command-oriented broker-direct API designed for high-throughput job worker operations. It does not expose a rich query endpoint like ListProcessInstances with compound filter capabilities for process definition, current activity, and variable values. That query capability belongs to Operate (via the UI or the Orchestration Cluster REST API)."
+    },
+    {
+      "id": "b",
+      "text": "Use Operate's instance search filters: select the OrderProcess process definition, apply the activity filter to limit results to instances currently waiting at \"validate-payment\", then add a variable filter for priorityCustomer = true. Operate's Elasticsearch-backed search index evaluates this compound query efficiently even against 50,000 in-flight instances. The resulting list shows exactly the targeted instances; operators can then select each one and use Process Instance Modification to update variables or retry. For programmatic batch access, the Orchestration Cluster REST API exposes the same filter parameters as query parameters or request body fields, allowing scripted interventions across the matched set."
+    },
+    {
+      "id": "c",
+      "text": "Export all 50,000 in-flight process instances to a CSV file using Operate's bulk-export feature, open the CSV in Excel or a data analysis tool, and manually filter the rows by process definition, current activity, and variable value to identify the target instances before performing any intervention. It creates a stale snapshot that may already be outdated by the time the filter runs, introduces manual error risk, and scales poorly. Operate's native search filters handle this query directly against the live index."
+    },
+    {
+      "id": "d",
+      "text": "Use the Optimize API, which has SQL-like query capabilities and supports querying by process definition and instance variables, to retrieve the list of instances waiting at validate-payment with priorityCustomer = true. Optimize is an analytics tool backed by an eventually-consistent data model that ingests completed instance data for historical reporting. It does not provide real-time runtime state queries for instances currently in-flight. For operational queries on live instances, Operate with its Elasticsearch-backed search index is the correct tool."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate is purpose-built for operational instance queries with filters on process definition, current activity, variables, and instance state. The UI provides interactive filters; the equivalent REST query is available via Orchestration Cluster API for programmatic access. This combination handles 50K-scale queries efficiently."
+    },
+    "b": {
+      "text": "Correct. Zeebe gRPC doesn't have a rich ListProcessInstances query API with variable filters; that's Operate's domain."
+    },
+    "c": {
+      "text": "Incorrect. Exporting and filtering offline defeats the purpose of an operational dashboard."
+    },
+    "d": {
+      "text": "Incorrect. Optimize is analytics, not operational -- slower, eventually-consistent data, not real-time runtime state."
+    }
+  },
+  "explanation": "Zeebe gRPC doesn't have a rich ListProcessInstances query API with variable filters; that's Operate's domain.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/basic-operate-navigation/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q53",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

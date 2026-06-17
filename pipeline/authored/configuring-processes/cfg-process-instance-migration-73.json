@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-73",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Service task `A` has a timer boundary event `T1` and will be migrated to service task `B`, which has a timer boundary event `T2`. The mapping plan already maps `A` → `B`. What must the mapping for `T1` be in order for the migration to be accepted?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`T1` may be left unmapped; its subscription will be removed automatically."
+    },
+    {
+      "id": "b",
+      "text": "`T1` must be mapped to `T2`."
+    },
+    {
+      "id": "c",
+      "text": "`T1` may be mapped to any timer boundary event in the target process, not necessarily one attached to `B`."
+    },
+    {
+      "id": "d",
+      "text": "`T1` must be mapped to a non-interrupting copy of `T2`."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "A mapping instruction cannot detach a catch event from an active element. Leaving `T1` unmapped while `A` is mapped to `B` violates the catch-event limitation."
+    },
+    "b": {
+      "text": "Because `A` is mapped to `B`, a mapping for `T1` may only refer to a catch event attached to `B`. With only `T2` on `B`, the mapping for `T1` must be `T1` → `T2`."
+    },
+    "c": {
+      "text": "The mapping cannot move a boundary event off its host task. `T1` may only map to a catch event that stays attached to the mapped target task `B`."
+    },
+    "d": {
+      "text": "A catch event cannot change type or interrupting/non-interrupting nature freely during mapping; the constraint is that `T1` must map to `T2` because `T2` is attached to `B`."
+    }
+  },
+  "explanation": "The catch-event limitations state that a mapping instruction cannot detach a catch event from an active element. If `A` is mapped to `B`, then any boundary catch event on `A` (such as `T1`) must be mapped to a boundary catch event on `B`. With only `T2` available on `B`, the mapping for `T1` can only refer to `T2`.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

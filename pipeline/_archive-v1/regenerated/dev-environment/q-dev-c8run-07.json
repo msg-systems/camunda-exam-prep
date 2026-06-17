@@ -1,0 +1,50 @@
+{
+  "id": "dev-c8run-07",
+  "topic": "dev-environment",
+  "subtopic": "c8run advanced options",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "A fintech platform team evaluates Camunda 8 Run for 30 days of internal demos and wants to point the runtime at a pre-existing single-node Elasticsearch container that listens on port 9200. They also want to tune the Elasticsearch JVM memory from the default 1g heap via environment variables before launching the start script.",
+  "question": "Which combination of flags and environment variables matches what the advanced options page documents for this setup?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Start with --disable-elasticsearch and --config application.yaml that points to http://127.0.0.1:9200/, and set ES_JAVA_OPTS to override the default -Xms1g -Xmx1g for the embedded Elasticsearch process"
+    },
+    {
+      "id": "b",
+      "text": "Start with --disable-elasticsearch and --config application.yaml that points to http://127.0.0.1:9200/, and set JAVA_OPTS to override the default -Xms1g -Xmx1g specifically for the embedded Elasticsearch process"
+    },
+    {
+      "id": "c",
+      "text": "Start with --external-elasticsearch http://127.0.0.1:9200/ as a single flag, and set ES_HEAP_SIZE to override the default 1g heap before launching the Camunda 8 Run start script"
+    },
+    {
+      "id": "d",
+      "text": "Start with --disable-elasticsearch only and rely on auto-discovery of the local Elasticsearch on port 9200, and set ES_JAVA_OPTS to override the default -Xms2g -Xmx2g for the embedded process"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The advanced options docs instruct users to provide an application.yaml with the secondary-storage Elasticsearch url and start Camunda 8 Run with --disable-elasticsearch --config application.yaml. The environment variables table lists ES_JAVA_OPTS with default -Xms1g -Xmx1g for overriding Elasticsearch Java parameters."
+    },
+    "b": {
+      "text": "Incorrect. JAVA_OPTS in the environment variables table overrides Java command line parameters for Camunda, not Elasticsearch; the Elasticsearch parameters are overridden via ES_JAVA_OPTS."
+    },
+    "c": {
+      "text": "Incorrect. There is no --external-elasticsearch flag in the configuration options, and the docs use ES_JAVA_OPTS, not ES_HEAP_SIZE, to override the Elasticsearch Java command line parameters."
+    },
+    "d": {
+      "text": "Incorrect. The docs require a custom application.yaml that points secondary-storage to the external Elasticsearch URL alongside --disable-elasticsearch, and ES_JAVA_OPTS has a default of -Xms1g -Xmx1g rather than -Xms2g -Xmx2g."
+    }
+  },
+  "explanation": "To use an external Elasticsearch with Camunda 8 Run, supply --disable-elasticsearch and a --config application.yaml that sets camunda.data.secondary-storage.elasticsearch.url. ES_JAVA_OPTS overrides the Elasticsearch JVM parameters (default -Xms1g -Xmx1g), while JAVA_OPTS overrides Java parameters for Camunda.",
+  "docs": [
+    {
+      "title": "Developer quickstart with Camunda 8 Run",
+      "url": "https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/c8run/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q47",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A SaaS platform's reporting subsystem needs to extract analytical metrics from Camunda 8 process executions: average instance duration per process definition, frequency of incident creation, completion rates per User Task. The data should feed into the company's BI tool (Tableau). The reporting team prefers a REST API for periodic polling.",
+  "question": "Which Camunda 8 API is purpose-built for analytical/reporting queries?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda Optimize REST API -- Camunda's analytics product API; exposes process instance reports, duration metrics, incident summaries, and BI-friendly aggregations through report/, dashboard/, and import/export endpoints. Designed exactly for this use case. , a report showing average instance duration per process definition), exporting data for external consumption, and querying historical aggregated statistics. For the BI pipeline, the team can configure Optimize reports once via the Optimize UI and then poll the REST API periodically to push fresh data to Tableau. This requires no custom aggregation code on the client side -- Optimize handles the OLAP-style aggregation internally."
+    },
+    {
+      "id": "b",
+      "text": "Zeebe gRPC API -- direct broker queries; lowest-level access to runtime state. The Zeebe gRPC API is a command and activation interface -- it handles job activation, process instance creation, variable setting, signal broadcasting, and similar operational commands. It is not a query or analytics API and does not expose aggregated process metrics, historical duration distributions, or incident frequency statistics. Attempting to build BI-level analytics from raw Zeebe gRPC calls would require reconstructing the entire event log history on the client side, which is precisely what Optimize's dedicated analytics engine already does."
+    },
+    {
+      "id": "c",
+      "text": "Operate API -- primarily for instance-level operational queries; can be aggregated client-side for reports. Operate's purpose is operational dashboards -- showing current states of running instances, incident lists, active tokens, and recent completions. While you could theoretically paginate through Operate's API and aggregate results client-side for reporting, this would require writing complex aggregation code, managing pagination across potentially millions of instances, handling historical data that Operate may not retain indefinitely, and duplicating the exact functionality that Optimize's dedicated analytics engine provides natively with pre-computed aggregations."
+    },
+    {
+      "id": "d",
+      "text": "Web Modeler API -- provides modeled resources; can include execution metadata. The Web Modeler API is focused on the design-time layer: managing BPMN, DMN, and Form resources in Web Modeler projects, handling project structure (folders, files), collaborator management, and triggering deployments from modeled resources to clusters. It has no access to process execution data, instance histories, variable values, or incident statistics. Execution data is managed by the runtime components (Zeebe, Operate, Optimize), not by the design-time Web Modeler layer."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda Optimize is the dedicated analytics product in the Camunda 8 stack. Its REST API exposes pre-computed reports, time-series metrics, instance duration aggregations, incident statistics, and configurable dashboards. It's the canonical choice for BI integration -- Optimize handles the historical-data warehousing, OLAP-style queries, and aggregation; downstream BI tools just consume the REST endpoints."
+    },
+    "b": {
+      "text": "Incorrect. Zeebe gRPC is broker-level command/query for runtime state, not for analytical aggregations."
+    },
+    "c": {
+      "text": "Incorrect. Operate is for operational dashboards (current state of running instances), not analytical history. Client-side aggregation works but is reinventing what Optimize provides."
+    },
+    "d": {
+      "text": "Incorrect. Web Modeler API gives access to modeled resources (BPMN/DMN/Forms files, project structure), not execution data."
+    }
+  },
+  "explanation": "Camunda Optimize is the dedicated analytics product in the Camunda 8 stack. Its REST API exposes pre-computed reports, time-series metrics, instance duration aggregations, incident statistics, and configurable dashboards. It's the canonical choice for BI integration -- Optimize handles the historical-data warehousing, OLAP-style queries, and aggregation; downstream BI tools just consume the REST endpoints.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/optimize-api/overview/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q47",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

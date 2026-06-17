@@ -1,0 +1,63 @@
+{
+  "id": "imp-set17-q17",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Service Task has retries=3. Each retry should wait 30s. Team wonders backoff configuration.",
+  "question": "Service Task retry backoff?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Auto exponential -- wrong typically."
+    },
+    {
+      "id": "b",
+      "text": "md:76-79 verbatim: \"When failing a job it is possible to specify a retry back off. ofSeconds(30)) or set zeebe:taskHeader retryBackoff=\"PT30S\" on the Service Task for a fixed delay. For exponential backoff, compute the duration on the worker side based on remaining retry count before calling failJob."
+    },
+    {
+      "id": "c",
+      "text": "Without explicit backoff configuration, Zeebe does immediately re-activate jobs after failure. This capability exists specifically to support retry spacing patterns for transient errors such as rate limits or temporary system unavailability."
+    },
+    {
+      "id": "d",
+      "text": "Connector retry policies apply only to Connector tasks, not to general Service Tasks with custom job workers. For arbitrary Service Tasks, the job worker SDK provides retryBackoff on the failJob command, or engineers can model retry delays explicitly using Timer Boundary Event patterns in the process flow. Both approaches are valid depending on the use case."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Retry backoff patterns: Default Camunda 8 retry behavior (job-workers.md:76-79): retries attribute: count. On failJob(): retries decremented. retryBackoff (optional, native): delay before next activation -- set per fail call OR as zeebe:taskHeader retryBackoff=\"PT30S\". Without back-off: immediate re-activation (verbatim \"If no retry back off the job is immediately retried\"). For explicit backoff: Pattern 1: Timer Boundary + retry: ` [Service Task: Call External API] └─ Error Boundary → [Timer 30s] → connects back to Service Task On error: wait 30s; retry. Process model: Loop: [Try Service Task] ├─ success → continue └─ error → [Timer 30s] → back to Try Termination: max retries variable Pattern 2: In-worker backoff: java @JobWorker(type = \"...\") public Map handle() { try { return callExternalApi(); } catch (TransientException e) { Thread.sleep(30_000); // wait inside worker throw e; // SDK fails job; retries decrement } } Cons: blocks worker thread; not ideal. Pattern 3: Backoff with retry attribute in worker (advanced): Some SDKs may support: java client.newFailCommand(jobKey) .retries(remainingRetries) .retryBackoff(Duration.ofSeconds(30)) // verify support .send(); Pass backoff hint to engine. Verify Camunda 8 SDK version: feature availability. Pattern 4: Exponential backoff via process variables: Process variable: backoffSeconds = 1 Loop: [Service Task] └─ Error → [Timer ${backoffSeconds}s] → [Update: backoffSeconds *= 2] → back ` Exponential growth. For Connector retries (per Set 14 Q35): BPMN-level retries: standard. Connector-internal: may include backoff. Verify per Connector. For external system rate limits (per Set 15 Q16): Respect Retry-After: from 429 responses. Adaptive backoff: per server hint. For idempotency: Critical with retries. Re-execution safe. For job activation timeout (per Set 13 Q10): Different from retry: timeout = no response. Combine carefully: activation timeout > backoff + worker time. For monitoring: Retry rate per task: identify problematic. Average backoff time: total latency. For SLA impact: Backoff adds latency: P95 affected. Balance reliability + speed. For SDK feature evolution: Newer SDKs: more backoff features. Verify version. Anti-patterns: Immediate retry on rate-limited: hits same limit. No retry: transient failures lose data. Infinite retry: stuck process. For exponential backoff math: Initial: 1s. Multiplier: 2x. Cap: 60s (don't grow indefinitely). Jitter: ±20% randomness. For testing: Simulate failures: verify backoff. Measure timing: actual wait. For the scenario (30s wait between retries): Approach: If SDK supports retry backoff: configure directly. Else: process model with Timer + retry loop. Or worker-side: less ideal. For complex retry strategies: Process-level orchestration: clear in BPMN. Observable in Operate: see retries. Best practices: Idempotent workers: safe retries. Sensible retry count: 3-5 typical. Backoff for transient errors: avoid hammering. Monitor retry patterns."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q17",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 10.0 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

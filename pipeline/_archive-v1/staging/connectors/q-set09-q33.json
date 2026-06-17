@@ -1,0 +1,63 @@
+{
+  "id": "imp-set09-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team wants to send Microsoft Teams messages from BPMN -- e.g., notify a channel when a critical incident occurs.",
+  "question": "Which Connector option fits Microsoft Teams integration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Microsoft Teams is fully integrable from Camunda processes using available Connector tooling. Teams supports Incoming Webhooks that accept HTTP POST requests with JSON payloads, and Camunda's HTTP Outbound Connector can make such requests. 8) provides a higher-level integration using Microsoft Graph API. Claiming that Teams integration is not possible misunderstands both the Teams platform's webhook capabilities and Camunda's flexible Connector framework."
+    },
+    {
+      "id": "b",
+      "text": "md:1-9) -- authenticates via Microsoft Graph API (Azure AD app registration + Bearer/OAuth2 client-credentials per :14-15); credentials referenced as Camunda secrets per :17-19. Alternative if Graph-API auth is impractical: generic HTTP Connector POST to a Teams Incoming Webhook URL (channel-scoped webhook configured by Teams admin) with Adaptive Card / MessageCard JSON body. Dedicated Connector preferred for ergonomics (separate fields for conversation type, method, message) and to leverage richer Graph features (mentions, channel listing)."
+    },
+    {
+      "id": "c",
+      "text": "Building a custom Connector for Microsoft Teams is technically feasible but unnecessary in most cases. Microsoft Teams supports Incoming Webhooks that can be called via a standard HTTP POST, which the generic HTTP Outbound Connector handles without any custom code. Custom Connectors are appropriate when the target system requires complex authentication, response parsing, or protocol handling that generic connectors cannot easily address. For Teams notification scenarios, the built-in HTTP Connector or dedicated Teams Connector suffices."
+    },
+    {
+      "id": "d",
+      "text": "Emailing a Teams channel is not the standard programmatic integration path. Some Teams configurations may support email-to-channel posting, but this is a limited and indirect approach that lacks proper authentication, structured payload support, and reliable delivery guarantees. The standard integration method is posting JSON to a Teams Incoming Webhook URL via HTTP, which the Camunda HTTP Outbound Connector handles directly with full control over message content and format."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Microsoft Teams supports Incoming Webhooks for channels -- admins configure a webhook URL in the Teams channel; posting JSON to that URL pushes a message to the channel. Any HTTP-capable client can call it. Camunda options: Dedicated Microsoft Teams Connector (where available in Camunda's library): better ergonomics -- separate fields for channel, title, message, mentions, etc. Auth via secrets. Generic HTTP Outbound Connector: POST to the Teams Webhook URL with appropriate JSON payload (typically a Teams \"MessageCard\" format or Adaptive Card). Configure the Webhook URL as a cluster secret. Some advanced Teams scenarios (e.g., bot interactions, user authentication) require Microsoft Graph API and more complex auth (OAuth2 with Microsoft Identity); the HTTP Connector handles that too."
+    },
+    "b": {
+      "text": "Correct. Integrable via Webhook URL."
+    },
+    "c": {
+      "text": "Incorrect. HTTP Connector covers Webhook URL calls."
+    },
+    "d": {
+      "text": "Incorrect. Webhook is the standard."
+    }
+  },
+  "explanation": "Integrable via Webhook URL.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/microsoft-teams/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q33",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[3]"
+      }
+    ]
+  }
+}

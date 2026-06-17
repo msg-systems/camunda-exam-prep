@@ -9,7 +9,6 @@
     "difficulty",
     "style",
     "camundaVersion",
-    "scenario",
     "question",
     "options",
     "correctOptionId",
@@ -42,19 +41,23 @@
     },
     "difficulty": { "type": "string", "enum": ["easy", "medium", "hard"] },
     "style": { "type": "string", "enum": ["scenario", "concept", "recall"] },
+    "kind": {
+      "type": "string",
+      "enum": ["single", "negative"],
+      "description": "Item kind. 'single' (default) is a standard 1-of-4. 'negative' asks for the wrong/false option; the stem must contain NOT or FALSE."
+    },
     "camundaVersion": { "type": "string", "const": "8.8" },
     "scenario": {
       "type": "string",
-      "minLength": 80,
       "maxLength": 800,
-      "description": "Concrete business situation with domain marker and measurable."
+      "description": "Optional runtime situation; short tech-token framing (BPMN/FEEL snippets, ISO 8601, @JobWorker) preferred over fictional-company narrative."
     },
     "question": {
       "type": "string",
       "minLength": 20,
-      "maxLength": 300,
+      "maxLength": 400,
       "pattern": "\\?\\s*$",
-      "description": "Interrogative sentence ending with '?'."
+      "description": "Interrogative sentence ending with '?'. For kind=negative, must contain NOT or FALSE."
     },
     "options": {
       "type": "array",
@@ -66,7 +69,7 @@
         "required": ["id", "text"],
         "properties": {
           "id": { "type": "string", "enum": ["a", "b", "c", "d"] },
-          "text": { "type": "string", "minLength": 30, "maxLength": 450 }
+          "text": { "type": "string", "minLength": 1, "maxLength": 600 }
         }
       }
     },
@@ -82,7 +85,7 @@
         "d": { "$ref": "#/definitions/explanation" }
       }
     },
-    "explanation": { "type": "string", "minLength": 80, "maxLength": 700 },
+    "explanation": { "type": "string", "minLength": 40, "maxLength": 800 },
     "docs": {
       "type": "array",
       "minItems": 1,
@@ -91,13 +94,44 @@
         "additionalProperties": false,
         "required": ["title", "url"],
         "properties": {
-          "title": { "type": "string", "minLength": 4, "maxLength": 120 },
+          "title": { "type": "string", "minLength": 4, "maxLength": 160 },
           "url": {
             "type": "string",
             "pattern": "^https://docs\\.camunda\\.io/docs/"
           }
         }
       }
+    },
+    "codeBlocks": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "stem": { "type": "string", "maxLength": 2000 },
+        "perOption": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "a": { "type": "string", "maxLength": 1000 },
+            "b": { "type": "string", "maxLength": 1000 },
+            "c": { "type": "string", "maxLength": 1000 },
+            "d": { "type": "string", "maxLength": 1000 }
+          }
+        }
+      }
+    },
+    "diagramUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Optional URL of an inline BPMN/DMN diagram image."
+    },
+    "diagramAlt": {
+      "type": "string",
+      "maxLength": 300,
+      "description": "Alt text for diagramUrl."
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
     }
   },
   "definitions": {
@@ -108,10 +142,11 @@
       "properties": {
         "text": {
           "type": "string",
-          "minLength": 80,
-          "maxLength": 700,
-          "pattern": "^(Correct|Incorrect)\\."
-        }
+          "minLength": 20,
+          "maxLength": 800
+        },
+        "verdict": { "type": "string", "maxLength": 80 },
+        "score": { "type": "number", "minimum": 0, "maximum": 10 }
       }
     }
   }

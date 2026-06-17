@@ -1,0 +1,50 @@
+{
+  "id": "cfg-signals-26",
+  "topic": "configuring-processes",
+  "subtopic": "signals",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Bank runs 60000 transactions per day in Camunda 8.8 across 8 clusters of process applications. A platform engineer is sizing capacity for a new global broadcast that triggers all running loan-origination processes, and the team needs to know how a signal broadcast scales with the partition count and matching subscription count of the cluster.",
+  "question": "What is the cardinality and partition behavior of a broadcast signal in Camunda 8.8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The broadcast triggers all matching subscriptions and is sent to every partition, with network traffic scaling linearly with the partition count of the cluster."
+    },
+    {
+      "id": "b",
+      "text": "The broadcast triggers only the first matching subscription per partition and is sent to a single owner partition selected by a hash of the signal name."
+    },
+    {
+      "id": "c",
+      "text": "The broadcast triggers all matching subscriptions on the local partition only, and remote partitions receive a deferred replay through the export stream."
+    },
+    {
+      "id": "d",
+      "text": "The broadcast triggers a single matching subscription cluster-wide and is sent to one partition selected by least-loaded routing on the gateway service."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. A broadcast iterates over all matching subscriptions and is sent to every partition; the documented performance caution notes that this network traffic scales linearly with the number of partitions in the cluster."
+    },
+    "b": {
+      "text": "Incorrect. Signal broadcast does not select a single owner partition by hash and does not stop at the first matching subscription; all matching subscriptions on all partitions are triggered."
+    },
+    "c": {
+      "text": "Incorrect. Broadcasts are sent to all partitions immediately, not just the local one with a replay; the documented traffic pattern is per-partition fan-out at broadcast time."
+    },
+    "d": {
+      "text": "Incorrect. A broadcast does not pick a single subscription cluster-wide; the documented behaviour fans out to all matching subscriptions across all partitions of the cluster."
+    }
+  },
+  "explanation": "A broadcast signal triggers every matching subscription and is sent to every partition. Both factors affect performance: many subscriptions can spawn many process executions, and partition fan-out makes network traffic scale linearly with the partition count.",
+  "docs": [
+    {
+      "title": "Signals",
+      "url": "https://docs.camunda.io/docs/components/concepts/signals/"
+    }
+  ]
+}

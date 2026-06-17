@@ -1,0 +1,27 @@
+{
+  "id": "ext-configuration-53",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Sable Insurance configures a Camunda Spring Boot Starter worker on Camunda 8.8 that emits 3700 jobs per hour. The team uses the default auto-completing handlers and wants to return updated process variables from each handler method so that downstream BPMN elements receive the new values without calling the JobClient directly, and a reviewer audits which return types the starter accepts.",
+  "question": "Which return type does the documented auto-completing @JobWorker handler accept for process variables?",
+  "options": [
+    { "id": "a", "text": "Return a CompletionStage<Void> that resolves once the downstream service replies, after which the starter reads variables back from the original ActivatedJob payload to forward to the broker on completion" },
+    { "id": "b", "text": "Return a JobClient.CompleteCommand that the starter executes on the developer's behalf, picking the variable map from the command builder before it issues the complete request to the broker" },
+    { "id": "c", "text": "Return a Map<String, Object> containing the process variables, which the docs list as one of the accepted return shapes alongside a JSON String, an InputStream of JSON, or any Object serialized to JSON" },
+    { "id": "d", "text": "Return a List<Object> of positional variable values that the starter zips with a configured names list under worker.override.foo.variable-names to produce the variable map for the broker on completion" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The starter does not read variables back from the ActivatedJob after the handler resolves; the handler itself returns the variable map that the starter sends with complete." },
+    "b": { "text": "Incorrect. The handler does not return a CompleteCommand builder; the documented return shapes are Map, JSON String, JSON InputStream, or Object serialized to JSON." },
+    "c": { "text": "Correct. The docs list the accepted auto-complete return types as Map<String, Object>, String containing a valid JSON object, InputStream streaming a valid JSON object, and Object that is serialized to a JSON object." },
+    "d": { "text": "Incorrect. The starter does not consume positional value lists zipped with a names property; it expects a keyed structure such as a Map or a JSON object payload to derive the variable map." }
+  },
+  "explanation": "Under autoComplete the @JobWorker handler may return a Map<String, Object>, a String containing a valid JSON object, an InputStream streaming a valid JSON object, or any Object that the starter serializes to a JSON object. The starter forwards the resulting variables on completion.",
+  "docs": [
+    { "title": "Camunda Spring Boot Starter configuration", "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/" }
+  ]
+}

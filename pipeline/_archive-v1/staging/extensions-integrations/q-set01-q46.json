@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team is building a custom dashboard for ops monitoring of running process instances. They need to: 1. List all process instances with status \"ACTIVE\" filtered by customerSegment = \"enterprise\" 2. Modify specific variables on a running instance (manually move a variable's value to override a bug) 3. Trigger a process instance migration from version 1.2 to 1.3",
+  "question": "Which Camunda 8 API best fits these three operational tasks?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe gRPC API -- direct broker-level commands; lowest latency for state-changing operations. The Zeebe gRPC API is the low-level command interface to the broker, supporting operations like CreateProcessInstance, SetVariables, MigrateProcessInstance, and ActivateJobs. The Zeebe gRPC API is command-oriented, not query-oriented -- you cannot search instances by variable values through gRPC. For the combination of querying, modifying, and migrating instances, the Orchestration Cluster REST API provides all three in one surface."
+    },
+    {
+      "id": "b",
+      "text": "8 UI-backing API; superseded by the Orchestration Cluster API. The Operate API was historically the REST API that backed the Operate UI for querying process instances, variable values, and audit trails. 8, the Orchestration Cluster REST API was introduced as the unified replacement, consolidating what previously required mixing the Operate API (for queries), Tasklist API (for user tasks), and Zeebe gRPC (for commands) into a single REST surface. 8+, building against the legacy Operate API means taking on technical debt against an API that will be deprecated in future versions."
+    },
+    {
+      "id": "c",
+      "text": "Administration API -- cluster administration (user management, cluster config); does not handle instance-level operations. The Administration API is scoped to cluster-level governance tasks: managing users, groups, roles, permissions, organisational settings, and cluster configurations in Camunda Console. It does not expose process instance search, process instance variable manipulation, or process instance migration endpoints. These are runtime operations against a specific Zeebe cluster, which belong to the Orchestration Cluster REST API scope. The Administration API operates at the control-plane level, not the data-plane level."
+    },
+    {
+      "id": "d",
+      "text": "8 that exposes process instance search, modification, and migration operations. It replaces what previously required mixing the Operate API (for queries), Tasklist API (for user tasks), and Zeebe gRPC (for commands). Operation 1 (search active instances filtered by variable) maps to the POST /process-instances/search endpoint with filter criteria. Operation 2 (modify variables) maps to PUT /element-instances/{elementInstanceKey}/variables. Operation 3 (migration) maps to POST /process-instances/{processInstanceKey}/migration with the migration plan. All three operations are available in a single authenticated REST surface."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Orchestration Cluster REST API (introduced in Camunda 8.8) is the unified, supported API for application integration. It consolidates what previously required mixing Operate API (search), Tasklist API (user tasks), and Zeebe gRPC (commands) into a single REST surface. It supports process instance search/filter (operation 1), variable modification on running instances (operation 2), and migration (operation 3). For new application development in 8.8+, this is the canonical choice."
+    },
+    "b": {
+      "text": "Incorrect. Zeebe gRPC API does support modification and migration commands, but lacks a rich query API for instance listing. It's command-oriented, not query-oriented."
+    },
+    "c": {
+      "text": "Incorrect. Operate API was historically used for queries + some modification; for new 8.8 applications, the Orchestration Cluster API is the migration target. Operate API remains available but is being de-emphasised."
+    },
+    "d": {
+      "text": "Correct. Administration API focuses on cluster setup, user/group management, not process operations."
+    }
+  },
+  "explanation": "Administration API focuses on cluster setup, user/group management, not process operations.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/orchestration-cluster-api-rest-overview/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q46",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set17-q35",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team uses Microsoft Teams or Discord for chat notifications. Wonders Connectors.",
+  "question": "Teams / Discord / chat Connectors?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md) -- uses Microsoft Graph API, Client credentials / Delegated auth per :38-46 (NOT a simple incoming webhook in OOTB; Graph-API path supports Chat or Channel conversation types per :52-56). md, per Set 16 Q36) -- bot token via Slack app. md) -- business messaging. md) -- email/SMS. md) -- SMS / voice. md) -- generic SMTP. Chat, Zoom Chat. , Discord webhooks) or build custom from Connector SDK."
+    },
+    {
+      "id": "b",
+      "text": "Only Slack is available as a chat connector in Camunda 8 -- this understates the OOTB catalog. 8 chat connectors, limiting the answer to Slack alone misses Microsoft Teams and other messaging connectors. The correct picture includes Slack (bot token authentication), Microsoft Teams (Graph API with Client Credentials or Delegated auth), WhatsApp (business messaging), SendGrid (email and SMS), Twilio (SMS and voice calls), and standard Email/SMTP. Each connector handles its own authentication method and conversation type configuration. Discord and Telegram require the generic REST Connector with a webhook URL."
+    },
+    {
+      "id": "c",
+      "text": "No chat connectors are available in Camunda 8 -- this does not accurately reflect the behavior. 8 ships with multiple dedicated chat and messaging connectors out of the box. The catalog explicitly includes Slack (with bot token authentication for sending messages to channels and users), Microsoft Teams (using Microsoft Graph API with Client Credentials or Delegated authentication), WhatsApp (for business messaging scenarios), SendGrid (email and SMS gateway), Twilio (SMS and voice calls), and generic Email/SMTP. These connectors are designed to cover notification and communication use cases directly from BPMN service tasks without any custom code."
+    },
+    {
+      "id": "d",
+      "text": "While the REST Connector can indeed be used with webhook URLs for platforms like Discord and Telegram that lack dedicated connectors, the catalog also includes specific connectors for Slack and Microsoft Teams. Using the REST Connector is the fallback pattern when no dedicated connector exists; it requires manually configuring the endpoint URL, HTTP method, authentication header, and message body format for each target chat platform."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Chat Connectors: C8.8 OOTB chat / messaging catalog (empirically verified): Slack (slack.md): Bot token auth via Slack app. Send messages, files, blocks (Slack Block Kit). Microsoft Teams (microsoft-teams.md): Microsoft Graph API auth per :38-46 (Client credentials or Delegated) -- NOT \"Incoming webhook\" in OOTB. Conversation type: Chat or Channel per :52-56. Channel methods, Chat methods documented in :48-50 (some methods unavailable under Client credentials). Discord -- NOT in OOTB catalog: Use REST Connector against a Discord webhook URL (or Bot API for richer). Discord webhook URL = secret-equivalent -- store in {{secrets.DISCORD_WEBHOOK_URL}}. Telegram -- NOT in OOTB catalog: Use REST Connector + Telegram Bot API. For fallback (any service with webhook): REST Connector + Webhook URL: Webhook URL: provided by chat platform. Send via POST. Example: Discord webhook: `xml Simple webhook-based. For Microsoft Teams webhook: Similar pattern: POST to Teams webhook URL. Body: Teams message card format. For dedicated Connectors: Slack Connector: Configure with bot token: from Slack app. Specify channel, message. Element Template UX. Microsoft Teams Connector (verify): Webhook URL simpler. Bot Framework for advanced. Auth approaches: Webhook URL: Simplest: URL = auth. Limit per channel. No fine-grained permissions. OAuth bot: Full API access. Per-channel permissions. More setup. Bot vs webhook: | Aspect | Webhook | Bot | |--------|---------|-----| | Setup | Simple | Complex | | Capabilities | Send messages | Full API | | Auth | URL is secret | OAuth | | Use case | Simple notifications | Rich integration | For interactive messages: Slack interactive: Buttons, dropdowns in messages. User response → webhook → Camunda. Teams adaptive cards: Rich formatted. Action buttons. For inbound from chat: Pattern: Webhook Inbound Connector. Chat platform sends to Camunda. e.g., user message triggers process. For multi-channel: Send to multiple channels: parallel or loop. Per-recipient logic: filter. For dynamic content: FEEL expressions in message body. Process variables embedded. For attachments: Files: depends on platform. Slack: file upload via API. Teams: link to external storage. For mentions: Slack: ` user. Teams: at-mention syntax. For threading: Reply to existing message: thread. Maintain conversation. For rate limits: Each platform: API rate limits. Respect: avoid throttling. Use webhook for low-rate. For security: Webhook URL: secret-equivalent. Bot token: standard secret management. Validate inbound webhooks: HMAC (per Set 14 Q46). For audit: Track sent messages: in process. Per channel: who notified when. For internationalization: Locale-aware messages: per recipient. Templates per locale. For chat-driven workflows: Pattern: Slack approval bot. Bot sends \"Approve? [Yes][No]\". User clicks: webhook → Camunda. Approval routed via process. For RPA-like interactions: Conversational forms: user input via chat. Complex: orchestrate via chat. Best practices: Use dedicated Connectors when available. REST Connector + webhook as fallback. Secure URLs / tokens via secrets. Test message rendering: per platform. Anti-patterns: Hardcoded webhook URL: secret in BPMN. No error handling: notifications lost silently. Spammy messages: rate limit + relevance. For the scenario (Teams / Discord): Teams Connector (verify availability). Discord via webhook + REST Connector. Both achievable."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Chat Connectors: C8.8 OOTB chat / messaging catalog (empirically verified): Slack (slack.md): Bot token auth via Slack app. Send messages, files, blocks (Slack Block Kit). Microsoft Teams (microsoft-teams.md): Microsoft Graph API auth per :38-46 (Client credentials or Delegated) -- NOT \"Incoming webhook\" in OOTB. Conversation type: Chat or Channel per :52-56. Channel methods, Chat methods documented in :48-50 (some methods unavailable under Client credentials). Discord -- NOT in OOTB catalog: Use REST Connector against a Discord webhook URL (or Bot API for richer). Discord webhook URL = secret-equivalent -- store in {{secrets.DISCORD_WEBHOOK_URL}}. Telegram -- NOT in OOTB catalog: Use REST Connector + Telegram Bot API. For fallback (any service with webhook): REST Connector + Webhook URL: Webhook URL: provided by chat platform. Send via POST. Example: Discord webhook: `xml Simple webhook-based. For Microsoft Teams webhook: Similar pattern: POST to Teams webhook URL. Body: Teams message card format. For dedicated Connectors: Slack Connector: Configure with bot token: from Slack app. Specify channel, message. Element Template UX. Microsoft Teams Connector (verify): Webhook URL simpler. Bot Framework for advanced. Auth approaches: Webhook URL: Simplest: URL = auth. Limit per channel. No fine-grained permissions. OAuth bot: Full API access. Per-channel permissions. More setup. Bot vs webhook: | Aspect | Webhook | Bot | |--------|---------|-----| | Setup | Simple | Complex | | Capabilities | Send messages | Full API | | Auth | URL is secret | OAuth | | Use case | Simple notifications | Rich integration | For interactive messages: Slack interactive: Buttons, dropdowns in messages. User response → webhook → Camunda. Teams adaptive cards: Rich formatted. Action buttons. For inbound from chat: Pattern: Webhook Inbound Connector. Chat platform sends to Camunda. e.g., user message triggers process. For multi-channel: Send to multiple channels: parallel or loop. Per-recipient logic: filter. For dynamic content: FEEL expressions in message body. Process variables embedded. For attachments: Files: depends on platform. Slack: file upload via API. Teams: link to external storage. For mentions: Slack: ` user. Teams: at-mention syntax. For threading: Reply to existing message: thread. Maintain conversation. For rate limits: Each platform: API rate limits. Respect: avoid throttling. Use webhook for low-rate. For security: Webhook URL: secret-equivalent. Bot token: standard secret management. Validate inbound webhooks: HMAC (per Set 14 Q46). For audit: Track sent messages: in process. Per channel: who notified when. For internationalization: Locale-aware messages: per recipient. Templates per locale. For chat-driven workflows: Pattern: Slack approval bot. Bot sends \"Approve? [Yes][No]\". User clicks: webhook → Camunda. Approval routed via process. For RPA-like interactions: Conversational forms: user input via chat. Complex: orchestrate via chat. Best practices: Use dedicated Connectors when available. REST Connector + webhook as fallback. Secure URLs / tokens via secrets. Test message rendering: per platform. Anti-patterns: Hardcoded webhook URL: secret in BPMN. No error handling: notifications lost silently. Spammy messages: rate limit + relevance. For the scenario (Teams / Discord): Teams Connector (verify availability). Discord via webhook + REST Connector. Both achievable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q35",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

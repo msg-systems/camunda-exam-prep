@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team builds custom Java Connector needing AWS SDK + database library. Wonders dependency management.",
+  "question": "Custom Connector dependency management?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No external deps -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Only Camunda library dependencies are allowed -- this does not accurately reflect the behavior. The Connector SDK is designed as a standard Java library dependency that coexists with any other Maven or Gradle dependency. Teams building custom connectors for AWS integration routinely add the AWS SDK for Java as a standard dependency alongside the connector-core artifact. Database libraries like JDBC drivers, HikariCP connection pools, or any other third-party library can be included. The build system packages all dependencies into a shaded JAR for deployment to the Connector Runtime classpath."
+    },
+    {
+      "id": "c",
+      "text": "connector:connector-core as the primary SDK dependency with the appropriate version, then include AWS SDK, database drivers, or any other third-party Java library as standard <dependency> entries in Maven or Gradle. Build using the Maven Shade Plugin to produce a shaded fat JAR with all dependencies bundled together. Deploy by copying the shaded JAR to the Connector Runtime container, for example in a custom Docker image based on camunda/connectors-bundle:latest. Watch for version conflicts with Runtime's bundled libraries -- use package relocation in the Shade Plugin when needed. Expose the connector via the OutboundConnectorProvider SPI."
+    },
+    {
+      "id": "d",
+      "text": "A custom build system is required for Connector development -- this overstates the requirement considerably. The Connector SDK is fully compatible with standard Maven and Gradle build tools that Java developers already know and use. No specialized build tooling is needed. The only build consideration is packaging: using the Maven Shade Plugin to create a fat JAR that bundles all dependencies avoids classpath conflicts at deployment time. Standard Maven lifecycle phases apply: compile, test, package, deploy."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Custom Connector deps: Maven setup: `xml io.camunda.connector connector-core X.Y.Z software.amazon.awssdk s3 2.X.Y com.zaxxer HikariCP 5.X Verify exact GAVs per Camunda 8 / SDK version. Packaging: Plain JAR: Just compiled class files. Dependencies separate. Classpath must include all. Shaded / Fat JAR: All dependencies bundled. Single deployable. Use Maven Shade Plugin: xml org.apache.maven.plugins maven-shade-plugin package shade Deployment: Self-Managed: Copy JAR to Connector Runtime container. Mount via Docker volume or build custom image. Example Docker: dockerfile FROM camunda/connectors-bundle:latest COPY my-connector-1.0-SNAPSHOT-shaded.jar /opt/connectors/ Build + deploy custom image. For SaaS: Custom Connector deployment verify support per version. Alternative: external Connector Runtime hosted by team. Version conflicts: Problem: SDK vs Runtime use different versions of same library. Symptoms: ClassNotFoundException: missing class. NoSuchMethodError: incompatible. Conflicting dependencies: e.g., two Jackson versions. Solutions: Solution 1: Use Runtime's versions: Mark dependencies provided: not bundled. Rely on Runtime's classpath. Solution 2: Shade with rename: Relocate packages: avoid class name conflicts. Maven Shade Plugin relocation. Solution 3: Newer SDK: Match Runtime version. For testing: Local development: Embedded Runtime: in tests. TestContainers: spin up Runtime. Integration tests: Mock external services: WireMock. Verify Connector behavior. For CI/CD: Build pipeline: mvn package`: build JAR. Unit tests: SDK tests. Integration: against test Runtime. Deploy: to dev / staging. For Connector versioning: Version in JAR name. Update Runtime: deploy new version. For Element Template alignment: Element Template JSON: version per Connector. Bind to Connector JAR version. For multi-Connector projects: Mono-repo: multiple Connectors in one repo. Per-Connector JAR: separate deploys. Shared utilities: as library. For licensing: Track dependency licenses. OSS compliance. For security scanning: OWASP Dependency-Check: vulnerabilities. Snyk / similar: regular scans. For SDK updates: Track SDK releases. Test upgrades: in staging. For Java version compatibility: Runtime's Java version: match. Connector built for compatible JDK. For native dependencies: Avoid if possible: JAR distribution easier. For native libs: bundle correctly. For Spring integration: Camunda Connector with Spring Boot: verify pattern. Auto-wire Spring beans. For configuration: Read env vars / properties. Standard Spring or manual. For metrics + logging (per Set 16 Q45): Include logging dependencies. Micrometer for metrics. For database access: JDBC driver: as dependency. Connection pool: HikariCP. Initialize once: per Connector lifecycle. For migrations between Camunda versions: Update SDK version. Re-test dependencies. Re-deploy. Best practices: Maven / Gradle: standard. Shaded JAR: simpler deploy. Test thoroughly. Manage dependencies carefully. Anti-patterns: Conflicting versions: cause errors. Bloated JARs: bundle unnecessary. No tests for deployment: surprises. For the scenario (AWS SDK + DB): Add both as Maven deps. Shaded JAR for deployment. Test locally + Runtime integration."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q36",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 26 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 24.9 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

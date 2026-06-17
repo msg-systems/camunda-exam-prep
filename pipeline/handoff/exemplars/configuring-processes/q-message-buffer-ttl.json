@@ -1,0 +1,27 @@
+{
+  "id": "cfg-message-buffer-ttl",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A message named `OrderPlaced` is published with a TTL of 5 minutes. At publication time no subscription exists. Two minutes later a process instance is started that has a message intermediate catch event for `OrderPlaced` with a matching correlation key. What happens?",
+  "options": [
+    { "id": "a", "text": "The buffered message is correlated to the new subscription." },
+    { "id": "b", "text": "The message was lost — the new subscription waits for the next publication." },
+    { "id": "c", "text": "An incident is raised on the catching instance." },
+    { "id": "d", "text": "The message is only delivered if a message start event was modelled." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "With TTL > 0, Zeebe buffers the published message. Any matching subscription that appears within the TTL window receives the buffered message." },
+    "b": { "text": "Messages are only dropped on publication if no subscription exists AND TTL is `0` (or omitted in clients that default to zero)." },
+    "c": { "text": "A correlated buffered message is a normal event, not an incident." },
+    "d": { "text": "Buffered correlation works for both start and intermediate catch subscriptions; it is not restricted to message start events." }
+  },
+  "explanation": "When a message is published with TTL > 0, Zeebe buffers it for the TTL window. Any subscription with a matching name and correlation key that appears within that window correlates the buffered message.",
+  "docs": [
+    { "title": "Message correlation", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+  ]
+}

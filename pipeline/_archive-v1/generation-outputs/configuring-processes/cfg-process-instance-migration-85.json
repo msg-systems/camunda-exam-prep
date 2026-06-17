@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-migration-85",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "An e-commerce retailer processes 6000 orders per day through a process where service task A currently has no boundary events. In version 9 the team adds a non-interrupting message event subprocess with message start event M to the same process. They want all 220 in-flight orders waiting at service task A to begin listening for the new message right after migration.",
+  "question": "What happens to event subscriptions when active service task A is mapped to A in the target and the target process adds a new message event subprocess start event M?",
+  "options": [
+    { "id": "a", "text": "A new message subscription is opened for the target start event M during migration because that target catch event is not the target of any mapping instruction in the plan" },
+    { "id": "b", "text": "No new subscription is opened for start event M because the migration plan did not explicitly request the new subscription via a dedicated activate instruction" },
+    { "id": "c", "text": "An existing subscription named M is reused if one is already cached at the broker; otherwise the migration fails with a missing-subscription rejection during validation" },
+    { "id": "d", "text": "A new subscription is opened only after the next deployment refresh runs because the migration command itself does not register subscriptions for newly added catch events" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. If a catch event of the target process is not the target of a mapping instruction, a new subscription is opened during migration. The non-interrupting message event subprocess start event M therefore receives a fresh message subscription on the migrated instance." },
+    "b": { "text": "Incorrect. The migration command does not have a separate activate instruction for catch events. Adding a new subscription is driven by the presence of an unmapped target catch event in the target definition, not by an explicit activation step." },
+    "c": { "text": "Incorrect. The engine does not cache message subscriptions across process definitions. For newly added target catch events, a new subscription is always opened during migration rather than reused." },
+    "d": { "text": "Incorrect. Subscriptions for newly added target catch events are opened by the migration command itself within the same transactional step. They do not depend on a later deployment refresh to start receiving events." }
+  },
+  "explanation": "Adding a catch event during migration is handled implicitly: when a target catch event has no mapping pointing to it, the engine opens a new subscription for it as part of the migration. This is how new boundary or event subprocess start events become active on migrated instances.",
+  "docs": [
+    { "title": "Process instance migration", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/" }
+  ]
+}

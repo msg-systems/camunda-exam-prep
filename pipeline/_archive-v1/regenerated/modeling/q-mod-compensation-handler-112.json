@@ -1,0 +1,50 @@
+{
+  "id": "mod-compensation-handler-112",
+  "topic": "modeling",
+  "subtopic": "compensation-handler",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Orion Insurance models a Camunda 8.8 batch claim reversal process. The claim processing activity is multi-instance over an input collection of 200 claims per batch. The team wants every individual claim reversal to be executed by the compensation handler rather than one combined reversal in the scope.",
+  "question": "Which configuration causes the compensation handler to run once for each item in the original input collection?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Mark the compensation handler itself as multi-instance and use the same input collection as the multi-instance compensation activity it reverts inside the same scope"
+    },
+    {
+      "id": "b",
+      "text": "Mark only the compensation activity as multi-instance, then the compensation handler is automatically invoked once for each completed item from the input collection in the scope"
+    },
+    {
+      "id": "c",
+      "text": "Mark the compensation handler as a parallel gateway with one outgoing flow per item in the original input collection of the compensation activity in the surrounding scope"
+    },
+    {
+      "id": "d",
+      "text": "Mark the compensation handler with a sub-process loop counter that increments once for each completed instance of the compensation activity in the surrounding scope"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Multi-instance activity as compensation handler section states the handler is invoked only once by default, and to run it per item the handler itself can be marked as multi-instance, optionally reusing the same input collection as the activity."
+    },
+    "b": {
+      "text": "Incorrect. Marking the compensation activity as multi-instance is the original setup; the page is clear that the handler must itself be marked multi-instance to run per item."
+    },
+    "c": {
+      "text": "Incorrect. A compensation handler is an activity with a compensation marker; a parallel gateway is not an activity and cannot serve as the compensation handler in this pattern."
+    },
+    "d": {
+      "text": "Incorrect. There is no documented loop-counter sub-process pattern; the documented per-item behaviour requires the handler to be marked multi-instance over the original input collection."
+    }
+  },
+  "explanation": "By default a multi-instance compensation activity is paired with a handler that runs once. To revert each item, the handler is also marked multi-instance, commonly reusing the same input collection as the compensated activity.",
+  "docs": [
+    {
+      "title": "BPMN compensation handler",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-handler/"
+    }
+  ]
+}

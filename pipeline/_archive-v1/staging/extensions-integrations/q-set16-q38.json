@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q38",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL: combine listA = [1,2] and listB = [3,4] into [1,2,3,4]. Team wonders concatenate for lists. FEEL concatenate for lists?",
+  "question": "FEEL concatenate for lists?",
+  "options": [
+    {
+      "id": "a",
+      "text": ") built-in function that joins multiple lists into a single ordered list. concatenate([1,2], [3,4]) returns [1,2,3,4]. The function is variadic and accepts more than two arguments. Elements are ordered: first list's elements appear first, followed by the second list's elements, and so on. Duplicate values are preserved -- concatenate([1,2], [2,3]) returns [1,2,2,3]. For deduplication, distinct values() can be chained afterward. The function is a standard DMN FEEL built-in defined in the specification and available in Camunda 8's evaluation engine."
+    },
+    {
+      "id": "b",
+      "text": "Only + operator -- this is only partially correct. ). Whether list + merging is supported depends on the FEEL engine implementation. Relying solely on + for list merging is non-standard and may behave unexpectedly or throw errors in strict DMN-compliant engines. The concatenate function is the explicit, portable, specification-defined approach for joining two or more lists into a single ordered list, and is the correct function to recommend for this scenario."
+    },
+    {
+      "id": "c",
+      "text": "Manual loop -- this is a workable but verbose approach. A FEEL for item in listA ... return item comprehension combined with for item in listB ... The concatenate(listA, listB) function accomplishes the same result in a single, readable expression. FEEL's built-in list functions exist precisely to avoid manual loop constructs for common operations. Manual loops also risk subtle errors in complex expressions and are harder to read and maintain than the idiomatic concatenate call."
+    },
+    {
+      "id": "d",
+      "text": ") joins multiple lists into one ordered list without deduplication. For listA = [1,2] and listB = [3,4], concatenate(listA, listB) returns [1,2,3,4]. The function is variadic and accepts more than two arguments: concatenate([1,2], [3,4], [5,6]) returns [1,2,3,4,5,6]. Duplicate values are preserved in the output. This is distinct from union(listA, listB) which deduplicates. concatenate is a standard DMN FEEL built-in list function available in all compliant engines including Camunda 8's runtime evaluator."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL concatenate: Signature: concatenate(list1, list2, ...) → list. Variadic: multiple arguments. Examples: `feel concatenate([1, 2], [3, 4]) → [1, 2, 3, 4] concatenate([1], [2], [3]) → [1, 2, 3] concatenate([\"a\"], [\"b\", \"c\"]) → [\"a\", \"b\", \"c\"] concatenate([]) → [] concatenate([1, 2], []) → [1, 2] concatenate([1, 2, 2], [2, 3]) → [1, 2, 2, 2, 3] (preserves duplicates) Doesn't dedupe: Use distinct values (per Set 14 Q38) after concatenate for dedup. feel distinct values(concatenate(listA, listB)) → deduplicated + operator on lists (verify): Some FEEL implementations may support + for list concatenation: feel [1, 2] + [3, 4] → [1, 2, 3, 4] (verify) Otherwise use concatenate. For appending single element: feel concatenate([1, 2], [3]) → [1, 2, 3] Wrap single element in list. For prepending: feel concatenate([0], [1, 2, 3]) → [0, 1, 2, 3] Use cases: Use case 1: Combine results: feel allItems: concatenate(category1Items, category2Items, category3Items) Use case 2: Build cumulative list: feel // Initial: results: [] // Each step: results: concatenate(results, [newResult]) Use case 3: Flatten 2 levels: feel // For 2-level nested: // [[1,2], [3,4]] // concatenate(nested[1], nested[2]) → [1,2,3,4] // For arbitrary nesting: use flatten (per Set 14 Q37) For complex types: feel concatenate([{id: 1}, {id: 2}], [{id: 3}]) // → [{id: 1}, {id: 2}, {id: 3}] Objects preserved. Compare with append: Some FEEL implementations may have: append(list, item): add one element. concatenate(list1, list2): combine lists. Verify per version. For sets (no duplicates): feel uniqueAll: distinct values(concatenate(setA, setB)) Concatenate then dedup. Performance: Linear in total size. For very large lists: consider in worker. In Output Mapping: xml Combine arrays in process scope. In MI outputCollection (per Set 14 Q21): MI outputCollection automatically accumulates. For combining with external: concatenate. For Boxed Context (per Set 16 Q29): feel { high: highPriorityItems, medium: mediumPriorityItems, all: concatenate(high, medium) } Combine in structured output. Best practices: Use concatenate for explicit list combination. Dedupe after if needed. Test with empty lists: edge case. Type consistency: same types in lists. Anti-patterns: Manual element-by-element: when concatenate exists. Forgetting dedupe: unintended duplicates. Mixed types: heterogeneous; surprises. For the scenario ([1,2] + [3,4]): feel result: concatenate(listA, listB) // → [1, 2, 3, 4] `"
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-list/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q38",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[1]"
+      }
+    ]
+  }
+}

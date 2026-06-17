@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q49",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's RPA bot opens a CRM web app, scrapes customer data, and returns it to the Camunda process. The bot occasionally fails (e.g., page didn't load fast enough). The team wants the process to retry the RPA task automatically up to 3 times before incident-ing.",
+  "question": "Which configuration handles RPA retry semantics?",
+  "options": [
+    {
+      "id": "a",
+      "text": ", Wait Until Keyword Succeeds) to loop on page-load failures before considering the automation run failed. Script-level internal retries address transient failures within a single bot execution attempt. They are separate from Zeebe job-level retries and do not provide the process-level \"retry this job up to N times\" behavior with Operate visibility and incident creation on exhaustion that the scenario requires."
+    },
+    {
+      "id": "b",
+      "text": "Set retries=\"3\" (via the \"Retries\" property in Web Modeler) on the RPA-typed Service Task's task definition. Zeebe re-activates the RPA job on each bot failure -- bot failure on activation 1 decrements retries to 2 and re-queues; activation 2 fails → retries=1; activation 3 fails → retries=0 → Zeebe creates an Incident. The same Zeebe job-worker retry mechanism that applies to Service Tasks also applies to RPA tasks."
+    },
+    {
+      "id": "c",
+      "text": "Wrap the RPA-typed Service Task in an Interrupting Error Boundary Event that routes to an Exclusive Gateway counting retries via a counter variable; when the counter reaches 3, route to an Incident-creation service; otherwise loop back to the RPA task. While this BPMN-level retry pattern works technically, it adds significant diagram complexity compared to simply setting retries=\"3\" on the task definition. The built-in Zeebe job retry mechanism handles this transparently without any additional BPMN elements or retry-counting variables."
+    },
+    {
+      "id": "d",
+      "text": "RPA tasks in Camunda 8 do not support automatic retries -- every bot failure immediately creates a Zeebe Incident on the first failure because the RPA runtime cannot re-execute jobs. Retries are fully supported for RPA tasks using the same job-worker retry semantics as any Service Task. The retries attribute on the task definition controls how many times Zeebe re-activates the job on failure. RPA bots handle re-activations transparently; bot failures decrement the retry counter, and an Incident fires only after all retries are exhausted."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. RPA tasks use the same job-worker retry semantics as any Service Task. retries=\"3\" (set in Web Modeler \"Retries\" property) means Zeebe re-activates the job on bot failure up to 3 times. Bot fails on activation 1 → retry → activation 2 → fail → retry → activation 3 → fail → Incident. Set retries based on expected transient-failure probability."
+    },
+    "b": {
+      "text": "Correct. Bot-script internal retries (loops within the script) are possible but separate from job-level retries; the question asks about Zeebe-level retry."
+    },
+    "c": {
+      "text": "Incorrect. Boundary Error + loop is BPMN-level pattern; works but the simpler answer is built-in retries."
+    },
+    "d": {
+      "text": "Incorrect. Retries are supported."
+    }
+  },
+  "explanation": "Bot-script internal retries (loops within the script) are possible but separate from job-level retries; the question asks about Zeebe-level retry.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q49",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

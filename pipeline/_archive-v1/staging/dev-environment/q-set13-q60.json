@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q60",
+  "topic": "dev-environment",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Developer runs Camunda 8 Run locally; another local app is already using port 8080. C8 Run fails to start with \"port already in use.\" They wonder how to resolve the conflict -- change C8 Run's port or kill the other process.",
+  "question": "Camunda 8 Run port conflict resolution?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Rebooting the machine is the only reliable way to resolve a port conflict when starting Camunda 8 Run locally; other approaches are unreliable and platform-specific. Two simpler approaches resolve port conflicts without rebooting. /c8run start --port 8081 -- the entire consolidated Orchestration Cluster (Operate, Tasklist, Identity, APIs) moves to the new port. Second, identify and stop the conflicting process: on macOS/Linux use lsof -i :8080 then kill <pid>; on Windows use netstat -ano | findstr :8080 then taskkill /F /PID <pid>. Note: the Orchestration Cluster is consolidated on one port (default 8080) with path prefixes -- do not try per-component OPERATE_SERVER_PORT env vars."
+    },
+    {
+      "id": "b",
+      "text": "A Camunda 8 Run port conflict with another local application is unresolvable; C8 Run is hardwired to port 8080 and has no configuration option to use a different port. This misrepresents the documented behavior. /c8run start --port 8081 rebinds the entire Orchestration Cluster to the specified port. Alternatively, stopping the conflicting process on port 8080 also resolves the conflict. Port conflicts in local development are a routine issue with straightforward solutions."
+    },
+    {
+      "id": "c",
+      "text": "/c8run start --port 8081 to rebind the entire consolidated Orchestration Cluster (Operate, Tasklist, Identity, REST APIs -- all on one port with path prefixes). The --config <file> flag allows deeper YAML-based configuration changes. Approach 2 -- Kill the conflicting process: identify the PID using lsof -i :8080 (macOS/Linux) or netstat -ano | findstr :8080 (Windows), then terminate it with kill <pid> or taskkill /F /PID <pid>. Neither approach requires a reboot or reinstalling Camunda."
+    },
+    {
+      "id": "d",
+      "text": "The only correct resolution for a Camunda 8 Run port conflict is to change C8 Run's port using the --port flag; stopping or killing the conflicting process misrepresents the documented behavior because doing so would disrupt other development work and is not a sustainable solution. Both approaches are valid and appropriate depending on the situation. ), stopping it is simpler. If the other process is needed, changing C8 Run's port with --port is the non-disruptive approach. Neither is categorically wrong."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Port conflict resolution for local dev: Approach 1: Change Camunda 8 Run's port (canonical idiom): Default ports -- Orchestration Cluster is CONSOLIDATED (per c8run-troubleshooting.md:24-27): 8080 -- Camunda core (Operate, Tasklist, Identity, REST APIs all on this single port with path prefixes /operate, /tasklist, /v2). 8086 -- Connectors API. 26500 -- Zeebe gRPC gateway. 9600 -- Prometheus metrics (Spring Boot management context -- independent of --port). Override via wrapper CLI flag (canonical, per c8run-troubleshooting.md:38-39): `bash ./c8run start --port 8081 # macOS/Linux .\\c8run.exe start --port 8081 # Windows Rebinds the consolidated Orchestration Cluster (Operate / Tasklist / Identity / APIs) to the new port. The Prometheus management port (9600) and Zeebe gRPC (26500) are NOT affected. Deeper customisation via application.yaml (per c8run.md:185-189 + c8run-troubleshooting.md:308-316): bash ./c8run start --config /path/to/application.yaml DO NOT use (Pattern #9 fabrications): ❌ server.port: in raw Spring config (the c8run wrapper owns the port binding, not the Spring Boot app directly). ❌ OPERATE_SERVER_PORT= / TASKLIST_SERVER_PORT= per-component env vars -- these do NOT exist in the consolidated 8.8 architecture. There is no separate \"Operate port\" to override because Operate, Tasklist, Identity, and the v2 REST APIs all share :8080 via path prefixes. ❌ --server.port=8090 raw Spring CLI arg. Verify after change: Start C8 Run; watch c8run/logs/c8run.log. Browse: http://localhost:8081/operate (path-prefixed; same host:port for /tasklist). Approach 2: Stop conflicting process: Windows: cmd netstat -ano | findstr :8080 Returns lines with PID. cmd taskkill /F /PID 12345 Force-kills process. Linux / macOS: bash lsof -i :8080 Shows process info. bash kill -9 12345 Force-kills. Caution: Don't kill arbitrary processes: may be system or critical apps. Identify first: confirm it's a leftover dev process, not something important. Persistent fix patterns: Pattern 1: Dedicated dev ports: Reserve specific ports for Camunda; document org-wide. Avoid conflict with common defaults (8080 used everywhere). Suggest range like 8090-8099 for Camunda local. Pattern 2: Docker Compose: Run C8 Run via Docker; map to non-conflicting host ports. Containerised; less host-port pollution. Pattern 3: Different startup scripts: Devs have multiple \"profiles\" (default vs custom-port). Easy switch when conflicts arise. Pattern 4: Document team conventions: Onboarding doc: \"Use ports 80xx for Camunda components.\" Reduces ad-hoc conflicts. Camunda 8 Run specifics: C8 Run = developer convenience bundle: zip / installer with all components. Cross-platform: Windows, Linux, macOS. Quick start: typically c8run start` or similar. Config: bundled config files; customize as needed."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. Incorrect."
+    },
+    "d": {
+      "text": "Incorrect. Partially correct."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/c8run-troubleshooting/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q60",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

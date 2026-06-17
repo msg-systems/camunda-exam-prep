@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q08",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A regulatory compliance event must be broadcast simultaneously to all running process instances of various types in the cluster -- e.g., \"Sanctions list updated.\" Every instance that listens should react.",
+  "question": "Which BPMN event type fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Signal Throw + Signal Catch -- Signals broadcast cluster-wide to all subscribed instances regardless of process type or correlation key. Any number of running process instances that have a Signal Catch Event with a matching signal name will receive it simultaneously. This makes Signals the canonical BPMN mechanism for one-to-many cluster-wide notifications like regulatory broadcast events affecting all running instances simultaneously."
+    },
+    {
+      "id": "b",
+      "text": "Message Throw plus Message Catch. Messages in Camunda 8 are correlated to a specific process instance using a correlation key that uniquely identifies the target. A published message reaches exactly one waiting instance whose correlation key value matches. This point-to-point delivery model is designed for instance-specific communication, not for broadcasting a notification to all running instances simultaneously across multiple process types."
+    },
+    {
+      "id": "c",
+      "text": "Error Throw plus Error Catch. BPMN Error events propagate upward through the scope hierarchy -- from the throwing element toward its parent subprocess and further up. They are consumed by Error Boundary Events or Error Event Subprocesses within the same hierarchical scope chain. Errors do not broadcast across process instances or to unrelated process definitions running in parallel elsewhere in the cluster."
+    },
+    {
+      "id": "d",
+      "text": "Escalation Throw plus Escalation Catch. Escalation events propagate upward through the subprocess hierarchy to a parent scope where an Escalation Boundary Event or Event Subprocess catches them. Like Error events, Escalations travel vertically within a single process instance's scope chain. They do not broadcast horizontally across multiple independent process instances running concurrently in the Zeebe cluster."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Signal events broadcast: one throw → all subscribed catches across all instances/processes receive it. Designed for cluster-wide notifications."
+    },
+    "b": {
+      "text": "Incorrect. Messages correlate to a specific instance via correlation key -- not broadcast."
+    },
+    "c": {
+      "text": "Incorrect. Errors propagate upward in the throwing scope only."
+    },
+    "d": {
+      "text": "Incorrect. Escalation propagates upward in the same scope hierarchy."
+    }
+  },
+  "explanation": "Signal events broadcast: one throw → all subscribed catches across all instances/processes receive it. Designed for cluster-wide notifications.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/signal-events/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q08",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

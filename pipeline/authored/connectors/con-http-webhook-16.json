@@ -1,0 +1,50 @@
+{
+  "id": "con-http-webhook-16",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "easy",
+  "style": "recall",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "When the **Verification expression** of an HTTP Webhook connector evaluates to a non-null value for an incoming request, what happens next?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The webhook returns the specified response immediately; process correlation, activation conditions, and HMAC validation are skipped."
+    },
+    {
+      "id": "b",
+      "text": "The webhook returns the specified response and still performs process correlation in the background."
+    },
+    {
+      "id": "c",
+      "text": "The webhook continues with normal processing and just logs the verification result for auditing."
+    },
+    {
+      "id": "d",
+      "text": "The webhook rejects the request with HTTP `400` because the verification expression must always evaluate to `null`."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state that when the verification expression evaluates to a non-null value the webhook returns the specified response immediately, process correlation does not occur, and activation conditions, HMAC validation, and the rest of the webhook pipeline are skipped."
+    },
+    "b": {
+      "text": "A non-null verification result short-circuits the pipeline — no correlation runs, in the background or otherwise."
+    },
+    "c": {
+      "text": "Normal processing only continues when the verification expression evaluates to `null`; a non-null result returns the response immediately."
+    },
+    "d": {
+      "text": "Returning a non-null value is the intended way to short-circuit, for example for one-time verification challenges; it is not an error."
+    }
+  },
+  "explanation": "The HTTP Webhook **Verification expression** lets you return a custom HTTP response without triggering process correlation — useful for one-time verification challenges (Slack, GitHub), request validation, or conditional responses. A non-null result returns the response immediately and skips activation conditions, HMAC validation, and correlation; a `null` result lets the request continue through the normal pipeline.",
+  "docs": [
+    {
+      "title": "HTTP Webhook inbound connector",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ]
+}

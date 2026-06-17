@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A claims-processing flow has a Multi-Instance Subprocess that iterates over claims = [] (a process variable that, at MI activation, happens to be an empty list -- no claims that day). The team is unsure what happens to MI instances and the subprocess as a whole when the input collection is empty.",
+  "question": "What is the behaviour of a Parallel Multi-Instance Subprocess with an empty inputCollection?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe raises an Incident when the inputCollection evaluates to an empty list -- this description does not reflect the actual behaviour. An empty list is a perfectly valid degenerate input for a Multi-Instance activity. The engine's intent for iterate-over-collection semantics naturally handles zero-element collections as zero iterations without error. Only invalid FEEL expressions or missing required variables cause Incidents during Multi-Instance activation. The team can safely pass an empty claims list without adding special guard logic before the Multi-Instance Subprocess."
+    },
+    {
+      "id": "b",
+      "text": "Zeebe spawns exactly one inner instance with the inputElement variable set to null when the inputCollection is empty -- this description does not reflect the actual behaviour. Zero elements means zero inner instances are created. There is no fallback single-instance behaviour. The Multi-Instance activity simply completes immediately with no inner execution."
+    },
+    {
+      "id": "c",
+      "text": "The Multi-Instance Subprocess hangs in an active state waiting for the inputCollection variable to become non-empty before proceeding -- this description does not reflect the actual behaviour. The engine evaluates the inputCollection expression exactly once at the moment the Multi-Instance activity is activated. There is no polling or re-evaluation mechanism. If the collection is empty at activation time, the activity completes immediately with zero instances. The process does not pause waiting for runtime changes to variable values after activation."
+    },
+    {
+      "id": "d",
+      "text": "The MI subprocess completes immediately with zero inner instances spawned -- there is no work to perform. The engine reads the inputCollection, finds zero elements, does not spawn any inner process instances, and marks the Multi-Instance activity as complete. Flow continues to the next BPMN element on the outgoing sequence flow. If outputCollection was configured, it is set to an empty list. Downstream activities that consume outputCollection should use FEEL guards like count(outputCollection) > 0 to handle the empty-result case gracefully."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN's MI semantics define the empty-collection case as \"zero iterations, immediate completion.\" The engine reads inputCollection, sees zero elements, doesn't spawn any inner instances, and completes the MI activity. The subprocess's outgoing arrow is taken; downstream activities proceed. If outputCollection was configured, it's set to [] (empty list) -- downstream consumers should handle this case (FEEL count(outputCollection) > 0 etc.). This \"vacuous truth\" behaviour matches mathematical conventions for empty collections."
+    },
+    "b": {
+      "text": "Incorrect. Empty isn't an error; it's a valid degenerate case."
+    },
+    "c": {
+      "text": "Incorrect. Zeebe doesn't substitute a null instance. Zero items = zero iterations."
+    },
+    "d": {
+      "text": "Correct. MI activates once on entry; doesn't poll."
+    }
+  },
+  "explanation": "MI activates once on entry; doesn't poll.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

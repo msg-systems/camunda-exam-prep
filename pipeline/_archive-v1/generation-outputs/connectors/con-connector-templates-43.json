@@ -1,0 +1,27 @@
+{
+  "id": "con-connector-templates-43",
+  "topic": "connectors",
+  "subtopic": "connector-templates",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Insurance, an insurer ingesting 4500 claims per day via a partner webhook, ships an HTTP Webhook element template that starts a new Camunda 8.8 process whenever the partner posts a claim notification. A template author must set the appliesTo so the template only attaches to start events, not to service tasks or intermediate catch events.",
+  "question": "Which appliesTo value does the inbound start event Webhook connector template documentation use?",
+  "options": [
+    { "id": "a", "text": "appliesTo of [bpmn:ServiceTask, bpmn:StartEvent], so the same template can attach to both element types and switch behaviour at runtime based on the inbound.subtype property value" },
+    { "id": "b", "text": "appliesTo of [bpmn:IntermediateCatchEvent] with eventDefinition bpmn:MessageEventDefinition so the template attaches only to message intermediate catches that consume mid-process webhook callbacks" },
+    { "id": "c", "text": "appliesTo of [bpmn:Process], so the template registers on the process root and exposes the webhook URL once per deployed process rather than once per element on the canvas" },
+    { "id": "d", "text": "appliesTo of [bpmn:StartEvent], with elementType value bpmn:StartEvent, so Web Modeler offers the template only when the user is configuring a start event element on the canvas" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The inbound start event template restricts appliesTo to start events; it is not shared with service tasks and there is no runtime switch on inbound.subtype to widen the element type." },
+    "b": { "text": "Incorrect. That configuration belongs to the inbound intermediate catch event template; the start event template uses bpmn:StartEvent in its appliesTo list." },
+    "c": { "text": "Incorrect. Connector templates are bound to BPMN elements like start events, not to the bpmn:Process root; there is no documented appliesTo entry for bpmn:Process." },
+    "d": { "text": "Correct. The inbound start event Webhook connector template sets appliesTo to [bpmn:StartEvent] and elementType value to bpmn:StartEvent so that Web Modeler offers it only on start events." }
+  },
+  "explanation": "An inbound start event connector template uses appliesTo: [bpmn:StartEvent] and elementType value bpmn:StartEvent. That is how Web Modeler scopes the template so it only appears as an option when a user is configuring a start event element.",
+  "docs": [
+    { "title": "Connector templates - Inbound start event connector templates", "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-templates/" }
+  ]
+}

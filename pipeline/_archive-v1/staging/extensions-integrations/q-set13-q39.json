@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q39",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN decision has a single output cell with FEEL expression (no decision table, no DRG dependency). Team calls this a \"literal expression.\" They wonder how it differs from a decision table.",
+  "question": "DMN Literal Expression vs Decision Table?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Literal Expression is a decision logic type where the decision's body is a single FEEL expression that produces the output. Useful when logic is more naturally a formula or function call than tabular rules. Decision Table is the tabular logic type (rules with inputs / outputs / hit policy). Both are first-class DMN constructs; choose by which represents the logic best. Decisions in a DMN file can mix types -- one decision uses a table, another uses a literal expression."
+    },
+    {
+      "id": "b",
+      "text": "A Decision Literal Expression and a Decision Table are the same type of DMN element with different visual presentations only; switching between them changes only the display without affecting evaluation logic. This misrepresents the documented behavior. A Literal Expression and a Decision Table represent fundamentally different logic body types for a Decision element. A Literal Expression body contains a single FEEL expression evaluated directly, while a Decision Table body contains a structured set of input/output rules with a hit policy that determines which rules are applied."
+    },
+    {
+      "id": "c",
+      "text": "3 specification, so Camunda 8 supports only Decision Tables for decision logic. This misrepresents the documented behavior. 3 standard and Camunda 8. Per the Camunda documentation, a Decision element can have either a Decision Table body or a Literal Expression body."
+    },
+    {
+      "id": "d",
+      "text": "A Decision Table in DMN is simply a tabular wrapper around a single Literal Expression that the engine converts to FEEL internally before evaluation; both produce equivalent compiled output. Decision Tables and Literal Expressions are distinct body types with different structures and evaluation models. Decision Tables use a rule-based matching approach with hit policies; Literal Expressions directly evaluate a FEEL expression. They are not wrappers of each other and produce output through different evaluation paths."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. DMN decision body types in Camunda 8 Modeler (per dmn.md:23-28, :48-52, :54-75): Literal Expression (per dmn.md:48-52): Body = a single FEEL expression. Example: =if income > 100000 then \"high\" else \"normal\". Output is whatever the expression evaluates to. Drill-down by clicking the blue {} icon on a Decision element. Best for: short logic, calculations, conditional formulas. Decision Table (per dmn.md:30-46): Body = table with rules (rows), inputs (columns), outputs (columns), and a hit policy. Each rule: input conditions + output values. Best for: enumerable cases, business-rule-style logic, regulatory mappings. DMN element kinds in C8 Modeler (per dmn.md:23-28 -- exhaustive list, exactly 4): Decision (tables OR literal expressions -- the same Decision element can be either type per :25). Input data. Knowledge source. Business knowledge model (BKM) -- body = literal expression with optional named parameters per :62-74; same-decision-only reuse per :64 (Pattern #34). NOT exposed in C8 Modeler (despite DMN-1.3 spec presence -- Pattern #41 5th cumulative): \"Boxed Expression\" / \"Context\" / \"Function Definition\" / \"Invocation\" / \"Iteration\" -- these DMN-1.3 boxed-expression flavors are not first-class element types in C8's modeling surface. The FEEL literal expression body can express what these would (e.g., nested if/for/some/every per feel-control-flow.md + context expressions {a: 1, b: 2} per feel-context-expressions.md). \"Decision Service\" (DMN-1.3 spec) -- not in C8 Modeler (Pattern #35). Picking the right type in C8: Tabular enumerated logic: Decision (with body). Single formula / lookup / conditional: Decision (with body). Reusable computation referenced within the same decision: BKM (literal expression body) -- but same-decision-only per Pattern #34. Cross-decision reuse: separate Decision + informationRequirement edge. In .dmn XML: element contains either: : literal type. : tabular type. element contains + parameters + body (literal expression). In Web Modeler: Create a Decision on the DRD canvas, drill into its blue icon to choose Decision table or Literal expression body. Switch later via the \"Change element\" context menu. Mixing types: Single DMN file can have decisions of both body types. Composition via DRD informationRequirement relationships (per decision-requirements-graph.md)."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. Incorrect."
+    },
+    "d": {
+      "text": "Incorrect. Partially correct."
+    }
+  },
+  "explanation": "DMN decision body types in Camunda 8 Modeler (per dmn.md:23-28, :48-52, :54-75): Literal Expression (per dmn.md:48-52): Body = a single FEEL expression. Example: =if income > 100000 then \"high\" else \"normal\". Output is whatever the expression evaluates to. Drill-down by clicking the blue {} icon on a Decision element. Best for: short logic, calculations, conditional formulas. Decision Table (per dmn.md:30-46): Body = table with rules (rows), inputs (columns), outputs (columns), and a hit policy. Each rule: input conditions + output values. Best for: enumerable cases, business-rule-style logic, regulatory mappings. DMN element kinds in C8 Modeler (per dmn.md:23-28 -- exhaustive list, exactly 4): Decision (tables OR literal expressions -- the same Decision element can be either type per :25). Input data. Knowledge source. Business knowledge model (BKM) -- body = literal expression with optional named parameters per :62-74; same-decision-only reuse per :64 (Pattern #34). NOT exposed in C8 Modeler (despite DMN-1.3 spec presence -- Pattern #41 5th cumulative): \"Boxed Expression\" / \"Context\" / \"Function Definition\" / \"Invocation\" / \"Iteration\" -- these DMN-1.3 boxed-expression flavors are not first-class element types in C8's modeling surface. The FEEL literal expression body can express what these would (e.g., nested if/for/some/every per feel-control-flow.md + context expressions {a: 1, b: 2} per feel-context-expressions.md). \"Decision Service\" (DMN-1.3 spec) -- not in C8 Modeler (Pattern #35). Picking the right type in C8: Tabular enumerated logic: Decision (with body). Single formula / lookup / conditional: Decision (with body). Reusable computation referenced within the same decision: BKM (literal expression body) -- but same-decision-only per Pattern #34. Cross-decision reuse: separate Decision + informationRequirement edge. In .dmn XML: element contains either: : literal type. : tabular type. element contains + parameters + body (literal expression). In Web Modeler: Create a Decision on the DRD canvas, drill into its blue icon to choose Decision table or Literal expression body. Switch later via the \"Change element\" context menu. Mixing types: Single DMN file can have decisions of both body types. Composition via DRD informationRequirement relationships (per decision-requirements-graph.md).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q39",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

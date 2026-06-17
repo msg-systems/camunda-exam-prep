@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's process variables include complex nested structures: customer = {profile: {name, age}, orders: [...]}. They wonder about the serialisation format Zeebe uses internally -- JSON, Protobuf, XML, custom?",
+  "question": "What is the serialisation format for Camunda 8 process variables?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 uses XML as the serialisation format for process variables at runtime -- this description does not reflect the actual behaviour. bpmn files that define process logic), not for runtime process variable data. Process variables in Camunda 8 use JSON as their serialisation format. Scalar values like strings, numbers, and booleans map to their native JSON types. Complex objects and arrays are serialised as JSON structures. The XML format has no role in runtime variable handling; it is strictly the process definition language."
+    },
+    {
+      "id": "b",
+      "text": "While Zeebe's gRPC API uses Protobuf for message framing at the transport layer, the actual process variable values are carried as JSON-encoded string payloads within those Protobuf messages. The variable content layer is JSON regardless of the transport protocol. Teams working with job workers interact with variables as JSON whether they use the gRPC or REST API."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 uses a proprietary custom binary format designed specifically for Zeebe to optimise variable serialisation performance -- this description does not reflect the actual behaviour. Camunda 8 uses JSON as the variable serialisation format, which is an open standard format with broad language and tooling support. There is no proprietary Camunda-specific binary format for process variables. Using a standard format like JSON ensures interoperability across the many programming languages that job workers may be implemented in."
+    },
+    {
+      "id": "d",
+      "text": "JSON -- Camunda 8 process variables are JSON-typed: scalars (number, string, boolean), null, JSON arrays, and JSON objects or contexts. Nested structures work naturally. zip or bracket access. Internally, Zeebe stores variables in an efficient binary form for throughput, but the API contract and conceptual model is JSON throughout. All official Camunda client libraries serialise and deserialise process variables as JSON, making cross-language integration straightforward using standard JSON libraries without any Camunda-specific encoding knowledge."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8's variable model is JSON. The API contract: send variables as JSON in REST calls; gRPC encodes them via Protobuf wrappers but the conceptual content is JSON. FEEL operates on JSON-shaped data: scalars, lists, contexts (objects). Nesting works naturally -- customer.profile.name navigates the structure. The internal broker storage may use a more compact representation for performance, but that's an implementation detail; the contract is JSON."
+    },
+    "b": {
+      "text": "Incorrect. XML is for BPMN model definitions, not variables."
+    },
+    "c": {
+      "text": "Incorrect. gRPC uses Protobuf for transport encoding of the call envelope, but variable content is JSON-typed."
+    },
+    "d": {
+      "text": "Correct. Standard JSON, not custom."
+    }
+  },
+  "explanation": "Standard JSON, not custom.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q22",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team plans disaster recovery (DR) for their Self-Managed Camunda 8 cluster. They want to back up data and have a recovery plan.",
+  "question": "What backup / DR strategies fit Self-Managed Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "VM snapshots capture data at the OS level without coordinating across the multiple Camunda 8 components. A VM snapshot taken at slightly different times for the Zeebe broker and Elasticsearch nodes may capture inconsistent state between the engine and the operational data store. Component-specific backup APIs -- Zeebe's built-in backup API and Elasticsearch's snapshot API -- provide application-consistent backups with coordinated point-in-time semantics."
+    },
+    {
+      "id": "b",
+      "text": "Production Camunda 8 Self-Managed clusters require no backup strategy because Zeebe's distributed architecture provides sufficient resilience -- this conflates replication (resilience against node failure) with backup (protection against data loss from disasters). While Zeebe's distributed log replication provides fault tolerance for node-level failures, it does not protect against cluster-wide data loss events such as datacenter disasters, accidental deletion, or storage corruption. Explicit backup APIs and procedures are required for DR."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 Self-Managed clusters provide no built-in backup mechanism and teams must export data manually -- this misrepresents the documented backup capabilities. Zeebe exposes a backup API that creates point-in-time snapshots of the engine state, and Elasticsearch provides its own snapshot repository API for index-level backups. The Camunda 8 documentation includes an operational guide specifically covering backup and restore procedures per self-managed/operational-guides/backup-restore/backup-and-restore/."
+    },
+    {
+      "id": "d",
+      "text": "Multi-component backup strategy covers each Camunda 8 SM component: Zeebe broker snapshots via the built-in backup API; Elasticsearch / OpenSearch index snapshots via the ES snapshot repository API; Web Modeler Postgres database dumps; Identity (Keycloak) database backups; Connector Runtime config and custom Connector JARs in source control. Backups should be coordinated in time across components for consistency. DR drills validate the restore procedure."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 SM is a multi-component system; DR strategy covers each: Zeebe broker (the runtime engine): Backup API: Zeebe exposes a backup mechanism that creates point-in-time snapshots. Snapshot includes: process state, partition data, etc. Restore: provision a new cluster; restore from snapshot; resume. Frequency: depends on data criticality; nightly or more frequent for high-stakes. Elasticsearch / OpenSearch (Operate / Tasklist / Optimize storage): ES snapshot repository: configure (S3 / Azure / GCS / shared filesystem). Periodic snapshots: schedule via Curator or similar. Restore: create new ES cluster; restore from snapshots. Coordination with Zeebe: ideally Zeebe + ES snapshots are taken at coordinated points for consistency. Web Modeler database (typically Postgres): Database backups: pg_dump or cloud DB backup features. Frequency: per change rate. Identity (Keycloak) database: Keycloak's data: Postgres or similar; backup standard. Connector Runtime config + custom Connectors: Source control: configurations + custom JARs in Git. Restore: redeploy from Git. DR drills: Restore to test cluster periodically: verify backups are valid. Document procedures: step-by-step recovery runbooks. RPO (Recovery Point Objective): how much data loss is acceptable (drives backup frequency). RTO (Recovery Time Objective): how long to restore (drives infrastructure preparedness)."
+    },
+    "b": {
+      "text": "Incorrect. VM snapshots can work but cross-component consistency hard."
+    },
+    "c": {
+      "text": "Incorrect. DR needed."
+    },
+    "d": {
+      "text": "Correct. Supported."
+    }
+  },
+  "explanation": "Supported.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/operational-guides/backup-restore/backup-and-restore/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q58",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

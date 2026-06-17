@@ -1,0 +1,58 @@
+{
+  "id": "con-http-webhook-15",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An external caller sends `Authorization: Bearer abc123` to an HTTP Webhook configured with API key authorization. Which FEEL expression in the **API Key locator** extracts only `abc123` (without the `Bearer ` prefix) for comparison against the configured **API Key**?",
+  "options": [
+    {
+      "id": "a",
+      "text": "First locator"
+    },
+    {
+      "id": "b",
+      "text": "Second locator"
+    },
+    {
+      "id": "c",
+      "text": "Third locator"
+    },
+    {
+      "id": "d",
+      "text": "Fourth locator"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "`=request.headers.authorization` returns the entire header value `Bearer abc123`, including the prefix, so the comparison against the expected API key will fail."
+    },
+    "b": {
+      "text": "The HTTP Webhook docs show this exact pattern: when the `Authorization` header contains the **Bearer** prefix, use `=split(request.headers.authorization, \" \")[2]` to strip it. FEEL lists are 1-indexed, so index `[2]` returns the token after the space."
+    },
+    "c": {
+      "text": "Index `[1]` returns the first element of the split, which is the literal string `\"Bearer\"`, not the token."
+    },
+    "d": {
+      "text": "`=request.body.authorization` looks in the request body rather than in the headers, so it would not find the `Authorization` header value at all."
+    }
+  },
+  "explanation": "The HTTP Webhook **API Key locator** is a FEEL expression evaluated against the request to extract the API key, which is then compared against the expected value in **API Key**. To handle headers like `Authorization: Bearer abc123`, the docs recommend `split(request.headers.authorization, \" \")[2]` — FEEL lists are 1-indexed, so `[1]` is `\"Bearer\"` and `[2]` is the token.",
+  "docs": [
+    {
+      "title": "HTTP Webhook inbound connector",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ],
+  "codeBlocks": {
+    "perOption": {
+      "a": "=request.headers.authorization",
+      "b": "=split(request.headers.authorization, \" \")[2]",
+      "c": "=split(request.headers.authorization, \" \")[1]",
+      "d": "=request.body.authorization"
+    }
+  }
+}

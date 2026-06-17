@@ -1,0 +1,56 @@
+{
+  "id": "imp-set16-q37",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL: extract domain from email \"user@example.com\" -- want \"example.com\". Team wonders substring before / substring after. FEEL substring before / substring after?",
+  "question": "FEEL substring before / substring after?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL provides both substring before(string, match) and substring after(string, match) as standard built-in functions defined in the DMN specification. com\", \"@\") returns \"user\" (the portion of the string before the first occurrence of \"@\"). com\" (the portion after). If the delimiter is absent from the string, both functions return an empty string. These functions are available in all compliant FEEL engines including Camunda 8 and are the idiomatic way to parse delimited strings in DMN decisions and BPMN expressions."
+    },
+    {
+      "id": "b",
+      "text": "FEEL provides dedicated string extraction functions: substring before(string, match) returns the part of the string that appears before the first occurrence of the match string, and substring after(string, match) returns the part after it. com\" -- the exact domain extraction needed. If the delimiter is absent from the string, both functions return an empty string. These are standard built-in functions defined in the DMN FEEL specification and available in all compliant engines including Camunda 8. They are more readable and semantically clear than manual index arithmetic or split-based alternatives."
+    },
+    {
+      "id": "c",
+      "text": "Use split -- this is only partially workable. com\"]. com\", \"@\")[2] -- using 1-based list indexing to get the second element. com\", \"@\") which directly expresses the intent."
+    },
+    {
+      "id": "d",
+      "text": "Manual indexing -- this is only partially workable. Manual string index operations in FEEL would involve finding the position of \"@\" using string length and substring with offsets, which is verbose and error-prone. FEEL provides the higher-level substring before and substring after built-in functions specifically to avoid this. The substring(string, start, length) function works with character positions (1-based in FEEL), but computing the correct start position requires finding the delimiter index first. Using substring after is the correct, readable, and specification-aligned approach."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL substring extraction: substring before(string, match): Returns portion of string before first occurrence of match. `feel substring before(\"user@example.com\", \"@\") → \"user\" substring before(\"foo/bar/baz\", \"/\") → \"foo\" substring before(\"hello\", \"x\") → \"\" (not found) substring after(string, match): Returns portion after first occurrence. feel substring after(\"user@example.com\", \"@\") → \"example.com\" substring after(\"foo/bar/baz\", \"/\") → \"bar/baz\" Combined: Extract email domain: feel domain: substring after(email, \"@\") Extract local part: feel localPart: substring before(email, \"@\") Extract username from URL path: feel path: \"/users/alice/posts\" username: substring before(substring after(path, \"/users/\"), \"/\") Use cases: Email parsing: Username = before \"@\". Domain = after \"@\". URL parsing: Scheme = before \"://\". Host+path = after \"://\". File extension: Name = before \".\" (or last \".\"). Ext = after \".\" (or last \".\"). Note on last-occurrence: Standard substring before / after: first occurrence typically. For last occurrence: May need regex or recursive approach. Verify FEEL version's support. Compare with split: feel parts: split(\"user@example.com\", \"@\") → [\"user\", \"example.com\"] Returns list; access via indexing: parts[1] → \"user\". parts[2] → \"example.com\". Use split when multiple delimiters or want all parts. Compare with index of (per Set 15 Q49): substring before / after: direct extraction. index of + substring: more general. For nested extraction: Email \"user.name@subdomain.example.com\": feel localPart: substring before(email, \"@\") // → \"user.name\" domain: substring after(email, \"@\") // → \"subdomain.example.com\" topLevelDomain: substring after(domain, \".\") // first \".\" // → \"example.com\" (not \"com\" -- first . from left) For \"last . extraction\": more complex; use regex or recursive. For defensive parsing: feel =if contains(email, \"@\") then substring after(email, \"@\") else null Avoid errors on malformed input. For multi-step extraction: feel { fullPath: \"https://example.com/users/alice\", afterScheme: substring after(fullPath, \"://\"), // \"example.com/users/alice\" host: substring before(afterScheme, \"/\"), // \"example.com\" path: substring after(afterScheme, \"/\") // \"users/alice\" } Chained operations. For empty results: Delimiter not found: empty string (\"\"). Defensive: check empty. For regex alternative: feel domain: replace(email, \"^.+@\", \"\") Use replace for regex-based extraction; verify FEEL implementation. Best practices: Use substring before/after for simple delimiter parsing. Use split when want all parts. Use regex for complex patterns. Defensive parsing: handle missing delimiters. Anti-patterns: Manual character-by-character: when built-ins exist. Regex for simple cases: overkill. For the scenario (extract domain): feel domain: substring after(email, \"@\") ` Simple, direct, idiomatic."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-string/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q37",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

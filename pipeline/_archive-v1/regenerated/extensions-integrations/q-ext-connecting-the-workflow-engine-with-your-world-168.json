@@ -1,0 +1,50 @@
+{
+  "id": "ext-connecting-the-workflow-engine-with-your-world-168",
+  "topic": "extensions-integrations",
+  "subtopic": "connecting-the-workflow-engine",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon SaaS is designing an onboarding microservice on Camunda 8.8 that will handle 7200 customers per day. The team is debating whether each service task should live in its own application or whether the BPMN model, the REST endpoint that starts instances, and the workers should all sit inside one codebase together as a single process solution.",
+  "question": "Which packaging guidance does the best-practices guide give for the glue code of a typical Camunda 8 process solution?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Bundle the BPMN process definition, the REST endpoint that starts the instance, and the workers that implement the service tasks together in one process solution; split a worker into its own application only when a specific exception calls for it"
+    },
+    {
+      "id": "b",
+      "text": "Always isolate each worker in its own application and let the BPMN process definition live in a separate repository so the four pieces never share a deployment artifact across the platform"
+    },
+    {
+      "id": "c",
+      "text": "Treat every BPMN service task as its own runtime service deployed with a sidecar container that hosts the matching worker glue code so the workers never share JVM resources across activities"
+    },
+    {
+      "id": "d",
+      "text": "Concentrate every worker in a shared platform team monolith and forbid product teams from owning workers, REST endpoints, or BPMN models inside their own microservice codebases entirely"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The guide says a typical application bundles multiple pieces of glue code: the BPMN process definition that auto-deploys at start-up, a REST endpoint that starts the instance, and the workers for each service task; standalone workers are an exception."
+    },
+    "b": {
+      "text": "Incorrect. The page recommends bundling the workers with the BPMN model and entry-point glue code; isolation per worker is the exception, not the rule."
+    },
+    "c": {
+      "text": "Incorrect. There is no recommendation to deploy each service task as a separate service with its own sidecar worker; that contradicts the documented bundling guidance."
+    },
+    "d": {
+      "text": "Incorrect. The guide encourages product teams to own the process solution together, not to centralise every worker in a platform monolith."
+    }
+  },
+  "explanation": "The onboarding example shows a single microservice with a REST endpoint to start instances, an auto-deployed BPMN process definition, and the job workers for each service task. The best-practices page recommends bundling all workers inside one process solution and only splitting a worker into its own application when a specific situation justifies it.",
+  "docs": [
+    {
+      "title": "Connecting the workflow engine with your world",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/connecting-the-workflow-engine-with-your-world/"
+    }
+  ]
+}

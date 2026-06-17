@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-37",
+  "topic": "connectors",
+  "subtopic": "connector-sdk",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Pinnacle Insurance, an insurer correlating 25000 events per hour to active process instances in Camunda 8.8, runs a custom inbound connector. A reviewer wants to verify how the executable should react when correlateWithResult returns a Failure, because the handling strategy is what decides whether the connector should report the problem upstream or swallow it silently.",
+  "question": "How does the SDK describe the role of handlingStrategy on the CorrelationResult returned by correlateWithResult?",
+  "options": [
+    {
+      "id": "a",
+      "text": "handlingStrategy is a Zeebe broker hint that controls how long the correlation is retried inside the engine before the subscription is closed and the executable is marked as failed by the runtime"
+    },
+    {
+      "id": "b",
+      "text": "handlingStrategy is a fixed legacy enum that returns the same constant for every failure, with the runtime always logging the error and never forwarding it to the upstream system in any case"
+    },
+    {
+      "id": "c",
+      "text": "handlingStrategy is derived by the connector runtime from user configuration and tells the executable whether a Failure should be forwarded to the upstream system or simply ignored"
+    },
+    {
+      "id": "d",
+      "text": "handlingStrategy is a callback the executable must invoke at activate time to register custom handlers, after which the runtime stops returning Failure values for the rest of the subscription lifecycle"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. handlingStrategy is not a broker retry hint; it is delivered with each CorrelationResult and only tells the executable how to react to a failed correlation."
+    },
+    "b": {
+      "text": "Incorrect. The strategy can take more than one value and the runtime explicitly supports forwarding errors upstream, so it is neither a constant nor a deprecated field."
+    },
+    "c": {
+      "text": "Correct. The docs state that the handling strategy is derived by the connector runtime based on user configuration and defines whether a Failure should forward the error to the upstream system or ignore it, which is exactly how the example handleResult branches on ForwardErrorToUpstream and Ignore."
+    },
+    "d": {
+      "text": "Incorrect. handlingStrategy is a value on the failure result, not a callback registered in activate, and Failure values continue to be possible throughout the subscription lifecycle."
+    }
+  },
+  "explanation": "When correlateWithResult returns a Failure, the CorrelationResult carries a handlingStrategy that the runtime derives from user configuration. The executable inspects that strategy to decide whether to forward the error to the upstream system (ForwardErrorToUpstream) or to ignore it (Ignore).",
+  "docs": [
+    {
+      "title": "Connector SDK - Inbound connector runtime logic",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

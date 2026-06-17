@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An audit team needs to verify, for a sample of 50 completed process instances, which decisions fired and with which inputs/outputs. The DMN evaluations happened weeks ago. The team wants a single query that returns per-instance: list of decision instances, their inputs, outputs, and which rules matched.",
+  "question": "Which Camunda 8 view supports this audit query?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda Optimize collects and stores detailed audit logs of every DMN evaluation fired across all process instances, including the exact input values, matched rules, and output values for each individual evaluation. Query the Optimize API using its report builder to retrieve all decision evaluations for a given set of completed process instances. Optimize stores aggregated operational metrics (KPIs, durations, frequencies) and historical instance data for analytics, but it does not preserve detailed per-evaluation audit logs of individual DMN table inputs, outputs, and matched rules. Operate's Decision Instance view is the correct repository for individual evaluation audit detail."
+    },
+    {
+      "id": "b",
+      "text": "Camunda does not persist DMN evaluation history after process instances complete -- once a process instance finishes, Zeebe's append-only log is compacted and the DMN evaluation records are permanently discarded along with all other instance data, making it impossible to audit evaluations that occurred weeks ago. Data retention IS configurable, and the default Operate retention policy retains completed instance data including Decision Instances for an audit-appropriate window. The scenario specifies evaluations that occurred weeks ago -- within a reasonable default retention window. The claim that data is always purged on instance completion is factually incorrect."
+    },
+    {
+      "id": "c",
+      "text": "Access Zeebe's internal append-only event log directly using the gRPC streaming API to read historical decision-evaluation records, filtering by process instance key to retrieve all DMN evaluation events for the target 50 instances. Zeebe's append-only event log is an internal infrastructure component and is not exposed to application-level consumers via the gRPC API for arbitrary historical queries. The gRPC API provides command and activation endpoints, not historical log streaming. Operate's Elasticsearch-backed read model is the correct query surface for historical evaluation data."
+    },
+    {
+      "id": "d",
+      "text": "Operate's Decision Instance view retains evaluation history (subject to data retention policy). For each completed process instance, drill into the Business Rule Tasks to see the linked Decision Instances with full evaluation details (inputs, outputs, matched rules). Operate's Decision Instance view is the canonical audit trail for DMN evaluations. Each evaluation produces a Decision Instance record with inputs, outputs, matched rules -- linked to the parent process instance and retained according to the cluster's data retention configuration."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate's Decision Instance view is the canonical audit trail for DMN evaluations. Each evaluation produces a Decision Instance record with inputs, outputs, matched rules -- linked to the parent process instance. Data retention depends on cluster configuration (default is reasonable for audit windows) but evaluations are preserved beyond the parent instance's completion."
+    },
+    "b": {
+      "text": "Incorrect. Optimize stores aggregated metrics, not detailed audit logs of individual DMN evaluations."
+    },
+    "c": {
+      "text": "Incorrect. Retention IS configurable, but the default supports audit-window queries. Not \"purged immediately\"."
+    },
+    "d": {
+      "text": "Correct. Direct Zeebe log query isn't supported for application use."
+    }
+  },
+  "explanation": "Direct Zeebe log query isn't supported for application use.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/basic-operate-navigation/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q58",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

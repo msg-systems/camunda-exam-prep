@@ -1,0 +1,50 @@
+{
+  "id": "mod-send-tasks-42",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Bank publishes 9000 messages per day from Camunda 8.8 to a Kafka topic named payment. The modeler opens the BPMN XML of a send task with id publish-message and must add the extension elements that wire the job to a Kafka-publishing worker and forward the topic name.",
+  "question": "Which XML extension elements correctly define the send task as a Kafka publisher with topic payment?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A zeebe:taskDefinition with type kafka inside extensionElements, plus a zeebe:taskHeaders block whose zeebe:header has key kafka-topic and value payment"
+    },
+    {
+      "id": "b",
+      "text": "A zeebe:taskDefinition with type payment inside extensionElements, plus a zeebe:taskHeaders block whose zeebe:header has key kafka-broker and value payment"
+    },
+    {
+      "id": "c",
+      "text": "A bpmn:messageEventDefinition with messageRef kafka and a zeebe:subscription correlationKey expression resolving to the static literal string payment at runtime"
+    },
+    {
+      "id": "d",
+      "text": "A zeebe:ioMapping output element with source equal to kafka and target equal to payment that publishes the message during the send task completion phase only"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The documented XML form of a Kafka-publishing send task uses a zeebe:taskDefinition with type kafka and a zeebe:taskHeaders block containing a zeebe:header whose key is kafka-topic and value is payment."
+    },
+    "b": {
+      "text": "Incorrect. The job type names the worker pool to subscribe, not the topic, and the topic header key in the documented example is kafka-topic rather than kafka-broker."
+    },
+    "c": {
+      "text": "Incorrect. Send tasks are job-based outbound publishers; they do not use bpmn:messageEventDefinition or correlationKey expressions to identify the Kafka topic."
+    },
+    "d": {
+      "text": "Incorrect. The ioMapping construct handles variable transformation at the boundary of the activity and does not publish messages to a Kafka topic from a send task."
+    }
+  },
+  "explanation": "The documented XML form of a Kafka-publishing send task uses a zeebe:taskDefinition of type kafka and a zeebe:taskHeaders block whose zeebe:header carries the topic name under the key kafka-topic, with the value pointing at the target topic.",
+  "docs": [
+    {
+      "title": "BPMN send tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/send-tasks/"
+    }
+  ]
+}

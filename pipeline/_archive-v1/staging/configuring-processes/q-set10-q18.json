@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q18",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An AI Agent Connector handles a multi-turn customer-service conversation. Each conversation involves multiple LLM calls (user asks → agent responds → user follows up → ...). The team wonders how the agent maintains conversation memory across calls within a single instance.",
+  "question": "How does the AI Agent Connector maintain conversation memory across iterations?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Commercial LLM APIs maintain conversation state internally between API calls -- this description does not reflect actual behaviour for virtually all production LLM API services. APIs from OpenAI, Anthropic, Google, and others are stateless per call by design. Each API request must include the complete context needed for the model to respond appropriately. There is no server-side session memory between calls. The application is solely responsible for accumulating and passing the conversation history with each request."
+    },
+    {
+      "id": "b",
+      "text": "Conversational memory is fundamentally unsupported by the AI Agent Connector and no mechanism exists for maintaining state between LLM calls -- this description does not reflect the actual behaviour. The AI Agent Connector documentation explicitly lists Memory as a named feature providing conversational and short-term memory handling to enable feedback loops. The connector uses an Agent context variable that accumulates conversation history across turns, allowing users to ask follow-up questions and the agent to maintain contextual awareness."
+    },
+    {
+      "id": "c",
+      "text": "Use Document Handling to store all conversation history as a document reference, retrieving and updating it on each LLM call -- this is technically workable for very long conversations that exceed process variable size limits or LLM context window limits, but it is not the primary recommended mechanism. The AI Agent Connector's built-in Agent context variable is the first-class mechanism for conversational memory. Document Handling is a valid fallback for edge cases involving extremely long conversation histories."
+    },
+    {
+      "id": "d",
+      "text": "The AI Agent Connector provides built-in conversational memory via an \"Agent context\" process variable. md:27 (Memory row): \"Provides conversational/short-term memory handling to enable feedback loops. \" Per :179-187: an Agent context variable stores the data needed to re-enter the connector with the same conversational state. For the AI Agent Task implementation, you align the agent context input variable with the response variable/expression so each iteration's updated context flows into the next call. The connector handles history accumulation, system prompt + user prompt assembly, and (optionally) structured JSON response parsing into a FEEL context."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. LLM APIs (OpenAI, Anthropic, etc.) are largely stateless per call -- the model doesn't remember previous calls; the application provides the conversation context. The standard agentic pattern: Initial state: conversationHistory = [] (or starts with the system prompt). Each turn: 1. User input arrives (or agent receives previous context). 2. Call LLM with: system prompt + conversationHistory + new user message + available tools. 3. LLM responds (possibly with tool calls). 4. Append the LLM's response to conversationHistory. 5. If tool calls: execute the tool, append result to history, loop back to LLM. 6. Repeat until LLM signals completion. Memory size considerations: Context window: LLMs have token limits (e.g., 100K-200K tokens for modern models). Long conversations may exceed; truncate / summarise older turns when needed. Cost: each call's input tokens cost money; long history = expensive. Trim or summarise. For very long conversations, use Document Handling to store full history while keeping a compact summary in the active variable."
+    },
+    "b": {
+      "text": "Incorrect. LLM stateless; app handles state."
+    },
+    "c": {
+      "text": "Incorrect. Canonical pattern."
+    },
+    "d": {
+      "text": "Correct. For typical lengths, variables suffice."
+    }
+  },
+  "explanation": "For typical lengths, variables suffice.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/agentic-orchestration/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q18",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

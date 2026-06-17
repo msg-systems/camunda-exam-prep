@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Payment Service Task \"Charge Card\" returns three distinct failure types (insufficient funds, card expired, fraud detected), each needing different handler. Worker throws errorCode per failure. Currently single Error Boundary catches all uniformly with errorCode: \"PAYMENT_ERROR\".",
+  "question": "Correct configuration for typed error routing?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Keep the single Error Boundary Event catching PAYMENT_ERROR and add a downstream Exclusive Gateway that routes based on the errorType variable that the worker sets before throwing the error. The gateway would have three outgoing paths with FEEL conditions like =errorType = \"INSUFFICIENT_FUNDS\". It also requires the worker to consistently set both the errorCode and the errorType variable."
+    },
+    {
+      "id": "b",
+      "text": "Remove the single catch-all Error Boundary Event and attach three separate Error Boundary Events to the \"Charge Card\" Service Task -- one with errorCode: INSUFFICIENT_FUNDS, one with errorCode: CARD_EXPIRED, and one with errorCode: FRAUD_DETECTED. Each boundary event routes to its dedicated handler subprocess or task. Zeebe matches the thrown error code to the boundary event with the identical errorCode value, routing the token to the correct handler. Multiple Error Boundary Events can be attached to the same Service Task element in BPMN, and each fires independently."
+    },
+    {
+      "id": "c",
+      "text": "Configure the Service Task element with a zeebe:errorEventDefinition XML extension listing all three error codes in an array. This single-point configuration tells Zeebe which errors to expect from the worker and how to route them. This configuration element is not part of the Camunda 8 BPMN extension schema -- the routing is defined on Error Boundary Events attached to the task, not on the task element itself via an extension attribute listing codes."
+    },
+    {
+      "id": "d",
+      "text": "Have the worker continue throwing a single unified PAYMENT_ERROR code but embed the specific failure type as a structured message or variable. The single Error Boundary Event catches all failures, and a downstream Service Task or Script Task parses the error message or variable to determine the specific type and take appropriate action. While this technically routes errors, it relies on fragile string parsing of error messages rather than BPMN-native typed error routing, making the flow harder to maintain and less transparent in Operate's incident view."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Error Boundary with specific errorCode matches exactly that code. Multiple boundaries can attach to same activity; each routes to its handler."
+    },
+    "b": {
+      "text": "Correct. Moves logic from BPMN to variable+gateway; fragile."
+    },
+    "c": {
+      "text": "Incorrect. No such Service Task configuration; routing is on boundary."
+    },
+    "d": {
+      "text": "Incorrect. String parsing fragile; errorCode is BPMN-native typed routing."
+    }
+  },
+  "explanation": "Moves logic from BPMN to variable+gateway; fragile.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q21",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

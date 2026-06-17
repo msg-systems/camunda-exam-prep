@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q26",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression: =country in [\"DE\", \"FR\", \"IT\"]. Team wonders if in is membership test or range. FEEL in operator semantics?",
+  "question": "FEEL in operator semantics?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The FEEL in operator is polymorphic: it tests whether a value satisfies ANY of the provided unary tests, which include ranges, specific values, and lists. For example, x in [1, 2, 3] returns true if x equals 1, 2, or 3. 10) tests range inclusion. x in (> 5, < 2) tests multiple conditions. The in operator supports all FEEL unary test types, not just ranges."
+    },
+    {
+      "id": "b",
+      "text": "The for x in list return ... construct is FEEL's list comprehension / iteration expression and produces a new list of transformed values. b]. md:223-237."
+    },
+    {
+      "id": "c",
+      "text": "FEEL has no membership or containment testing operator -- developers must use custom logic -- this approach has limitations. md:223-237). b] tests closed-interval inclusion. These expressions are used extensively in DMN decision table input cells and BPMN gateway conditions. Claiming the in operator has no such feature indicates a misunderstanding of core FEEL language capabilities."
+    },
+    {
+      "id": "d",
+      "text": "md:223-237) evaluates a unary-tests expression against a value: the keyword in separates the value from the unary-tests. Right-hand side is a unary-tests expression -- not just a list. date(\"2021-05-31\")] (closed date interval -- false); 5 in (3,5,7) (disjunctive -- true); 5 in [2,4,6,8] (list literal unary-test -- false). ) syntax for readable membership checks."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL in operator: List membership: `feel 5 in [1, 5, 10] → true \"DE\" in [\"DE\", \"FR\"] → true \"ES\" in [\"DE\", \"FR\"] → false Range membership: feel 5 in [1..10] → true (closed) 5 in (1..10) → true (open) 10 in [1..10] → true (closed; includes endpoint) 10 in (1..10) → false (open; excludes) Compound unary tests: feel 5 in (7) → false (not 7) 5 in (<3, [5..10]) → true (in range) In DMN tables: Input entries are unary tests; in syntax is implicit (matches against input value). Cell value 5, 10, 15: equivalent to ? in (5, 10, 15) where ? is input. Compare with contains (string-only): contains(\"hello\", \"ell\"): substring check. in: element / range membership. Compare with quantifiers (per Set 14 Q24): some x in list satisfies condition: existential. every x in list satisfies condition: universal. for x in list: list comprehension (different in usage in FEEL syntax). For the scenario (country in [\"DE\", \"FR\", \"IT\"]): Membership test. Returns true if country equals \"DE\" or \"FR\" or \"IT\". Common pattern for \"is one of these allowed values.\" Negation: feel not(country in [\"DE\", \"FR\", \"IT\"]) True if country NOT in list. For complex collections: feel customer.id in (for c in customers return c.id) Check if customer ID is in a list of customer IDs. Performance: List membership: O(n) -- checks each element. Range: O(1) -- bounded comparison. For large lists: consider whether index-like structure better (DB lookup). For DMN inputs / outputs: Input entry with in: equivalent to listing values. Some implementations may not support full in syntax in input entries; verify. Common patterns: Pattern 1: Allowlist: feel user.role in [\"admin\", \"manager\", \"supervisor\"] Authorize specific roles. Pattern 2: Region check: feel customer.country in [\"DE\", \"FR\", \"IT\", \"ES\", \"AT\"] EU members for VAT logic. Pattern 3: Status check: feel order.status in [\"pending\", \"in_review\"] Active statuses. Pattern 4: Range check: feel age in [18..65] Working age. Anti-patterns: Overlong lists in in: should be data lookup. Repeated in` across many decisions: extract to BKM."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-unary-tests/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q26",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

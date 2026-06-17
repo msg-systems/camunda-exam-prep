@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has a process variable orderId set at process start. Inside an Embedded Subprocess, a worker creates a task-local variable also named orderId (via Input Mapping). The team wonders what happens -- naming collision?",
+  "question": "What happens when a task-local variable has the same name as a process variable?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Deployment fails because variable name collisions between task-local and process-scope variables are detected and rejected during BPMN validation -- this description does not reflect the actual behaviour. The scope hierarchy permits inner scopes to define variables with the same names as outer scope variables. The engine resolves names by searching the innermost scope first and traversing outward only if not found locally. Name reuse across scopes is a valid and common pattern."
+    },
+    {
+      "id": "b",
+      "text": "The local variable shadows the process variable within its scope -- the task / subprocess scope reads the local value when referencing orderId. Outside the local scope (after the task completes, or in sibling activities), the original process variable remains intact and visible. Scope rules: inner scope's variable shadows outer; the outer is unmodified unless explicit Output Mapping writes to it."
+    },
+    {
+      "id": "c",
+      "text": "The task-local variable with the same name overwrites the process-level variable globally, affecting all subsequent activities that reference that name -- this description does not reflect actual behaviour due to scope isolation. Variable writes in Camunda 8 are scoped to the innermost scope in which they are created. A variable created via Input Mapping within a task scope lives only in that scope and does not propagate to the process root automatically. The process variable remains intact in outer scopes unless explicitly overwritten by Output Mapping."
+    },
+    {
+      "id": "d",
+      "text": "Within the inner scope, when FEEL expressions reference the variable name, only the innermost scope's value is returned due to shadowing. The outer process variable is not simultaneously accessible by that name from within the inner scope. Outside the inner scope, the process variable remains the sole definition and is not affected by the inner scope's shadowed version."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Variable scoping in Camunda 8 follows lexical scoping rules: Local variable shadows outer: within the scope that has the local definition, the name resolves to the local value. Outer remains intact: outside that scope (e.g., after the task completes, in parent / sibling scopes), the original outer variable is unmodified. No automatic propagation: the local variable doesn't propagate up unless explicitly via Output Mapping. Example: process root has orderId = \"ORD-100\". Inside the subprocess, Input Mapping creates local orderId = \"TEMP-XYZ\". While that subprocess is running, FEEL references to orderId from within see \"TEMP-XYZ\". After the subprocess completes, the parent's orderId is still \"ORD-100\" (unless overwritten by Output Mapping). Practical recommendation: avoid name collisions when possible -- it can confuse readers about which value is in effect. Use distinct names (e.g., tempOrderId, formattedOrderId) for local-scope variables."
+    },
+    "b": {
+      "text": "Correct. Shadowing allowed."
+    },
+    "c": {
+      "text": "Incorrect. Scope isolation."
+    },
+    "d": {
+      "text": "Incorrect. In local scope, name resolves to local value, not both."
+    }
+  },
+  "explanation": "Shadowing allowed.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/#variable-scopes"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q13",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

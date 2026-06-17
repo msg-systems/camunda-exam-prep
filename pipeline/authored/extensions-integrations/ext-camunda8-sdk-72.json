@@ -1,0 +1,53 @@
+{
+  "id": "ext-camunda8-sdk-72",
+  "topic": "extensions-integrations",
+  "subtopic": "typescript-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Given the TypeScript SDK snippet above that deploys `process.bpmn`, why must the deploy call live inside an `async` function?",
+  "codeBlocks": {
+    "stem": "async function main() {\n  const deployResponse = await camunda.deployResourcesFromFiles([\n    path.join(process.cwd(), \"process.bpmn\"),\n  ]);\n  console.log(`[Camunda] Deployed process ${deployResponse.processes[0].processDefinitionId}`);\n}\nmain();"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "Network operations are asynchronous and SDK methods that operate over the network return promises, so `await` requires an enclosing `async` function."
+    },
+    {
+      "id": "b",
+      "text": "The SDK spawns a worker process for deployment and `async` is required to receive its IPC messages."
+    },
+    {
+      "id": "c",
+      "text": "BPMN parsing happens off the event loop, and only `async` functions can access the parsed XML tree."
+    },
+    {
+      "id": "d",
+      "text": "`process.cwd()` is asynchronous in Node.js and can only be awaited inside an `async` function."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The Deploy a process model section states: network operations are asynchronous and methods that operate over the network return promises, so the main function is wrapped in `async` to allow `await` on `deployResourcesFromFiles`."
+    },
+    "b": {
+      "text": "There is no IPC worker process described — the SDK simply makes an HTTP/gRPC call from the same Node process."
+    },
+    "c": {
+      "text": "The docs do not describe BPMN parsing as a separate async stage; the `async` wrapping is purely about awaiting the network response."
+    },
+    "d": {
+      "text": "`process.cwd()` is a synchronous Node.js API; it does not return a promise and does not require `await`."
+    }
+  },
+  "explanation": "`deployResourcesFromFiles` performs a network call to deploy the BPMN resource and therefore returns a promise. To use `await` on that promise the call must be inside an `async` function — which is why the deploy guide wraps `main` in `async function main()` and then invokes it.",
+  "docs": [
+    {
+      "title": "Camunda 8 TypeScript SDK",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ]
+}

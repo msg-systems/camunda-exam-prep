@@ -1,0 +1,27 @@
+{
+  "id": "cfg-variables-20",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Bank reviews a Camunda 8.8 subprocess inside a payment process handling 250 transactions per second. A developer suggests defining a single output mapping with target name customer.email to surface a value from a local variable in the subprocess up to the parent scope of the process instance before close-out.",
+  "question": "Which guidance from the Camunda 8.8 variables documentation applies to using a target like customer.email in an output mapping?",
+  "options": [
+    { "id": "a", "text": "Avoid using output mappings or result variables that contain a period because doing so updates a property of an existing variable in the task scope and may produce confusing process behaviour." },
+    { "id": "b", "text": "Always use periods in target names because Camunda 8.8 treats them as the canonical way to merge subprocess-local variables into nested objects in the parent scope of a process." },
+    { "id": "c", "text": "Camunda 8.8 rewrites the period to an underscore at deployment time, so customer.email is stored and merged as customer_email without any side effects in the parent scope of the process." },
+    { "id": "d", "text": "Periods in target names require an additional ioMapping flag to be set in the BPMN element; otherwise the engine rejects the deployment with a validation error at startup of the cluster." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The docs explicitly advise avoiding output mappings or result variables whose names contain a period because doing so updates a property of an existing variable within the task scope and can lead to confusing behaviour." },
+    "b": { "text": "Incorrect. The docs warn against periods in output-mapping targets rather than recommending them as a canonical way to build nested objects in the parent scope of a process instance." },
+    "c": { "text": "Incorrect. The engine does not silently rewrite periods to underscores; it preserves the target string as written and applies it to nested properties of an existing variable on the task scope." },
+    "d": { "text": "Incorrect. There is no documented ioMapping flag that enables or disables periods in target names, and the deployment is not rejected solely for using a period inside a target name." }
+  },
+  "explanation": "A period in an output-mapping target updates a nested property of an existing variable in the task scope rather than creating a clean new variable. The docs caution against this pattern because the resulting variable layout in the process instance can be confusing or produce unexpected results.",
+  "docs": [
+    { "title": "Variables", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+  ]
+}

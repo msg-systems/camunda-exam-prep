@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-59",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "A SaaS architect plans to use the modification command on 120 instances. Each command contains 3 activation instructions and 2 termination instructions. The team needs to confirm the deterministic order in which the engine applies the instructions inside one command so they can reason about subprocess lifecycle and avoid accidental scope termination.",
+  "question": "Which order does the process instance use when applying activation and termination instructions within a single modification command?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It applies all activation instructions first, then applies all termination instructions afterward, so the subprocess or process instance still has an active element when the terminations run"
+    },
+    {
+      "id": "b",
+      "text": "It applies all termination instructions first to free element slots, then applies all activation instructions so newly activated elements do not collide with elements about to be removed"
+    },
+    {
+      "id": "c",
+      "text": "It interleaves activation and termination instructions in the order they appear in the modification command so the caller can control fine-grained ordering of operations explicitly"
+    },
+    {
+      "id": "d",
+      "text": "It applies activation and termination instructions in parallel against the engine state, relying on transactional locking to resolve any conflicts that surface during the modification batch"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The process instance applies all activation instructions first, then applies all termination instructions. This ordering matters when the modification terminates the last active instances of a scope while also activating an element there, because the activated element keeps the scope alive."
+    },
+    "b": {
+      "text": "Incorrect. Termination-first would risk terminating the last active instance of a scope before any new element is activated, which would end the subprocess or process instance prematurely and reject the activation."
+    },
+    "c": {
+      "text": "Incorrect. The order is fixed by the engine, not by the order of instructions provided in the command. Callers cannot interleave activations and terminations to control the sequence within a single modification command."
+    },
+    "d": {
+      "text": "Incorrect. Modification instructions are not applied in parallel. They are applied serially in the documented order, activations first and then terminations, within a single transactional command."
+    }
+  },
+  "explanation": "Within a single modification command the engine applies all activation instructions first and then all termination instructions. This order ensures that any newly activated element keeps a scope alive even when terminations would otherwise remove the last active element of that scope.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

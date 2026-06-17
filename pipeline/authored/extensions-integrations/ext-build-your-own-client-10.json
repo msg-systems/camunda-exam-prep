@@ -1,0 +1,53 @@
+{
+  "id": "ext-build-your-own-client-10",
+  "topic": "extensions-integrations",
+  "subtopic": "oauth",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Following the OAuth flow, your custom client POSTs `client_credentials` to the auth URL and receives the response above. What does the docs recommend you do with this access token before requesting another one?",
+  "codeBlocks": {
+    "stem": "{\n  \"access_token\": \"ey...\",\n  \"scope\": \"...\",\n  \"expires_in\": 86400,\n  \"token_type\": \"Bearer\"\n}"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "Cache it for the duration in `expires_in` (24 hours) and reuse it until it expires."
+    },
+    {
+      "id": "b",
+      "text": "Request a fresh token before every gRPC call so the broker always validates current credentials."
+    },
+    {
+      "id": "c",
+      "text": "Exchange the returned `refresh_token` whenever the broker rejects a request with `401`."
+    },
+    {
+      "id": "d",
+      "text": "Pass it as the `audience` field of every follow-up request to identify the cluster."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "`expires_in: 86400` means the token is valid for 86400 seconds (24 hours). The docs explicitly tell you to consider a mechanism to cache the token for the duration before requesting a new one."
+    },
+    "b": {
+      "text": "Requesting a new token per call wastes the 24-hour lifetime and adds latency; the docs recommend caching."
+    },
+    "c": {
+      "text": "The example response only contains `access_token`, `scope`, `expires_in`, and `token_type` — there is no `refresh_token` to exchange."
+    },
+    "d": {
+      "text": "`audience` is part of the request payload that identifies the target (e.g. `zeebe.camunda.io`); it is not where the access token is placed."
+    }
+  },
+  "explanation": "The OAuth example shows the access token comes back with `expires_in: 86400` (24 hours) and the docs advise caching it for that duration before requesting a new one, so clients amortise the cost of token acquisition across many gRPC calls.",
+  "docs": [
+    {
+      "title": "Build your own client",
+      "url": "https://docs.camunda.io/docs/apis-tools/build-your-own-client/"
+    }
+  ]
+}

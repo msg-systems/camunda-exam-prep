@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team configures a Service Task with autoComplete = true (@JobWorker annotation on the Camunda Spring Boot Starter -- the official replacement for the legacy Spring Zeebe SDK per camunda-spring-boot-starter/getting-started.md:16-22). They wonder what happens if the handler method throws an exception -- does autoComplete still trigger? autoComplete = true behaviour on exception in the handler?",
+  "question": "autoComplete = true behaviour on exception in the handler?",
+  "options": [
+    {
+      "id": "a",
+      "text": "complete() regardless of whether the handler method succeeds or throws an exception -- wrong; the SDK explicitly distinguishes success from failure paths. error() for BPMN-type exceptions). complete() on a clean method return. This distinction is fundamental to reliability -- silently completing a job after an exception would hide failures, corrupt process state, and defeat the observability that Operate provides for debugging production incidents."
+    },
+    {
+      "id": "b",
+      "text": "Exceptions thrown by handler methods are suppressed silently when autoComplete = true is configured -- wrong; silent suppression would be an extremely dangerous anti-pattern that hides bugs and data integrity issues. The Camunda Spring Boot Starter explicitly catches exceptions and routes them through proper failure channels. fail() calls that decrement retries and eventually surface as Incidents in Operate. error() calls that trigger BPMN Error Boundary routing. This ensures every failure is visible, actionable, and auditable rather than silently discarded."
+    },
+    {
+      "id": "c",
+      "text": "complete(). autoComplete is for the happy path; exceptions trigger failure handling. No silent success on exception: this would be a bug-hiding anti-pattern; the starter errs on the side of marking the job failed. md:21-22 -- use Camunda Spring Boot Starter going forward."
+    },
+    {
+      "id": "d",
+      "text": "autoComplete must always be set to false whenever the handler method might throw exceptions -- overstates; the SDK handles exception routing automatically even with autoComplete = true. error() is called -- for example, when the actual work happens in a background thread or via a callback after the handler returns. For synchronous handlers where the result is known when the method returns, autoComplete = true with standard exception propagation is the correct and intended usage pattern."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Spring Zeebe's autoComplete semantics: autoComplete = true (default, the convenient mode): Handler method runs. If returns normally (no exception thrown): SDK calls job.complete(returnValue) automatically. Variables from the return value land in process scope. If exception thrown: SDK catches; calls job.fail() (default) or applies error mapping if configured. The job's retries decrement; if 0, Incident. autoComplete = false (explicit control): Handler method takes responsibility for calling job.complete() / job.fail() / job.error(). Used for async patterns where the handler returns immediately but actual work / completion happens later. Exception handling with autoComplete = true: Uncaught Java exception: → job.fail. ZeebeBpmnError (or similar custom BPMN error exception): → job.error with the BPMN errorCode. Triggers Error Boundary. Standard runtime exceptions: → job.fail (generic failure). Best practices: Throw ZeebeBpmnError for business errors: maps to BPMN errors with errorCode; routes via Error Boundary. Let unexpected exceptions propagate: SDK fails the job; Incident surfaces; ops investigates. Don't catch exceptions to hide them: defeats observability."
+    },
+    "b": {
+      "text": "Incorrect. Only on success."
+    },
+    "c": {
+      "text": "Correct. Not silenced."
+    },
+    "d": {
+      "text": "Incorrect. SDK handles."
+    }
+  },
+  "explanation": "Not silenced.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q12",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

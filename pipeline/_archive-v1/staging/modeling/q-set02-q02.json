@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An online auction platform built on Camunda 8 SaaS runs timed bidding processes. When a high-value lot opens, the process spawns a User Task \"Place Bid\" assigned to an interested bidder, with a strict 120-second window to submit. The process must advance as soon as one of three events fires: (1) the bidder submits the bid; (2) the bidder explicitly withdraws (sends a \"withdraw\" message); (3) the 120-second timer expires. Whichever fires first, the other two must be cleanly cancelled -- the team has been seeing strange behaviour where withdrawn lots still produce timer-expiry incidents minutes later, suggesting the timer is left running after the withdrawal already advanced the flow. The current model uses a Parallel Gateway with three parallel branches: a Receive Task for \"bid_placed\", a Receive Task for \"withdraw\", and a Timer Catch Event. After any branch completes, a downstream Exclusive Gateway picks the winning branch.",
+  "question": "Which BPMN construct correctly models \"first of N events wins, cancel the rest\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A regular Receive Task for \"bid_placed\" with two Interrupting Boundary Events attached -- one Message Boundary for \"withdraw\", one Timer Boundary for 120 s. This asymmetric approach works mechanically for a primary-event-plus-interrupts pattern but poorly represents a symmetric three-way race. It implies \"bid_placed\" is the main flow and the others are exceptions, when in fact all three events have equal standing. The Event-Based Gateway expresses symmetric racing more clearly and cleanly."
+    },
+    {
+      "id": "b",
+      "text": "An Inclusive Gateway with three conditional flows checking =bidReceived, =withdrawn, =timerExpired variables. This approach is fundamentally flawed because the Inclusive Gateway evaluates synchronous FEEL conditions on already-present variables rather than waiting for events to arrive. It would route based on whatever values exist at the time the token reaches the gateway -- no waiting, no race, no subscription to future events. Wrong construct entirely."
+    },
+    {
+      "id": "c",
+      "text": "An Event-Based Gateway with three catching events attached: two Message Catch Events (one for \"bid_placed\", one for \"withdraw\") and one Timer Catch Event (120 s). Whichever fires first claims the token; the engine automatically unsubscribes from the other two. This prevents the stale timer subscriptions described in the scenario -- once the withdrawal message fires, Zeebe immediately cancels the timer and the remaining message subscription."
+    },
+    {
+      "id": "d",
+      "text": "A Parallel Gateway with three branches joined by a Terminate End Event in each so the first to complete kills the others. This approach reproduces the original broken design the scenario describes. Terminate End Event terminates the entire process instance, which is far too destructive, and Parallel Gateway does not cancel unfinished branches when one completes -- it waits for all tokens. The stale timer subscription issue remains unresolved."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Event-Based Gateway is precisely the BPMN construct for \"race between N events with automatic cancellation of the losers\". When the token reaches the gateway, Zeebe subscribes to all attached catching events simultaneously. The first event to fire claims the token and the gateway unsubscribes from the remaining events -- no leaked timer subscriptions, no stale tokens, no orphaned race conditions."
+    },
+    "b": {
+      "text": "Incorrect. Boundary Events on a Receive Task work for the simple \"wait-for-X-with-timeout\" pattern but get awkward with three competing events. You'd need the Receive Task to wait for \"bid_placed\" and place \"withdraw\" + timer as Boundary -- which models the race correctly mechanically, but visually misrepresents \"bid\" as the primary and \"withdraw\" + \"timeout\" as exceptions. Event-Based Gateway expresses the symmetric race cleanly."
+    },
+    "c": {
+      "text": "Correct. Inclusive Gateway evaluates synchronous conditions on variables, NOT awaits events. It would route immediately based on current variable state -- no waiting, no race. Wrong construct entirely."
+    },
+    "d": {
+      "text": "Incorrect. Parallel Gateway opens all three branches in parallel which is the broken design described in the scenario; Terminate End Event kills the entire process instance (including downstream activities not yet started), too heavy. Same wrong semantic as the current broken model."
+    }
+  },
+  "explanation": "Inclusive Gateway evaluates synchronous conditions on variables, NOT awaits events. It would route immediately based on current variable state -- no waiting, no race. Wrong construct entirely.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-based-gateways/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q02",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

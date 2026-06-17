@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q43",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team scripts zbctl in a CI pipeline. They want to parse the output programmatically -- e.g., extract the deployed process definition's key for downstream automation.",
+  "question": "How can zbctl output be parsed in shell scripts?",
+  "options": [
+    {
+      "id": "a",
+      "text": "zbctl supports --json flag (or equivalent) to output structured JSON instead of human-readable text. Pipe to jq (JSON parser CLI) for field extraction. processDefinitionKey'. JSON output is stable / parseable; text output may evolve cosmetically across versions. 8 (Pattern #31); zbctl is bundled with the community Go client repo."
+    },
+    {
+      "id": "b",
+      "text": "zbctl produces only human-readable text output with no structured format option for machine parsing -- this understates zbctl's scripting capabilities. zbctl supports output format flags that produce structured JSON output suitable for programmatic parsing with tools like jq. JSON output provides a stable schema for field extraction across zbctl versions, whereas text formatting may change cosmetically without notice, breaking text-parsing scripts."
+    },
+    {
+      "id": "c",
+      "text": "zbctl is unsuitable for CI/CD pipeline scripts because it requires interactive user input -- this misrepresents the tool's design. zbctl is a command-line interface specifically designed for automation and CI integration. It accepts all parameters as command-line arguments or environment variables without interactive prompts, making it well-suited for pipeline steps that deploy BPMN files, create instances, and query process state in automated workflows."
+    },
+    {
+      "id": "d",
+      "text": "The Camunda 8 Orchestration Cluster REST API provides the same deployment and instance management capabilities as zbctl but without requiring an additional binary dependency. Some teams prefer REST for CI because it uses standard HTTP tooling, has no binary to manage, and provides clearer API contracts. Both approaches are fully supported."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. zbctl CLI tools typically support structured output formats for scripting: JSON output flag (e.g., --json or --output json): emit JSON instead of human-readable text. Parse with jq (or other JSON tools): extract specific fields. Stable contract: JSON schema is more stable across zbctl versions than text formatting. Example CI workflow: `bash # Deploy and capture the process definition key PROCESS_KEY=$(zbctl deploy --resourceFile process.bpmn --json | \\ jq -r '.deployments[0].processDefinition.processDefinitionKey') echo \"Deployed process key: $PROCESS_KEY\" # Use for downstream zbctl create instance --processDefinitionKey $PROCESS_KEY --variables '{\"orderId\": \"ORD-123\"}' Alternative: use the REST API directly with curl + jq` -- equivalent functionality without zbctl. Some teams prefer REST for CI to avoid an extra binary dependency. Verify your zbctl version's specific flags and JSON schema."
+    },
+    "b": {
+      "text": "Incorrect. Structured output exists."
+    },
+    "c": {
+      "text": "Incorrect. CI-friendly."
+    },
+    "d": {
+      "text": "Incorrect. Both supported."
+    }
+  },
+  "explanation": "zbctl CLI tools typically support structured output formats for scripting: JSON output flag (e.g., --json or --output json): emit JSON instead of human-readable text. Parse with jq (or other JSON tools): extract specific fields. Stable contract: JSON schema is more stable across zbctl versions than text formatting. Example CI workflow: `bash # Deploy and capture the process definition key PROCESS_KEY=$(zbctl deploy --resourceFile process.bpmn --json | \\ jq -r '.deployments[0].processDefinition.processDefinitionKey') echo \"Deployed process key: $PROCESS_KEY\" # Use for downstream zbctl create instance --processDefinitionKey $PROCESS_KEY --variables '{\"orderId\": \"ORD-123\"}' Alternative: use the REST API directly with curl + jq` -- equivalent functionality without zbctl. Some teams prefer REST for CI to avoid an extra binary dependency. Verify your zbctl version's specific flags and JSON schema.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/community-clients/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q43",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

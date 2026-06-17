@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Workers use long-poll to fetch jobs. Team heard of streaming mode in newer Camunda 8 versions. Wonders trade-offs.",
+  "question": "Job streaming vs long-poll?",
+  "options": [
+    {
+      "id": "a",
+      "text": "3+ as an alternative to long-polling. With streaming, the Zeebe broker pushes jobs to workers as they become available rather than the worker polling at intervals. Streaming reduces latency between job availability and worker activation, improves throughput for high-volume scenarios, and eliminates the polling overhead entirely. Workers opt into streaming mode via the job worker configuration. Long-polling remains available for backward compatibility."
+    },
+    {
+      "id": "b",
+      "text": "Both long-poll and streaming are supported job-fetching modes in Camunda 8. Long-poll (traditional activate_jobs request-response via gRPC) remains fully supported and is the default in many SDK configurations. Streaming (long-lived gRPC unidirectional stream, gateway-aggregated, lower latency) was introduced as an additional mode for scenarios requiring lower job-activation latency. Teams can choose either mode per worker based on their latency requirements, infrastructure constraints, and SDK version compatibility."
+    },
+    {
+      "id": "c",
+      "text": "md:156-226: Long-poll (traditional) -- worker sends activate_jobs request; broker holds connection up to timeout; returns batch when jobs available; simple, well-tested, works through middleboxes. Streaming (newer) -- worker opens long-lived gRPC unidirectional stream; gateway aggregates logically-equivalent streams from multiple worker replicas and registers with brokers; brokers push jobs downstream immediately without extra round-trip; lower latency, fewer empty polls, resource-efficient. Trade-off: streaming requires stream lifecycle management and may fail through proxies with short idle timeouts (504s). 8; choose per latency requirements and infrastructure."
+    },
+    {
+      "id": "d",
+      "text": "Both long-poll and streaming job-fetching modes have been deprecated in favor of a new push-based architecture -- this claim is unfounded. Both long-poll and streaming are actively supported, documented, and used in production Camunda 8 deployments. Neither has been deprecated. Long-poll remains the widely-adopted default in many SDK configurations due to its simplicity and broad compatibility. Streaming was added as an enhancement for lower-latency scenarios in newer versions. md with implementation guidance for each."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Job fetching modes: Long-poll (traditional): Mechanism: Worker sends activate_jobs request. Broker holds request: up to long-poll timeout (e.g., 1 min). When jobs available: returns batch up to maxJobsActive. On timeout with no jobs: returns empty; worker re-polls. Pros: Established pattern: well-tested. Simple debugging: each poll is a discrete request. Works through middleboxes: just HTTP/2 request-response. Cons: Latency: up to long-poll interval before getting available job. More requests: empty polls if low job volume. Resource overhead: connection establishment cost. Streaming (per concepts/job-workers.md:156-162): Mechanism: Worker opens a long-living gRPC unidirectional stream from the client to the gateway. The gateway aggregates logically-equivalent streams and registers each aggregated stream to every broker. Brokers push jobs through the aggregated stream; gateway routes to a worker. Pros: Lower latency: job → worker immediately. Fewer empty polls: no request when no jobs. Resource-efficient: one connection. Cons: Newer: less battle-tested. Stream management: connection drops need handling. Through middleboxes: long-lived may be dropped. For Camunda 8 (8.7+ stable): Long-poll: traditional, still supported. Streaming: enabled per-worker (Camunda Spring Boot Starter stream-enabled / SDK opt-in) -- see apis-tools/camunda-spring-boot-starter/properties-reference.md. Configuration: Long-poll: `yaml camunda: client: zeebe: request-timeout: 60s long-polling: PT30S Streaming: yaml camunda: client: zeebe: execution-mode: streaming # verify exact option ` Trade-offs in practice: For high-throughput: Streaming: lower latency, better. Long-poll: works but slightly higher latency. For low-throughput: Streaming: fewer wasted polls. Long-poll: empty polls happen but harmless. For unreliable networks: Long-poll: simpler reconnection. Streaming: stream management complexity. Mixed deployments: Workers can use different modes. Cluster supports both typically. Best practices: Verify SDK / broker support: not all combinations may work. Test in production-like environment: latency / throughput. Monitor metrics: poll/stream events, latency. Fall back to long-poll: if streaming issues. Migration from long-poll to streaming: Gradual: enable streaming on subset of workers. Monitor: latency, error rates. Full migration: if successful. For the scenario: Streaming if supported + needed for latency. Long-poll for stability / simplicity. Match SDK version with broker version. Anti-patterns: Streaming without monitoring: missed disconnections. Switching back and forth: instability. Mismatched SDK / broker versions: features may not work."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/#job-streaming"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q20",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

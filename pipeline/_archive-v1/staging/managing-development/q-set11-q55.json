@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q55",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's messages have idempotency keys derived from processInstanceKey + activityId. But for starting new process instances (no instance yet), they need a different key derivation strategy.",
+  "question": "Best practice for idempotency keys when starting new process instances?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Derive from business-level identifiers -- order ID, transaction ID, request ID, etc. -- that are unique to the logical operation. Examples: - Order processing: idempotency key = order ID (\"ORD-12345\"). - Payment: key = transaction reference (\"TXN-abc-789\"). - Customer signup: key = combination (email + timestamp at first-attempt). These keys are stable across retries, recognisable in audit logs, and don't depend on Camunda-internal identifiers (which don't exist before instance creation). Combine with broker-side message TTL for deduplication of duplicate publishes."
+    },
+    {
+      "id": "b",
+      "text": "A UUID generated fresh at each retry attempt is unique per attempt, so Zeebe sees each retry as a new distinct message. True idempotency requires the same key across all retry attempts for the same logical operation. UUIDs are appropriate only when generated once at the start of the operation and then reused consistently."
+    },
+    {
+      "id": "c",
+      "text": "Idempotent process instance creation for new instances is not achievable in Camunda 8 -- this understates the available patterns. Business-level idempotency is achievable through stable business identifiers: order IDs, transaction references, or caller-generated UUIDs persisted alongside the original request. The messageId field on published messages provides broker-level deduplication within the TTL window. For direct process-instance creation via REST, callers can implement check-then-create patterns using process instance search."
+    },
+    {
+      "id": "d",
+      "text": "Reuse the UUID from the failed publish attempt as the idempotency key for retries -- this partially describes a working approach. If the caller generates a UUID once and stores it alongside the operation record (in a database or cache), retrying with that same persisted UUID provides idempotency. The key requirement is that the UUID must be generated once and stored durably before the first attempt, not generated fresh per attempt. This is effectively equivalent to using a business identifier."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Idempotency for new-instance creation requires a stable key derived from the logical operation, not the act of publishing: Good key sources: Business identifiers: order ID, transaction reference, customer ID + request timestamp, etc. -- naturally unique to the logical event. Caller-generated UUIDs persisted alongside the request: caller generates UUID once for the operation, retries use the same UUID. Deterministic hash of payload: hash of normalized request body if no business ID available. Bad practices: UUID generated at publish-time: each retry generates a new UUID; doesn't deduplicate. Random per-attempt: same as UUID-per-publish; defeats dedup. Mechanism: Caller stores the idempotency key (e.g., in their database, alongside the order record). Publishes with messageId = idempotencyKey. On retry, same key → Camunda's broker recognises duplicate within TTL window → discards. For starting process instances specifically: API call POST /v2/process-instances doesn't have a native idempotency key like Message publishing's messageId. Caller responsibility: check if a process instance already exists for the business ID before creating; if exists, don't re-create. Query: POST /v2/process-instances/search with filter on the business ID variable."
+    },
+    "b": {
+      "text": "Incorrect. UUID per publish doesn't dedup."
+    },
+    "c": {
+      "text": "Incorrect. Achievable."
+    },
+    "d": {
+      "text": "Incorrect. Works if UUID is persisted."
+    }
+  },
+  "explanation": "Idempotency for new-instance creation requires a stable key derived from the logical operation, not the act of publishing: Good key sources: Business identifiers: order ID, transaction reference, customer ID + request timestamp, etc. -- naturally unique to the logical event. Caller-generated UUIDs persisted alongside the request: caller generates UUID once for the operation, retries use the same UUID. Deterministic hash of payload: hash of normalized request body if no business ID available. Bad practices: UUID generated at publish-time: each retry generates a new UUID; doesn't deduplicate. Random per-attempt: same as UUID-per-publish; defeats dedup. Mechanism: Caller stores the idempotency key (e.g., in their database, alongside the order record). Publishes with messageId = idempotencyKey. On retry, same key → Camunda's broker recognises duplicate within TTL window → discards. For starting process instances specifically: API call POST /v2/process-instances doesn't have a native idempotency key like Message publishing's messageId. Caller responsibility: check if a process instance already exists for the business ID before creating; if exists, don't re-create. Query: POST /v2/process-instances/search with filter on the business ID variable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/best-practices/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q55",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

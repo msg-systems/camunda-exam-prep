@@ -1,0 +1,76 @@
+{
+  "id": "imp-set14-q50",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Java SDK worker uses gRPC. Long-lived connection; team wonders about gRPC keepalive vs HTTP/2 ping for detecting dead connections.",
+  "question": "gRPC keepalive vs HTTP/2 ping?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Identical -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "gRPC keepalive behavior in Camunda Spring Boot Starter is configurable. grpc-address, connection timeout, and keepalive-related gRPC channel settings can be adjusted in application configuration. gRPC provides standardized keepalive mechanisms via HTTP/2 PING frames, and the Spring Boot Starter exposes channel-level tuning options."
+    },
+    {
+      "id": "c",
+      "text": "gRPC is built on HTTP/2 as its transport protocol. This is a foundational design decision of gRPC, not an implementation detail. HTTP/2 provides multiplexing, header compression, and full-duplex streaming that gRPC leverages for its communication patterns. The Zeebe gRPC API used by Camunda 8 clients communicates over HTTP/2. Keepalive is implemented through HTTP/2 PING frames at the gRPC level. Understanding this transport relationship is fundamental to troubleshooting connection issues."
+    },
+    {
+      "id": "d",
+      "text": "gRPC uses HTTP/2 underneath; keepalive is a gRPC-level feature on top: gRPC sends HTTP/2 PING frames at configured intervals to prevent idle TCP connections from being dropped by NAT gateways and load balancers. In Camunda Spring Boot Starter, gRPC keepalive parameters are tunable in the client channel config. Without keepalive, long-lived connections to Zeebe idle between job activations may be silently closed, causing workers to miss job activations until reconnection occurs."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. gRPC + HTTP/2 keepalive: Layered model: gRPC: protocol layer (RPC semantics, message framing). HTTP/2: transport (multiplexed streams, binary framing). TLS: encryption (if used). TCP: underlying byte stream. HTTP/2 PING frame: Spec-defined: built into HTTP/2 protocol. Purpose: keep connections alive through firewalls/NATs; detect dead. Lightweight: 8-byte payload. Response: peer sends PING ACK back. Round-trip: confirms bidirectional connectivity. gRPC keepalive: Built on HTTP/2 PING: uses underlying frame. gRPC-level configuration: intervals, timeouts, permit-without-calls. Bidirectional: clients and servers can configure. Why keepalive matters: Problem 1: Idle connections through firewalls/NATs: Stateful middleboxes may drop idle TCP connections. Without keepalive: next RPC fails with cryptic error. Keepalive: regular traffic prevents middlebox timeout. Problem 2: Dead peer detection: Peer crashes / network partition. Without keepalive: client doesn't know until next RPC fails. Keepalive: PING fails quickly; SDK reconnects. Problem 3: Long-running streaming RPCs: Worker long-polls for jobs. Connection idle on the wire (no data flowing). Without keepalive: middlebox or peer may close. Keepalive: keeps connection healthy. Configuration knobs (typical): keepAliveTime: how often to send PING (e.g., 30s). keepAliveTimeout: how long to wait for PING ACK (e.g., 10s). permitWithoutCalls: send PINGs even when no active RPCs (boolean). Camunda Spring Boot Starter (8.8 canonical) per camunda-spring-boot-starter/properties-reference.md:101-106: `yaml camunda: client: keep-alive: PT30S # canonical 8.8 property -- \"time interval between keep-alive messages sent to the gateway\" Legacy camunda.client.zeebe.keep-alive (:1666) and zeebe.client.broker.keep-alive (:2250) both alias to the canonical camunda.client.keep-alive. Env var: CAMUNDA_CLIENT_KEEPALIVE. Server-side keepalive policy: Servers may enforce min keepalive intervals. Clients with too-aggressive PINGs may be disconnected. GOAWAY` frame: server tells client to back off. Trade-offs: Aggressive keepalive (frequent PINGs): Pros: fast dead-connection detection. Cons: network chatter; server load. Lax keepalive (infrequent PINGs): Pros: less chatter. Cons: slower detection; middleboxes may still drop. Best practices: Default SDK settings often fine: tested defaults. Tune for specific networks: e.g., aggressive corporate firewalls may need shorter intervals. Coordinate with server policy: client interval ≥ server's accepted minimum. Detection vs recovery: Detection: keepalive notices dead connection. Recovery: SDK reconnects (per Set 13 Q44). Both essential: keepalive accelerates detection; reconnect handles the recovery. Monitoring: Connection state metrics: how many connections healthy. Keepalive failures: alert on rate. Reconnect counts: track frequency. For Camunda 8 workers: Long-running connections to Zeebe gateway. Workers idle when no jobs. Keepalive prevents disconnection. SDK auto-handles; verify config defaults appropriate for your network. Anti-patterns: Disabling keepalive: dead connections silently linger. Too-aggressive client keepalive: server rejects with GOAWAY. Not coordinating with server policy: connection thrash."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q50",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 19 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 25.9 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

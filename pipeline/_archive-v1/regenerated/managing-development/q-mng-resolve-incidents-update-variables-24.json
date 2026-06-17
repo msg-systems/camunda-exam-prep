@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-24",
+  "topic": "managing-development",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/guides/getting-started-orchestration-cluster/resolve-incidents-update-variables/"
+    }
+  ],
+  "subtopic": "Operate incidents",
+  "scenario": "A Wren Bank operator follows the Camunda 8.8 getting-started guide on a development cluster sized for 5 instances. The operator has just created an order-process instance and now needs to push it to the XOR gateway, which requires completing the Initiate Payment job and clearing the Payment Received intermediate message catch event.",
+  "question": "Which two zbctl actions does the guide use to advance the instance to the XOR gateway?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The guide creates a worker for the Initiate Payment job using zbctl create worker initiate-payment and publishes a payment-received message with zbctl publish message correlated by the orderId key"
+    },
+    {
+      "id": "b",
+      "text": "The guide deploys an Operate signal worker for Initiate Payment using zbctl deploy worker and broadcasts a payment-received signal with zbctl broadcast signal correlated against every running instance"
+    },
+    {
+      "id": "c",
+      "text": "The guide uses zbctl create timer to fire an Initiate Payment timer event and zbctl create job to seed a synthetic Payment Received job, which together drive the instance toward the gateway evaluation"
+    },
+    {
+      "id": "d",
+      "text": "The guide uses zbctl complete instance to mark Initiate Payment as done and zbctl correlate event to trigger Payment Received, which the engine then automatically propagates to the XOR gateway condition"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The guide first runs zbctl create worker initiate-payment to complete the Initiate Payment task, then runs zbctl publish message payment-received with a correlationKey matching the orderId so the intermediate message catch event correlates with the instance."
+    },
+    "b": {
+      "text": "Incorrect. The guide uses zbctl publish message rather than zbctl broadcast signal, and the documented advancement step targets one correlated instance rather than broadcasting to every running instance at once."
+    },
+    "c": {
+      "text": "Incorrect. The guide drives the instance forward with a worker and a published message, not with zbctl create timer or zbctl create job seeding a synthetic Payment Received job on the instance."
+    },
+    "d": {
+      "text": "Incorrect. The advancement commands are zbctl create worker initiate-payment and zbctl publish message payment-received, not zbctl complete instance or zbctl correlate event named in this option."
+    }
+  },
+  "explanation": "To advance an order-process instance to the XOR gateway, the guide creates a worker for Initiate Payment using zbctl create worker initiate-payment, then publishes a payment-received message with zbctl publish message and a correlationKey matching the orderId."
+}

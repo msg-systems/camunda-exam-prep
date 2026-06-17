@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-18",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Iris Healthcare runs Camunda 8.8 with 9000 records per day. A process instance is stuck because the priorityScore variable is absent from the instance scope altogether, so the exclusive gateway condition cannot resolve the variable name at runtime. The operator wants to unblock this instance without redeploying the BPMN model.",
+  "question": "How can the operator make priorityScore available to the stuck instance without changing the deployed BPMN model?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Cancel the process instance and create a new one with the priorityScore variable supplied at start so the gateway resolves the value at runtime on the broker"
+    },
+    {
+      "id": "b",
+      "text": "Open the deployed process in Web Modeler, set a default value of zero on the priorityScore variable, redeploy the model, then retry the affected instance"
+    },
+    {
+      "id": "c",
+      "text": "Edit the gateway condition for the running instance from the Operate variables panel so the priorityScore reference is replaced by a constant value on this run"
+    },
+    {
+      "id": "d",
+      "text": "Add the priorityScore variable to the instance through the Operate variables panel, then initiate a retry of the same process instance from the page header"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Cancelling the instance loses the work already done; the documented capability is to add a missing variable to the existing instance and then retry it."
+    },
+    "b": {
+      "text": "Incorrect. Editing and redeploying the model changes future instances but does not inject the missing variable into the stuck instance, which is what the retry needs."
+    },
+    "c": {
+      "text": "Incorrect. The Operate variables panel edits variable values on the instance; it does not modify the BPMN expression of the gateway condition at runtime."
+    },
+    "d": {
+      "text": "Correct. The documentation calls out that operators can edit a variable or add a missing variable on the instance from Operate, after which a retry resumes execution past the failing element."
+    }
+  },
+  "explanation": "Operate supports both editing an existing variable and adding a variable that is missing from the instance. After fixing the data, the operator initiates a retry on the process instance to resume execution.",
+  "docs": [
+    {
+      "title": "Diagnosing and resolving incidents",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ]
+}

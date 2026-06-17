@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q28",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team deploys DMN pricing-rules-v1 and runs 200 instances. Later, the team deploys pricing-rules-v2 with refined logic. The 200 running instances are mid-execution -- they have already cached the v1 result for their decision step.",
+  "question": "What happens to running instances when DMN is re-deployed with a new version?",
+  "options": [
+    {
+      "id": "a",
+      "text": "All running process instances automatically migrate to use the new v2 decision definition when it is deployed, so all in-flight evaluations immediately benefit from the updated decision logic -- this description does not reflect the actual behaviour. There is no automatic migration in Camunda 8. Running process instances continue referencing the decision version they were started against. Only new evaluations initiated after the v2 deployment use v2 by default. Migrating running instances to a different process or decision version requires explicit migration operations through the Operate UI or the Migrate Process Instance API."
+    },
+    {
+      "id": "b",
+      "text": "Running process instances fail immediately when v2 is deployed because v1 is replaced and removed, leaving the running instances with no valid decision definition to evaluate -- this description does not reflect the actual behaviour. Camunda 8 preserves all deployed versions of a decision definition. Deploying v2 adds a new version without removing v1. Running instances referencing v1 continue executing successfully against the preserved v1 definition. md:68-76 removes a version, and even then the engine raises a NOT_FOUND incident rather than silently failing, protecting against accidental removal of definitions with activerule tasks."
+    },
+    {
+      "id": "c",
+      "text": "md:45-54. With bindingType=\"latest\" (default per :53-54), each activation resolves to \"the latest deployed version at the moment the business rule task is activated\" -- so an instance that already activated the task on v1 keeps v1's resolved result; an instance that hasn't yet activated the task will activate against v2 once v2 is deployed. With bindingType=\"deployment\", the version is pinned to \"the version that was deployed together with the currently running version of the process\" -- running instances stay on v1 even before they reach the task. With bindingType=\"versionTag\", the latest version carrying the specified tag is used."
+    },
+    {
+      "id": "d",
+      "text": "md:27 -- this description does not reflect the actual behaviour. Zeebe automatically assigns an incrementing version number to each new DMN deployment, creating an immutable version record that is never overwritten. md:27, Zeebe assigns a new unique version per deployment and never reuses version numbers. All previously deployed versions remain available. This DMN versioning behaviour follows the same model as BPMN process definition versioning."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. DMN version binding is controlled by the bindingType attribute on the business rule task that references the decision. business-rule-tasks.md:45-54 lists exactly three options: latest (latest at activation, default), deployment (pinned to the process's deployment-time decision version), versionTag (named tag). The default is latest per the :53-54 note. Once a business rule task has activated and the decision has been evaluated, the historical result is recorded in Operate's Decision Instance view; subsequent re-deployments of new DMN versions do not retroactively rewrite that history. New process instances starting after v2 deployment will use whichever decision-version bindingType resolves at their task activation -- v2 if latest, the originally-pinned version if deployment."
+    },
+    "b": {
+      "text": "Incorrect. No auto-migration."
+    },
+    "c": {
+      "text": "Correct. v1 remains accessible."
+    },
+    "d": {
+      "text": "Incorrect. DMN supports versions."
+    }
+  },
+  "explanation": "v1 remains accessible.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q28",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

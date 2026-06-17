@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task is configured to call a partner-credit-check service. In Web Modeler, the modeler must specify which Job Worker handles it. The team has a worker registered with type credit-check-v2.",
+  "question": "Which Service Task property binds the BPMN to that worker?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The name attribute on a BPMN element is a display label shown in the diagram canvas and in Operate â€” it serves a purely presentational purpose. Job Workers do not match on task name; they subscribe to the zeebe:taskDefinition type string. Setting the name to match a worker type string would only work coincidentally if someone programmed the worker to read task name, which is non-standard. The correct binding property is the type attribute on the zeebe:taskDefinition extension element, not the display name."
+    },
+    {
+      "id": "b",
+      "text": "The processId identifies the deployed BPMN process definition as a whole â€” it is used to start new process instances or reference the process in Call Activities. It has no role in routing activated jobs to Job Workers. A Service Task produces jobs typed by its zeebe:taskDefinition type attribute. The processId operates at the process definition level, while task type operates at the individual task level â€” these are distinct layers of the Zeebe execution model with different routing purposes."
+    },
+    {
+      "id": "c",
+      "text": "The id attribute on a BPMN element is the internal technical identifier used for graph connectivity (sequence flow references, boundary event attachments) and Operate element display. Job Workers do not subscribe by element id â€” they subscribe by the zeebe:taskDefinition type string. No correlation between element id and worker subscription exists in the Zeebe protocol. Using element id for worker binding would require non-standard custom code that reads task metadata at runtime."
+    },
+    {
+      "id": "d",
+      "text": "zeebe:taskDefinition with type attribute set to credit-check-v2 is configured via the Implementation section in Web Modeler. Job Workers subscribe to a specific task type string; Zeebe routes activated jobs to workers subscribed to that exact type string. Setting the type to credit-check-v2 on the Service Task ensures only workers registered for credit-check-v2 receive and process those jobs. This is the canonical Zeebe binding mechanism between a BPMN Service Task and its executing Job Worker implementation. ###"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. zeebe:taskDefinition with type attribute is the canonical Zeebe extension. Workers subscribe to this type string; Zeebe routes jobs accordingly. Set via the Implementation property panel."
+    },
+    "b": {
+      "text": "Incorrect. name is display-only."
+    },
+    "c": {
+      "text": "Incorrect. processId identifies the process, not task binding."
+    },
+    "d": {
+      "text": "Correct. id is internal element ID; workers don't match on it."
+    }
+  },
+  "explanation": "id is internal element ID; workers don't match on it.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/service-tasks/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

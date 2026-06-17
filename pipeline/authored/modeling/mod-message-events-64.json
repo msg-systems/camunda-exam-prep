@@ -1,0 +1,53 @@
+{
+  "id": "mod-message-events-64",
+  "topic": "modeling",
+  "subtopic": "message events",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "negative",
+  "camundaVersion": "8.8",
+  "question": "Looking at the BPMN XML for Camunda 8.8 message events, which statement is NOT true?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A message start event references its `<bpmn:message>` via `messageRef` on a `<bpmn:messageEventDefinition>` inside the `<bpmn:startEvent>`."
+    },
+    {
+      "id": "b",
+      "text": "An intermediate message catch event declares a `<zeebe:subscription correlationKey=\"...\"/>` inside the `<bpmn:message>`'s `<bpmn:extensionElements>`."
+    },
+    {
+      "id": "c",
+      "text": "A boundary message event uses `attachedToRef` on `<bpmn:boundaryEvent>` to point at the activity it is attached to."
+    },
+    {
+      "id": "d",
+      "text": "A message start event must declare its own `<zeebe:subscription correlationKey=\"...\"/>` extension on the message definition."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "True. The XML example shows `<bpmn:startEvent>` containing `<bpmn:messageEventDefinition messageRef=\"Message_0z0aft4\"/>` that points at a `<bpmn:message>` element."
+    },
+    "b": {
+      "text": "True. The intermediate catch example places `<zeebe:subscription correlationKey=\"= orderId\"/>` inside `<bpmn:extensionElements>` on the `<bpmn:message>` element."
+    },
+    "c": {
+      "text": "True. The boundary event example uses `attachedToRef=\"collect-money\"` on `<bpmn:boundaryEvent>` to bind the boundary event to its host activity."
+    },
+    "d": {
+      "text": "False. A `correlationKey` is not specified for a message start event in the BPMN model; the example shows a bare `<bpmn:message name=\"order-placed\"/>` without `<zeebe:subscription>`."
+    }
+  },
+  "explanation": "Message catch and boundary events declare a `<zeebe:subscription correlationKey=\"...\"/>` inside their message's extension elements, but message start events do not — the publisher supplies the `correlationKey` when sending the message, and the engine tags the created instance with that value.",
+  "docs": [
+    {
+      "title": "BPMN message events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "<bpmn:message id=\"Message_0z0aft4\" name=\"order-placed\" />\n\n<bpmn:startEvent id=\"order-placed\" name=\"Order placed\">\n  <bpmn:messageEventDefinition messageRef=\"Message_0z0aft4\" />\n</bpmn:startEvent>"
+  }
+}

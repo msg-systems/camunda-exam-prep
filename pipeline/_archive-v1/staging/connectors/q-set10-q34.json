@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process workflow has three sequential external calls: (1) call CRM to fetch customer; (2) call pricing API; (3) call fulfillment API. Each is a Service Task with its own Connector. The team wonders about composition / orchestration.",
+  "question": "How does Camunda 8 orchestrate sequential Connector calls?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Combine all three external calls into a single Service Task with composite worker logic that calls all three APIs sequentially -- this sacrifices observability and modularity. Each call becomes invisible as a separate process step, making it impossible to observe individual latencies, handle individual failures with specific error boundaries, or retry specific calls independently. A single composite task also violates separation of concerns and makes the worker harder to test, maintain, and deploy independently."
+    },
+    {
+      "id": "b",
+      "text": "Sequential Service Tasks at the main process level already provide clear visual sequencing without the added scope and complexity of an Embedded Subprocess. Nesting is beneficial when shared boundary event handling or a common compensation pattern is needed for the group. For simple sequential chaining with independent error handling, nesting adds complexity without benefit."
+    },
+    {
+      "id": "c",
+      "text": "Connectors in Camunda 8 operate independently and cannot be chained sequentially because each Connector is an isolated execution unit without data passing capability -- this description does not reflect the actual behaviour. Connectors are implemented as Service Tasks and participate fully in standard BPMN flow composition. The Output Mapping of one Connector task writes results to process variables that the Input Mapping of the next Connector task reads. This is the standard data-flow mechanism for sequential Connector composition."
+    },
+    {
+      "id": "d",
+      "text": "Place each Connector as its own Service Task in BPMN sequence. Each Service Task has its own Output Mapping that writes results to process variables; the next Service Task's Input Mapping reads from those variables. BPMN naturally chains the calls; data flows via process variables; error handling per task via Error Boundary Events. Standard composition."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN's main value proposition: visual orchestration of work. Sequential Connector calls compose naturally as a sequence of Service Tasks: ` [Start] → [Fetch Customer (CRM)] → [Get Pricing] → [Submit Order (Fulfillment)] → [End] Each Service Task is its own Connector activation; results flow via process variables: Task 1 (CRM): Output Mapping writes customer variable. Task 2 (Pricing): Input Mapping reads customer (e.g., for pricing tier), calls Pricing API; Output Mapping writes pricing variable. Task 3 (Fulfillment): Input Mapping reads customer + pricing, submits order; Output Mapping writes orderConfirmation`. Error handling: each task can have Error Boundary Events for HTTP errors / Connector failures. Compensation patterns if needed. Observability: each step visible in Operate as a distinct activity; latencies, errors, retries tracked separately. This is BPMN's primary use case -- orchestrate distinct work units with clear data flow."
+    },
+    "b": {
+      "text": "Incorrect. Single task hides composition."
+    },
+    "c": {
+      "text": "Incorrect. Sequential at main level cleaner."
+    },
+    "d": {
+      "text": "Correct. Standard composition."
+    }
+  },
+  "explanation": "Standard composition.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q34",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

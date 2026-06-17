@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q39",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A BKM (Business Knowledge Model) parameter is declared as number. Caller passes \"42\" (string). Team wonders if BKM parameters are type-enforced.",
+  "question": "BKM parameter typing?",
+  "options": [
+    {
+      "id": "a",
+      "text": "BKM parameters declared with types are type-enforced per FEEL semantics: - Caller passes wrong type: depends on FEEL implementation -- may produce null or error. - Type-strict (FEEL's typical mode): no auto-coercion (per Set 13 Q22). - Caller responsibility: convert before invocation: myBKM(number(amountStr)). For untyped parameters: no enforcement; accepts any type. Best practice: declare types for clarity + early error detection."
+    },
+    {
+      "id": "b",
+      "text": "FEEL does not perform automatic type coercion for BKM parameters. If a BKM parameter is declared with a type constraint such as number, and a caller passes a string value, the evaluation fails rather than silently converting the type. FEEL is a strictly typed expression language where type mismatches between declared parameter types and actual argument types produce evaluation errors. Relying on auto-coercion would mask caller errors and lead to unpredictable BKM behavior."
+    },
+    {
+      "id": "c",
+      "text": "Business Knowledge Models in DMN do support typed parameters. BKM formal parameters can be declared with FEEL type definitions such as number, string, boolean, or complex FEEL types. When types are specified, the DMN engine validates that arguments conform to the declared types during evaluation. Type declarations in BKMs serve both as documentation and as runtime validation guards, helping to catch integration errors between decision models and their callers early."
+    },
+    {
+      "id": "d",
+      "text": "A BKM parameter type mismatch does not invariably produce a hard error in all contexts. Behavior depends on the FEEL engine implementation and version: some engines raise an evaluation error, while others may return null for the mismatched parameter. In any case, the computation produces an invalid result -- either an explicit error or a null-based downstream failure. The reliable approach is to ensure argument types match declarations."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. BKM parameter typing: BKM declaration: Parameter list: name + type per parameter. Types: string, number, boolean, date, list types, structured types. Untyped option: parameter without type; accepts any. Example BKM: ` BKM: calculateTax Parameters: amount: number rate: number Body: amount rate Invocation: feel calculateTax(amount: 100, rate: 0.2) → 20 (number both) calculateTax(100, 0.2) → 20 (positional) calculateTax(amount: \"100\", rate: 0.2) → may error or return null (string passed to number param) Type-strict behavior: String passed to number param: rejected; null / error per FEEL semantics. No auto-coercion (per Set 13 Q22). Caller's responsibility: feel calculateTax(number(amountStr), rate) Convert explicitly. Untyped parameter: No type check; any type accepted. Use with care: less safe; type errors surface inside BKM body. Benefits of typing: Early error detection: Type mismatch caught at invocation. Easier debugging than mid-evaluation errors."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "BKM parameter typing: BKM declaration: Parameter list: name + type per parameter. Types: string, number, boolean, date, list types, structured types. Untyped option: parameter without type; accepts any. Example BKM: ` BKM: calculateTax Parameters: amount: number rate: number Body: amount rate Invocation: feel calculateTax(amount: 100, rate: 0.2) → 20 (number both) calculateTax(100, 0.2) → 20 (positional) calculateTax(amount: \"100\", rate: 0.2) → may error or return null (string passed to number param) Type-strict behavior: String passed to number param: rejected; null / error per FEEL semantics. No auto-coercion (per Set 13 Q22). Caller's responsibility: feel calculateTax(number(amountStr), rate) Convert explicitly. Untyped parameter: No type check; any type accepted. Use with care: less safe; type errors surface inside BKM body. Benefits of typing: Early error detection: Type mismatch caught at invocation. Easier debugging than mid-evaluation errors.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-data-types/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q39",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "ext-configuration-30",
+  "topic": "extensions-integrations",
+  "subtopic": "Spring Boot Starter job worker parameters",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Insurance writes a Camunda 8.8 Spring Boot job worker that handles 7500 claims per day across 90 workers in the cluster. The handler signature uses an ActivatedJob parameter so the developer can retrieve variables programmatically via getVariablesAsMap inside the method, and the team needs to understand how this choice influences automatic variable fetching by the Spring Boot Starter at runtime.",
+  "question": "How does declaring an ActivatedJob parameter on a Camunda 8.8 JobWorker method affect implicit variable fetching for that worker?",
+  "options": [
+    { "id": "a", "text": "It still triggers implicit detection so all process variables are sent to the worker by default and getVariablesAsMap simply reads from the prefetched local cache held by the handler at runtime" },
+    { "id": "b", "text": "It enables implicit detection only when fetchAllVariables is also set to true on the JobWorker annotation so the worker receives every process variable along with the job activation by default" },
+    { "id": "c", "text": "It enables implicit detection scoped to the variables referenced in the handler body so the runtime statically analyses the method bytecode to choose which variables to send on activation" },
+    { "id": "d", "text": "It prevents implicit variable fetching detection so only explicit variable fetching such as fetchVariables on the annotation or property overrides is effective for that worker at runtime" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Using an ActivatedJob parameter disables the implicit variable fetching detection; variables are not auto-prefetched into a cache and must be retrieved programmatically from the job at runtime." },
+    "b": { "text": "Incorrect. The fetchAllVariables attribute forces every variable to be fetched but does not re-enable implicit detection on the ActivatedJob signature; explicit fetching remains the only effective path." },
+    "c": { "text": "Incorrect. The Spring Boot Starter does not perform bytecode analysis of the handler body; ActivatedJob simply prevents implicit detection in favor of explicit fetching strategies on the worker." },
+    "d": { "text": "Correct. The documentation states that using ActivatedJob as a parameter prevents implicit variable fetching detection; only explicit fetching such as fetchVariables on the annotation or property overrides is effective." }
+  },
+  "explanation": "Declaring an ActivatedJob parameter prevents implicit variable fetching detection in the Spring Boot Starter; only explicit fetching mechanisms such as fetchVariables on the JobWorker annotation, the @Variable annotation, @VariablesAsType, or property overrides will load variables for the worker at activation time.",
+  "docs": [
+    { "title": "Spring Boot Starter configuration", "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/" }
+  ]
+}

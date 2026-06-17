@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q17",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Element Template for \"AWS S3 Upload\" Connector has two related properties: bucket and regionalEndpoint. The team wants regionalEndpoint to be automatically computed based on the selected region property (not user-settable, derived).",
+  "question": "Can Element Template properties be derived / computed from other properties?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes -- Element Templates support a computed property field where a FEEL expression can reference other properties using their IDs -- this attribute has no runtime implementation in Camunda 8 in the Element Template JSON schema. There is no \"computed\" or \"derivedFrom\" field in the Element Template specification. Template properties are declarative, accepting user input, default values, or references to process variables at runtime, but cross-property derivation at design time is not a supported feature of the schema."
+    },
+    {
+      "id": "b",
+      "text": "Element Templates' property schema is primarily declarative -- properties accept user input or are hidden via conditions, but they don't have a built-in \"computed from other properties\" mechanism. For derived values, options: (1) compute server-side via FEEL or worker logic, not in the Template; (2) use hidden properties that the user doesn't see but are set via the binding from a FEEL expression evaluating other properties (this works only for runtime FEEL evaluation, not design-time UI derivation). Best practice: keep template properties independent; compute derived values in the Connector function or BPMN logic."
+    },
+    {
+      "id": "c",
+      "text": "While some properties can carry FEEL expressions that evaluate at runtime against process variables, cross-property design-time derivation where one template property computes its value from another template property is not a documented or supported pattern in Camunda 8's Element Template specification."
+    },
+    {
+      "id": "d",
+      "text": "Element Templates have no property logic whatsoever and treat all properties as completely independent with no cross-property awareness -- this overstates the limitation. Element Templates do support property conditions (showing or hiding properties based on other property values), constraints (required, pattern validation, min/max length), and default value bindings. The specific capability that is absent is design-time derivation of one property's value from another property's value via formula computation."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Element Templates have declarative property schema: Property definitions: type, label, description, default value, binding (zeebe:input / zeebe:taskHeader / etc.). Constraints: pattern, min/max length, notEmpty. Conditions (visibility): show/hide based on other property values (declared, simple condition matching). But there's no cross-property computed value mechanism -- you can't say \"property B's value is derived from property A via formula.\" Workarounds: Runtime derivation: the Connector function (Java code) computes the derived value based on inputs. The template asks user only for the inputs (e.g., region); the function computes regionalEndpoint. FEEL in BPMN binding: a Connector property bound via zeebe:input can have its FEEL expression reference other process variables, evaluating at activation. But cross-template-property design-time derivation isn't supported. Best practice: minimise template property surface; derive at runtime in Connector code where possible."
+    },
+    "b": {
+      "text": "Correct. No such attribute."
+    },
+    "c": {
+      "text": "Incorrect. Per-property FEEL value isn't a documented computed-from-other-template-property mechanism."
+    },
+    "d": {
+      "text": "Incorrect. Conditions / constraints exist; cross-property derivation doesn't."
+    }
+  },
+  "explanation": "No such attribute.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/element-templates/about-templates/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q17",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q27",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team's decision is invoked thousands of times per minute with same inputs (limited input variation). Team wonders if decision evaluation results are cached.",
+  "question": "Decision evaluation caching?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 typically does NOT cache decision evaluation results out of the box: Each evaluation: full FEEL/decision-table execution. Deterministic given inputs: same inputs → same output. For caching: application-level (Redis, in-memory cache); cache key = decision ID + input hash. Decision instance recording (per Set 13 Q29) is separate from caching. Verify if newer Camunda 8 versions add caching features. For high-throughput repeated evaluations: app-level cache."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 automatically caches decision evaluation results by default so repeated calls with identical inputs skip re-evaluation -- this approach has limitations for the standard out-of-the-box configuration. Each Business Rule Task activation triggers a full FEEL/decision-table execution pass. While decision table evaluation is generally fast for small tables, there is no built-in Camunda 8 engine-level result cache. Application-level caching (Redis, Caffeine, in-memory map) with cache key = decision ID plus input hash must be implemented explicitly in worker code or a proxy layer if caching is needed for high-throughput scenarios."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 caches decision evaluation results scoped to each process instance, so a second call within the same instance reuses the cached output -- this approach has limitations. No such per-process-instance decision cache exists in Camunda 8. Every invocation of a Business Rule Task creates a fresh evaluation job and runs the full decision table or literal expression logic against the current input values. If the same decision is called multiple times within a single process instance, each call is evaluated independently. Caching at instance scope would require custom implementation by the development team."
+    },
+    {
+      "id": "d",
+      "text": "DMN decision results in Camunda 8 cannot be cached under any circumstances due to engine architecture constraints -- this approach has limitations. While Camunda 8 does not provide built-in caching, application-level caching is entirely feasible and a recommended pattern for high-throughput decision evaluation scenarios. Teams implement caches using Redis, Caffeine, or in-memory maps in front of the Business Rule Task worker or in a proxy service. The cache key is typically the decision ID combined with a hash of input values. Deterministic decisions (same inputs always produce same output) are excellent caching candidates."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Decision caching considerations: Default behavior: Camunda 8 typically: Each decision invocation evaluates fully. No automatic result caching. Decision instance recorded for audit (per Set 13 Q29) -- that's separate. Why no built-in caching by default: Decisions are typically fast: ms-level execution. Caching adds complexity: invalidation, freshness. Domain-specific cacheability: not all decisions safe to cache. Camunda focuses on correct evaluation: caching is application concern. For high-throughput repeated evaluations: Pattern 1: Application-level cache: In worker code or upstream: `java // Pseudocode String cacheKey = decisionId + \":\" + hashInputs(inputs); if (cache.has(cacheKey)) { return cache.get(cacheKey); } Result result = invokeDecision(decisionId, inputs); cache.put(cacheKey, result, ttl); return result; ` Cache stores: Redis: distributed; survives restarts. In-process LRU: fast; bounded; lost on restart. Caffeine (Java): high-performance in-memory. Pattern 2: Pre-compute + lookup: For limited input space: pre-compute all results. Store as lookup table. Decision becomes pure lookup. For very high throughput. Pattern 3: Decision restructuring: If decision evaluates many times same inputs: maybe modify workflow. Group invocations: batch decisions if possible. Hoist invariant computations: compute once outside hot loop. Caching considerations: Cache key: Include decision ID + version + input hash. Stable hash function (e.g., SHA-256 of canonical JSON). Cache invalidation: Decision version changes: invalidate. TTL-based: refresh periodically. Event-driven: rebuild on decision deployment. Cache freshness: If decision can change: stale cache may serve old results. For business rules: rules change; cache must reflect. For Camunda decisions specifically: Decision versioning: include version in cache key. On redeploy: new version → cache miss → re-evaluate. Memory considerations: Large inputs / outputs: per-cache-entry size. Many unique inputs: cache grows. LRU eviction: bounded cache. Throughput math: Scenario: 1000 invocations/sec; 80% same inputs. Without cache: 1000 evals/sec. With cache (hit rate 80%): 200 evals/sec + 800 cache lookups. Cache lookups: μs vs ms for evaluation → big savings. For the scenario (thousands per minute, limited variation): App-level cache strong candidate. Implement in worker / upstream service. Monitor hit rate. Best practices: Profile first: measure decision latency; cache only if needed. Cache safely: include version in key; TTL reasonable. Monitor cache effectiveness: hit rate, latency reduction. Test cache correctness: ensure stale doesn't serve incorrect results. Anti-patterns: Caching without invalidation strategy: stale results. Caching everything: many decisions, unbounded growth. Cache key not including version: cache survives decision update with wrong data. For SaaS: Built-in caching: verify per version; may add over time. App-level: build outside Camunda. For Self-Managed: Custom caching layer: control over implementation. Cache infrastructure: Redis, etc."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Decision caching considerations: Default behavior: Camunda 8 typically: Each decision invocation evaluates fully. No automatic result caching. Decision instance recorded for audit (per Set 13 Q29) -- that's separate. Why no built-in caching by default: Decisions are typically fast: ms-level execution. Caching adds complexity: invalidation, freshness. Domain-specific cacheability: not all decisions safe to cache. Camunda focuses on correct evaluation: caching is application concern. For high-throughput repeated evaluations: Pattern 1: Application-level cache: In worker code or upstream: `java // Pseudocode String cacheKey = decisionId + \":\" + hashInputs(inputs); if (cache.has(cacheKey)) { return cache.get(cacheKey); } Result result = invokeDecision(decisionId, inputs); cache.put(cacheKey, result, ttl); return result; ` Cache stores: Redis: distributed; survives restarts. In-process LRU: fast; bounded; lost on restart. Caffeine (Java): high-performance in-memory. Pattern 2: Pre-compute + lookup: For limited input space: pre-compute all results. Store as lookup table. Decision becomes pure lookup. For very high throughput. Pattern 3: Decision restructuring: If decision evaluates many times same inputs: maybe modify workflow. Group invocations: batch decisions if possible. Hoist invariant computations: compute once outside hot loop. Caching considerations: Cache key: Include decision ID + version + input hash. Stable hash function (e.g., SHA-256 of canonical JSON). Cache invalidation: Decision version changes: invalidate. TTL-based: refresh periodically. Event-driven: rebuild on decision deployment. Cache freshness: If decision can change: stale cache may serve old results. For business rules: rules change; cache must reflect. For Camunda decisions specifically: Decision versioning: include version in cache key. On redeploy: new version → cache miss → re-evaluate. Memory considerations: Large inputs / outputs: per-cache-entry size. Many unique inputs: cache grows. LRU eviction: bounded cache. Throughput math: Scenario: 1000 invocations/sec; 80% same inputs. Without cache: 1000 evals/sec. With cache (hit rate 80%): 200 evals/sec + 800 cache lookups. Cache lookups: μs vs ms for evaluation → big savings. For the scenario (thousands per minute, limited variation): App-level cache strong candidate. Implement in worker / upstream service. Monitor hit rate. Best practices: Profile first: measure decision latency; cache only if needed. Cache safely: include version in key; TTL reasonable. Monitor cache effectiveness: hit rate, latency reduction. Test cache correctness: ensure stale doesn't serve incorrect results. Anti-patterns: Caching without invalidation strategy: stale results. Caching everything: many decisions, unbounded growth. Cache key not including version: cache survives decision update with wrong data. For SaaS: Built-in caching: verify per version; may add over time. App-level: build outside Camunda. For Self-Managed: Custom caching layer: control over implementation. Cache infrastructure: Redis, etc.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/dmn"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q27",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

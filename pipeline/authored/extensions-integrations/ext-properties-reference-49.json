@@ -1,0 +1,53 @@
+{
+  "id": "ext-properties-reference-49",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-sdk-worker-override",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An `application.yaml` contains the snippet above. What does this override do for the worker registered with `@JobWorker(type = \"payment-charge\")`?",
+  "codeBlocks": {
+    "stem": "camunda:\n  client:\n    worker:\n      override:\n        payment-charge:\n          max-jobs-active: 5"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "Caps the number of `payment-charge` jobs that worker may have exclusively activated at the same time to 5."
+    },
+    {
+      "id": "b",
+      "text": "Caps the total number of jobs of any type across all workers in the application at 5."
+    },
+    {
+      "id": "c",
+      "text": "Sets the worker's executor thread pool size to 5."
+    },
+    {
+      "id": "d",
+      "text": "Sets the maximum number of retries for `payment-charge` jobs to 5."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The key of an override under `camunda.client.worker.override` is the job type, so `payment-charge.max-jobs-active=5` applies only to that worker. The docs define `max-jobs-active` as the maximum number of jobs exclusively activated for this worker at the same time."
+    },
+    "b": {
+      "text": "`max-jobs-active` is a per-worker setting under the per-job-type override; it does not impose a global cap across workers."
+    },
+    "c": {
+      "text": "Thread pool sizing is governed by `execution-threads` on the client, not by `max-jobs-active`, which controls the activation backlog."
+    },
+    "d": {
+      "text": "Retry counts are configured via the separate `max-retries` property, not via `max-jobs-active`."
+    }
+  },
+  "explanation": "Under `camunda.client.worker.override`, the key is the job type. Setting `payment-charge.max-jobs-active=5` overrides only the `payment-charge` worker's activation backlog — the maximum number of jobs the broker will exclusively assign to it concurrently. It does not change retries, thread pools, or affect other workers.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter - properties reference",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/properties-reference/"
+    }
+  ]
+}

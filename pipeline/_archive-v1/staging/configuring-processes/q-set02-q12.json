@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An e-commerce platform's order process publishes a inventory_reserved message when warehouse confirms stock allocation. The order process has a Message Catch Event waiting downstream with correlationKey = order_id. The warehouse publishes the message with correlationKey = order_id in the payload. Production shows that when the warehouse publishes the message before the order process reaches the Message Catch Event (warehouse is faster than order processing), the message is discarded and the order hangs forever waiting for a message that already arrived. The team wants Zeebe to buffer the message so when the order process reaches the catch, it can consume the previously-published message.",
+  "question": "Which configuration solves this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Configure the Message Catch Event with zeebe:buffer=true to enable message buffering at the catch-event element level. There is no such configuration property in Zeebe. Message buffering behaviour is controlled exclusively through the TTL (time-to-live) value specified when the message is published -- it is not a property on the receiving BPMN element. This configuration attribute is absent from the Zeebe BPMN extension namespace."
+    },
+    {
+      "id": "b",
+      "text": "Set the warehouse to publish messages with messageId set to a unique value. Zeebe automatically buffers all messages that carry a messageId until a subscription picks them up. The messageId property in Zeebe controls message uniqueness and deduplication -- it ensures the same logical message published twice is only delivered once. It does not control buffering duration. TTL is the property that governs how long an unmatched message is held."
+    },
+    {
+      "id": "c",
+      "text": "Set a non-zero TTL (time-to-live) on the published message. Zeebe buffers messages that have no current subscription for the TTL duration, holding them in the broker's message store. When a Message Catch Event later subscribes with a matching correlation key, it immediately consumes the buffered message. The default TTL is 0 (messages with no subscriber are discarded instantly); setting TTL to PT10M creates a ten-minute buffer window that resolves the publish-before-subscribe race condition."
+    },
+    {
+      "id": "d",
+      "text": "Zeebe does not support message buffering at all; the warehouse system must implement retry logic to keep re-publishing until the order process reaches the Message Catch Event and a subscription becomes active. Zeebe does support buffering via the TTL mechanism -- the default TTL is simply 0, which means no buffering. Setting a non-zero TTL enables the broker-side message store to hold unmatched messages."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe buffers published messages with TTL > 0 that have no current subscription -- they're held in the broker's message store for the specified TTL duration. When a Message Catch Event later subscribes with a matching correlation key, it consumes the buffered message immediately. Default TTL is 0 (no buffering -- discard if no subscriber); setting TTL = PT10M (or similar) creates a 10-minute buffer window."
+    },
+    "b": {
+      "text": "Incorrect. zeebe:buffer=true is not a real Zeebe configuration property. Buffering is controlled by message TTL."
+    },
+    "c": {
+      "text": "Correct. messageId controls message uniqueness (so the same logical message published twice is deduplicated), not buffering. TTL controls buffering."
+    },
+    "d": {
+      "text": "Incorrect. Zeebe does support message buffering via TTL."
+    }
+  },
+  "explanation": "messageId controls message uniqueness (so the same logical message published twice is deduplicated), not buffering. TTL controls buffering.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q12",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

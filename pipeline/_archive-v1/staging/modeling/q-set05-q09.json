@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q09",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process should start whenever an inbound webhook receives a delivery-notification from a logistics partner. The team configures an Inbound Webhook Connector wired to a Start Event.",
+  "question": "Which Start Event variant fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "None Start Event. A None Start Event triggers only when a process instance is created explicitly via the Camunda 8 REST API call CreateProcessInstance. It has no built-in subscription mechanism for external events or webhook payloads. Connecting an Inbound Webhook Connector to a None Start Event does not give it event-triggered behaviour; it would still require an explicit API call to start."
+    },
+    {
+      "id": "b",
+      "text": "Message Start Event configured with the Inbound Webhook Connector as its trigger. When a webhook HTTP request arrives and matches the connector's configured pattern, the connector publishes a BPMN message to Zeebe. Zeebe matches the message name against the Message Start Event subscription and creates a new process instance, carrying the webhook payload as process variables automatically."
+    },
+    {
+      "id": "c",
+      "text": "Timer Start Event. A Timer Start Event creates process instances on a scheduled basis -- at a fixed time, after a duration, or according to a cron expression. It has no mechanism to react to an inbound webhook HTTP request from an external partner. A schedule-based start is fundamentally different from an event-driven start triggered by an incoming logistics notification message."
+    },
+    {
+      "id": "d",
+      "text": "Conditional Start Event. The canonical pairing for an external webhook trigger is a Message Start Event with an Inbound Webhook Connector."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Message Start Event is the canonical trigger for externally-initiated processes. Combined with an Inbound Webhook Connector, the webhook hit publishes the message and Zeebe creates a new instance."
+    },
+    "b": {
+      "text": "Correct. None Start fires only on explicit CreateProcessInstance API call, not on events."
+    },
+    "c": {
+      "text": "Incorrect. Timer fires on schedule, not on incoming requests."
+    },
+    "d": {
+      "text": "Incorrect. Camunda 8 does support Conditional Start Events (per bpmn/conditional-events/conditional-events.md:23-33 -- implemented for execution; new instance created when FEEL condition evaluates true), but they fire on process-variable state changes (or are triggered via the Orchestration Cluster REST API), not on external HTTP webhook calls. For webhook-initiated processes, Message Start Event + Webhook Connector is the canonical pairing."
+    }
+  },
+  "explanation": "None Start fires only on explicit CreateProcessInstance API call, not on events.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q09",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

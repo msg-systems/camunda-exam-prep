@@ -1,0 +1,55 @@
+{
+  "id": "mod-send-tasks-31",
+  "topic": "modeling",
+  "subtopic": "send tasks",
+  "difficulty": "easy",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Which BPMN XML snippet correctly models a send task that publishes via a `kafka` job worker to the topic `payment`?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A `<bpmn:sendTask>` with `<zeebe:taskDefinition type=\"kafka\" />` and a header `kafka-topic` = `payment`."
+    },
+    {
+      "id": "b",
+      "text": "A `<bpmn:receiveTask>` with `<zeebe:taskDefinition type=\"kafka\" />` and a header `kafka-topic` = `payment`."
+    },
+    {
+      "id": "c",
+      "text": "A `<bpmn:serviceTask>` with `<zeebe:script expression=\"= publish(payment)\" />`."
+    },
+    {
+      "id": "d",
+      "text": "A `<bpmn:sendTask>` with only `<bpmn:messageEventDefinition messageRef=\"payment\" />`."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The documented send task XML uses `bpmn:sendTask` with a `zeebe:taskDefinition` for the job type and `zeebe:taskHeaders` for static parameters like the Kafka topic name."
+    },
+    "b": {
+      "text": "A `receiveTask` waits for an incoming message rather than publishing one; it is not used to send to Kafka."
+    },
+    "c": {
+      "text": "`serviceTask` plus `zeebe:script` is a script task expression form; send tasks are modelled with `bpmn:sendTask`."
+    },
+    "d": {
+      "text": "Send tasks are job-based and require a `taskDefinition` with a job type; `messageEventDefinition` is not used on a send task in Camunda 8."
+    }
+  },
+  "explanation": "A send task in Camunda 8 uses `<bpmn:sendTask>` with a `<zeebe:taskDefinition type=\"...\" />` for the worker job type and `<zeebe:taskHeaders>` to pass static configuration such as `kafka-topic`. The matching job worker (for example, a Kafka publisher) completes the job to advance the token.",
+  "docs": [
+    {
+      "title": "BPMN send tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/send-tasks/"
+    }
+  ],
+  "codeBlocks": {
+    "perOption": {
+      "a": "<bpmn:sendTask id=\"publish-message\" name=\"Publish message\">\n  <bpmn:extensionElements>\n    <zeebe:taskDefinition type=\"kafka\" />\n    <zeebe:taskHeaders>\n      <zeebe:header key=\"kafka-topic\" value=\"payment\" />\n    </zeebe:taskHeaders>\n  </bpmn:extensionElements>\n</bpmn:sendTask>"
+    }
+  }
+}

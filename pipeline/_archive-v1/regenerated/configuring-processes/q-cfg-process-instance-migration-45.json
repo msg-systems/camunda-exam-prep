@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-45",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Keystone Bank deploys a new version of its order-process in Camunda 8.8 that adds a user task B between an active service task A and the end event. The platform team must update 3500 instances so each instance continues at service task A and then flows to user task B once service task A completes.",
+  "question": "How does a migration plan keep service task A active in the target while introducing the new downstream user task B?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Omit any mapping instruction for element A; the engine auto-detects matching IDs across versions and continues at A by name, then routes to user task B after completion"
+    },
+    {
+      "id": "b",
+      "text": "Provide a mapping instruction from source element A to target element B; the engine moves the active token to user task B and skips service task A in the target definition"
+    },
+    {
+      "id": "c",
+      "text": "Provide a mapping instruction from source element ID A to target element ID A; the engine keeps the active instance at service task A and reaches user task B once A completes"
+    },
+    {
+      "id": "d",
+      "text": "Provide a runtime instruction terminating the instance after service task A; the engine recreates the instance on the target so it begins at user task B from the start event"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Migration requires an explicit migration plan with mapping instructions; element IDs are not auto-detected across versions by name without those instructions being supplied."
+    },
+    "b": {
+      "text": "Incorrect. Mapping A to B would move the active token to user task B and skip the still-needed work at service task A on the new definition before reaching B."
+    },
+    "c": {
+      "text": "Correct. A mapping instruction from source ID A to target ID A keeps the active instance at service task A, and on completion it flows to the new user task B in the target."
+    },
+    "d": {
+      "text": "Incorrect. Runtime instructions terminate an instance after an element; they do not migrate state to a new definition or restart execution at a chosen target element."
+    }
+  },
+  "explanation": "A mapping instruction from source ID A to target ID A keeps the active instance at service task A so it flows to the newly inserted downstream user task B on completion in the target definition.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

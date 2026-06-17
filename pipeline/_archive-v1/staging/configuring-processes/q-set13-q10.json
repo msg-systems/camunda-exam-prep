@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A worker activates a job with 5-min activation timeout. The worker is slow -- takes 6 minutes. The team wonders what happens at the 5-minute mark -- does Zeebe cancel? Re-activate?",
+  "question": "What happens when job activation timeout is exceeded?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Original worker's completion is rejected by the broker after the timeout -- partial; the actual behavior depends on timing. complete() after the timeout but before another worker activates the same job, the completion may still be accepted. To avoid this race condition: increase activation timeout to match worst-case processing time with safety margin; design idempotent worker code that handles duplicate execution safely; ensure workers report back before the activation deadline."
+    },
+    {
+      "id": "b",
+      "text": "Zeebe forcefully cancels the external worker process when the activation timeout expires -- wrong; the broker has no mechanism to reach into an external worker process and cancel it. Zeebe and the worker communicate via gRPC polling (the worker calls in to get jobs, not the broker pushing cancel commands). At timeout, Zeebe simply marks the job as re-activatable in its internal state. The original worker continues running, oblivious to the timeout. This is why idempotent design is critical -- the worker may eventually complete work for a job that has already been activated by another worker instance."
+    },
+    {
+      "id": "c",
+      "text": "Job goes to an error state and an Incident is raised when activation timeout expires -- partial; this happens only if the job exhausts its retry count, not simply because the timeout was exceeded. When the timeout expires, Zeebe makes the job re-activatable for another worker to pick up. No Incident or error state is created merely by timeout. fail() and retries are depleted to zero. The timeout re-activation mechanism is specifically designed to recover from worker failures without requiring manual intervention via Incidents."
+    },
+    {
+      "id": "d",
+      "text": "At timeout, Zeebe makes the job re-activatable. The original worker still holds the job conceptually (might still be processing), but the broker considers the activation expired; another worker (or the same one re-polling) can activate it again. Critical consequence: duplicate execution risk -- original worker may complete the job successfully later, while a second activation also processes it. Mitigations:"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Job activation timeout semantics in Zeebe: Activation timeout: when a worker activates a job, Zeebe records the activation with a deadline. If the worker doesn't complete / fail the job by the deadline, the broker considers the activation expired. At expiration: Broker marks the job as available for re-activation. Original worker still holds the job conceptually: it may complete it later if it eventually finishes. The broker can't forcibly cancel an external process. Another worker (or same after re-polling): can activate the job again. Duplicate execution risk: Original worker: still processing → eventually calls complete(). Second worker: activated after timeout → starts processing the same job. Both may report results; broker's behavior depends on which arrives first. Symptoms: Same Service Task processed twice; downstream may see duplicate effects. For non-idempotent workers: bugs, duplicates, charges twice, etc. Mitigations: Right-size timeout: set per-task activation timeout based on expected worst-case processing time. Default 5 min often fine for fast tasks; longer for slow API calls. Worker idempotency: design worker code so duplicate execution is safe (idempotency keys passed to downstream APIs, checks for already-processed state). Monitor for timeouts: alert when jobs frequently exceed activation timeout -- indicates either sluggish workers or under-sized timeout. Combined with retries: Activation timeout is independent of retries. Retries = how many times to re-activate on worker-reported failure. Activation timeout = how long broker waits for worker to respond before re-activating regardless of failure / success."
+    },
+    "b": {
+      "text": "Incorrect. Depends on timing."
+    },
+    "c": {
+      "text": "Incorrect. Broker can't cancel external worker."
+    },
+    "d": {
+      "text": "Correct. Depends."
+    }
+  },
+  "explanation": "Depends.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

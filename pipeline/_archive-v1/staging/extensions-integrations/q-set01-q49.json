@@ -1,0 +1,63 @@
+{
+  "id": "imp-set01-q49",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team builds a custom Inbound Connector using the Connector SDK that subscribes to Kafka topics. When a message arrives on the configured topic, the Connector publishes a Camunda message correlated to a process instance. The team wants to ensure the Connector is deployable to both Camunda 8 SaaS and Self-Managed clusters without separate code paths.",
+  "question": "What is the correct understanding of Connector SDK portability across SaaS and SM?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Connector SDK Connectors only work in Self-Managed. SaaS has a separate restricted catalog of certified Connectors. That claim is false. Camunda 8 SaaS supports custom Connectors built with the Connector SDK, provided the cluster's permissions allow running custom Connector runtimes. SaaS clusters do have an out-of-the-box Connector catalog, but this is the default set -- it does not restrict customers from deploying custom Connectors. The Connector SDK is designed for portability specifically because the same custom Connector JAR should run in both SaaS and Self-Managed environments without modification."
+    },
+    {
+      "id": "b",
+      "text": "Custom Connectors built with the Connector SDK use a portable runtime layer -- the same Connector JAR runs on both SaaS and SM. , Kafka bootstrap server) is parameterised; secrets are resolved via the cluster's secret provider (SaaS Console UI for SaaS; environment variables or K8s Secrets for SM). KAFKA_BOOTSTRAP_SERVERS}} placeholder syntax in the Element Template properties; the runtime wires the placeholder to whatever secret provider is configured in the deployment. No code change is needed between SaaS and SM -- only the runtime configuration differs. For the Inbound Kafka Connector in this scenario, the same JAR that runs on SaaS against the Console-configured secrets will run on SM against environment variables with zero code differences."
+    },
+    {
+      "id": "c",
+      "text": "SaaS and SM require completely separate Connector code; the SDK does not provide portability. The Connector SDK is explicitly designed for portability across deployment targets. ) based on configuration. The Connector developer writes against the SDK's OutboundConnectorContext interface; the runtime handles platform-specific resolution transparently without requiring any code changes between SaaS and SM deployments."
+    },
+    {
+      "id": "d",
+      "text": "Custom Connectors must be re-compiled for each Camunda version because of internal SDK API changes; portability is across cluster-types only, not across versions. While it is true that the SDK version in the Connector's Maven/Gradle dependency must be compatible with the Connector runtime version, the framing here overstates the breaking change frequency. The Connector SDK follows semantic versioning with backward compatibility commitments; minor version updates typically do not require code changes, only dependency updates. The claim that Connectors \"must be re-compiled for each Camunda version\" implies constant breaking changes, which is not the documented or experienced reality of the Connector SDK's release cadence."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Connector SDK is designed for portability -- the same Connector code runs on SaaS and SM. The SDK abstracts away the secrets provider (the runtime resolves {{secrets.NAME}} placeholders using whichever provider is configured: SaaS Console UI, K8s Secrets, env vars, Vault, etc.). The Connector developer writes against the SDK interface; the runtime in each deployment type provides the platform-specific resolution."
+    },
+    "b": {
+      "text": "Correct. SaaS supports custom Connectors built with the SDK (with appropriate cluster permissions). Not restricted to a fixed catalog."
+    },
+    "c": {
+      "text": "Incorrect. The SDK provides portability between SaaS and SM."
+    },
+    "d": {
+      "text": "Incorrect. The SDK has stability commitments; minor version bumps usually require recompile but not code rewrites."
+    }
+  },
+  "explanation": "SaaS supports custom Connectors built with the SDK (with appropriate cluster permissions). Not restricted to a fixed catalog.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q49",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

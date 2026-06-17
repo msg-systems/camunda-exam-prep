@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's incident-management process notifies on-call engineers via Slack when a critical error fires. They use the Slack Outbound Connector from Camunda's catalog. The Slack workspace's webhook URL is sensitive and must not appear in BPMN XML.",
+  "question": "How should the Slack URL be configured?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Hardcode the Slack webhook URL directly in the Slack Connector property in the BPMN diagram; the cluster's encryption at rest automatically protects the BPMN XML contents from unauthorized access. The BPMN file is stored and transmitted as plain text XML; hardcoded sensitive values are visible in the file, in version control history (if committed to Git), in cluster deployment APIs, and in audit logs. Hardcoded credentials are a security anti-pattern."
+    },
+    {
+      "id": "b",
+      "text": "SLACK_WEBHOOK_URL}}. The BPMN XML contains only the placeholder string. The Connector Runtime resolves the secret value at execution time from the secrets store, keeping the actual URL out of all stored artifacts."
+    },
+    {
+      "id": "c",
+      "text": "Pass the Slack webhook URL via a process variable -- add a Service Task before the Slack Connector that reads the URL from an environment variable and stores it as a process variable, then reference that variable in the Connector configuration. This approach leaks the sensitive webhook URL into the Camunda process variable store, making it visible in Operate's variable view, in variable history, in audit logs, and potentially to anyone with Operate read permissions. Process variables are process state, not a secure secrets store."
+    },
+    {
+      "id": "d",
+      "text": "The Slack Connector exposes a special webhookUrl property that the Camunda platform automatically encrypts at rest when the BPMN is stored, decrypting it transparently at execution without requiring any secrets management configuration. There is no special encrypted-property mechanism in the BPMN standard or the Camunda 8 connector framework."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Cluster Secrets + placeholder syntax is the canonical secret-handling pattern across all Connectors. Define the webhook URL as a secret named SLACK_WEBHOOK_URL in Console UI (SaaS) or via configured provider (SM). Reference in the Connector config as {{secrets.SLACK_WEBHOOK_URL}}. BPMN XML contains only the placeholder -- safe to commit to Git."
+    },
+    "b": {
+      "text": "Correct. BPMN XML is not auto-encrypted; hardcoded values leak via Git/audit."
+    },
+    "c": {
+      "text": "Incorrect. Process-variable-passing leaks the URL to audit logs / Operate / downstream tasks."
+    },
+    "d": {
+      "text": "Incorrect. No special encrypted-property mechanism in BPMN."
+    }
+  },
+  "explanation": "BPMN XML is not auto-encrypted; hardcoded values leak via Git/audit.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q33",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-65",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "negative",
+  "camundaVersion": "8.8",
+  "question": "An active service task `A` has no boundary events. The target process introduces a message event subprocess with message start event `M`, and the instance is migrated with mapping `A`->`A`. Which statement about adding or removing catch events through migration is FALSE?",
+  "options": [
+    {
+      "id": "a",
+      "text": "After migration, the instance opens a new subscription for the message start event `M`."
+    },
+    {
+      "id": "b",
+      "text": "Reverting the migration with the same `A`->`A` mapping back to a process without the event subprocess closes the message subscription."
+    },
+    {
+      "id": "c",
+      "text": "Adding or removing other catch event types (such as intermediate signal catch events) works the same way as the message start event in this example."
+    },
+    {
+      "id": "d",
+      "text": "A message catch event with the same message name as in the source can be re-created in the target without providing any mapping between the catch events."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "A catch event in the target process that is not the target of any mapping instruction causes a new subscription to be opened. So the message start event `M` gets a new subscription on migration. True statement."
+    },
+    "b": {
+      "text": "If the target process omits the message event subprocess, the existing subscription is closed during migration. So the same `A`->`A` mapping back to the original definition removes the subscription. True statement."
+    },
+    "c": {
+      "text": "The docs explicitly state that adding and removing catch events applies to all supported catch event types, including intermediate signal catch events. True statement."
+    },
+    "d": {
+      "text": "A current limitation requires a mapping instruction between catch events when migrating message catch events that have the same message name in the target. It is not possible to re-create such a message catch event in the target without that mapping. This is the false statement."
+    }
+  },
+  "explanation": "Adding catch events to the target opens new subscriptions; removing them closes existing subscriptions; this works the same for all catch event types. However, a current limitation requires that message catch events sharing the same message name between source and target be migrated by an explicit mapping — re-creating such a message catch event in the target without a mapping is not supported.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

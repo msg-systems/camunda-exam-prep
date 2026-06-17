@@ -1,0 +1,27 @@
+{
+  "id": "frm-forms-config-data-binding-02",
+  "topic": "forms",
+  "subtopic": "data binding - path key",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Northpeak Bank, a regional retail bank, processes 8000 customer onboarding requests per month through Camunda 8.8 Forms. The onboarding form has a single text field whose Key is set to the path user.info.age, and an applicant enters the value 21, expecting the runtime to persist that value within 2 seconds of form submission so a downstream service task can read the applicant age.",
+  "question": "What variable structure does the runtime produce on submission of that field?",
+  "options": [
+    { "id": "a", "text": "A single flat process variable literally named user.info.age with the value 21 stored under that exact dotted string" },
+    { "id": "b", "text": "A nested process variable structure where 21 lives under user, then info, then age inside the resulting submission JSON" },
+    { "id": "c", "text": "A nested process variable structure where 21 is stored under user.age while the middle info segment is dropped silently" },
+    { "id": "d", "text": "An array process variable named user whose first element places 21 under an info key at index zero of that array list" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The runtime interprets dots in the Key as a path into nested objects rather than as part of a literal variable name, so the dotted string is not used as a single flat variable identifier." },
+    "b": { "text": "Correct. A path key such as user.info.age tells the runtime to build a nested object structure, so a submitted value of 21 lands under user, then info, then age in the resulting JSON." },
+    "c": { "text": "Incorrect. The runtime walks every segment of the path key when building the output, so no segment is dropped; all three of user, info, and age appear in the resulting nested structure." },
+    "d": { "text": "Incorrect. Path keys produce nested objects rather than arrays; an array output would require a dynamic list with its own path configuration, not a simple path key on a single field." }
+  },
+  "explanation": "A key that contains dots is treated as a path into a nested object. Setting a field with key user.info.age to the value 21 yields a JSON object where user contains info, which in turn contains age set to 21, exactly as described under Simple key vs path key.",
+  "docs": [
+    { "title": "Forms data binding - simple key vs path key", "url": "https://docs.camunda.io/docs/components/modeler/forms/configuration/forms-config-data-binding/" }
+  ]
+}

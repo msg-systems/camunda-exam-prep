@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q19",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An insurance claims process uses IDP to extract claim details from a scanned PDF -- claim number, date of incident, claim amount. The IDP Application is configured with these three extraction fields. Once extracted, the BPMN process uses these fields as inputs to a downstream DMN that determines claim category.",
+  "question": "How does the team wire the IDP output to subsequent BPMN steps?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The IDP Service Task's output is automatically a structured JSON object containing the configured field names as keys. fieldName in downstream FEEL expressions for the DMN evaluation. The process variable name holding the IDP result object is configured at IDP Service Task setup."
+    },
+    {
+      "id": "b",
+      "text": "IDP output is automatically written to per-field process variables with names matching each configured extraction field, so claimNumber, dateOfIncident, and claimAmount become individual process variables without any output mapping configuration. While IDP can be configured to flatten output via explicit output mappings, the default IDP output is a single structured JSON object stored in one process variable. Claiming no mapping is needed overstates the default behavior."
+    },
+    {
+      "id": "c",
+      "text": "IDP output is a raw, opaque response that requires a downstream Script Task to parse the JSON string, extract individual field values, and write them into named process variables before any other task can use them. No Script Task is needed for IDP output access. claimNumber) provides direct access to nested object fields, and input mappings on the Business Rule Task can extract individual fields declaratively without writing any script code."
+    },
+    {
+      "id": "d",
+      "text": "IDP output remains isolated inside the IDP Application and is not automatically passed to the BPMN process. Subsequent BPMN tasks must explicitly query the IDP REST API using the document reference to retrieve extracted fields when they need them. IDP is fully integrated with the BPMN process flow -- the extraction result is passed as a process variable (structured JSON object) at job completion, making it immediately available to downstream BPMN elements without any additional API calls."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. IDP Service Task writes its extraction result as a structured JSON object to a process variable (configured at IDP Service Task setup, e.g., idpResult). Downstream BPMN tasks access individual fields via FEEL path navigation (idpResult.claimNumber) or via input mappings on subsequent tasks. This is the canonical Camunda 8 IDP wiring pattern."
+    },
+    "b": {
+      "text": "Incorrect. IDP CAN auto-flatten via output mappings if configured, but the default is a structured object. The \"no mapping needed\" claim is overstated."
+    },
+    "c": {
+      "text": "Incorrect. No Script Task needed; FEEL path navigation handles unpacking."
+    },
+    "d": {
+      "text": "Incorrect. IDP output is part of the process flow, not an external lookup."
+    }
+  },
+  "explanation": "IDP Service Task writes its extraction result as a structured JSON object to a process variable (configured at IDP Service Task setup, e.g., idpResult). Downstream BPMN tasks access individual fields via FEEL path navigation (idpResult.claimNumber) or via input mappings on subsequent tasks. This is the canonical Camunda 8 IDP wiring pattern.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/idp/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q19",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

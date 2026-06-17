@@ -1,0 +1,82 @@
+{
+  "id": "imp-set17-q60",
+  "topic": "dev-environment",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Developer wants command-line interaction with Camunda -- deploy, start instances, monitor. Wonders zbctl.",
+  "question": "zbctl Camunda CLI?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No CLI -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "While the Web Modeler provides a graphical interface for deploying BPMN and DMN resources, it is not the only option. 8) provides command-line deployment and process management. The Orchestration Cluster REST API and Java/TypeScript SDKs can programmatically deploy resources and create process instances. CI/CD pipelines typically use REST API calls or zbctl for automated deployments without any UI interaction."
+    },
+    {
+      "id": "c",
+      "text": "\" zbctl is a Go binary that communicates with the Zeebe gRPC API, providing commands for deploy resource, create instance, activate jobs, complete job, publish message, and status. Configure via environment variables like ZEEBE_ADDRESS, ZEEBE_CLIENT_ID, and ZEEBE_CLIENT_SECRET. Useful for developer iteration and CI/CD pipeline scripts, but evaluate suitability before relying on it for commercial production workloads given its community-only support status."
+    },
+    {
+      "id": "d",
+      "text": "While the Orchestration Cluster REST API and Zeebe gRPC API are the underlying protocols, zbctl provides a purpose-built command-line interface that wraps these APIs with human-friendly commands like zbctl deploy resource, zbctl create instance, and zbctl status. This is far more convenient for developers than constructing raw gRPC or HTTP calls manually. zbctl handles connection configuration via environment variables, authentication, and JSON output formatting for scripting."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. zbctl CLI tool: What it is: Command-line interface to Zeebe. Written in Go: cross-platform. gRPC under the hood: same as SDKs. Install: `bash # From GitHub releases or via package manager curl -L https://github.com/camunda/zeebe/releases/download/... | tar -xz sudo mv zbctl /usr/local/bin/ Or: bash # On macOS brew install zbctl Verify per Camunda 8 version. Configuration: Environment variables: bash export ZEEBE_ADDRESS=localhost:26500 export ZEEBE_INSECURE=true # for dev # For SaaS: export ZEEBE_AUTHORIZATION_SERVER_URL=... export ZEEBE_CLIENT_ID=... export ZEEBE_CLIENT_SECRET=... Or via flags: bash zbctl --address localhost:26500 --insecure status Common commands: Status: bash zbctl status # Cluster status; broker info Deploy resource: bash zbctl deploy resource process.bpmn zbctl deploy resource process.bpmn decision.dmn Multiple resources atomically. Create process instance: bash zbctl create instance \"order-process\" \\ --variables '{\"orderId\": \"100\"}' Starts process; returns instance key. Publish message: bash zbctl publish message \"ORDER_PLACED\" \\ --correlationKey \"order-100\" \\ --variables '{\"data\": \"value\"}' Triggers correlation. Activate jobs: bash zbctl activate jobs --jobType send-email --maxJobsToActivate 5 For debugging worker behavior. Complete job: bash zbctl complete job --variables '{\"result\": \"ok\"}' Manual completion. Cancel instance: bash zbctl cancel instance Operate alternative. Set variables: bash zbctl set variables \\ --variables '{\"field\": \"newValue\"}' Modify mid-flight. Throw error: bash zbctl throw error --errorCode INVALID Trigger BPMN error. Use cases: Use case 1: Quick dev iteration: bash # Deploy and test zbctl deploy resource my-process.bpmn zbctl create instance \"my-process\" -v '{\"x\": 1}' No need for UI. Use case 2: CI / CD scripts: yaml name: Deploy to staging run: zbctl deploy resource processes/*.bpmn Pipeline integration. Use case 3: Operations scripts: bash # Cancel all instances of a process (bash + jq) ... Bulk operations. Use case 4: Debugging: bash zbctl status # See cluster health For SaaS: Connect to SaaS cluster: bash export ZEEBE_ADDRESS=..zeebe.camunda.io:443 export ZEEBE_CLIENT_ID=... export ZEEBE_CLIENT_SECRET=... export ZEEBE_AUTHORIZATION_SERVER_URL=https://login.cloud.camunda.io/oauth/token zbctl status OAuth authenticated. For Self-Managed: bash export ZEEBE_ADDRESS=localhost:26500 export ZEEBE_INSECURE=true # if no TLS for dev zbctl status Limitations: gRPC API: zbctl mostly Zeebe. Operate / Tasklist APIs: separate (REST). For Operate ops: use REST clients (curl, etc.). For Operate / Tasklist CLI: Not zbctl. Use curl / HTTPie / Postman: REST. Or custom scripts. For scripting: bash #!/bin/bash # Deploy + verify KEY=$(zbctl deploy resource process.bpmn --output json | jq -r '.deployments[0].process.processDefinitionKey') echo \"Deployed: $KEY\" # Create instance zbctl create instance \"process-id\" --variables '{}' Bash + jq for automation. Output formats: Default: human-readable. --output json: machine-parseable. For testing: Smoke tests: zbctl create instance + verify. Integration tests: scripted scenarios. For learning: Explore Zeebe: zbctl gives direct access. Understand API: better than SDK abstraction sometimes. For Camunda 8 evolution: zbctl evolves with Zeebe. New commands per version. For Linux servers: Useful for production ops: with care. Shell access required. For Windows / WSL: zbctl on Windows: native or WSL. Cross-platform. For macOS: Homebrew install: easy. For Docker: zbctl in container: small image. Run from CI containers. For verification: zbctl status`: smoke test connectivity. First step in scripts. For permissions: OAuth client: scoped per Set 16 Q58. zbctl needs appropriate scopes: deploy, activate, etc. For audit: Actions via zbctl: logged by Zeebe. Like SDK calls: equivalent audit. For team productivity: Developers learn zbctl: speeds up. Saves clicking through UIs. For combining with other tools: jq for JSON parsing: piped output. Bash / PowerShell scripts. For"
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/community-clients/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q60",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-question-too-short",
+        "severity": "block",
+        "message": "question length 18 < 20 (catastrophically short)",
+        "where": "question"
+      },
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 16 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 30.1 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

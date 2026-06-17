@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q19",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Spring Zeebe worker handles a high-throughput Task Type. By default, workers handle one job at a time. Team wonders if Spring Zeebe supports concurrent job handling.",
+  "question": "Spring Zeebe worker concurrency?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:712-725, :766-796): - maxParallelJobs -- number of jobs polled from the broker per worker. max-jobs-active. execution-threads -- thread pool size for invoking handler methods (default 1). Increase to allow parallel handler execution. md:723): \"We generally do not advise using a thread pool for workers, but rather implement asynchronous code\" -- prefer async handlers + CompleteJobCommand over expanding the thread pool. md:798-820): @JobWorker(streamEnabled = true) switches the worker from polling to broker-pushed streaming (lower latency, fewer empty polls). 8 -- canonical module is camunda-spring-boot-starter."
+    },
+    {
+      "id": "b",
+      "text": "The Camunda Spring Boot Starter supports concurrent job handling, not sequential-only processing. execution-threads (default 1) controls the handler thread pool size. Increasing both settings enables truly parallel execution of multiple job handler invocations. Sequential-only processing would be a severe throughput bottleneck for high-volume enterprise scenarios where multiple job types are processed concurrently by the same service instance."
+    },
+    {
+      "id": "c",
+      "text": "Deploying multiple separate worker instances for horizontal scaling is a valid strategy, but it is not the only way to achieve concurrent job handling. A single Spring Boot application can handle concurrent jobs by configuring maxParallelJobs and the execution thread pool appropriately. Using separate workers adds significant operational complexity (deployment, monitoring, and inter-service coordination overhead) when simply tuning the thread pool configuration on a single well-resourced instance might be sufficient for the actual workload."
+    },
+    {
+      "id": "d",
+      "text": "Concurrent job execution in Camunda Spring Boot Starter is not inherently thread-unsafe. Stateless job handlers that avoid shared mutable state are thread-safe by design. The SDK documentation recommends stateless handler design and asynchronous code patterns rather than artificially restricting thread pools. While shared resources like database connections require proper connection pooling, the concurrency mechanism itself is well-supported and widely used. Overstating inherent unsafety would discourage appropriate use of concurrent worker configuration."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Spring Zeebe concurrency knobs: Configuration options (verify per Spring Zeebe version): maxParallelJobs: Max jobs fetched per poll. Default may be 32 or similar. Tune up for high-throughput, tune down for resource constraints. Thread pool / executor: SDK provides a thread pool for executing handler methods. Pool size configurable. Each fetched job runs on a thread. Per-worker config: `java @JobWorker(type = \"process-payment\", maxParallelJobs = 64) public Map processPayment(@Variable String orderId) { // ... } Global config: yaml camunda: client: zeebe: execution-threads: 32 default-job-worker-max-jobs-active: 64 ` Tuning guidelines: CPU-bound work (e.g., heavy computation): Pool size ≈ CPU cores (e.g., 4-8 for 8-core machine). More threads = context switching, no real throughput gain. I/O-bound work (e.g., REST calls, DB queries): Pool size higher (10s-100s). Threads spend most time blocked on I/O; can handle many concurrently. Mixed workloads: Profile to find bottleneck. Use async patterns (CompletableFuture, etc.) for I/O-heavy steps. Concurrency safety: Stateless workers (preferred): No shared mutable state. Each invocation independent. Thread-safe by design. Shared resources (DB connections, HTTP clients): Connection pools: use libraries that manage pools (HikariCP for JDBC, etc.). HTTP clients: most modern clients (OkHttp, Apache HttpClient) thread-safe. Shared mutable state: Avoid: instance variables, static counters. If needed: synchronisation (locks), or use thread-safe collections. Monitoring concurrency: Active threads metric: how many handlers running. Queue depth: jobs waiting for thread. Latency: high concurrency may increase per-job latency due to contention. Polling vs streaming: Long-poll (default): worker periodically polls broker. Streaming (newer SDKs): broker pushes jobs to worker. Streaming: lower latency, fewer empty polls. Anti-patterns: Too many threads: OOM, GC pressure, broker overload. Too few threads: throughput bottleneck. Tune iteratively: monitor + adjust. Scaling out: Multiple worker instances: horizontal scaling beyond single-machine limits. Each instance: independent thread pool. Broker distributes: workers share workload."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "Spring Zeebe concurrency knobs: Configuration options (verify per Spring Zeebe version): maxParallelJobs: Max jobs fetched per poll. Default may be 32 or similar. Tune up for high-throughput, tune down for resource constraints. Thread pool / executor: SDK provides a thread pool for executing handler methods. Pool size configurable. Each fetched job runs on a thread. Per-worker config: `java @JobWorker(type = \"process-payment\", maxParallelJobs = 64) public Map processPayment(@Variable String orderId) { // ... } Global config: yaml camunda: client: zeebe: execution-threads: 32 default-job-worker-max-jobs-active: 64 ` Tuning guidelines: CPU-bound work (e.g., heavy computation): Pool size ≈ CPU cores (e.g., 4-8 for 8-core machine). More threads = context switching, no real throughput gain. I/O-bound work (e.g., REST calls, DB queries): Pool size higher (10s-100s). Threads spend most time blocked on I/O; can handle many concurrently. Mixed workloads: Profile to find bottleneck. Use async patterns (CompletableFuture, etc.) for I/O-heavy steps. Concurrency safety: Stateless workers (preferred): No shared mutable state. Each invocation independent. Thread-safe by design. Shared resources (DB connections, HTTP clients): Connection pools: use libraries that manage pools (HikariCP for JDBC, etc.). HTTP clients: most modern clients (OkHttp, Apache HttpClient) thread-safe. Shared mutable state: Avoid: instance variables, static counters. If needed: synchronisation (locks), or use thread-safe collections. Monitoring concurrency: Active threads metric: how many handlers running. Queue depth: jobs waiting for thread. Latency: high concurrency may increase per-job latency due to contention. Polling vs streaming: Long-poll (default): worker periodically polls broker. Streaming (newer SDKs): broker pushes jobs to worker. Streaming: lower latency, fewer empty polls. Anti-patterns: Too many threads: OOM, GC pressure, broker overload. Too few threads: throughput bottleneck. Tune iteratively: monitor + adjust. Scaling out: Multiple worker instances: horizontal scaling beyond single-machine limits. Each instance: independent thread pool. Broker distributes: workers share workload.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q19",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

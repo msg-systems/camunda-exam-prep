@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process publishes a Message correlated by orderId=O-100 BEFORE another process instance subscribes (race condition). Team wonders if Message is lost or buffered.",
+  "question": "Late-arriving subscription + message buffering?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Messages published before a subscription exists are not automatically lost. Only messages published with TTL = 0 are immediately discarded if no active subscription matches at publish time. For the race condition in this scenario, setting an appropriate TTL ensures the message waits for the process instance to establish its subscription."
+    },
+    {
+      "id": "b",
+      "text": "If a matching subscription correlates before TTL expires, the message is delivered. This decouples publisher timing from consumer readiness and handles race conditions where messages arrive before the process instance reaches the intermediate catch event. Configure TTL appropriately for your use case."
+    },
+    {
+      "id": "c",
+      "text": "Messages in Camunda 8 are not buffered indefinitely. Each published message has a TTL that bounds how long it persists without a matching subscription. Once the TTL expires, the message is deleted from broker state regardless of whether any subscription has arrived. Indefinite buffering would cause unbounded storage growth and resource exhaustion on the broker. The TTL configuration is explicitly designed to put a time boundary on message lifetime and prevent accumulation of unmatched messages."
+    },
+    {
+      "id": "d",
+      "text": "If a message is published and no matching subscription exists within its TTL window, the message simply expires. There is no built-in retry loop that repeatedly attempts correlation. Publishers requiring guaranteed delivery must implement their own retry logic, idempotency checks using message deduplication by name and correlation key, and appropriate TTL settings to handle the race condition window."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Message buffering via TTL: Publish API (typical): Message name + correlation key: identifies subscription. TTL (time-to-live): duration (e.g., \"PT5M\" for 5 min) the message persists. Variables: payload. Correlation logic: Active subscription matching name + key exists: immediate correlation; subscription consumed. No matching subscription yet: TTL > 0: message persists for TTL duration; subscriptions arriving within window correlate. TTL = 0: message discarded if no subscription at publish time. TTL semantics: Lifecycle: 1. Publish at time T with TTL=5min. 2. Message stored. 3. Subscriber at T+2min: correlates; message consumed. 4. (Or) No subscriber by T+5min: message expires; deleted. For the race condition: Pattern 1: Adequate TTL: estimate worst-case subscription latency; set TTL > that. Pattern 2: Confirm-before-publish: publisher waits for \"ready\" signal from subscriber side. Pattern 3: Idempotent retry from publisher: re-publish if no acknowledgement. TTL trade-offs: Long TTL: forgiving of race; messages accumulate if no consumers → storage growth. Short TTL: low storage; risk of lost messages. Multiple subscriptions same key: First subscription consumes the message. Second arrives later: no message (already consumed). For broadcast-like semantic: use Signal instead (per Set 14 Q6). Message buffer storage: Persisted in Zeebe state. Counts toward cluster resource usage. Monitor: backlog of unmatched messages may indicate misconfigured TTL or wrong correlation keys. Best practices: Default to reasonable TTL (e.g., 1-5 min) for forgiving race conditions. For critical messages: ensure subscriber active before publish (orchestration). Idempotent publishers: re-publish on uncertainty (Camunda dedup based on (name, key) -- verify). Monitor buffered messages: alert on growing backlog. API call: ` POST /messages { \"name\": \"ORDER_CONFIRMED\", \"correlationKey\": \"O-100\", \"timeToLive\": \"PT5M\", \"variables\": {...} } `"
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q13",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

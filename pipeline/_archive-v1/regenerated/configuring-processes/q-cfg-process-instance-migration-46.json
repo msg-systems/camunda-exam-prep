@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-46",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Zenith Logistics is migrating 2800 instances in Camunda 8.8 to a new version where the active service task A no longer exists. The new definition contains only a service task C, but a team member proposes mapping the active service task A to a user task in the target definition instead of mapping A to C.",
+  "question": "Which rule governs element type compatibility in a Camunda 8 process instance migration mapping?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Any element type may be mapped to any other element type; the engine reinterprets the active token to fit the target element type without restriction during the migration"
+    },
+    {
+      "id": "b",
+      "text": "Element type mapping requires a runtime instruction in addition to the mapping instruction; the engine then converts between service tasks and user tasks as needed at runtime"
+    },
+    {
+      "id": "c",
+      "text": "Element type mapping is allowed when source and target carry the same job type; the engine bridges service tasks and user tasks using the shared job type as glue at runtime"
+    },
+    {
+      "id": "d",
+      "text": "Element type mapping is not allowed across types; an active service task may only be mapped to a service task in the target and cannot be mapped to a user task in the target"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The documented rule explicitly forbids mapping an element to an element of a different type during process instance migration, so unrestricted reinterpretation does not apply."
+    },
+    "b": {
+      "text": "Incorrect. Runtime instructions do not unlock cross-type mapping; the type rule applies to the mapping instruction itself in the migration plan and rejects type changes."
+    },
+    "c": {
+      "text": "Incorrect. A shared job type does not enable mapping across element types; the engine still rejects mapping a service task to a user task in the target definition."
+    },
+    "d": {
+      "text": "Correct. The documented rule forbids mapping across element types, so an active service task may only be mapped to a service task in the target process definition."
+    }
+  },
+  "explanation": "Migration mappings cannot cross element types; an active service task may only be mapped to a service task in the target process definition and not to a user task.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

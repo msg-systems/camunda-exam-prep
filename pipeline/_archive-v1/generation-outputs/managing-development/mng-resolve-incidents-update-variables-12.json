@@ -1,0 +1,27 @@
+{
+  "id": "mng-resolve-incidents-update-variables-12",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Catalyst Bank runs Camunda 8.8 on the order-process model with 6000 orders per day across the bank's payment platform. After the operator creates an instance with orderId 1234 and completes Initiate Payment, the order must advance past the Payment Received intermediate message catch event so the XOR gateway condition can be evaluated within 5 minutes.",
+  "question": "Which zbctl publish message command advances the instance past the Payment Received intermediate message catch event in this case?",
+  "options": [
+    { "id": "a", "text": "The command ./bin/zbctl --insecure publish message order-received --correlationKey 1234 publishes a message whose correlation key matches orderId 1234 and advances the instance past the Payment Received catch event for the bank" },
+    { "id": "b", "text": "The command ./bin/zbctl --insecure publish message payment-received --correlationKey 1234 publishes a message whose correlation key matches orderId 1234 and advances the instance past the Payment Received catch event in the order-process model" },
+    { "id": "c", "text": "The command ./bin/zbctl --insecure publish event payment-received --orderId 1234 publishes a typed event whose orderId attribute matches the instance and advances the instance past the Payment Received catch event for the bank's order-process model" },
+    { "id": "d", "text": "The command ./bin/zbctl --insecure correlate signal payment-received --businessKey 1234 correlates a signal whose business key matches orderId 1234 and advances the instance past the Payment Received catch event in the order-process model for the bank" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documented message name is payment-received, not order-received; the message name on the published message must match the catch event's message reference in the order-process model to correlate." },
+    "b": { "text": "Correct. The guide shows ./bin/zbctl --insecure publish message payment-received --correlationKey 1234, which correlates the payment-received message with the instance carrying orderId 1234 and advances it past the Payment Received intermediate catch event." },
+    "c": { "text": "Incorrect. zbctl uses publish message with a message name and a correlation key, not a publish event subcommand with arbitrary attributes; the catch event is a message catch event and correlates by correlation key." },
+    "d": { "text": "Incorrect. The Payment Received element is a message catch event correlated through zbctl publish message and a correlation key, not a signal correlated through a businessKey parameter in Camunda 8.8." }
+  },
+  "explanation": "The Advance an instance to an XOR gateway section uses ./bin/zbctl --insecure publish message payment-received --correlationKey 1234 to correlate a payment-received message with the running instance carrying orderId 1234 and advance it past the Payment Received intermediate message catch event.",
+  "docs": [
+    { "title": "Variables and incidents", "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/" }
+  ]
+}

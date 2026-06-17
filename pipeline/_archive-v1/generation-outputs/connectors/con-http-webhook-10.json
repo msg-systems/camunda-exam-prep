@@ -1,0 +1,27 @@
+{
+  "id": "con-http-webhook-10",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Apex Logistics, a parcel carrier handling 2000000 shipments per year, configures a Camunda 8.8 HTTP Webhook connector with HMAC authentication for an upstream tracking provider. The provider sends GET requests with query parameters such as trackingId and tenantId, and the integration team must specify HMAC Scopes so the signature covers the right portion of every inbound call.",
+  "question": "Which HMAC Scopes value selects the documented URL and Parameters Encoding Strategy for this GET webhook?",
+  "options": [
+    { "id": "a", "text": "=[\"URL\",\"PARAMETERS\"] as a FEEL list containing the URL and PARAMETERS scope identifiers in the HMAC Scopes property" },
+    { "id": "b", "text": "=[\"BODY\",\"PARAMETERS\"] as a FEEL list combining the BODY scope with the PARAMETERS scope on the HMAC Scopes property" },
+    { "id": "c", "text": "=[\"URL\",\"BODY\"] as a FEEL list combining the URL scope with the BODY scope on the HMAC Scopes property field" },
+    { "id": "d", "text": "=\"URL,PARAMETERS\" as a plain comma-separated string naming each scope inside the HMAC Scopes property field" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The URL and Parameters Encoding Strategy is selected when the HMAC Scopes include URL and PARAMETERS and the HTTP method is GET, and the documented Scopes value is the FEEL list =[\"URL\",\"PARAMETERS\"]." },
+    "b": { "text": "Incorrect. The documented HMAC Scopes are BODY, URL, and PARAMETERS, and a BODY+PARAMETERS combination is not one of the three supported strategies the connector derives from the scopes." },
+    "c": { "text": "Incorrect. URL and BODY selects the URL and Body Encoding Strategy, but the docs state that on a GET method that strategy falls back to URL and Parameters, so it is not the canonical value for this GET case." },
+    "d": { "text": "Incorrect. The HMAC Scopes property is a FEEL array, not a single comma-separated plain string, so a quoted string value would not be parsed as the two scope identifiers." }
+  },
+  "explanation": "HMAC Scopes is a FEEL array; the example in the docs is =[\"URL\",\"PARAMETERS\"], which selects the URL and Parameters Encoding Strategy whenever the HTTP method is GET. The signature data is then built by combining the URL with the alphabetically sorted query parameters.",
+  "docs": [
+    { "title": "HTTP Webhook connector - HMAC scopes", "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q08",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task has Error Boundary Event with NO errorCode specified. Team wonders if it catches all errors or only specific ones.",
+  "question": "Error Boundary without errorCode -- catch-all?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Error Boundary without errorCode acts as catch-all for any BPMN error thrown by the host activity. \" Specific Boundary Events (with errorCode) match exact codes and take precedence; the codeless boundary catches any unmatched error. Defense-in-depth pattern: combine specific codes (Boundary(errorCode=\"INVALID_VAT\")) with a codeless fallback boundary for unexpected errors. Error boundaries must be interrupting in Camunda 8 -- non-interrupting error catch is disallowed unlike escalation."
+    },
+    {
+      "id": "b",
+      "text": "An Error Boundary Event without an errorCode catches nothing and is therefore useless -- this approach has limitations. \" The codeless Error Boundary is a deliberate catch-all mechanism -- it activates for any BPMN error thrown by the host activity that is not caught by a more specific (errorCode-equipped) boundary on the same activity. It is a valid and recommended defensive pattern to prevent processes from getting stuck on unexpected error codes."
+    },
+    {
+      "id": "c",
+      "text": "The codeless boundary does catch all BPMN errors, but it acts as a fallback: if a specific Error Boundary (with matching errorCode) exists on the same activity, that specific boundary activates first and the codeless boundary receives only errors not matched by specific ones. md:50-52, at most one catch-all per scope; specific errorCode boundaries always take precedence when both are present."
+    },
+    {
+      "id": "d",
+      "text": "The errorCode attribute is required on all Error Boundary Events -- this claim does not fully apply. Camunda 8 explicitly supports Error Boundary Events without any errorCode reference, treating them as catch-all handlers. md:23. While specifying an errorCode creates a targeted handler for a specific error type, omitting the errorCode is a valid and intentional design choice for creating generic fallback error handlers that catch any unhandled BPMN error thrown by the associated activity."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Error Boundary semantics: Error matching: With errorCode: Boundary specifies errorCode=\"INVALID_VAT\". Catches only errors with this exact code. Without errorCode (catch-all): Catches any BPMN error not matched by more specific boundaries. Match precedence: 1. Specific errorCode boundary takes precedence. 2. Codeless boundary catches what specific didn't. 3. No boundary: error propagates up scope hierarchy (per Set 13 Q3). Pattern: ` [Service Task: Process Payment] │ ├─ Boundary(errorCode=\"INSUFFICIENT_FUNDS\") → [Handle insufficient] ├─ Boundary(errorCode=\"FRAUD_DETECTED\") → [Handle fraud] └─ Boundary (no code) → [Generic error handler] Behavior: Worker throws INSUFFICIENT_FUNDS: routes to that branch. Worker throws FRAUD_DETECTED: routes to that branch. Worker throws UNKNOWN_ERROR: routes to generic handler. For the scenario (codeless boundary): Acts as catch-all. Catches any error thrown by Service Task. vs job.fail(): job.fail() (per Set 13 Q18): not a BPMN error; doesn't trigger Error Boundary. job.error(errorCode, ...): BPMN error; triggers matching boundary. For \"any failure including job.fail\": combine retries + Incident handling, not just Error Boundary. Use cases: Use case 1: Defense-in-depth: Catch specific known errors with specific handling. Generic catch-all for unexpected. Prevent process getting stuck on unhandled BPMN errors. Use case 2: Logging: Codeless boundary → log error details, alert ops. Then attempt retry / escalate. Use case 3: Migration: Old version had specific codes. New version unsure of all codes; codeless catches new ones. Best practices: Specific boundaries for known error patterns: clear routing. Codeless boundary as fallback: avoid process stuck. Log unmatched errors: surface unknown error codes for future handling. Don't over-rely on codeless: specific routing is clearer. Anti-patterns: Only codeless boundary: hides specific error patterns. Many codeless boundaries on one activity: ambiguous; only one matches. No error handling at all: process incidents on every error. Error variable: Boundary catches: error info available in scope. Variables include: errorCode, errorMessage. Used in downstream FEEL: e.g., log message uses errorMessage. Camunda 8 specifics (verbatim from error-events.md:22-23, :50-55): :23: \"Alternatively an error catch event may omit the error reference all together. In this case it catches all thrown errors.\" Codeless catch-all is fully supported. :50-52: at most one catch-all per scope; specific errorCode boundary always wins if both present in the same scope. :54-55: error boundary events and error event subprocesses must be interrupting -- non-interrupting error catch is disallowed (unlike escalation). :43-48: error propagates up the scope hierarchy (including across Call Activity into calling parent process) until caught or it becomes an incident. Compare with Java exception model: Specific catch + general catch: similar. Java: catch (SpecificException e) { ... } catch (Exception e) { ... }`. BPMN: specific Boundary + codeless Boundary."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial. Specific takes precedence."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Error Boundary semantics: Error matching: With errorCode: Boundary specifies errorCode=\"INVALID_VAT\". Catches only errors with this exact code. Without errorCode (catch-all): Catches any BPMN error not matched by more specific boundaries. Match precedence: 1. Specific errorCode boundary takes precedence. 2. Codeless boundary catches what specific didn't. 3. No boundary: error propagates up scope hierarchy (per Set 13 Q3). Pattern: ` [Service Task: Process Payment] │ ├─ Boundary(errorCode=\"INSUFFICIENT_FUNDS\") → [Handle insufficient] ├─ Boundary(errorCode=\"FRAUD_DETECTED\") → [Handle fraud] └─ Boundary (no code) → [Generic error handler] Behavior: Worker throws INSUFFICIENT_FUNDS: routes to that branch. Worker throws FRAUD_DETECTED: routes to that branch. Worker throws UNKNOWN_ERROR: routes to generic handler. For the scenario (codeless boundary): Acts as catch-all. Catches any error thrown by Service Task. vs job.fail(): job.fail() (per Set 13 Q18): not a BPMN error; doesn't trigger Error Boundary. job.error(errorCode, ...): BPMN error; triggers matching boundary. For \"any failure including job.fail\": combine retries + Incident handling, not just Error Boundary. Use cases: Use case 1: Defense-in-depth: Catch specific known errors with specific handling. Generic catch-all for unexpected. Prevent process getting stuck on unhandled BPMN errors. Use case 2: Logging: Codeless boundary → log error details, alert ops. Then attempt retry / escalate. Use case 3: Migration: Old version had specific codes. New version unsure of all codes; codeless catches new ones. Best practices: Specific boundaries for known error patterns: clear routing. Codeless boundary as fallback: avoid process stuck. Log unmatched errors: surface unknown error codes for future handling. Don't over-rely on codeless: specific routing is clearer. Anti-patterns: Only codeless boundary: hides specific error patterns. Many codeless boundaries on one activity: ambiguous; only one matches. No error handling at all: process incidents on every error. Error variable: Boundary catches: error info available in scope. Variables include: errorCode, errorMessage. Used in downstream FEEL: e.g., log message uses errorMessage. Camunda 8 specifics (verbatim from error-events.md:22-23, :50-55): :23: \"Alternatively an error catch event may omit the error reference all together. In this case it catches all thrown errors.\" Codeless catch-all is fully supported. :50-52: at most one catch-all per scope; specific errorCode boundary always wins if both present in the same scope. :54-55: error boundary events and error event subprocesses must be interrupting -- non-interrupting error catch is disallowed (unlike escalation). :43-48: error propagates up the scope hierarchy (including across Call Activity into calling parent process) until caught or it becomes an incident. Compare with Java exception model: Specific catch + general catch: similar. Java: catch (SpecificException e) { ... } catch (Exception e) { ... }`. BPMN: specific Boundary + codeless Boundary.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q08",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

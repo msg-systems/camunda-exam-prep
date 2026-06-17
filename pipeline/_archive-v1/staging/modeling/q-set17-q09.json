@@ -1,0 +1,82 @@
+{
+  "id": "imp-set17-q09",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "BPMN XML has containing , , etc. Team wonders the role of extension elements.",
+  "question": "BPMN extension elements concept?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Replace BPMN -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Extension elements = vendor-specific additions to standard BPMN: the <bpmn:extensionElements> container allows engine vendors to attach custom configuration to any BPMN element without violating the standard schema. Camunda 8 uses the zeebe: namespace for elements such as zeebe:taskDefinition, zeebe:ioMapping, zeebe:assignmentDefinition, and zeebe:formDefinition. Other engines use their own namespaces. This mechanism enables engine-specific behavior while keeping the BPMN process portable at the logical model level, though portability is limited when extensions contain engine-specific details."
+    },
+    {
+      "id": "c",
+      "text": "Extension elements in BPMN are ignored by the engine at runtime and serve only as documentation -- this does not accurately reflect the behavior. Camunda 8 Zeebe actively reads and processes extension elements to configure execution behavior. Without zeebe:taskDefinition, a Service Task lacks a job type and cannot be activated by workers. Without zeebe:ioMapping, input and output variable mappings do not occur. Extension elements are essential configuration that directly governs how the engine executes each BPMN element."
+    },
+    {
+      "id": "d",
+      "text": "Extension elements are specific to Camunda and are not part of the BPMN standard -- this partially misses the point. 0 as a standard extension mechanism allowing any vendor to attach custom configuration. Camunda 7 used the camunda: namespace, while Camunda 8 uses zeebe:. Any BPMN engine can define its own extension namespace. The mechanism is standardized; the namespace content is vendor-specific."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Extension elements: BPMN spec design: Standard elements: tasks, gateways, events, etc. Standard attributes: id, name, etc. Vendor extensions: via container. Why extensions exist: BPMN is executable spec (level 3) + notation. Engine implementations differ: need engine-specific config. Common pattern: vendor namespace. Camunda 8 extensions (zeebe namespace): zeebe:taskDefinition (Service Task): xml zeebe:ioMapping (Input/Output): xml zeebe:assignmentDefinition (User Task): xml zeebe:formDefinition (User Task form): xml zeebe:calledElement (Call Activity): xml zeebe:taskHeaders (Task Headers): xml zeebe:loopCharacteristics (Multi-Instance): xml And many more. Vendor namespaces: zeebe:: Camunda 8 (Zeebe engine). camunda:: Camunda 7 (legacy). Other engines: own namespaces. Portability: With extensions: BPMN file engine-specific. Pure BPMN (no extensions): portable but less expressive. For migration between engines: Camunda 7 → 8: change namespaces + adjust attributes. Camunda 8 → other engine: significant translation needed. For tooling: Modelers: Camunda Web Modeler: native zeebe extensions. bpmn.io editor: supports extensions via plugins. Validators: Engine validators: ensure extensions correct. Linters: bpmnlint: extension-aware rules (per Set 14 Q59). For Element Templates (per Set 13 Q51): Generate extensions: from modeler UI. Encapsulate complexity: modeler doesn't write XML. For documentation generators: Read extensions: extract config. Generate docs: per element. For diff / merge (per Set 16 Q59): Extensions diff: meaningful changes. Some changes: visual (DI); some logical (zeebe). For engine version compatibility: Older Zeebe versions: may not support newer extensions. BPMN deployment: validate against engine version. For BPMN engine of choice: Each engine: own extension namespace. Same logical process: different XML. Standard BPMN-only modeling: Pros: Portable across engines. Cons: Engine config lacking. Need to add at deployment. Hybrid: Logical BPMN: standard. Engine config: external (deployment descriptor). For Camunda 8 specifically: Zeebe extensions necessary: for execution. Lock-in: deliberately. For learning: Read BPMN XML: see zeebe extensions. Understand structure: useful for debugging. For tools generating BPMN: Templating: include extensions. Validation: post-generation. For the scenario (zeebe extensions in BPMN): Standard BPMN extension mechanism. Vendor namespace for Camunda 8. Configures engine behavior for elements. Without extensions: Pure BPMN: doesn't execute on Camunda 8. Need taskDefinition etc.: for Service Tasks."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q09",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-scenario-too-short",
+        "severity": "block",
+        "message": "scenario length 77 < 80 (catastrophically short)",
+        "where": "scenario"
+      },
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 22 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 27.3 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

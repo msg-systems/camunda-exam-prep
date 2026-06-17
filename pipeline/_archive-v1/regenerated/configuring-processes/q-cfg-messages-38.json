@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-38",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Catalyst Insurance handles 6000 transactions per day in Camunda 8.8 and a developer publishes a message expecting an immediate response confirming whether correlation succeeded, choosing the correlate-message endpoint over the publish-message endpoint on the v2 messages API.",
+  "question": "Which difference between the correlate-message and publish-message endpoints does the Message response section document?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The correlate-message endpoint accepts an extra timeToBuffer field that increases the buffer beyond the cluster default while still confirming success on the call to the client"
+    },
+    {
+      "id": "b",
+      "text": "The correlate-message endpoint returns every process instance key the message correlated with, providing a complete fan-out report for the caller in the response body at once"
+    },
+    {
+      "id": "c",
+      "text": "The correlate-message endpoint does not support message buffering, so a published message is either immediately correlated to a subscription or not correlated at all"
+    },
+    {
+      "id": "d",
+      "text": "The correlate-message endpoint internally retries the correlation for the message TTL, guaranteeing eventual success whenever a matching subscription opens within the window"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The docs note the correlate-message endpoint does not support buffering; there is no documented timeToBuffer field that extends the buffer for synchronous correlation on the broker."
+    },
+    "b": {
+      "text": "Incorrect. The response returns only one process instance key; the docs explicitly state that any additional keys for messages correlated to other instances are not part of the response."
+    },
+    "c": {
+      "text": "Correct. The Message response section states the correlate-message endpoint does not support message buffering, so any message published using this endpoint is either immediately correlated or not correlated at all."
+    },
+    "d": {
+      "text": "Incorrect. The synchronous endpoint does not retry across the TTL window; the docs describe it as immediately correlated or not correlated, with no implicit retry behaviour on the broker."
+    }
+  },
+  "explanation": "The Message response section explains that publishing a message is fire-and-forget. The correlate-message endpoint works like publish, but does not support message buffering: a message is either immediately correlated to an open subscription or not at all. If correlation succeeds, the response returns one process instance key only.",
+  "docs": [
+    {
+      "title": "Messages",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

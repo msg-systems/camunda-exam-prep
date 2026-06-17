@@ -1,0 +1,82 @@
+{
+  "id": "imp-set17-q54",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Self-Managed uses Keycloak. Wonders RBAC setup for Camunda.",
+  "question": "Identity Keycloak RBAC?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No RBAC -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "8 uses Management Identity as the authentication and authorization component, which supports Keycloak as an optional backend identity provider. Keycloak is not the only option; Management Identity also supports connecting to any OIDC provider, SAML identity providers, LDAP directories, and Active Directory. The authorization model is resource-permission based with default deny, not a proprietary format. md."
+    },
+    {
+      "id": "c",
+      "text": "RBAC only controls access to Operate, not other Camunda services -- this does not accurately reflect the behavior. Management Identity controls access across all Camunda 8 components including Operate, Tasklist, Web Modeler, and the Zeebe API. The authorization model uses resource-permission pairs with default deny, covering resources such as Process Definition, Decision Definition, Process Instance, and others. Each resource type has multiple granular permissions. Role assignments control which users can view process instances, deploy process definitions, claim tasks, or access specific tenant namespaces."
+    },
+    {
+      "id": "d",
+      "text": "8 Self-Managed uses Management Identity as the authentication and authorization component, with Keycloak as an optional bundled backend. Management Identity exposes Applications, Users, Groups, Roles, Tenants, and Mapping rules through a unified console. ) has specific permissions that can be granted to roles, which are then assigned to users or groups. External identity providers including existing Keycloak instances, any OIDC provider, SAML, LDAP, and Active Directory are supported via configuration in self-managed/components/management-identity/configuration/."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Keycloak + Camunda RBAC: Keycloak basics: Realm: Tenant boundary. Camunda typically: own realm. Clients: Applications using Keycloak for auth. Camunda services: Operate, Tasklist, Identity Console. Custom apps: register as clients. Roles: Realm roles: global. Client roles: per app. Composite roles: combine. Users: Login credentials. Assigned roles directly or via groups. Groups: User collections. Members inherit group roles. For Camunda 8.8 authorization (Pattern #69 -- resource-permission model, NOT OAuth scope strings): Resources per concepts/access-control/authorizations.md -- Process Definition, Decision Definition, Process Instance, etc. Permissions per resource -- e.g., Process Definition has 12 permissions per authorizations.md:97: READ_PROCESS_DEFINITION, READ_PROCESS_INSTANCE, CREATE_PROCESS_INSTANCE, UPDATE_PROCESS_INSTANCE, etc. Default-deny per :36-47 -- explicit grant required for any access. Console Org roles (SaaS counterpart) per console/manage-organization/manage-users.md:11-30 -- Owner / Admin / Modeler / Analyst (NOT \"Operator/Task User/Developer\" -- those are fabricated standard names). Per-service permissions: Operate: Read process instances. Modify (cancel, retry). View decision instances. Tasklist: View own tasks. Claim / complete tasks. View all tasks (admin). Web Modeler: Create / edit models. Deploy to cluster. Manage projects. Setup steps: 1. Install Keycloak: standalone or part of Camunda. 2. Configure realm: for Camunda. 3. Create clients: for each Camunda service. 4. Define roles: per requirements. 5. Create users / groups: assign roles. 6. Configure Camunda: to use Keycloak. For SSO setup (per Set 14 Q54): External IdP: Okta, AD, etc. Identity broker: Keycloak federates. Users from external. For role mapping: From external IdP: Group claim: in token. Map to Camunda roles: in Keycloak. Example mapping: Okta group \"loan-officers\" → Camunda role \"operator\". Configure in Keycloak client mapper. For BPMN candidateGroups: candidateGroups=\"reviewers\" in BPMN. Keycloak group \"reviewers\": maps. Members can claim tasks. For granular permissions: Per-resource permissions (verify): Per process definition: who can start. Per tenant: isolation. For multi-tenant: Per-tenant roles: clear. Cross-tenant: forbidden. For API clients (M2M): Service accounts: in Keycloak. OAuth client credentials: per Set 14 Q55. For audit: Keycloak logs: auth events. Per user, per action. For user provisioning (per Set 14 Q54): JIT: on first login. SCIM: pre-provisioned. Manual: admin creates. For password policies: Keycloak enforces: complexity, expiry. MFA: optional 2FA. For session management: Token TTL: configurable. Refresh tokens: for long sessions. Single logout: across apps. For testing RBAC: Create test users: different roles. Verify access: per role. For audit / compliance: Periodic role review: who has what. Access reports: per user. Remove unused. For role-based UI: Operate hides admin features: for non-admins. Tasklist shows own tasks: per user. For Camunda authorization layer: In addition to Keycloak: Camunda may have own authz. Per Set 14 Q54: layered. For cluster permissions: Per cluster: scoped. Org-level: cross-cluster. For SaaS: Camunda Console manages: similar concepts. Org / cluster permissions. For Self-Managed: Full Keycloak control. Customize as needed. For external IdP federation: Keycloak as broker: external SSO. Users from corp directory. Common patterns: Pattern: role per function: \"process-developer\", \"process-operator\", \"end-user\". Map to permissions per service. Pattern: group per team: \"team-finance\", \"team-sales\". Members get team's roles. Pattern: role per environment: \"dev-admin\", \"prod-readonly\". Separate access per cluster. Anti-patterns: Everyone admin: over-permissioned. No groups: per-user management. Shared accounts: lose audit. Best practices: Least privilege: minimum needed. Groups for management: scale. Periodic review. Audit access changes. For the scenario (Keycloak RBAC): Realm + clients + roles + users / groups. Standard Keycloak setup. Camunda services consume. For"
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/components/management-identity/overview/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q54",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-scenario-too-short",
+        "severity": "block",
+        "message": "scenario length 59 < 80 (catastrophically short)",
+        "where": "scenario"
+      },
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 17 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 36.1 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

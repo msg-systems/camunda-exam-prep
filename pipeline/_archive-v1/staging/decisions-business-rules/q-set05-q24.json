@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q24",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A reward-program decision table assigns badges. Multiple rules can match the same input. The team wants all matching rules' outputs returned as a list ordered by rule (row) order.",
+  "question": "Which hit policy fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "COLLECT hit policy without an aggregator returns a list of all matching rules' outputs, but the ordering of items in this list is arbitrary and not guaranteed to match the row sequence of the decision table. RULE ORDER provides the explicit row-ordered guarantee that COLLECT lacks."
+    },
+    {
+      "id": "b",
+      "text": "OUTPUT ORDER hit policy ranks matching rules by the priority ordering defined for output column values and returns an ordered list based on that priority. OUTPUT ORDER appears in the DMN specification but is absent from Camunda 8's implemented set. Its semantics also differ from row-sequence ordering, using output-value priority instead of rule row number."
+    },
+    {
+      "id": "c",
+      "text": "RULE ORDER hit policy returns a list of outputs for all matching rules, explicitly ordered by the row position of each matching rule in the decision table from top to bottom. Unlike COLLECT which makes no ordering guarantee, RULE ORDER guarantees that the first item in the returned list comes from the lowest-numbered matching row, providing the deterministic row-ordered result the scenario requires."
+    },
+    {
+      "id": "d",
+      "text": "FIRST hit policy -- when the decision table uses FIRST, the engine evaluates rows in order and returns the output of the very first matching rule, then stops. Unlike RULE ORDER, subsequent matching rules are ignored entirely. The result is always a single value, not a list. FIRST is supported in Camunda 8 and is suitable when row ordering encodes priority and only one output should be returned per evaluation."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. RULE ORDER policy explicitly returns matching outputs in row order. Distinct from COLLECT which doesn't guarantee row order."
+    },
+    "b": {
+      "text": "Incorrect. COLLECT returns the satisfied rules' outputs \"in an arbitrary order as a list\" (decision-table-hit-policy.md:113-115); explicitly no row-order promise. Closest functional match if RULE ORDER weren't available."
+    },
+    "c": {
+      "text": "Correct. OUTPUT ORDER exists in the DMN-1.3 spec but is NOT in Camunda 8's supported set (decision-table-hit-policy.md:26-53 lists only UNIQUE/ANY/FIRST/RULE ORDER/COLLECT). Doubly wrong: also orders by output-value priority, not row order."
+    },
+    "d": {
+      "text": "Incorrect. FIRST returns single value, not list (decision-table-hit-policy.md:91-99)."
+    }
+  },
+  "explanation": "OUTPUT ORDER exists in the DMN-1.3 spec but is NOT in Camunda 8's supported set (decision-table-hit-policy.md:26-53 lists only UNIQUE/ANY/FIRST/RULE ORDER/COLLECT). Doubly wrong: also orders by output-value priority, not row order.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q24",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

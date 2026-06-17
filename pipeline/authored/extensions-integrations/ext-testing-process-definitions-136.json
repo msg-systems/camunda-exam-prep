@@ -1,0 +1,53 @@
+{
+  "id": "ext-testing-process-definitions-136",
+  "topic": "extensions-integrations",
+  "subtopic": "process-tests",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A `CamundaSpringProcessTest` unit test exercises the rejection chunk of an invoice process. The `Send invoice rejection` service task has `taskDefinition type=\"io.camunda:http-json:1\"`. How does the docs stop the test from making a real HTTP call?",
+  "codeBlocks": {
+    "stem": "// We skip HTTP for the simple unit test - mock the http connector\nprocessTestContext.mockJobWorker(\"io.camunda:http-json:1\").thenComplete();"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "Call `processTestContext.mockJobWorker(\"io.camunda:http-json:1\").thenComplete()` to stub the connector's job worker."
+    },
+    {
+      "id": "b",
+      "text": "Annotate the test with `@EnableWireMock` and stub `/reject` with a 200 response."
+    },
+    {
+      "id": "c",
+      "text": "Set `retries=\"0\"` on the service task so the connector never activates a job."
+    },
+    {
+      "id": "d",
+      "text": "Disable the broker's REST endpoint in `application.yml` before the test boots."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs' unit-style detour test calls `processTestContext.mockJobWorker(\"io.camunda:http-json:1\").thenComplete()` so the REST connector job is completed without invoking the real endpoint. This keeps the chunk test simple and offline."
+    },
+    "b": {
+      "text": "`@EnableWireMock` is the integration-test technique shown later in the page, used when you want to exercise input/output mapping by mocking the endpoint instead of the worker. It is heavier than what the unit chunk test needs."
+    },
+    "c": {
+      "text": "`retries=\"0\"` only changes how many times the engine activates the job on failure; the worker would still try to hit the URL on the first activation."
+    },
+    "d": {
+      "text": "Disabling broker REST endpoints does not affect outbound REST calls made by the connector job worker; it would only break inbound API traffic to the broker."
+    }
+  },
+  "explanation": "For unit-style chunk tests, the docs mock the connector job worker directly with `processTestContext.mockJobWorker(\"io.camunda:http-json:1\").thenComplete()`. `@EnableWireMock` is reserved for the separate integration-test section where the goal is to exercise the connector's input/output mapping by mocking the REST endpoint rather than the worker.",
+  "docs": [
+    {
+      "title": "Testing process definitions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/testing-process-definitions/"
+    }
+  ]
+}

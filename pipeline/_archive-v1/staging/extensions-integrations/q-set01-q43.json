@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q43",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team is integrating a Camunda 8 process with an external SAP ERP system. The integration needs to: 1. Call SAP's BAPI service to fetch order details 2. Process the response (transform JSON, enrich with local data) 3. Write back to SAP via another BAPI call The team is debating between two architectural choices: (A) build the integration as three sequential Outbound HTTP Connectors with FEEL transforms in between, or (B) build a single Custom Connector using the Connector SDK that internally orchestrates the three calls and the transformation. The SAP integration is unlikely to be reused in other processes.",
+  "question": "Which choice fits this scenario best, and why?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Three sequential Outbound Connectors with FEEL transforms -- declarative integration stays in the BPMN model, FEEL handles transforms, easy to audit each step in Operate, no custom code to maintain. Best for one-off integrations where logic is straightforward. Each of the three SAP BAPI calls becomes a separate HTTP REST Connector task in the BPMN diagram -- fetch order details (step 1), write back to SAP (step 3) are simple HTTP calls; the transform step (step 2) becomes either a Script Task with FEEL or Input/Output Mappings between the connector tasks. In Operate, each connector task shows its own execution history, enabling per-step debugging. No Java code, no separate build, no deployment pipeline for an integration service."
+    },
+    {
+      "id": "b",
+      "text": "Single Custom Connector -- encapsulates the three calls and transform inside one Connector element; the BPMN remains clean (one element instead of three). Custom Connector SDK gives full Java control. Best for reusable, complex integrations. This approach has real costs: the three-step integration is now opaque in the BPMN model (one element hides what happens inside), losing per-step audit in Operate -- you cannot see which of the three BAPI calls failed, only that the element failed. Building a Custom Connector also requires writing Java code, defining an Element Template, testing, building, deploying, and versioning a connector artifact. Given that the SAP integration is explicitly described as \"unlikely to be reused in other processes\", this overhead is unjustified."
+    },
+    {
+      "id": "c",
+      "text": "A standard Service Task with a Java Job Worker -- fully imperative, no Connector overhead, full control over orchestration. While a Java Job Worker gives maximum control, it requires writing a complete Java application with the Camunda Spring Boot Starter, implementing the full three-step orchestration imperatively, managing authentication to SAP, handling retries, and deploying the application alongside the Connector runtime. This means significantly more code and infrastructure than the three sequential Outbound Connectors approach. There is also no Element Template or Web Modeler integration -- the BPMN property panel shows generic service task properties rather than a purpose-built UI for the SAP integration."
+    },
+    {
+      "id": "d",
+      "text": "An RPA worker -- RPA is designed for complex multi-step integrations with legacy systems. This fundamentally misunderstands what RPA is for. Camunda RPA (Robotic Process Automation) is designed for UI automation of legacy applications that have no programmatic API -- it uses Robot Framework scripts to drive applications through their graphical interfaces by simulating keyboard and mouse interactions. SAP's BAPI service is an explicit REST API -- the scenario states \"SAP BAPI service\"."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. For a one-off, straightforward integration where each step is a simple HTTP call with FEEL-expressible transformations, three sequential Outbound Connectors is the canonical choice. Each Connector is a separate BPMN element -- auditable individually in Operate (per-step status, per-step retries), easy to debug, and configuration lives in the BPMN model. There is no custom Java code to build, test, or maintain. Custom Connector SDK (Pattern #54: OutboundConnectorProvider + @Operation + @Variable annotations per connector-sdk.md:233-291) is appropriate when you need reuse across processes or when the orchestration logic exceeds Connector + FEEL capability."
+    },
+    "b": {
+      "text": "Incorrect. Custom Connector hides three steps inside one BPMN element, sacrificing per-step audit in Operate. The Connector SDK requires Java development, testing, deployment, versioning -- overhead unjustified for a one-off integration."
+    },
+    "c": {
+      "text": "Incorrect. Job Worker with imperative Java works but loses the Connector-driven declarative configuration benefits -- no Element Template, no Web Modeler integration, more code than Connectors require."
+    },
+    "d": {
+      "text": "Incorrect. RPA is for automation of legacy systems without APIs -- uses Robot Framework scripts in the RPA connector task per rpa/getting-started.md:26, :59 (Pattern #19). SAP has BAPI APIs reachable via HTTP. RPA is the wrong tool entirely."
+    }
+  },
+  "explanation": "For a one-off, straightforward integration where each step is a simple HTTP call with FEEL-expressible transformations, three sequential Outbound Connectors is the canonical choice. Each Connector is a separate BPMN element -- auditable individually in Operate (per-step status, per-step retries), easy to debug, and configuration lives in the BPMN model. There is no custom Java code to build, test, or maintain. Custom Connector SDK (Pattern #54: OutboundConnectorProvider + @Operation + @Variable annotations per connector-sdk.md:233-291) is appropriate when you need reuse across processes or when the orchestration logic exceeds Connector + FEEL capability.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q43",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

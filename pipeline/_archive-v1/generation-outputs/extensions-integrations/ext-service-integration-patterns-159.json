@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-159",
+  "topic": "extensions-integrations",
+  "subtopic": "Response message patterns",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Zenith Retailer runs a Camunda 8.8 fulfilment flow that processes 1200 orders per day and must react to a customer cancellation message at any point across a six-step section of the process. The architect wants one model where the happy path stays clean and a single cancellation handler can fire whenever the cancellation message arrives during those steps.",
+  "question": "Which response-handling pattern does the integration patterns guidance recommend for this case?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An event subprocess on the parent scope, which gets activated whenever the cancellation message is received while the process is still active anywhere in that section of the flow"
+    },
+    {
+      "id": "b",
+      "text": "A receive task with two boundary message events on the happy path, which catches the cancellation message attached to the active step of the fulfilment flow at the time of arrival"
+    },
+    {
+      "id": "c",
+      "text": "An event-based gateway placed before each step, which waits for either the normal continuation message or the cancellation message at every stage of the fulfilment flow on its own"
+    },
+    {
+      "id": "d",
+      "text": "A payload field on the receive task followed by an XOR gateway, which routes the flow toward the cancellation path whenever the payload field is set during the fulfilment flow"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs introduce event subprocesses as the option to use when you need bigger scopes that can react to events arriving any time, calling out cancellation handling across a chunk of the process as the canonical use case."
+    },
+    "b": {
+      "text": "Incorrect. Boundary events are limited (the guidance suggests at most two), and they attach to a single task, not to a multi-step chunk of the process."
+    },
+    "c": {
+      "text": "Incorrect. Event-based gateways are documented as something to try to avoid because they are hard for non-BPMN audiences to read, and they sit on the happy path rather than covering a scope."
+    },
+    "d": {
+      "text": "Incorrect. The payload + XOR gateway pattern works well for a single response choice, but it hides the happy path and does not cover a multi-step scope that can be cancelled anytime."
+    }
+  },
+  "explanation": "Event subprocesses are recommended when you need a larger scope that can react to events arriving at any time, such as a cancellation that may interrupt several activities. They keep the happy path clean while still handling deviations as messages arrive.",
+  "docs": [
+    {
+      "title": "Service integration patterns",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

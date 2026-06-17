@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q09",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A travel-booking process needs to handle an interesting case: after a customer pays for a trip, either the flight gets confirmed OR a \"no-availability\" message arrives within 30 minutes. The team wants the BPMN to express race between two specific outcomes, then take a different downstream path per outcome.",
+  "question": "Which BPMN gateway + event pattern fits \"race between message and timer, with diverging downstream paths\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An Exclusive Gateway evaluates data conditions synchronously when a token arrives. It cannot wait for asynchronous events to arrive from external systems. To implement a race between a message arrival and a timer expiry, the process would need a Service Task or other polling mechanism to set the flag variable, losing the event-driven semantics entirely. The design also cannot natively cancel the other competing event path."
+    },
+    {
+      "id": "b",
+      "text": "Event-Based Gateway with three outgoing event paths: (1) Intermediate Message Catch for flight-confirmed, (2) Intermediate Message Catch for no-availability, and (3) Intermediate Timer Catch for PT30M. The gateway pauses execution and makes all three event paths simultaneously active. The first event to fire wins the race, its downstream path is taken, and all other candidate listeners are atomically cancelled. Each downstream path independently models the activities appropriate to that outcome. This is BPMN's canonical construct for racing multiple asynchronous events with diverging outcome paths."
+    },
+    {
+      "id": "c",
+      "text": "Parallel Gateway split followed by a downstream Exclusive Gateway that picks the outcome based on which event arrived first -- the Parallel split activates all outgoing branches simultaneously, including activating the waiting state for both message events and the timer. This means the process is waiting for all three events rather than racing them: it expects flight-confirmed AND no-availability AND the timer to all eventually arrive. This design does not model a race; it models waiting for multiple independent completions. A downstream Exclusive cannot cancel the Parallel branches that are still waiting."
+    },
+    {
+      "id": "d",
+      "text": "Two parallel Receive Tasks placed after a Parallel Gateway split, each waiting for its respective message -- this pattern lacks the built-in race cancellation semantic that Event-Based Gateway provides. Both Receive Tasks become active simultaneously and remain active independently. When one message arrives and is consumed, the other Receive Task remains waiting indefinitely. There is no automatic cancellation of the sibling Receive Task when one completes. Managing the race outcome would require additional compensation or boundary event logic that significantly complicates the model."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Event-Based Gateway is BPMN's race construct over incoming events. Its semantics: pause execution at the gateway, all outgoing events become \"candidate listeners,\" the first to fire takes its branch, all sibling listeners are atomically cancelled. With three outgoing paths (two messages + one timer), exactly one of the three downstream paths runs based on which event arrived first. Each downstream path is independent -- no need for an additional gateway. This is the canonical \"race with diverging outcomes\" pattern."
+    },
+    "b": {
+      "text": "Correct. Exclusive evaluates conditions on data variables -- it can't wait for incoming events. You'd have to manually update a variable and then evaluate; that's not the race semantic."
+    },
+    "c": {
+      "text": "Incorrect. Parallel split runs both branches; would activate both waiting events simultaneously and wait for both to fire -- defeats the \"race\" intent."
+    },
+    "d": {
+      "text": "Incorrect. Multiple Receive Tasks don't have a built-in race semantic."
+    }
+  },
+  "explanation": "Exclusive evaluates conditions on data variables -- it can't wait for incoming events. You'd have to manually update a variable and then evaluate; that's not the race semantic.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-based-gateways/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q09",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

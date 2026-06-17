@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An e-commerce platform's discount engine uses DMN to determine which discount tier applies. The rules are: (1) loyalty customers get base discount; (2) bulk orders get base discount; (3) seasonal sale adds extra. A customer could match multiple rules. The marketing team's requirement is \"if multiple rules match, the order matters -- earlier rules (by row position) take precedence, and the engine should return only the first match\".",
+  "question": "Which Hit Policy fits this \"first-match-wins by row order\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FIRST hit policy -- evaluates decision table rules sequentially in row-definition order (top to bottom), returns the output of the first rule whose conditions match, and ignores all subsequent matching rows entirely. Row position encodes priority semantics: row 1 always wins over row 2 when both match. This is the canonical DMN hit policy for \"first-match-wins by row order\" requirements. md."
+    },
+    {
+      "id": "b",
+      "text": "UNIQUE hit policy -- requires that at most exactly one rule matches for any given input combination. If multiple rules match simultaneously, the DMN engine reports a hit-policy violation error. This is the appropriate policy when decision rules are designed to be mutually exclusive, but it is unsuitable for the discount engine scenario where loyalty and bulk-order rules can overlap and the team explicitly requires first-match semantics rather than exclusivity enforcement."
+    },
+    {
+      "id": "c",
+      "text": "PRIORITY hit policy -- when multiple rules match, returns the output value with the highest declared output priority ranking (based on output column enumeration order). 3 specification, it ranks by declared output priority, not by row position."
+    },
+    {
+      "id": "d",
+      "text": "ANY hit policy -- allows multiple rules to match simultaneously but requires that all matching rules produce identical output values. If multiple rules match and produce different outputs, the engine reports a violation. ANY is designed for scenarios where overlapping rules are expected but must agree -- not for \"first-match-wins\" priority semantics. It cannot select one winner when matched rules produce different discount percentages, making it unsuitable for this discount engine."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. FIRST is the canonical Hit Policy for \"first-match-wins by row order\". The engine evaluates rules top-down in row position; the first rule whose conditions match has its output returned, all subsequent matches are ignored. Use when row order encodes priority semantics. Per decision-table-hit-policy.md lines 26-53, Camunda 8 supports exactly five hit policies: UNIQUE, ANY, FIRST, RULE ORDER, COLLECT."
+    },
+    "b": {
+      "text": "Incorrect. UNIQUE forbids multiple matches -- different semantics."
+    },
+    "c": {
+      "text": "Incorrect. First, PRIORITY is not in Camunda 8's supported hit-policy list (only UNIQUE / ANY / FIRST / RULE ORDER / COLLECT per decision-table-hit-policy.md lines 26-53); even where supported in the DMN-1.3 spec it would order by declared output priority, not row position."
+    },
+    "d": {
+      "text": "Incorrect. ANY requires agreement, not first-wins."
+    }
+  },
+  "explanation": "FIRST is the canonical Hit Policy for \"first-match-wins by row order\". The engine evaluates rules top-down in row position; the first rule whose conditions match has its output returned, all subsequent matches are ignored. Use when row order encodes priority semantics. Per decision-table-hit-policy.md lines 26-53, Camunda 8 supports exactly five hit policies: UNIQUE, ANY, FIRST, RULE ORDER, COLLECT.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

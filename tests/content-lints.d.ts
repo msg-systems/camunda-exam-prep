@@ -9,5 +9,9 @@ declare module '*/content-lints.mjs' {
     where: string;
   }
 
-  export function lintQuestion(q: unknown): LintFinding[];
+  export interface LintOptions {
+    mode?: 'strict' | 'lenient';
+  }
+
+  export function lintQuestion(q: unknown, opts?: LintOptions): LintFinding[];
 }

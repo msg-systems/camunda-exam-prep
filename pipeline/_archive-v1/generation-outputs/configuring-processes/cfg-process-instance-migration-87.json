@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-87",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A fintech runs 3000 instances per day. In some instances service task A charge-customer is currently active; in others it has already completed. The target process definition adds a new compensation boundary event to task A. The team must choose the migration plan that ensures a compensation subscription exists for as many instances as possible after migration completes.",
+  "question": "Which mapping correctly migrates the in-flight instances so a compensation subscription is created for the instances still active on service task A?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Map service task A to A so a compensation subscription is opened on completion of the active element A in the target process; instances that already finished A receive no new compensation subscription"
+    },
+    {
+      "id": "b",
+      "text": "Map service task A to B so the engine retroactively attaches the new compensation boundary event to every prior execution of A and opens compensation subscriptions for already-completed instances"
+    },
+    {
+      "id": "c",
+      "text": "Provide no mapping for service task A so the engine adds a default compensation subscription to every active element instance in the source process regardless of its element id"
+    },
+    {
+      "id": "d",
+      "text": "Map service task A to A and add a variable instruction compensateOnMigration set to true so the engine immediately opens compensation subscriptions for already-completed instances of A"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. When a compensation boundary event is added during migration, a new compensation subscription is opened only for activity instances that are currently active or have not started yet. Mapping A to A is enough; finished instances of A do not receive a new compensation subscription."
+    },
+    "b": {
+      "text": "Incorrect. The engine never opens compensation subscriptions retroactively for activity instances that have already completed. Mapping A to B would also change the active element instead of preserving its identity for the migration."
+    },
+    "c": {
+      "text": "Incorrect. A migration plan must map every active element. Without a mapping for service task A the validation step rejects the command, so no compensation subscriptions are opened during migration at all."
+    },
+    "d": {
+      "text": "Incorrect. There is no compensateOnMigration variable contract in process instance migration. Compensation subscriptions for already-finished activities cannot be opened by any migration plan, regardless of variable instructions provided."
+    }
+  },
+  "explanation": "Compensation boundary events follow a special rule during migration: a new compensation subscription is opened only for activity instances that are currently active or have not started yet, never for activity instances that already finished before the migration ran.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q16",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An IDP application extracts data with per-field confidence. The team wants different confidence thresholds per field: vendorName needs ≥0.95 (high stakes), invoiceDate needs ≥0.85, lineItems needs ≥0.75. If any field is below its threshold, route to human review.",
+  "question": "Which BPMN + FEEL pattern handles per-field confidence thresholds?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The IDP extraction task in Camunda 8 enforces a single global confidence threshold configured at the IDP model level. Separate per-field thresholds cannot be implemented at the BPMN level because the IDP task processes all fields together and returns a single pass/fail result. Per-field confidence values are available in the IDP task output, and FEEL expressions on downstream Exclusive Gateways can implement any per-field threshold logic needed."
+    },
+    {
+      "id": "b",
+      "text": "75 for lineItems -- as a global threshold applied uniformly to all fields. 75, route to human review. 95. Fields with different business importance should have different thresholds."
+    },
+    {
+      "id": "c",
+      "text": "75 -- when true, route to human review; when false, continue automated processing. Alternatively, encapsulate the threshold logic in a DMN decision for cleaner separation and easier threshold maintenance."
+    },
+    {
+      "id": "d",
+      "text": "Per-field confidence thresholds are a feature that the IDP framework does not support at all. Once the IDP task completes extraction, the individual field confidence values are not accessible to downstream BPMN process logic, so threshold-based routing must be implemented externally through a separate worker or service. Per-field confidence values are available in the IDP task output and fully accessible to FEEL expressions and DMN decisions in the downstream BPMN flow."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per-field thresholds are a common IDP-with-BPMN pattern. The IDP task exposes confidence per field; the BPMN-level FEEL expression on the gateway evaluates each field's confidence against its threshold. Two implementation styles: Inline FEEL on the gateway: as shown -- explicit OR of per-field checks. Quick to model. DMN-driven: a DMN decision encapsulates the thresholds; gateway evaluates the DMN result. Cleaner separation; thresholds become declarative data; easier to change. Practical pattern: also log which field(s) triggered human review for analytics on IDP model improvement."
+    },
+    "b": {
+      "text": "Incorrect. Per-field thresholds achievable."
+    },
+    "c": {
+      "text": "Correct. Different fields warrant different thresholds."
+    },
+    "d": {
+      "text": "Incorrect. Supported."
+    }
+  },
+  "explanation": "Different fields warrant different thresholds.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/idp/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q16",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

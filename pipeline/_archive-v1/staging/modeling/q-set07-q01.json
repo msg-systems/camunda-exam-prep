@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q01",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A saga-style flight-booking process consists of three sequential steps: reserve-seat, charge-card, send-confirmation. Each step has an attached Compensation Boundary Event with a handler (release-seat, refund-card, cancel-confirmation). If the send-confirmation step fails for any reason -- partner system down, network blip, invalid email -- the team needs to trigger the entire compensation chain so all previously-completed steps are rolled back. The trigger must be a single BPMN element placed on the failure path. (Note: if rollback order matters (refund-before-release-seat), see the activityRef-chained variant below.)",
+  "question": "Which BPMN construct fires this compensation cascade?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Error End Event with errorCode = \"ROLLBACK\" -- throws a BPMN error that propagates upward to a matching Error Boundary Event or Event Subprocess Error Start on the enclosing scope. While it can route the process to an error handling branch, it does not invoke Compensation Boundary handlers, because compensation is a distinct BPMN event type from error events. Error propagation travels upward through scope hierarchy; compensation targets completed activities within the same scope. The flight booking saga requires actual compensation handler invocation, which only a Compensation Throw provides."
+    },
+    {
+      "id": "b",
+      "text": "md:32 34). This is the canonical BPMN saga rollback trigger; it doesn't end the process abnormally, it triggers the compensation handlers and then completes once all invoked handlers finish (:28 29). , refund card before release seat), chain multiple Compensation Intermediate Throw events each with activityRef=\"<id>\" per :73 83 -- each scoped throw runs that activity's handler synchronously, giving deterministic per activity ordering."
+    },
+    {
+      "id": "c",
+      "text": "Terminate End Event -- immediately kills all active tokens in the current scope, cancelling all in progress work. This construct is useful for hard abort scenarios where you need to stop execution immediately, but it provides no compensation semantics. For saga rollback the result is the customer stays charged and the seat stays reserved with no cleanup."
+    },
+    {
+      "id": "d",
+      "text": "Signal End Event with signal name \"ROLLBACK\" -- broadcasts the signal to all subscribed Signal Catch listeners across the entire Zeebe cluster, not just the current process scope. This broadcast propagation model differs fundamentally from compensation, which is scope local and targets only activities that completed within the same subprocess or process scope. Signal events are not associated with Compensation Boundary handlers, so wiring up Signal Catch events still would not trigger the saga rollback chain in any standardized BPMN way."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Compensation Throw is the BPMN-spec-defined mechanism for saga rollback. It traverses the completed activities in the throw event's scope and invokes each attached Compensation Boundary's handler concurrently, without a guaranteed order (per compensation-events.md:32-34: \"The process instance invokes all compensation handlers at once without any specific order\"). The throw event remains active until all handlers complete (:28-29). For ordered rollback, the BPMN-idiomatic pattern is multiple Compensation Intermediate Throws chained in sequence, each carrying activityRef=\"\" to compensate one specific activity (:73-83). The modeller attaches a handler per reversible step, throws compensation when needed, and the engine handles the cascade -- no custom orchestration needed beyond ordering throws if order matters."
+    },
+    "b": {
+      "text": "Correct. Error events serve a different purpose: signalling exceptional conditions for catch-and-recover. They do not interact with Compensation Boundary Events. Using Error here would route the flow to an error-handling path but the prior reserve-seat / charge-card work would remain in the \"completed\" state with no rollback occurring."
+    },
+    "c": {
+      "text": "Incorrect. Terminate kills all live tokens immediately. It's destructive, not corrective. Completed work isn't reverted -- the engine simply stops further execution. For saga rollback this is the worst option: the customer's card stays charged, the seat stays reserved, and nothing notifies anyone."
+    },
+    "d": {
+      "text": "Incorrect. Signals broadcast cluster-wide. They can be caught by Signal Catch Events anywhere; this is a global notification mechanism, not scope-local rollback. Even if you wire up Signal Catch handlers, you lose the BPMN-spec compensation guarantee of reverse-order invocation in the same scope."
+    }
+  },
+  "explanation": "Error events serve a different purpose: signalling exceptional conditions for catch-and-recover. They do not interact with Compensation Boundary Events. Using Error here would route the flow to an error-handling path but the prior reserve-seat / charge-card work would remain in the \"completed\" state with no rollback occurring.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q01",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

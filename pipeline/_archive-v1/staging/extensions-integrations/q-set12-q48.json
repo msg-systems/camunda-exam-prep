@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q48",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression must compute \"30 days from now in Berlin time\": =date and time(today() + duration(\"P30D\"), time(\"09:00:00@Europe/Berlin\")). The team wonders about timezone-aware date arithmetic.",
+  "question": "Does FEEL support timezone-aware date arithmetic?",
+  "options": [
+    {
+      "id": "a",
+      "text": ", +02:00 or -05:00). UTC is represented with the Z suffix. Timezone-aware arithmetic correctly handles DST transitions when adding calendar durations -- for example, adding duration(\"P1D\") represents one calendar day and handles the 23- or 25-hour boundaries at DST transition dates. Comparisons between values with different timezone designations normalize to UTC for consistent ordering."
+    },
+    {
+      "id": "b",
+      "text": "Claiming that FEEL only supports UTC for timezone-aware date arithmetic is only partially correct. FEEL does support UTC via the Z suffix, but timezone support goes beyond UTC. , +02:00, -05:30) for representing time values in specific timezone offsets. , @Europe/Berlin, @America/New_York), which correctly handles DST transitions rather than using a fixed offset. For DST-aware scheduling, IANA named zones provide more accurate results than fixed offsets during timezone transitions."
+    },
+    {
+      "id": "c",
+      "text": "FEEL fully supports timezone-aware date arithmetic for date and time and time values. Two timezone syntaxes are supported: IANA named zones using the @<IANA> suffix -- for example time(\"09:00:00@Europe/Berlin\") -- which is a Camunda FEEL extension, and fixed UTC offsets such as +02:00 or -05:00. UTC is represented with the Z suffix. Timezone-aware calendar duration arithmetic correctly handles DST transitions: adding duration(\"P30D\") to a Berlin-time value correctly accounts for whether DST boundaries fall within that period, unlike fixed-offset arithmetic which may produce off-by-one-hour results. Comparisons between temporal values with different timezone designations normalize to UTC for consistent ordering."
+    },
+    {
+      "id": "d",
+      "text": "FEEL's temporal system is specifically designed to handle timezones correctly. Values with timezone information compare and combine predictably because comparisons normalize to UTC and calendar-duration arithmetic handles DST boundaries. Far from breaking FEEL, using timezones produces more accurate results than omitting them for scheduling, SLA calculation, and deadline management use cases. Teams should include explicit timezone information in temporal values that represent real-world points in time to avoid ambiguity and incorrect behavior at DST transition boundaries."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL's temporal types support timezones: Constructors with TZ: Named zone: date and time(\"2026-05-14T09:00:00@Europe/Berlin\") -- IANA zone name. Offset: date and time(\"2026-05-14T09:00:00+02:00\") -- fixed offset from UTC. UTC explicit: date and time(\"2026-05-14T09:00:00Z\") -- Z = UTC. Arithmetic: Add duration: dt + duration(\"PT24H\") -- adds 24 hours; preserves zone. Add years/months duration: dt + duration(\"P1M\") -- adds 1 calendar month. Subtract: dt2 - dt1 returns duration. DST handling: Adding \"1 day\" handles DST transitions (e.g., spring-forward / fall-back days are 23 / 25 hours). Adding \"24 hours\" is strictly 24 hours (may produce same wall-clock time on different days). Subtle semantics; FEEL implementations should follow ISO 8601 / RFC standards. Comparisons: Two date and time values compared: engine normalises to UTC equivalent; result is consistent regardless of input zones. 2026-05-14T11:00:00+02:00 and 2026-05-14T09:00:00Z represent the same moment; FEEL treats them as equal. Best practices: Store in UTC: process variables hold UTC date-and-time values; display in user's zone if needed. Explicit zones in expressions: avoid implicit zone assumptions. Test DST edges: critical for scheduling around transition dates."
+    },
+    "b": {
+      "text": "Incorrect. Supported."
+    },
+    "c": {
+      "text": "Correct. Named zones + offsets."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Named zones + offsets.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-temporal/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q48",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[1]"
+      }
+    ]
+  }
+}

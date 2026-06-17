@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-modification-43",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lumen Bank operates a payments orchestration in Camunda 8.8 across 3000 transactions per day. An on-call engineer wants to use process instance modification to repair 12 instances after a partial outage of PT2H, but a senior architect cautions that the engine does not detect every unsafe modification and recommends rehearsing the command on a non-production cluster first.",
+  "question": "What outcome does the documentation say the engine does not detect when an operator modifies a process instance?",
+  "options": [
+    { "id": "a", "text": "The engine rejects an activation that would deadlock a parallel joining gateway, surfacing the conflict to the caller as a rejection on the command." },
+    { "id": "b", "text": "The engine validates that all variables expected at the activated element are present and blocks the modification until missing variables are supplied." },
+    { "id": "c", "text": "The engine detects when activating an element inside an interrupting event subprocess would skip an interruption and prevents the modification automatically." },
+    { "id": "d", "text": "Unreachable outcomes like parallel-gateway deadlocks, missing variables, or skipped interruptions inside a modification command are left undetected by the broker." }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documentation gives the example of activating task A again and leaving the process instance stuck on the parallel gateway, which shows that the engine does not reject deadlock-inducing activations on its own." },
+    "b": { "text": "Incorrect. The documentation gives the example of activating task D without setting the variables a message would have provided, which shows that the engine does not block activations due to missing variables." },
+    "c": { "text": "Incorrect. The documentation gives the example of activating task E inside an interrupting event subprocess, where the existing task C is not interrupted and variables can be overridden, which shows that the engine does not detect a skipped interruption." },
+    "d": { "text": "Correct. The page calls out three unsafe outcomes, parallel-gateway deadlock, missing variables, and skipped interruption, and states explicitly that the engine does not detect these situations, so it is up to the operator to apply suitable modifications." }
+  },
+  "explanation": "Process instance modification is powerful but unguarded against unreachable states. The engine will not refuse activations that create parallel-gateway deadlocks, leave required variables unset, or bypass an interruption; testing on a non-production cluster or with Camunda Process Test is the documented safeguard.",
+  "docs": [
+    { "title": "Process instance modification", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/" }
+  ]
+}

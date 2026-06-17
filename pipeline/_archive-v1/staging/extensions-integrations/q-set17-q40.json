@@ -1,0 +1,63 @@
+{
+  "id": "imp-set17-q40",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL needs to determine day of week from date -- e.g., is it Saturday. Wonders function. FEEL day of week function?",
+  "question": "FEEL day of week function?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No such function -- wrong typically."
+    },
+    {
+      "id": "b",
+      "text": "Manual calculation from date components is needed to determine the day of week -- this is overcomplicated. Calculating the day of week from raw date components like year, month, and day requires implementing a Zeller's congruence or Tomohiko Sakamoto algorithm. Using manual arithmetic would be error-prone, harder to maintain, and far less readable than the idiomatic FEEL solution. The built-in function should always be used when available."
+    },
+    {
+      "id": "c",
+      "text": "md:43-65: the function accepts either a date or a date and time argument and returns an English day name string -- one of \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\", or \"Sunday\". \" There is no numeric variant in Camunda 8 FEEL. For business day checks use day of week(date) in [\"Saturday\", \"Sunday\"]; for scheduling use string comparison against the returned name."
+    },
+    {
+      "id": "d",
+      "text": "Day of week is determined by subtracting dates from a known epoch -- this does not accurately reflect the behavior. Date subtraction in FEEL yields a duration value, not a day-of-week name. While it is technically possible to compute a day index by subtracting a known reference date and taking the remainder modulo 7, this is far more complex and error-prone than using the built-in day of week function. FEEL provides the temporal function specifically to avoid this kind of manual calculation."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL day of week: Signature per feel-built-in-functions-temporal.md:47-55: day of week(date: date): string OR day of week(date: date and time): string -- returns English day name (always). Examples (verbatim from :60-65): `feel day of week(date(\"2019-09-17\")) → \"Tuesday\" day of week(date and time(\"2019-09-17T12:00:00\")) → \"Tuesday\" day of week(today()) → current English day name For weekday check: feel isWeekend: day of week(date) in [\"Saturday\", \"Sunday\"] isWeekday: not(day of week(date) in [\"Saturday\", \"Sunday\"]) No numeric variant in C8 FEEL: day of week returns string only (English day name) -- there is NO day of week(date): number overload. For numeric weekday, manual map: if day of week(d) = \"Monday\" then 1 else if ... else 7 via Decision Table or nested if-then-else. Other temporal functions (per Set 14 Q40): year(date): extract year. month(date): extract month. day(date): extract day. hour(time): extract hour. Use cases: Use case 1: Business hours: feel isBusinessDay: day of week(date) in [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\"] Common pattern. Use case 2: Weekend pricing: feel isWeekend: day of week(date) in [\"Saturday\", \"Sunday\"] weekendPremium: if isWeekend then amount * 1.5 else amount Use case 3: Schedule lookup: feel dayName: day of week(today()) schedule: schedules[dayName] For locale: Day names typically English in FEEL. For locale-specific names: translate manually. For business day calculation: Pattern: skip weekends: feel // For \"next business day\" // FEEL doesn't natively know holidays // For weekends only: next: if day of week(today() + duration(\"P1D\")) in [\"Saturday\", \"Sunday\"] then today() + duration(\"P3D\") // skip to Monday else today() + duration(\"P1D\") Combine with date arithmetic. For holidays: Native FEEL doesn't know: holiday calendars. Pre-compute externally: pass holidays list as variable. For Decision Tables: Input: day of week Rules: \"Monday\" → \"regular\" \"Tuesday\" → \"regular\" ... \"Saturday\" → \"weekend\" \"Sunday\" → \"weekend\" Map day to category. For time portion: feel day of week(date and time(\"2026-05-20T14:00:00\")) → \"Wednesday\" Date-time argument also supported. For comparing dates: feel isSameDay: date(a) = date(b) Compare date portions. For week number: week of year(date): number per feel-built-in-functions-temporal.md:91-113 -- ISO 8601 week number; verbatim example week of year(date(\"2019-09-17\")) → 38. Useful for: weekly reports. For day of year: day of year(date): number per feel-built-in-functions-temporal.md:67-89 -- Gregorian day number 1-365/366; verbatim example day of year(date(\"2019-09-17\")) → 260. Combinations: feel // Last Friday of month (advanced) ...complex calculation... May require custom logic. For internationalisation: English names: typical. For other locales: map via DT or BKM. feel // Map English to German dayDE: if day of week(date) = \"Monday\" then \"Montag\" else if day of week(date) = \"Tuesday\" then \"Dienstag\" ... Or via lookup table. For testing: Test all days of week. Weekend / weekday edge cases. For scheduling: Business calendar logic: combines day of week + holidays + business hours. External calendar service: for complex. For Operate visibility: Day extracted from date: visible in variables. Useful for filtering. For audit: Track which day of week operations performed. Compliance: e.g., banking transactions weekday-only. Anti-patterns: Manual calculation: when built-in exists. Hardcoded date logic: brittle. Best practices: Use built-in day of week. Combine with other functions: for business logic. Test edge cases: month boundaries, leap years. External calendar for holidays. For the scenario (is it Saturday): feel isSaturday: day of week(date) = \"Saturday\" Only string comparison -- no numeric form in C8 FEEL. For full weekend: feel isWeekend: day of week(date) in [\"Saturday\", \"Sunday\"] ` For FEEL version: Function name + return type: verify. Camunda 8 specific: docs."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Overcomplicated."
+    },
+    "c": {
+      "text": "Correct. overcomplicated."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-temporal/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q40",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 13.8 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

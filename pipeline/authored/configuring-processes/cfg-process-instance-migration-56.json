@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-56",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A completed exclusive gateway routed the token to active service task `A`. The target process replaces the gateway and tasks `A` and `B` with a single service task `C` of the same type. The instance is migrated with mapping `A`->`C`. What is true about the job associated with the active task after migration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The job keeps its original properties, including the job type that was set when it was associated with `A`; the target task's job type definition is not re-applied."
+    },
+    {
+      "id": "b",
+      "text": "The job is cancelled and re-created using `C`'s job type so workers immediately see the new task definition."
+    },
+    {
+      "id": "c",
+      "text": "The mapping is rejected because the target element ID `C` differs from the source element ID `A`."
+    },
+    {
+      "id": "d",
+      "text": "The mapping is rejected because the active service task should have been mapped to a user task to model the workflow change."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Jobs, expressions, and input mappings are not recreated during migration. The job associated with active task `A` continues to exist with its original job type after migration to `C`."
+    },
+    "b": {
+      "text": "Migration does not recreate jobs. To create a fresh job from `C`'s definition you would use process instance modification, which terminates and re-activates the task."
+    },
+    "c": {
+      "text": "Mapping is by element ID pairs; the source and target IDs do not need to match. Mapping `A` to `C` is exactly the documented pattern for renamed-but-same-type elements."
+    },
+    "d": {
+      "text": "You cannot map an element to an element of a different type. A service task can only be mapped to a service task, not to a user task."
+    }
+  },
+  "explanation": "An active service task can be migrated to a target service task of the same type by providing a mapping instruction; source and target IDs do not have to match. However, the associated job is not recreated and its job type stays the same as it was on the source task. Mapping across element types (for example, service task to user task) is not allowed.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A book-publishing process must process chapter edits in a fixed order -- Chapter 1 first, then Chapter 2, then Chapter 3. Order is critical (later chapters depend on earlier ones being finalised). The list of chapters comes from a process variable.",
+  "question": "Which BPMN construct fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Sequential Multi-Instance Subprocess over chapters -- runs one instance at a time in order. Each instance processes one chapter; the next starts only after the previous completes. This guarantees Chapter 1 finishes before Chapter 2 begins, satisfying the dependency requirement while iterating dynamically over the chapters variable. Understanding this characteristic is essential for the Camunda 8 Certified Professional examination."
+    },
+    {
+      "id": "b",
+      "text": "Parallel Multi-Instance runs all chapter instances concurrently, which defeats the ordering requirement. Chapter 3 could complete before Chapter 1, violating the dependency chain. It is faster but semantically wrong for this scenario where each chapter depends on the previous being finalised first. Teams building on Camunda 8 should consider this when designing process models for production deployment. Camunda 8 architects must account for this when designing solutions."
+    },
+    {
+      "id": "c",
+      "text": "Three explicit User Tasks -- one per chapter -- hardcodes the number of chapters. If the chapters variable contains a different count, the model breaks. It does not scale with the process variable and forces a static model update whenever the chapter count changes. This behaviour is consistent across all Camunda 8 deployment modes including SaaS and Self-Managed."
+    },
+    {
+      "id": "d",
+      "text": "A single Service Task with a FEEL for chapter in chapters return process(chapter) expression hides the iteration entirely inside the task. This loses BPMN observability -- each chapter's progress is invisible in Operate -- and eliminates per-chapter error handling, boundary events, and incident granularity that the subprocess approach provides."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Sequential Multi-Instance processes the collection in order, one instance at a time. Each iteration runs only after the previous finishes -- perfect for \"Chapter N depends on N-1 being done.\""
+    },
+    "b": {
+      "text": "Incorrect. Parallel runs concurrently, breaking the dependency."
+    },
+    "c": {
+      "text": "Incorrect. Hardcodes 3 chapters; doesn't scale with variable list."
+    },
+    "d": {
+      "text": "Incorrect. FEEL loops in Service Tasks lose BPMN observability and per-iteration error handling."
+    }
+  },
+  "explanation": "Sequential Multi-Instance processes the collection in order, one instance at a time. Each iteration runs only after the previous finishes -- perfect for \"Chapter N depends on N-1 being done.\"",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

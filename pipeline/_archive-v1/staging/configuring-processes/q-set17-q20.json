@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Migrating V1 → V2 process. V1 has active Timer Boundary \"PT24H\" running. Wonders timer migration behavior.",
+  "question": "Migration with active Timer events?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Timers always reset -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Process instance migration is categorically blocked whenever active Timer events are present -- this does not accurately reflect the behavior. Camunda 8 process instance migration can handle instances with active Timer events. The migration plan must include explicit element mappings for Timer elements. When a Timer element is included in the mapping, the engine preserves the existing timer configuration and expiry time. Migration documentation covers specific timer considerations, but the presence of timers alone does not prevent migration."
+    },
+    {
+      "id": "c",
+      "text": "Timer migration considerations: when migrating a process instance that has an active Timer Intermediate Catch Event or Timer Boundary Event, the mapped timer element in the target process definition retains the original due date calculated from the source process. This means the timer expiry time is preserved from when it was first scheduled, not recalculated from the migration point. Unmapped timer elements will be cancelled as part of migration."
+    },
+    {
+      "id": "d",
+      "text": "After migrating a process instance, all active Timer events automatically restart with fresh durations from the migration point -- this partially mischaracterizes timer migration behavior. Migration does not automatically restart timer durations from zero. When a timer element is part of the migration mapping, the original expiry time is preserved. The timer continues counting from its original schedule. If teams need timers to restart with fresh durations, they must explicitly cancel and re-create elements through additional migration plan actions."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Migration + Timer events: Timer states: Active: scheduled to fire. Has firing time: e.g., \"fire at 2026-05-20T17:00:00\". Configurable: ISO 8601 duration / date / cycle. Migration behavior (verify per version): Case 1: Same Timer config in V2: Timer migrates: state (firing time) preserved. Continues running as before. Case 2: Timer config changes in V2: Behavior depends: may reset or preserve. Verify migration spec. Case 3: Timer element removed in V2: Timer cancelled: not applicable in V2. In-flight tokens at Timer: handled per migration plan. Case 4: New Timer in V2: No effect on existing: timer relevant if migrated element passes through it. Configuration considerations: For dynamic Timer (FEEL): Computed at activation: based on variables. Migration: state stays. For Timer Cycle (recurring): Scheduled per cycle: each fire creates new schedule. Migration: depends on current cycle state. For Timer Boundary on User Task: Both User Task + Boundary need to migrate. User Task state: includes assignee, claim, etc. Boundary: timer state. For complex scenarios: Scenario A: V1 task with PT24H Timer; V2 task with PT48H Timer (same ID): Migrate: Timer state? V2 config? Verify Camunda 8 behavior. Likely: preserves V1's scheduled fire time. Scenario B: V1 task with PT24H Timer; V2 task without Timer: Migrate to V2 task: Timer cancelled. In-flight task continues: without Timer. Scenario C: V1 task without Timer; V2 task with Timer: Migrate: Timer activated? When does it fire from? Verify per version. For testing: Staging environment: with realistic in-flight timers. Verify behavior: matches expectation. Document edge cases. For drastic changes: Cohabitation (per Set 14 Q18): Let V1 instances finish: with their timers. New instances on V2. No migration: avoids timer complexity. For timers with hard deadlines: Migration shouldn't extend timers: surprise users. Communicate: if timers reset. For timer events at process root: Process-level Timer Boundary: migrates with process. Same considerations. For Timer Event Subprocess: Non-interrupting Timer Event Subprocess: per Set 16 Q2. State migration: verify. For Operate visibility: Active timers shown: per process instance. Fire time visible. Verify post-migration: timers correct. For audit: Migration event logged. Timer behavior changes: documented. Best practices: Minimize timer config changes across versions. Test migration in staging: with in-flight timers. Document migration impact: on timers. For breaking timer changes: cohabitation preferred. Anti-patterns: Migrating without testing timers: surprises. Drastic timer changes: user impact. No"
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q20",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 29 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 19.1 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

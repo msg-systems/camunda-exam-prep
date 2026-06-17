@@ -1,0 +1,30 @@
+{
+  "id": "ext-jobworker-autocomplete-false",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Given the Spring Boot worker declaration above, what is your responsibility inside the method?",
+  "codeBlocks": {
+    "stem": "@JobWorker(type = \"X\", autoComplete = false)\npublic void doWork(JobClient client, ActivatedJob job) { ... }"
+  },
+  "options": [
+    { "id": "a", "text": "Explicitly call `client.newCompleteCommand(job.getKey()).send()` (or send a fail / throw-error command)." },
+    { "id": "b", "text": "Return a variables map — the SDK still completes the job for you." },
+    { "id": "c", "text": "Throw an exception when the work is done to signal completion." },
+    { "id": "d", "text": "Nothing — the SDK polls the broker to know when the job is finished." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "With `autoComplete = false` the SDK does not call complete for you. You own the job lifecycle and must send a complete, fail, or throw-error command via the `JobClient`. This is useful for async work that outlives the method invocation." },
+    "b": { "text": "Returning a map only matters when `autoComplete = true`; with it disabled, the SDK ignores the return value." },
+    "c": { "text": "Throwing on success would be interpreted as a failure and decrement retries." },
+    "d": { "text": "The broker does not poll workers; workers poll the broker via `ActivateJobs`, and with `autoComplete = false` the worker must explicitly complete." }
+  },
+  "explanation": "Disabling `autoComplete` means the SDK no longer wraps the method with a complete-on-return behaviour. The worker must explicitly call complete, fail, or throw-error on the `JobClient` so the broker advances or retries the job.",
+  "docs": [
+    { "title": "Spring Zeebe - @JobWorker", "url": "https://docs.camunda.io/docs/apis-tools/spring-zeebe-sdk/getting-started/" }
+  ]
+}

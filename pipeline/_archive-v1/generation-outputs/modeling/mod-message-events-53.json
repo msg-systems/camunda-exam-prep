@@ -1,0 +1,27 @@
+{
+  "id": "mod-message-events-53",
+  "topic": "modeling",
+  "subtopic": "message-events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vanta Retailer publishes 4000 order-shipped events per day in Camunda 8.8 from a fulfilment process and must clarify how Zeebe handles an intermediate message throw event placed just before the end event of the customer order flow, since the platform team plans to register a dedicated job worker for the outbound publication.",
+  "question": "How does Zeebe process an intermediate message throw event so the process instance can continue?",
+  "options": [
+    { "id": "a", "text": "Zeebe publishes the payload itself to a configured Kafka topic and waits for the broker acknowledgement before the instance continues" },
+    { "id": "b", "text": "Zeebe creates a job of the configured job type and waits for a registered job worker to complete it before the instance continues" },
+    { "id": "c", "text": "Zeebe correlates the thrown message to a matching catch event in the same cluster and continues once correlation succeeds in the broker" },
+    { "id": "d", "text": "Zeebe routes the thrown message through an inbound connector that must acknowledge receipt before the process instance continues running" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The message throw events section does not describe Zeebe publishing payloads to Kafka itself; integration with a Kafka topic is the job of an external job worker that the platform team would register." },
+    "b": { "text": "Correct. The message throw events section states that on entering the throw event Zeebe creates a corresponding job and waits for its completion, which a job worker requesting that job type must process before the instance continues." },
+    "c": { "text": "Incorrect. The note on the message throw events section says these events are not processed by Zeebe to correlate to a catch event; correlation is the role of message catch events, not message throw events." },
+    "d": { "text": "Incorrect. Inbound connectors deliver messages into a process; the throw event is outbound and is handled through the job worker mechanism rather than an inbound connector callback." }
+  },
+  "explanation": "Intermediate message throw events behave like service or send tasks: Zeebe issues a job of the configured type and the instance waits for a job worker to complete it before flow continues, with no internal correlation to a catch event.",
+  "docs": [
+    { "title": "BPMN message events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/" }
+  ]
+}

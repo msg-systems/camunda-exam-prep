@@ -1,0 +1,27 @@
+{
+  "id": "mod-compensation-events-105",
+  "topic": "modeling",
+  "subtopic": "compensation-events",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Apex Logistics runs a Camunda 8.8 procurement workflow that reserves inventory across 8 warehouses for each purchase order. After payment rejects 2000 transactions per day, the model must undo the inventory reservations recorded by the earlier completed service task while leaving running activities untouched.",
+  "question": "Which BPMN element pairs the completed service task with a handler that runs the reversal logic in Camunda 8.8?",
+  "options": [
+    { "id": "a", "text": "A signal boundary event attached to the completed service task is associated with a compensation handler that runs the reversal logic for that task in the same scope" },
+    { "id": "b", "text": "A compensation boundary event attached to the completed service task is associated with a compensation handler that runs the reversal logic for that task in the same scope" },
+    { "id": "c", "text": "A compensation intermediate throw event attached to the completed service task runs the reversal logic for that task directly without a separate handler activity defined" },
+    { "id": "d", "text": "A terminate end event placed after the completed service task is associated with a reversal handler that runs the reversal logic for the same completed task in the scope" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Signal boundary events react to broadcast signals; they are not the BPMN element that wires the compensation activity to its reversal handler in the compensation pattern documented for Camunda 8." },
+    "b": { "text": "Correct. The compensation events page states that a compensation boundary event is attached to the activity to compensate, and the compensation handler associated with that boundary event is the activity that reverts the effects of the original task." },
+    "c": { "text": "Incorrect. A compensation intermediate throw event triggers compensation in its scope; it does not itself host the reversal logic and it does not attach to the completed activity as a boundary event." },
+    "d": { "text": "Incorrect. Terminate end events end a scope without invoking any reversal handler; the documented compensation pattern wires a boundary event on the activity to an associated compensation handler." }
+  },
+  "explanation": "BPMN compensation pairs the compensation activity, which carries a compensation boundary event, with a compensation handler activity. When a compensation throw event fires in the scope, that handler is what actually performs the reversal of the original task.",
+  "docs": [
+    { "title": "BPMN compensation events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/" }
+  ]
+}

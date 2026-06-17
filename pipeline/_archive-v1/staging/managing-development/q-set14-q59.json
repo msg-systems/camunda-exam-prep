@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q59",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team wants BPMN linting to enforce conventions (naming, structure, no unauthorized Connectors) in CI before deployment. Team wonders about lint tools.",
+  "question": "BPMN linting / CI rules?",
+  "options": [
+    {
+      "id": "a",
+      "text": "BPMN linting tools exist: - bpmnlint (community / open-source): configurable rules for BPMN files. - Custom checks: scripts parsing BPMN XML; validate company rules. - CI integration: run on every PR; fail if violations. - Rule examples: element naming conventions, max process complexity, banned elements, required documentation. - Element Templates as part of governance (per Set 13 Q51)."
+    },
+    {
+      "id": "b",
+      "text": "BPMN linting tools do exist for enforcing modeling conventions in CI pipelines. The \bpmnlint open-source tool provides a configurable rule engine for BPMN files. Camunda Web Modeler and Desktop Modeler also include built-in linting for BPMN syntax validation. Beyond these, custom scripts can parse BPMN XML to check company-specific naming conventions, forbidden elements, or missing documentation. Claiming no linting options exist overlooks a well-established ecosystem of BPMN quality tooling."
+    },
+    {
+      "id": "c",
+      "text": "BPMN linting options extend well beyond Camunda's built-in modeler validation. The open-source \bpmnlint tool runs independently in CI pipelines with configurable rules for naming conventions, structural patterns, and forbidden elements. Custom BPMN XML parsing scripts allow teams to enforce any company-specific governance rules not covered by standard linters. Camunda's own modeler linting focuses on BPMN syntax correctness, while \bpmnlint and custom scripts address broader architectural and governance concerns."
+    },
+    {
+      "id": "d",
+      "text": "BPMN lint rules can be enforced in CI pipelines by running \bpmnlint or custom BPMN XML parsing scripts as pipeline steps. Since BPMN files are stored as XML in version control, CI tools like GitHub Actions, Jenkins, or GitLab CI can execute linting on every pull request. A failed lint check blocks the merge or deployment, providing the same governance enforcement as code linting. This pattern is widely used for large Camunda projects to prevent modeling anti-patterns from reaching production."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. BPMN linting + governance options: bpmnlint (community tool): What: open-source linter for BPMN files. Run via CLI or as JavaScript library. Configurable rules. Plugins for custom rules. Built-in rules: Element labels (require name attribute). End event presence. Sequence flow validity. Gateway divergence-convergence balance. Many more (depending on bpmnlint version). Custom rules: Write JavaScript plugins. Implement organisation-specific conventions. CI integration: `yaml # .github/workflows/lint.yml name: Lint BPMN files run: | npm install -g bpmnlint bpmnlint diagrams/.bpmn Fail build on violations; require modeler to fix. Custom XML parsing: For custom rules not covered by bpmnlint: python # Parse BPMN XML; check custom rules from xml.etree import ElementTree as ET tree = ET.parse('process.bpmn') root = tree.getroot() # Rule: All Service Tasks must have specific job worker prefix for task in root.iter('{http://www.omg.org/spec/BPMN/...}serviceTask'): # Check task definition extension # Validate type starts with \"com.company:\" ... Rule examples: Naming conventions: All element IDs follow pattern. All elements have non-empty name attributes. Element names not blank / too long / too short. Structure: No more than N tasks per process (complexity limit). All paths have End events. No orphan elements. Governance: Only approved Connector types used. Required documentation on User Tasks. No empty BPMN annotations. Versioning: Element Template versions consistent. Process IDs follow versioning convention. Domain rules: Specific Service Tasks for billing must have retries ≥ 3. Customer-facing processes must have Timer Boundary (SLA enforcement). For DMN, FEEL, Forms: DMN linting: Custom XML parsers. Verify hit policy + default rule. Check decision IDs. FEEL linting: Inline expressions in BPMN/DMN. Validate syntax (use FEEL parser). Check for common mistakes (type coercions, null handling). Form linting: Form JSON structure. Required fields conventions. Validation rules presence. CI workflow: yaml on: [pull_request] jobs: lint: runs-on: ubuntu-latest steps: uses: actions/checkout@v3 name: Setup Node uses: actions/setup-node@v3 run: npm install -g bpmnlint run: bpmnlint diagrams//.bpmn name: Custom checks run: python scripts/lint-bpmn.py diagrams/ Pre-commit hooks: yaml # .pre-commit-config.yaml repo: local hooks: id: bpmn-lint name: BPMN Lint entry: bpmnlint files: \\.bpmn$ ` Catches violations before commit. Element Templates as governance (per Set 13 Q51): Constrain modelers to use approved patterns. Element Templates encode conventions. BPMN linter verifies template usage. Combined approach: 1. Element Templates: positive control -- provide approved options. 2. BPMN Linter: negative control -- block violations. 3. Web Modeler design-time checks: immediate feedback. 4. CI checks: enforce before deploy. 5. Code review: human eyes on changes. For the scenario (linting BPMN in CI): Step 1: Define organization rules: Naming conventions. Approved Connectors. Required elements. Complexity limits. Step 2: Configure bpmnlint (or build custom): Use built-in rules where possible. Add custom plugins for org-specific. Step 3: Integrate in CI: PR / branch hooks. Fail build on violations. Step 4: Educate team: Document conventions. Provide examples. Iterate based on common violations. Best practices: Start with minimal rules: build up gradually. Document why: each rule has a reason. Provide auto-fix where possible: e.g., automatic ID generation. Allow exceptions with justification: not every rule fits every case. Review rules periodically: stale rules accumulate."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "BPMN linting + governance options: bpmnlint (community tool): What: open-source linter for BPMN files. Run via CLI or as JavaScript library. Configurable rules. Plugins for custom rules. Built-in rules: Element labels (require name attribute). End event presence. Sequence flow validity. Gateway divergence-convergence balance. Many more (depending on bpmnlint version). Custom rules: Write JavaScript plugins. Implement organisation-specific conventions. CI integration: `yaml # .github/workflows/lint.yml name: Lint BPMN files run: | npm install -g bpmnlint bpmnlint diagrams/.bpmn Fail build on violations; require modeler to fix. Custom XML parsing: For custom rules not covered by bpmnlint: python # Parse BPMN XML; check custom rules from xml.etree import ElementTree as ET tree = ET.parse('process.bpmn') root = tree.getroot() # Rule: All Service Tasks must have specific job worker prefix for task in root.iter('{http://www.omg.org/spec/BPMN/...}serviceTask'): # Check task definition extension # Validate type starts with \"com.company:\" ... Rule examples: Naming conventions: All element IDs follow pattern. All elements have non-empty name attributes. Element names not blank / too long / too short. Structure: No more than N tasks per process (complexity limit). All paths have End events. No orphan elements. Governance: Only approved Connector types used. Required documentation on User Tasks. No empty BPMN annotations. Versioning: Element Template versions consistent. Process IDs follow versioning convention. Domain rules: Specific Service Tasks for billing must have retries ≥ 3. Customer-facing processes must have Timer Boundary (SLA enforcement). For DMN, FEEL, Forms: DMN linting: Custom XML parsers. Verify hit policy + default rule. Check decision IDs. FEEL linting: Inline expressions in BPMN/DMN. Validate syntax (use FEEL parser). Check for common mistakes (type coercions, null handling). Form linting: Form JSON structure. Required fields conventions. Validation rules presence. CI workflow: yaml on: [pull_request] jobs: lint: runs-on: ubuntu-latest steps: uses: actions/checkout@v3 name: Setup Node uses: actions/setup-node@v3 run: npm install -g bpmnlint run: bpmnlint diagrams//.bpmn name: Custom checks run: python scripts/lint-bpmn.py diagrams/ Pre-commit hooks: yaml # .pre-commit-config.yaml repo: local hooks: id: bpmn-lint name: BPMN Lint entry: bpmnlint files: \\.bpmn$ ` Catches violations before commit. Element Templates as governance (per Set 13 Q51): Constrain modelers to use approved patterns. Element Templates encode conventions. BPMN linter verifies template usage. Combined approach: 1. Element Templates: positive control -- provide approved options. 2. BPMN Linter: negative control -- block violations. 3. Web Modeler design-time checks: immediate feedback. 4. CI checks: enforce before deploy. 5. Code review: human eyes on changes. For the scenario (linting BPMN in CI): Step 1: Define organization rules: Naming conventions. Approved Connectors. Required elements. Complexity limits. Step 2: Configure bpmnlint (or build custom): Use built-in rules where possible. Add custom plugins for org-specific. Step 3: Integrate in CI: PR / branch hooks. Fail build on violations. Step 4: Educate team: Document conventions. Provide examples. Iterate based on common violations. Best practices: Start with minimal rules: build up gradually. Document why: each rule has a reason. Provide auto-fix where possible: e.g., automatic ID generation. Allow exceptions with justification: not every rule fits every case. Review rules periodically: stale rules accumulate.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/bpmn-coverage/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q59",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

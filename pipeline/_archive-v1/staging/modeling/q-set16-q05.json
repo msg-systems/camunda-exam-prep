@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process has Lane \"Operations\" with sub-lanes \"EU Ops\" and \"US Ops.\" Team wonders if BPMN supports nested lanes.",
+  "question": "Hierarchical / nested lane sets?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only flat lanes -- wrong typically."
+    },
+    {
+      "id": "b",
+      "text": "Use multiple pools -- this resolves a different design concern. Multiple pools represent distinct external process participants (separate organizations or systems), not sub-teams within the same process. For internal organizational hierarchy like \"Operations → EU Ops / US Ops,\" nested lanes within a single pool are the appropriate BPMN construct. Multiple pools imply separate process engines or participant boundaries and require Message Flow for communication between them. Using multiple pools for sub-team organization within one company's process would misrepresent the architecture and introduce unnecessary complexity."
+    },
+    {
+      "id": "c",
+      "text": "BPMN supports nested lanes via LaneSets: each Lane element can contain its own child LaneSet, which in turn contains child Lanes. This supports hierarchical organizational visualization such as \"Operations\" as an outer lane containing \"EU Ops\" and \"US Ops\" as inner lanes. Lanes in Camunda 8 are documentary elements that help visualize responsibility but do not automatically enforce task assignment. Explicit candidateGroups on User Tasks are still required for runtime routing. The nested lane structure persists in the BPMN XML and is supported by the Web Modeler and Desktop Modeler. Keep nesting shallow (two levels max) for readability."
+    },
+    {
+      "id": "d",
+      "text": "Lanes remain a valid and actively supported BPMN construct in Camunda 8. They provide visual organization within pools, showing which role or team is responsible for each activity. 0 specification and are rendered correctly in Web Modeler and Desktop Modeler. Deprecation of lanes has not occurred; teams regularly use them to communicate process ownership to stakeholders and subject-matter experts reviewing diagrams."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Lane hierarchy in BPMN: BPMN spec hierarchy: ` Pool └─ LaneSet ├─ Lane \"Operations\" │ └─ LaneSet (child) │ ├─ Lane \"EU Ops\" │ └─ Lane \"US Ops\" ├─ Lane \"Sales\" └─ Lane \"Finance\" Each Lane can have own LaneSet → recursion. Use cases: Use case 1: Geographic divisions: \"Operations\" → \"EU\", \"US\", \"APAC\". Each region has own teams. Use case 2: Department + sub-teams: \"Engineering\" → \"Backend\", \"Frontend\", \"DevOps\". Show team structure. Use case 3: Role hierarchy: \"Management\" → \"Senior\", \"Junior\". Approval level visualisation. Visualisation: Nested rectangles: lanes within lanes. Indented or stacked: per Modeler. Activities placed in deepest lane: visual ownership. In Camunda 8: Lanes are typically documentary (per Set 14 Q5). Don't auto-assign tasks: explicit candidateGroups needed. Visual organisation: helps readers. For assignment: Map lane to group: convention. Use group in User Task candidateGroups` (per Set 14 Q22). Lane name = group name: typical. Web Modeler support: Verify version's support for nested lanes. Some modelers may have limits on nesting depth. Anti-patterns: Over-nested lanes: confusing diagrams. 3+ levels deep: usually indicates flow needs refactoring. Lanes without semantic meaning: visual clutter. For complex organisations: Alternative: separate processes per division: Each region has own process model. Call Activities to invoke common subprocess. Pros: independent evolution; Cons: more coordination. Alternative: parameterised process: Single process; region as variable. Routing logic based on region. Pros: DRY; Cons: complex conditional logic. For the scenario (EU Ops + US Ops under Operations): Approach A: Nested lanes (if supported): \"Operations\" outer lane. \"EU Ops\", \"US Ops\" inner lanes. Activities placed in inner. Approach B: Flat lanes: \"EU Operations\", \"US Operations\" at same level. Names indicate hierarchy implicitly. Approach C: Pool per region: \"EU Process\", \"US Process\" as separate pools. Common collaboration model. For genuinely separate processes. Best practices: Keep nesting shallow: 2 levels typically max. Use lanes for visual responsibility: not for routing. Combine with explicit assignment: candidateGroups. Document lane semantics: in BPMN annotations. Visual conventions: Outer lane: department / division. Inner lane: team / role. Activities in lane: indicate ownership. For collaboration with external participants (per Set 14 Q5): Use pools, not nested lanes. Lanes for internal organisation. Pools for external participants."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q05",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 18.4 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

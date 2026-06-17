@@ -1,0 +1,50 @@
+{
+  "id": "mod-send-tasks-30",
+  "topic": "modeling",
+  "subtopic": "send tasks",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "You are modeling a send task that publishes to a Kafka topic `payment`. Which BPMN elements do you set so the job worker knows the job type and the destination topic?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A `zeebe:taskDefinition` with `type` (for example `kafka`) and a `zeebe:taskHeader` such as `kafka-topic` = `payment`."
+    },
+    {
+      "id": "b",
+      "text": "A `bpmn:messageEventDefinition` referencing a message named `payment` with `correlationKey` set to the topic name."
+    },
+    {
+      "id": "c",
+      "text": "A `zeebe:signalEventDefinition` with `name` = `payment`; the worker subscribes to that signal name."
+    },
+    {
+      "id": "d",
+      "text": "Only a `zeebe:taskDefinition` with `type`; the worker discovers the topic from process variables automatically."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "A send task must define a `taskDefinition` job type the same way a service task does, and static parameters such as the Kafka topic name are passed via task headers."
+    },
+    "b": {
+      "text": "`messageEventDefinition` is for message events, not send tasks; send tasks are job-based and use `taskDefinition` plus task headers."
+    },
+    "c": {
+      "text": "Signal events are unrelated to send tasks. Send tasks are job-based and configured with `taskDefinition` plus task headers."
+    },
+    "d": {
+      "text": "Zeebe does not auto-resolve static parameters from variables; the topic name belongs in a task header, with variable mappings used only when the value must be dynamic."
+    }
+  },
+  "explanation": "A send task is defined the same way as a service task. Set a `taskDefinition` with a `type` for the worker to subscribe to (for example `kafka`) and use task headers to pass static configuration such as the destination topic. Variable mappings can additionally transform variables passed to the worker.",
+  "docs": [
+    {
+      "title": "BPMN send tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/send-tasks/"
+    }
+  ]
+}

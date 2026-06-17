@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A custom Outbound Connector built with the Connector SDK calls a partner API. The team configures input parameters (URL, headers) via FEEL expressions evaluated at runtime, and the output is mapped to a process variable. The connector definition specifies input and output mapping properties.",
+  "question": "Which approach correctly defines Connector input/output handling?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A Custom Connector built with the Connector SDK must define its own proprietary XML input-mapping schema separate from standard BPMN extension elements, and FEEL expression evaluation is unavailable for Custom Connector input parameters because only built-in Camunda Connectors receive FEEL evaluation support from the Connector runtime. FEEL expression resolution is fully available for Custom Connectors -- the Connector SDK handles FEEL evaluation automatically when input properties are bound via zeebe:input in the element template. Custom Connectors receive FEEL-evaluated values through @Variable annotated parameters."
+    },
+    {
+      "id": "b",
+      "text": "A Custom Connector's input and output bindings are statically hardcoded in the Java implementation class -- all parameter names, types, and mappings are fixed at compile time. BPMN process designers cannot customise input values at deploy time because the SDK provides no mechanism for external property configuration. Connector inputs are externalised through element template zeebe:input bindings, which allow BPMN designers to configure values via the Web Modeler UI at design time. The SDK's @Variable annotation then maps the runtime-evaluated values from the BPMN element's properties into the Java method parameters."
+    },
+    {
+      "id": "c",
+      "text": "Custom Connectors implemented with the Connector SDK are simply Job Workers with extra annotations -- at runtime, the Connector receives the complete Zeebe job activation payload as its input, and the developer accesses process variables directly from the job variables map without any SDK-specific type-safe abstraction or FEEL expression handling. While Connectors do run as Zeebe job workers internally, the SDK provides a higher-level abstraction: @Variable annotated parameters receive FEEL-evaluated, type-safe values from the element template bindings rather than raw job variable maps. *}}), POJO binding, and output routing."
+    },
+    {
+      "id": "d",
+      "text": "The class is annotated @OutboundConnector(name, type); each method declares @Operation(id); method parameters use @Variable(name = \"input\") for primitive inputs or @Variable MyInputPojo for a complex POJO (field names → variable names), with @Header(name) for job headers. The SDK auto-resolves FEEL expressions from the BPMN element's properties (declared in the element template's zeebe:input bindings) and binds them to the typed parameters / POJO fields. The method's return value (primitive, POJO, or record) becomes the connector output -- mapped into process variables via the Result Variable / Result Expression custom job headers."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per connector-sdk.md (\"Outbound connector runtime logic\"): the class implements OutboundConnectorProvider and carries @OutboundConnector(name, type); each operation method carries @Operation(id); parameters use @Variable(name = \"X\") for primitives or @Variable MyPojo for complex types (POJO field names map to variable names; Jakarta Validation @NotNull works during binding). @Header(name) binds static job headers. The method's return value (primitive, POJO, record) becomes the connector result; the BPMN element's Result Variable / Result Expression custom headers (zeebe:taskHeader bindings) map that result into process variables. The SDK handles FEEL evaluation, secret substitution ({{secrets.*}}), type conversion, and variable binding."
+    },
+    "b": {
+      "text": "Incorrect. Custom Connectors support FEEL; SDK does the resolution."
+    },
+    "c": {
+      "text": "Incorrect. Inputs are externalised via the BPMN element's properties (with element templates for design-time UI)."
+    },
+    "d": {
+      "text": "Correct. Yes, Connectors are Job Workers internally, but the SDK provides a higher-level abstraction (input POJO mapping, response handling, type-safe FEEL eval)."
+    }
+  },
+  "explanation": "Yes, Connectors are Job Workers internally, but the SDK provides a higher-level abstraction (input POJO mapping, response handling, type-safe FEEL eval).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/#outbound-connector-runtime-logic"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q46",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q16",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "AI Agent Connector calls OpenAI API. OpenAI returns 429 (rate limit) intermittently during peak hours. Team wonders about rate limit handling.",
+  "question": "AI Agent rate limit handling strategies?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No mitigation strategies exist for AI Agent rate limits in Camunda 8 â€” thdoes not fully apply claim overlooks several built-in capabilities. Camunda 8 AI Agent Connector supports configurable retry policies with exponential backoff, enabling automatic retry when rate limits are hit. Sequential Multi-Instance patterns enforce serialized execution rates. Job worker throttling through the maxJobsActive parameter limits concurrent job acquisition, indirectly controlling API call rates. Additionally, Camunda process models can include explicit Timer Intermediate Catch Events or conditional delays between AI Agent calls to honor vendor-imposed rate limits."
+    },
+    {
+      "id": "b",
+      "text": "Retries alone without backoff can exacerbate rate limiting by hammering the provider repeatedly in quick succession. Comprehensive rate limit handling requires multiple complementary layers: retries with exponential backoff (using retryBackoff task header), concurrency limiting (maxParallelJobs in TypeScript SDK or max-jobs-active in Spring Boot Starter), application-level token bucket rate limiting, and respecting the Retry-After header from 429 responses. Single-layer retry without backoff may worsen the situation during peak periods."
+    },
+    {
+      "id": "c",
+      "text": "max-jobs-active (Spring Boot Starter) limits concurrent LLM calls; (4) Application-level token bucket/leaky bucket rate limiter in worker code prevents burst; (5) Respect Retry-After header from 429 response; (6) Monitor and capacity-plan LLM tier upgrades for persistent rate limiting. Combining these layers prevents cascading failures during peak hours."
+    },
+    {
+      "id": "d",
+      "text": "Switching to a different LLM provider resolves all rate limiting issues -- this overstates a valid but extreme mitigation option. , OpenAI to Anthropic) or multi-provider load balancing can address rate limits but introduces significant complexity: different API contracts, different model capabilities and behaviors, added maintenance burden, and potential capability gaps. Switching providers should be a last resort after exhausting within-provider solutions like tier upgrades, request optimization, application-level rate limiting, and concurrency controls. Most 429 issues during peak hours are addressable with proper backoff, concurrency limits, and capacity planning without changing providers."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Rate limit handling layers: Layer 1: Provider-side recognition: 429 Too Many Requests: Standard HTTP status for rate limit. Retry-After header: provider hints when to retry. Example: Retry-After: 30 → wait 30 seconds. Layer 2: BPMN retries: Configure retries on AI Agent Service Task (e.g., 3-5). On 429: worker reports job.fail(); retry decrement. Subsequent retry attempts after activation timeout / backoff. Layer 3: Backoff via process model: ` [AI Agent Task] │ ├─ Error Boundary(\"RATE_LIMIT\") → [Timer 30s] → loop back to AI Agent └─ Normal completion → next Map 429 to BPMN error \"RATE_LIMIT\"; explicit backoff via Timer. Layer 4: Application-level rate limiting: Token bucket: refill at rate; consume per request. Sliding window: count requests in window; reject if over. Leaky bucket: enforce constant outflow rate. Implementation: in worker code or middleware. Layer 5: Concurrency limits: maxParallelJobs on TypeScript SDK worker (Pattern #42; legacy name maxJobsActive is the Java client name -- current TS option is maxParallelJobs). camunda.client.worker.defaults.max-jobs-active on Camunda Spring Boot Starter (properties-reference.md). Bound concurrent LLM calls. Prevents burst overrunning provider quota. Layer 6: Per-tenant quotas: Inside worker code: track quota per customer / process instance. Reject or queue when quota exhausted. Prevent one customer from consuming entire budget. Combined pattern: Process variable: ai_request_count [AI Agent Task with retries=3, type=\"ai-agent\"] │ Worker code: Check rate limit budget If over: throw BPMN \"RATE_LIMIT\" error Else: call OpenAI On 429: throw BPMN \"RATE_LIMIT\" error with Retry-After value │ ├─ Error Boundary(\"RATE_LIMIT\") → [Timer dynamic per error info] → loop back └─ Normal → continue ` Tools / libraries: Resilience4j (Java): rate limiter, retry, circuit breaker. Bottleneck (Node.js): rate limiting library. Sentinel (Java): rate limiting framework. Best practices: Respect Retry-After: don't hammer when provider asks for delay. Exponential backoff: 1s → 2s → 4s → 8s. Jitter: randomise backoff to avoid thundering herd. Circuit breaker: if persistent 429, stop trying for a while. Capacity planning: monitor usage; upgrade tier if needed. Pre-rate-limit: client-side to never exceed provider limit. Capacity planning: Estimate peak: requests/sec at busy times. Compare with LLM tier: free vs paid; tier limits. Upgrade tier: if consistently hitting limits, larger plan. Cost vs reliability trade-off. Monitoring: 429 rate: track over time. Latency: rate-limited requests add delay. Cost: rate limit hits indicate over-usage. Alert on persistent rate limiting: signals undersized plan. Anti-patterns: No retry on 429: process fails on first rate limit. Immediate retry: hits same limit; loops fast. Ignoring Retry-After: longer delay than necessary or too short. No rate limiting at all: hammer provider; sudden spikes fail. For multi-provider AI: Failover: primary rate-limited → secondary provider. Cost-based routing: cheap model first; premium for failures. Load balancing: distribute across providers. For the scenario (peak hours 429s): Add retries if not already. Add backoff between retries: 30s or per Retry-After. Application-level rate limiter in worker: smooth out spikes. Monitor: track 429 rate; capacity-plan upgrade if persistent."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/agentic-ai-aiagent"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q16",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

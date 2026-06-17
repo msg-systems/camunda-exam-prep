@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q44",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's backend service makes many concurrent API calls to Camunda 8 (creating instances, completing tasks, etc.). They worry about hitting rate limits on the Camunda 8 side.",
+  "question": "Does Camunda 8 enforce API rate limits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Claiming there are no rate limits at all is only partially accurate. For Self-Managed Camunda 8 deployments, the cluster does not enforce hard API rate limits by default -- the practical limit is the cluster's hardware capacity for CPU, memory, and disk I/O. Under heavy load, even Self-Managed clusters can return backpressure signals. Best practice for any deployment model includes implementing client-side rate limiting with a token bucket or semaphore to cap outgoing request rates, and applying exponential backoff with jitter when RESOURCE_EXHAUSTED or HTTP 429 responses are received."
+    },
+    {
+      "id": "b",
+      "text": "No such universal fixed limit is documented as applying to all Camunda 8 clusters. SaaS tiers have plan-specific limits that vary by subscription tier and are not uniformly 100/sec. Self-Managed deployments do not have a hard 100/sec limit by default. The actual limits depend on the deployment type, the subscription tier for SaaS, and any custom gateway configuration applied by operators. Teams should consult their specific SaaS plan documentation or their Self-Managed cluster configuration rather than assuming a fixed universal limit."
+    },
+    {
+      "id": "c",
+      "text": "Rate limit behavior in Camunda 8 depends on the deployment model and version. SaaS clusters enforce per-plan rate limits at the gateway, which vary by subscription tier -- starter, professional, and enterprise tiers have different limits. Self-Managed clusters can be configured with custom gateway rate limits but have no hard default limits out of the box. Symptoms of hitting limits include gRPC RESOURCE_EXHAUSTED status codes (the gRPC equivalent of HTTP 429) and HTTP 429 Too Many Requests responses. Mitigation requires a combination of client-side rate limiting using a token bucket or semaphore to control outgoing request rates, and exponential backoff with jitter when receiving throttle responses. Teams should consult their specific SaaS plan documentation for current limits."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 does implement server-side backpressure mechanisms that return RESOURCE_EXHAUSTED gRPC status codes or HTTP 429 responses when the cluster is overloaded. Proactive client-side rate limiting using a token bucket or semaphore prevents excess requests from being sent in the first place, reducing errors, improving stability, and avoiding cascading load spikes. Both server-side backpressure handling and client-side rate limiting are needed together."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 API rate limiting: SaaS (managed by Camunda): Per-cluster tier limits (varies by plan). Enforced at the gateway / API layer. Returns rate-limit errors when exceeded. Self-Managed: Default no hard limits in the broker / API. Operator may configure custom limits (e.g., via API gateway / ingress controllers / Zeebe gateway settings). Cluster capacity is the practical limit (CPU / memory / disk I/O). Symptoms when exceeded: gRPC: RESOURCE_EXHAUSTED status (status code 8). REST: HTTP 429 Too Many Requests. Slow responses: under heavy load, gateway may queue and respond slowly. Client mitigations: Rate limit client-side: cap outgoing rate to stay under limits. Backoff on rate-limit errors: exponential backoff with jitter. Batch when possible: fewer, larger requests vs many small. Concurrency cap: limit parallel in-flight requests. Multiple workers / instances: distribute load across worker fleet. Capacity planning: Monitor request rate over time. If consistently approaching limits, scale up (tier change in SaaS; cluster scaling in SM)."
+    },
+    "b": {
+      "text": "Incorrect. Depends."
+    },
+    "c": {
+      "text": "Correct. Option d) -- Partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option d) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/zeebe-api/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q44",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

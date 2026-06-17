@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q07",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task's extension has type=\"send-email\". Team wonders what type means and how workers connect to it. Service Task taskDefinition type attribute?",
+  "question": "Service Task taskDefinition type attribute?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Service Task type value is an internal Camunda ID used for system routing â€” this mischaracterizes the zeebe:taskDefinition type attribute. The type is not a Camunda-internal identifier; it is a user-defined string that Job Workers subscribe to. The process model author defines the type string, and worker implementations subscribe to that exact string. Multiple workers can subscribe to the same type for load balancing. The type enables loose coupling between process definitions and worker implementations â€” changing the worker subscription string requires updating both the BPMN model and the worker configuration."
+    },
+    {
+      "id": "b",
+      "text": "The type attribute in zeebe:taskDefinition is optional and can be omitted -- this approach has limitations. The type attribute is required for Service Tasks in Camunda 8 because it is the identifier that connects the BPMN definition to the job worker. Without a type, the engine creates a job but no worker knows to pick it up, leaving the process stuck at the Service Task indefinitely. Camunda Operate would show the job in an ACTIVATABLE state with no active worker. The type is the fundamental contract between process model and worker implementation -- it cannot be omitted."
+    },
+    {
+      "id": "c",
+      "text": "The type attribute in zeebe:taskDefinition is assigned randomly by the engine -- this approach has limitations. The type attribute is a string value explicitly defined by the process modeler or developer in the BPMN XML. It is the deliberate identifier that creates a named contract between the process model and the job worker. , @JobWorker(type = \"send-email\") in Spring Boot Starter). A randomly assigned type would break this contract, making it impossible for workers to reliably subscribe to the correct jobs."
+    },
+    {
+      "id": "d",
+      "text": ", send-email). }) in the TypeScript SDK. Multiple worker instances can register for the same type -- the broker distributes jobs across them for load balancing. The type must match exactly between BPMN and worker code; mismatches leave jobs in ACTIVATABLE state."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Task Type semantics in Camunda 8: In BPMN XML: `xml The type attribute: Identifies the task type. String value: any non-empty string. Required for Service Tasks (so engine knows which worker to route to). Worker registration: Java (Camunda Spring Boot Starter) -- apis-tools/camunda-spring-boot-starter/ per Pattern #18: java @JobWorker(type = \"send-email\") public Map handleSendEmail(@Variable String to, @Variable String body) { // send the email } (Note: legacy apis-tools/spring-zeebe-sdk/ is being removed in 8.10; io.camunda.spring.client.annotation.JobWorker is the current annotation surface.) TypeScript SDK (@camunda8/sdk) -- apis-tools/typescript/camunda8-sdk/ per Pattern #36: ts c8.createJobWorker({ type: \"send-email\", jobHandler: async (job) => { / ... / return job.complete(); } }); Job activation flow: 1. Process reaches Service Task; engine creates a job with type send-email. 2. Job available; workers polling for send-email activate. 3. One worker gets the job (load-balanced across registered workers). 4. Worker executes; reports complete / fail. 5. Engine advances process per result. Multiple workers same type: Multiple processes: each may include same Service Task type. Multiple worker instances: register same type; broker distributes. Implicit load balancing: brokers pick available workers. Naming conventions: Pattern 1: Domain-prefixed: com.company:send-email. billing:charge-card. Avoids collisions across teams. Pattern 2: Hierarchical: notifications.email.send. payments.card.charge. Clear domain hierarchy. Pattern 3: Simple: send-email, charge-card. Easier; risk of collision. Best practices: Stable type names: don't rename in production (workers depend on it). Descriptive: name describes the action. Avoid generic names: process, handle, do -- too vague. Document type contract: what variables expected, what outputs returned. Connector Task Type: Connectors have specific built-in types: io.camunda:http-json:1, etc. Versioning in type name (suffix :1, :2): allows upgrades. Element Templates abstract this; modeler sees friendly UI. Job lifecycle for type: At activation: Job has type, variables (per Input Mapping), headers (per task headers), and other metadata. Worker receives all. At completion: Worker reports complete(variables) or fail(errorMessage). Variables become output of task (subject to Output Mapping). Wrong type / no worker: No worker registered for type: job stays in ACTIVATABLE state. Eventually: process appears stuck. Operate shows: job pending without active worker. Diagnosis: check worker logs; verify type matches. For the scenario (type=\"send-email\"): BPMN declares this task is send-email type. Worker subscribes to send-email via Camunda Spring Boot Starter: java @JobWorker(type = \"send-email\") Worker activates when job available. Anti-patterns: Inconsistent type spelling: send-email in BPMN vs sendEmail` in worker → no match. Multiple workers different behavior same type: surprising results. Generic types: hard to evolve / debug. Best practices for type management: Source-control type names: shared constants between BPMN templates and worker code. Element Templates (per Set 13 Q51): hide type specifics from modelers. Document expected variables / outputs: contract per type."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong; required."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q07",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

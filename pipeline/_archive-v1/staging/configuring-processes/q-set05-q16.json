@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q16",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An IDP Application extracts data from invoice PDFs. The extraction returns a confidence score per field. The team wants to route low-confidence extractions (< 0.85) to a human-review path automatically.",
+  "question": "Which BPMN configuration fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "85. BPMN Error events are designed for exceptional, unexpected conditions -- not routine business outcomes. A low confidence score from IDP extraction is a normal and anticipated result of the document processing workflow, making BPMN Error the wrong abstraction. Routing decisions based on predictable business data should use gateways and conditions."
+    },
+    {
+      "id": "b",
+      "text": "Set a minConfidence property inside the IDP Application configuration; it auto-routes low-confidence results to a human-review path. No such minConfidence property exists in the IDP Application configuration that auto-routes flows. IDP extracts data and exposes confidence scores in the output result, but routing decisions based on those scores are delegated to BPMN gateway logic defined in the surrounding process model, not handled internally by IDP."
+    },
+    {
+      "id": "c",
+      "text": "85 routing to a human-review User Task, and the default flow continuing to automated processing. IDP exposes confidence scores in its result variable, making them available to FEEL conditions. This is the standard Camunda 8 pattern for data-driven routing after an extraction step with variable-quality results."
+    },
+    {
+      "id": "d",
+      "text": "The IDP Application does not expose confidence scores in its output result. This is factually flawed. IDP Applications in Camunda 8 extract structured data from documents and return a result that includes per-field confidence scores. These scores are accessible to downstream FEEL expressions and gateway conditions, enabling the process to route based on extraction quality and trigger human review when confidence is below a threshold."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. IDP exposes confidence in the result. Standard BPMN routing via Exclusive Gateway with FEEL condition handles low-confidence paths."
+    },
+    "b": {
+      "text": "Incorrect. BPMN Error is for exceptional cases; low confidence is normal business outcome."
+    },
+    "c": {
+      "text": "Correct. No auto-routing knob; routing is BPMN-level."
+    },
+    "d": {
+      "text": "Incorrect. Confidence is exposed."
+    }
+  },
+  "explanation": "No auto-routing knob; routing is BPMN-level.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/idp/idp-applications/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q16",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

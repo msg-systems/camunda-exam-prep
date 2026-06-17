@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Parallel Multi-Instance over orders runs in parallel for each order. The team wants the subprocess to complete as soon as 10 of N instances have completed (not wait for all).",
+  "question": "Which configuration fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set loopCardinality = 10 on the Multi-Instance configuration. The loopCardinality property defines the total number of instances to create when no input collection is specified. It does not control early completion -- it simply limits how many instances are spawned. Setting this to 10 would create exactly 10 instances rather than one per order in the collection, and would not cause early completion after 10 finish."
+    },
+    {
+      "id": "b",
+      "text": "There is no way to complete the Multi-Instance early; all instances must complete. This is factually flawed. Camunda 8 Multi-Instance supports the completionCondition FEEL expression property, which is evaluated after each instance completes. When the condition returns true, any still-running instances are cancelled and the Multi-Instance activity finishes, enabling partial completion well before all instances have finished executing their assigned work items."
+    },
+    {
+      "id": "c",
+      "text": "Wrap the Multi-Instance in an Event Subprocess that cancels the subprocess when 10 completions are counted. An Event Subprocess approach would require a separate timer or condition mechanism outside the Multi-Instance itself, adding unnecessary model complexity. The completionCondition on the Multi-Instance element directly handles early completion without any additional wrapping constructs or external cancellation triggers, keeping the model clean."
+    },
+    {
+      "id": "d",
+      "text": "Set the completionCondition of the Multi-Instance to a FEEL expression -- for example =numberOfCompletedInstances >= 10. Zeebe evaluates this expression after each instance completes using predefined variables numberOfInstances, numberOfCompletedInstances, numberOfActiveInstances, and numberOfTerminatedInstances. When the condition returns true, remaining active instances are cancelled and the Multi-Instance activity completes normally. The completionCondition approach avoids extra subprocesses, event subscribers, or counter variables, making it the idiomatic Camunda 8 solution for partial parallel completion scenarios."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. completionCondition is the standard MI knob for early completion. Predefined FEEL helpers: numberOfInstances, numberOfCompletedInstances, numberOfActiveInstances."
+    },
+    "b": {
+      "text": "Incorrect. loopCardinality limits total instances; doesn't enable early exit."
+    },
+    "c": {
+      "text": "Incorrect. completionCondition handles this."
+    },
+    "d": {
+      "text": "Correct. Event Subprocess workaround is not the canonical mechanism."
+    }
+  },
+  "explanation": "Event Subprocess workaround is not the canonical mechanism.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q14",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

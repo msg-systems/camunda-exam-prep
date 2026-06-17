@@ -1,0 +1,27 @@
+{
+  "id": "ext-routing-events-to-processes-115",
+  "topic": "extensions-integrations",
+  "subtopic": "process-internal-events",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Bank models a loan application process in Camunda 8.8 that handles 600 loans per week. The process asks the employer to confirm the applicant income. If the confirmation has not arrived within three business days, a clerk must investigate the situation. The team must pick the BPMN event that automatically fires after three business days of waiting.",
+  "question": "Which BPMN intermediate event fires after three business days when employer income confirmation has not yet arrived?",
+  "options": [
+    { "id": "a", "text": "Use an intermediate message event; the workflow engine routes a fresh income confirmation message into the single waiting loan application process instance." },
+    { "id": "b", "text": "Use an intermediate signal event; the workflow engine broadcasts the elapsed deadline to every waiting loan instance and resumes each of them in parallel." },
+    { "id": "c", "text": "Use an intermediate timer event; the workflow engine fires it once the configured duration elapses and lets a human clerk investigate the missing employer confirmation." },
+    { "id": "d", "text": "Use an intermediate conditional event; the workflow engine watches a variable and fires the boundary path as soon as new findings are recorded on the loan instance." }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. A message event reacts to an incoming income confirmation message routed to a single loan instance, not to the absence of a confirmation after a fixed waiting period such as three business days described in the scenario." },
+    "b": { "text": "Incorrect. A signal event routes a single trigger to every waiting instance at once. The three day deadline is a per instance time condition, which the routing events page maps to the timer event row of the table." },
+    "c": { "text": "Correct. The loan application example in the routing events best practice uses an intermediate timer event for the three business day wait; once the duration elapses, the clerk investigates the missing employer income confirmation as described in callout one." },
+    "d": { "text": "Incorrect. The conditional event reacts to a condition over process data when new findings are observed; the page also notes the conditional event is not yet supported in Camunda 8, so it cannot drive the three business day timeout." }
+  },
+  "explanation": "The loan application example uses an intermediate timer event for the three business day timeout; the conditional event in the same example covers the later case where new findings change the applicant employment status and is noted as not yet executable in Camunda 8.",
+  "docs": [
+    { "title": "Routing events to processes", "url": "https://docs.camunda.io/docs/components/best-practices/development/routing-events-to-processes/" }
+  ]
+}

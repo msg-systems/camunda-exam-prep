@@ -1,0 +1,69 @@
+{
+  "id": "imp-set17-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Spring Boot app with Camunda. Wants health endpoints showing Camunda connection. Wonders Actuator integration.",
+  "question": "Spring Boot Actuator + Camunda?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Actuator integration is absent from standard Camunda setup -- mistaken."
+    },
+    {
+      "id": "b",
+      "text": "md:1094-1117: the starter automatically registers health indicators with Spring Actuator when both are present on the classpath. The /actuator/health endpoint reflects Camunda component health including Zeebe connection status. Metrics for job workers, process execution, and connector activity are exposed through Micrometer and visible via Actuator. No manual integration code is required; the autoconfiguration detects Spring Actuator and configures the health endpoints automatically."
+    },
+    {
+      "id": "c",
+      "text": "Manual implementation of every health indicator is required -- this overstates the implementation effort. 8 does not auto-contribute a dedicated Zeebe connection health indicator (that requires a custom HealthIndicator bean wrapping a topology request), the standard Spring Boot health indicators for disk space, ping, and other standard components are automatically available. invocations metric is registered automatically by the Starter without manual code. The liveness and readiness probes for Kubernetes are provided by Spring Boot Actuator automatically. Only custom business-specific indicators need manual implementation."
+    },
+    {
+      "id": "d",
+      "text": "Camunda Console provides cluster-level observability for SaaS deployments, but that is one layer among several. Spring Boot Actuator provides the /actuator/health endpoint at the individual application level, which is essential for Kubernetes liveness and readiness probes. Prometheus metrics endpoints expose job invocation counters and JVM metrics. Operate provides process-level incident visibility. Console monitoring and application-level Actuator endpoints serve complementary roles and both are needed for a complete observability setup."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Actuator + Camunda: Spring Boot Actuator: Standard Spring: health, metrics, info endpoints. Pluggable indicators: app-specific. Spring Zeebe integration: Auto-config: Actuator health for Zeebe client. /actuator/health: includes Zeebe status. Components: client connection, workers. Setup: `xml org.springframework.boot spring-boot-starter-actuator Add dependency. yaml management: endpoints: web: exposure: include: health,info,metrics,prometheus endpoint: health: show-details: always Configure endpoints. Health endpoint response (Spring Boot defaults, no Camunda-specific health indicator documented in 8.8): json { \"status\": \"UP\", \"components\": { \"diskSpace\": { \"status\": \"UP\", \"details\": {...} }, \"ping\": { \"status\": \"UP\" } } } Standard Spring Boot health indicators. For Camunda-specific status, implement a custom HealthIndicator that wraps CamundaClient.newTopologyRequest().send().get() (per Pattern #54 -- Java client is CamundaClient since 8.8). For Kubernetes: yaml livenessProbe: httpGet: path: /actuator/health/liveness port: 8080 readinessProbe: httpGet: path: /actuator/health/readiness port: 8080 K8s probes use Actuator. For Prometheus: /actuator/prometheus Endpoint exposes metrics. Custom indicators: java @Component public class CustomHealthIndicator implements HealthIndicator { @Override public Health health() { // Check custom condition if (everythingOk()) { return Health.up().build(); } else { return Health.down() .withDetail(\"error\", \"something wrong\") .build(); } } } Auto-registered with Actuator. For Camunda 8 specific: Camunda Spring Boot Starter (Pattern #54 -- replaces deprecated Spring Zeebe SDK as of 8.8): auto-configures CamundaClient and exposes camunda.job.invocations metric. Connection health: NOT auto-contributed in 8.8 docs -- implement custom HealthIndicator if required. Worker activity: visible via camunda.job.invocations metric (activated/completed/failed/bpmn-error counts). For metrics: Standard Actuator metrics: JVM heap, GC. Thread pools. HTTP requests. Camunda Spring Boot Starter metrics per configuration.md:1094-1117: camunda.job.invocations tagged by job type, action ∈ {activated, completed, failed, bpmn-error}. Build custom rates/latencies via Micrometer registry layered on top. For dashboards: Grafana: scrape /actuator/prometheus. Visualise: per-app metrics. For alerting: Health-based alerts: from /actuator/health. Metric-based alerts: from Prometheus. Security considerations: Actuator endpoints: Sensitive info: don't expose publicly. Restrict access: auth required. yaml management: endpoints: web: exposure: include: health # only health publicly endpoint: health: show-details: when_authorized Restrict detail. For multi-environment: Dev: full details. Prod: limited; auth-required. For tracing: Sleuth / OpenTelemetry: integrate. Distributed tracing: across services. For info endpoint: /actuator/info: version + build info. Useful for deployment tracking. For service discovery: Eureka / Consul integration: register app. Camunda doesn't typically integrate with service discovery directly. For request mapping: /actuator/mappings: see all endpoints. For environment: /actuator/env: configuration. Restrict in prod: secrets visible. For thread dump: /actuator/threaddump`: diagnostics. Restricted: production caution. For Camunda Connectors: Connector Runtime: may have own Actuator. Separate health endpoints. For workers as separate Spring Boot apps: Each has Actuator. Per-worker health. For Camunda Operate (Spring-based): Has Actuator internally. Verify endpoints. Best practices: Enable Actuator: standard for Spring Boot. Limit public exposure: security. Use for K8s probes: liveness / readiness. Integrate metrics: Prometheus. Anti-patterns: Public unrestricted Actuator: security risk. No health monitoring: blind ops. Show-details=always in prod: data exposure. For the scenario (health endpoints): Add Actuator dependency. Configure endpoints. Spring Zeebe contributes Zeebe health. K8s probes use Actuator. For audit + compliance: Health checks: regulatory. Logged: per request."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Overstates."
+    },
+    "c": {
+      "text": "Incorrect. overstates."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Overstates.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/#observe-metrics"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q41",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[3]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 8.9 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

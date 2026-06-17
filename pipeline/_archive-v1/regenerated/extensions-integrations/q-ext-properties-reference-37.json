@@ -1,0 +1,50 @@
+{
+  "id": "ext-properties-reference-37",
+  "topic": "extensions-integrations",
+  "subtopic": "Spring Boot starter",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "An insurance platform on Camunda 8.8 runs a Spring Boot worker fleet that issues 800 requests per minute to a self-managed broker presenting a certificate signed by an internal Certificate Authority. The platform team needs the worker to trust that root CA without modifying the JVM default trust store on every host in the fleet.",
+  "question": "Which configuration role does the camunda.client.ca-certificate-path property play in the Camunda 8.8 Spring Boot starter?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It points to a PKCS12 keystore containing both the client certificate and key used during a mutual TLS handshake with the Camunda broker gateway"
+    },
+    {
+      "id": "b",
+      "text": "It points to the client private key file presented to the broker during a mutual TLS handshake when the client authenticates to the gateway"
+    },
+    {
+      "id": "c",
+      "text": "It points to a directory of CA bundles merged into the default JVM trust store when the client verifies the broker server certificate"
+    },
+    {
+      "id": "d",
+      "text": "It points to a root Certificate Authority certificate used instead of the certificate in the default trust store when verifying the broker"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The property takes a string path to a single root CA certificate used by the client to verify the broker; it is not a PKCS12 keystore holding the client side of a mutual TLS pair."
+    },
+    "b": {
+      "text": "Incorrect. ca-certificate-path is for trusting the broker certificate via a root CA; it does not configure the client private key presented during mutual TLS authentication."
+    },
+    "c": {
+      "text": "Incorrect. The property replaces the default trust certificate rather than merging additional CA bundles into the JVM default store, and its value is a single file path."
+    },
+    "d": {
+      "text": "Correct. camunda.client.ca-certificate-path is a string property whose value is the path to a root CA certificate used in place of the certificate in the default trust store."
+    }
+  },
+  "explanation": "camunda.client.ca-certificate-path lets the Camunda 8.8 Spring Boot starter trust a broker whose certificate is signed by a private root CA by pointing at a CA certificate file used instead of the certificate in the default trust store. The default value is null.",
+  "docs": [
+    {
+      "title": "Spring Boot starter properties reference",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/properties-reference/"
+    }
+  ]
+}

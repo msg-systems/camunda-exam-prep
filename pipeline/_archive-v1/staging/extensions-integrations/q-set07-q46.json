@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A backend service publishes a Message to correlate with a waiting subscription. The team wants the message to expire after 1 hour if no subscription correlates -- they don't want it to buffer indefinitely.",
+  "question": "Which message attribute controls TTL?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Message TTL has no effect in Camunda 8 -- messages buffer indefinitely until a matching subscription appears or the cluster is restarted. This claim mischaracterises the platform: message time to live is a documented, first-class feature of Zeebe's message publishing API that controls exactly how long an unmatched message remains buffered in the broker before being automatically discarded. Publishers set the timeToLive parameter on every PublishMessage command, and the broker enforces it precisely. Claiming TTL has no effect would lead teams to create unbounded message accumulation in the broker, which could cause storage pressure in high-volume systems."
+    },
+    {
+      "id": "b",
+      "text": "Message TTL is fixed at 24 hours for all messages and cannot be configured -- the broker automatically discards unmatched messages after exactly one day regardless of what the publisher specifies. This claim is inaccurate. The timeToLive parameter on the PublishMessage command is fully configurable by the publisher on each individual message. Publishers can set TTL to seconds (for high-urgency messages that must correlate immediately), hours, days, or even zero (no buffering -- the message is discarded immediately if no matching subscription exists)."
+    },
+    {
+      "id": "c",
+      "text": "Implement a separate cleanup microservice or scheduled job that periodically queries Zeebe for unmatched buffered messages and explicitly deletes them when they have exceeded the desired 1-hour window. This architectural overhead is entirely unnecessary. ofHours(1) tells the broker to automatically discard the message after 1 hour if it has not correlated. No external cleanup process is needed."
+    },
+    {
+      "id": "d",
+      "text": "Set the timeToLive property on the PublishMessage command to an ISO 8601 duration like PT1H (1 hour) or a language-specific duration value -- this specifies exactly how long the message remains buffered in Zeebe waiting for a matching message subscription to appear. If a subscription correlates within the TTL window, the message is consumed and the correlation succeeds. If the TTL elapses first with no matching subscription found, Zeebe discards the message automatically without error. The default TTL is typically 0 or very short; always set it explicitly for buffered correlation use cases."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe's PublishMessage command accepts timeToLive (TTL). The message is buffered in the broker for the specified duration, waiting for a matching subscription. If correlation happens, the message is consumed; if TTL elapses first, the message is discarded. Use TTL to control how long unmatched messages live -- match your business expectation for \"this event should still be processable for X time.\""
+    },
+    "b": {
+      "text": "Incorrect. TTL is core."
+    },
+    "c": {
+      "text": "Incorrect. No fixed default; the publisher sets it."
+    },
+    "d": {
+      "text": "Correct. Built-in TTL handles message expiration."
+    }
+  },
+  "explanation": "Built-in TTL handles message expiration.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q46",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

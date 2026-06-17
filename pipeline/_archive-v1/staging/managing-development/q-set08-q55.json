@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q55",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team is deciding between Call Activity (calls a separately-deployed process) and Embedded Subprocess (inline grouping) for a \"payment-processing\" block of 5 tasks. The block is used in 4 different parent processes across the company.",
+  "question": "Which best guides \"Call Activity vs Embedded Subprocess\" decision?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Call Activity when the block is reused across multiple parent processes (4 parents = reuse); the called process has its own lifecycle, is owned independently, can be deployed independently. Embedded Subprocess when the block is specific to one parent (no reuse), used for visual grouping / scoping within the parent. For \"5 tasks used in 4 parents,\" Call Activity wins on DRY / lifecycle independence."
+    },
+    {
+      "id": "b",
+      "text": "Always use an Embedded Subprocess whenever modelling a group of related activities -- Embedded Subprocess is the universally correct choice for all subprocess scenarios and Call Activities should never be used -- this description does not reflect the actual behaviour. The choice between Embedded Subprocess and Call Activity depends on the reuse requirement. Embedded Subprocesses are appropriate when the subprocess logic is specific to one process and does not need to be reused elsewhere. Call Activities are the correct choice when the subprocess logic needs to be shared across multiple different parent processes, as they reference a separately deployed child process definition."
+    },
+    {
+      "id": "c",
+      "text": "Always use a Call Activity for any subprocess regardless of whether reuse is needed -- Call Activity is universally superior to Embedded Subprocess because it enforces better process modularity -- this is overstated. Call Activities reference separately deployed child process definitions, which requires additional deployment management, adds process definition overhead, and creates cross-process dependencies. Embedded Subprocesses co-deploy with the parent, avoiding additional deployment complexity."
+    },
+    {
+      "id": "d",
+      "text": "Embedded Subprocess and Call Activity are fully interchangeable constructs that can always be substituted for each other without any functional or architectural difference -- this description does not reflect the actual behaviour. The two constructs have distinct semantics and deployment models. An Embedded Subprocess is part of the parent process definition, shares the parent's process instance, and its variables are scoped within the parent. A Call Activity references a separate independently deployed child process definition, creates a child process instance, and has independent variable scoping. Reuse, variable isolation, and independent versioning requirements determine which is appropriate."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Distinct constructs for distinct purposes: Call Activity: invokes a separately-deployed process by ID. Independent lifecycle (the called process can be deployed / versioned / migrated separately). Variables passed in via input mapping, returned via output mapping. Best for reuse across parents. Embedded Subprocess: inline in the parent's BPMN. Same lifecycle / scope as the parent. Used for visual grouping, scoping variables, attaching boundary events to a section. Best for one-parent-specific structure. Decision heuristic: \"Will this block be reused?\" Yes → Call Activity. No → Embedded Subprocess. Also consider ownership: independent team ownership of the block argues for Call Activity (independent deployment). For \"5 tasks used in 4 parents\": Call Activity. The 4 parents reference the same payment-processing process; updates to it (e.g., adding a new step) ripple to all 4 parents without modifying each parent's BPMN."
+    },
+    "b": {
+      "text": "Incorrect. Reuse calls for Call Activity."
+    },
+    "c": {
+      "text": "Incorrect. Embedded is right when no reuse."
+    },
+    "d": {
+      "text": "Incorrect. Distinct semantics."
+    }
+  },
+  "explanation": "Distinct constructs for distinct purposes: Call Activity: invokes a separately-deployed process by ID. Independent lifecycle (the called process can be deployed / versioned / migrated separately). Variables passed in via input mapping, returned via output mapping. Best for reuse across parents. Embedded Subprocess: inline in the parent's BPMN. Same lifecycle / scope as the parent. Used for visual grouping, scoping variables, attaching boundary events to a section. Best for one-parent-specific structure. Decision heuristic: \"Will this block be reused?\" Yes → Call Activity. No → Embedded Subprocess. Also consider ownership: independent team ownership of the block argues for Call Activity (independent deployment). For \"5 tasks used in 4 parents\": Call Activity. The 4 parents reference the same payment-processing process; updates to it (e.g., adding a new step) ripple to all 4 parents without modifying each parent's BPMN.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q55",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

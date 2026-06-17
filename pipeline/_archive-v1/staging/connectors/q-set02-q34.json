@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A retail platform integrates with a partner's order-confirmation webhook. The partner sends an HTTPS POST with each order confirmation. The team configures an Inbound Webhook Connector wired to a Message Start Event for new orders. Production shows that occasionally the same order's webhook is delivered twice (partner's at-least-once delivery semantics) -- and Zeebe creates two process instances for the same orderId. The team needs idempotent webhook handling -- the second delivery of the same orderId should NOT create a second process instance.",
+  "question": "Which Camunda 8.8 mechanism handles webhook idempotency?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda automatically deduplicates inbound webhook messages by their correlation key -- if the same orderId arrives twice, the broker silently drops the second delivery and no duplicate process instance is created, without any additional configuration. Zeebe does not perform automatic deduplication based on correlation key alone. The correlation key is a routing mechanism that identifies which subscription receives a message; it does not guarantee uniqueness. Two messages with the same correlation key will each start a separate process instance unless an explicit Message ID expression is configured."
+    },
+    {
+      "id": "b",
+      "text": "uuid), then add a downstream Exclusive Gateway in the process that checks a seen flag in a shared external store to detect and discard duplicate-triggered instances. This application-level deduplication approach works but pollutes the BPMN model with idempotency infrastructure, requires maintaining a shared seen set in process variables or an external cache, and adds architectural complexity for a problem that Zeebe's broker-level Message ID mechanism already solves natively and more cleanly."
+    },
+    {
+      "id": "c",
+      "text": "Configure the inbound webhook Connector endpoint with HTTP Basic Authentication credentials and a request rate limiter that rejects more than one request per order within a short window, preventing the second delivery from reaching the Connector at all. HTTP authentication and rate limiting restrict which clients can call the webhook and how frequently -- they are security and traffic-control concerns, not idempotency mechanisms. Even with rate limiting, the partner's at-least-once delivery guarantee means a second delivery may legitimately arrive after the rate-limit window expires."
+    },
+    {
+      "id": "d",
+      "text": "orderId). Zeebe enforces message uniqueness at the broker level: if a second message arrives with the same Message ID before the message's TTL window expires, the broker rejects the duplicate and does not create a second process instance."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per connectors/use-connectors/inbound.md lines 22-28: \"If idempotency is a concern for the process creation and reprocessing of messages should never lead to a duplicate process instance creation, use the message start event element for an inbound connector as it relies on publishing a message. Unlike plain start event elements, message start events support the message ID expression property that allows you to derive a unique value from the connector output. This value is used by Zeebe to guarantee uniqueness in case other messages are published using the same Message ID.\" This dovetails with concepts/messages.md lines 91-97 (messageId controls uniqueness/deduplication). Note: the broker-side deduplication ID in the Activation section of inbound Connectors is a separate concept -- it groups Connectors for the \"Consume unmatched events\" filter, NOT for webhook dedup."
+    },
+    "b": {
+      "text": "Incorrect. Zeebe does NOT auto-deduplicate by correlation key. The correlation key routes messages to subscriptions; uniqueness/dedup is a separate property (messageId)."
+    },
+    "c": {
+      "text": "Incorrect. Manual dedup via downstream Exclusive Gateway works but pollutes the BPMN and requires maintaining a seen set in process state. Use the broker's built-in messageId mechanism instead."
+    },
+    "d": {
+      "text": "Correct. Auth and rate limiting do not address idempotency -- they restrict who/how often, not duplicate detection."
+    }
+  },
+  "explanation": "Auth and rate limiting do not address idempotency -- they restrict who/how often, not duplicate detection.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/inbound/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q34",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

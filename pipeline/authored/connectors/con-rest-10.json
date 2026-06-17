@@ -1,0 +1,50 @@
+{
+  "id": "con-rest-10",
+  "topic": "connectors",
+  "subtopic": "rest",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An operator needs the REST connector (and only the REST connector) to route HTTPS traffic through `proxy.example.com:3128` in Camunda Self-Managed, without affecting the Zeebe client or any other HTTP client in the runtime. Which configuration mechanism should they use?",
+  "options": [
+    {
+      "id": "a",
+      "text": "JVM properties `-Dhttps.proxyHost=proxy.example.com -Dhttps.proxyPort=3128`."
+    },
+    {
+      "id": "b",
+      "text": "Environment variables `CONNECTOR_HTTPS_PROXY_HOST=proxy.example.com` and `CONNECTOR_HTTPS_PROXY_PORT=3128`."
+    },
+    {
+      "id": "c",
+      "text": "A `proxy:` block inside the REST connector's BPMN element template, scoped to that one element."
+    },
+    {
+      "id": "d",
+      "text": "A `CAMUNDA_PROXY_*` setting in `application.yaml` on the Zeebe broker."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "JVM properties scope to the whole JVM, so they affect any HTTP client used internally, including the Zeebe client. That fails the \"only the REST connector\" requirement."
+    },
+    "b": {
+      "text": "The `CONNECTOR_*` environment variables — `CONNECTOR_HTTPS_PROXY_HOST` and `CONNECTOR_HTTPS_PROXY_PORT` — scope the proxy to the connector (and REST-based connectors) only, which is exactly the requirement."
+    },
+    "c": {
+      "text": "Proxy configuration in Self-Managed is set on the connector runtime, not per BPMN element. There is no per-element `proxy:` block in the template."
+    },
+    "d": {
+      "text": "The proxy is configured on the connector runtime, not on the Zeebe broker. Configuring it on Zeebe would not route REST connector traffic at all."
+    }
+  },
+  "explanation": "Camunda Self-Managed offers two proxy mechanisms with different scopes. JVM properties affect the whole runtime — including the Zeebe client and any internal HTTP traffic. The `CONNECTOR_HTTP_*` / `CONNECTOR_HTTPS_*` environment variables scope the proxy to the connector runtime only, which is the right tool when the requirement is to leave Zeebe untouched.",
+  "docs": [
+    {
+      "title": "REST connector",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/"
+    }
+  ]
+}

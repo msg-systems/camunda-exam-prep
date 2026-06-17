@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q51",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A specific process has high latency. Operate's process detail view shows total time but not per-element breakdown. Team wonders how to diagnose which element is slow.",
+  "question": "Process flow node performance breakdown?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:21-25: - Process instance detail: shows the instance history including flow node start/end timestamps and current variables. - Computed per-element duration: end - start per flow node (aggregated client-side from the history records). \" Per-element P50/P95/P99 latency is Optimize's domain, not Operate. - For programmatic access: Operate REST API (/v1/process-instances + /v1/flownode-instances) and Tasklist/Optimize APIs."
+    },
+    {
+      "id": "b",
+      "text": "Camunda Operate displays detailed per-element data for each process instance. The instance view shows which flow nodes are active, completed, or in an incident state, along with the variables in scope at each point. Token positions are visible on the BPMN diagram overlay. Historical audit data per activity element is accessible in the UI and via the Operate REST API."
+    },
+    {
+      "id": "c",
+      "text": "Operate provides both a web UI and a REST API for accessing process instance data. The UI offers visual BPMN diagram overlays with live token positions, variable inspection, and incident resolution. The REST API provides programmatic access to the same data for automation and integration scenarios. Restricting access to only the API path ignores the rich UI that was specifically designed for operations teams to monitor, troubleshoot, and act on running processes without writing code."
+    },
+    {
+      "id": "d",
+      "text": "Relying solely on manual application-level logging to observe process instance state ignores Operate's purpose as a first-class monitoring tool. Operate automatically records process execution history, variable values, incident details, and BPMN element status without requiring teams to instrument workers with custom logging. While worker logs complement Operate for debugging service-layer issues, using manual logging as the primary monitoring strategy adds maintenance burden and loses the visual diagram-level context Operate provides."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Performance diagnosis in Operate: Per-instance breakdown: Process instance detail view: List of flow nodes activated in this instance. Start time + end time per node. Duration = end - start. State: completed, active, terminated. Identifying slow nodes: Sort / filter by duration. Long-duration nodes are candidates for optimization. Compare to expected duration. Aggregate analysis: Aggregate APIs / metrics (per Set 13 Q56): Prometheus metrics: per-element completion / duration histograms. Grafana dashboards: visualize P50 / P95 / P99 latencies. Detect: which elements are consistently slow. Sample analysis workflow: 1. Identify slow instances: filter process instances by duration > threshold. 2. Drill in: inspect each slow instance's flow node breakdown. 3. Find common bottleneck: same node slow across many instances. 4. Investigate root cause: external dependency? Heavy computation? Resource contention? 5. Fix: optimize, parallelize, add caching, etc. Common bottleneck patterns: Pattern 1: External API slow: Service Task waits for partner; partner is the bottleneck. Fix: cache, async patterns, partner SLAs. Pattern 2: Heavy worker computation: CPU-intensive logic in worker. Fix: optimize algorithm, parallelize, scale workers. Pattern 3: User Task waiting: Long wait for human action. Fix: reminders, escalation, auto-assignment. Pattern 4: Sequential where parallel possible: Independent steps in sequence. Fix: redesign with Parallel Gateway. Pattern 5: Job activation delay: Job available but no worker polling. Fix: scale workers, tune polling interval. Pattern 6: Database / Operate query latency: Internal cluster operations slow. Fix: scale cluster, optimize indices. Tools beyond Operate UI: Custom dashboards: Pull instance data via API. BI tools (Tableau, Power BI) visualize trends. Distributed tracing: OpenTelemetry tracing through Camunda + workers. Track requests end-to-end including external calls. Logging: Workers log timestamps; logs aggregated; analyze. Best practices: Set SLA expectations per element: know what's acceptable. Monitor + alert: per-element latency exceeded threshold. Sample slow instances: don't analyze every instance; statistical approach. Track over time: detect regressions after deployments. For the scenario (high latency, find slow element): Open Operate; navigate to a slow instance. Inspect flow node start/end times. Identify longest-running node. Cross-check across multiple slow instances; find pattern. Investigate specific element + dependencies. Future-proofing: Add custom metrics from workers (latency histograms per task type). Centralize observability stack (Prometheus + Grafana + tracing). Build runbooks for common bottleneck patterns."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Performance diagnosis in Operate: Per-instance breakdown: Process instance detail view: List of flow nodes activated in this instance. Start time + end time per node. Duration = end - start. State: completed, active, terminated. Identifying slow nodes: Sort / filter by duration. Long-duration nodes are candidates for optimization. Compare to expected duration. Aggregate analysis: Aggregate APIs / metrics (per Set 13 Q56): Prometheus metrics: per-element completion / duration histograms. Grafana dashboards: visualize P50 / P95 / P99 latencies. Detect: which elements are consistently slow. Sample analysis workflow: 1. Identify slow instances: filter process instances by duration > threshold. 2. Drill in: inspect each slow instance's flow node breakdown. 3. Find common bottleneck: same node slow across many instances. 4. Investigate root cause: external dependency? Heavy computation? Resource contention? 5. Fix: optimize, parallelize, add caching, etc. Common bottleneck patterns: Pattern 1: External API slow: Service Task waits for partner; partner is the bottleneck. Fix: cache, async patterns, partner SLAs. Pattern 2: Heavy worker computation: CPU-intensive logic in worker. Fix: optimize algorithm, parallelize, scale workers. Pattern 3: User Task waiting: Long wait for human action. Fix: reminders, escalation, auto-assignment. Pattern 4: Sequential where parallel possible: Independent steps in sequence. Fix: redesign with Parallel Gateway. Pattern 5: Job activation delay: Job available but no worker polling. Fix: scale workers, tune polling interval. Pattern 6: Database / Operate query latency: Internal cluster operations slow. Fix: scale cluster, optimize indices. Tools beyond Operate UI: Custom dashboards: Pull instance data via API. BI tools (Tableau, Power BI) visualize trends. Distributed tracing: OpenTelemetry tracing through Camunda + workers. Track requests end-to-end including external calls. Logging: Workers log timestamps; logs aggregated; analyze. Best practices: Set SLA expectations per element: know what's acceptable. Monitor + alert: per-element latency exceeded threshold. Sample slow instances: don't analyze every instance; statistical approach. Track over time: detect regressions after deployments. For the scenario (high latency, find slow element): Open Operate; navigate to a slow instance. Inspect flow node start/end times. Identify longest-running node. Cross-check across multiple slow instances; find pattern. Investigate specific element + dependencies. Future-proofing: Add custom metrics from workers (latency histograms per task type). Centralize observability stack (Prometheus + Grafana + tracing). Build runbooks for common bottleneck patterns.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/basic-operate-navigation/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q51",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q28",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A subscription billing service uses DMN to determine the discount tier based on customer's region. The Decision Table has an input column region (string). The developer writes one row with the input cell \"US\",\"CA\",\"MX\" -- intending to match customers in any of these three North American regions. But at runtime, every North American customer falls through with \"no rule matched\".",
+  "question": "What is the correct FEEL syntax for \"any of these values\" in a Decision Table input cell?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use the FEEL in operator written as region in [\"US\", \"CA\", \"MX\"] in the input cell. The in operator is valid FEEL syntax for testing list membership in boxed expressions such as FEEL Script tasks and FEEL condition expressions. In DMN Decision Table input cells, however, the abbreviated input-cell shorthand syntax applies: comma-separated values are the canonical form for multi-value matching, not the full FEEL in operator."
+    },
+    {
+      "id": "b",
+      "text": "Use the or keyword to express logical disjunction: \"US\" or \"CA\" or \"MX\". In FEEL, or is a boolean operator designed to combine boolean sub-expressions. Applying or between string literals like \"US\" or \"CA\" does not produce a useful predicate in the context of a Decision Table input cell -- it does not match the input variable against a set of string values. This syntax is drawn from programming languages, not from FEEL or DMN."
+    },
+    {
+      "id": "c",
+      "text": "Comma-separated list of values in a DMN Decision Table input cell performs a logical OR match: \"US\",\"CA\",\"MX\" matches when the input variable equals any of those three strings. This is the standard abbreviated input-cell syntax in DMN. , a nested object), unexpected whitespace, or a case mismatch rather than a syntax error."
+    },
+    {
+      "id": "d",
+      "text": "Use FEEL list literal syntax to place the entire list as the input cell value: [\"US\", \"CA\", \"MX\"]. In FEEL evaluation, comparing a scalar string input against a list literal checks whether the input equals the entire list object, not whether it is a member of the list. A region value of \"US\" compared to the list [\"US\",\"CA\",\"MX\"] evaluates as false -- the input is a string, the cell value is a list, and they are not equal."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. In DMN Decision Table input cells, comma-separated values mean logical OR -- match if the input equals any of the values. \"US\",\"CA\",\"MX\" matches when region equals any of those strings. The syntax is correct. If the runtime fails to match, the cause is elsewhere -- likely the input is a non-string type, or has whitespace, or has the wrong case. The team must verify the variable type and value, not change the syntax."
+    },
+    "b": {
+      "text": "Incorrect. The in operator is valid in FEEL boxed expressions but not the canonical syntax for Decision Table input cells. Input cells use abbreviated forms."
+    },
+    "c": {
+      "text": "Correct. or in FEEL is a boolean operator on boolean operands; \"US\" or \"CA\" doesn't evaluate to a useful predicate in input-cell context."
+    },
+    "d": {
+      "text": "Incorrect. Using list syntax [\"US\",\"CA\",\"MX\"] doesn't match individual strings -- it tries to compare the input value against a list, which fails for scalar inputs."
+    }
+  },
+  "explanation": "or in FEEL is a boolean operator on boolean operands; \"US\" or \"CA\" doesn't evaluate to a useful predicate in input-cell context.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q28",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

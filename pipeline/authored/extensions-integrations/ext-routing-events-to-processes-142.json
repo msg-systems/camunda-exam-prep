@@ -1,0 +1,50 @@
+{
+  "id": "ext-routing-events-to-processes-142",
+  "topic": "extensions-integrations",
+  "subtopic": "events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Another team will push invoice events to your Camunda 8.8 process over AMQP. According to the routing best-practice, what is the recommended way to land these messages on the workflow engine?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Run an AMQP consumer (or another channel: Kafka, REST, SOAP, an Apache Camel route, etc.) that receives the message and calls the Camunda API to start or correlate."
+    },
+    {
+      "id": "b",
+      "text": "Configure the Zeebe broker with an AMQP listener so it consumes the queue directly."
+    },
+    {
+      "id": "c",
+      "text": "Point the AMQP traffic at the Zeebe gateway port; the gateway speaks AMQP natively."
+    },
+    {
+      "id": "d",
+      "text": "Replace the AMQP transport with HTTP — the workflow engine only accepts REST events."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The 'Technology examples' section says you need a mechanism that receives the message and routes it to the engine — citing direct API calls, AMQP or Kafka consumers, SOAP endpoints using the Camunda API, or even an Apache Camel hot-folder poller."
+    },
+    "b": {
+      "text": "The Zeebe broker has no built-in AMQP listener; the docs say the workflow engine is by design not concerned with the technical part of receiving external messages."
+    },
+    "c": {
+      "text": "The gateway does not speak AMQP; it offers gRPC and REST APIs that your consumer must call after picking up the AMQP message."
+    },
+    "d": {
+      "text": "AMQP, JMS, Kafka and other transports are all explicitly named as valid sources — there is no requirement to replace them with HTTP."
+    }
+  },
+  "explanation": "The workflow engine is intentionally agnostic about external transports. Your job is to plug in a consumer (REST handler, AMQP or Kafka subscriber, SOAP endpoint, Apache Camel route, etc.) that receives the external event and then calls the Camunda API to create a process instance or correlate a message.",
+  "docs": [
+    {
+      "title": "Routing events to processes - best practices",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/routing-events-to-processes/"
+    }
+  ]
+}

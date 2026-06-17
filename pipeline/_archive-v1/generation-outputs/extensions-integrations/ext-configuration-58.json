@@ -1,0 +1,27 @@
+{
+  "id": "ext-configuration-58",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Kestrel Logistics operates a Camunda 8.8 Spring Boot service that runs 7 job workers processing 12000 shipments per day for a regional carrier. The operations team wants to chart how many jobs are activated, completed, failed, and finished with a BPMN error per job type, using the metrics surface the starter already exposes through Spring Actuator.",
+  "question": "Which metric does the Camunda Spring Boot Starter expose out of the box to track job worker activity per job type?",
+  "options": [
+    { "id": "a", "text": "camunda.client.requests counts every gRPC and REST request the Camunda client sends, tagged by request type, and is the documented way to chart worker activity per BPMN job type" },
+    { "id": "b", "text": "zeebe.broker.partitions reports the number of partitions and lag per partition leader, tagged by job type, and is the documented job worker activity metric of the starter" },
+    { "id": "c", "text": "camunda.job.invocations counts invocations of job workers tagged by the job type, with actions activated, completed, failed, and bpmn-error recorded for each job type" },
+    { "id": "d", "text": "spring.boot.actuator.jobs counts jobs processed by every Spring bean and is filtered by job type via the management.endpoints.web.exposure.include property of the starter" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The starter does not expose a camunda.client.requests metric for worker activity; the documented metric is camunda.job.invocations, tagged by the job type." },
+    "b": { "text": "Incorrect. zeebe.broker.partitions is not a starter-side metric for charting worker activity; the documented metric is camunda.job.invocations on the worker side." },
+    "c": { "text": "Correct. The starter publishes camunda.job.invocations tagged by job type, and records the actions activated, completed, failed, and bpmn-error so each job type can be charted by outcome via Spring Actuator." },
+    "d": { "text": "Incorrect. There is no spring.boot.actuator.jobs metric; the management.endpoints.web.exposure.include property only controls which Actuator endpoints are served." }
+  },
+  "explanation": "The Camunda Spring Boot Starter exposes camunda.job.invocations through Spring Actuator. The metric is tagged with the job type and records four actions: activated when a job is picked up, completed on success, failed on exception, and bpmn-error when the worker reports a BPMN error.",
+  "docs": [
+    { "title": "Camunda Spring Boot Starter configuration", "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/" }
+  ]
+}

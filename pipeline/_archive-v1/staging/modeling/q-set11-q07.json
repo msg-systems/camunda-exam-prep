@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q07",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's BPMN throws a Signal \"SystemMaintenance\" to notify all running instances. They have two options: Throw Signal End Event (single-point throw, then process ends) vs Throw Signal Intermediate Event (throw and continue flow).",
+  "question": "What's the distinction between Throw Signal End Event and Throw Signal Intermediate Event?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Throw Signal End Event and Throw Signal Intermediate Event have the same behaviour -- this ignores the fundamental flow control distinction between end and intermediate events. An End Event terminates the current flow token, whereas an Intermediate Event keeps the token alive and continues it through outgoing sequence flow. Both fire the same signal broadcast, but their effect on the process path is completely different and determines whether the process continues or completes."
+    },
+    {
+      "id": "b",
+      "text": "Throw Signal End Events fire synchronously while Intermediate variants fire asynchronously -- this distinction does not reflect how Camunda 8 handles Signal broadcasts. Both End and Intermediate Throw Signal variants broadcast their signal in the same fashion to all subscribed catch events cluster-wide. The meaningful difference lies in flow continuation, not in any timing or synchrony of the signal dispatch mechanism itself."
+    },
+    {
+      "id": "c",
+      "text": "Only the Throw Signal End Event variant is available in Camunda 8 -- this understates the Signal Event coverage. Teams can choose either Throw variant based purely on whether the current flow path should end or continue after the signal is broadcast."
+    },
+    {
+      "id": "d",
+      "text": "Throw Signal End Event: fires the signal AND ends the current flow path (acts as an End Event). The process / scope reaching it terminates that token. , a \"system shutdown announcement\" path concluding the process). Throw Signal Intermediate Event: fires the signal AND continues flow through the outgoing arrow. , notify others of a milestone, then keep working). Both fire the same Signal to listeners cluster-wide; the difference is whether flow continues."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Throw variant of any typed event has both End and Intermediate forms: End: at the end of a flow path; fires the event AND terminates the token (path ends here). Intermediate: in the middle of a flow path; fires the event AND continues via outgoing arrow. For Signal specifically: Throw Signal End: fires Signal, ends path. Use when the signal is the path's final action. Throw Signal Intermediate: fires Signal, continues. Use when the signal is part of ongoing work. Both broadcast the same Signal to cluster-wide listeners. The semantic difference is purely flow-control (end vs continue). Equivalent dichotomy for other typed events: Throw Error End vs Intermediate. Throw Message End vs Intermediate (Send Task is a common alternative for outbound messaging). Throw Escalation End vs Intermediate. Throw Compensation End vs Intermediate."
+    },
+    "b": {
+      "text": "Incorrect. Distinct flow behaviour."
+    },
+    "c": {
+      "text": "Incorrect. Both fire similarly; flow differs."
+    },
+    "d": {
+      "text": "Correct. Both supported."
+    }
+  },
+  "explanation": "Both supported.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/signal-events/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q07",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

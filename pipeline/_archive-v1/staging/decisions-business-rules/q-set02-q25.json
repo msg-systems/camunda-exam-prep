@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q25",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A loan officer's reporting tool queries Camunda 8 for all decision instances that fired for a given loan application -- including which rules matched in each Decision Table along the way. The DMN diagram has three decision tables linked by Information Requirements: EligibilityCheck → RiskScoring → LoanApproval. Multiple rules can match in each table; the loan officer needs to see them in rule-definition order (the order written in the table) for audit clarity.",
+  "question": "Which Hit Policy preserves rule-definition order in the output?",
+  "options": [
+    {
+      "id": "a",
+      "text": "OUTPUT ORDER -- returns all matching outputs sorted in rule-definition order, which the loan officer needs for clear audit display. 3 specification hit policy but is absent from Camunda 8's supported hit-policy set. Furthermore, even in spec implementations OUTPUT ORDER sorts by declared output priority -- a different axis from rule-definition row order."
+    },
+    {
+      "id": "b",
+      "text": "RULE ORDER -- returns a list of all matching rule outputs in the order the rules are defined in the table. RULE ORDER is explicitly designed to preserve rule-definition (row) order -- giving the loan officer a predictable, auditable sequence that maps directly to the numbered rows in the Decision Table. All matching rules contribute their outputs to the list in row sequence."
+    },
+    {
+      "id": "c",
+      "text": "COLLECT (no aggregator) -- returns a list of all matching outputs, giving the loan officer all the information needed. COLLECT returns matching outputs but with implementation-dependent ordering -- the order is not guaranteed to match rule-definition row order. For audit purposes where exact correspondence between list position and rule position in the table is required, COLLECT does not provide the explicit ordering guarantee that RULE ORDER provides."
+    },
+    {
+      "id": "d",
+      "text": "FIRST -- preserves rule order because it evaluates rules in the order they are defined in the table and returns the first matching rule's output. FIRST returns only the single first matching rule's output -- not a list of all matching rules. For audit purposes where the officer needs to see every rule that matched and contributed to the decision, FIRST provides only one result and discards all subsequent matches."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. RULE ORDER specifically preserves the order in which rules are defined in the table. The list of matching outputs is returned in that order."
+    },
+    "b": {
+      "text": "Correct. OUTPUT ORDER is not in Camunda 8's supported hit-policy list (per decision-table-hit-policy.md, only UNIQUE, ANY, FIRST, RULE ORDER, COLLECT are supported). Even in DMN spec, OUTPUT ORDER sorts by declared output priority -- a different axis than rule-definition order."
+    },
+    "c": {
+      "text": "Incorrect. COLLECT returns matching outputs but with implementation-dependent ordering -- not guaranteed to match rule-definition order. RULE ORDER explicitly guarantees it."
+    },
+    "d": {
+      "text": "Incorrect. FIRST returns only one match -- not all."
+    }
+  },
+  "explanation": "OUTPUT ORDER is not in Camunda 8's supported hit-policy list (per decision-table-hit-policy.md, only UNIQUE, ANY, FIRST, RULE ORDER, COLLECT are supported). Even in DMN spec, OUTPUT ORDER sorts by declared output priority -- a different axis than rule-definition order.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q25",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

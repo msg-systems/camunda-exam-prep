@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q49",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task must call a partner API that rate-limits to 10 requests per minute. The team uses Camunda 8 to orchestrate calls. The Service Task's BPMN configures retries, but the team is concerned about hitting the rate limit on retries.",
+  "question": "Which architecture pattern fits \"respect partner rate limits\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 has no built-in rate limiting mechanism for controlling the rate at which job workers call external APIs. Rate limiting is the team's responsibility to implement either through worker-side throttling logic, by designing the BPMN process to limit parallelism using sequential Multi-Instance Subprocesses, or through process-level concurrency controls. The engine activates jobs as fast as workers request them without any automatic throttling."
+    },
+    {
+      "id": "b",
+      "text": ", a token bucket / semaphore in the worker that limits how many jobs it activates per minute). For partners with strict per-minute limits, combine both: Sequential MI ensures one-at-a-time processing at the BPMN level while a worker-side rate limiter caps total throughput across multiple concurrent workers. A third approach uses intermediate Timer Events between batch iterations to introduce deliberate pacing delays that match the external API's rate limit window. All three patterns are supported in Camunda 8 and can be combined for fine-grained throughput control."
+    },
+    {
+      "id": "c",
+      "text": "Set the BPMN Service Task retries attribute to a low value like 1 or 2 to prevent the external API from being overwhelmed by repeated failed calls -- this addresses retry storms but does not control the baseline activation rate. Reducing retries limits how many times a failed job is retried before creating an incident, which helps prevent runaway retry loops. When hundreds of process instances are active simultaneously, each worker activation contributes to the rate regardless of the retry configuration."
+    },
+    {
+      "id": "d",
+      "text": "There is no way to implement rate limiting in Camunda 8 -- the engine provides no mechanism to control how fast workers process jobs and external APIs must simply handle whatever rate Camunda generates -- this description does not reflect the actual behaviour. Multiple effective patterns exist for rate limit compliance. Sequential Multi-Instance Subprocesses naturally serialize processing. Worker-side token bucket or semaphore implementations throttle concurrent activations. Connector configurations can include backoff and retry strategies. Process-level design using intermediate timer events between activations provides time-based rate control. Teams have full flexibility to implement appropriate rate limiting strategies."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Rate limiting in distributed processes is a real engineering concern. Camunda doesn't impose rate limits itself (workers activate jobs as fast as configured); the team designs for partner constraints: BPMN-level sequential MI: force one-at-a-time at the model level. Combined with a sufficient interval (Timer Boundary or sleep in worker), respects partner pace. Worker-side throttling: the worker code includes a rate limiter (token bucket, semaphore, third-party lib). Caps total throughput regardless of how many jobs Zeebe activates. For more sophisticated patterns: message-based queue with dedicated consumer respecting partner rate; backoff on 429 responses (partner-side rate-limit signal); dedicated rate-limited Connector wrapper. Combine BPMN-level sequencing with worker-side throttling for robustness."
+    },
+    "b": {
+      "text": "Correct. Camunda doesn't impose rate limits."
+    },
+    "c": {
+      "text": "Incorrect. Low retries help with retry storms but not baseline rate."
+    },
+    "d": {
+      "text": "Incorrect. Multiple patterns work."
+    }
+  },
+  "explanation": "Camunda doesn't impose rate limits.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/best-practices/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q49",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

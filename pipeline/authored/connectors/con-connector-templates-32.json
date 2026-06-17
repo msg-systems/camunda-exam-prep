@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-templates-32",
+  "topic": "connectors",
+  "subtopic": "inbound-intermediate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An HTTP webhook inbound template is being applied to an intermediate catch event so the process waits for `{\"order\":\"O-42\"}` and resumes the instance whose `orderId == \"O-42\"`. Which correlation properties must be configured?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only `Correlation key (process)` from a process variable; the runtime auto-detects the matching field in the payload by name."
+    },
+    {
+      "id": "b",
+      "text": "Only `Correlation key (payload)` from the request body; the process-side key is inferred from the BPMN message name."
+    },
+    {
+      "id": "c",
+      "text": "Both `Correlation key (process)` (FEEL over process variables, for example `=orderId`) and `Correlation key (payload)` (FEEL over the inbound payload, for example `=request.body.order`); both are required."
+    },
+    {
+      "id": "d",
+      "text": "Neither — intermediate catch events correlate via the `Activation Condition` FEEL expression alone."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "The template defines two distinct correlation properties; there is no documented auto-detection that matches payload field names against process variable names."
+    },
+    "b": {
+      "text": "Process-side correlation is not inferred from the BPMN message name in this template; both correlation properties carry `constraints: { notEmpty: true }` and must be filled in."
+    },
+    "c": {
+      "text": "The intermediate catch event template defines `Correlation key (process)` (binding `bpmn:Message#zeebe:subscription#property` → `correlationKey`) and `Correlation key (payload)` (binding `zeebe:property` → `correlationKeyExpression`). Both have `feel: required` and `notEmpty: true`, so both must be supplied."
+    },
+    "d": {
+      "text": "The `Activation Condition` decides whether the event triggers at all; correlation between the inbound payload and the waiting instance is handled by the two correlation key properties, not by the activation condition."
+    }
+  },
+  "explanation": "The intermediate-catch-event variant of the webhook template requires two correlation properties. `Correlation key (process)` is a FEEL expression evaluated against the running process's variables (for example `=orderId`); `Correlation key (payload)` is a FEEL expression evaluated against the inbound request body (for example `=request.body.order`). The runtime correlates the incoming message to the waiting instance when these two expressions yield the same value.",
+  "docs": [
+    {
+      "title": "Connector templates",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-templates/"
+    }
+  ]
+}

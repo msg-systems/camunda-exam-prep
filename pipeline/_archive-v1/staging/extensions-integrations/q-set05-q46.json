@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has an RPA bot for SAP automation. They want the bot to be triggered when an SQS message arrives, not by a BPMN process. The orchestration is event-driven.",
+  "question": "Which architecture fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "RPA bot polls the SQS queue directly without a BPMN process. Letting an RPA bot poll SQS directly removes the BPMN orchestration layer entirely. The bot becomes responsible for its own event detection, error handling, retry logic, and logging, rather than delegating these concerns to the Zeebe workflow engine. Camunda 8's RPA integration is designed to work as part of a BPMN process, not as a standalone event consumer."
+    },
+    {
+      "id": "b",
+      "text": "RPA workers in Camunda 8 can subscribe to Kafka or SQS event topics directly as native event consumers. RPA workers in Camunda 8 are Zeebe-native job workers. They subscribe to specific job types activated by RPA connector tasks in BPMN processes, using the labels mechanism to match workers to tasks. They are not designed or configured to consume events from external messaging systems like Kafka or Amazon SQS directly."
+    },
+    {
+      "id": "c",
+      "text": "Use a hand-typed Service Task with the job type string camunda::rpa so the RPA worker polls for it by that type string. The string camunda::rpa is not a documented or real job type in Camunda 8. The canonical way to create an RPA task is by selecting \"RPA connector\" from the Modeler task-type picker. Worker-to-task affinity is managed via labels configuration, not by matching a manually typed job type string."
+    },
+    {
+      "id": "d",
+      "text": "md:59: \"Add a new task and change the type to an RPA connector\"). md:39-54, default label default) and runs the Robot Framework script. The BPMN is the orchestration layer."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 RPA bots are triggered via a first-class RPA connector task type in Modeler (NOT a hand-typed Service Task), per rpa/getting-started.md:57-60. The worker subscribes via configurable labels (camunda.rpa.zeebe.worker-tags=...), default default on both sides per rpa/production.md:39-54. For an event-driven SQS trigger, wrap in BPMN: Inbound Connector (SQS) starts the process → RPA-connector task → Robot Framework script executes. BPMN remains the orchestration plane."
+    },
+    "b": {
+      "text": "Incorrect. Bot shouldn't poll directly; BPMN handles event orchestration."
+    },
+    "c": {
+      "text": "Incorrect. RPA workers subscribe to BPMN RPA-connector task activation via labels, not external event topics. The worker is a Zeebe job worker, not a Kafka/SQS consumer."
+    },
+    "d": {
+      "text": "Correct. camunda::rpa is NOT a real Service-Task type in Camunda 8 (grep rpa/getting-started.md returns no such literal). The canonical authoring path is choosing \"RPA connector\" in Modeler's task-type picker; worker-task pairing is via labels, not type-string filtering."
+    }
+  },
+  "explanation": "camunda::rpa is NOT a real Service-Task type in Camunda 8 (grep rpa/getting-started.md returns no such literal). The canonical authoring path is choosing \"RPA connector\" in Modeler's task-type picker; worker-task pairing is via labels, not type-string filtering.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/rpa/getting-started/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q46",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

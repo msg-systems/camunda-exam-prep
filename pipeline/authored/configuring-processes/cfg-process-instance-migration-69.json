@@ -1,0 +1,53 @@
+{
+  "id": "cfg-process-instance-migration-69",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A process instance is active at a service task whose job was created with type `send_mail`. The target process definition changes the job type expression to the one shown below. After migrating the instance, what is the resulting job type?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`send_mail`, because existing jobs keep their properties; the new job type expression is not re-evaluated during migration."
+    },
+    {
+      "id": "b",
+      "text": "The result of evaluating the new expression at migration time, assigned as the job's new type."
+    },
+    {
+      "id": "c",
+      "text": "Empty, because the job is cancelled when the service task is mapped to the new definition."
+    },
+    {
+      "id": "d",
+      "text": "Both `send_mail` and the new value, with workers able to subscribe to either type after migration."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Migration does not recreate jobs, re-evaluate expressions, or re-apply input mappings on active elements. The job keeps its original properties, including the job type set when it was first activated."
+    },
+    "b": {
+      "text": "The new expression is not evaluated at migration time. To pick it up, you must terminate the active service task and re-activate it via process instance modification."
+    },
+    "c": {
+      "text": "Migration does not cancel the existing job. The job continues to exist with the same key and type as before migration."
+    },
+    "d": {
+      "text": "A job has a single job type. The original `send_mail` type remains; no second job type is introduced by migration."
+    }
+  },
+  "explanation": "Process instance migration does not recreate jobs, reevaluate expressions, or reapply input mappings on active elements. A job that was created with type `send_mail` keeps that exact type after migration, even if the target definition's job type expression differs. To pick up the new expression you would terminate and re-activate the task via process instance modification.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "= order.next_step"
+  }
+}

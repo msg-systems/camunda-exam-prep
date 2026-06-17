@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A risk-assessment DMN evaluates a customer against various risk indicators (history, geography, transaction patterns). Multiple rules can match a single customer. The team wants the decision to return a single number -- the count of matching rules -- representing how many risk indicators triggered. The downstream BPMN uses this count to route (0-1 indicators = low risk, 2+ = high risk).",
+  "question": "Which hit policy + aggregator returns the count of matching rules?",
+  "options": [
+    {
+      "id": "a",
+      "text": "COLLECT hit policy with the COUNT aggregator -- the engine evaluates all rules against the input, counts the number of rules that matched, and returns that count as a single integer. , 2 risk indicators matched), making threshold-based routing straightforward using a simple comparison condition like =riskCount >= 2. This is the canonical DMN pattern for counting matched rules."
+    },
+    {
+      "id": "b",
+      "text": "COLLECT with the SUM aggregator, where each matching rule's output column contains the constant value 1 -- this technically produces the same integer count as COLLECT COUNT, since summing N ones gives N. \" Using COUNT directly communicates the cardinality intent without requiring a placeholder output value and without risk of accidentally changing the constant values. COUNT is the more semantic and direct choice when pure counting is the goal."
+    },
+    {
+      "id": "c",
+      "text": "UNIQUE hit policy -- this policy requires that at most one rule matches for any given input. If multiple rules match, the UNIQUE policy raises an error (indicating an authoring mistake in the decision table). The scenario explicitly requires that multiple rules can and should match simultaneously (multiple risk indicators can trigger at once). Using UNIQUE would cause the decision to throw an error whenever more than one risk indicator applies to a customer, which is precisely the opposite of the intended behaviour."
+    },
+    {
+      "id": "d",
+      "text": "RULE ORDER hit policy -- evaluates all rules and returns a list of matching rules' outputs ordered by their position in the table. While this would allow the caller to count the list using FEEL's count(list) function in the downstream BPMN gateway condition, this is an unnecessary two-step approach: the DMN returns a list, then the BPMN must count it. COLLECT COUNT performs the aggregation inside the DMN, returning a ready-to-use number. RULE ORDER is useful when you need the actual content of matching outputs in order; for pure counting, it adds unnecessary complexity."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. COLLECT supports four aggregators: SUM, MIN, MAX, COUNT. COUNT specifically counts how many rules matched, returning a single number. Perfect for cardinality questions like \"how many risk indicators?\" or \"how many discounts apply?\" The downstream consumer gets one number, no list parsing."
+    },
+    "b": {
+      "text": "Incorrect. SUM over constant-1 outputs reproduces COUNT semantically. Sometimes useful when an output column already represents the contribution; e.g., \"how many points does this rule add?\" with variable point values would use SUM directly. For pure cardinality, COUNT is more declarative."
+    },
+    "c": {
+      "text": "Incorrect. UNIQUE forbids multiple matches -- exactly what we want to allow."
+    },
+    "d": {
+      "text": "Incorrect. RULE ORDER returns a list; counting it requires downstream FEEL count(list). COLLECT-COUNT does it inside the DMN."
+    }
+  },
+  "explanation": "COLLECT supports four aggregators: SUM, MIN, MAX, COUNT. COUNT specifically counts how many rules matched, returning a single number. Perfect for cardinality questions like \"how many risk indicators?\" or \"how many discounts apply?\" The downstream consumer gets one number, no list parsing.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

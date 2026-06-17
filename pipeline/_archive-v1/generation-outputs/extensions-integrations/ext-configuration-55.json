@@ -1,0 +1,27 @@
+{
+  "id": "ext-configuration-55",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Ridge Bank rolls out a Camunda Spring Boot Starter worker on Camunda 8.8 that polls 5400 jobs per hour with default settings, but profiling shows the broker can stream jobs faster than the worker can poll. The architect plans to enable job streaming on the foo worker via configuration and asks which property toggle the page documents for that specific behaviour change on a single worker.",
+  "question": "Which property toggle enables job streaming on the foo worker in the documented configuration?",
+  "options": [
+    { "id": "a", "text": "Set camunda.client.worker.override.foo.streaming-mode to push so that the broker pushes activated jobs at the worker as soon as they appear in the queue for that job type" },
+    { "id": "b", "text": "Set camunda.client.worker.override.foo.stream-enabled to true so that job streaming is activated for the foo worker, which is otherwise disabled by default on every job worker" },
+    { "id": "c", "text": "Set camunda.client.worker.override.foo.stream-jobs to enabled so that the broker uses long-lived gRPC streams to deliver activated jobs to the foo worker in real time" },
+    { "id": "d", "text": "Set camunda.client.worker.override.foo.max-jobs-active to 64 so that the foo worker pre-fetches more jobs in advance, effectively achieving the same throughput as job streaming on the broker" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documented property is stream-enabled, not streaming-mode; the page does not define a push value for a streaming-mode property." },
+    "b": { "text": "Correct. The docs state that job streaming is disabled by default and is enabled per worker via camunda.client.worker.override.foo.stream-enabled set to true, or via @JobWorker(streamEnabled = true) on the handler annotation." },
+    "c": { "text": "Incorrect. The property name is stream-enabled with a boolean value true, not stream-jobs with a string value enabled." },
+    "d": { "text": "Incorrect. max-jobs-active controls how many jobs are polled and the thread pool size; it does not enable the gRPC job streaming feature on the broker side." }
+  },
+  "explanation": "Job streaming is disabled by default. To enable it on the foo worker via configuration the docs use camunda.client.worker.override.foo.stream-enabled set to true; the same effect is achieved via @JobWorker(streamEnabled = true) on the handler.",
+  "docs": [
+    { "title": "Camunda Spring Boot Starter configuration", "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/" }
+  ]
+}

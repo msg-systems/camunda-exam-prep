@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-creation-47",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-creation",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Marketplace runs 15000 orders per day in Camunda 8.8 through a short, deterministic checkout process and needs the API caller to receive the resulting process variables once execution finishes inside a single REST round-trip on the v2 process-instances endpoint.",
+  "question": "Which Camunda 8 command lets a client receive the process variables when execution completes synchronously?",
+  "options": [
+    {
+      "id": "a",
+      "text": "CreateProcessInstance via the v2 process-instances endpoint with awaitCompletion left at its default, then polling the instance status from the calling client"
+    },
+    {
+      "id": "b",
+      "text": "CreateProcessInstanceWithResult, which synchronously executes the process and returns the results via a set of variables when execution is complete"
+    },
+    {
+      "id": "c",
+      "text": "CompleteJob with the variables payload on the start activity, then a follow-up GetProcessInstance call to read the final variables from the broker"
+    },
+    {
+      "id": "d",
+      "text": "BroadcastSignal with the start event name and a result-subscription header so the gateway streams the variables back to the original caller asynchronously"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The plain CreateProcessInstance command returns immediately with only the process instance ID; obtaining result variables requires awaitCompletion set to true or the CreateProcessInstanceWithResult RPC."
+    },
+    "b": {
+      "text": "Correct. The Create and await results section states that CreateProcessInstanceWithResult allows a client to synchronously execute the process and receive the results via a set of variables when the execution is complete."
+    },
+    "c": {
+      "text": "Incorrect. CompleteJob completes an activated job and has no role in starting a process instance; there is no documented pattern of pairing it with a follow-up read for synchronous results."
+    },
+    "d": {
+      "text": "Incorrect. Signal broadcasts do not return process variables; result streaming via a signal header is not a documented Camunda 8 API in the process instance creation page."
+    }
+  },
+  "explanation": "The Create and await results section explains that CreateProcessInstanceWithResult synchronously executes the process and returns the result via a set of variables once execution is complete. The REST equivalent sets awaitCompletion to true on the v2/process-instances endpoint, returning the variables in the response body.",
+  "docs": [
+    {
+      "title": "Process instance creation",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/"
+    }
+  ]
+}

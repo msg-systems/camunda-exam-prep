@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q52",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Ops queries Operate's variable filter to find instances where customerId = \"C-789\" across millions of historical instances. They notice the query takes 10+ seconds. They want to understand the performance characteristics.",
+  "question": "What are the performance considerations for variable filtering in Operate?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Operate query performance is not uniformly instant. It depends on several factors including the size of the underlying Elasticsearch or OpenSearch index, the selectivity of the filter being applied, the number of shards and nodes in the backend cluster, and the indexing strategy for the specific fields being queried. Variable filter queries on millions of historical instances can take seconds or even longer when the filter has low selectivity or the ES cluster is underpowered for the data volume."
+    },
+    {
+      "id": "b",
+      "text": "While Elasticsearch itself has internal caching mechanisms and Operate may cache some frequently repeated query results, caching is not the primary lever for improving variable filter query performance at scale. The more fundamental factors are the ES index design (which fields are indexed and how), the query selectivity, and the overall cluster sizing. Caching helps with repeated identical queries but does not address the root cause of slow queries against large, non-optimally indexed datasets."
+    },
+    {
+      "id": "c",
+      "text": "md:29-37. For SaaS and most production Self-Managed setups it is ES / OS (search-optimized). , country = \"US\") returns many → slower; (4) cluster sizing: more ES/OS nodes / shards → better parallelism. For frequent queries on specific variables, scale the backend or shift to Optimize / a dedicated analytics pipeline."
+    },
+    {
+      "id": "d",
+      "text": "Variable filtering is a supported and documented feature in Operate. Users can filter process instances by variable name and value through the Operate UI, and the same filtering is available programmatically via the Operate REST API. The Operate interface provides variable-based filtering as a core capability for finding specific process instances among large datasets, even though performance can vary with dataset scale and index configuration."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate is backed by Elasticsearch (or OpenSearch). Variable filters scan ES indexes; performance is shaped by: Index design: which fields are indexed and how. Variables are stored in a generic schema; deep queries on arbitrary variable values may not benefit from optimal indexing. Dataset size: at multi-million instance scale, ES scans become noticeable. Selectivity: highly selective filters (e.g., unique customer ID) → fast result; low selectivity (e.g., common attribute) → slow. Cluster sizing: more ES nodes / shards → better parallelism for queries. Performance optimisation for production-scale Operate: Scale ES cluster appropriately for instance volume. Configure variable-specific indexing if needed. For frequent / known query patterns, use Optimize (which has its own optimised indexing) or a dedicated analytics pipeline. For ad-hoc deep queries on huge datasets, accept some latency or build custom views."
+    },
+    "b": {
+      "text": "Incorrect. Performance varies."
+    },
+    "c": {
+      "text": "Correct. Caching helps for repeated queries; not a primary lever."
+    },
+    "d": {
+      "text": "Incorrect. Supported."
+    }
+  },
+  "explanation": "Caching helps for repeated queries; not a primary lever.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q52",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

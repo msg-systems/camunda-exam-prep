@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A risk-assessment DMN table has output column riskLevel with values [\"EXTREME\", \"HIGH\", \"MEDIUM\", \"LOW\", \"NONE\"] ordered by severity. Multiple rules can match. The team wants to return the single highest-severity risk -- if rules match outputs MEDIUM and HIGH, return HIGH (because HIGH is more severe).",
+  "question": "Which Camunda-8-supported hit policy fits \"single highest-priority output\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:91-99. With a single value returned per :60 and rule ordering encoding the priority list, FIRST is the canonical Camunda 8 replacement for the DMN specification's PRIORITY policy. Place the most critical outcome rule at the top and less critical rules below. When inputs fall in overlapping ranges, the topmost matching rule wins."
+    },
+    {
+      "id": "b",
+      "text": "3 specification hit policy that selects the matching rule whose output value appears earliest in a predefined ordered enumeration of output values. This policy enables priority-based single-result selection without manually ordering rules. While defined in the DMN specification, PRIORITY has limited adoption across engine implementations. In Camunda 8, only UNIQUE, ANY, FIRST, RULE ORDER, and COLLECT hit policies are available -- PRIORITY is not deployable. md:33-52."
+    },
+    {
+      "id": "c",
+      "text": "3 specification hit policy that collects all matching rules and returns them ordered by the position of each output value in the predefined output value enumeration. This enables priority-ordered multi-result collection where results appear in significance order rather than rule definition order. Like PRIORITY, OUTPUT ORDER requires a predefined enumeration of output values. md -- deploying a decision with OUTPUT ORDER fails. COLLECT with application-side sorting or RULE ORDER achieves similar ordered multi-result collection within supported policies."
+    },
+    {
+      "id": "d",
+      "text": "UNIQUE -- a DMN hit policy requiring exactly one rule to match for any given input combination. md:63-68. For the severity-routing scenario where multiple conditions may simultaneously match different input ranges, UNIQUE produces runtime errors when overlap occurs. This makes UNIQUE unsuitable for scenarios that intentionally allow multiple concurrent matches requiring priority selection."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. PRIORITY exists in DMN-1.3 spec but is absent from the Camunda-8 supported table at decision-table-hit-policy.md:33-52. Any Camunda-8 deployment with hitPolicy=\"PRIORITY\" will fail validation. (Pattern #7 -- 9th cumulative hit across S2 Q25, S3 Q23/Q24, S4 Q25, S5 Q23/Q24/Q25, S6 Q24, S7 Q24, S8 Q23.)"
+    },
+    "b": {
+      "text": "Incorrect. decision-table-hit-policy.md:26-53 lists ALL five supported policies -- UNIQUE, ANY, FIRST, RULE ORDER, COLLECT. PRIORITY and OUTPUT ORDER are DMN-1.3 spec features but not in the Camunda-8 supported set. The canonical Camunda-8 replacement: encode the priority list in row order (most severe at top), set hitPolicy=\"FIRST\", and FIRST returns \"the output of the first satisfied rule\" (:93). For the worked example at :97-99 -- input 19 matches multiple rules but FIRST returns only the first one's output -- this is precisely the \"highest-priority single value\" semantic. The output column does not need a typeRef value list for this to work; the priority is encoded by rule ordering, not by output-value list ordering."
+    },
+    "c": {
+      "text": "Incorrect. Same reason as (a) -- OUTPUT ORDER is in the DMN-1.3 spec but not in Camunda 8's supported list."
+    },
+    "d": {
+      "text": "Incorrect. UNIQUE forbids multiple matches; the scenario explicitly has multiple matches."
+    }
+  },
+  "explanation": "PRIORITY exists in DMN-1.3 spec but is absent from the Camunda-8 supported table at decision-table-hit-policy.md:33-52. Any Camunda-8 deployment with hitPolicy=\"PRIORITY\" will fail validation. (Pattern #7 -- 9th cumulative hit across S2 Q25, S3 Q23/Q24, S4 Q25, S5 Q23/Q24/Q25, S6 Q24, S7 Q24, S8 Q23.)",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

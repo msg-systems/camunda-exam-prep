@@ -1,0 +1,75 @@
+{
+  "id": "imp-set16-q07",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Documentation refers to \"tokens\" in BPMN flow. New team member wonders what a token is.",
+  "question": "BPMN token concept?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Authentication token -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Real object in DB -- this is only partially accurate. The term \"token\" in BPMN is an abstract conceptual model from the BPMN specification, not a concrete row or object persisted in a database table. Camunda 8's engine internally tracks execution state through element instances and active flow nodes, which correspond to the token concept, but these are implementation details rather than direct token objects. The token metaphor is a teaching aid: thinking of tokens as balls rolling through the diagram helps understand concurrency, parallel branches, and join semantics. Conflating the abstract model with a specific database representation can cause confusion."
+    },
+    {
+      "id": "c",
+      "text": "0 specification and is explicitly defined in its execution semantics section. Tokens represent the progression of control flow through a process: one token is created at the Start Event, moves along sequence flows, is multiplied at Parallel Gateways, and is consumed at End Events. Camunda's engine implements these semantics, making the token model directly relevant to understanding how Camunda 8 processes execute."
+    },
+    {
+      "id": "d",
+      "text": "0 specification that tracks where control flow is at any moment. One token is created at the Start Event and moves along sequence flows as activities complete. A Parallel Gateway diverging creates multiple tokens -- one per outgoing branch -- enabling concurrent execution. A joining Parallel Gateway waits until all expected tokens arrive, then emits one token forward. Tokens are consumed at End Events. Understanding tokens is essential for reasoning about multi-instance loops, parallel paths, and join synchronization. Camunda 8 implements these semantics internally."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN token semantics: Token model: Abstract concept from BPMN spec. Represents execution state at a point in process. Moves through flow as process progresses. Token lifecycle: Creation: At Start Event: one token created. At Parallel Gateway diverge: tokens duplicated (one per outgoing flow). At Inclusive Gateway diverge: tokens for each true condition. At Event Subprocess (non-interrupting): new token in subprocess. Movement: Token at activity → activity executes → token moves to next. Conditional flows: token follows true condition. Sequential: one token at a time. Parallel branches: multiple tokens active. Consumption: At End Event: token consumed. At Terminate End: all tokens in scope consumed. At Parallel Join: input tokens merged → single output token. Why tokens matter: Understanding parallel flows: Parallel Gateway diverging: 2 outgoing flows → 2 tokens. Both branches execute: each branch has own token. Parallel Join: waits for both tokens before continuing. Understanding conditional flows: XOR Gateway: 1 token in, 1 token out. Only one path active. Understanding MI: Multi-Instance: multiple tokens (one per iteration in Parallel mode). All complete: tokens merged. Camunda implementation: Internally: Engine tracks active flow nodes / element instances. \"Token\" is conceptual; implementation may differ. For developers: Operate shows active elements: where tokens are. \"Token\" in Operate context: synonymous with active flow. Common gotchas: Parallel Join deadlock: If one branch never completes; Parallel Join waits forever. Solution: ensure all branches terminate or use Inclusive Join. Inclusive Gateway join semantics (per Set 14 Q1): Knows which branches activated; waits for those tokens. Different from Parallel Join (waits for all incoming flows). Visualising tokens: Operate: shows where active elements. Imagine token as a ball moving along flows. Help debug: where is the \"ball\" stuck? For Camunda 8 specifically: Element instance: concrete implementation. Activation: token enters element. Completion: token exits element. Educational value: Mental model: easier to reason about process behavior. Debugging: think \"where is the token now?\" Design: anticipate flow + concurrency. For multi-token scenarios: Parallel branches: ` [A] → [Parallel diverge] → [B1] → [Parallel join] → [D] → [B2] → ` After parallel diverge: 2 tokens (one in B1, one in B2). Each completes; parallel join waits for both. Single token continues to D. Event Subprocess (non-interrupting): Main token continues in parent. Event subprocess token spawned in handler. 2 tokens active simultaneously. Best practices: Think in tokens: design process flow. Avoid orphan tokens: ensure all paths end. Avoid deadlocks: join semantics match diverge."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q07",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-question-too-short",
+        "severity": "block",
+        "message": "question length 19 < 20 (catastrophically short)",
+        "where": "question"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 22.2 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

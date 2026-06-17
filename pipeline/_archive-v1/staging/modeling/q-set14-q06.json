@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q06",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process publishes a \"INVENTORY_UPDATED\" Signal. Team wonders if all running process instances receive it, or only specific ones.",
+  "question": "Signal Event scope -- broadcast or targeted?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Signal Events in Camunda 8 broadcast to all active subscriptions matching the signal name simultaneously rather than routing to a single receiver. Unlike Messages, which use a correlation key to target one specific process instance, Signals fan out to every process instance currently waiting on a matching Signal Catch, Signal Boundary, or Signal Start Event. Limiting signal delivery to only one instance contradicts the fundamental broadcast semantics that define how the Signal mechanism works."
+    },
+    {
+      "id": "b",
+      "text": "Signals are broadcast -- every active subscription matching the Signal name receives it. Unlike Messages (which have a Correlation Key for 1-to-1 targeting), Signals fan out to all listeners by name only. Scope: cluster-wide by default in Camunda 8 (verify per version). Use cases: system-wide notifications, refresh triggers, global state changes. Vs Message: Message = targeted (one subscription via correlation); Signal = broadcast (all subscriptions)."
+    },
+    {
+      "id": "c",
+      "text": "Signals broadcast to all matching subscriptions within the Camunda cluster, and describing this as \"cluster-isolated\" is partially accurate but potentially misleading. The important nuance is that signals reach ALL matching subscriptions across all process definitions within the cluster scope -- not restricted to one process definition or a single instance. The word \"isolated\" could imply a narrower scope than actually applies. Verify exact cross-cluster behavior for your specific deployment configuration."
+    },
+    {
+      "id": "d",
+      "text": "Signals and Messages serve opposite routing purposes in Camunda 8. A Message correlates to exactly one process instance using a combination of message name and a unique correlation key, enabling targeted one-to-one communication. A Signal broadcasts to all active subscriptions matching only the signal name with no correlation key, enabling one-to-N fan-out. The two event types use different API calls, different BPMN visual notation, and have entirely different routing semantics."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Signal vs Message semantics: Signal: Identifier: Signal name (string). Routing: broadcast -- all active subscriptions with matching name receive. Use cases: System-wide notifications: \"INVENTORY_UPDATED\" → all processes interested refresh stock data. Global state change: \"MARKET_CLOSED\" → all trading processes pause. Multi-recipient triggers: \"EVENT_X\" → multiple processes react independently. No correlation key: targeting is by name alone. Many-to-many: any publisher to any number of subscribers. Message (compare): Identifier: Message name + Correlation Key value. Routing: targeted -- one subscription matching name AND correlation key. Use cases: Order ID → specific order process. Customer ID → specific customer interaction. 1-to-1 conversation. For the scenario (INVENTORY_UPDATED): Multiple processes interested in inventory changes (analytics, restocking, alerts, etc.). Signal fits: every interested process gets the notification. Message would require sending to each process individually (with correlation key per process). Scope in Camunda 8: Process instance scope: catch within same process. Process definition scope: any instance of a process. Cluster scope: typically across all processes in cluster (verify per version). Cross-cluster: separate consideration; typically not native Signal. Publishing: Via API: publish signal by name; payload optional. Via Throw Signal Event in BPMN: another process publishes during its execution. Catching: Signal Start Event: process starts on signal. Signal Catch Event (intermediate): waits for signal during process. Signal Boundary Event: triggered while attached activity is active. Important nuance: Signal payload: can carry variables. Catcher can map. Multiple catchers at different stages: all activate. Anti-pattern: Signal when Message fits: causes accidental processing in wrong instances. Message when Signal fits: explicit 1-to-N sending instead of 1-to-all."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/signal-events/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q06",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

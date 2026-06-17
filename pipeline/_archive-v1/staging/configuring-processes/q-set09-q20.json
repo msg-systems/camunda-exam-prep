@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process has a Multi-Instance Subprocess where each inner instance waits for a Receive Task correlated by a unique key (e.g., =order.id for each order). 5 inner instances are active, each waiting for a different OrderShipped message.",
+  "question": "How do Message correlations work for MI inner instances?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Multi-Instance inner instances do not share a single shared message subscription. If they did, one published message could match the shared subscription and route to any or all instances ambiguously. Each MI inner instance independently creates its own subscription scoped to that instance's local variable context, with a unique correlation key value derived from the instance's input element. This per-instance subscription isolation ensures that each received message is routed to exactly the correct inner instance."
+    },
+    {
+      "id": "b",
+      "text": "Broadcasting a message to all inner instances simultaneously is Signal semantics, not Message semantics. Signals in Camunda 8 broadcast to all matching subscribers regardless of correlation keys. Messages, by contrast, are correlated one-to-one: a published message with a specific correlation key value routes to exactly one subscription that carries that same key value. If five MI inner instances are active, each has a distinct correlation key value and receives only its own intended message."
+    },
+    {
+      "id": "c",
+      "text": "id evaluated for each inner instance's order input element). Published messages are matched to the subscription whose correlation key equals the message's correlation value, routing to exactly the correct inner instance. With five active inner instances, five distinct subscriptions exist simultaneously, each waiting for its own unique OrderShipped event keyed by its specific orderId."
+    },
+    {
+      "id": "d",
+      "text": "Multi-Instance activities fully support message correlation through per-instance subscriptions keyed by the inputElement variable. When each inner instance activates and reaches a Receive Task or Intermediate Message Catch Event, Zeebe registers a subscription for that specific instance using the evaluated correlation key. This is documented and commonly used for orchestrating concurrent workflows that each await their own correlated completion event."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Multi-Instance handles per-instance message subscriptions: When each inner instance activates and reaches its Receive Task (or Intermediate Message Catch), it creates its own subscription with the per-instance correlation key (evaluated from the inner instance's variables -- typically inputElement). Published messages correlate to the specific subscription whose correlation key matches. 5 active inner instances → 5 distinct subscriptions → published messages correlate to the right one. Critical detail: the correlation key must produce a unique value per inner instance for this to work. If two inner instances had the same correlation key value, message routing would be ambiguous. Design ensures uniqueness (e.g., orderId is unique per order)."
+    },
+    "b": {
+      "text": "Incorrect. Per-instance subscriptions."
+    },
+    "c": {
+      "text": "Correct. That's Signal; Messages are 1-to-1."
+    },
+    "d": {
+      "text": "Incorrect. Supported."
+    }
+  },
+  "explanation": "That's Signal; Messages are 1-to-1.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q20",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

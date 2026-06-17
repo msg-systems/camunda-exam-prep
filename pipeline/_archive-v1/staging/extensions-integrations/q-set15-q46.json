@@ -1,0 +1,63 @@
+{
+  "id": "imp-set15-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team builds custom Inbound Connector that polls a custom legacy system. Wonders Connector SDK structure.",
+  "question": "Custom Inbound Connector implementation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Connector SDK only supports custom Outbound Connectors; custom Inbound Connectors must be built using raw Job Worker APIs â€” this approach has limitations. The Camunda 8 Connector SDK explicitly supports both Outbound and Inbound custom Connectors. For Inbound Connectors, the SDK provides the InboundConnectorExecutable interface with activate(InboundConnectorContext) and deactivate() lifecycle methods. Custom Inbound Connectors handle event subscriptions, event validation, and process correlation. The SDK abstracts the complexity of managing correlation keys, process start events, and correlation retry logic."
+    },
+    {
+      "id": "b",
+      "text": "The Camunda 8 Connector SDK only supports building custom Outbound Connectors -- custom Inbound Connectors are not possible -- this approach has limitations. The Connector SDK explicitly documents the InboundConnectorExecutable interface (:403) and @InboundConnector annotation (:402) for building custom Inbound Connectors. bindProperties() (:410) for deserializing Element Template properties to POJOs, and the activate()/deactivate() lifecycle methods (:449-455) for managing subscriptions. Custom Inbound Connectors can implement polling, WebSocket, gRPC streaming, or any other inbound event reception pattern."
+    },
+    {
+      "id": "c",
+      "text": "Building a custom Inbound Connector in Camunda 8 is only achievable as a workaround by wrapping the existing REST Connector -- this partial answer understates the SDK's capabilities. md:403) that supports any inbound integration pattern: HTTP polling, WebSocket, gRPC streaming, message broker consumption, database change data capture, or file system watching. The REST-based approach is just one pattern. Custom Inbound Connectors run as long-lived background processes managed by the connector runtime, with proper activate()/deactivate() lifecycle management and first-class correlation API support."
+    },
+    {
+      "id": "d",
+      "text": "camunda:mytype:1\") per :402. Implement InboundConnectorExecutable interface (Java SDK) per :403. activate(InboundConnectorContext): called on registration; start polling / listening per :390, :449-450 (must be asynchronous -- return quickly, do work in a background subscription/scheduler). deactivate(): graceful shutdown hook; release resources per :419-421, :454-455. correlateWithResult(connectorEvent) per :425 -- returns a CorrelationResult (Success / Failure with ForwardErrorToUpstream or Ignore handling strategy per :429-444). correlate() shortcut exists but correlateWithResult is the doc-recommended method because it surfaces failure handling. class) per :410 deserialises modeler-set Element-Template properties to a POJO. Element Template (Inbound type): defines modeler-visible properties bound via zeebe:property and the inbound type ID."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Custom Inbound Connector structure: Java SDK pattern (typical): `java @InboundConnector(name = \"LEGACY_POLLING\", type = \"io.camunda:legacy-polling:1\") public class LegacyPollingConnector implements InboundConnectorExecutable { private ScheduledExecutorService scheduler; private LegacyPollingProperties properties; private InboundConnectorContext connectorContext; @Override public void activate(InboundConnectorContext connectorContext) { this.connectorContext = connectorContext; this.properties = connectorContext.bindProperties(LegacyPollingProperties.class); // Start polling (background -- activate must return quickly) scheduler = Executors.newScheduledThreadPool(1); scheduler.scheduleAtFixedRate( this::poll, 0, properties.getPollingInterval(), TimeUnit.SECONDS ); } private void poll() { // Call legacy system LegacyResponse response = legacyClient.fetch(properties.getEndpoint()); // For each event found, correlate to Camunda for (LegacyEvent event : response.getEvents()) { var result = connectorContext.correlateWithResult(event); switch (result) { case Success ignored -> LOG.debug(\"Correlated event {}\", event.getId()); case Failure failure -> handleFailure(failure); } } } @Override public void deactivate() { if (scheduler != null) { scheduler.shutdown(); } } } Key SDK concepts: InboundConnectorContext (per connector-sdk.md:410, :425, :451-452): bindProperties(Class): deserialise modeler-set properties to POJO. correlateWithResult(connectorEvent): trigger Camunda correlation, returns CorrelationResult (Success / Failure) so caller can branch on outcome -- doc-recommended primary method. correlate(variables): simpler fire-and-forget variant. Structured logging utilities. InboundConnectorExecutable (per :390, :449-450, :454-455): activate(InboundConnectorContext): subscription lifecycle start. Must be asynchronous -- return quickly, do polling/listening work on a background thread. deactivate(): graceful shutdown hook; the implementation must release all resources used by the subscription. Element Template: json { \"name\": \"Legacy Polling Connector\", \"id\": \"legacy-polling\", \"appliesTo\": [\"bpmn:StartEvent\"], \"elementType\": { \"value\": \"bpmn:StartEvent\" }, \"properties\": [ { \"label\": \"Endpoint\", \"type\": \"String\", \"binding\": { \"type\": \"zeebe:property\", \"name\": \"inbound.endpoint\" } }, { \"label\": \"Polling Interval (seconds)\", \"type\": \"Number\", \"binding\": { \"type\": \"zeebe:property\", \"name\": \"inbound.pollingInterval\" } } ] } Verify exact Element Template schema for Inbound per version. Deployment: Custom Inbound Runtime: Self-Managed: deploy custom Inbound code in Connector Runtime container. Mount JAR: in runtime classpath. Restart runtime: register new Connector type. For SaaS (per Set 14 Q36): Verify custom Connector deployment options. Alternative: external Runtime hosted by team. Variable mapping: Activation condition: FEEL filter on events. Correlation key: extract from event. Variables: from event to process scope. Error handling: In poll method: java try { LegacyResponse response = legacyClient.fetch(...); // process } catch (Exception e) { logger.error(\"Polling failed\", e); // Continue polling; don't crash } Resilience: one failed poll doesn't stop subscription. Backoff on failures: Track consecutive failures. Increase poll interval temporarily. Alert on persistent failures. Best practices: Idempotent correlation: same event shouldn't trigger twice. Deduplication: track processed event IDs. Logging: structured logs per event. Health checks: report Connector health. Graceful shutdown: clean stop on deactivate. For dedup: java Set processedIds = ConcurrentHashMap.newKeySet(); private void poll() { for (LegacyEvent event : response.getEvents()) { if (processedIds.contains(event.getId())) continue; var result = connectorContext.correlateWithResult(event); if (result instanceof Success) { processedIds.add(event.getId()); } } } Or external state (DB) for survives-restart dedup. For the scenario: Implement InboundConnectorExecutable. Use context.correlate()`. Define Element Template. Deploy to Runtime. Test: end-to-end correlation. Anti-patterns: Blocking activate(): should return quickly; do work async. No deduplication: same event triggers process multiple times. No error handling: crashes lose subscription. Polling too fast: source overload."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q46",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[1]"
+      }
+    ]
+  }
+}

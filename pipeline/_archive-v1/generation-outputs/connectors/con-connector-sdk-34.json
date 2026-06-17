@@ -1,0 +1,27 @@
+{
+  "id": "con-connector-sdk-34",
+  "topic": "connectors",
+  "subtopic": "connector-sdk",
+  "difficulty": "easy",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "At Orion Healthcare, a hospital network running 4 Camunda 8.8 clusters, a junior developer scaffolds a new inbound connector project. A reviewer asks which SPI file under META-INF/services must list the executable class so the connector runtime can auto-detect the inbound function at startup time.",
+  "question": "Which META-INF services file does the inbound connector project outline use to register the executable class?",
+  "options": [
+    { "id": "a", "text": "META-INF/services/io.camunda.connector.api.outbound.OutboundConnectorFunction, which is the same SPI file used by outbound connectors when their runtime class is exposed" },
+    { "id": "b", "text": "META-INF/services/io.camunda.connector.api.inbound.InboundConnectorExecutable, which lists the inbound executable class so the Java ServiceLoader SPI can discover it at startup" },
+    { "id": "c", "text": "META-INF/services/io.camunda.connector.runtime.inbound.SubscriptionStarter, a runtime-only entry point that registers subscriptions before the executable class is loaded by the runtime" },
+    { "id": "d", "text": "META-INF/services/io.camunda.connector.api.inbound.InboundConnectorContext, where the connector lists the context class that the runtime should inject into each executable instance" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. That file is the SPI entry for outbound connector functions, not for inbound executables; inbound connectors use a separate services file." },
+    "b": { "text": "Correct. The inbound connector project outline places the SPI registration at src/main/resources/META-INF/services/io.camunda.connector.api.inbound.InboundConnectorExecutable, listing the executable class for the Java ServiceLoader." },
+    "c": { "text": "Incorrect. There is no SubscriptionStarter SPI in the documented outline; the standard mechanism is the InboundConnectorExecutable services file." },
+    "d": { "text": "Incorrect. InboundConnectorContext is an interface that the runtime passes into activate(); it is not registered through the services file used for discovery of the executable class." }
+  },
+  "explanation": "The inbound connector project outline relies on Java's ServiceLoader for discovery. The author must add the executable class name to META-INF/services/io.camunda.connector.api.inbound.InboundConnectorExecutable so the connector runtime can find it.",
+  "docs": [
+    { "title": "Connector SDK - Inbound connector project outline", "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/" }
+  ]
+}

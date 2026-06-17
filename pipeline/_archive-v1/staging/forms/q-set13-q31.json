@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q31",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has a deployed Camunda Form V1 referenced by multiple User Tasks. They need a breaking change (rename a field from customerEmail to email). They wonder how to manage migration without breaking in-flight tasks.",
+  "question": "Form versioning + breaking changes strategy?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:120-128). Three binding modes apply: - latest (default): User Task picks up the latest deployed form version at task activation -- in-flight tasks already activated keep their bound form; tasks activating after V2 deploy see V2. - deployment: sticky to the form version deployed alongside the current process version; V1 process instances always render V1 form regardless of V2 deploy. - versionTag: pins to the form annotated with the matching version tag; operator-controlled rollover. - For breaking field renames: switch to deployment (or versionTag) before deploying V2; V1 instances remain isolated. Combine with a parallel-form pattern where V2 temporarily includes both customerEmail and email fields, then drop the alias once in-flight V1 tasks complete."
+    },
+    {
+      "id": "b",
+      "text": "Deploying a new form version V2 immediately breaks all in-flight User Tasks that reference that form, including tasks already activated and waiting for user input. This misrepresents the documented behavior. In Camunda 8, form binding semantics isolate in-flight tasks from new deployments. A User Task that has already been activated and is waiting for a user holds a reference to the specific form it displayed at activation time; redeploying a new form version does not change the form rendered for that waiting task."
+    },
+    {
+      "id": "c",
+      "text": "Camunda Forms has no versioning mechanism; each form deployment completely replaces the previous version with no way to maintain multiple versions simultaneously. This misrepresents the documented behavior. Forms are deployed with auto-incremented version numbers, and existing process instances can continue referencing older versions using deployment binding while new process versions adopt newer form versions via latest or versionTag binding. Version isolation ensures in-flight tasks always render the form version they were originally activated with."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 automatically migrates all in-flight User Tasks to use the new form version when V2 is deployed, updating any stored form data to match the new field names. This overstates automation. Renaming a field from customerEmail to email requires deliberate migration planning: either using a transitional form with both field names, waiting for in-flight tasks to complete before deploying V2, or using process instance modification to handle incomplete tasks."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Form versioning + breaking-change strategy: Form deployment: Each Form has a formId (logical name) and version (auto-incremented or explicit). Process model references via (per Q11). Binding semantics (verify per Camunda 8 version): Latest binding (typical default): User Task references latest deployed version of formId at task activation. Sticky binding (some configurations): once a task references a form, that version sticks until task completes. For renamed-field breaking change: Phase 1: Preparation: Plan V2 with both names temporarily? Or single new name? Decide on transitional vs immediate cutover. Phase 2: Deployment: Deploy V2 form with new field name. In-flight tasks: continue with V1 if sticky-bound, OR refresh to V2 (would break form rendering for those tasks because field names differ). Phase 3: Migration patterns: Pattern A: Field aliasing (transitional): V2 includes both customerEmail (deprecated, hidden) and email (new). Old data continues to work; new submissions use new name. Eventually drop customerEmail. Pattern B: Data migration: Migrate existing process variables to new names via Modify API / script. Risky; coordinate with form deployment. Pattern C: New form, new task: V2 is a completely new form (different formId). Old process model continues using V1; new process model uses V2. Coexist; deprecate V1 over time. Pattern D: Cut over with migration window: Wait for in-flight V1 tasks to complete. Then deploy V2. Minimum disruption but requires waiting. Best practices: Test thoroughly: in-flight task continuation under V2. Document field migrations: clear changelog for consumers. Consider both upstream and downstream: forms feed variables; variables feed many consumers; rename impacts all."
+    },
+    "b": {
+      "text": "Incorrect. Isolated by version."
+    },
+    "c": {
+      "text": "Incorrect. Option d) -- Overstates."
+    },
+    "d": {
+      "text": "Incorrect. Overstates."
+    }
+  },
+  "explanation": "Form versioning + breaking-change strategy: Form deployment: Each Form has a formId (logical name) and version (auto-incremented or explicit). Process model references via (per Q11). Binding semantics (verify per Camunda 8 version): Latest binding (typical default): User Task references latest deployed version of formId at task activation. Sticky binding (some configurations): once a task references a form, that version sticks until task completes. For renamed-field breaking change: Phase 1: Preparation: Plan V2 with both names temporarily? Or single new name? Decide on transitional vs immediate cutover. Phase 2: Deployment: Deploy V2 form with new field name. In-flight tasks: continue with V1 if sticky-bound, OR refresh to V2 (would break form rendering for those tasks because field names differ). Phase 3: Migration patterns: Pattern A: Field aliasing (transitional): V2 includes both customerEmail (deprecated, hidden) and email (new). Old data continues to work; new submissions use new name. Eventually drop customerEmail. Pattern B: Data migration: Migrate existing process variables to new names via Modify API / script. Risky; coordinate with form deployment. Pattern C: New form, new task: V2 is a completely new form (different formId). Old process model continues using V1; new process model uses V2. Coexist; deprecate V1 over time. Pattern D: Cut over with migration window: Wait for in-flight V1 tasks to complete. Then deploy V2. Minimum disruption but requires waiting. Best practices: Test thoroughly: in-flight task continuation under V2. Document field migrations: clear changelog for consumers. Consider both upstream and downstream: forms feed variables; variables feed many consumers; rename impacts all.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q31",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q40",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Java Job Worker built with Spring Zeebe handles payment-processing Service Tasks. The worker is annotated with @JobWorker(type = \"payment-processing\"). Under heavy load, the team observes the worker times out activated jobs (jobs return to the broker, re-activate, repeat). Which Spring Zeebe @JobWorker parameter primarily controls how long the worker has before the job times out?",
+  "question": "Which Spring Zeebe @JobWorker parameter primarily controls how long the worker has before the job times out?",
+  "options": [
+    {
+      "id": "a",
+      "text": "maxRetries -- controls how many times the worker retries a job on failure before Zeebe creates an Incident. This parameter addresses what happens after a job fails (retry count), not how long the worker has to process a currently-active job. Configuring maxRetries in response to timeout-induced re-activations will not extend the activation window; jobs will still expire and re-activate, incrementing retry counts until an Incident fires."
+    },
+    {
+      "id": "b",
+      "text": "pollInterval -- configures how frequently (in milliseconds) the worker polls the Zeebe broker for new jobs to activate in each polling cycle. This parameter controls acquisition frequency, not processing duration. A shorter pollInterval means the worker checks for jobs more often; it has no effect on how long the worker has to complete a job it has already activated. Reducing poll interval will not prevent timeout-induced re-activations."
+    },
+    {
+      "id": "c",
+      "text": "timeout -- sets the job-activation timeout duration in the @JobWorker annotation, specifying how long Zeebe waits for the worker to complete, fail, or otherwise handle an activated job before re-activating it for another worker instance. The typical default is 5 minutes; if payment processing takes 8 minutes but the timeout is 5, jobs expire and re-activate repeatedly. Increase timeout to a value exceeding the maximum expected processing duration to eliminate the re-activation loop."
+    },
+    {
+      "id": "d",
+      "text": "requestTimeout -- sets the maximum wait time for individual gRPC request-response operations at the transport layer, such as job activation requests and completion acknowledgements. This controls network-level call timeouts, not the duration allocated for job processing logic. Increasing requestTimeout will not extend the time window between job activation and required completion; it only affects how long the client waits for individual gRPC responses."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. @JobWorker(type=\"...\", timeout=...) sets the job-activation timeout -- how long Zeebe waits for the worker to handle this job before re-activating it. If your payment processing takes 8 minutes but default is 5, jobs time out and re-activate, causing the symptom observed."
+    },
+    "b": {
+      "text": "Incorrect. maxRetries handles failure retry, not timeout."
+    },
+    "c": {
+      "text": "Correct. pollInterval controls polling frequency."
+    },
+    "d": {
+      "text": "Incorrect. requestTimeout handles gRPC-level timeouts, not job processing."
+    }
+  },
+  "explanation": "pollInterval controls polling frequency.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q40",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

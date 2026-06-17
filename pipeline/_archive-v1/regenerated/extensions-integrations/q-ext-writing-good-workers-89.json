@@ -1,0 +1,50 @@
+{
+  "id": "ext-writing-good-workers-89",
+  "topic": "extensions-integrations",
+  "subtopic": "Java worker client",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Bank consumes 8000 jobs per day from a Camunda 8.8 cluster with a Java worker built on the official Java client. The team has not touched the executor configuration and is surprised that REST calls run sequentially even when the broker activated 32 jobs in a single poll, instead of running them concurrently across multiple threads.",
+  "question": "What is the default job execution thread pool size on a Java client worker in Camunda 8.8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Java client defaults to a job worker thread pool size of 5, so blocking REST calls run with up to five jobs in parallel out of the box"
+    },
+    {
+      "id": "b",
+      "text": "The Java client defaults to a job worker thread pool size of 1, so blocking REST calls run sequentially until numJobWorkerExecutionThreads is raised on the builder"
+    },
+    {
+      "id": "c",
+      "text": "The Java client defaults to a job worker thread pool size of 32, matching the maxJobsActive poll batch returned by the broker on each activation"
+    },
+    {
+      "id": "d",
+      "text": "The Java client defaults to a job worker thread pool size equal to the JVM CPU count, scaling automatically with the host hardware sizing at startup"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Java client does not default to 5 worker threads. The page documents a default thread pool size of one; the value 5 only appears as an example argument to numJobWorkerExecutionThreads in the builder snippet."
+    },
+    "b": {
+      "text": "Correct. The page states the default thread pool size of a Java client worker is one. Blocking handlers therefore run jobs sequentially until numJobWorkerExecutionThreads is increased on the ZeebeClient builder."
+    },
+    "c": {
+      "text": "Incorrect. The 32 jobs visible in the logs are the activated batch returned by one poll, not the executor thread count. The documented default thread pool size remains one."
+    },
+    "d": {
+      "text": "Incorrect. The Java client default is not derived from CPU count. The documentation pins it to a fixed value of one, regardless of host hardware sizing."
+    }
+  },
+  "explanation": "Camunda 8.8's Java client starts a worker with a documented default job execution thread pool size of one. Teams that need parallelism for blocking handlers must raise it explicitly with newClientBuilder().numJobWorkerExecutionThreads(N) on the ZeebeClient builder.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q40",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Java Job Worker built with Spring Zeebe handles payment-validation Service Tasks. The worker is annotated @JobWorker(type = \"payment-validation\", autoComplete = false). The team is unsure of the implication of autoComplete = false. What does autoComplete = false mean?",
+  "question": "What does autoComplete = false mean?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A job that is never explicitly completed remains in the activated state and eventually times out after the configured job activation timeout. When it times out, Zeebe returns the job to the available queue for re-activation, decrements the retry counter on each re-activation failure, and eventually raises an Incident when retries are exhausted. The process instance does not advance past the Service Task. Workers must always call complete or fail to properly signal the job outcome."
+    },
+    {
+      "id": "b",
+      "text": "Job Workers can both read and write process variables. When completing a job, the worker passes output variables via the complete command variables map. These variables are merged back into the process variable scope or mapped via output mappings. Workers have full capability to update process state through the job completion payload. The idea that workers are read-only reflects a misunderstanding -- outputting variables is a fundamental capability of the Zeebe Job Worker protocol."
+    },
+    {
+      "id": "c",
+      "text": "js, Go, or other Zeebe client SDKs. The worker can optionally include output variables in the complete command. If the job fails, the worker calls the fail or throwError command instead. Jobs are never auto-completed -- the worker must signal completion to advance the process token."
+    },
+    {
+      "id": "d",
+      "text": "A correctly implemented Job Worker does not auto-fail on every invocation. Auto-failure would indicate a programming error in the worker handler or a missing try-catch block that allows exceptions to propagate. A properly implemented worker handles its task logic, calls complete on success, and calls fail or throwError on recoverable or business errors. Consistent auto-failure is a symptom of a broken worker, not a design feature of the Job Worker execution model. ###"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. autoComplete = false tells the Camunda Spring Boot starter not to auto-complete the job after the handler returns (default is autoComplete = true per camunda-spring-boot-starter/configuration.md:530-532). The handler takes responsibility for completion via client.newCompleteCommand(job.getKey()).send() (see configuration.md:611-617). Common use case: async work where the handler delegates to a thread pool / external system and completes the job later. Note: Spring Zeebe SDK is being removed in 8.10 -- replacement is the Camunda Spring Boot starter; the @JobWorker / autoComplete annotation surface is preserved."
+    },
+    "b": {
+      "text": "Incorrect. Hangs only if handler doesn't complete; not automatic hang."
+    },
+    "c": {
+      "text": "Correct. Variable modification is independent."
+    },
+    "d": {
+      "text": "Incorrect. No auto-fail behavior."
+    }
+  },
+  "explanation": "Variable modification is independent.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q40",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

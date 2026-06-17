@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Camunda 8 Self-Managed deployment has 4 broker partitions. The team has one Java worker subscribed to job type \"validate-claim\" with maxJobsActive=32. Under sustained load, the worker processes about 8 jobs concurrently, even though maxJobsActive allows 32. The other 24 slots remain unused. The team also notices broker logs showing job activations distributed unevenly -- partition 0 hands out most jobs, partitions 1-3 rarely.",
+  "question": "What is the most likely cause of this under-utilization?",
+  "options": [
+    {
+      "id": "a",
+      "text": ", 10 ms) so the single worker sends activation requests to the Zeebe broker more frequently, polling each of the four partitions faster and reducing the time between new jobs becoming available and the worker picking them up. The pollInterval controls how often the worker sends an activation request when the previous poll returned no jobs. Under sustained load with jobs actively available, Zeebe's push-pull model dispatches available jobs onto open long-poll connections without waiting for new poll cycles. Reducing pollInterval does not change per-partition activation distribution."
+    },
+    {
+      "id": "b",
+      "text": "Each Zeebe partition activates jobs independently for its own subset of process instances. With one worker and 4 partitions, each partition's activation share is limited -- but maxJobsActive caps the total across partitions, not per partition. The team should add more workers to better distribute activation across partitions. Adding more worker instances helps because each worker independently polls all partitions, and the broker distributes activations across the worker pool. With more workers, each partition can hand jobs to different workers concurrently, significantly increasing total activation throughput."
+    },
+    {
+      "id": "c",
+      "text": "Set the worker's maxJobsActive configuration to 8 to match the actual observed concurrency, reducing the number of job slots the worker reserves but does not yet process, which should eliminate the activation imbalance and improve utilisation across all four partitions. Lowering maxJobsActive from 32 to 8 does not increase throughput or fix partition imbalance -- it simply caps the worker's in-flight job capacity at a lower ceiling. The under-utilisation was caused by single-worker activation limits against 4 partitions, which horizontal scaling (more workers) addresses."
+    },
+    {
+      "id": "d",
+      "text": "Use Operate's partition manager tool to manually re-balance the four Zeebe broker partitions by redistributing process instances across them more evenly, so that each partition has an equal share of the workload and activation requests reach the single worker in a balanced stream. There is no \"partition manager\" feature in Operate. Zeebe partitions are configured at cluster setup time and the distribution of process instances across partitions is managed internally by the Zeebe broker based on process and partition keys. Partitions cannot be dynamically rebalanced at runtime through Operate."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe distributes process instances across partitions; each partition handles activation for its own instances independently. A single worker polls all partitions but might get more activations from one partition (due to round-robin or load distribution quirks). Adding more worker instances helps because each worker can independently poll, and the broker tries to keep activations balanced across the worker pool. Plus, with more workers the partition-skewed distribution matters less."
+    },
+    "b": {
+      "text": "Correct. Polling frequency isn't the bottleneck -- the broker pushes jobs as available."
+    },
+    "c": {
+      "text": "Incorrect. Lowering maxJobsActive doesn't increase utilization; it just caps lower."
+    },
+    "d": {
+      "text": "Incorrect. No \"partition manager\" in Operate; partitions are configured at cluster setup, not rebalanced runtime."
+    }
+  },
+  "explanation": "Polling frequency isn't the bottleneck -- the broker pushes jobs as available.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q41",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

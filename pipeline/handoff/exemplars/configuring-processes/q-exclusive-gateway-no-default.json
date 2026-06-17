@@ -1,0 +1,27 @@
+{
+  "id": "cfg-exclusive-gateway-no-default",
+  "topic": "configuring-processes",
+  "subtopic": "gateways",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An exclusive (XOR) gateway has three outgoing sequence flows, each with a FEEL condition. At runtime all three conditions evaluate to false and no default flow is defined. What happens?",
+  "options": [
+    { "id": "a", "text": "The token waits indefinitely until a condition becomes true." },
+    { "id": "b", "text": "The first sequence flow in document order is taken as a fallback." },
+    { "id": "c", "text": "An incident is raised because no flow can be selected." },
+    { "id": "d", "text": "All three flows are taken, behaving like a parallel split." }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Exclusive gateways do not re-evaluate conditions later; the token does not wait at a gateway for state to change." },
+    "b": { "text": "There is no implicit document-order fallback. A fallback only exists if a sequence flow is explicitly marked as the default flow." },
+    "c": { "text": "An exclusive gateway requires exactly one matching condition. With no match and no default flow, execution cannot proceed and the engine raises an incident at the gateway." },
+    "d": { "text": "Taking all flows is parallel-gateway semantics, not exclusive-gateway semantics." }
+  },
+  "explanation": "Exclusive gateways must select exactly one outgoing flow. When no condition matches and no default flow is defined, Zeebe raises an incident at the gateway so the token can be unblocked manually in Operate.",
+  "docs": [
+    { "title": "BPMN exclusive gateway", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/exclusive-gateways/" }
+  ]
+}

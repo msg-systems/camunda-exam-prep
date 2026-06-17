@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q25",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A loan-eligibility DMN has 10 detailed rules. The team wants the engine to evaluate rules in priority order (output preference: PREMIUM > GOLD > SILVER > BRONZE) and return the single highest-priority match. The decision is deployed to a Camunda 8 cluster.",
+  "question": "Which hit policy fits in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "3 selects the highest-priority output among all matching rules, where priority is determined by the declared output value order in the decision table schema. While it handles priority selection, PRIORITY requires explicit priority ranking of output values -- it does not use rule order position. For scenarios where the designer controls priority through rule sequence rather than output value ranking, FIRST is the simpler and more intuitive approach to priority-ordered rule evaluation."
+    },
+    {
+      "id": "b",
+      "text": "FIRST hit policy evaluates rules from top to bottom and returns the output of the first matching rule, ignoring all subsequent matches. By ordering rules from highest-preference to lowest-preference (most specific to most general), the decision table implements priority through rule sequence. FIRST tolerates overlapping conditions without error -- the first match wins. This is the canonical DMN approach for priority-based rule ordering where rule table sequence directly expresses preference priority."
+    },
+    {
+      "id": "c",
+      "text": "UNIQUE hit policy requires that input conditions across all rules are disjoint -- at most one rule matches any given input. If a priority-ordered table has overlapping conditions (by design, so the first match wins), UNIQUE raises a runtime error on any input that matches multiple rules simultaneously. UNIQUE is incompatible with intentionally overlapping rules designed for priority selection. It enforces exclusivity rather than supporting the overlapping-with-priority-selection pattern."
+    },
+    {
+      "id": "d",
+      "text": "3 collects all matching rule outputs and returns them sorted by the declared output priority order, highest priority first. Unlike FIRST, it returns all matches sorted by priority rather than only the first. When only the top-priority result is needed, OUTPUT ORDER returns more data than necessary. FIRST is more efficient and direct for scenarios that need only the single highest-priority matching rule output rather than a sorted list of all matches. ###"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. PRIORITY hit policy is part of the DMN-1.3 spec but is excluded from Camunda 8's supported set (per decision-table-hit-policy.md:26-53). Deploying a table with hitPolicy=\"PRIORITY\" fails validation."
+    },
+    "b": {
+      "text": "Correct. Camunda 8 supports only 5 hit policies: UNIQUE, ANY, FIRST, RULE ORDER, COLLECT (per decision-table-hit-policy.md:26-53 and :33-52 supported-list table). PRIORITY is not implemented, even though it exists in the DMN-1.3 spec. The Camunda-8-idiomatic way to satisfy \"highest-preference single match\" is to author rules in priority order (PREMIUM row first, BRONZE row last) and use FIRST -- the first satisfied rule wins. Returns a single value."
+    },
+    "c": {
+      "text": "Incorrect. UNIQUE requires exactly one matching rule and errors on overlap; doesn't pick highest preference."
+    },
+    "d": {
+      "text": "Incorrect. OUTPUT ORDER is also excluded from the supported 5 policies; additionally it would return a list, not a single value."
+    }
+  },
+  "explanation": "Camunda 8 supports only 5 hit policies: UNIQUE, ANY, FIRST, RULE ORDER, COLLECT (per decision-table-hit-policy.md:26-53 and :33-52 supported-list table). PRIORITY is not implemented, even though it exists in the DMN-1.3 spec. The Camunda-8-idiomatic way to satisfy \"highest-preference single match\" is to author rules in priority order (PREMIUM row first, BRONZE row last) and use FIRST -- the first satisfied rule wins. Returns a single value.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q25",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

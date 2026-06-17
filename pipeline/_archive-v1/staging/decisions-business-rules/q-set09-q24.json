@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q24",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN model has a DRD with 5 decisions interconnected by Information Requirements. The team wants only 2 of them (the top-level decisions) to be invoked from BPMN -- internal decisions are supporting calculations and shouldn't be entry points themselves.",
+  "question": "Which Camunda 8 DMN approach exposes a curated set of invokable decisions?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Marking decisions as private = true in DMN XML is an invented attribute that has no basis in the DMN specification or in Camunda 8's DMN implementation. No such isolation property exists in the DMN element schema. The DMN spec defines elements like <decision>, <inputData>, <knowledgeSource>, and <businessKnowledgeModel>, but none carry a private visibility flag. Adding this attribute would simply be ignored or cause a parsing issue."
+    },
+    {
+      "id": "b",
+      "text": "3 specification, but Camunda 8 does not implement it. md:23-28, the four modeled element types in Camunda 8 are Decision, Input data, Knowledge source, and Business Knowledge Model only. Camunda 8 Modeler has no palette entry for Decision Service, and Zeebe has no execution semantics for it. Teams relying on Decision Service would find their DMN model fails to deploy in Camunda 8 clusters."
+    },
+    {
+      "id": "c",
+      "text": "Invoke only the top-level decisions from BPMN Business Rule Tasks; DRD dependency resolution auto-evaluates upstream supporting decisions via informationRequirement. md:23-28, Camunda 8's DMN coverage is exactly: Decision (tables + literal expressions) / Input data / Knowledge source / Business Knowledge Model -- no \"Decision Service\" entity. md, when a top-level Decision is evaluated, all decisions it references via informationRequirement are pulled in automatically. To \"expose\" only certain decisions, configure your BPMN Business Rule Tasks to reference only those top-level decisionIds; internal ones are never directly invoked but their results feed the top-level via the DRD chain."
+    },
+    {
+      "id": "d",
+      "text": "Deploying only the top-level decisions in a separate DMN file breaks DRD dependency resolution. When the Zeebe engine evaluates a decision that contains informationRequirement links to other decisions, it must be able to find those referenced decisions in the same deployed Decision Requirements Graph. If supporting decisions are absent from the deployment, the engine raises a resolution error at evaluation time. All decisions in the dependency chain must reside together in the same deployed DRG file."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. In Camunda 8, \"expose a curated public interface\" is achieved at the BPMN integration boundary, not via a DMN-internal construct: DMN side: model all 5 decisions in one DRG (Decision Requirements Graph) with informationRequirement dependencies showing which decisions feed which. BPMN side: a Business Rule Task references a specific decisionId (the top-level decision). When the BRT executes, the engine evaluates that target decision; the DRG's informationRequirement chain pulls in upstream supporting decisions automatically. REST/API side: the EvaluateDecision API (https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/specifications/evaluate-decision/) (POST /decision-definitions/evaluation) accepts any deployed decisionId. To \"hide\" internal decisions, simply don't document those IDs in your team's API contract -- Camunda has no decision-level access control isolating them at the engine layer. This is the canonical C8 pattern for the \"expose 2 of 5\" scenario. Internal decisions are never directly invoked in practice; they exist only as supporting nodes pulled in by the DRD chain."
+    },
+    "b": {
+      "text": "Incorrect. No private flag in DMN spec or in Camunda Zeebe DMN extensions."
+    },
+    "c": {
+      "text": "Correct. Per dmn.md:23-28 Camunda 8 Modeler supports exactly 4 DMN element kinds: Decision, Input data, Knowledge source, Business Knowledge Model. Grep across docs/components/modeler/dmn/ for \"decision service\" returns 0 matches. The DMN-1.3-spec \"Decision Service\" entity is not exposed in Camunda 8's modeling surface and is not executed by Zeebe -- relying on it would not deploy."
+    },
+    "d": {
+      "text": "Incorrect. Splitting the DRG breaks informationRequirement resolution; deployment-time validation rejects unresolved references."
+    }
+  },
+  "explanation": "Per dmn.md:23-28 Camunda 8 Modeler supports exactly 4 DMN element kinds: Decision, Input data, Knowledge source, Business Knowledge Model. Grep across docs/components/modeler/dmn/ for \"decision service\" returns 0 matches. The DMN-1.3-spec \"Decision Service\" entity is not exposed in Camunda 8's modeling surface and is not executed by Zeebe -- relying on it would not deploy.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/dmn/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q24",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

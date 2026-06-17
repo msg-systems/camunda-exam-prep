@@ -1,0 +1,27 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-130",
+  "topic": "extensions-integrations",
+  "subtopic": "problems-and-exceptions",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Granite Retailer is rolling out a Camunda 8.8 purchase process that handles 3400 orders per day in a high-volume retailer. The purchase activity is modeled as a single BPMN service task rather than a subprocess, and the worker glue code must report a GOOD_UNAVAILABLE outcome up to the process so a boundary handler in the parent scope reacts to it.",
+  "question": "Which Zeebe API call mimics a BPMN error end event from inside the worker glue code so the process reacts as if the activity had ended with an error end event?",
+  "options": [
+    { "id": "a", "text": "Call newCompleteCommand with a process variable named bpmnError set to the string GOOD_UNAVAILABLE so the engine resolves the variable into the corresponding error end event of the surrounding subprocess at runtime" },
+    { "id": "b", "text": "Call newFailCommand with retries set to zero and let the resulting incident in Operate be auto-resolved by a generic listener that translates the failure into a BPMN error in the surrounding scope" },
+    { "id": "c", "text": "Call newCreateInstanceCommand to start a side process named handleError with a correlationKey equal to the bpmnProcessId of the parent instance so a separate process model deals with the unavailability" },
+    { "id": "d", "text": "Call newThrowErrorCommand with the errorCode GOOD_UNAVAILABLE; the consequences for the process are the same as if an explicit error end event had been reached inside the activity" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. CompleteCommand advances the activity normally; it does not trigger an error end event, regardless of process variables." },
+    "b": { "text": "Incorrect. FailCommand with zero retries raises an incident; it does not propagate as a BPMN error to the surrounding scope." },
+    "c": { "text": "Incorrect. Starting a separate process is not the documented technique; the page uses ThrowError on the current job." },
+    "d": { "text": "Correct. The page shows newThrowErrorCommand with errorCode GOOD_UNAVAILABLE; the engine reacts as if an explicit error end event had been reached, so a boundary error event on the activity catches the error." }
+  },
+  "explanation": "Inside the worker, newThrowErrorCommand with an errorCode such as GOOD_UNAVAILABLE produces the same behavior as an explicit BPMN error end event inside the activity. The process model can then react with a boundary error event or a matching error catch in a parent scope, instead of treating the situation as a technical incident.",
+  "docs": [
+    { "title": "Dealing with problems and exceptions", "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/" }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "mod-escalation-events-66",
+  "topic": "modeling",
+  "subtopic": "events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Zenith logistics processes 1500 shipments per hour in Camunda 8.8. A throw escalation with code DELAY may be raised by a service task even when no parent scope models a matching catch event, and operations want to confirm the engine behavior in that situation.",
+  "question": "What does the Camunda 8.8 engine do when no escalation catch event matches a thrown escalationCode?",
+  "options": [
+    { "id": "a", "text": "An incident is raised in Operate against the throwing element so an operator can resolve the unmatched escalation manually before the flow continues" },
+    { "id": "b", "text": "The process instance is terminated immediately because an unmatched escalation behaves the same way as an unmatched BPMN error at the root scope" },
+    { "id": "c", "text": "The engine retries the throwing escalation event a configurable number of attempts before raising an incident on the throw event itself" },
+    { "id": "d", "text": "The escalation is not caught and no incident is raised; the process simply continues without escalating along the regular outgoing flow of the throw event" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Unlike error events, an unmatched escalation does not raise an incident in Camunda 8.8; the process is not blocked by the throwing element." },
+    "b": { "text": "Incorrect. An unmatched escalation does not terminate the process instance; only errors that go uncaught propagate up to the instance level for handling." },
+    "c": { "text": "Incorrect. The engine does not retry escalation throw events; if no matching catch event exists in any parent scope the escalation is simply uncaught." },
+    "d": { "text": "Correct. When no escalation catch event matches the thrown escalationCode, the escalation is not caught and no incident is raised; the process continues without escalating along the regular flow." }
+  },
+  "explanation": "Unmatched escalations differ from unmatched errors in Camunda 8.8. If no catch event matches the thrown escalationCode in any parent scope, the escalation is silently uncaught, no incident is raised, and the process continues along its regular outgoing flow from the throw event.",
+  "docs": [
+    { "title": "BPMN escalation events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/escalation-events/" }
+  ]
+}

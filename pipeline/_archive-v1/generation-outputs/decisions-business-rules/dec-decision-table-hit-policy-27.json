@@ -1,0 +1,27 @@
+{
+  "id": "dec-decision-table-hit-policy-27",
+  "topic": "decisions-business-rules",
+  "subtopic": "hit policy",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios fintech runs a Camunda 8.8 dish-selection DMN table for 600 customers per day across 4 seasons. The modeler picked the UNIQUE hit policy and a defect lands in production where two season rules match the same evaluation, and the team needs to understand what UNIQUE does in that overlap case.",
+  "question": "What happens with the UNIQUE hit policy when more than one rule of the decision table is satisfied at runtime?",
+  "options": [
+    { "id": "a", "text": "The decision result contains the outputs of every satisfied rule as a list in the order in which the rules appear in the deployed decision table" },
+    { "id": "b", "text": "The UNIQUE hit policy is violated and the engine treats the situation as an evaluation error rather than producing a normal decision result" },
+    { "id": "c", "text": "The decision result contains only the output of the first satisfied rule in the order in which the rules appear in the deployed decision table" },
+    { "id": "d", "text": "The decision result is empty because UNIQUE silently discards every satisfied rule once a second matching rule is detected during evaluation" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. UNIQUE does not return a list; the docs assign list-style outputs to RULE ORDER and COLLECT, and they explicitly state UNIQUE is violated when more than one rule is satisfied." },
+    "b": { "text": "Correct. The UNIQUE section states that only a single rule can be satisfied or no rule at all, and if more than one rule is satisfied, the UNIQUE hit policy is violated." },
+    "c": { "text": "Incorrect. Returning the first matching rule is the documented behaviour of the FIRST hit policy, not UNIQUE; UNIQUE treats multiple satisfied rules as a policy violation." },
+    "d": { "text": "Incorrect. The docs do not describe UNIQUE as silently discarding rules; they describe the situation as a policy violation when more than one rule of the decision table is satisfied." }
+  },
+  "explanation": "The UNIQUE section says only a single rule can be satisfied or no rule at all, and the decision table result contains the output entries of the satisfied rule. If more than one rule is satisfied, the UNIQUE hit policy is violated.",
+  "docs": [
+    { "title": "DMN hit policy", "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/" }
+  ]
+}

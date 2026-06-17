@@ -1,0 +1,53 @@
+{
+  "id": "cfg-feel-context-expressions-88",
+  "topic": "configuring-processes",
+  "subtopic": "feel-context-expressions",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "negative",
+  "camundaVersion": "8.8",
+  "question": "Which statement about the FEEL structure-calculation example below is FALSE?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`age` is a context entry whose value is a function defined inline with `function(birthday)`."
+    },
+    {
+      "id": "b",
+      "text": "`ages` is computed by a `for ... return` over `birthdays` that calls the locally defined `age` function."
+    },
+    {
+      "id": "c",
+      "text": "The trailing `.minAge` projects the `minAge` entry out of the context that the literal evaluates to."
+    },
+    {
+      "id": "d",
+      "text": "The trailing `.minAge` is invalid because a context literal cannot be followed by path access in the same expression."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs show `age: function(birthday) (today() - birthday).years`, which defines a function-valued context entry, so this statement is true."
+    },
+    "b": {
+      "text": "`ages: for birthday in birthdays return age(birthday)` uses the function declared earlier in the same context, which is allowed because previous entries are accessible."
+    },
+    "c": {
+      "text": "Path access (`.minAge`) on a context returns the value of the named entry, exactly what the example relies on, so this statement is true."
+    },
+    "d": {
+      "text": "The whole point of the example is that the context literal evaluates to a value whose `minAge` entry is then projected; chaining path access onto a context value is fully supported. This makes the claim false and the correct pick for a negative question."
+    }
+  },
+  "explanation": "The structure-calculation example builds a context that defines a function `age`, derives a list `ages` from it, and then returns `minAge`. Path access onto a context literal is valid in FEEL, so the `.minAge` suffix is the documented idiom — not a syntax error.",
+  "docs": [
+    {
+      "title": "FEEL context expressions",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-context-expressions/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "{\n  age: function(birthday) (today() - birthday).years,\n  ages: for birthday in birthdays return age(birthday),\n  minAge: min(ages)\n}.minAge"
+  }
+}

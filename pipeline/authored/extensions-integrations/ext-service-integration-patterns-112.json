@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-112",
+  "topic": "extensions-integrations",
+  "subtopic": "send-task",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Modelers debate whether a step that publishes a Kafka record should be drawn as a service task or a send task. According to the docs, what is the technical difference between the two?",
+  "options": [
+    {
+      "id": "a",
+      "text": "There is none — send tasks behave exactly like service tasks; the alternative symbol only signals an asynchronous message to stakeholders."
+    },
+    {
+      "id": "b",
+      "text": "Send tasks bypass job workers and emit messages through a built-in broker-side AMQP/Kafka adapter."
+    },
+    {
+      "id": "c",
+      "text": "Send tasks complete only after the broker acknowledges the message; service tasks complete as soon as the job is activated by a worker."
+    },
+    {
+      "id": "d",
+      "text": "Service tasks block the process until a synchronous response arrives; send tasks are always fire-and-forget at the engine level."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs are explicit: technically, send tasks behave exactly like service tasks. The send symbol is just a more intuitive icon for stakeholders when the step sends an asynchronous message (AMQP, Kafka, etc.) — execution semantics are identical."
+    },
+    "b": {
+      "text": "There is no broker-side messaging adapter; both elements use the standard job-worker mechanism. A worker still has to pick up the job and complete it."
+    },
+    "c": {
+      "text": "The engine does not wait for any external broker ACK. Both elements complete when the worker completes the job — broker acknowledgement is the worker's concern, not the engine's."
+    },
+    "d": {
+      "text": "Whether a task blocks for a response is a worker-implementation choice, not a property of the BPMN element. The docs warn that using send tasks for fire-and-forget when you actually care about the response is typically confusing."
+    }
+  },
+  "explanation": "Per the docs: 'Technically, send tasks behave exactly like service tasks. However, the alternative symbol makes the meaning of sending a message easier to understand for some stakeholders.' Send tasks are recommended specifically for asynchronous messages like AMQP messages or Kafka records — the choice is about communicating intent, not about runtime behavior.",
+  "docs": [
+    {
+      "title": "Service integration patterns",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

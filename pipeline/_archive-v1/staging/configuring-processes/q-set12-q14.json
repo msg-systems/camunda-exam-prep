@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A document workflow uploads PDFs via Document Handling. If a process instance is cancelled (via Operate or BPMN logic), the team wonders what happens to associated documents -- do they auto-delete?",
+  "question": "Does cancelling a process instance auto-delete its Document Handling documents?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Documents auto-delete on instance cancel -- partial; depends on configuration; typically not."
+    },
+    {
+      "id": "b",
+      "text": "The claim that documents always persist forever once uploaded via Document Handling is only partially accurate. While documents do persist independently of the process instance lifecycle by default, they are not necessarily stored forever. Camunda 8 Document Handling supports configuring a time-to-live (TTL) at upload time via timeToLive or expiresAt parameters. Documents can also be explicitly deleted via the Documents API DELETE operation. After a TTL expires, the storage backend removes the document automatically. Documents without a TTL will persist until explicitly deleted."
+    },
+    {
+      "id": "c",
+      "text": "Document Handling in Camunda 8 is designed to be fully decoupled from the process instance lifecycle. Cancelling a process instance removes the process state (variables, active elements, history depending on retention settings) but has absolutely no impact on documents stored in the backend. The cancel operation succeeds regardless of how many documents are referenced by the instance's variables. Document references simply become orphaned after cancellation."
+    },
+    {
+      "id": "d",
+      "text": "Documents do not auto-delete when a process instance is cancelled. Document Handling in Camunda 8 deliberately decouples the document lifecycle from the process instance lifecycle. Cancelling an instance removes the process state -- variables, active elements, and history subject to retention settings -- but documents stored in the backend persist independently. They become orphaned references after cancellation. For explicit cleanup on cancel, teams can model a cancel handler path using an Event Subprocess that catches the cancellation and calls the Documents API DELETE endpoint, or configure a TTL at upload time so documents expire automatically after a defined window. Periodic batch jobs can also find and remove orphaned documents that no active instance references."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Document Handling's decoupled design: Documents stored in storage backend (S3 / Azure / GCS / filesystem) independently of process instance. Process variables hold references, not the binaries. Cancelling instance: removes process state (history may persist depending on retention); variables removed; documents remain in storage backend. For cleanup on cancel: Option 1: TTL at upload Set timeToLive / expiresAt when uploading. Documents auto-expire after TTL. Works without explicit cleanup logic. Option 2: Explicit cleanup in BPMN Model a \"cancellation handler\" path: when instance is cancelled (e.g., via Compensation, Event Subprocess catching cancel events, or via Modify Instance pre-cancel), call Documents API DELETE for each document the instance owned. Option 3: External orphan cleanup Periodic job queries instances → finds documents referenced by cancelled / completed instances → deletes those over retention age. Choose based on compliance requirements: Strict cleanup (GDPR-style): explicit cleanup in cancel handler; TTL as defence-in-depth. Loose cleanup: TTL-only; let documents age out."
+    },
+    "b": {
+      "text": "Incorrect. Depends on configuration."
+    },
+    "c": {
+      "text": "Incorrect. TTL / explicit cleanup options."
+    },
+    "d": {
+      "text": "Correct. Independent."
+    }
+  },
+  "explanation": "Independent.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/getting-started/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q14",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 8.4 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

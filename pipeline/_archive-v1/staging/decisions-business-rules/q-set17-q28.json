@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q28",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Decision evaluation fails mid-flight (FEEL error). Wonders incident type and recovery.",
+  "question": "Decision evaluation incidents?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No incidents -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "When a DMN decision evaluation fails, Camunda 8 automatically retries the Business Rule Task without operator intervention -- this does not accurately reflect the behavior. Unlike job workers where retry counters control automatic rescheduling, Business Rule Tasks create an incident when a decision evaluation fails. The incident requires operator intervention in Camunda Operate: identify the root cause, correct the decision logic or input variables, then manually resolve the incident to resume process execution."
+    },
+    {
+      "id": "c",
+      "text": "Decision failure surfaces as a process incident on the Business Rule Task: when a DMN decision evaluation fails due to a FEEL expression error, missing required variables, or constraint violations, Camunda 8 raises an incident on the Business Rule Task waiting for operator intervention. The incident is visible in Camunda Operate where operators can inspect the error details, correct problematic process variables, and resolve the incident to resume execution. This is consistent with how other types of errors are surfaced in Camunda 8 process monitoring."
+    },
+    {
+      "id": "d",
+      "text": "When a DMN decision evaluation fails, the process instance continues to the next step normally and the error is only logged -- this does not accurately reflect the behavior. A FEEL evaluation failure in a DMN decision causes the process to stop and create an incident on the Business Rule Task. The process instance does not continue to the next activity. It remains suspended at the failing task until an operator resolves the incident in Camunda Operate by fixing the decision definition or correcting the input variables and then retrying. Silently continuing past a failed decision would produce incorrect results in downstream business logic."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Decision incidents: In BPMN context (Business Rule Task): Decision evaluation fails: incident on Business Rule Task. Process pauses: at the task. Operator visibility: in Operate. Common failure causes: Cause 1: FEEL evaluation error: Null pointer: customer.tier when customer null. Type mismatch: arithmetic on string. Function error: parameter type wrong. Cause 2: Decision Table issues: No match + no default: in FIRST hit policy. Multiple match in UNIQUE: error. Invalid output type: doesn't match declared. Cause 3: Missing inputs: Required input null / missing. Decision can't evaluate. Cause 4: Range errors: Invalid index in sublist. Other index issues. Recovery patterns: Pattern 1: Fix decision logic: 1. Identify FEEL error. 2. Update decision (e.g., defensive null check). 3. Deploy new version. 4. Retry task in Operate: uses new version. Pattern 2: Fix input variable: 1. Identify bad input. 2. Modify variable via Operate (per Set 16 Q14). 3. Retry task. Pattern 3: Skip via Modify (per Set 13 Q53): 1. Provide decision result manually. 2. Move past task. 3. Audit trail captures. For incident inspection: In Operate: Error message: FEEL error details. Stack trace: where evaluation failed. Variables: at time of failure. For decision instance: Failed decision instance recorded (per Set 13 Q29). Partial evaluation trace: visible. Identify: which rule, cell, expression failed. For preventive measures: In decision logic: Defensive FEEL: null checks (per Set 15 Q40). Default rule: for FIRST hit policy. Type-safe operations. In BPMN: Pre-decision validation: Service Task validates inputs. Catch error boundary: handle decision failures. For testing: Unit tests for decisions (per Set 13 Q29). Edge cases: null inputs, type variants. Catch issues before production. For standalone decision evaluation (per Set 14 Q28): API call fails: returns error. No incident: caller's responsibility. Error handling: in calling code. For audit / compliance: Decision failures logged: for audit. Recovery actions logged: who fixed what. For automation: Alert on decision incidents: per Set 15 Q59. Track failure rate per decision: identify problematic. For batch resolution: Multiple instances same decision failure: bulk retry (per Set 14 Q52). After fixing root cause. For root cause: Common patterns: Bad data from upstream: validate. Decision logic bug: fix. Schema change: decision unaware. For decision versioning (per Set 13 Q28): Latest version: bug fix applies to retries. In-flight instances: pick up latest after retry. For input transformation: Pre-decision Service Task: validate + transform. Ensure expected types. For decision"
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q28",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 22 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 29.4 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

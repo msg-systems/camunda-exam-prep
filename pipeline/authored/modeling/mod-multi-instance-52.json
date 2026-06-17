@@ -1,0 +1,53 @@
+{
+  "id": "mod-multi-instance-52",
+  "topic": "modeling",
+  "subtopic": "multi-instance",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A parallel multi-instance call activity has `outputElement = output`. Each child instance produces a result in a variable named `x`. Without any further configuration, the merged child variables cause every completing child to overwrite the same `output` in the parent, corrupting `outputCollection`. Which output mapping on the call activity fixes this race condition?",
+  "options": [
+    {
+      "id": "a",
+      "text": "source `= x`, target `output`"
+    },
+    {
+      "id": "b",
+      "text": "source `= output`, target `x`"
+    },
+    {
+      "id": "c",
+      "text": "source `= output`, target `results`"
+    },
+    {
+      "id": "d",
+      "text": "No mapping is needed; Camunda 8.8 isolates child variables automatically."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Mapping source `= x` to target `output` restricts which child variables are merged: only the child's `x` is exposed, and it lands in a local `output` variable per instance. The multi-instance body then picks each local `output` up via `outputElement`, eliminating the shared write."
+    },
+    "b": {
+      "text": "Source and target are reversed. This would try to derive `x` from the parent's `output`, which is exactly the variable being corrupted."
+    },
+    "c": {
+      "text": "Renaming `output` to `results` does not stop the race: every child still merges its full variable set into the same parent scope; only the variable name has changed."
+    },
+    "d": {
+      "text": "By default, variables produced inside a child instance are propagated up via variable merging, which is precisely what creates the race. Output mappings are how you scope the merge."
+    }
+  },
+  "explanation": "On a parallel multi-instance call activity, each completed child merges its variables into the parent's process instance. Without an output mapping, every child overwrites the same parent-scope variable that `outputElement` reads, corrupting `outputCollection`. An output mapping `source: =x` and `target: output` restricts the merge to a single value and stores it under `output` as a local variable per instance, which the multi-instance body then collects in order.",
+  "docs": [
+    {
+      "title": "BPMN multi-instance",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "outputElement: = output\nchild variable: x"
+  }
+}

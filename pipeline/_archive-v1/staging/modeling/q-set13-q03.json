@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task in an Embedded Subprocess throws BPMN error \"INVALID_DATA\". There's no Error Boundary inside the subprocess, no Boundary on the subprocess itself, no Event Subprocess at process root. The error has nowhere to go. What happens?",
+  "question": "Where does an uncaught BPMN error end up?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Instance auto-cancels when an uncaught BPMN error occurs -- wrong; the instance pauses rather than cancels. Auto-cancellation would permanently destroy the instance and all its data, which would be catastrophic for business processes. Instead, Camunda raises an Incident that freezes the instance at the failing activity."
+    },
+    {
+      "id": "b",
+      "text": "Error silently swallowed when no handler exists -- wrong; the error is surfaced as a visible Incident in Operate. Silent swallowing would hide critical failures and lead to data inconsistencies that are impossible to diagnose after the fact. Camunda's design philosophy is to make failures observable: Incidents appear in the Operate dashboard with full context (error message, stack trace, affected activity). Operations teams can investigate, update variables if the data was wrong, or retry after fixing the root cause."
+    },
+    {
+      "id": "c",
+      "text": "Process automatically restarts from the beginning when an uncaught error occurs -- wrong; there is no automatic restart mechanism in Camunda 8 for BPMN errors. Automatic restart would repeat all completed activities from the start, re-executing any side effects (payments, emails, notifications) and causing duplicates. Instead, the engine pauses the instance at the failing point as an Incident. Recovery is targeted: operators retry only the failing activity after fixing the root cause, preserving all work done by preceding activities."
+    },
+    {
+      "id": "d",
+      "text": "The error propagates upward through all scopes; if not caught anywhere, it produces an Incident at the process root -- instance pauses; Operate shows Incident with the unhandled error details. Ops can: fix the issue + resolve Incident → retry; cancel instance; modify to skip. Best practice: have a catch-all Error Boundary at the process root or an Event Subprocess with Error Start to handle unforeseen errors gracefully (notify ops, log, alert)."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN error propagation rules + Camunda 8 Incident behavior: Propagation chain: 1. Error thrown at Service Task. 2. Engine looks for matching Error Boundary on the throwing activity → none. 3. Propagates to containing scope (Embedded Subprocess) → checks Boundary / Event Subprocess Error Start → none. 4. Propagates to outer scope (process root) → checks → none. 5. Unhandled → Incident at process root. Incident behaviour: Instance pauses: doesn't continue; stuck at the throwing activity. Visible in Operate: incident message + stack trace + activity reference. Resolution paths: Fix + retry: fix the underlying issue (data, code); Resolve Incident → activity re-runs. Update variables: if data issue, fix in Operate; resolve. Cancel instance: if unrecoverable, cancel. Modify instance: skip the failed activity if appropriate. Best practice -- catch-all at root: Event Subprocess with Error Start at process root: catches any unhandled error in the process. Generic handler: log details, alert ops, mark instance as \"needs review,\" potentially route to recovery path. Trade-off: catches everything (incl. unknown errors) but obscures specific error types; pair with specific Error Boundaries for known errors. Comparison with layered handling (per Set 11 Q4): layered = activity-specific + scope-wide + root catch-all. Comprehensive defense."
+    },
+    "b": {
+      "text": "Incorrect. Pauses, doesn't cancel."
+    },
+    "c": {
+      "text": "Incorrect. Surfaced."
+    },
+    "d": {
+      "text": "Correct. Incorrect."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

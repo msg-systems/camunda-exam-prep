@@ -1,0 +1,70 @@
+{
+  "id": "imp-set16-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "External service calls Operate REST API. Team wonders OAuth scopes -- restrict to read-only.",
+  "question": "Operate REST API auth scopes?",
+  "options": [
+    {
+      "id": "a",
+      "text": "All-or-nothing -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 uses a resource-permission authorization model that controls access at a fine-grained level. Authorization grants specify an owner (user, group, role, or mapping), a permission type (READ, CREATE, UPDATE, CANCEL, DELETE), and a resource. For an external service needing read-only access, granting only READ_PROCESS_DEFINITION and READ_PROCESS_INSTANCE permissions restricts it from performing write operations. The model enforces access control at the Orchestration Cluster level via the Admin component. API calls without the required permissions receive a 403 Forbidden response."
+    },
+    {
+      "id": "c",
+      "text": "Custom code -- this overstates what is needed. Restricting an external service to read-only Operate API access does not require custom authorization code. The Camunda 8 authorization framework handles this through configuration in the Admin component: create an API client with a specific identity, configure authorizations granting only READ_* permissions on the relevant resources, and the platform enforces these restrictions automatically. Custom middleware or proxy code for permission filtering would duplicate what the platform already provides natively."
+    },
+    {
+      "id": "d",
+      "text": "md:36-103: the authorization model grants specific permissions (READ_PROCESS_DEFINITION, READ_PROCESS_INSTANCE, CREATE_PROCESS_INSTANCE, UPDATE_PROCESS_INSTANCE, CANCEL_PROCESS_INSTANCE, DELETE_PROCESS_INSTANCE) on resources to owners (users, groups, roles, or mapping rules). For a read-only external service, configure an authorization granting only READ_PROCESS_DEFINITION and READ_PROCESS_INSTANCE on the relevant process definitions with a wildcard. The bearer token from OAuth identifies the caller; the Admin component checks resource permissions and returns 403 Forbidden for unauthorized actions. Default deny: nothing is accessible unless explicitly granted."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate API scopes: OAuth scopes: Granularity: Resource + action: process-instances:read. Per API resource: separate scopes. Read vs write vs admin: levels. Example permissions per authorizations.md:84-103 table (Resource → Permission): Process Definition → READ_PROCESS_DEFINITION / READ_PROCESS_INSTANCE Process Definition → CREATE_PROCESS_INSTANCE / CANCEL_PROCESS_INSTANCE (write) Decision Definition → READ_DECISION_DEFINITION / READ_DECISION_INSTANCE Batch → CREATE_BATCH_OPERATION_RESOLVE_INCIDENT (incident resolve) Resource → CREATE (deploy -- equivalent to RCE per :151) / READ Audit Log → READ Client configuration: In Console (SaaS): Create client: pick scopes. Minimal: only what client needs. In Identity (Self-Managed): Configure client roles + scopes. Keycloak realm: define. For the scenario (external service read-only): Create client with only :read scopes. No write permissions. Even if client compromised: limited damage. Server enforcement: Each API call: token includes scopes. Server checks: scope sufficient? If not: 403 Forbidden. For \"all reads\": Multiple :read scopes: combine. Or wildcard: :read (verify support). For audit clients: Read-only: standard. Audit log access: special scope. For ops clients: Need write: resolve incidents, cancel instances. Wider scope. For developer clients: Possibly write to dev cluster. Read-only to prod. For service-to-service: Each service: own client. Scoped per service needs. Principle of least privilege: Why: Compromise mitigation: smaller blast radius. Accidental damage prevention. Audit clarity: who can do what. Implementation: Default deny: explicit allow. Review periodically: scope creep. Token claims: OAuth token includes scopes as claim. Server validates on each request. For multi-tenant: Scopes per tenant. No cross-tenant even with valid scope. For rotation: New token: same scopes typically. Update scopes: regenerate token. For testing: Test scopes: verify rejection of unauthorized. Smoke tests: per-scope test. For SaaS: Console manages clients. Scope selection: at client creation. For Self-Managed: Identity / Keycloak: realm configuration. Client roles: equivalent to scopes. For Tasklist API: Similar scoping: tasks:read, tasks:write. For Zeebe gRPC: Different model: typically broader auth. Per-cluster auth. For Camunda 8 maturity: Scope granularity evolving. Verify per version. Best practices: Least privilege: minimum scopes. Review access: periodic. Rotate credentials: regular. Audit scope usage: identify excess. Test scope enforcement. Anti-patterns: Admin scope for all clients: over-permissioned. No scope review: drift over time. Sharing credentials: lose audit. For the scenario (external read-only): ` Owner: external-monitoring (Mapping Rule for OIDC client) Authorizations on Process Definition (): READ_PROCESS_DEFINITION READ_PROCESS_INSTANCE No CANCEL_/UPDATE_/MODIFY_/DELETE_ permissions. Reads succeed; mutating calls return 403 Forbidden per orchestration-cluster-api-rest-authentication.md:61`. For monitoring tools: Read-only sufficient: just query metrics. No need for write. For automation tools: Limited write: e.g., resolve incidents but not deploy. Scoped narrowly."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. overstates."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/access-control/authorizations/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q58",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 24 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 27.8 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

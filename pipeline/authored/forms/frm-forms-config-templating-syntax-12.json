@@ -1,0 +1,53 @@
+{
+  "id": "frm-forms-config-templating-syntax-12",
+  "topic": "forms",
+  "subtopic": "feelers accessors",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A Feelers template loops over `nodes`, where each node object already has a property literally named `parent`. Inside the loop, which accessor reaches the outer-scope `root` value?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`_parent_.root`"
+    },
+    {
+      "id": "b",
+      "text": "`parent.root`"
+    },
+    {
+      "id": "c",
+      "text": "`this.parent.root`"
+    },
+    {
+      "id": "d",
+      "text": "`__parent.root`"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The Additional details section gives this exact case: when the data already uses `parent` as a key, the underscore-wrapped `_parent_` accessor disambiguates from the property and resolves to the outer scope. The same rule applies to `_this_`."
+    },
+    "b": {
+      "text": "`parent.root` would resolve to the node's own `parent` property (which has no `root` field), not the outer scope; the docs call out this collision explicitly."
+    },
+    "c": {
+      "text": "There is no `this.parent` chain in Feelers; `this` references the loop element itself, and chaining `parent` from it does not invoke the loop's outer-scope accessor."
+    },
+    "d": {
+      "text": "The alternative accessor uses a single underscore on each side (`_parent_`), not a double underscore prefix."
+    }
+  },
+  "explanation": "When loop data shadows the loop accessor names (`this`, `parent`), Feelers provides underscore-wrapped alternatives `_this_` and `_parent_` that unambiguously refer to the loop element and the outer scope. The Additional details example uses `_parent_.root` precisely because each node object already carries a `parent` field.",
+  "docs": [
+    {
+      "title": "Feelers templating syntax",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/configuration/forms-config-templating-syntax/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "Listing out all node paths:\n{{#loop nodes}}\n* http://www.myNodeWebsite/{{_parent_.root}}/{{id}}\n{{/loop}}"
+  }
+}

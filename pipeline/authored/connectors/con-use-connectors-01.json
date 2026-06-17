@@ -1,0 +1,58 @@
+{
+  "id": "con-use-connectors-01",
+  "topic": "connectors",
+  "subtopic": "secrets",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A connector header field needs to reference the configured secret `MY_API_KEY` inside a FEEL context. Which expression correctly references the secret using the current (non-deprecated) syntax?",
+  "options": [
+    {
+      "id": "a",
+      "text": "First expression"
+    },
+    {
+      "id": "b",
+      "text": "Second expression"
+    },
+    {
+      "id": "c",
+      "text": "Third expression"
+    },
+    {
+      "id": "d",
+      "text": "Fourth expression"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs show the correct pattern: `= { myHeader: \"{{secrets.MY_API_KEY}}\" }`. Secrets are not variables and must be wrapped in double quotes inside a FEEL expression."
+    },
+    "b": {
+      "text": "Omitting the double quotes treats `{{secrets.MY_API_KEY}}` as a FEEL identifier, which fails because secrets are not variables. The docs require quoting."
+    },
+    "c": {
+      "text": "`secrets.MY_API_KEY` (without the `{{ }}` placeholder syntax) is the deprecated syntax, called out explicitly in the docs as deprecated and reserved."
+    },
+    "d": {
+      "text": "`${MY_API_KEY}` is shell- or template-style interpolation, not Camunda's secrets syntax. The connector runtime would not resolve it."
+    }
+  },
+  "explanation": "Camunda connector secrets are referenced with the `{{secrets.NAME}}` placeholder. Inside a FEEL expression, secrets are **not** variables — they must be wrapped in double quotes so the resulting context is a valid FEEL string, e.g. `= { myHeader: \"{{secrets.MY_API_KEY}}\" }`. The bare `secrets.*` syntax is deprecated.",
+  "docs": [
+    {
+      "title": "Use connectors",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "codeBlocks": {
+    "perOption": {
+      "a": "= { myHeader: \"{{secrets.MY_API_KEY}}\" }",
+      "b": "= { myHeader: {{secrets.MY_API_KEY}} }",
+      "c": "= { myHeader: secrets.MY_API_KEY }",
+      "d": "= { myHeader: ${MY_API_KEY} }"
+    }
+  }
+}

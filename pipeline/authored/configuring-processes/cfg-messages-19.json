@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-19",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A client publishes a message with name `Money collected` and correlation key `order-123` via the REST API. No matching subscription is currently open, and the message TTL is `0`. What happens to the message?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The message is discarded."
+    },
+    {
+      "id": "b",
+      "text": "The message is buffered until a matching subscription appears."
+    },
+    {
+      "id": "c",
+      "text": "Zeebe raises an incident on the cluster because no subscription was found."
+    },
+    {
+      "id": "d",
+      "text": "A new process instance is created automatically to receive the message."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state plainly that \"if no proper subscription is opened, the message is discarded\". With TTL `0`, buffering is disabled, so without a matching subscription at publish time the message is dropped."
+    },
+    "b": {
+      "text": "Buffering only happens when TTL is greater than zero. The docs explicitly say buffering is disabled when TTL is set to zero, so the message is not retained for later subscribers."
+    },
+    "c": {
+      "text": "Failing to find a subscription is not an error condition in Zeebe and does not raise an incident; the publish call succeeds and the message is silently discarded."
+    },
+    "d": {
+      "text": "Auto-creating a process instance requires a message start event subscription on a deployed process. With no subscription open at all, nothing is created."
+    }
+  },
+  "explanation": "Message correlation in Zeebe requires an open subscription with a matching name and correlation key at the time of publication, unless the message is buffered. When TTL is `0` and no subscription exists, the message is discarded — there is no incident and no auto-creation of an instance.",
+  "docs": [
+    {
+      "title": "Message correlation",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

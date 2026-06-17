@@ -1,0 +1,27 @@
+{
+  "id": "mod-escalation-events-99",
+  "topic": "modeling",
+  "subtopic": "escalation-events",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Tessera Insurance models a Camunda 8.8 claim handling process where a sub-step throws an escalation visible to the parent scope without halting the main path. The flow processes 3000 claims per day and must keep the activities after the throw point alive at runtime.",
+  "question": "How does execution at the location of the escalation throw event behave in Camunda 8.8 once the escalation is caught in a higher flow scope?",
+  "options": [
+    { "id": "a", "text": "The outgoing sequence flow of the throw event is taken only if no catch event in a higher flow scope reacts to the escalationCode thrown by the throw event in this scope" },
+    { "id": "b", "text": "The outgoing sequence flow of the throw event is also taken when an escalation is caught, with execution continuing at the throwing location alongside the catching higher flow scope" },
+    { "id": "c", "text": "The outgoing sequence flow of the throw event is skipped, with escalations transferring execution into the higher catching scope instead of the throwing scope of the throw event" },
+    { "id": "d", "text": "The outgoing sequence flow of the throw event is taken only when the catching event in the higher scope is configured as a non-interrupting catch event for the same code" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The escalation events page states escalations are non-critical and execution continues at the location of the throw; the outgoing flow is taken whether or not the escalation is caught in a higher scope." },
+    "b": { "text": "Correct. The escalation events overview states that unlike an error, an escalation event is non-critical and execution continues at the location of throwing, so the outgoing sequence flow of the throw event is also taken." },
+    "c": { "text": "Incorrect. Escalations do not transfer execution into the catching scope; the throwing scope keeps going, and the catching scope takes its own outgoing flow as well in the same instance." },
+    "d": { "text": "Incorrect. The outgoing flow of the throw is taken whenever the escalation is non-critical, independent of whether the catch event in the higher scope is interrupting or non-interrupting at runtime." }
+  },
+  "explanation": "An escalation event is non-critical: when an escalation is thrown, the catch event in a higher flow scope reacts to it while execution at the throwing location continues. Both the throw event and the catch event take their outgoing sequence flows.",
+  "docs": [
+    { "title": "BPMN escalation events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/escalation-events/" }
+  ]
+}

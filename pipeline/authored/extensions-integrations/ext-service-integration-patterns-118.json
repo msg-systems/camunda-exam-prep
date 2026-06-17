@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-118",
+  "topic": "extensions-integrations",
+  "subtopic": "response-message-patterns",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A process must react to a cancellation message that can arrive at any point during a long sequence of activities — not at one specific wait state. Which response-handling pattern best fits this requirement?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An event subprocess scoped over the relevant chunk of the process."
+    },
+    {
+      "id": "b",
+      "text": "A boundary message event attached to each activity in the chunk."
+    },
+    {
+      "id": "c",
+      "text": "An event-based gateway placed after each receive task."
+    },
+    {
+      "id": "d",
+      "text": "A payload + XOR gateway after the next receive task."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Per the docs: 'the event subprocess has a superpower worth mentioning: you can now wait for cancellation messages in whole chunks of your process — it could arrive anytime.' That is exactly the requirement here."
+    },
+    "b": {
+      "text": "Boundary events are attached to a single activity. Putting one on every activity in a long chunk to cover anytime cancellation is exactly the visual clutter the event subprocess avoids."
+    },
+    "c": {
+      "text": "An event-based gateway only fires at one specific waiting point in the flow, not across a whole chunk — and the docs put this pattern in the 'try to avoid' bucket anyway."
+    },
+    "d": {
+      "text": "A payload + XOR gateway runs after a single receive task; it cannot react to a message arriving while the process is busy elsewhere."
+    }
+  },
+  "explanation": "Event subprocesses are the docs' answer to 'react to a message that can arrive anywhere in this scope'. They activate whenever the event is received while the process is still active somewhere in the enclosing scope — the canonical fit for anytime-cancellation patterns.",
+  "docs": [
+    {
+      "title": "Service integration patterns",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

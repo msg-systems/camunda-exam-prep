@@ -1,0 +1,63 @@
+{
+  "id": "imp-set15-q19",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Embedded Subprocess has a Boundary Event attached. Team wonders if Boundary Events can attach to subprocesses (not just tasks).",
+  "question": "Subprocess Boundary Event placement?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes -- Boundary Events attach to any Activity, including Subprocesses (Embedded, Call Activity, Transaction Subprocess). Subprocess-attached Boundary Events trigger on configured events during subprocess execution: Timer Boundary for SLA enforcement (interrupting cancels subprocess; non-interrupting sends reminder); Error Boundary catches BPMN errors from inner activities; Message Boundary enables external cancellation; Signal Boundary reacts to broadcast events; Escalation Boundary handles inner escalations. Note: Cancel Boundary Event + Transaction Subprocess are NOT implemented in Camunda 8 -- use Compensation patterns instead for ACID-like rollback."
+    },
+    {
+      "id": "b",
+      "text": ") and cannot attach to Subprocesses -- this approach has limitations. 0 specification defines Boundary Events as attaching to any Activity, and Subprocesses are Activities. Subprocess-level Boundary Events are particularly powerful: a Timer Boundary on an Embedded Subprocess enforces an SLA for the entire subprocess block; an Error Boundary on a subprocess catches any BPMN error thrown by activities inside it. This is a widely-used and documented Camunda 8 modeling pattern."
+    },
+    {
+      "id": "c",
+      "text": "Certain Boundary Event types are exclusive to Subprocesses and cannot attach to regular Tasks -- this claim has no basis in BPMN specification or Camunda 8 documentation. All standard Boundary Event types (Timer, Message, Signal, Error, Escalation, Compensation) can attach to both Tasks and Subprocesses. The choice of which Boundary type to use depends on the event type and business logic, not on whether the host activity is a Task or Subprocess. Cancel Boundary Events are the one exception -- they exclusively attach to Transaction Subprocesses -- but this is a different constraint and Transaction Subprocesses are unavailable in this context in Camunda 8."
+    },
+    {
+      "id": "d",
+      "text": "Both interrupting and non-interrupting Boundary Events can attach to Subprocesses in BPMN and Camunda 8. An interrupting Timer Boundary on a subprocess cancels the entire subprocess when it fires (SLA enforcement). A non-interrupting Timer Boundary fires a parallel reminder without cancelling the subprocess. Error Boundaries are always interrupting (per Camunda 8 spec), but Timer, Message, and Signal Boundaries support both modes on subprocesses."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Boundary Events on Activities: BPMN spec: Boundary Events attach to any Activity. Activity types: Task (all variants), Subprocess (Embedded, Event Subprocess, Transaction), Call Activity. Boundary Event types on Subprocess: Timer Boundary: SLA enforcement for subprocess. Interrupting: cancel subprocess if SLA exceeded. Non-interrupting: send reminder; subprocess continues. Error Boundary: Catches BPMN errors thrown by inner activities. Interrupting typical: handle subprocess-wide error. Message Boundary: External cancellation signal. Interrupting: cancel subprocess on cancel message. Non-interrupting: react to event; subprocess continues. Signal Boundary: System-wide event affecting subprocess. Escalation Boundary: Inner activity escalates; boundary handles. Cancel Boundary (Transaction Subprocess only) -- Pattern #48: The Cancel Boundary Event + Cancel End Event + Transaction Subprocess are NOT implemented in Camunda 8 per bpmn-coverage.md:47-48, :570-578 (no className=\"implemented\" on these symbols). Modeler may render them but Zeebe will reject / not execute. Use Embedded Subprocess + Compensation Boundary + Compensation End for ACID-like rollback. Compensation Boundary: Subprocess as compensable unit. Use case examples: Use case 1: SLA on subprocess: ` [Customer Onboarding Subprocess] └─ Timer Boundary(P30D, interrupting) → [Escalate to Manager] If subprocess takes > 30 days, cancel + escalate. Use case 2: Error escape: [Process Payment Subprocess] └─ Error Boundary (no code, interrupting) → [Log + Notify] Any BPMN error in subprocess → catch + handle. Use case 3: External cancel: [Long-Running Subprocess] └─ Message Boundary(\"USER_CANCEL\", interrupting) → [Cleanup] User cancels via API; subprocess + inner activities cancelled. Use case 4: Reminder without cancellation: [Approval Subprocess] └─ Timer Boundary(PT24H, non-interrupting) → [Send Reminder] Reminder after 24h; approval continues. Behavior on trigger: Interrupting boundary: Inner activities cancelled. Boundary handler runs. Subprocess exits via boundary handler's flow. Non-interrupting boundary: Handler runs in parallel. Subprocess continues unaffected. Variable scope considerations: Subprocess variables: visible inside. Boundary handler: outside subprocess scope; can't access inner variables. For \"use inner data in handler\": write to outer scope before; or via Output Mapping. Compared to inner Event Subprocess: Event Subprocess (inside subprocess): Triggered by events from inside. Doesn't cancel from outside. Boundary Event (outside subprocess): Triggered by events at subprocess level. Can cancel the whole subprocess. Best practices: Timer Boundary for SLA: always have on long-running subprocesses. Catch-all Error Boundary: defensive -- prevents stuck subprocesses. Cancel Message Boundary: enables user-initiated cancellation. Document boundary semantics: clarify intent. For Call Activity Boundary: Boundary on Call Activity: triggers based on events in calling process scope. Doesn't reach inside called process (separate instance). Common: Timer on Call Activity for \"called process must complete in N time.\" For Transaction Subprocess (Pattern #48): Transaction Subprocess + Cancel End + Cancel Boundary: NOT implemented in C8. For saga / rollback semantics, use Embedded Subprocess with per-activity Compensation Boundary Events + Compensation End / Compensation Intermediate Throw with activityRef for ordered rollback (per compensation-events.md:26-83`). Multi-boundary on same subprocess: Common: Timer + Error + Message all attached. Each handles its event type. Defense in depth."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Boundary Events on Activities: BPMN spec: Boundary Events attach to any Activity. Activity types: Task (all variants), Subprocess (Embedded, Event Subprocess, Transaction), Call Activity. Boundary Event types on Subprocess: Timer Boundary: SLA enforcement for subprocess. Interrupting: cancel subprocess if SLA exceeded. Non-interrupting: send reminder; subprocess continues. Error Boundary: Catches BPMN errors thrown by inner activities. Interrupting typical: handle subprocess-wide error. Message Boundary: External cancellation signal. Interrupting: cancel subprocess on cancel message. Non-interrupting: react to event; subprocess continues. Signal Boundary: System-wide event affecting subprocess. Escalation Boundary: Inner activity escalates; boundary handles. Cancel Boundary (Transaction Subprocess only) -- Pattern #48: The Cancel Boundary Event + Cancel End Event + Transaction Subprocess are NOT implemented in Camunda 8 per bpmn-coverage.md:47-48, :570-578 (no className=\"implemented\" on these symbols). Modeler may render them but Zeebe will reject / not execute. Use Embedded Subprocess + Compensation Boundary + Compensation End for ACID-like rollback. Compensation Boundary: Subprocess as compensable unit. Use case examples: Use case 1: SLA on subprocess: ` [Customer Onboarding Subprocess] └─ Timer Boundary(P30D, interrupting) → [Escalate to Manager] If subprocess takes > 30 days, cancel + escalate. Use case 2: Error escape: [Process Payment Subprocess] └─ Error Boundary (no code, interrupting) → [Log + Notify] Any BPMN error in subprocess → catch + handle. Use case 3: External cancel: [Long-Running Subprocess] └─ Message Boundary(\"USER_CANCEL\", interrupting) → [Cleanup] User cancels via API; subprocess + inner activities cancelled. Use case 4: Reminder without cancellation: [Approval Subprocess] └─ Timer Boundary(PT24H, non-interrupting) → [Send Reminder] Reminder after 24h; approval continues. Behavior on trigger: Interrupting boundary: Inner activities cancelled. Boundary handler runs. Subprocess exits via boundary handler's flow. Non-interrupting boundary: Handler runs in parallel. Subprocess continues unaffected. Variable scope considerations: Subprocess variables: visible inside. Boundary handler: outside subprocess scope; can't access inner variables. For \"use inner data in handler\": write to outer scope before; or via Output Mapping. Compared to inner Event Subprocess: Event Subprocess (inside subprocess): Triggered by events from inside. Doesn't cancel from outside. Boundary Event (outside subprocess): Triggered by events at subprocess level. Can cancel the whole subprocess. Best practices: Timer Boundary for SLA: always have on long-running subprocesses. Catch-all Error Boundary: defensive -- prevents stuck subprocesses. Cancel Message Boundary: enables user-initiated cancellation. Document boundary semantics: clarify intent. For Call Activity Boundary: Boundary on Call Activity: triggers based on events in calling process scope. Doesn't reach inside called process (separate instance). Common: Timer on Call Activity for \"called process must complete in N time.\" For Transaction Subprocess (Pattern #48): Transaction Subprocess + Cancel End + Cancel Boundary: NOT implemented in C8. For saga / rollback semantics, use Embedded Subprocess with per-activity Compensation Boundary Events + Compensation End / Compensation Intermediate Throw with activityRef for ordered rollback (per compensation-events.md:26-83`). Multi-boundary on same subprocess: Common: Timer + Error + Message all attached. Each handles its event type. Defense in depth.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/events"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q19",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[2]"
+      }
+    ]
+  }
+}

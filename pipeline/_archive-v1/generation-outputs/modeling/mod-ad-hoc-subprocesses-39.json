@@ -1,0 +1,27 @@
+{
+  "id": "mod-ad-hoc-subprocesses-39",
+  "topic": "modeling",
+  "subtopic": "subprocesses",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Riverstone Bank operates an ad-hoc sub-process in Camunda 8.8 that scores 5000 transactions per day across several risk checks. Each inner flow writes a local variable named riskScore via its job worker. The team wants every completed inner flow to append its riskScore value into a list named results that is visible in the parent process scope once the ad-hoc sub-process completes.",
+  "question": "Which configuration on the ad-hoc sub-process collects each inner flow's riskScore into a list named results that is propagated to the parent scope on completion?",
+  "options": [
+    { "id": "a", "text": "Set inputCollection to riskScore and inputElement to results on the ad-hoc sub-process so each completed inner flow appends its score to results" },
+    { "id": "b", "text": "Set outputCollection to riskScore and outputElement to results on the ad-hoc sub-process so each completed inner flow appends its score to results" },
+    { "id": "c", "text": "Set outputCollection to results and outputElement to = riskScore on each inner service task so each completed inner flow appends its score to results" },
+    { "id": "d", "text": "Set outputCollection to results and outputElement to = riskScore on the ad-hoc sub-process so each completed inner flow appends its score to results" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documented attributes on the ad-hoc sub-process for collecting inner-flow output are outputCollection and outputElement, not inputCollection and inputElement, which belong to a different element category." },
+    "b": { "text": "Incorrect. The role of the two attributes is reversed: outputCollection defines the variable name that stores the collected list, and outputElement is the expression read from each inner flow's output." },
+    "c": { "text": "Incorrect. outputCollection and outputElement are defined on the ad-hoc sub-process itself, not on individual inner tasks; the collection lives as a local variable of the sub-process." },
+    "d": { "text": "Correct. outputCollection names the local list variable on the ad-hoc sub-process and outputElement is the FEEL expression evaluated against each inner flow's output, so completed flows append their riskScore to results, which is then propagated to the parent scope." }
+  },
+  "explanation": "An ad-hoc sub-process collects inner-flow output by setting outputCollection to the target list variable name and outputElement to a FEEL expression that reads the desired inner-flow variable; the collection is created as a local variable of the sub-process and is propagated to the parent scope when the sub-process completes.",
+  "docs": [
+    { "title": "BPMN ad-hoc sub-processes", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/ad-hoc-subprocesses/" }
+  ]
+}

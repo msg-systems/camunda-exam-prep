@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A wealth-management firm assigns \"Approve Transaction\" User Tasks to relationship managers. The business rule is: small transactions (under €25,000) can be claimed by any member of the \"advisors\" group; large transactions (≥€25,000) must be assigned directly to the customer's designated senior advisor. The team configures the User Task with these properties: assignee field: =if amount >= 25000 then customerSeniorAdvisor else null candidateGroups field: =[\"advisors\"] Production results: small transactions correctly appear in advisors' \"Tasks I Can Claim\" view. But for large transactions, the senior advisor expected to see them automatically claimed in their \"My Tasks\" view -- instead the senior advisor reports seeing nothing, and a colleague says \"I see all the large transactions in my Tasks I Can Claim list as if anyone could claim them\".",
+  "question": "Which is the correct understanding of Zeebe's User Task assignment behaviour?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe requires both assignee AND candidateUsers set for direct-assigned tasks to appear; setting only assignee puts the task in a \"ghost\" state visible to no one. This is a fabricated requirement. The assignee field alone is sufficient to claim a task to a specific user in Camunda 8 Tasklist. Setting candidateUsers as well is redundant and not a prerequisite. The \"ghost state\" described does not correspond to any documented Zeebe or Tasklist behaviour."
+    },
+    {
+      "id": "b",
+      "text": "When assignee and candidateGroups are both set, candidateGroups takes precedence over assignee and the assignee value is silently ignored. Both properties are applied simultaneously and independently in Zeebe. assignee controls direct task claiming; candidateGroups defines who can claim an unassigned task. Neither overrides the other -- a task can have both an assignee and candidate groups set simultaneously."
+    },
+    {
+      "id": "c",
+      "text": "Tasklist UI does not refresh automatically after assignee is set dynamically -- users must manually click a \"Refresh\" button to see direct-assigned tasks appear in their \"My Tasks\" list. Tasklist uses WebSocket connections and standard polling mechanisms to keep task lists updated in near real-time."
+    },
+    {
+      "id": "d",
+      "text": "Setting assignee directly claims the task to that user automatically when the task is created. The task appears in that user's \"My Tasks\" view. If the senior advisor doesn't see it, the assignee expression likely evaluates incorrectly or the senior advisor's user identity in Tasklist doesn't match the FEEL-computed value -- for example, an email format mismatch or incorrect identifier produces a phantom claim state where the task is assigned to a non-existent identity."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. assignee set on task creation means the task is automatically claimed for that user -- Tasklist's \"My Tasks\" view filters by assignee. candidateGroups describes who CAN claim an unassigned task -- it's the \"Tasks I Can Claim\" filter. If the FEEL customerSeniorAdvisor value doesn't match the senior advisor's Tasklist identity (e.g., email format mismatch, missing identifier), the task is assigned to a non-existent user and shows up nowhere as \"claimed\" -- but the task does still exist and the candidateGroups membership still applies, so it's visible in colleagues' \"Tasks I Can Claim\" list as \"you can claim this even though it's already assigned to someone\"."
+    },
+    "b": {
+      "text": "Incorrect. assignee alone is sufficient -- no candidateUsers requirement."
+    },
+    "c": {
+      "text": "Incorrect. candidateGroups does not override assignee; both apply simultaneously."
+    },
+    "d": {
+      "text": "Correct. Tasklist refreshes via standard WebSocket/poll mechanisms; manual refresh isn't required for assignee updates."
+    }
+  },
+  "explanation": "Tasklist refreshes via standard WebSocket/poll mechanisms; manual refresh isn't required for assignee updates.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

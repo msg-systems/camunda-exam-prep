@@ -1,0 +1,69 @@
+{
+  "id": "imp-set17-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "External service calls Operate API at high rate. Wonders rate limiting to prevent overload.",
+  "question": "Operate API rate limiting?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No rate limit -- wrong typically."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 Zeebe has built-in backpressure and flow control mechanisms that protect the broker from overload, separate from traditional HTTP rate limiting. When the broker cannot process requests within acceptable latency, it rejects new requests with backpressure signals. The metric zeebe_dropped_request_count_total tracks rejected requests."
+    },
+    {
+      "id": "c",
+      "text": "Zeebe has flow control and backpressure at the engine level, but this is not a traditional HTTP 429 rate limiter. For the Orchestration Cluster REST API specifically, there is no documented built-in HTTP-level rate limiter that returns 429 responses. SaaS customers may experience rate limits managed by Camunda's infrastructure, but for Self-Managed deployments, HTTP-level rate limiting requires an external API gateway or reverse proxy. The internal backpressure protects the broker but operates differently from HTTP rate limiting."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 Zeebe has built-in backpressure and flow control mechanisms that protect the broker from overload -- these are not traditional HTTP 429 rate limiters. Zeebe rejects incoming requests when it cannot process them within acceptable latency thresholds, tracked via zeebe_dropped_request_count_total and zeebe_backpressure_requests_limit metrics. md. For HTTP-level rate limiting of the Orchestration Cluster REST API, front the cluster with an API gateway such as Nginx, Envoy, or a cloud load balancer. 8 API surface is the Orchestration Cluster REST API, not the legacy apis-tools/operate-api/ path."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Rate limiting: For SaaS: Per plan rate limits: typical. HTTP 429: returned when exceeded. Retry-After header: when to retry. For Self-Managed: Without built-in: configure externally. API gateway: Kong, Istio, etc. Reverse proxy: nginx, HAProxy. Standard rate limiting: Per identity: OAuth client: throttle per client_id. API key: per key. IP-based: per source IP (less precise). Algorithms: Token bucket: refill rate; burst capability. Sliding window: smooth. Fixed window: simpler. Configuration considerations: For monitoring services: Higher limits: justified. Or whitelist: bypass limits. For external partners: Per-partner limits: SLA. For abuse prevention: Low limits: prevent. For SaaS plan tiers: Different limits: per plan. Upgrade plan: higher limits. For Self-Managed implementation: At API gateway: `yaml apiVersion: rate-limit rate: requests_per_second: 100 burst: 200 ` Configure per gateway. At application level: Spring Boot rate limit (resilience4j etc.). Custom middleware. For client-side: Respect 429: Pause on rate limit. Retry per Retry-After. Adaptive throttling: Reduce rate on 429. Increase gradually. For batch operations: Bulk APIs: efficient. Avoid many small calls: rate limit hits. For monitoring: Rate limit hit rate: alert. Per client. For burst handling: Token bucket allows bursts. Smooth out with sliding window. For specific use cases: Use case 1: Dashboard polling: Periodic polls: low rate. No issue typically. Use case 2: Bulk import: Many calls in burst: may hit limit. Batch + pace. Use case 3: Webhook receiver: External pushes: may spike. Buffer / rate limit on receiver. For multi-cluster: Per-cluster limits. Or aggregate: org-level. For tenant isolation: Per-tenant limits: prevent noisy neighbor. For Camunda 8 specifics: Verify per version: rate limiting built-in. Recent versions: more features. For Operate API specifically: Queries can be heavy: ES underneath. Limit prevents overload. For Tasklist API: Similar considerations. Per-user limits: typical. For Zeebe gRPC: Job activation rate. Different mechanism than REST. For exempting trusted services: Whitelist: by client ID. Different limits. For testing rate limits: Load testing: verify behavior. Client retry logic: verify. For"
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/zeebe/technical-concepts/internal-processing/#handling-backpressure"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q58",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[2]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 18.4 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

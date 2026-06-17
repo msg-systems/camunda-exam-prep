@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A campaign-execution Multi-Instance Subprocess processes campaigns. The team wants the number of inner instances to be dynamic -- based on a FEEL expression that consults process variables at MI activation. For example, loopCardinality = =if priority = \"HIGH\" then count(campaigns) else 5. Can loopCardinality use a FEEL expression for dynamic instance count?",
+  "question": "Can loopCardinality use a FEEL expression for dynamic instance count?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes -- loopCardinality accepts a FEEL expression that evaluates to a number at MI activation. Incorrect for Camunda 8: Zeebe does NOT support BPMN's loopCardinality attribute. n return i\" -- the workaround is to build an inputCollection via FEEL."
+    },
+    {
+      "id": "b",
+      "text": "No -- the loopCardinality attribute in Multi-Instance configuration only accepts literal integer values and cannot reference process variables or use FEEL expressions -- this description does not reflect actual behaviour on multiple levels. First, Zeebe evaluates configuration attributes including cardinality expressions using FEEL when the equals prefix is present. Second, the more precise statement is that dynamic cardinality is achieved through the inputCollection FEEL expression rather than a separate loopCardinality field. Referencing = count(claims) in the collection expression dynamically sizes the Multi-Instance based on runtime variable values."
+    },
+    {
+      "id": "c",
+      "text": "Yes, dynamic Multi-Instance sizing is supported but only for basic arithmetic expressions -- FEEL function calls like count() or list operations are not permitted in cardinality fields -- this is an invented restriction. Zeebe evaluates FEEL expressions in Multi-Instance configuration with no restrictions on which FEEL constructs are used. Full FEEL is available including function calls like count(items), conditional expressions like if mode = \"bulk\" then 100 else 10, and list operations. Any valid FEEL expression that produces a number or a collection is accepted in the relevant configuration fields."
+    },
+    {
+      "id": "d",
+      "text": "md:35-39, MI activities use inputCollection (an expression that must result in an array). count(campaigns) return i] else [1,2,3,4,5]. This is the canonical Camunda-8 workaround for loop-cardinality."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. loopCardinality is BPMN-spec but NOT a Zeebe attribute. The \"FEEL evaluated at activation\" claim is true of inputCollection, not loopCardinality."
+    },
+    "b": {
+      "text": "Incorrect. It's not \"literal integer\" vs FEEL -- the attribute simply isn't supported in Zeebe."
+    },
+    "c": {
+      "text": "Incorrect. No partial-FEEL story; the attribute itself is absent."
+    },
+    "d": {
+      "text": "Correct. Per multi-instance.md:35-39 Zeebe's MI is inputCollection-driven (no loopCardinality attribute). The docs explicitly call out: \"If you need to iterate n times (like with a loop-cardinality), you can use the following expression with a for-loop: for i in 1..n return i\". So the dynamic-count requirement is met by computing the inputCollection itself with FEEL -- the FEEL expression is supported on inputCollection, just not on a non-existent loopCardinality attribute. The team should rewrite the requirement as: inputCollection = \"= if priority = \\\"HIGH\\\" then [for i in 1..count(campaigns) return i] else [1,2,3,4,5]\" and use loopCounter (1-based per :71) inside instances as the index."
+    }
+  },
+  "explanation": "Per multi-instance.md:35-39 Zeebe's MI is inputCollection-driven (no loopCardinality attribute). The docs explicitly call out: \"If you need to iterate n times (like with a loop-cardinality), you can use the following expression with a for-loop: for i in 1..n return i\". So the dynamic-count requirement is met by computing the inputCollection itself with FEEL -- the FEEL expression is supported on inputCollection, just not on a non-existent loopCardinality attribute. The team should rewrite the requirement as: inputCollection = \"= if priority = \\\"HIGH\\\" then [for i in 1..count(campaigns) return i] else [1,2,3,4,5]\" and use loopCounter (1-based per :71) inside instances as the index.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q14",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

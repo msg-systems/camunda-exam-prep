@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A periodic data-cleanup process must run 5 times in a year -- quarterly plus one ad-hoc end-of-year cleanup. The Timer Cycle Start Event should fire 5 times then stop. The team writes cycle: R5/PT90D expecting \"repeat 5 times, every 90 days\".",
+  "question": "Which timer expression is correct for a bounded repetition?",
+  "options": [
+    {
+      "id": "a",
+      "text": "cycle: R5/PT90D -- repeat 5 times, every 90-day duration (fixed). The T prefix in ISO 8601 designates time-of-day components such as hours, minutes, and seconds -- PT2H means 2 hours, PT15M means 15 minutes. For day-level durations, the correct notation is P90D without the T prefix. Additionally, 90 days does not precisely equal 3 calendar months, so this notation would drift from true quarterly alignment."
+    },
+    {
+      "id": "b",
+      "text": "cycle: R5/P3M -- repeat 5 times, every 3 months (calendar-aware). The ISO 8601 cycle notation R{N}/{duration} specifies N repetitions at the given interval. R5 limits the repetition count to 5 fires; after the 5th activation, the timer is exhausted and no further process instances are triggered. P3M is the ISO 8601 period for 3 calendar months -- correctly aligned with quarterly scheduling."
+    },
+    {
+      "id": "c",
+      "text": "cycle: R/P3M with limit 5 -- explicit limit clause syntax for setting a maximum repetition count. The with limit keyword is not part of ISO 8601 duration or interval syntax and is unrecognised by Zeebe's timer parser. Camunda 8 Timer Events must use valid ISO 8601 notation. Adding unrecognised keywords would likely cause a parsing error or the expression would be treated as invalid, preventing the timer from firing."
+    },
+    {
+      "id": "d",
+      "text": "cycle: 5 × P3M -- multiplication syntax combining a count with a period duration to express a bounded repetition schedule. No multiplication operator syntax exists in ISO 8601 intervals or in Zeebe's timer expression format. Zeebe would be unable to parse this expression, causing the Timer Start Event to fail at deployment or activation time, preventing any scheduled process instances from starting."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. ISO 8601 cycle notation: R{N}/{duration} where N is the repetition count. R5/P3M repeats 5 times, every 3 months (period notation -- calendar-aware for months). After 5 firings, the timer is exhausted and the event no longer fires."
+    },
+    "b": {
+      "text": "Correct. PT90D is invalid ISO 8601 -- T prefix is for time-of-day components (PT15M = 15 minutes, PT2H = 2 hours), not days. P90D is correct for \"90 days\". Also calendar months ≠ 90 days exactly -- using duration-based PT/P syntax drifts from calendar quarters."
+    },
+    "c": {
+      "text": "Incorrect. \"with limit\" is not ISO 8601 syntax."
+    },
+    "d": {
+      "text": "Incorrect. Multiplication syntax doesn't exist."
+    }
+  },
+  "explanation": "PT90D is invalid ISO 8601 -- T prefix is for time-of-day components (PT15M = 15 minutes, PT2H = 2 hours), not days. P90D is correct for \"90 days\". Also calendar months ≠ 90 days exactly -- using duration-based PT/P syntax drifts from calendar quarters.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q13",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

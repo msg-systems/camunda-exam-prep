@@ -1,0 +1,50 @@
+{
+  "id": "ext-routing-events-to-processes-141",
+  "topic": "extensions-integrations",
+  "subtopic": "events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A client starts a new process instance through `PublishMessage` against a message start event. According to the routing best-practice, what is the implication for version selection?",
+  "options": [
+    {
+      "id": "a",
+      "text": "You cannot influence the version of the process definition that gets instantiated."
+    },
+    {
+      "id": "b",
+      "text": "The publisher selects the version via a `version` field on the published message."
+    },
+    {
+      "id": "c",
+      "text": "The oldest deployed version that declares that message is used by default."
+    },
+    {
+      "id": "d",
+      "text": "All deployed versions of the process that declare the message are started in parallel."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state plainly: 'you cannot influence the version of the process definition used when starting a process instance by message'. The trade-off for not needing the BPMN process ID is losing the ability to pin the version."
+    },
+    "b": {
+      "text": "`PublishMessage` does not take a version field; version pinning is only available on `CreateProcessInstance`, where you call `.bpmnProcessId(...).version(n)`."
+    },
+    "c": {
+      "text": "The engine does not fall back to the oldest version — the docs simply say the publisher has no influence over which version is used."
+    },
+    "d": {
+      "text": "A published message starts at most one new instance per matching subscription; the engine does not fan out one publication to every deployed version."
+    }
+  },
+  "explanation": "Starting by message via `PublishMessage` frees the client from knowing the BPMN process ID, but the trade-off, as the docs spell out, is that the client cannot influence which version of the process definition is used. If version selection matters, you must instead call `CreateProcessInstance` with `.bpmnProcessId(...).version(n)`.",
+  "docs": [
+    {
+      "title": "Routing events to processes - best practices",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/routing-events-to-processes/"
+    }
+  ]
+}

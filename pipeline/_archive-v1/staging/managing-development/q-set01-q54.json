@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q54",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A production process has a bug -- a Service Task occasionally produces wrong output because of a recent code regression. Instead of stopping all 2000 in-flight instances, the team wants to resolve the bug \"in-place\" for instances currently stuck at the buggy Service Task: skip the buggy task and jump to the next one with manually-corrected variables.",
+  "question": "Which Operate feature enables this targeted intervention?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Process Instance Migration -- change to a fixed version. Process Instance Migration is used to move in-flight instances from one process definition version to another -- it repositions tokens according to an element ID mapping plan. 1 with the bug fixed and migrate instances to it, this is a heavyweight approach for the described problem: the bug is at a specific Service Task, and the fix can be applied in-place by skipping or re-routing the affected task using Modification, without requiring a new version deployment and migration plan."
+    },
+    {
+      "id": "b",
+      "text": "Incident Resolution -- resolve the incidents and re-trigger. Incident Resolution is appropriate when a job has failed after exhausting its retry budget (creating an incident) and the underlying cause has been fixed -- the operator resolves the incident to re-activate the job so the worker can retry. There are no incidents to resolve. The correct tool for \"skip this task and jump to next with corrected variables\" is Process Instance Modification, which can move the token forward without re-executing the buggy task."
+    },
+    {
+      "id": "c",
+      "text": "Cancel and re-deploy -- cancel instances and re-deploy a fixed version. Cancelling the 2000 in-flight instances is destructive -- it permanently terminates all process state including accumulated variables, completed activity history, and business context built up since the instances started. The scenario explicitly states the goal is an \"in-place\" resolution, not a destructive restart. Re-deploying only deploys a new process definition version; it does not automatically migrate or restart the cancelled instances. This approach combines two disruptive operations (cancel + restart) that together produce the worst possible outcome for in-flight customer-facing processes."
+    },
+    {
+      "id": "d",
+      "text": "Process Instance Modification -- supports moving tokens (skip activity, jump to another point), updating variables, and adding/removing tokens. Targeted per instance -- operator selects the instance, moves the token, sets correct variables. In the scenario, the operator opens the affected instance in Operate, selects the buggy Service Task element in the modification panel, cancels the token at that position (skipping re-execution), places a new token at the next activity downstream, and updates the output variables to the manually corrected values -- all as a single atomic modification operation. State accumulated in prior steps, other active tokens, and instance-level variables are preserved. This is exactly what Modification was designed for: targeted in-place surgery without a version deployment."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Process Instance Modification is the in-place runtime surgery feature. From Operate UI (or API), operator selects a running instance, then can: cancel a flow node (skip), move a token to a different flow node, add a new token at a specific flow node, and update variables -- all as part of a single Modification operation. Specifically suited to bypassing buggy activities or correcting state without redeploying."
+    },
+    "b": {
+      "text": "Incorrect. Migration changes the version reference; doesn't bypass current execution point per-instance."
+    },
+    "c": {
+      "text": "Incorrect. Incident Resolution handles incident state; if the Service Task created incidents, you can resolve them by editing variables and retrying. But this scenario specifies the Service Task is producing wrong output silently, not creating incidents -- Modification is more appropriate."
+    },
+    "d": {
+      "text": "Correct. Cancel and re-deploy destroys state."
+    }
+  },
+  "explanation": "Cancel and re-deploy destroys state.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/process-instance-modification/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q54",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

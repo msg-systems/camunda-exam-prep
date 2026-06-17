@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A high-throughput payment processing system runs in Camunda 8 SaaS. The team has a Java Job Worker subscribed to type \"process-payment\". Initially the worker uses traditional polling (pollInterval = 100ms, requestTimeout = 1000ms). Under load, the team observes high P99 latency on payment processing -- average 200 ms but P99 can spike to 1500 ms even when the worker is otherwise idle. A colleague suggests migrating to streamJobs (gRPC streaming activation), introduced in Camunda 8.5+, for push-based delivery.",
+  "question": "What is the correct understanding of streamJobs vs polling, and why might it reduce P99 latency here?",
+  "options": [
+    {
+      "id": "a",
+      "text": "streamJobs and polling are functionally equivalent; the latency difference comes from worker-side processing speed, not activation. They are architecturally different in how jobs reach the worker. Polling-based activation has a structural wakeup latency floor: the worker sleeps for pollInterval milliseconds between checks, so a job created immediately after a poll cycle waits up to pollInterval milliseconds before the next poll discovers it. P99 latency spikes occur when a burst of jobs arrives just after a poll, forcing all of them to wait for the full interval. streamJobs eliminates this floor -- the broker pushes jobs to the worker immediately over the gRPC stream without any polling interval delay."
+    },
+    {
+      "id": "b",
+      "text": "streamJobs opens a long-lived gRPC stream between worker and broker; new jobs are pushed to the worker as soon as they appear in the broker, eliminating the polling-interval wait. md:156-226: long-living gRPC unidirectional stream, gateway-aggregated, push-based -- eliminates the structural polling-interval wakeup latency that dominates P99 spikes when the worker is idle. With the 100 ms poll interval in the scenario, jobs arriving immediately after a poll cycle wait up to 100 ms before activation begins. With streamJobs, the broker pushes the job to the worker as soon as the job becomes available -- activation begins within a single network round trip. This collapses the P99 latency floor from pollInterval to near-zero, directly addressing the latency spikes described."
+    },
+    {
+      "id": "c",
+      "text": "streamJobs is for read-only observation of jobs; it doesn't activate them. Polling remains required for activation. This is a fundamental misunderstanding. streamJobs is a full job activation mechanism -- the broker streams available jobs to the worker over the gRPC connection, and those jobs are activated (locked for the worker's timeout duration). The worker receives the activated job objects with all variables and metadata, processes them, and then calls completeJob, failJob, or errorJob exactly as with polling. streamJobs is a replacement for polling activation, not a passive observation tool."
+    },
+    {
+      "id": "d",
+      "text": "streamJobs is a Self-Managed-only feature; SaaS clusters cannot use it. That claim is false. 5 onwards. SaaS clusters use the same Zeebe gRPC gateway as Self-Managed; the streaming API endpoint is available in both environments. The Camunda Java client (used by the Spring Boot Starter) and the TypeScript SDK both support streaming activation that works against SaaS cluster endpoints with standard OAuth2 authentication."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Polling-based activation has a structural latency floor: even if the broker has a job ready immediately, the worker only learns about it on the next poll. With pollInterval = 100ms, the worst-case activation wakeup wait is 100 ms. streamJobs changes this model: the worker opens a long-lived gRPC stream and the broker pushes new jobs immediately. Activation half of latency drops to effectively a network round trip (~1-5 ms). Per concepts/job-workers.md:156-226 verbatim -- long-living gRPC unidirectional stream, gateway-aggregated."
+    },
+    "b": {
+      "text": "Correct. They are not functionally equivalent -- polling has structural wakeup latency that streaming eliminates."
+    },
+    "c": {
+      "text": "Incorrect. streamJobs does activate jobs; it's the streaming version of activateJobs."
+    },
+    "d": {
+      "text": "Incorrect. streamJobs is available in both SaaS and SM."
+    }
+  },
+  "explanation": "They are not functionally equivalent -- polling has structural wakeup latency that streaming eliminates.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q41",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

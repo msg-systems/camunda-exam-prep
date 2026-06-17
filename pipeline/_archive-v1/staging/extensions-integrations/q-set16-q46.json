@@ -1,0 +1,76 @@
+{
+  "id": "imp-set16-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Webhook Inbound receives JSON. Partner may send malformed / missing fields. Team wonders payload validation.",
+  "question": "Webhook payload validation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No validation -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Trust partner -- this is a security anti-pattern. Trusting all incoming payloads without validation allows malformed data to enter the process, potentially causing runtime errors in FEEL expressions or Service Tasks that expect specific fields. Missing required fields may cause NullPointerExceptions or broken process logic. Malicious partners or compromised endpoints could inject unexpected data. Defense-in-depth requires validating payload structure (required fields, data types) even after authenticating the sender identity. Authentication confirms who sent the data; validation confirms the data is well-formed and meets the contract."
+    },
+    {
+      "id": "c",
+      "text": "Custom Connector required -- this overstates the implementation effort needed. The standard Webhook Inbound Connector supports payload validation through multiple mechanisms without requiring a custom Connector: the activationCondition FEEL expression can check for required fields; variable mapping with defensive FEEL (if condition then value else null) handles missing fields; and process-level validation as the first task can reject invalid payloads. A custom Connector is only warranted if the standard validation mechanisms are fundamentally insufficient for the use case."
+    },
+    {
+      "id": "d",
+      "text": "= null) before correlating; apply defensive FEEL in variable mappings to handle missing optional fields gracefully; and optionally add a validation Service Task at the process start to perform comprehensive schema validation and route invalid payloads to an error-handling path that returns a 400-equivalent response."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Payload validation layers: Layer 1: Authentication: HMAC / API key / Bearer (per Set 14 Q46). Reject unauthorized: don't even parse body. First defense. Layer 2: Schema validation (if supported): Connector validates payload against schema. JSON Schema / OpenAPI. Reject malformed early. Layer 3: Activation condition (FEEL): `feel =event.type != null and event.amount != null and event.amount > 0 Only correlate if event has required fields. Layer 4: Defensive variable mapping: feel ={ orderId: if event.orderId != null then event.orderId else null, amount: if event.amount != null then number(event.amount) else 0, customerId: if event.customer != null and event.customer.id != null then event.customer.id else null } Map with nulls / defaults for missing. Layer 5: Process-level validation: [Webhook Inbound] → [Validate Task] │ check required fields ├─ valid → continue └─ invalid → log + end Validate at start of process; reject invalid. Validation patterns: Required field check: feel isValid: orderId != null and amount != null and amount > 0 Type validation (FEEL instance of per feel-boolean-expressions.md:204-219 -- no built-in type() function): feel isValidTypes: orderId instance of string and amount instance of number Range validation: feel isValidRange: amount > 0 and amount 0 allItemsValid: every item in event.items satisfies item.sku != null and item.qty > 0 Quantifiers (per Set 14 Q24). For response on rejection: In Webhook Inbound: Activation condition false: event ignored; no process created. HTTP response: typically 200 OK or 4xx; verify per Connector. For partner feedback: Return appropriate HTTP status: 400 for bad data. Body: error details. Verify Connector supports custom response. For audit: Log invalid events: even if not processed. Track validation failure rate: monitor. Schema validation tools: JSON Schema: json { \"type\": \"object\", \"required\": [\"orderId\", \"amount\"], \"properties\": { \"orderId\": {\"type\": \"string\"}, \"amount\": {\"type\": \"number\", \"minimum\": 0} } } ` Use in upstream validator or worker. For Connector SDK custom validators: Bean Validation (Java JSR-303): per Set 13 Q45. Applied at Connector level. Replay-safe: Idempotency: same event twice → same result. Dedupe: track processed event IDs. For high-volume webhooks: Reject early: don't burden Camunda. Filter at Connector layer: cheaper than at BPMN. Best practices: Defense in depth: multiple layers. Fail fast: reject early. Log invalid: track partner issues. Communicate: partner aware of validation rules. Document schema: external API contract. Anti-patterns: No validation: malformed events crash process. Single layer: insufficient. Silent failures: no visibility. For the scenario (malformed / missing fields): Auth first: reject unauthorized. Activation condition: filter malformed. Defensive FEEL in mapping: handle missing. Process validation: final check. For multi-channel: Different partners: different schemas. Adapter pattern: validate per partner."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. overstates."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q46",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 23 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 27.9 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

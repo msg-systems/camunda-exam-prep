@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q06",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A telco service-activation process must, at one specific point, dispatch SMS notifications to two recipients in parallel: the customer AND a partner system. Both dispatches are independent (different phone numbers, potentially different SMS gateways) but must complete (or both fail) before the process continues. The team is choosing between three modelling approaches and wants to understand the trade-offs.",
+  "question": "Which BPMN modelling approach fits, and what are the trade-offs?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Two parallel Send Tasks within a Parallel Gateway split / Parallel Gateway join -- each Send Task carries its own task type, input mapping, retries, and Error Boundary if needed. Visually obvious that two dispatches happen in parallel; each can fail / retry independently. Best for fixed count (2) where each dispatch has distinct configuration."
+    },
+    {
+      "id": "b",
+      "text": "All three patterns are reasonable -- pick by clarity versus flexibility and future maintainability. Two Send Tasks are best for a fixed, visible count where each dispatch has distinct configuration (different gateway, different retry policy). A single Send Task is preferred when hiding multi dispatch complexity makes the diagram simpler and the dispatches are tightly coupled. Parallel Multi Instance Subprocess handles a dynamic recipient count that may grow beyond two in the future. An experienced BPMN modeller selects based on the specific context and trade offs of the situation."
+    },
+    {
+      "id": "c",
+      "text": "A single Send Task that internally sends to both recipients -- the worker code handles the two dispatches either sequentially or concurrently within the same job execution. This hides parallelism inside the worker code, making it harder to retry one dispatch independently from the other if one fails. The trade off is reduced observability compared to two explicit tasks."
+    },
+    {
+      "id": "d",
+      "text": "A Parallel Multi Instance Subprocess over [customerNumber, partnerNumber] -- iterates over the recipients list in parallel; each inner subprocess instance performs one dispatch using the current inputElement as the recipient. This is the most flexible approach if the recipient count might grow beyond 2 in the future, since the collection drives the number of instances dynamically. The trade off is additional model complexity compared to two explicit tasks; for a fixed count of exactly two, this approach introduces Multi Instance overhead without clear benefit."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Two Send Tasks is the cleanest pattern for fixed-count parallel dispatch. Selected as primary if the question demanded clarity over flexibility."
+    },
+    "b": {
+      "text": "Correct. Single Send Task hides complexity, which is a reasonable trade in some scenarios (e.g., the dispatches are tightly coupled and shouldn't be retried independently)."
+    },
+    "c": {
+      "text": "Incorrect. Parallel MI is the most flexible; if recipient count might change, this is the future-proof choice."
+    },
+    "d": {
+      "text": "Incorrect. This is a trade-off question, not a \"single right pattern\" question. All three modelling approaches achieve the requirement; the best choice depends on which property matters most: Two Send Tasks (a): Best when count is fixed and each dispatch has different configuration (e.g., different SMS gateway, different retry policy). Visually clear; each task observable separately in Operate. Single Send Task (b): Best when you want to hide the multi-dispatch detail from the BPMN reader and treat \"notify recipients\" as one atomic step. Drawback: cannot retry one recipient independently. Parallel MI (c): Best when recipient count is dynamic (might be 1, 2, 5 depending on customer profile). Most flexible; future-proof. An experienced BPMN modeller picks based on context. The exam often tests this judgement -- \"all three valid, pick by trade-off\" is a legitimate answer."
+    }
+  },
+  "explanation": "Single Send Task hides complexity, which is a reasonable trade in some scenarios (e.g., the dispatches are tightly coupled and shouldn't be retried independently).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/best-practices/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q06",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

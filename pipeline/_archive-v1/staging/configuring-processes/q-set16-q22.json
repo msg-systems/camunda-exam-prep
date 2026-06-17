@@ -1,0 +1,76 @@
+{
+  "id": "imp-set16-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task form should display pre-filled values based on process variables -- e.g., customer name from earlier in process. Team wonders pattern.",
+  "question": "Form pre-filling from process variables?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Manual entry only -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Workers populate -- this overstates what is needed. Pre-filling form fields does not require a dedicated worker or extra code. The automatic binding works because Tasklist reads the current process variables when rendering a User Task form and populates any form field whose key matches a variable name. No worker intervention is required for simple pre-fill scenarios. Custom workers would add unnecessary complexity for standard variable-to-field binding. Workers might be involved in computing values upstream (as a Service Task before the User Task), but the actual pre-filling happens through the native form-variable binding mechanism."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 forms are designed specifically to read and bind to process variables. The form field key property defines the variable name to bind to: at render time, Tasklist retrieves the process instance's variables and automatically populates form fields whose keys match variable names. This is a core feature of the Camunda Forms system. When the user submits the form, the field values are written back to the process variables. The entire User Task workflow depends on this variable-form binding."
+    },
+    {
+      "id": "d",
+      "text": "Form fields bound to variables auto-pre-fill: when Tasklist renders a User Task form, it reads the current process variable scope and automatically populates any form field whose key property matches a variable name. For example, a field with key: \"customerName\" will display the current value of the customerName process variable at form open time. The user can edit the pre-filled value (unless the field is set to read-only). On submission, updated field values overwrite the corresponding process variables. , concatenate first and last name) before the form renders."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Form pre-filling: Standard pattern: Form field key: matches variable name. At task render: Tasklist reads variables; populates fields. Example: Process variables: ` customerName: \"Alice\" amount: 100 Form: json { \"components\": [ {\"type\": \"textfield\", \"key\": \"customerName\", \"label\": \"Customer\"}, {\"type\": \"number\", \"key\": \"amount\", \"label\": \"Amount\"}, {\"type\": \"textfield\", \"key\": \"comments\", \"label\": \"Comments\"} ] } Behavior: customerName field: pre-filled \"Alice\". amount field: pre-filled 100. comments field: empty (no variable). User submits: Pre-filled values: kept (or modified by user). New comments: saved. All variables updated in process scope. For read-only display: Field disabled / read-only: user sees but can't change. Useful: customer name, order ID (immutable context). json { \"type\": \"textfield\", \"key\": \"customerName\", \"label\": \"Customer\", \"disabled\": true } For computed pre-fills: Input Mapping on User Task: xml Transforms nested / computed values: into task-local variables. Form binds to task-local variables. For complex pre-fill: Pattern 1: Pre-compute via Service Task: Service Task before User Task. Computes / fetches data. Sets variables. User Task form binds. Pattern 2: Input Mapping FEEL: Inline FEEL transforms. For simple computations. Pattern 3: Form expressions (per Set 15 Q31): Some Forms support inline FEEL. Compute display values. Variable scope considerations: Task-local variables: Set via Input Mapping: scoped to task. Form sees these. Not propagated outside unless Output Mapping. Process-scope variables: Visible inside task. Form binds directly. Output Mapping: Form submit updates variables. Output Mapping shapes what flows back to process scope. For sensitive data: Don't pre-fill sensitive: Credit card, SSN, etc. Form should not display. Use opaque references. Encryption / redaction: Tasklist may redact based on permissions. Verify per version. For multi-step forms: First task: collects part 1. Second task: pre-filled with part 1; collects part 2. Composition of forms. For default values: Form-level defaults: in component config. Variable-driven: takes precedence over default. Hybrid: variable if set, else default. For Tasklist behavior: Pre-fill at render time: variables at moment of view. If variable changes: form may need refresh. Best practices: Bind form fields to variable names directly. Use Input Mapping for transformations. Read-only for context: don't allow editing immutable fields. Document expected variables: form contract. Anti-patterns: Manual UI to \"pre-fill\": bypass standard mechanism. Sensitive data in forms: exposure risk. No null handling: blank field on missing variable. For the scenario (pre-fill customer name): Form field key=\"customerName\". Process variable customerName`: pre-filled value. Optionally read-only: if not user-editable."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Overstates."
+    },
+    "c": {
+      "text": "Incorrect. overstates."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q22",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 27 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 23.7 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

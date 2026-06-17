@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A health-services agency configures a User Task \"Review Patient Intake\" assigned to a nurse. The agency's SLA requires the task to be claimed within 2 hours; otherwise it should be flagged for management attention. The team configures the User Task with a due date property: =now() + duration(\"PT2H\"). After deployment, the team observes the task appears in Tasklist correctly but doesn't visually indicate \"overdue\" when the 2-hour mark passes -- the Tasklist view shows tasks the same way regardless of due date.",
+  "question": "What is the correct understanding of due dates on User Tasks?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Due date is a deprecated property in Camunda 8 replaced by Timer Boundary Events for all deadline-related functionality. The followUpDate attribute was retained for backward compatibility but the due date FEEL expression is silently ignored by the Zeebe engine at runtime. Modelers should migrate existing due-date configurations to Timer Boundary Events to ensure SLA enforcement is engine-managed and visible in the BPMN diagram."
+    },
+    {
+      "id": "b",
+      "text": "Due date automatically cancels the User Task after expiry and routes the token to a default error path, similar to how a Timer Boundary Event with interrupting semantics works. In Camunda 8, due date is stored as task metadata only and does not trigger any Zeebe execution event on expiry. No automatic cancellation, routing, or incident creation occurs -- the task remains active indefinitely regardless of due date."
+    },
+    {
+      "id": "c",
+      "text": "Due date triggers a Zeebe Incident when the expiry time is reached, flagging the task in Operate as requiring manual intervention. Zeebe Incidents arise from execution errors such as failed job activation or evaluation failures -- not from metadata thresholds. The due date property on a User Task has no connection to Zeebe's Incident mechanism; its expiry goes unnoticed by the engine itself."
+    },
+    {
+      "id": "d",
+      "text": ", shows \"Due in 1 hour\" or \"Overdue by 30 min\") and can sort/filter by due date, giving nurses visibility into SLA status. Zeebe does NOT automatically take action on due-date expiry; the engine treats it as informational only. For automated action such as notification or escalation, attach a Timer Boundary Event to the User Task with the same 2-hour duration."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Due date on a User Task is metadata -- Tasklist UI uses it for display (\"Due in N hours\", \"Overdue by M\") and sorting/filtering, but Zeebe does not act on expiry automatically. For automated escalation when 2 hours pass, attach a Timer Boundary Event to the User Task (interrupting or non-interrupting depending on whether you want to cancel the task or just notify). The team's assumption that due date triggers escalation is incorrect; due date is informational."
+    },
+    "b": {
+      "text": "Incorrect. Due date doesn't auto-cancel."
+    },
+    "c": {
+      "text": "Incorrect. Due date doesn't create incidents."
+    },
+    "d": {
+      "text": "Correct. Due date is not deprecated; it complements Timer Boundary Events."
+    }
+  },
+  "explanation": "Due date is not deprecated; it complements Timer Boundary Events.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

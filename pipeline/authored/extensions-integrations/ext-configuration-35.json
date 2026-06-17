@@ -1,0 +1,53 @@
+{
+  "id": "ext-configuration-35",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A worker is declared with the annotation above. How does the Spring SDK interpret the `timeout` value?",
+  "codeBlocks": {
+    "stem": "@JobWorker(timeout = 60000)\npublic void foo() {\n  // worker's code\n}"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "60000 milliseconds (60 seconds) — the annotation `timeout` is a `long` in milliseconds."
+    },
+    {
+      "id": "b",
+      "text": "60000 seconds — the annotation `timeout` is always interpreted in seconds."
+    },
+    {
+      "id": "c",
+      "text": "An ISO 8601 duration string equivalent to `PT60000S`."
+    },
+    {
+      "id": "d",
+      "text": "A configuration error at startup, because the annotation requires a `Duration` literal like `PT1M`."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state that the annotation `timeout` is a `long` in milliseconds, so `60000` is 60 seconds (1 minute)."
+    },
+    "b": {
+      "text": "Seconds is not the annotation unit; the docs explicitly call out milliseconds."
+    },
+    "c": {
+      "text": "ISO 8601 duration strings are the format for the YAML override (`PT1M`), not for the annotation value."
+    },
+    "d": {
+      "text": "`Duration` literals are not how the annotation is declared; the docs use a numeric milliseconds value like `timeout = 60000`."
+    }
+  },
+  "explanation": "The Spring SDK splits timeout configuration: the `@JobWorker(timeout=...)` annotation expects a `long` in milliseconds, while the YAML override `camunda.client.worker.override.<type>.timeout` accepts an ISO 8601 duration expression such as `PT1M`. The two units catch out developers who mix them up.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter - Configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

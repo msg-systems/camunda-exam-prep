@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q09",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A SaaS company's subscription lifecycle process must allow the customer to upgrade their plan at any point during the subscription term (annual billing cycle). The upgrade message planUpgraded arrives asynchronously, correlated by subscription_id. Upgrade must work regardless of which stage the subscription is at (initial provisioning, active, mid-billing, renewal pending). Each subscription can be upgraded at most once per term (multiple upgrade requests in the same term should be idempotent -- only the first one applies). The main flow (provisioning → active → billing → renewal pending) should stay clean and not be cluttered with upgrade handling on every step.",
+  "question": "Which BPMN construct models this asynchronous interrupt cleanly?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Attach Non-interrupting Message Boundary Events to every Service Task in the main flow, each listening for the planUpgraded message. Non-interrupting Boundary Events spawn a new parallel token when the message arrives -- leaving the main flow task running while the upgrade handler also runs concurrently. Upgrading a subscription mid-billing creates the concurrent-execution failure mode the scenario explicitly forbids, and attaching boundaries to every task clutters the BPMN significantly."
+    },
+    {
+      "id": "b",
+      "text": "Wrap the main flow in a Subprocess and add an Event Subprocess with an Interrupting Message Start Event correlated on subscription_id. When planUpgraded arrives at any point during the subscription lifecycle, Zeebe cancels whatever is active in the main flow (interrupting semantics) and the Event Subprocess's outgoing flow takes over. Single-fire semantics close the subscription after the first message -- idempotent per term by design. The main flow stays clean."
+    },
+    {
+      "id": "c",
+      "text": "Place a Message Catch Event at the very beginning of the process, before any other activities, so the process waits for an upgrade message before proceeding. This reverses the intended logic entirely: the subscription lifecycle should run first and the upgrade should interrupt it mid-execution, not block process start. A Message Catch at process start means no subscription provisioning, billing, or renewal would ever proceed without an upgrade message arriving first."
+    },
+    {
+      "id": "d",
+      "text": "Use an Event-Based Gateway at every transition between main-flow steps to race between the normal next-step and the upgrade message arrival. An Event-Based Gateway is a point-in-time construct -- it covers only the gap between two specific activities, not the entire duration of each activity. Placing one at every transition also creates significant BPMN clutter, and does not cover the case where upgrade arrives while a task is actively executing rather than between tasks."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Event Subprocess with Interrupting Message Start Event is BPMN's canonical pattern for asynchronous \"interrupt at any point in a scope\". The Event Subprocess lives inside the wrapping subprocess. When planUpgraded arrives, Zeebe cancels whatever is active in main flow (interrupting), and the Event Subprocess's outgoing flow takes over. Single-fire semantics are default -- once consumed, the message subscription closes (multiple subsequent upgrade requests for the same subscription_id in the same term don't re-trigger). Clean main flow, scope-level interrupt."
+    },
+    "b": {
+      "text": "Correct. Non-interrupting Boundary spawns a new parallel token when message arrives -- main flow continues + upgrade handler runs concurrently. Upgrading a subscription while it's simultaneously being billed is the failure mode the scenario forbids."
+    },
+    "c": {
+      "text": "Incorrect. Message Catch at process start blocks process start until upgrade arrives -- backwards semantics."
+    },
+    "d": {
+      "text": "Incorrect. Event-Based Gateway at every transition clutters the main flow; also it's a point-in-time choice, not continuous \"any-point\" interrupt."
+    }
+  },
+  "explanation": "Non-interrupting Boundary spawns a new parallel token when message arrives -- main flow continues + upgrade handler runs concurrently. Upgrading a subscription while it's simultaneously being billed is the failure mode the scenario forbids.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q09",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

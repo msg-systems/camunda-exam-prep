@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q43",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A custom Outbound Connector authored with the Connector SDK must call a partner API that returns large response payloads (5-50 MB). The team is concerned about memory usage and timeouts.",
+  "question": "Which Connector SDK feature/strategy handles large response payloads efficiently?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Stream the partner API response and use Document Handling -- create a Camunda Document from the large payload (5-50 MB) by writing the response bytes to the document store, then return the document reference as the Connector output variable. Downstream process steps access the full content via the document reference when needed. Process variables remain small (just the reference object); Zeebe state is not bloated by the large payload. This is the canonical pattern for large data in Connector outputs."
+    },
+    {
+      "id": "b",
+      "text": "Return the entire response body (5-50 MB) as a string-type process variable from the Connector. Zeebe stores this variable as part of the process instance state, which is replicated across the cluster. Large variable payloads degrade Zeebe broker performance, consume significant memory, slow serialization and deserialization, and increase state partition sizes. Multi-megabyte process variables are a known anti-pattern that can destabilize high-throughput Zeebe clusters."
+    },
+    {
+      "id": "c",
+      "text": "The Connector SDK does support large payload scenarios through Document Handling integration. A Connector can create a Camunda Document from the large response and return the document reference as the connector output, keeping the variable payload small while making the full response accessible."
+    },
+    {
+      "id": "d",
+      "text": "Return only the HTTP response headers (Content-Type, Content-Length, status metadata) and discard the response body entirely. Downstream process steps work with the header metadata only. While response headers are small and appropriate as process variables, discarding the actual response body means the process loses all the data the partner API returned. Any downstream task that needs the API's content would have no data to work with, making this approach only valid if headers are the sole needed output."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda 8.6+ Document Handling provides first-class document-as-variable support. For large Connector responses, the Connector code creates a Document (stores in configured storage) and returns the document reference as the variable. Process variables stay small; downstream tasks can read the document when needed."
+    },
+    "b": {
+      "text": "Incorrect. Multi-MB process variables degrade broker performance and bloat state."
+    },
+    "c": {
+      "text": "Incorrect. SDK supports this scenario via Document Handling."
+    },
+    "d": {
+      "text": "Incorrect. Loses data; not a valid solution."
+    }
+  },
+  "explanation": "Camunda 8.6+ Document Handling provides first-class document-as-variable support. For large Connector responses, the Connector code creates a Document (stores in configured storage) and returns the document reference as the variable. Process variables stay small; downstream tasks can read the document when needed.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/getting-started/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q43",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-15",
+  "topic": "extensions-integrations",
+  "subtopic": "java-job-worker",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Marketplace runs a Camunda 8.8 Java job worker with maxJobsActive set to 10 to process 6000 orders per day. The platform team wants to predict when the worker triggers its next poll for additional jobs while it is already actively handling activated jobs in the in flight buffer.",
+  "question": "When does a Camunda 8.8 Java job worker poll for additional jobs while it is handling activated jobs from a previous batch?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The worker polls for additional jobs after every single handled job and ignores the maxJobsActive threshold so the local buffer at Aurora Marketplace always stays completely full of jobs"
+    },
+    {
+      "id": "b",
+      "text": "The worker polls for additional jobs only after every activated job from the previous batch finishes so the broker at Aurora Marketplace sees only one in flight activation at a time"
+    },
+    {
+      "id": "c",
+      "text": "The worker polls for additional jobs only at fixed pollInterval ticks regardless of how many jobs remain unhandled in the local buffer that the Aurora Marketplace client maintains"
+    },
+    {
+      "id": "d",
+      "text": "The worker polls for additional jobs the first time the count of unhandled jobs drops below 30 percent of maxJobsActive rounded up while it is handling activated jobs from the current batch"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The worker does not poll after every single handled job; it polls when unhandled jobs first drop below 30 percent of maxJobsActive rounded up."
+    },
+    "b": {
+      "text": "Incorrect. The worker does not wait for the entire previous batch to finish; it polls earlier, the first time unhandled jobs fall below 30 percent of maxJobsActive."
+    },
+    "c": {
+      "text": "Incorrect. The pollInterval only governs polls when the previous poll activated no jobs or the buffer is fully drained; an active worker polls at the 30 percent threshold."
+    },
+    "d": {
+      "text": "Correct. Every time a job is handled the worker checks whether unhandled jobs have dropped below 30 percent of maxJobsActive rounded up; the first time that happens it polls for more jobs."
+    }
+  },
+  "explanation": "While a Camunda 8.8 Java job worker is handling activated jobs, it checks after each completion whether the count of unhandled jobs has dropped below 30 percent of maxJobsActive rounded up, and the first time it has, it polls for more jobs.",
+  "docs": [
+    {
+      "title": "Java client job worker",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

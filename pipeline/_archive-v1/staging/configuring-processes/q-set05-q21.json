@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task review-application must timeout after 5 days -- if not completed, the task is cancelled and the flow routes to \"auto-reject\" path.",
+  "question": "Which Boundary Event variant fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Non-interrupting Timer Boundary Event attached to the User Task. A non-interrupting boundary event has a dashed border and creates a parallel branch without cancelling the host activity. When the five-day timer fires, the auto-reject flow starts but the User Task remains active in parallel. This violates the requirement to cancel the task on timeout; the non-interrupting variant is used for reminder notifications, not task cancellation."
+    },
+    {
+      "id": "b",
+      "text": "Interrupting Timer Boundary Event with duration P5D or PT120H (five days = 120 hours) attached to the review-application User Task. When the timer fires, the solid-border boundary event cancels the User Task and routes flow via the boundary's outgoing sequence flow to the auto-reject path."
+    },
+    {
+      "id": "c",
+      "text": "Use the User Task's dueDate property only and rely on Zeebe to auto-cancel overdue tasks. The dueDate property on a Zeebe User Task is informational metadata displayed in Tasklist to show when a task is overdue. It does not trigger any automated cancellation or routing actions. An overdue task simply shows a visual indicator; the engine takes no automatic action based on the due date alone."
+    },
+    {
+      "id": "d",
+      "text": "Timer Boundary Events are the correct mechanism for User Task timeouts in Camunda 8, not a task-level configuration property. Duration-based Timer Boundary Events attached to User Tasks cancel and reroute flow when the configured duration expires. Zeebe processes these as standard boundary events with P5D or PT120H duration syntax. The Timer Boundary Event fires after the configured duration and can cancel the User Task or run non-interruptingly as a reminder."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Interrupting (solid) Timer Boundary cancels the host when the timer fires and routes via boundary's outgoing arrow. Set duration to P5D or PT120H."
+    },
+    "b": {
+      "text": "Correct. Non-interrupting wouldn't cancel; task stays active in parallel with auto-reject path."
+    },
+    "c": {
+      "text": "Incorrect. dueDate is informational metadata for Tasklist (shows overdue); doesn't auto-cancel."
+    },
+    "d": {
+      "text": "Incorrect. Boundary Event handles it."
+    }
+  },
+  "explanation": "Non-interrupting wouldn't cancel; task stays active in parallel with auto-reject path.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q21",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A loan-application Service Task may throw several different BPMN error codes depending on what went wrong: INVALID_DATA, PARTNER_UNAVAILABLE, RATE_LIMITED, etc. The team wants a single Error Boundary Event that catches any error thrown by this task, without listing each errorCode individually -- a \"catch-all\" pattern.",
+  "question": "How is a catch-all Error Boundary Event configured?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Configure errorCode = \"\" (wildcard) to catch all errors with a single boundary. This is invented syntax; the BPMN specification does not use an asterisk wildcard for error catching. The actual mechanism for catching any error regardless of code is simply leaving the errorCode field blank on the boundary event. Using \"\" as a literal errorCode would only match errors that literally throw the code string asterisk, not all errors."
+    },
+    {
+      "id": "b",
+      "text": "Add one Error Boundary Event per error code, resulting in three separate boundaries on the task -- one for INVALID_DATA, one for PARTNER_UNAVAILABLE, and one for RATE_LIMITED. It also violates the DRY principle when all three handlers do the same thing. The catch-all pattern using a blank errorCode avoids this enumeration."
+    },
+    {
+      "id": "c",
+      "text": "Configure the Error Boundary Event without specifying an errorCode (leave the errorCode field blank) -- this is the BPMN-specification \"catch-all\" semantic. The boundary matches any BPMN error thrown by the host activity, regardless of its specific error code. This is the canonical pattern when all errors should route to the same handling path, or when the set of possible error codes is unknown or unstable."
+    },
+    {
+      "id": "d",
+      "text": "Use a Boundary Compensation Event attached to the task instead of an Error Boundary Event. Compensation Boundary Events fire only when an explicit Compensation Throw event triggers a rollback cascade for previously completed activities. They do not catch runtime errors thrown by a task. Using Compensation for error handling fundamentally misunderstands the two distinct BPMN event families."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN's Error Event with no errorCode specified is the catch-all variant. It matches any error thrown by the host activity. Useful when: All errors should route to the same handling path (e.g., a generic \"log and notify ops\" branch). The set of possible error codes is unknown or unstable. You want a fallback in addition to specific error catches (then the catch-all serves as the default; BPMN engines typically prefer specific code matches over catch-all when both are present). Note: combining a catch-all with specific Error Boundaries on the same host is supported and common -- specific codes route to specific handling, anything else falls through to catch-all."
+    },
+    "b": {
+      "text": "Incorrect. No * wildcard convention; leaving errorCode blank is the BPMN-spec catch-all."
+    },
+    "c": {
+      "text": "Correct. Three boundaries works but doesn't scale if the error set grows. Catch-all is the DRY pattern."
+    },
+    "d": {
+      "text": "Incorrect. Compensation Boundary fires only when compensation is thrown, not on activity errors."
+    }
+  },
+  "explanation": "Three boundaries works but doesn't scale if the error set grows. Catch-all is the DRY pattern.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q02",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

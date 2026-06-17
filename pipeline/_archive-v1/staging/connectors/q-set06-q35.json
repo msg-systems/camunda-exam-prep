@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q35",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A custom Outbound Connector needs to read a secret at runtime to call its external API. The Connector is written in Java with the SDK.",
+  "question": "Which API in the Connector code fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "NAME}} placeholders in any String field of the bound POJO before handing you the inputs. Secret resolution is implicit at bind time; there is no explicit getSecret(name) method on the context. The secrets are resolved from the configured provider (environment, K8s secrets, Vault) transparently without any explicit secret-fetching API call in the Connector code."
+    },
+    {
+      "id": "b",
+      "text": "Reading environment variables directly in the Connector code tightly couples the implementation to a specific secrets provider. In production environments using Kubernetes secrets or HashiCorp Vault, environment-based access would fail. The SDK's bindVariables method abstracts secrets resolution across all supported providers in a portable, provider-agnostic way. Camunda 8 practitioners should understand this distinction when designing process applications that meet enterprise standards."
+    },
+    {
+      "id": "c",
+      "text": "Hardcoding API credentials directly in the Connector source code is a security anti-pattern. Hardcoded secrets are exposed in version control repositories, build artifacts, and deployment packages. They cannot be rotated without a code change and deployment, making key rotation operationally expensive and risky in production environments. 0 in Camunda 8."
+    },
+    {
+      "id": "d",
+      "text": "Passing the secret as a process variable makes it visible in Operate's variable panel, audit logs, and any Elasticsearch export. This exposes sensitive credentials to anyone with access to the Operate UI or the Elasticsearch backing store. Secrets managed via the SDK's bindVariables mechanism are resolved before the job payload reaches the worker, keeping credentials out of process variable storage."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Per connector-sdk.md:558-568, the SDK does secret resolution at variable-binding time -- there is no explicit getSecret(name) API. You call context.bindVariables(MyInput.class) and any {{secrets.X}} placeholder in a String field of MyInput arrives already resolved. Provider-agnostic (env / K8s / Vault)."
+    },
+    "b": {
+      "text": "Incorrect. Reading env directly couples Connector to a specific provider; SDK abstraction is portable."
+    },
+    "c": {
+      "text": "Incorrect. Hardcoded secrets in code leak via repos and binaries."
+    },
+    "d": {
+      "text": "Incorrect. Secret-as-variable visible in Operate, audit logs."
+    }
+  },
+  "explanation": "Per connector-sdk.md:558-568, the SDK does secret resolution at variable-binding time -- there is no explicit getSecret(name) API. You call context.bindVariables(MyInput.class) and any {{secrets.X}} placeholder in a String field of MyInput arrives already resolved. Provider-agnostic (env / K8s / Vault).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q35",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

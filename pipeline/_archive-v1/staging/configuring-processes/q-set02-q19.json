@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q19",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A real-estate firm processes incoming property inquiries via email. Each email may contain attached PDFs (broker's letter, property listing sheets, financial summary). The team wants to use Camunda 8 IDP (Intelligent Document Processing) to extract: property address, asking price, bedroom count, property type. The team configures an IDP Application in Web Modeler with these four extraction fields. After deploying, the team finds the IDP correctly extracts values but with low confidence for some emails -- particularly when property listings have unconventional formatting. They need to automatically reject low-confidence extractions and route them to human review.",
+  "question": "Which IDP Application feature handles this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "IDP Application supports per-field confidence thresholds. 0 scale). When the IDP extraction confidence falls below the configured threshold for any field, the IDP returns a validation-failed status flag. The downstream BPMN model routes based on this status via an Exclusive Gateway -- directing the flow to either the automated continuation path or the human-review User Task for manual correction."
+    },
+    {
+      "id": "b",
+      "text": "IDP does not expose confidence scores for individual extracted fields; the service returns only the extracted values and assumes all extractions are equally reliable. Routing to human review must be based on business rules about value ranges, not AI confidence. 0) as part of the extraction result. Confidence scores are a first-class feature designed precisely for routing low-confidence extractions to human review."
+    },
+    {
+      "id": "c",
+      "text": "Manually review every IDP extraction via a User Task after IDP runs -- since AI confidence is unreliable, assume nothing and always route every extracted document through a human reviewer before proceeding. Confidence thresholds allow selective human review only for cases where the AI is genuinely uncertain."
+    },
+    {
+      "id": "d",
+      "text": ", price > 0, address length > 5 characters) and decides \"trust or review\" based on business rules about expected value shapes, without using IDP confidence scores. DMN-based sanity checks on extracted values can supplement confidence thresholds but do not replace them -- they cannot detect cases where the AI extracted a plausible-looking but actually wrong value with high structural validity. Per-field confidence thresholds directly capture AI certainty, which value-shape rules cannot replicate."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. IDP Application in Camunda 8.8 supports per-field confidence thresholds. The IDP service performs AI-based extraction and produces a confidence score per field (0.0 to 1.0). The Application configuration includes minimum acceptable confidence; when extraction confidence falls below threshold, the IDP marks the result as validation-failed and BPMN can route accordingly (Exclusive Gateway after the IDP Service Task)."
+    },
+    "b": {
+      "text": "Incorrect. IDP does expose confidence scores."
+    },
+    "c": {
+      "text": "Incorrect. Manually reviewing every extraction defeats the purpose of automated IDP."
+    },
+    "d": {
+      "text": "Incorrect. A DMN can sanity-check extracted values (e.g., price > 0) but doesn't have access to AI confidence. Combined with confidence threshold (option a) would be even better, but option a is the canonical answer."
+    }
+  },
+  "explanation": "IDP Application in Camunda 8.8 supports per-field confidence thresholds. The IDP service performs AI-based extraction and produces a confidence score per field (0.0 to 1.0). The Application configuration includes minimum acceptable confidence; when extraction confidence falls below threshold, the IDP marks the result as validation-failed and BPMN can route accordingly (Exclusive Gateway after the IDP Service Task).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/idp/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q19",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

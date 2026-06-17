@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Legacy BPMN uses formKey=\"external-form-url\"; modern uses formId. Team wonders compatibility. formKey legacy vs formId modern?",
+  "question": "formKey legacy vs formId modern?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Same thing -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "8 recommends the zeebe:formDefinition extension element with specific sub-attributes, the concept of a form key for referencing forms remains supported. The zeebe:formDefinition element uses a formKey attribute for embedded forms and externalReference for external forms. The distinction is between different reference mechanisms, not a simple deprecation."
+    },
+    {
+      "id": "c",
+      "text": "The formId attribute in zeebe:formDefinition is used to reference forms hosted on external systems outside Camunda -- this does not accurately reflect the behavior. The formId attribute specifically references a form deployed through Camunda's internal form deployment mechanism by its deployment identifier. External forms hosted outside Camunda are referenced using the externalReference attribute, which accepts a URL or expression pointing to an externally hosted form schema. These two attributes serve different integration patterns."
+    },
+    {
+      "id": "d",
+      "text": "md:118-143, :216-283: use formId for Camunda-deployed forms (references by deployment ID), use formKey with embedded form notation for path-based form references, or use externalReference for forms hosted outside Camunda at a URL or expression-evaluated path. Choosing the correct attribute path ensures the Tasklist renders the intended form. Misconfiguration leads to form not found errors or incorrect form rendering."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. formKey vs formId: formKey: History: from Camunda 7 era; carried into early Camunda 8. Usage: External form: URL pointing to HTML form. Legacy reference: arbitrary key. Example: `xml Verify exact format per version. Or for external URL: xml External form rendered in iframe / redirect. formId: Modern Camunda 8: references deployed Camunda Form by ID. Example: xml References form deployed with id=\"approval-form\". Differences: | Aspect | formKey | formId` | |--------|-----------|----------| | Form type | External / legacy | Camunda Form (deployed) | | Format | URL or key | Form ID | | Versioning | None typically | Per Form deployment | | Rendering | External UI | Tasklist native | For migration: From formKey to formId: 1. Convert external HTML form: to Camunda Form (JSON). 2. Deploy form: gets formId. 3. Update BPMN: replace formKey with formId. 4. Test: rendering + submission. For coexistence: Some User Tasks: formKey (legacy). Others: formId (modern). Same process: works typically. For Tasklist UI: formId: native rendering. formKey: external URL → iframe or redirect. Custom Tasklist: may handle both. For Camunda 8 evolution: formId: preferred modern. formKey: may be deprecated in future. Verify support per version. For embedded forms (per Set 16 Q10): Inline JSON in BPMN: another variant. Different from formKey + formId. For testing: Both forms: ensure render correctly. Migration testing: convert + verify. For external HTML forms (formKey URL): Workflow: 1. User opens task in Tasklist. 2. Tasklist shows iframe with external URL. 3. External form submits to Camunda API. 4. Task completed. Cons: External dependency: form must be accessible. Less integrated: vs native Forms. For modern Camunda Forms (formId): Workflow: 1. User opens task. 2. Tasklist fetches form by ID. 3. Renders natively. 4. Submit → Camunda API. Pros: Integrated. Native validation. Versioning. For development: Build Camunda Forms: form editor in Web Modeler / Desktop Modeler. Deploy with BPMN or separately (per Set 16 Q10). For complex UI needs: Camunda Forms: standard components. For non-standard: custom Tasklist or external form (formKey). For accessibility: Native Forms: easier to ensure accessibility. External: depends on external implementation. For audit: Both record completion: standard. Form data: in variables either way. For Camunda 8 features: Forms keep evolving: more components, capabilities. Stay on modern formId: benefit from new features. Best practices: Use formId for new tasks. Migrate formKey to formId over time. Document forms used: per BPMN. Test both if mixed. Anti-patterns: External forms when Camunda Forms suffice: extra infrastructure. Mixing without strategy: maintenance burden. For the scenario (formKey legacy + formId modern): Compatibility: both supported in Camunda 8 (verify). Migrate formKey to formId: where feasible. External forms remain via formKey: if truly needed."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q22",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 20 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 26.9 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

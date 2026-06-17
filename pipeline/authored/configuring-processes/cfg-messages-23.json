@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-23",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A message is published with an empty-string `correlationKey`, no `messageId`, and `timeToLive` set to `0`. The receiver is a message start event on a deployed process. According to the correlation overview table, what is the behavior?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A new process instance is started."
+    },
+    {
+      "id": "b",
+      "text": "The message is discarded because an empty correlation key is invalid for a start event."
+    },
+    {
+      "id": "c",
+      "text": "The message is buffered until an intermediate event subscribes."
+    },
+    {
+      "id": "d",
+      "text": "An incident is raised because the `messageId` was omitted."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The correlation overview table's row for `empty string` / `not set` / `set to 0` / `Start event` reads \"A new instance is started.\" There is no single-instance constraint and no buffering for this combination."
+    },
+    "b": {
+      "text": "An empty-string correlation key is explicitly supported on start events; the overview table covers it as a distinct case rather than treating it as invalid."
+    },
+    "c": {
+      "text": "Buffering requires a TTL greater than zero. With TTL `0`, there is no buffer, so the message is acted on immediately or dropped."
+    },
+    "d": {
+      "text": "`messageId` is optional. Omitting it disables the uniqueness check, but it does not raise an incident — the start-event row with `messageId` `not set` simply starts a new instance."
+    }
+  },
+  "explanation": "The message correlation overview combines correlation key, message ID, TTL, and receiver type into specific behaviors. For an empty-string correlation key with no message ID, TTL `0`, and a message start event, the table says a new process instance is started. The single-active-instance constraint that applies to non-empty correlation keys does not apply here.",
+  "docs": [
+    {
+      "title": "Message correlation",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

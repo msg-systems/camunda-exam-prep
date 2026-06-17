@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process has a Message Start Event. An external system publishes a message via REST API to start a new instance.",
+  "question": "What about correlation key for Message Start Event?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Correlation key is mandatory on all Message events including Start Events; without it the message is dropped. This applies to Intermediate Message Catch Events on running instances, not to Message Start Events. For a Start Event, no correlation key is configured in the BPMN model because there is no existing instance to correlate to. The message name alone is sufficient to identify which process definition should create a new instance."
+    },
+    {
+      "id": "b",
+      "text": "The correlation key value provided with the published message automatically becomes the new process instance's businessKey. Business keys and correlation keys are separate concepts. The correlation key on a published message serves for active-instance idempotency at the Start Event level, not for populating instance metadata properties."
+    },
+    {
+      "id": "c",
+      "text": "Message Start Events don't use correlation key expressions in the BPMN model. There is no existing process instance to correlate to when a Start Event is used; the message name alone selects which process definition creates a new instance. If the published message carries a correlation key, Camunda 8 uses it for active-instance idempotency -- preventing duplicate instances if an earlier message with the same key is still active."
+    },
+    {
+      "id": "d",
+      "text": "Correlation key on a Message Start Event controls message-level deduplication in all cases. Message deduplication for exactly-once delivery within a time window is controlled by the messageId field, not the correlation key. The messageId provides broker-level uniqueness checking within the message time-to-live window. While a correlation key on Start Events provides active-instance idempotency, it is not the primary deduplication mechanism."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. You do not configure a correlationKey expression on a Message Start Event in the BPMN model (per message-events.md:38: \"You do not specify a correlationKey for a message start event in the BPMN model when designing a process\"); message name + matching definition is enough to create a new instance. However, the publishing application can include a correlationKey in the message payload -- when present, Camunda uses it for active-instance idempotency: if an instance triggered by an earlier message with the same correlationKey is still active, no new instance is created (per message-events.md:29-34 + :40-42)."
+    },
+    "b": {
+      "text": "Incorrect. Not mandatory; not applicable."
+    },
+    "c": {
+      "text": "Correct. businessKey isn't auto-set from correlation key."
+    },
+    "d": {
+      "text": "Incorrect. Message-level deduplication uses messageId (broker-level uniqueness within TTL window per concepts/messages.md:91-97). Note that correlationKey on Message Start does provide a separate active-instance idempotency semantic, but option (a) is the more accurate answer about how the BPMN model is configured."
+    }
+  },
+  "explanation": "businessKey isn't auto-set from correlation key.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q20",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

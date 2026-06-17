@@ -1,0 +1,50 @@
+{
+  "id": "mod-user-tasks-24",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helix Marketplace runs an onboarding process in Camunda 8.8 that handles 2500 user tasks per day. The compliance team wants the same Camunda Form revision deployed alongside the process to remain bound to the user task even after newer form versions are deployed, so every in-flight instance sees the form revision that was deployed with its process version.",
+  "question": "Which formDefinition bindingType pins the user task to the form revision deployed alongside its current process version?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set bindingType to deployment on the formDefinition, so the user task uses the form version that was deployed together with the currently running version of the process"
+    },
+    {
+      "id": "b",
+      "text": "Set bindingType to latest on the formDefinition, so the user task always uses the most recently deployed version of the linked Camunda Form regardless of process version"
+    },
+    {
+      "id": "c",
+      "text": "Set bindingType to versionTag without specifying versionTag, so the engine pins the form to the most recent annotated version available at activation time of the user task"
+    },
+    {
+      "id": "d",
+      "text": "Omit the bindingType attribute and rely on externalReference instead, with externalReference treated as always pinning the form revision deployed with the process at deployment time"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The deployment bindingType uses the form version that was deployed together with the currently running version of the process, which is the pinning behavior the compliance team requires for in-flight instances."
+    },
+    "b": {
+      "text": "Incorrect. The latest bindingType resolves to the most recently deployed form version when the user task is activated, so new form deployments would change which form in-flight instances see."
+    },
+    "c": {
+      "text": "Incorrect. The versionTag bindingType requires the versionTag attribute to identify which annotated version is used; without it the binding cannot be resolved as intended."
+    },
+    "d": {
+      "text": "Incorrect. The externalReference attribute is a custom form reference whose interpretation depends on the implementation; it does not pin a Camunda Form version to a deployed process version."
+    }
+  },
+  "explanation": "On the zeebe:formDefinition extension element, the bindingType attribute controls which deployed Camunda Form version is used: latest, deployment, or versionTag. The deployment binding pins the form to the version deployed with the currently running process version.",
+  "docs": [
+    {
+      "title": "BPMN user tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ]
+}

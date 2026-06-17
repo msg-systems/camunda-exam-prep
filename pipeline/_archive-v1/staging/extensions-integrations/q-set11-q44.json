@@ -1,0 +1,63 @@
+{
+  "id": "imp-set11-q44",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's Camunda Identity (or SaaS Identity) has multiple API clients. Each client should have specific access scopes -- one for read-only Operate access, one for full Zeebe writes, etc.",
+  "question": "How are API client scopes / permissions managed in Camunda Identity?",
+  "options": [
+    {
+      "id": "a",
+      "text": "All clients have full access -- wrong; least-privilege via scopes."
+    },
+    {
+      "id": "b",
+      "text": "API client scopes are metadata carried in OAuth2 tokens but are not actually enforced by the Camunda APIs -- this confuses metadata carriage with active enforcement. Camunda 8 APIs enforce scope-based access control: each API endpoint verifies that the incoming token carries the required scope before processing the request. Tokens with insufficient scopes receive HTTP 403 authorisation errors. The least-privilege principle relies on this enforcement mechanism to ensure clients cannot access resources or perform actions beyond their explicitly assigned scope set."
+    },
+    {
+      "id": "c",
+      "text": ", read:process-instances, write:tasks) aligned to the least-privilege principle. When the client requests an OAuth2 token, the token carries the assigned scopes. Camunda API endpoints validate the token's scopes before processing requests, rejecting calls with insufficient permissions with HTTP 403. 8 Self-Managed, Identity has been split into Management Identity and Admin surfaces, each with separate API client provisioning and scope assignments."
+    },
+    {
+      "id": "d",
+      "text": "Camunda Identity has no granular permission system and all API clients receive full access -- this misrepresents the scope-based access control model. Camunda Identity supports per-client scope assignments, allowing admins to provision clients with only the specific scopes needed. 8 Self-Managed, Identity has been split into Management Identity and Admin surfaces, each with its own API client provisioning and scope assignments for cluster-level versus management-level operations. Each API component enforces these scope boundaries at request time."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda Identity (and SaaS Identity / Console) implements scope-based access control: Scopes define what an API client can do, granularly: Read scopes: read:process-instances, read:tasks, read:decisions, etc. Write scopes: write:process-instances, write:tasks, etc. Admin scopes: cluster management, etc. API clients are provisioned in Identity / Console: Create the client. Assign the scopes (least-privilege: only what the client needs). Generate client credentials (client ID + secret). OAuth2 token: Client requests token; specifies scopes (or accepts default for the client). Token issued with assigned scopes. APIs verify token's scopes before processing. Best practice: least privilege -- each client / service gets only the scopes it actually needs. Read-only services don't get write scopes. Audit clients periodically. Specific scope names + granularity evolve across Camunda versions and editions; verify per docs."
+    },
+    "b": {
+      "text": "Incorrect. Least-privilege."
+    },
+    "c": {
+      "text": "Correct. Enforced."
+    },
+    "d": {
+      "text": "Incorrect. Supported."
+    }
+  },
+  "explanation": "Enforced.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/components/management-identity/overview/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q44",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 8.6 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "con-http-webhook-13",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An HTTP Webhook intermediate catch event correlates on the process variable `orderId`, and the incoming POST body is `{\"orderId\": \"123\"}`. Which FEEL pair fills the **Correlation key (process)** and **Correlation key (payload)** fields correctly?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Process: `=orderId`; Payload: `=request.body.orderId`."
+    },
+    {
+      "id": "b",
+      "text": "Process: `=request.body.orderId`; Payload: `=orderId`."
+    },
+    {
+      "id": "c",
+      "text": "Process: `=orderId`; Payload: `=body.orderId` (no `request.` prefix)."
+    },
+    {
+      "id": "d",
+      "text": "Process: `=orderId`; Payload: `=request.body` (the whole body)."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs give exactly this pair: **Correlation key (process)** is a FEEL expression naming the process variable (`=orderId`), and **Correlation key (payload)** is a FEEL expression evaluated in the connector runtime against the incoming request (`=request.body.orderId`)."
+    },
+    "b": {
+      "text": "The two fields are swapped. The process expression must name the process variable that holds the key; the payload expression must extract the value from the request body."
+    },
+    "c": {
+      "text": "Webhook payload expressions access the incoming request via `request.body.<field>`; `body.orderId` (without `request.`) is the polling-connector pattern and will not resolve here."
+    },
+    "d": {
+      "text": "`request.body` returns the whole body context, not the scalar `\"123\"` needed for correlation; the expression must drill down to the `orderId` field."
+    }
+  },
+  "explanation": "The HTTP Webhook **Correlation** section configures message correlation for an intermediate catch event. **Correlation key (process)** is a FEEL expression naming the process variable used for the subscription (here `=orderId`), and **Correlation key (payload)** is a FEEL expression evaluated against the incoming request to extract the key (`=request.body.orderId`). Both must be present and pointed at the correct side; webhooks use the `request.` prefix to reach body, headers, or params.",
+  "docs": [
+    {
+      "title": "HTTP Webhook inbound connector",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ]
+}

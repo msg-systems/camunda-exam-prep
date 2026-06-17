@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q35",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's custom Outbound Connector must call a partner API requiring JWT authentication -- the partner gave them a client ID and secret, and a token endpoint to exchange for short-lived JWT access tokens. The team is implementing the auth flow inside the Connector code.",
+  "question": "Where is the JWT auth logic implemented?",
+  "options": [
+    {
+      "id": "a",
+      "text": "execute(context) method. *}} placeholder in String fields at bind time, so the bound POJO already carries the plaintext credentials. Then implement the JWT flow yourself: POST to the partner's token endpoint, parse the JWT, attach Authorization: Bearer <jwt> to subsequent calls. Cache the token using its expires_in to avoid re fetching on every job."
+    },
+    {
+      "id": "b",
+      "text": "The Camunda Connector SDK includes a built-in automatic JWT helper that handles the entire client credentials flow transparently -- the team only needs to configure the token endpoint URL and credentials, and the SDK automatically fetches and refreshes JWT tokens before each connector execution. This claim is false. md:563-568) but does not ship a generic OAuth2 or JWT token exchange runtime. Partner-specific token flows must be implemented by the connector developer in the execute() method."
+    },
+    {
+      "id": "c",
+      "text": "Skip JWT authentication entirely and rely on the Camunda cluster's built-in OAuth2 authentication to pass through to the partner API -- the cluster's identity service can be configured to authenticate the connector's outbound calls. This claim confuses two separate authentication planes. ). It has no knowledge of the partner API and cannot generate JWT tokens that the partner would accept. Authentication with the partner API is entirely the connector code's responsibility."
+    },
+    {
+      "id": "d",
+      "text": "Pass the JWT access token as a BPMN process variable from an upstream task, so the Connector receives it as part of the input data at execution time. While this technically allows the connector to use the JWT, it creates a serious security problem: process variables are stored in Zeebe, indexed in Operate's database, and visible to anyone with Operate access. JWT tokens appearing in process variables would also appear in audit logs and migration exports, potentially leaking credentials. *}} placeholders."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Custom Outbound Connectors are responsible for whatever auth their target API requires. The canonical SDK pattern: declare a Java input class with String fields for the credentials (e.g., String clientId; String clientSecret;) -- the element-template binds those fields to {{secrets.MY_CLIENT_ID}} / {{secrets.MY_CLIENT_SECRET}} placeholders. In execute(context) call context.bindVariables(MyInput.class) and the SDK auto-resolves the {{secrets.*}} placeholders into the bound POJO String fields at bind time (per connector-sdk.md:563-568). Then implement the OAuth2 / JWT flow yourself: POST clientId / clientSecret to the partner's token endpoint, parse the JWT response, attach as Authorization: Bearer . Cache the token using its expires_in to avoid re-fetching on every job. ⚠️ No context.getSecret(name) API exists in the Camunda 8 Connector SDK (grep for getSecret across docs/components/connectors/ returns 0 hits). Secret resolution is implicit at variable-binding time, NOT a per-secret lookup call. Don't reach for a fabricated getSecret() method."
+    },
+    "b": {
+      "text": "Incorrect. No \"auto-JWT\" magic in the generic SDK. Specific OOB Connectors handle their auth internally; custom Connectors implement their partner-specific flow."
+    },
+    "c": {
+      "text": "Incorrect. Cluster auth doesn't apply to partner APIs."
+    },
+    "d": {
+      "text": "Incorrect. Process variables are observable; credentials shouldn't appear there. Use cluster secrets + automatic resolution."
+    }
+  },
+  "explanation": "Custom Outbound Connectors are responsible for whatever auth their target API requires. The canonical SDK pattern: declare a Java input class with String fields for the credentials (e.g., String clientId; String clientSecret;) -- the element-template binds those fields to {{secrets.MY_CLIENT_ID}} / {{secrets.MY_CLIENT_SECRET}} placeholders. In execute(context) call context.bindVariables(MyInput.class) and the SDK auto-resolves the {{secrets.*}} placeholders into the bound POJO String fields at bind time (per connector-sdk.md:563-568). Then implement the OAuth2 / JWT flow yourself: POST clientId / clientSecret to the partner's token endpoint, parse the JWT response, attach as Authorization: Bearer . Cache the token using its expires_in to avoid re-fetching on every job. ⚠️ No context.getSecret(name) API exists in the Camunda 8 Connector SDK (grep for getSecret across docs/components/connectors/ returns 0 hits). Secret resolution is implicit at variable-binding time, NOT a per-secret lookup call. Don't reach for a fabricated getSecret() method.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q35",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -31,11 +31,31 @@ export interface OptionExplanation {
 
 export type QuestionStyle = 'recall' | 'scenario';
 
+/**
+ * Item kind. The official C8-CP-DV v8.8.0 exam is single-correct only.
+ * - 'single' (default): standard 1-of-4 question.
+ * - 'negative': still 1-of-4, but the stem asks for the wrong / false one;
+ *   the UI shows a banner and the lint requires NOT or FALSE in the stem.
+ */
+export type QuestionKind = 'single' | 'negative';
+
+/**
+ * Optional fenced-code blocks rendered as <pre><code> next to the stem and
+ * each option. Keeps FEEL / snippets out of free-text option strings so the
+ * UI can typeset them, and so lints don't trip on `backticks` or symbols.
+ */
+export interface QuestionCodeBlocks {
+  stem?: string;
+  perOption?: Partial<Record<'a' | 'b' | 'c' | 'd', string>>;
+}
+
 export interface Question {
   id: string;
   topic: TopicId;
   subtopic: string;
   difficulty: Difficulty;
+  /** Defaults to 'single' when omitted. */
+  kind?: QuestionKind;
   /** Long scenario context (Context / Action / Condition). Optional. */
   scenario?: string;
   /** Defaults to 'recall' when omitted. */
@@ -49,6 +69,11 @@ export interface Question {
   optionExplanations?: Partial<Record<'a' | 'b' | 'c' | 'd', OptionExplanation>>;
   docs: DocLink[];
   tags?: string[];
+  /** Optional pre-formatted code/FEEL snippets for stem and per-option. */
+  codeBlocks?: QuestionCodeBlocks;
+  /** Optional inline diagram (BPMN screenshot, etc.). */
+  diagramUrl?: string;
+  diagramAlt?: string;
   camundaVersion: '8.8';
 }
 

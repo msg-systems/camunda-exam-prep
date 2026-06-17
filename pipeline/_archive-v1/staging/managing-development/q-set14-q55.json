@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q55",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "External service needs to query Operate API. Team wonders: use API key (simple) or OAuth client credentials (more setup).",
+  "question": "API key vs OAuth client credentials choice?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 SaaS / Self-Managed typically use OAuth client credentials as primary auth for APIs (per Set 14 Q44): - OAuth client credentials: client_id + client_secret → token; token in requests. - API keys (simple bearer tokens): less common; may be available in some configurations. - OAuth advantages: token expiry, scopes, revocation, standardised. - For service-to-service: OAuth is the modern standard. - For SaaS: client credentials configured in Console; provided to external services."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 Operate API authentication is not limited to API keys. 0 client credentials, where external services obtain a bearer token from the identity provider (SaaS: Camunda's token service; Self-Managed: Keycloak or Identity). API keys as standalone bearer tokens are a simpler alternative available in some configurations but OAuth is the standard, more secure approach with token expiry and scope controls."
+    },
+    {
+      "id": "c",
+      "text": "0 client credentials is the primary and recommended authentication method for Camunda 8 API access, some deployments may support additional authentication options. For Self-Managed, Identity can be configured with various providers. The choice between OAuth and simpler token-based approaches depends on the security requirements, token lifecycle management needs, and whether client secrets can be safely stored."
+    },
+    {
+      "id": "d",
+      "text": "While it may seem that either API key or OAuth could be freely chosen for Camunda API access, OAuth client credentials is the standard and primary mechanism, not just one of two equally valid options. API keys may be simpler to configure but lack token expiry, scope enforcement, and centralized revocation capabilities. For production service-to-service integrations, OAuth provides significantly stronger security guarantees. Presenting them as equivalent alternatives understates OAuth's advantages."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. API authentication in Camunda 8: OAuth Client Credentials (modern standard): Flow: 1. Client has client_id + client_secret. 2. POST to OAuth token endpoint. 3. Receive access_token (JWT typically) + expires_in. 4. Include Authorization: Bearer in API requests. 5. Refresh before expiry (per Set 14 Q44). Configuration in Camunda SaaS: Console → cluster → API → create client. Get client_id + client_secret. Provide to external service. External service uses for OAuth. For Self-Managed: Camunda Identity manages clients. Or external Keycloak / OIDC provider. Same flow. Pros of OAuth: Token expiry: limits credential exposure. Scopes: limit what client can access. Revocation: invalidate compromised credentials. Standard: widely supported tooling. Auditable: token claims include client identity. API Keys (simpler, less standard): Flow: Client has long-lived API key. Include in Authorization: ApiKey or similar header. Server validates against database. Pros: Simple: no token exchange. No expiry handling in client. Cons: Long-lived: compromised key valid until manually rotated. No scopes typically: all-or-nothing access. Manual rotation: need to update clients. In Camunda: API keys may be available in some configurations. Verify per version: not always primary auth. For new integrations: prefer OAuth. For Operate / Tasklist APIs specifically: SaaS: typically OAuth client credentials. Self-Managed: depends on Identity config."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial; verify."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "API authentication in Camunda 8: OAuth Client Credentials (modern standard): Flow: 1. Client has client_id + client_secret. 2. POST to OAuth token endpoint. 3. Receive access_token (JWT typically) + expires_in. 4. Include Authorization: Bearer in API requests. 5. Refresh before expiry (per Set 14 Q44). Configuration in Camunda SaaS: Console → cluster → API → create client. Get client_id + client_secret. Provide to external service. External service uses for OAuth. For Self-Managed: Camunda Identity manages clients. Or external Keycloak / OIDC provider. Same flow. Pros of OAuth: Token expiry: limits credential exposure. Scopes: limit what client can access. Revocation: invalidate compromised credentials. Standard: widely supported tooling. Auditable: token claims include client identity. API Keys (simpler, less standard): Flow: Client has long-lived API key. Include in Authorization: ApiKey or similar header. Server validates against database. Pros: Simple: no token exchange. No expiry handling in client. Cons: Long-lived: compromised key valid until manually rotated. No scopes typically: all-or-nothing access. Manual rotation: need to update clients. In Camunda: API keys may be available in some configurations. Verify per version: not always primary auth. For new integrations: prefer OAuth. For Operate / Tasklist APIs specifically: SaaS: typically OAuth client credentials. Self-Managed: depends on Identity config.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/orchestration-cluster-api-rest-authentication/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q55",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team wants Task Headers values evaluated as FEEL at deployment / activation time -- they want priority to come from a process variable. They write `` in the XML.",
+  "question": "Are Task Header values evaluated as FEEL expressions?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes, Task Header values are evaluated as FEEL expressions at job activation time -- this confuses Task Headers with Input Mapping, misrepresenting how headers work. Task Headers are baked into the BPMN XML at design time as static literal strings and are transmitted to workers exactly as written. tier. Dynamic per-instance values require Input Mapping, not Headers."
+    },
+    {
+      "id": "b",
+      "text": "Whether Task Header values are FEEL-evaluated depends on which version of Zeebe is in use -- while it is always good practice to verify against the current documentation, the canonical and consistently documented behaviour is that Task Headers are static literal strings. They do not undergo FEEL evaluation in any documented Zeebe version. Teams relying on dynamic per-instance data should use Input Mapping variables rather than Headers regardless of version."
+    },
+    {
+      "id": "c",
+      "text": "Headers accept any literal string as a value, including strings that start with = (which is the FEEL prefix). The FEEL prefix has no special meaning in the Header context; only Input Mapping applies FEEL evaluation to generate dynamic values."
+    },
+    {
+      "id": "d",
+      "text": "No -- Task Header values are static literal strings, NOT FEEL-evaluated. tier\", not as the result of FEEL evaluation. tier\" target=\"priority\"/>. The worker then reads priority as a variable from the activated job's variables map, and that variable contains the FEEL-evaluated tier value. Headers are baked in at design time; Input Mapping runs at activation time."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Task Headers are static literal key/value strings baked into the BPMN at design time. Per-task metadata, identical across all instances of that modelled task element. The worker reads them via the activated job's getCustomHeaders() map; values are exactly what the BPMN XML contains. Writing value=\"=customer.tier\" results in the worker receiving: `json {\"priority\": \"=customer.tier\"} -- the literal string starting with =. The worker doesn't get the FEEL-evaluated tier value. For per-instance dynamic values, use Input Mapping with FEEL: xml The worker reads priority from the job's variables (not headers); FEEL evaluates customer.tier at activation; the result lands as priority value. Two API surfaces: Headers (getCustomHeaders()): static metadata. Variables (getVariablesAsMap()`): dynamic data, including FEEL-evaluated Input Mappings. Match the use case: static configuration → Headers; dynamic data → Input Mapping."
+    },
+    "b": {
+      "text": "Incorrect. Static."
+    },
+    "c": {
+      "text": "Incorrect. Verify per Zeebe version; primary answer is static."
+    },
+    "d": {
+      "text": "Correct. No FEEL specifically; literal strings."
+    }
+  },
+  "explanation": "No FEEL specifically; literal strings.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

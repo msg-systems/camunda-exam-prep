@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-156",
+  "topic": "extensions-integrations",
+  "subtopic": "Service task job key",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Bank uses Camunda 8.8 to wait on 900 jobs per hour inside a service task that holds open for asynchronous responses. To complete the open service task when the response message arrives, the integration glue must call the Zeebe API with the right identifier. The team needs to document which identifier the third-party service must echo back.",
+  "question": "Which identifier must the third-party service return so the worker can complete the held-open service task?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Zeebe-internal job instance key, which is the workflow-engine identifier passed to the worker and required by the API call that completes the open service task on receipt"
+    },
+    {
+      "id": "b",
+      "text": "The BPMN process definition id, which the worker passes to the Zeebe API in order to complete the open service task once the asynchronous response is received and parsed"
+    },
+    {
+      "id": "c",
+      "text": "The correlation key configured on the receive task, which is the value Zeebe uses to match the inbound response message to the open service task at completion"
+    },
+    {
+      "id": "d",
+      "text": "The element id of the service task in the BPMN XML, which the worker submits to the Zeebe API so the open service task can be completed once the response is parsed"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs state you can keep a service task open and complete it later, but completing it requires the Zeebe-internal job instance key, which the third party can echo back as part of the response."
+    },
+    "b": {
+      "text": "Incorrect. The process definition id identifies the deployed process model, not a specific job; the engine cannot complete an open service task with it."
+    },
+    "c": {
+      "text": "Incorrect. Correlation keys apply to message catch elements such as receive tasks, not to completing a service task job; that path uses the job key."
+    },
+    "d": {
+      "text": "Incorrect. The BPMN element id is metadata about the model and is not the identifier the Zeebe API uses to complete an outstanding job."
+    }
+  },
+  "explanation": "To complete an open service task held for an asynchronous response, the integration must call the Zeebe API with the job instance key. The key is an internal engine identifier that can either be passed to the third party for echo back or looked up via a correlation table.",
+  "docs": [
+    {
+      "title": "Service integration patterns",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

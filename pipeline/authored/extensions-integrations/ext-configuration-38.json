@@ -1,0 +1,50 @@
+{
+  "id": "ext-configuration-38",
+  "topic": "extensions-integrations",
+  "subtopic": "observability",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A `@JobWorker` method throws `CamundaError.bpmnError(\"DOESNT_WORK\", \"...\")` from inside the handler. Which action value does Spring Actuator record on the `camunda.job.invocations` metric for that invocation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`bpmn-error`"
+    },
+    {
+      "id": "b",
+      "text": "`failed`"
+    },
+    {
+      "id": "c",
+      "text": "`completed`"
+    },
+    {
+      "id": "d",
+      "text": "`errored`"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs list `bpmn-error` as a separate action on `camunda.job.invocations`, defined as processing that completed by throwing a BPMN error — meaning there was no technical problem."
+    },
+    "b": {
+      "text": "`failed` is reserved for processing that failed with an exception (a technical problem), not for a controlled BPMN error throw."
+    },
+    "c": {
+      "text": "`completed` is the action for processing that completed successfully, not via a BPMN error."
+    },
+    "d": {
+      "text": "`errored` is not one of the documented action values; the documented set is `activated`, `completed`, `failed`, and `bpmn-error`."
+    }
+  },
+  "explanation": "Spring Actuator distinguishes four actions on `camunda.job.invocations`: `activated`, `completed`, `failed`, and `bpmn-error`. The split between `failed` and `bpmn-error` matters operationally — BPMN errors are a controlled business outcome, while `failed` indicates a technical exception that decrements retries.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter - Configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

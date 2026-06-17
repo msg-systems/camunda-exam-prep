@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q54",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has 1000 User Tasks pending. They want to bulk-assign them: half to alice, half to bob, programmatically via API (not through Tasklist UI manually).",
+  "question": "Which API supports programmatic task assignment?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Tasklist REST API provides full programmatic support for task management operations including assignment, unassignment, and completion. The UI is convenient for individual operations but does not scale for bulk operations on 1000 tasks. The API allows automation scripts to search for tasks matching specified criteria and then assign them programmatically in a loop, making it the appropriate tool for the bulk-assignment scenario described."
+    },
+    {
+      "id": "b",
+      "text": "Modifying BPMN to assign tasks addresses the model-level default assignment or candidate configuration, not the per-instance runtime assignment of currently pending tasks. Changing BPMN would only affect future process instances started after the modification is deployed. The 1000 already-pending User Tasks exist as runtime state and must be assigned through a runtime API call, not through a model change that affects future execution."
+    },
+    {
+      "id": "c",
+      "text": "The Zeebe gRPC API handles job activation and completion for Service Tasks and other job-based activities, but User Tasks have their own dedicated task management API in Tasklist. The Tasklist REST API (/v1/tasks/*) provides the specific assign, unassign, and complete operations for User Tasks that the Zeebe gRPC API does not expose. Using Zeebe gRPC for User Task assignment would not work because these endpoints are not part of the Zeebe gateway API."
+    },
+    {
+      "id": "d",
+      "text": "Tasklist REST API (/v1/tasks/) -- supports task management: search, assign, unassign, complete. mdx:31, :66-79. md UI: \"Assign to me\" + \"Unassign\"). For bulk: iterate via API (POST /v1/tasks/search to filter pending tasks → loop assign). Authenticate via OAuth2 client credentials. In newer versions, some Tasklist v1 endpoints have parallel Orchestration Cluster API (/v2/) coverage -- verify per release."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Tasklist exposes a REST API (/v1/tasks/*) for programmatic task management. Operations: Search / query tasks: POST /v1/tasks/search -- filter by candidate group/user, state, assignee, variables, sort. Assign: PATCH /v1/tasks/{taskId}/assign with assignee body (when called via JWT, assignee param is required per assign-task.api.mdx:66-72). Unassign: PATCH /v1/tasks/{taskId}/unassign (per unassign-task.api.mdx). Complete: PATCH /v1/tasks/{taskId}/complete with variables. Save draft variables: POST /v1/tasks/{taskId}/variables (pre-complete persistence). Vocabulary note: assign / unassign is C8's verbiage (per using-tasklist.md). C7's claim / unclaim is NOT used in C8 docs or UI (\"Assign to me\" replaces \"Claim\"). For bulk operations: search → loop assign. Authentication: OAuth2 client credentials. In newer Camunda 8 versions, several Tasklist v1 endpoints have parallel coverage in the Orchestration Cluster API (/v2/...) -- confirm canonical path per release before scripting."
+    },
+    "b": {
+      "text": "Incorrect. API supports."
+    },
+    "c": {
+      "text": "Incorrect. Runtime per-instance."
+    },
+    "d": {
+      "text": "Correct. Zeebe gRPC for jobs; Tasklist API for User Tasks."
+    }
+  },
+  "explanation": "Zeebe gRPC for jobs; Tasklist API for User Tasks.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/tasklist-api-rest/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q54",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

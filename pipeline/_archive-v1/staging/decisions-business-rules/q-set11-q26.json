@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q26",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has a piece of tax-calculation logic applyTax(amount, region) they want to reuse from three separate top-level decisions in the same DRD: Pricing, Refund, Discount. They consider authoring it as one BKM and referencing it from all three. Does Camunda 8 support this cross-decision BKM sharing?",
+  "question": "Can a single BKM be invoked from multiple decisions in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "3 specification pattern but exceeds Camunda 8's current BKM scope restriction. 8. 3 spec's cross-decision BKM sharing via Knowledge Requirement graph edges works in Camunda 7's full DMN engine but has not been carried over to Zeebe's DMN engine."
+    },
+    {
+      "id": "b",
+      "text": "Yes, Camunda 8 automatically generates a copy of the BKM for each decision that requires it -- no such automatic BKM duplication mechanism exists in Camunda 8's DMN implementation. There is no auto-copy feature; teams wishing to share logic across decisions must explicitly create separate BKMs per decision or use the recommended workaround of extracting the shared logic into a separate top-level Decision with Literal Expression body plus informationRequirement edges."
+    },
+    {
+      "id": "c",
+      "text": "Each of the three decisions (Pricing, Refund, Discount) must maintain its own separate copy of the tax calculation BKM -- while this approach technically works, it violates the DRY (Don't Repeat Yourself) principle and creates maintenance risk: updating tax logic requires changing three separate BKM copies. The recommended workaround is extracting the shared logic into a separate top-level Decision Literal Expression and connecting the three consumer decisions to it via informationRequirement edges."
+    },
+    {
+      "id": "d",
+      "text": "md:64 \"Currently, you can only reuse BKMs within the same decision\" (Pattern #34). 3 spec allows cross-decision BKM sharing via Knowledge Requirement edges in the DRD, but Camunda 8's DMN engine has not implemented that yet. Canonical C8 workaround: extract the shared logic into a separate Decision with a Literal Expression body (FEEL function-style body); each consumer Decision declares an informationRequirement edge to that shared Decision; the engine evaluates the shared Decision once per evaluation and the result is available to every dependent Decision."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per dmn.md:64 verbatim: \"Currently, you can only reuse BKMs within the same decision.\" This is a known C8 limitation (Pattern #34). The DMN-1.3 spec models BKMs as graph-level reusable functions referenced from any Decision via Knowledge Requirement edges; Camunda 8's DMN engine has not implemented cross-decision BKM invocation in 8.8 -- autosuggestion + invocation are scoped to the BKM's enclosing Decision only. Canonical C8 workaround: promote the shared logic to a separate top-level Decision with a Literal Expression body (acts as a reusable computed value). Per dmn.md:23-28 Modeler supports \"Decision (tables and literal expressions)\" -- a Decision Literal Expression is the closest functional equivalent to the DMN-spec BKM. Each consumer Decision then declares an informationRequirement edge to that shared Decision in the DRD; the engine evaluates the shared Decision once per evaluation and propagates the result. Trade-offs: Cross-decision sharing: Decision-with-Literal-Expression pattern ✅; BKM ✗. Parameterised invocation: shared Decision evaluates against its own inputs (decision-graph inputs); BKM accepts arguments at the call site. For \"call with arbitrary args\" semantics, you have to encode args as Input Data + propagate via DRD edges. Within-decision reuse: BKM works fine -- define once, call multiple times from a single Decision's Literal Expression body via FEEL function-call syntax. DRD shape (workaround): ` [Input: amount, region] → [Decision: ApplyTax (Literal Expression body)] ↓ informationRequirement [Decision: Pricing], [Decision: Refund], [Decision: Discount] each declare → [ApplyTax] ` Watch for: exam-style questions assuming DMN-1.3 spec cross-decision BKM sharing -- that pattern works in Camunda 7 with the Camunda DMN engine but not in C8's Zeebe DMN engine."
+    },
+    "b": {
+      "text": "Incorrect. DMN-1.3 spec pattern not implemented; dmn.md:64 explicitly constrains BKM reuse to same-decision."
+    },
+    "c": {
+      "text": "Incorrect. No auto-copy mechanism; explicit modeling required."
+    },
+    "d": {
+      "text": "Correct. Functions but violates single-source-of-truth; option (a)'s shared-Decision pattern is the recommended approach."
+    }
+  },
+  "explanation": "Functions but violates single-source-of-truth; option (a)'s shared-Decision pattern is the recommended approach.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/dmn/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q26",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

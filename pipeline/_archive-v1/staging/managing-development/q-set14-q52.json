@@ -1,0 +1,63 @@
+{
+  "id": "imp-set14-q52",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A bug deployed; 5,000 process instances have Incidents on same Service Task. Team wonders how to resolve all 5,000 at once without one-by-one clicks.",
+  "question": "Bulk operation API for thousands of incidents?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:29-36 support Resolve incidents, Cancel, Migrate, Modify, and Delete as bulk actions against filtered sets of instances. The Operate UI allows selecting thousands of instances via filter, then triggering a batch action with one click. The batch runs across all Zeebe partitions in parallel; no client-side loop is needed. Both item-level and batch-level authorizations must be present (:62-73)."
+    },
+    {
+      "id": "b",
+      "text": "Batch operations in Camunda 8 support targeted bulk actions, not only indiscriminate cancellation of all instances. The available batch types include Resolve incidents, Modify process instances, Migrate process instances, Cancel process instances, and Delete instances. Teams use filters in Operate to select only affected instances before applying a batch action. Cancelling every instance without filtering would destroy healthy instances alongside the ones with incidents."
+    },
+    {
+      "id": "c",
+      "text": "md:25-55: The Operate UI lets users filter process instances, select them in bulk, and apply a batch action - Resolve incidents, Modify, Migrate, Cancel, or Delete - across thousands of instances simultaneously. Batches execute across all Zeebe partitions in parallel. The batch lifecycle (Created, Active, Completed, Partially completed) is trackable in the Monitor Batch Operations page. The Orchestration Cluster REST API also exposes a batch-create endpoint for automation."
+    },
+    {
+      "id": "d",
+      "text": "Waiting for incidents to auto-retry without intervention misunderstands Camunda's incident model. Incidents are created when retries are exhausted; they do not retry further without explicit operator action. The correct resolution path is to identify and fix the underlying root cause, then use Operate's batch Resolve incidents action to increment retry counts and reactivate the affected service tasks. Relying on automatic recovery without addressing the cause leaves incidents permanently blocked."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Bulk operations for many incidents: Operate UI bulk operations: Filter + select: Filter instances by process / element / incident state. Multi-select via checkbox. Bulk actions: resolve incident, retry, cancel. Use case: tens to hundreds of incidents; manageable via UI. For thousands: API scripting more practical. Operate API: Endpoints (verify per version): /v1/incidents/search: query incidents with filters. /v1/process-instances/{id}/operations: per-instance operations. Batch operations API for multi-instance actions. Scripting pattern (Python pseudocode): `python # 1. Find all matching incidents incidents = api.search_incidents( processDefinitionKey=\"my-process-key\", hasIncident=True, errorType=\"JOB_NO_RETRIES\" ) # 2. Iterate in batches for batch in chunks(incidents, 100): for incident in batch: api.update_job_retries( jobKey=incident.jobKey, retries=3 ) time.sleep(1) # rate limit # 3. Monitor progress; log results ` Strategy for the 5,000-incident scenario: Step 1: Fix root cause first: Deploy bug fix to workers / process. Verify new instances don't hit same incident. Step 2: Categorize incidents: Same root cause: retry-able. Different causes: may need different handling. Step 3: Test on small batch: Retry 10 incidents. Verify they succeed (not just immediately re-fail). Step 4: Bulk retry: Script through all matching incidents. Batch sizes (100-1000) to avoid overwhelming cluster. Rate limit to prevent overload. Step 5: Monitor: Track success vs failure rate. Stop if failure rate too high (something still wrong). Step 6: Handle remaining: Some may not recover with retry. Investigate individually; may need Modify API. Bulk operation types: Incident retry: Increment retries; job re-activates. Workers process again. Process instance cancellation: Cancel stuck / unrecoverable instances. Audit trail of cancellations. Variable modification: Bulk update variables (via Modify API) before retry. Useful when stuck on bad data. Process migration (per Set 14 Q18): Bulk migrate to V2 of process. For schema/structure changes. Considerations: Performance impact: Bulk operations consume cluster resources. Test in dev / staging first. Monitor cluster health during bulk operations. Audit trail: Log who did what bulk operation when. Compliance / accountability. Idempotency: Re-running script should be safe. Track which incidents already processed. Coordination: Stop creating new bad instances: ensure bug fix deployed first. Communicate: tell stakeholders about bulk operation. Best practices: Test on subset first: validate approach. Use API for >100 incidents: UI doesn't scale. Batch + rate limit: don't hammer cluster. Log everything: for audit + debugging. Monitor cluster health: bulk ops can be heavy. Have rollback plan: in case bulk operation makes things worse. Anti-patterns: Bulk retry without fixing root cause: just retries same failure. No batching: thousands of simultaneous operations may overwhelm. No audit log: can't reconstruct what happened."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Overstates."
+    },
+    "c": {
+      "text": "Correct. overstates."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/batch-operations/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q52",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

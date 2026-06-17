@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q35",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A photo-sharing platform's process uploads user photos to AWS S3. The team is using Camunda's out-of-the-box AWS S3 Connector.",
+  "question": "Which authentication mechanism does the S3 Connector typically support?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:34-46: \"Credentials\" (SaaS or Self-Managed) -- explicit accessKey + secretKey, both required per :54-56, recommended to store via Camunda Secrets per :23-26; OR \"Default Credentials Chain\" (Self-Managed/Hybrid only per :41-46) which delegates to the AWS SDK Default Credential Provider Chain -- picks up role-based auth, env vars, or credential files on the worker host. Required IAM permissions per :15-19: GetObject, PutObject, DeleteObject."
+    },
+    {
+      "id": "b",
+      "text": "AWS S3 supports completely anonymous uploads to any bucket by default, so the Camunda S3 Connector can upload files without any AWS credentials configured -- this description does not reflect the actual behaviour. Anonymous access to S3 buckets is disabled by default and requires the bucket owner to explicitly configure permissive bucket ACLs and policies that allow public write access. Most production S3 buckets block all public access by default. The standard secure approach is configuring IAM credentials with s3:PutObject permissions in the Connector's AWS authentication settings."
+    },
+    {
+      "id": "c",
+      "text": "Authenticate the Camunda S3 Connector using a username and password combination to access AWS S3 -- this description does not reflect actual behaviour because AWS S3 does not use username and password authentication for API access. AWS uses IAM-based authentication with access key IDs and secret access keys, or short-lived STS credentials and web identity tokens for role-based access. Username and password authentication applies to the AWS Management Console login, not to programmatic API access. The Camunda S3 Connector requires AWS IAM credentials configured as access key ID and secret access key."
+    },
+    {
+      "id": "d",
+      "text": "AWS S3 uses IAM-based application-level authentication with signed requests (AWS Signature Version 4) or Bearer tokens from STS. While all AWS API traffic uses TLS for transport encryption, mTLS client certificate authentication is not how AWS authenticates API callers. Client certificates are used for some AWS IoT and VPN services, not for S3 or general AWS API authentication. The Camunda S3 Connector requires standard AWS IAM credential configuration."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. AWS authentication uses IAM: Access keys (long-lived): accessKeyId + secretAccessKey. Configure as cluster secrets, reference in Connector. Suitable for non-AWS deployments (e.g., Camunda 8 SaaS, self-hosted on non-AWS infra). IAM roles (short-lived): when the Connector runtime runs on AWS (EC2, EKS, ECS), it can assume an IAM role and use temporary credentials automatically. Preferred for AWS-hosted deployments. The Connector signs all S3 API requests with AWS Signature V4. The team configures via secrets and (optionally) role ARN."
+    },
+    "b": {
+      "text": "Incorrect. Anonymous works only with specific bucket policies (public buckets); not the typical pattern."
+    },
+    "c": {
+      "text": "Incorrect. AWS uses IAM."
+    },
+    "d": {
+      "text": "Incorrect. mTLS isn't AWS's API auth."
+    }
+  },
+  "explanation": "AWS authentication uses IAM: Access keys (long-lived): accessKeyId + secretAccessKey. Configure as cluster secrets, reference in Connector. Suitable for non-AWS deployments (e.g., Camunda 8 SaaS, self-hosted on non-AWS infra). IAM roles (short-lived): when the Connector runtime runs on AWS (EC2, EKS, ECS), it can assume an IAM role and use temporary credentials automatically. Preferred for AWS-hosted deployments. The Connector signs all S3 API requests with AWS Signature V4. The team configures via secrets and (optionally) role ARN.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/amazon-s3/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q35",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q28",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team versions BPMN and the DMN it references -- they wonder if updating just the DMN (without changing BPMN) rolls the BPMN's effective behaviour for running instances.",
+  "question": "Does updating a DMN affect running BPMN instances that reference it?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Updating a DMN always causes all running BPMN instances to pick up the new DMN on their next Business Rule Task evaluation -- this overstates the latest binding behaviour. While latest is the default binding type and does mean pending Business Rule Tasks pick up the most recently deployed DMN version at activation time, this behaviour can be overridden. Setting bindingType=\"deployment\" or bindingType=\"versionTag\" pins the DMN version and prevents running instances from seeing new DMN deployments."
+    },
+    {
+      "id": "b",
+      "text": "Running BPMN instances are always pinned to the DMN version that was deployed alongside the BPMN process -- this describes the deployment binding type but misrepresents the default. md:53-54, the default bindingType is latest, which resolves the DMN version at task activation time rather than at BPMN deployment time. Teams must explicitly configure deployment binding if they want BPMN-deployment-time version pinning."
+    },
+    {
+      "id": "c",
+      "text": "md:45-54. Three options: latest (default per :53-54 -- \"resolves the version at task activation time\" → running instances pick up the latest deployed DMN on each evaluation), deployment (pins to the DMN version deployed alongside the BPMN), versionTag (pins to a specific named tag). Already-completed Business Rule Tasks keep their cached results regardless of binding. Pending BRTs evaluate per the binding when they activate."
+    },
+    {
+      "id": "d",
+      "text": "DMN files can only be deployed or updated together with the BPMN processes that reference them -- this contradicts the independent deployment lifecycle model in Camunda 8. DMN decision definitions are deployed separately from BPMN processes, each maintaining their own version sequences. A team can deploy a new DMN version at any time without touching the BPMN. The bindingType configuration on each Business Rule Task then determines whether running instances pick up the new DMN version or remain pinned to an older one."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN Business Rule Task → DMN binding behaviour per business-rule-tasks.md:45-54: latest (default per :53-54): \"the latest version of the decision at the time the task is activated\" -- running instances picking up a pending BRT will evaluate against the latest deployed DMN at that moment. deployment: pins to the DMN version deployed in the same deployment as the BPMN process. versionTag: pins to a named version tag -- useful for explicit version coordination. Already-evaluated tasks: results cached in the instance's history; subsequent DMN updates do NOT retro-affect completed evaluations. Pending BRTs: when they activate, evaluate per the binding. Implications for running instances: Update DMN with backward-compatible change (add a new rule, refine logic) under latest binding: pending BRTs in running instances benefit immediately. Update DMN with breaking change (remove a rule, change input/output schema) under latest binding: risk of running instances seeing inconsistent behaviour mid-process. Mitigations: Pin via deployment or versionTag: explicit version coordination; updates require redeployment / explicit retag. Backward-compatible DMN evolution: add rules, keep schemas stable. Migration coordination: deploy new BPMN + new DMN atomically; migrate running instances if needed."
+    },
+    "b": {
+      "text": "Incorrect. Binding configurable per :45-54."
+    },
+    "c": {
+      "text": "Correct. latest is the default per :53-54."
+    },
+    "d": {
+      "text": "Incorrect. Independent deployment lifecycles."
+    }
+  },
+  "explanation": "latest is the default per :53-54.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q28",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

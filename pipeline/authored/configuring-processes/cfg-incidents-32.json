@@ -1,0 +1,50 @@
+{
+  "id": "cfg-incidents-32",
+  "topic": "configuring-processes",
+  "subtopic": "incidents",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A sequence flow condition on an exclusive gateway evaluates to the string `\"yes\"` at runtime instead of `true` or `false`. What does Zeebe do?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An incident is created at the gateway because the condition did not return `true` or `false`."
+    },
+    {
+      "id": "b",
+      "text": "The flow is taken because any non-empty string is treated as truthy."
+    },
+    {
+      "id": "c",
+      "text": "The default sequence flow is taken automatically as a fallback."
+    },
+    {
+      "id": "d",
+      "text": "The token waits at the gateway until the variables change."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs list \"a condition doesn't return `true` or `false`\" as one of the situations that creates an incident. Returning the string `\"yes\"` instead of a boolean falls squarely into this case, so Zeebe raises an incident on the gateway."
+    },
+    "b": {
+      "text": "FEEL conditions in Zeebe are strictly boolean; there is no JavaScript-style \"truthy string\" coercion. A non-boolean result is treated as an error condition, not as `true`."
+    },
+    "c": {
+      "text": "The default flow is only used when conditions evaluate but none match. A type error (non-boolean result) is treated as an evaluation failure and surfaces as an incident, not as a fallback to the default flow."
+    },
+    "d": {
+      "text": "Gateway conditions are not re-evaluated automatically when variables change. Execution does not pause and wait; it surfaces the failure as an incident that a user must resolve."
+    }
+  },
+  "explanation": "An incident in Camunda 8 represents a problem in process execution that requires user interaction. The docs enumerate the situations that create incidents, and \"a condition doesn't return `true` or `false`\" is one of them. Returning a non-boolean such as `\"yes\"` from a sequence flow condition therefore raises an incident at the gateway.",
+  "docs": [
+    {
+      "title": "Incidents",
+      "url": "https://docs.camunda.io/docs/components/concepts/incidents/"
+    }
+  ]
+}

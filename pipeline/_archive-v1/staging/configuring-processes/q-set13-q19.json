@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q19",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task has a Camunda Form. The team wants a Timer Boundary firing 24 hours after the form first becomes visible to the assignee -- not when the task is created (which may be before assignment).",
+  "question": "When does Timer Boundary on User Task start its clock?",
+  "options": [
+    {
+      "id": "a",
+      "text": ", when the task is created and offered to candidates / assignee. Not specifically when the assignee \"first views\" the form (which is a UI-level event, not BPMN-level). If \"from view\" is the requirement: model with finer granularity -- track view event externally (Tasklist customisation or analytics) and trigger BPMN logic from there; or accept \"from activation\" as a reasonable proxy."
+    },
+    {
+      "id": "b",
+      "text": "The Timer Boundary clock starts when an assignee claims the task in Tasklist -- partial; task claiming is a Tasklist UI event that does not natively trigger BPMN-level events or reset Timer Boundary clocks. The Timer Boundary starts at host activation (task creation), not at claim time. While claim time might better represent \"work started,\" BPMN has no native \"claim event\" that can restart a timer. Implementing claim-based timers requires custom patterns: tracking claim timestamp in a process variable, then using a separate timer mechanism, or modeling an acknowledgement step as a distinct User Task before the main work task."
+    },
+    {
+      "id": "c",
+      "text": "The Timer Boundary start event is configurable and can be set to start from various trigger points -- partial; while FEEL expressions allow dynamic duration calculations, the trigger point (when the clock starts) is not configurable. It is always at host activity activation. The FEEL expression can reference process variables to compute a dynamic deadline relative to when the process started or when preceding events occurred, but the timer itself begins counting from task creation, not from claim, view, or any other downstream event. Configurable timer expressions do not change the fixed activation-time trigger."
+    },
+    {
+      "id": "d",
+      "text": "The Timer Boundary on a User Task never starts and remains inactive throughout the task lifecycle -- wrong; Timer Boundaries on User Tasks are a standard and commonly used pattern for SLA enforcement. The timer starts immediately when the User Task activates (when it is created and becomes available in Tasklist). If the task remains uncompleted when the timer fires, the boundary event interrupts the task and routes the token along the boundary event's outgoing sequence flow, typically to an escalation path or deadline handler. This is one of the primary use cases for Timer Boundary Events in human workflow orchestration."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Timer Boundary lifecycle on User Task: Timer starts: at host User Task activation -- the moment the task is created in Tasklist and offered to assignees / candidates. Doesn't depend on: Assignee claim: task being claimed by a specific user doesn't restart the timer. First view: when the assignee opens the form to view -- not tracked at BPMN level. Form interactions: editing fields, etc., don't affect timer. Practical implication: Tasks waiting in queue (assigned but not yet viewed) consume timer time. For SLA \"from task offered to candidates,\" current behavior fits. For SLA \"from assignee opens task,\" would need finer modelling. Workarounds for \"from view\" SLA: Pattern 1: Acknowledgement step: First User Task: minimal \"Acknowledge receipt\" step (assignee claims + completes quickly). Second User Task: actual work. Timer Boundary here starts from acknowledgement. Pattern 2: External tracking: Tasklist customisation / analytics tracks view events. Publishes a Message to Camunda; process state updates. Subsequent Timer / Message Catch references the view event. Pattern 3: Accept activation as proxy: \"Time from offered\" ≈ \"time from view\" in practice (assuming reasonable response times). Simpler model; one less step. Choose based on strictness of SLA semantic. For most \"respond in 24h\" semantics, the activation-based timer is acceptable."
+    },
+    "b": {
+      "text": "Incorrect. Specific events not native."
+    },
+    "c": {
+      "text": "Incorrect. Option d) -- Wrong."
+    },
+    "d": {
+      "text": "Incorrect. Incorrect."
+    }
+  },
+  "explanation": "Timer Boundary lifecycle on User Task: Timer starts: at host User Task activation -- the moment the task is created in Tasklist and offered to assignees / candidates. Doesn't depend on: Assignee claim: task being claimed by a specific user doesn't restart the timer. First view: when the assignee opens the form to view -- not tracked at BPMN level. Form interactions: editing fields, etc., don't affect timer. Practical implication: Tasks waiting in queue (assigned but not yet viewed) consume timer time. For SLA \"from task offered to candidates,\" current behavior fits. For SLA \"from assignee opens task,\" would need finer modelling. Workarounds for \"from view\" SLA: Pattern 1: Acknowledgement step: First User Task: minimal \"Acknowledge receipt\" step (assignee claims + completes quickly). Second User Task: actual work. Timer Boundary here starts from acknowledgement. Pattern 2: External tracking: Tasklist customisation / analytics tracks view events. Publishes a Message to Camunda; process state updates. Subsequent Timer / Message Catch references the view event. Pattern 3: Accept activation as proxy: \"Time from offered\" ≈ \"time from view\" in practice (assuming reasonable response times). Simpler model; one less step. Choose based on strictness of SLA semantic. For most \"respond in 24h\" semantics, the activation-based timer is acceptable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q19",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

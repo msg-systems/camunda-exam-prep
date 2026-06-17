@@ -1,0 +1,27 @@
+{
+  "id": "ext-job-worker-34",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client-job-worker",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "A subscriber telco running Camunda 8.8 with 60000 jobs per day wants to instrument both how often workers poll the cluster and how busy the scheduled executor is. The lead engineer reviews the Workarounds-for-additional-metrics section for two specific extension points the Java client exposes for these counters beyond the standard JobWorkerMetrics callbacks.",
+  "question": "Which two Java client extension points does the Workarounds-for-additional-metrics section recommend for tracking polling counts and executor utilisation?",
+  "options": [
+    { "id": "a", "text": "Override JobWorkerBuilder.pollListener() and JobWorkerBuilder.executorListener() on each worker to register Micrometer callbacks for poll counts and executor utilisation respectively at runtime" },
+    { "id": "b", "text": "Register a gRPC ClientInterceptor (or an Apache HttpClient AsyncExecChainHandler) on the client builder to count polling calls, and pass an instrumented ScheduledExecutorService through builder.jobWorkerExecutor for executor metrics" },
+    { "id": "c", "text": "Register a Tasklist webhook for poll telemetry and configure the Spring Boot Starter's actuator endpoint to expose the underlying executor pool through Micrometer at /actuator/jobs for the worker" },
+    { "id": "d", "text": "Wrap the client in a JobWorkerProxy bean exposed as a Micrometer MeterBinder, which counts ActivateJobsCommand calls and binds the internal executor through reflective hooks at application start-up" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. There is no pollListener or executorListener method on the worker builder; polling is tracked through a gRPC ClientInterceptor and executor metrics are tracked through builder.jobWorkerExecutor instead." },
+    "b": { "text": "Correct. The Workarounds section shows a gRPC ClientInterceptor (or an Apache HttpClient AsyncExecChainHandler) registered on the client builder to track ActivateJobsCommand calls, and an instrumented ScheduledExecutorService passed to builder.jobWorkerExecutor for executor metrics." },
+    "c": { "text": "Incorrect. Tasklist webhooks and Spring Boot actuator endpoints are not the documented hooks for additional metrics; the Java client uses gRPC interceptors and a custom executor instead." },
+    "d": { "text": "Incorrect. The Java client does not ship a JobWorkerProxy bean or reflective executor binder; metrics workarounds use a gRPC interceptor on the client builder and a custom executor through jobWorkerExecutor." }
+  },
+  "explanation": "The Workarounds-for-additional-metrics section lists two extension points. Job-poll counts are tracked by registering a gRPC ClientInterceptor (or an Apache HttpClient AsyncExecChainHandler) on the client builder, while executor utilisation is tracked by passing an ExecutorServiceMetrics.monitor wrapped ScheduledExecutorService to builder.jobWorkerExecutor.",
+  "docs": [
+    { "title": "Java client job worker additional metrics", "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/" }
+  ]
+}

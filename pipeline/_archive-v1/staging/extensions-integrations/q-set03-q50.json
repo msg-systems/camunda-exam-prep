@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q50",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team wants to invoke an external system that requires asynchronous interaction -- they send a request, then receive the response via a callback (webhook) hours later when the external system finishes. The Camunda process should wait for the callback before continuing.",
+  "question": "Which BPMN + Connector pattern fits asynchronous callback?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use a single Service Task with a Job Worker that polls the external system every minute for up to several hours, looping internally until the response arrives. Long-polling workers hold an activated Zeebe job for hours, consuming a worker thread continuously, burning the activation window, and causing repeated re-activations as the job-activation timeout expires. This anti-pattern degrades worker performance and is architecturally fragile to restarts and deployments during the polling window."
+    },
+    {
+      "id": "b",
+      "text": "Use a User Task that waits indefinitely for a human to manually enter the callback result into the Tasklist form after the external system notifies them through a separate channel. User Tasks are designed for human interaction through the Tasklist UI, not for waiting on automated system callbacks. This approach requires a human intermediary for every callback event, eliminates automation benefits, introduces human latency, and fundamentally misuses the User Task construct for a system-to-system asynchronous integration."
+    },
+    {
+      "id": "c",
+      "text": "Increase the Service Task's job-activation timeout to several hours and have the worker block (sleep or wait) until the external callback arrives via an internal channel. Blocking worker threads for hours is a severe anti-pattern: it exhausts thread pools, holds Zeebe activation slots, and creates fragile processes that break on any restart. The correct pattern for waiting on external callbacks uses BPMN's stateless wait mechanism -- Intermediate Message Catch Events -- which consume no worker resources during the wait."
+    },
+    {
+      "id": "d",
+      "text": ", requestId). The process instance suspends at the Catch Event without consuming any worker resources. When the external callback arrives hours later, an Inbound Connector (webhook endpoint) receives the HTTP callback, extracts the requestId, and publishes a Camunda Message with that correlation key -- Zeebe correlates it to the waiting instance and resumes the flow."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Asynchronous-callback pattern is canonical async correlation: Send Task triggers the external request (or Service Task with outbound HTTP), then Intermediate Message Catch Event waits with correlation key. When callback arrives at the Inbound webhook Connector, the Connector publishes a Message with matching correlation key → Zeebe correlates to the waiting instance → flow continues."
+    },
+    "b": {
+      "text": "Incorrect. Polling for hours burns Job Worker capacity."
+    },
+    "c": {
+      "text": "Incorrect. User Tasks are for human work; callbacks are system events."
+    },
+    "d": {
+      "text": "Correct. Long-blocking workers are anti-pattern (resource hold, fragile)."
+    }
+  },
+  "explanation": "Long-blocking workers are anti-pattern (resource hold, fragile).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q50",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

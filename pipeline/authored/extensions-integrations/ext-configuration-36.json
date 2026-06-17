@@ -1,0 +1,53 @@
+{
+  "id": "ext-configuration-36",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-sdk",
+  "difficulty": "hard",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A Spring bean is annotated with the `@Deployment` shown above. Which statement matches the docs about what this annotation actually does at start-up?",
+  "codeBlocks": {
+    "stem": "@Deployment(resources = \"classpath*:/bpmn/**/*.bpmn\", tenantId = \"myTenant\")\npublic class MyRandomBean { }"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "It uses the Spring resource loader to deploy every matching `.bpmn` file on the classpath at start-up, targeting tenant `myTenant`."
+    },
+    {
+      "id": "b",
+      "text": "It deploys only the first matching `.bpmn` file; the others are ignored unless listed explicitly in `resources`."
+    },
+    {
+      "id": "c",
+      "text": "The `tenantId` attribute is ignored at start-up; tenant is always taken from `camunda.client.tenant-id`."
+    },
+    {
+      "id": "d",
+      "text": "It schedules a fresh deployment of every matching file every time a process instance is created."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs say `@Deployment` deploys models on application start-up via the Spring resource loader, that wildcard patterns are supported, and that setting `tenantId` overrides the default tenant for that deployment."
+    },
+    "b": {
+      "text": "Wildcard patterns are documented as deploying multiple files at once, not just the first match."
+    },
+    "c": {
+      "text": "`tenantId` on `@Deployment` explicitly overrides `camunda.client.tenant-id`; the default only applies when `tenantId` is unset."
+    },
+    "d": {
+      "text": "The annotation runs once on application start-up, not on every process instance creation."
+    }
+  },
+  "explanation": "`@Deployment` is a start-up-time mechanism: Spring's resource loader resolves the `resources` pattern (single file, multiple files, or a wildcard like `classpath*:/bpmn/**/*.bpmn`) and the SDK deploys each match to the configured tenant — overridden per annotation by `tenantId` if present.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter - Configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

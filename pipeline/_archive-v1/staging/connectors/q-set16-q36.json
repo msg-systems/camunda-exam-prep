@@ -1,0 +1,82 @@
+{
+  "id": "imp-set16-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team builds custom Outbound Connector. Wonders local testing before deploying to cluster.",
+  "question": "Outbound Connector local testing?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Test in production -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "The Camunda Connector SDK is specifically designed to support comprehensive local testing at multiple levels. At the unit test level, the OutboundConnectorContext can be mocked and the connector's execute() method tested in isolation with JUnit. At the integration level, a local Zeebe instance (via Docker or Testcontainers) can be paired with the Connector Runtime. Docker Compose setups allow spinning up the full stack (Zeebe, Connector Runtime, WireMock for the target API) locally. Local testing is a first-class supported workflow for custom Connector development."
+    },
+    {
+      "id": "c",
+      "text": "Multiple testing approaches: unit tests using JUnit with a mocked OutboundConnectorContext to validate the connector's execute() method in isolation; integration tests using the Connector SDK test framework with a real or embedded Zeebe instance; local Connector Runtime deployment with the custom JAR mounted; Docker Compose setups combining Zeebe, Operate, Connector Runtime, and WireMock for target API mocking; and CI/CD automation running all test layers on every commit before any cluster deployment. This layered strategy catches issues at the cheapest possible level and enables rapid iteration without cluster access."
+    },
+    {
+      "id": "d",
+      "text": "Live cluster only -- this is only partially correct and represents a suboptimal approach. While final validation against a live cluster is reasonable as a late-stage step, relying exclusively on a live cluster for testing introduces unnecessary risk, cost, and iteration speed penalties. Each test cycle requires deploying to the cluster, and failures can affect other processes running on it. Unit tests and local Docker Compose testing catch the vast majority of issues before cluster deployment."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Connector testing strategy: Layer 1: Unit tests: Approach: Test OutboundConnectorFunction.execute() method. Mock OutboundConnectorContext. Verify Connector logic in isolation. Example (Java, 8.8 canonical API per connector-sdk.md:233-285): `java // Modern Connector SDK API: OutboundConnectorProvider + @Operation + @Variable annotations @Test public void testConnectorExecute() { OutboundConnectorContext context = mock(OutboundConnectorContext.class); when(context.bindVariables(MyInput.class)).thenReturn(testInput); MyConnector connector = new MyConnector(); MyOutput result = (MyOutput) connector.execute(context); assertEquals(expectedValue, result.getField()); } // NOTE: legacy OutboundConnectorFunction.bindVariables(class) API still works but is superseded // by OutboundConnectorProvider + @Operation + @Variable in 8.8 per connector-sdk.md:233-285. Pros: Fast. Isolated. Deterministic. Cons: Doesn't test BPMN integration. Mocked context may miss issues. Layer 2: Integration tests: Approach: Use Connector SDK test framework. Deploy minimal BPMN + Connector. Run process; verify outcomes. Tools: Camunda Process Test framework (verify availability). Spring Zeebe Test: for Spring-based. TestContainers: spin up Zeebe in container. Layer 3: Local Connector Runtime: Approach: Run Connector Runtime locally. Deploy custom Connector JAR. Connect to local / dev Zeebe. Test end-to-end. Setup: Download Connector Runtime. Mount custom Connector JAR. Start. Or via Maven plugin: Some SDKs offer \"run locally\" mode. Connector Runtime embedded. Layer 4: Docker Compose: Setup: Compose file with: Zeebe. Operate. Connector Runtime (with custom JAR). Mock target API (WireMock). Spin up: docker compose up. Pros: Full stack locally. Reproducible. Cross-team consistency. Layer 5: Mock target system: WireMock: Define expected requests + responses. Custom Connector points to WireMock URL. Verify request format. Hoverfly: Record / replay HTTP traffic. For HTTPS / TLS: Local CA: trust local cert. HTTP for dev: simpler. Local development workflow: 1. Code Connector: implement logic. 2. Unit test: TDD approach. 3. Integration test: with mock backend. 4. Local Connector Runtime: test deploy + invocation. 5. Docker Compose: full stack test. 6. Deploy to dev cluster: pre-prod test. 7. Promote to staging / prod: after validation. For testing edge cases: Mock failures: simulate target down. Slow responses: verify timeout handling. Malformed responses: parsing errors. Auth failures: handle. For BPMN integration: Mini BPMN: Service Task with Connector. Run process: trigger Connector invocation. Verify: result variables, errors. For Element Templates: Test in Web Modeler: visual validation. Drag template: verify UI. Save: check BPMN XML output. For Inbound Connectors (per Set 15 Q46): Similar layers. Local webhook receiver: ngrok for external partners. Mock external pushes: curl, Postman. CI/CD pipeline: yaml run: mvn test # unit tests run: docker compose up -d run: integration_test.sh # against local stack run: docker compose down ` Automate full test suite. For Camunda Connector SDK test utilities: MockOutboundConnectorContext: built-in mock. Assertion helpers: verify outputs. Verify SDK version: features. Best practices: Test pyramid: many unit; some integration; few E2E. Reproducible: Docker Compose. Document setup: onboarding new devs. CI runs all tests: pre-merge. Anti-patterns: Only manual testing: not repeatable. Test in cluster first: production risk. No mocks: depend on external systems for tests. For the scenario (custom Outbound Connector local testing): Unit tests first: logic validation. Local Runtime + mock target: integration. Docker Compose: full stack. CI/CD: automate."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q36",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 28 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[3]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 22.4 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

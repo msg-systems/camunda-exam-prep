@@ -1,0 +1,27 @@
+{
+  "id": "ext-service-integration-patterns-98",
+  "topic": "extensions-integrations",
+  "subtopic": "service-integration-patterns",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Logistics integrates a Camunda 8.8 process handling 9000 shipments per day with multiple AMQP queues. The integration developer writes glue code that receives raw broker messages and calls the Camunda Client API, and the team debates how strictly technical message types on the wire must mirror BPMN message types declared in the process model.",
+  "question": "Which statement describes how technical messages relate to BPMN message types when integrating Camunda 8.8 with an external broker?",
+  "options": [
+    { "id": "a", "text": "Each broker message type must correspond one-to-one with exactly one BPMN message type, and the Zeebe runtime rejects any other mapping at deployment time" },
+    { "id": "b", "text": "Each BPMN message type must correspond to exactly one broker queue, and the Camunda Client refuses publishMessage calls that mix sources at runtime" },
+    { "id": "c", "text": "Each broker message type can map to many BPMN message types only if the queue names match the BPMN message names declared in the process model" },
+    { "id": "d", "text": "Messages from different broker queues can map to the same BPMN message type, and header attributes can select between different BPMN message types in glue code" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The guide says BPMN message types do not have to match the wire types one-to-one; glue code is free to transform between them at correlation time, so the Zeebe runtime does not enforce such a rule." },
+    "b": { "text": "Incorrect. There is no Zeebe rule binding BPMN message types to single queues, and the Camunda Client does not refuse publishMessage calls based on the originating queue of the technical message." },
+    "c": { "text": "Incorrect. The flexibility comes from custom glue code that can map between message types freely; matching queue names to BPMN names is not a documented requirement of the integration guide." },
+    "d": { "text": "Correct. The guide says glue code can map messages from different queues into the same BPMN message type, and can use header or payload attributes to select between different BPMN message types." }
+  },
+  "explanation": "The wire message type and the BPMN message type do not need to match. Glue code that calls the Camunda Client can transform many-to-one or use payload and header attributes to pick the right BPMN message type for correlation.",
+  "docs": [
+    { "title": "Service integration patterns", "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q50",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's worker uses gRPC ActivateJobs to fetch jobs. The dev wonders about the long-polling semantics -- does the call block waiting for jobs, or return immediately if no jobs available? What is the gRPC ActivateJobs long-polling behaviour?",
+  "question": "What is the gRPC ActivateJobs long-polling behaviour?",
+  "options": [
+    {
+      "id": "a",
+      "text": "If ActivateJobs returned immediately when no jobs are available, workers would need to constantly re-issue the call in a tight loop to check for new jobs. This busy-polling pattern wastes CPU cycles and network bandwidth on both the worker and the Zeebe gateway when no work is available. The long-polling mechanism was specifically designed to eliminate this inefficiency by holding the connection open until either jobs arrive or a configured timeout expires."
+    },
+    {
+      "id": "b",
+      "text": "ActivateJobs does not block indefinitely. The call respects a configured request timeout duration. If no jobs become available within the timeout window, the call returns with an empty response. This bounded waiting is essential because indefinitely blocking connections would be unmanageable in production environments where connections can drop unexpectedly, causing stuck workers. Workers simply re-issue the call after receiving an empty response."
+    },
+    {
+      "id": "c",
+      "text": "The streamJobs gRPC API is a streaming variant that pushes activated jobs to the worker without the worker needing to repeatedly call ActivateJobs. Both mechanisms avoid busy-polling, but they differ in their streaming model."
+    },
+    {
+      "id": "d",
+      "text": "Long-polling: the gRPC call blocks for a configured request timeout waiting for jobs to become available. If jobs arrive during the wait, the call returns with the activated jobs. If no jobs arrive by the timeout, the call returns with an empty list. The worker then re-issues the call. This avoids busy-polling. Configure via request timeout (typical: tens of seconds)."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe's gRPC ActivateJobs implements long-polling: the client specifies a request timeout; the gateway holds the request open for up to that duration. If jobs of the requested type appear during the wait, they're returned immediately. If the timeout elapses with no jobs, the call returns empty. Workers then re-issue the call. Benefits: Lower latency than fixed-interval polling: as soon as a job is created, the gateway can return it to the waiting worker. Lower load on broker / network: fewer calls vs busy-polling. Standard pattern for activation in Zeebe SDKs (all implementations use it). Tuning: typical request timeout is 1-60 seconds. Longer = lower load but slower failure detection if connection breaks; shorter = more responsive to network issues but more polling overhead. Alternative: streamJobs -- a streaming gRPC API where the gateway pushes activated jobs to the worker without explicit polling. Available in some Zeebe versions; offers even lower latency than long-polling."
+    },
+    "b": {
+      "text": "Incorrect. Would force busy-polling."
+    },
+    "c": {
+      "text": "Incorrect. Bounded by request timeout."
+    },
+    "d": {
+      "text": "Correct. ActivateJobs uses long-polling; streamJobs adds streaming."
+    }
+  },
+  "explanation": "ActivateJobs uses long-polling; streamJobs adds streaming.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/zeebe-api/gateway-service/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q50",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

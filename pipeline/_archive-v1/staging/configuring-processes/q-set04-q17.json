@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q17",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A bank-onboarding process uses IDP (Intelligent Document Processing) to extract structured data from uploaded passport scans. The IDP extraction is configured in Web Modeler. After extraction, the next Service Task needs the extracted passport.surname.",
+  "question": "How does the BPMN process access extracted IDP fields?",
+  "options": [
+    {
+      "id": "a",
+      "text": "IDP results stored externally with only a retrieval key returned as a process variable would require downstream workers to call an external API to retrieve the actual extracted fields. This is not how Camunda 8 IDP Applications operate. Extraction results are first-class process variables â€” structured context objects placed directly into the process variable scope when the IDP task completes. No external storage or API retrieval is needed; the result is immediately available to subsequent tasks."
+    },
+    {
+      "id": "b",
+      "text": "IDP Application result is exposed as a structured process variable with fields navigable via FEEL dot notation. When an IDP extraction task completes in Camunda 8, the result is placed into the configured result variable as a FEEL context object. surname. The IDP Application schema defines the extraction fields; the runtime populates the variable structure. No manual API call or plaintext parsing is needed to access the extracted data."
+    },
+    {
+      "id": "c",
+      "text": "Accessing IDP extraction results in FEEL requires no additional Service Task API calls. The native IDP integration in Camunda 8 places extraction results directly into process variables as structured FEEL context objects. surname. An additional Service Task to call the IDP API would be redundant â€” it would duplicate data that is already in the process variable scope. The whole point of native IDP integration is eliminating custom API calls."
+    },
+    {
+      "id": "d",
+      "text": "IDP extraction results are structured objects â€” not plaintext â€” and require no Script Task parsing in Camunda 8. The IDP Application schema defines typed extraction fields; when extraction completes, the result variable contains a properly typed FEEL context object. String fields are strings, numeric fields are numbers. There is no raw text to parse. A Script Task for parsing would indicate the IDP integration was not configured correctly or the result variable was inadvertently stored as a string. ###"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. IDP Applications expose extraction results as structured process variables. The result object is FEEL-navigable. Modeler defines extraction schema; runtime populates the variable."
+    },
+    "b": {
+      "text": "Correct. Results are first-class process variables, not externally keyed."
+    },
+    "c": {
+      "text": "Incorrect. Native integration eliminates manual API calls."
+    },
+    "d": {
+      "text": "Incorrect. Structured fields, not plaintext."
+    }
+  },
+  "explanation": "Results are first-class process variables, not externally keyed.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/idp/idp-applications/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q17",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

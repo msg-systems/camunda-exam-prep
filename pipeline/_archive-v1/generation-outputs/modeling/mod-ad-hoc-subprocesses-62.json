@@ -1,0 +1,25 @@
+{
+  "id": "mod-ad-hoc-subprocesses-62",
+  "topic": "modeling",
+  "subtopic": "subprocesses",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Lumen Insurer runs a Camunda 8.8 claims triage workflow on 6000 claims per day. An ad-hoc sub-process needs a normalized policyTier local variable available before activeElementsCollection is evaluated, so the selection of inner elements depends on the normalized value rather than the raw policy data.",
+  "question": "When are input variable mappings on an ad-hoc sub-process applied relative to the activeElementsCollection expression?",
+  "options": [
+    { "id": "a", "text": "After the activeElementsCollection expression is evaluated, so the mappings can transform the element IDs returned by the expression before activation begins" },
+    { "id": "b", "text": "Before the activeElementsCollection expression is evaluated, on activating the sub-process, so the mappings can supply local variables used by the selection expression" },
+    { "id": "c", "text": "Only when a completion condition triggers, so the mappings can reset local variables of the sub-process before the next round of inner element activation" },
+    { "id": "d", "text": "Whenever an inner flow completes, so the mappings can reshape each result before it is appended to the configured outputCollection list of the sub-process" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Input mappings do not run after the selection expression. They run first to set up local variables that the activeElementsCollection expression can then read on activation." },
+    "b": { "text": "Correct. Input mappings are applied on activating the ad-hoc sub-process, before the activeElementsCollection expression is evaluated, so they can create local variables used by the expression." },
+    "c": { "text": "Incorrect. Input mappings are not re-applied when completion conditions trigger; they execute at activation time of the ad-hoc sub-process, not at completion." },
+    "d": { "text": "Incorrect. Inner flow completion drives the outputElement expression and appends to outputCollection; the sub-process input mappings are not re-evaluated per inner completion." }
+  },
+  "explanation": "Input variable mappings on an ad-hoc sub-process run when the sub-process is activated and before activeElementsCollection is evaluated, allowing the mappings to create the local variables that the selection expression then reads.",
+  "docs": [ { "title": "BPMN ad-hoc sub-processes", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/ad-hoc-subprocesses/" } ]
+}

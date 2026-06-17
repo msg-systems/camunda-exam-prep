@@ -1,0 +1,50 @@
+{
+  "id": "mod-message-events-62",
+  "topic": "modeling",
+  "subtopic": "message throw events",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A process instance enters an intermediate message throw event configured with job type `kafka-publish`. What does the Camunda 8.8 engine do at this point?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It creates a job of type `kafka-publish` and waits for a job worker to complete it before continuing."
+    },
+    {
+      "id": "b",
+      "text": "It internally correlates the message to any waiting message catch event with the same name."
+    },
+    {
+      "id": "c",
+      "text": "It serializes the message and publishes it to a Kafka topic directly without involving a job worker."
+    },
+    {
+      "id": "d",
+      "text": "It broadcasts the message to all subscribers like a signal throw event."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Intermediate message throw events behave like service tasks or send tasks: the engine creates a job with the configured job type and waits for a job worker to process and complete it."
+    },
+    "b": {
+      "text": "Message throw events are not processed by Zeebe to correlate a message to a message catch event. They only create jobs; correlation is the job worker's responsibility, e.g. by publishing to Kafka."
+    },
+    "c": {
+      "text": "Zeebe itself does not publish to external systems. A job worker must request the job, perform the publish, and report job completion back to the engine."
+    },
+    "d": {
+      "text": "Broadcasting to multiple subscribers is the semantics of signal throw events. Message throw events delegate publishing to a job worker via the configured job type."
+    }
+  },
+  "explanation": "Intermediate message throw events and message end events behave like service tasks and send tasks: the engine creates a job of the configured job type and waits for the assigned job worker to complete it. Zeebe does not itself correlate or publish the message; the worker performs the external action.",
+  "docs": [
+    {
+      "title": "BPMN message events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/"
+    }
+  ]
+}

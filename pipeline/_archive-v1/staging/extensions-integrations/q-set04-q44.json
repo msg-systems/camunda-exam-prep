@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q44",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Java Job Worker handles a high-volume enrich-event Service Task. The team is profiling -- they want to monitor how many jobs per second the worker is processing, in real time.",
+  "question": "Which approach gives this throughput observability?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Tailing worker stdout logs provides unstructured text output useful for debugging individual events but cannot produce quantitative SLA metrics like throughput rates, p99 latencies, or error percentages. Log tailing requires human or log-parser interpretation to extract metrics and does not integrate natively with monitoring dashboards or alerting systems. Structured metrics via Micrometer or similar libraries provide machine-readable time-series data suitable for automated SLA monitoring."
+    },
+    {
+      "id": "b",
+      "text": "Querying Operate for completed task counts provides historical instance counts but with significant limitations for real-time SLA monitoring: Operate data is updated with some latency, the query is process-instance-scoped rather than worker-performance-scoped, and Operate is not designed as a real-time metrics platform. For worker-specific metrics like jobs per second, processing time distribution, and error rates, worker-side Micrometer instrumentation with Prometheus scraping provides superior granularity and freshness."
+    },
+    {
+      "id": "c",
+      "text": "Instrumenting the worker with Micrometer (for Java Spring Boot workers) or a comparable metrics library for other runtimes provides Prometheus-compatible metrics endpoints. Custom counters for jobs_processed_total and timers for job processing duration export to a Prometheus/Grafana stack, enabling SLA dashboards and alerting. This is the standard production observability approach: worker-side instrumentation paired with an external metrics collector, providing real-time visibility into worker performance and throughput."
+    },
+    {
+      "id": "d",
+      "text": "Camunda does not expose individual Job Worker processing metrics natively through the Console or Operate interfaces. ###"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Workers are user code; the canonical way to instrument throughput is to add Micrometer/Prometheus metrics in worker code and scrape via Grafana. Spring Zeebe integrates well with Micrometer auto-config."
+    },
+    "b": {
+      "text": "Incorrect. Log parsing is fragile; metrics-platform integration is standard."
+    },
+    "c": {
+      "text": "Correct. Operate counts tasks but doesn't give per-second rate at the worker."
+    },
+    "d": {
+      "text": "Incorrect. Camunda Console shows cluster-level metrics; per-worker throughput is the worker's responsibility."
+    }
+  },
+  "explanation": "Operate counts tasks but doesn't give per-second rate at the worker.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q44",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

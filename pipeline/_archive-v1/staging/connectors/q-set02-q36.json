@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Outbound HTTP Connector calls a partner API that occasionally returns HTTP 503 Service Unavailable during partner maintenance windows. Currently each 503 immediately creates an Incident in Operate. The team wants the Connector to automatically retry transient 5xx errors with exponential backoff before reporting an incident.",
+  "question": "Which Connector configuration enables retry with backoff?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Configure a zeebe:retryBackoff array property directly on the Connector BPMN element, listing exponential delay values like [\"PT5S\",\"PT15S\",\"PT45S\"] for each retry attempt. Zeebe reads this array at activation time to schedule each subsequent retry with the appropriate delay. There is no such array property in the Zeebe BPMN extension schema. retryBackOff in gRPC, or through JobError in the Spring Boot client -- not as a static XML array attribute on the BPMN element."
+    },
+    {
+      "id": "b",
+      "text": "Wrap the Connector Service Task in an Embedded Subprocess and attach an Error Boundary Event to the subprocess that loops back to the Connector on HTTP 5xx errors, effectively implementing a manual retry loop in the BPMN model with each iteration representing one attempt. This manual loop-back approach clutters the BPMN model with retry infrastructure, obscures business logic, and requires manual management of retry count via a counter variable to avoid infinite loops. The standard retries property on the task definition handles this cleanly at the engine level without model pollution."
+    },
+    {
+      "id": "c",
+      "text": "Outbound Connectors run as job workers internally -- configure zeebe:taskDefinition retries=\"3\" on the Connector element in BPMN. The Connector's worker decrements the retry counter on each failure, and Zeebe re-activates the job (re-runs the Connector) until the counter reaches zero, at which point Zeebe creates an Incident in Operate. retryBackOff field to delay the next activation."
+    },
+    {
+      "id": "d",
+      "text": "Camunda's built-in Outbound Connectors do not support automatic retry on transient failures; teams must build a Custom Connector using the Connector SDK and implement their own retry logic with exponential backoff in the custom Java code in order to handle transient HTTP 5xx errors gracefully. Built-in Connectors do support retries through the standard zeebe:taskDefinition retries property on the BPMN element -- the same mechanism used for regular Service Tasks. No custom connector implementation is required solely for retry capability."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda Outbound Connectors execute as job workers internally -- the same retries property that controls Service Task retry applies to Connector elements. Set zeebe:taskDefinition retries=\"3\" on the Connector. The Connector's worker is responsible for the retry/backoff behaviour internally; when the worker fails a job it can pass a retryBackoff value (in milliseconds) in the FailJobRequest (zeebe-api/gateway-service.md line 911) or via JobError in the Spring Boot starter (camunda-spring-boot-starter/configuration.md line 677) to delay the next activation. When retries reach zero, the Connector reports the failure as an incident."
+    },
+    "b": {
+      "text": "Incorrect. There is no zeebe:retryBackoff array property on the Connector/Service Task BPMN element. retryBackoff IS a real, supported Zeebe concept -- but it lives at the job-failure API level (FailJobRequest.retryBackOff in gRPC, JobError in the Spring Boot client) and as a worker-level default (camunda.client.worker.defaults.retry-backoff). It is NOT a static XML attribute/array on the BPMN element. To configure default backoff for a worker, use the Spring property; to set a per-failure backoff, return retryBackoff from the worker code."
+    },
+    "c": {
+      "text": "Correct. Manual loop-back is fragile and clutters the BPMN."
+    },
+    "d": {
+      "text": "Incorrect. Built-in Connectors do support retries via standard task retry property."
+    }
+  },
+  "explanation": "Manual loop-back is fragile and clutters the BPMN.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q36",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

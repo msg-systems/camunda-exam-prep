@@ -1,0 +1,50 @@
+{
+  "id": "mod-message-events-61",
+  "topic": "modeling",
+  "subtopic": "message start events",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A process has a message start event for `Order placed`. An instance was started by a message with `correlationKey = \"order-42\"` and is still active. A new `Order placed` message arrives with `correlationKey = \"order-42\"` and a TTL greater than zero. What happens?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The message is buffered; no new instance is created while the original instance is active."
+    },
+    {
+      "id": "b",
+      "text": "A new process instance is created immediately because message start events ignore correlation keys."
+    },
+    {
+      "id": "c",
+      "text": "The active instance is terminated and replaced by a new instance for the same `correlationKey`."
+    },
+    {
+      "id": "d",
+      "text": "The message is discarded and an incident is raised for duplicate correlation."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "When an instance triggered by a message with this `correlationKey` is already active, a new message with the same key is not correlated and no new instance is created. Because the TTL is greater than zero, the message is buffered."
+    },
+    "b": {
+      "text": "Message start events do honour the `correlationKey` on incoming messages. They only skip the correlation check when the published message has an empty `correlationKey`."
+    },
+    "c": {
+      "text": "The active instance is not terminated. The engine waits for it to complete; only then can a buffered message with the same `correlationKey` create a new instance."
+    },
+    "d": {
+      "text": "Duplicate correlation is a normal, handled situation. No incident is raised; the message is simply buffered until the active instance ends or the TTL expires."
+    }
+  },
+  "explanation": "Message start events use the `correlationKey` to deduplicate creation: if an instance triggered by a message with the same key is still active, a new matching message is not correlated. When TTL is greater than zero, the message is buffered and may correlate later, once the active instance completes or is terminated, to start a new instance of the latest process version.",
+  "docs": [
+    {
+      "title": "BPMN message events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/"
+    }
+  ]
+}

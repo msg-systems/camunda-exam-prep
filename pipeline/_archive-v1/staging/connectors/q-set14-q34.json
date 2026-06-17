@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process sends email notifications via SMTP. Team wonders if Camunda has an Email Connector and how it's configured.",
+  "question": "SMTP Email Outbound Connector?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Using a dedicated external email microservice to send notifications is possible but adds unnecessary operational complexity when Camunda 8 ships an SMTP/Email Outbound Connector. An external service requires separate deployment, monitoring, and maintenance. The built-in Email connector can be configured with SMTP server credentials stored in Camunda Secrets, with body content composed via FEEL expressions referencing process variables. Unless the organization already has a managed email service with unique requirements, the built-in connector is the simpler approach."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 includes an SMTP/Email Outbound Connector in the out-of-the-box connector catalog. This connector enables process automation to send emails directly without building custom worker code. It supports standard SMTP configuration including TLS, authentication via Camunda Secrets, and dynamic message fields populated from process variables. The connector is available as a pre-built element template that can be applied to any Service Task in the modeler."
+    },
+    {
+      "id": "c",
+      "text": "The Camunda 8 Email/SMTP Outbound Connector supports any standard SMTP server, not just Gmail. Configuration accepts any SMTP host and port, enabling integration with corporate email servers (Exchange, Postfix, SendGrid, Mailgun, AWS SES) as well as consumer providers. Gmail is one supported option among many. Restricting the connector to Gmail-only would severely limit its practical utility for enterprise customers who operate their own mail infrastructure."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 ships an SMTP / Email Outbound Connector in the out-of-the-box catalog: configure SMTP host, port, and credentials (via Camunda Secrets), then set from, to, subject, and body using FEEL expressions referencing process variables. Supports HTML body, attachments via Document Handling references, CC/BCC fields, and TLS. Available as an element template applied to a Service Task. Use Camunda Secrets for credentials -- never hardcode them in the process model. 8 deployment."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. SMTP / Email Outbound Connector typical features: Configuration: SMTP server: Host: smtp.example.com. Port: 587 (TLS), 465 (SSL), 25 (plain -- rarely used). Auth: username + password (via secrets). TLS / SSL: enable for production. From SMTP secret reference: host: smtp.company.com. port: 587. username: {{secrets.SMTP_USERNAME}}. password: {{secrets.SMTP_PASSWORD}}. Message fields: From: sender address (often static; noreply@company.com). To: recipient(s); comma-separated or list. CC, BCC: optional. Subject: short string. Body: text or HTML. Attachments: file references (Document Handling). Dynamic content via FEEL: ` to: =customer.email subject: =\"Order \" + orderNumber + \" confirmation\" body: =\"Dear \" + customer.name + \",\\n\\nYour order has been received.\\n\\nTotal: \" + string(order.total) HTML body: feel bodyHtml: \"Welcome \" + customer.name + \"Your account is active.\" ` Attachments: Reference Document Handling variables. PDF invoice generated upstream; attached to email. Error handling: SMTP errors (auth fail, server down, invalid recipient): Connector throws error. Boundary Error Event catches. Retry logic: standard Service Task retries. Security considerations: Credentials in secrets: never inline in BPMN. TLS: always for production. SPF / DKIM / DMARC: configure DNS for deliverability. Rate limiting: SMTP providers may throttle; respect limits. Sensitive content: encrypt or avoid PII in subject (subjects often unencrypted). Common use cases: Order confirmations: customer. Internal notifications: ops alerts. Reminders: user actions pending. Reports: generated PDFs as attachments. Alternatives (when SMTP-direct insufficient): SendGrid / Mailgun / SES Connector (if available): SaaS email APIs. REST Connector + custom auth. Custom Connector for special needs. Inbound email (IMAP / POP3): Email Inbound Connector (verify availability): listens for incoming emails. Use case: parse incoming email → start process / continue. Best practices: Use secrets: never plaintext credentials. Test in staging: verify deliverability. Monitor send rates / bounce rates: deliverability matters. Templates: maintain email templates external from BPMN if complex. Unsubscribe links: for marketing-like email; legal requirement. HTML + plaintext both: max compatibility."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong typically."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/email/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q34",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

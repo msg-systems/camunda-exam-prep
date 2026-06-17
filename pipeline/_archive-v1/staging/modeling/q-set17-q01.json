@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q01",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Activity has two outgoing sequence flows, each with its own conditionExpression. No explicit Gateway. Team wonders if this is valid BPMN.",
+  "question": "Implicit Gateway from Activity with conditional flows?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Invalid BPMN -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "md:116 (verbatim: \"you could've left out this inclusive gateway by drawing two outgoing sequence flows directly out of the preceding task ..."
+    },
+    {
+      "id": "c",
+      "text": "Both conditional flows fire simultaneously when conditions are true -- this mischaracterizes the semantics. In Camunda 8 the implicit gateway behavior from an activity evaluates conditions in sequence order. Explicit gateways provide clearer semantics for such use cases."
+    },
+    {
+      "id": "d",
+      "text": "0 specification explicitly permits conditional sequence flows on activities, and Camunda 8 acknowledges this in best-practice documentation. While the engine supports it, Camunda recommends using an explicit gateway instead for readability, because process readers understand gateway flow semantics better than implicit conditional flows on activities."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Implicit decision from Activity: BPMN spec: Activities can have multiple outgoing flows with conditions. Engine evaluates conditions; routes per truth. Implicit XOR semantic (or implicit conditional). Typical behavior: Conditions evaluated: at Activity completion. First true branch activates (FIRST-like). Default flow marker (slash): activates if no condition true. Without default flow + no condition true: typically Incident. Visual: ` [Activity A] ──cond1──> [B] ──cond2──> [C] ──default─> [D] (with slash marker) ` Compared to explicit Gateway: Implicit (Activity with conditional flows): Pros: compact diagram. Cons: less visually explicit; readers might miss decision logic. Explicit XOR Gateway: Pros: clear decision point; standard pattern. Cons: extra element. Best practice: Use explicit Gateway: clearer intent. Especially for non-trivial decisions. Camunda 8 support: Verify per version: Implicit conditional flows: typically supported. Engine behavior matches spec. Use cases: Simple two-way branch: condition + default. Tight diagram: avoid extra Gateway. For multiple-condition complex: Use explicit Gateway always. For Inclusive (OR) semantic with implicit: Some interpretations: all true branches fire (OR-like). Verify Camunda 8 behavior; typically XOR-like. Linting (per Set 14 Q59): Rules may enforce explicit Gateways. Org convention. Anti-patterns: Implicit decision for complex logic: hard to read. Multiple unconditional outgoing flows: invalid; engine confused. No default flow: incident risk. For the scenario (two conditional flows from Activity): Valid BPMN. Implicit XOR-like behavior. Better with explicit Gateway: clarity."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/best-practices/modeling/creating-readable-process-models/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q01",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 22 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 16.0 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

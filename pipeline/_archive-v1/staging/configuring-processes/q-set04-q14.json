@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task expects an orderId input. The process variable carrying this is currentOrder.id (nested). The modeler wants to map currentOrder.id to the local variable orderId available only inside the task.",
+  "question": "Which configuration achieves this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Passing the full currentOrder object to the worker and having the worker extract id is technically functional but over-shares data. This sends the entire nested object including all its properties to the worker, violating the least-privilege principle when the worker only needs orderId. It also creates tighter coupling between BPMN model and worker implementation. Input mappings are designed specifically to narrow the variable scope to only what the task needs, keeping worker interfaces clean and focused."
+    },
+    {
+      "id": "b",
+      "text": "Renaming the process variable globally to orderId resolves the naming issue but creates unintended side effects throughout the process. id would need updating. Other workers or downstream tasks expecting currentOrder in its original form would fail. Global variable renaming is a process-wide change affecting all consumers rather than a targeted scoping solution for a single task, making it an unnecessarily invasive change."
+    },
+    {
+      "id": "c",
+      "text": "id makes orderId available as a process-scope variable. Input mappings on the Service Task itself achieve the same result â€” making orderId available to the worker â€” without the extra diagram element and without polluting the process variable scope beyond the task boundary."
+    },
+    {
+      "id": "d",
+      "text": "id is the correct approach for scoping a nested process variable to a local task variable. Input mappings extract a value from process scope and expose it as a locally-scoped variable for the task. The worker receives only orderId as its input, not the full currentOrder object. The process variable scope remains unchanged after the task completes, keeping the variable scope clean. ###"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Input mappings on a task scope local variables to that task's execution. Target: orderId, Source: =currentOrder.id extracts the nested value and exposes it as orderId within the Service Task. Process scope unchanged."
+    },
+    "b": {
+      "text": "Incorrect. Sending full nested object is workable but exposes more than needed (LSP)."
+    },
+    "c": {
+      "text": "Incorrect. Renaming globally affects all consumers."
+    },
+    "d": {
+      "text": "Correct. Globally-set orderId leaks beyond this task."
+    }
+  },
+  "explanation": "Globally-set orderId leaks beyond this task.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/#inputoutput-variable-mappings"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q14",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

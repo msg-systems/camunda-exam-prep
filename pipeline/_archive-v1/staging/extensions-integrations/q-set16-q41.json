@@ -1,0 +1,56 @@
+{
+  "id": "imp-set16-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Spring Boot config has app.feature.enabled=true. Team wonders how to read into Spring Zeebe worker handler.",
+  "question": "Spring config property mapping?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Hardcode -- this is a poor practice that should be avoided. properties, environment variables) exists to separate configuration from code, enabling different values across environments without code changes. Hardcoded values require recompilation and redeployment for any configuration change, cannot be controlled via deployment pipelines, and make environment-specific behavior impossible. Spring's property injection is specifically designed for this exact pattern and should always be used instead."
+    },
+    {
+      "id": "b",
+      "text": "enabled}\") injects a single Spring Boot property directly into a field or constructor parameter in the worker class. feature\") binds an entire prefix to a Java object with matching field names. ). enabled:false}\"). Both approaches work in @JobWorker-annotated handler classes using Camunda's Spring Boot Starter, and the injected values are available throughout the worker's execution."
+    },
+    {
+      "id": "c",
+      "text": "Process variables -- this is only partially relevant. Process variables are runtime data specific to a process instance, flowing through the process as the instance executes. enabled is a static server-side setting that belongs in Spring Boot's configuration system, not in process variables. Using process variables for application configuration would require passing the flag at process instantiation time, storing it redundantly on every instance, and would break the separation between infrastructure configuration and business data. Spring Boot config injection is the correct mechanism for reading application properties in worker handlers."
+    },
+    {
+      "id": "d",
+      "text": "Custom config loader -- this overstates the complexity required. yml, environment variables, and external config servers (Spring Cloud Config). The @Value annotation or @ConfigurationProperties class binding does exactly what is needed with zero custom code. Custom loaders are only warranted for unusual configuration sources outside Spring Boot's built-in infrastructure."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Spring config injection in workers: @Value (single property): `java @Component public class MyWorker { @Value(\"${app.feature.enabled}\") private boolean featureEnabled; @JobWorker(type = \"my-task\") public Map handle() { if (featureEnabled) { // new logic } else { // old logic } return Map.of(); } } With default: java @Value(\"${app.feature.enabled:false}\") private boolean featureEnabled; @ConfigurationProperties (structured): java @Component @ConfigurationProperties(prefix = \"app.feature\") public class FeatureConfig { private boolean enabled; private int retries; private String name; // getters / setters } yaml app: feature: enabled: true retries: 3 name: \"advanced\" Inject: java @Component public class MyWorker { private final FeatureConfig config; public MyWorker(FeatureConfig config) { this.config = config; } @JobWorker(type = \"my-task\") public Map handle() { if (config.isEnabled()) { // use config.getRetries(), config.getName() } return Map.of(); } } Type conversion: Spring handles: boolean: \"true\"/\"false\". int / long / double: numeric. List: comma-separated. Enums: by name. Custom types: via converters. Config sources (per Set 13 Q41): application.yaml. application-{profile}.yaml. Env vars. Command line. System properties. Profile-specific: yaml # application.yaml (default) app: feature: enabled: false # application-prod.yaml app: feature: enabled: true Active profile determines. For feature flags: Boolean config: simple toggle. Per-feature: granular. External system (e.g., FeatureFlag service): more advanced. For environment-specific: Different config per env: dev / staging / prod. Same code; different behavior. For secrets: Don't put secrets in application.yaml (committed to Git). Use env vars / secret manager (per Set 16 Q33). For dynamic config (changes without restart): Spring Cloud Config: external config service. @RefreshScope: bean rebuilds on refresh. For Camunda Connectors: typically static; restart for changes. For testing: @TestPropertySource: override in tests. @SpringBootTest(properties=...): test-specific. java @SpringBootTest(properties = \"app.feature.enabled=true\") public class MyWorkerTest { // tests with feature enabled } For multi-tenant: Per-tenant config: load dynamically. Don't bake into Spring config: use database / external. For Zeebe-specific config: yaml camunda: client: mode: self-managed zeebe: grpc-address: localhost:26500 auth: client-id: ... Spring Zeebe SDK uses these conventions. Best practices: Use @Value for single config values. Use @ConfigurationProperties for grouped. Type-safe POJOs: less error-prone. Document config: in README. Validate config: at startup. Anti-patterns: Reading System.getenv directly: bypasses Spring. No defaults: fails if missing. No validation: bad config at runtime. For Camunda Connector config: Element Templates: BPMN-level config. Connector Runtime config: env vars. Per-Connector behavior: via Element Template properties. For the scenario (app.feature.enabled): java @Value(\"${app.feature.enabled:false}\") private boolean featureEnabled; ` Use in handler."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q41",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

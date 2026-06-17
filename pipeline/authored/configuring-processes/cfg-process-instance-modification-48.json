@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-modification-48",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-modification",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A child process instance created by a call activity has only one active element — a user task. You issue a modification command on the child instance that terminates that user task. What happens?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The task is terminated and the child process instance ends normally, advancing the call activity in the parent."
+    },
+    {
+      "id": "b",
+      "text": "The task is terminated and both the child and the parent process instance end immediately."
+    },
+    {
+      "id": "c",
+      "text": "The command is rejected; you cannot terminate the last active element instance of a child process instance — terminate the call activity in the parent instead."
+    },
+    {
+      "id": "d",
+      "text": "The task is terminated and the child process instance is automatically recreated so the call activity stays alive."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs explicitly call this case out as forbidden — the engine does not silently end the child this way."
+    },
+    "b": {
+      "text": "The modification never takes effect, so neither the child nor the parent is terminated by it."
+    },
+    "c": {
+      "text": "The docs state: the process instance can't terminate the last active element instance of a child process instance, so the command is rejected. The recommended workaround is to terminate the call activity that created the child."
+    },
+    "d": {
+      "text": "There is no automatic recreation; the modification is simply rejected and the instance keeps its prior state."
+    }
+  },
+  "explanation": "Process instance modification is transactional. The docs forbid terminating the last active element instance inside a child process instance — the command is rejected and the instance keeps its prior state. The supported workaround is to terminate the call activity in the parent, which then terminates the child as part of the normal call-activity termination rule.",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/"
+    }
+  ]
+}

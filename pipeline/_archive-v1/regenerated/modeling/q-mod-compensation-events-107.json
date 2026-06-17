@@ -1,0 +1,50 @@
+{
+  "id": "mod-compensation-events-107",
+  "topic": "modeling",
+  "subtopic": "compensation-events",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Insurance models a Camunda 8.8 claim settlement parent process that uses a call activity to invoke a child reserves process. After a parent compensation throw event fires, the modelling team needs the child reserves work to be reverted as well across 4500 claims per month.",
+  "question": "Which approach reverts the effects executed inside the child process when the parent compensation throw event activates?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A compensation throw event placed in the child process is triggered automatically when the parent compensation throw event fires inside the parent flow scope of the call activity"
+    },
+    {
+      "id": "b",
+      "text": "A compensation boundary event attached to the start event of the child process invokes the child compensation handlers whenever the parent compensation throw event fires later"
+    },
+    {
+      "id": "c",
+      "text": "A compensation intermediate throw event placed inside the parent embedded subprocess invokes the child process compensation handlers via the call activity calledElement reference"
+    },
+    {
+      "id": "d",
+      "text": "A compensation boundary event attached to the call activity in the parent process invokes a parent-side compensation handler that performs the child reversal logic instead"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Compensating embedded subprocesses section states that compensation handlers of child processes are not invoked from the parent; triggering of compensation stops at the call activity boundary."
+    },
+    "b": {
+      "text": "Incorrect. The page states triggering of compensation stops at the call activity, so a boundary event inside the child process is never reached by a parent compensation throw event."
+    },
+    "c": {
+      "text": "Incorrect. Compensation is broadcast within its scope and stops at the call activity boundary; it does not cross into the child process via the call activity reference."
+    },
+    "d": {
+      "text": "Correct. The Compensating embedded subprocesses section directs you to attach a compensation boundary event on the call activity itself so that a parent-side compensation handler can revert the effects of the child process."
+    }
+  },
+  "explanation": "Compensation triggering does not cross call activity boundaries. To revert effects executed inside a child process, attach a compensation boundary event on the parent's call activity and let its parent-side handler perform the reversal logic.",
+  "docs": [
+    {
+      "title": "BPMN compensation events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ]
+}

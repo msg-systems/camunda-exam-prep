@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A customer-support process has a Service Task assign-priority. If this task fails because the priority-classifier API is overloaded (returns HTTP 503), the team wants to escalate to a supervisor for manual assignment -- but the supervisor escalation is a normal business outcome, not a system error to be retried. The escalation should propagate upward to a parent Event Subprocess that handles supervisor notifications across multiple tasks.",
+  "question": "Which BPMN event-type pair fits \"non-error, upward-propagating, business escalation\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Error Throw + Error Boundary. Error events are designed to signal system faults and exceptional conditions that represent abnormal process behaviour. Using Error for a normal business outcome like routing to a supervisor for manual assignment conflates system fault semantics with business process design intent. Every BPMN reader will expect an Error event to indicate something went wrong technically, not that the process reached a planned business escalation point. This semantic confusion degrades model readability and maintainability."
+    },
+    {
+      "id": "b",
+      "text": "Signal Throw + Signal Catch. Signals broadcast cluster-wide to all matching signal catchers across all processes and all running instances. This scope is entirely inappropriate for an in-instance upward escalation to a parent Event Subprocess. Using a Signal would risk triggering unintended listeners in completely unrelated process instances. The broadcast model also introduces unpredictable side-effects in multi-instance deployments. Signal is designed for cross-process notification scenarios, not for scoped parent-child communication within a single process instance."
+    },
+    {
+      "id": "c",
+      "text": "Escalation Throw Event (Intermediate or End) on the failure path inside the task's local error handling, caught by an Escalation Start Event in an Event Subprocess at the parent level. Escalation is BPMN's dedicated event type for business-level upward signalling, distinct from Error (system fault) and Signal (cluster-wide broadcast). It can be interrupting or non-interrupting at the catch side."
+    },
+    {
+      "id": "d",
+      "text": "Message Throw + Message Catch. Message events are designed for inter-instance communication: one process instance sends a message with a correlation key, and a different instance (or a new instance) receives it. This model requires an explicit correlation mechanism and is designed for cross-instance or cross-process communication. Messages are not designed for in-instance upward propagation to a parent scope. Using a Message for in-process escalation would require sending a message to the same instance, which is an awkward and fragile design."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN designed Escalation as a separate event type precisely to distinguish business-level upward signalling from system errors. Semantic value: readers of the BPMN see \"Escalation\" and immediately understand \"this is a business escalation, not a fault.\" Behaviour: scope-local upward propagation (within the process instance), caught by Escalation Start (in Event Subprocess) or Escalation Boundary. Can be interrupting (parent path takes over) or non-interrupting (parent listens while main flow continues)."
+    },
+    "b": {
+      "text": "Incorrect. Error events are for \"something went wrong\" -- system fault, exception. Treating a business outcome (overload → manual review) as an error muddies the BPMN: every reader has to dig into the model to understand whether this is a fault or a normal flow. Use Error for faults; Escalation for business outcomes that need attention."
+    },
+    "c": {
+      "text": "Correct. Signal broadcasts across the entire cluster (all processes, all instances). The team's intent is in-instance escalation -- Signal's broadcast scope is wrong tool. Plus, Signal listeners outside the intended scope could fire unintentionally."
+    },
+    "d": {
+      "text": "Incorrect. Messages are correlation-keyed for instance-to-instance communication. In-instance upward propagation isn't their model."
+    }
+  },
+  "explanation": "Signal broadcasts across the entire cluster (all processes, all instances). The team's intent is in-instance escalation -- Signal's broadcast scope is wrong tool. Plus, Signal listeners outside the intended scope could fire unintentionally.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/escalation-events/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q02",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

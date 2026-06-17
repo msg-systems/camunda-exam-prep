@@ -1,0 +1,76 @@
+{
+  "id": "imp-set16-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Connector needs secret API key. Camunda has secrets system; system also has OS environment variables. Team wonders which to use.",
+  "question": "Connector secrets vs environment variables?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Either equivalent -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "NAME}} syntax. The Connector Runtime resolves these references at runtime, ensuring API keys and passwords never appear in BPMN XML or source code. Secrets can be rotated without redeploying the process. The built-in audit trail in Console tracks secret changes. NAME}} syntax) or hardcoded credentials (security risk)."
+    },
+    {
+      "id": "c",
+      "text": "Env vars preferred -- this is only partially workable for certain configurations. NAME}}. API_KEY}} resolves this through the Camunda secrets store, not from an OS environment variable named API_KEY. While Self-Managed deployments may configure secrets by injecting them as environment variables into the Connector Runtime container, this is an implementation detail of the secrets backend, not a direct replacement for the secrets system."
+    },
+    {
+      "id": "d",
+      "text": "Hardcode -- this is a security anti-pattern that must be avoided. Hardcoding an API key directly into a BPMN file, Element Template, or process variable means the credential is stored in plain text in source control, deployment artifacts, and the Camunda database. Any person with access to the BPMN XML or deployment history can read the key. Rotation requires editing and redeploying all affected BPMN files. Hardcoded secrets frequently leak through inadvertent commits, log output, or error messages. The Camunda secrets system specifically exists to prevent this: secrets are stored securely outside BPMN, referenced by name, resolved at runtime, and rotatable without process redeployment."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Secrets management for Connectors: Camunda secrets system: Configuration: SaaS: Console → Cluster → Secrets tab. Self-Managed: env vars / Kubernetes Secrets in Connector Runtime config. Reference syntax: {{secrets.SECRET_NAME}} in BPMN. At runtime, Connector Runtime resolves to actual value. In BPMN XML: `xml Actual token never in BPMN. OS environment variables: Use case: Connector Runtime config: cluster connection, etc. Bootstrap settings: Camunda Runtime needs to start. Not per-Connector credentials: those go via secrets. For Self-Managed setup: yaml # Connector Runtime container env ZEEBE_CLIENT_BROKER_GATEWAY-ADDRESS: localhost:26500 CAMUNDA_CLIENT_CLUSTER-ID: ... # Secrets directly as env (for legacy / simple setups) CONNECTOR_SECRET_API_TOKEN: \"the-actual-token\" The {{secrets.API_TOKEN}} reference resolves to CONNECTOR_SECRET_API_TOKEN env var typically (verify exact resolution mechanism). Differences: | Aspect | Secrets system | Env vars | |--------|----------------|----------| | Reference syntax | {{secrets.NAME}} | Direct | | Management UI | Console / config | OS / orchestrator | | Audit | Camunda log | OS / external | | Rotation | Update secret | Update env | | Visibility | Indirect | Direct (in process) | Best approach: For Connector secrets: use {{secrets.NAME}} references. Resolution mechanism: Connector Runtime: knows how to resolve secrets. Looks up: Console-managed (SaaS) or env-mapped (Self-Managed). Substitutes at runtime. For sensitive data not in Camunda Connectors: Worker code reads from secret manager directly. External library: AWS SDK reading from Secrets Manager. Don't bake into Camunda variables. Hierarchy of secrets: 1. External secret manager (Vault, AWS Secrets Manager): Source of truth. Rotation, audit. 2. Cluster-level secret: Camunda secrets (Console / env). Pulled from external if integrated. 3. Connector reference: {{secrets.NAME}}. Used in BPMN / templates. Anti-patterns: Hardcoding in BPMN: xml Wrong: secrets visible in BPMN source / version control. Inline in process variables: feel apiKey: \"sk-actual-key-12345\" Wrong: appears in Operate; logged. Env vars referenced from BPMN: Some implementations: BPMN can reference env vars directly. Mixed: not standard; prefer secrets system. For rotation: Update secret in Console / config. No BPMN redeployment needed: reference unchanged. Worker / Connector picks up new value on next call. For audit: Secret access logged: who accessed, when. Camunda audit log. External secret manager also logs. For multi-environment: Dev / staging / prod: different secret values. Same BPMN: {{secrets.API_TOKEN}} reference identical. Per-cluster secrets: cluster-specific. For SaaS specifics: Console UI: add / update secrets per cluster. Cluster admin: manages. For Self-Managed specifics: Env vars in Connector Runtime: simplest. Kubernetes Secrets: production. Vault integration: via init containers / sidecars. For the scenario (API key for Connector): Use {{secrets.API_KEY}}` reference. Manage secret in Console / config. Don't use OS env directly in BPMN. Best practices: Always use secrets system for credentials in Connectors. Never hardcode in BPMN / variables. Rotate periodically. Audit access."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/console/manage-clusters/manage-secrets/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q33",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 27 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 25.7 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

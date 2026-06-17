@@ -1,0 +1,53 @@
+{
+  "id": "ext-configuration-32",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-sdk",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Given the `@JobWorker` method signature above, which uses `ActivatedJob` as its only parameter, what is true about variable fetching?",
+  "codeBlocks": {
+    "stem": "@JobWorker(type = \"foo\")\npublic void handleJobFoo(final ActivatedJob job) {\n  String variable1 = (String) job.getVariablesAsMap().get(\"variable1\");\n}"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "Implicit variable fetching detection is disabled; variables must be retrieved programmatically via `job.getVariablesAsMap()`."
+    },
+    {
+      "id": "b",
+      "text": "All process variables are auto-injected for you because `ActivatedJob` exposes them."
+    },
+    {
+      "id": "c",
+      "text": "Only variables previously declared on a sibling `@Variable` parameter are fetched, and `ActivatedJob` sees them too."
+    },
+    {
+      "id": "d",
+      "text": "The SDK fails at startup because `ActivatedJob` alone is not a legal `@JobWorker` parameter."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state that using `ActivatedJob` as a parameter prevents the implicit variable fetching detection, and that only explicit variable fetching will be effective in that case."
+    },
+    "b": {
+      "text": "There is no auto-injection of all variables; with `ActivatedJob` you must call `job.getVariablesAsMap()` (or another explicit API) yourself."
+    },
+    "c": {
+      "text": "Sibling `@Variable` parameters add their names to the fetch list, but the question's signature has none, so nothing is fetched implicitly."
+    },
+    "d": {
+      "text": "`ActivatedJob` is explicitly listed as a valid `@JobWorker` parameter — it is part of the native `JobHandler` functional interface."
+    }
+  },
+  "explanation": "When `ActivatedJob` is a parameter on a `@JobWorker` method, the Spring SDK turns off implicit variable detection so you can decide what to fetch programmatically. Combine it with `@Variable` or `@VariablesAsType` parameters if you want explicit names added to the fetch list.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter - Configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

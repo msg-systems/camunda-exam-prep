@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q39",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression computes the average review score for a product: mean(reviews.score). In testing, when the reviews list is empty (a new product with no reviews), the expression returns null (FEEL aggregates return null on empty lists per feel-built-in-functions-list.md). Downstream tasks then receive null and fail. The team wants to ensure the expression returns 0 when the list is empty.",
+  "question": "Which FEEL expression handles the empty list case correctly?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:70-93: returns value if non-null, else default. score) extracts the score field from each element of the reviews list (using FEEL's projection notation) and computes the arithmetic mean. When reviews is an empty list, FEEL's mean() returns null per the FEEL spec for empty-list aggregates. The get or else wrapper then substitutes 0 for that null result. For any non-empty list, mean() returns a numeric value and get or else returns it unchanged."
+    },
+    {
+      "id": "b",
+      "text": "score) -- explicit empty check. This expression is semantically correct and will return 0 when the reviews list is empty. score), 0) approach. The count(reviews) predicate works because mean() returns null on an empty list, and if-then-else tests the list length directly. The issue is that it requires the developer to understand both count() and the specific null-producing behaviour of mean(), while get or else expresses the intent more directly: \"give me the mean, or zero if that's null\"."
+    },
+    {
+      "id": "c",
+      "text": "score) ?? 0 -- null-coalescing operator. The ?? operator is the null-coalescing operator from JavaScript (ECMAScript 2020) and TypeScript, also found in C# and Kotlin. It is absent from FEEL. md:70-93, or via explicit if-then-else conditionals. Writing ?? in a FEEL expression would cause a parse error in the Camunda DMN/FEEL engine."
+    },
+    {
+      "id": "d",
+      "text": "score), 0) -- SQL-style coalesce built-in. FEEL does not have a coalesce() function. ) returns the first non-null value from the argument list, and many developers expect an equivalent in FEEL since the use case (null-to-default substitution) is identical. md:70-93. Calling coalesce() in FEEL would result in a function-not-found error at runtime."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Per feel-built-in-functions-boolean.md:70-93, Camunda FEEL has a native null-coalesce: get or else(value: Any, default: Any): Any. Verbatim doc examples: get or else(\"this\", \"default\") → \"this\", get or else(null, \"default\") → \"default\", get or else(null, null) → null. This is the idiomatic Camunda Extension for the null-fallback pattern. Note also: reviews.score is the Camunda FEEL projection on a list of contexts (Pattern #23 -- list.field notation works for uniform-shape lists); reviews[*].score JsonPath-style is NOT FEEL."
+    },
+    "b": {
+      "text": "Incorrect. Explicit if count(reviews) = 0 then 0 else mean(reviews.score) works and is clear. The get or else form (option a) is more concise and is the canonical Camunda Extension; both are acceptable."
+    },
+    "c": {
+      "text": "Incorrect. FEEL does not have a ?? null-coalescing operator. This is JavaScript/TypeScript/Kotlin syntax."
+    },
+    "d": {
+      "text": "Incorrect. FEEL has no coalesce() function; the equivalent is get or else(value, default) (option a)."
+    }
+  },
+  "explanation": "Per feel-built-in-functions-boolean.md:70-93, Camunda FEEL has a native null-coalesce: get or else(value: Any, default: Any): Any. Verbatim doc examples: get or else(\"this\", \"default\") → \"this\", get or else(null, \"default\") → \"default\", get or else(null, null) → null. This is the idiomatic Camunda Extension for the null-fallback pattern. Note also: reviews.score is the Camunda FEEL projection on a list of contexts (Pattern #23 -- list.field notation works for uniform-shape lists); reviews[*].score JsonPath-style is NOT FEEL.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-boolean/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q39",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

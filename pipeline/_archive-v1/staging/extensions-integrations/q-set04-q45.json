@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Java worker using Spring Zeebe needs to fetch process variables by name. The handler is @JobWorker(type=\"enrich\") and declares void enrich(@Variable String customerId, @Variable Order order). What does the @Variable annotation do?",
+  "question": "What does the @Variable annotation do?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The @Variable annotation does not mark a parameter as required for the worker to start or activate. Zeebe Job Workers activate whenever a job of their subscribed task type is available, regardless of which variables are present in the job payload. If a variable annotated with @Variable is missing from the job payload at activation, the parameter receives null or the type default rather than preventing activation. There is no required-variable gate on worker activation at the Zeebe protocol level."
+    },
+    {
+      "id": "b",
+      "text": "@Variable annotation on a Spring Zeebe handler method parameter binds the named process variable from the activated job payload to the parameter. Spring Zeebe uses Jackson to deserialize the JSON variable value into the declared Java parameter type automatically. The parameter name in the annotation corresponds to the process variable name, and the Java type determines the deserialization target. This eliminates manual variable extraction and JSON parsing boilerplate in worker handler code."
+    },
+    {
+      "id": "c",
+      "text": "@Variable extracts an existing process variable from the job payload for use in the worker handler -- it does not create a new variable in the process scope. New process variables are created when the worker completes the job and includes variables in the completion payload. The annotation operates on inbound data (reading from job variables), not on outbound data (writing to process variables). Variable creation happens through the job completion command, not through input annotations."
+    },
+    {
+      "id": "d",
+      "text": "@Variable has a concrete runtime effect: automatic deserialization of the named process variable from the job payload into the typed handler parameter. getVariable(\"variableName\") and cast or deserialize the result. The annotation is not merely documentation -- it is processed by the Spring Zeebe framework to generate variable extraction code. Treating it as cosmetic would be an incorrect understanding of the Spring Zeebe SDK. ###"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. @Variable is the Camunda Spring Boot starter's parameter-binding annotation per camunda-spring-boot-starter/configuration.md:435-451 -- extracts a process variable of the same name (or @Variable(name = \"explicitName\")) from the activated job and deserialises into the parameter type. Cleaner than manual job.getVariablesAsMap().get(...). For mapping multiple variables into a POJO, use @VariablesAsType instead (lines 461-467)."
+    },
+    "b": {
+      "text": "Correct. Required-ness is a different concern."
+    },
+    "c": {
+      "text": "Incorrect. Reads, doesn't create."
+    },
+    "d": {
+      "text": "Incorrect. Has functional effect."
+    }
+  },
+  "explanation": "Required-ness is a different concern.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q45",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

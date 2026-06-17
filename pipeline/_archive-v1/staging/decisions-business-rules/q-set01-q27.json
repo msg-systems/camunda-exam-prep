@@ -1,0 +1,63 @@
+{
+  "id": "imp-set01-q27",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A SaaS-based pricing engine determines monthly subscription tiers based on the customer's account age and usage. The DMN Decision Table pricing-tier takes inputs accountAgeMonths (integer) and usageTier (string: \"low\", \"medium\", \"high\"). The output is subscriptionTier (string: \"starter\", \"growth\", \"enterprise\"). The team needs the table to handle the case where accountAgeMonths is less than 0 (data quality issue) by defaulting to \"starter\". The developer is debating between two approaches: 1. Add a special rule at the top with accountAgeMonths < 0 → \"starter\". 2. Use the Hit Policy default semantics.",
+  "question": "Which approach is BPMN/DMN-correct for default handling in a Decision Table?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Add a catch-all rule at the bottom of the table with - (don't-care) for both inputs and \"starter\" as output. With FIRST hit policy, this fires only if no specific rule matched above. The - (dash or blank) in a DMN input cell is the \"match anything\" wildcard -- the cell imposes no constraint on that column. A rule with - in every input column therefore matches any input combination that fell through the preceding rules. Combined with FIRST hit policy (which returns the first matching rule by row order), the catch-all serves as a universal fallback -- covering both the accountAgeMonths < 0 case and any other unhandled input combination."
+    },
+    {
+      "id": "b",
+      "text": "Add an explicit \"first-line\" rule with accountAgeMonths < 0 → \"starter\". Combined with FIRST hit policy, this rule fires when account age is invalid; otherwise the regular rules apply. , usageTier = \"unknown\") without a fallback. The catch-all approach with - is more comprehensive and idiomatic."
+    },
+    {
+      "id": "c",
+      "text": "Configure the Hit Policy to DEFAULT which is automatically applied when no other rule matches. 3 specification or in Camunda 8. md:26-53, Camunda 8 supports exactly: UNIQUE, ANY, FIRST, RULE ORDER, and COLLECT. No automatic \"use a default output when nothing matches\" mechanism exists as a hit policy setting; the canonical workaround is the catch-all row with - values."
+    },
+    {
+      "id": "d",
+      "text": "Use FEEL default keyword in the output cell of the last rule. There is no default keyword in FEEL syntax for DMN output cells. FEEL output cells in a decision table contain FEEL value expressions -- strings, numbers, booleans, context literals, or FEEL built-in function calls. The concept of \"fire when nothing else matches\" is achieved structurally by the catch-all row (option a) combined with FIRST hit policy, not by any special keyword placed inside a cell's value expression."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. An explicit invalid-data rule at the top works for accountAgeMonths < 0 cases but is too narrow -- it doesn't handle other \"no rule matched\" cases (e.g., usageTier = \"unknown\")."
+    },
+    "b": {
+      "text": "Incorrect. DMN does not have a \"DEFAULT\" hit policy. The Camunda 8 supported Hit Policies are UNIQUE, ANY, FIRST, RULE ORDER, COLLECT (per decision-table-hit-policy.md:26-53). There is no \"default\" mode."
+    },
+    "c": {
+      "text": "Incorrect. A catch-all rule at the bottom with - (don't-care, matches anything) in each input column is the DMN-canonical way to provide a default. Combined with FIRST hit policy (which returns the first matching rule by row order), the catch-all only fires if no preceding specific rule matched. This handles both the explicit invalid-data case (no rule matches accountAgeMonths < 0) and any other unmatched input combinations."
+    },
+    "d": {
+      "text": "Incorrect. There is no default keyword in FEEL output cell syntax. Output cells contain expressions whose value is the rule's output when fired."
+    }
+  },
+  "explanation": "An explicit invalid-data rule at the top works for accountAgeMonths < 0 cases but is too narrow -- it doesn't handle other \"no rule matched\" cases (e.g., usageTier = \"unknown\").",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q27",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[3]"
+      }
+    ]
+  }
+}

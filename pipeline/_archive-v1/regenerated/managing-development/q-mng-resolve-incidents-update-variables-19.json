@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-19",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Logistics runs Camunda 8.8 with 6000 shipments per day. After resolving an incident on a process instance in Operate, the instance still waits on the Ship Without Insurance service task because no worker is subscribed to that job type on the cluster, and the operator wants to complete the instance from a macOS workstation using zbctl.",
+  "question": "Which zbctl invocation starts a worker on macOS that completes the Ship Without Insurance job?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Run ./bin/zbctl.darwin --insecure create worker ship-without-insurance --handler cat from the macOS shell to subscribe a worker that completes each activated job"
+    },
+    {
+      "id": "b",
+      "text": "Run ./bin/zbctl.darwin --insecure deploy worker ship-without-insurance from the macOS shell to register a permanent worker on the cluster broker on startup"
+    },
+    {
+      "id": "c",
+      "text": "Run ./bin/zbctl.darwin --insecure publish message ship-without-insurance from the macOS shell to deliver a correlation message that ends the service task"
+    },
+    {
+      "id": "d",
+      "text": "Run ./bin/zbctl.darwin --insecure cancel instance ship-without-insurance from the macOS shell so the broker skips the unfinished service task on the running instance"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The macOS command documented to complete the Ship Without Insurance task is ./bin/zbctl.darwin --insecure create worker ship-without-insurance --handler cat, which subscribes a worker that completes each activated job using cat as the handler."
+    },
+    "b": {
+      "text": "Incorrect. zbctl deploys resources such as BPMN, DMN, and Form files; there is no deploy worker subcommand for registering a permanent worker against the broker."
+    },
+    "c": {
+      "text": "Incorrect. Publishing a message does not complete a service task; the task is completed by a job worker that activates and completes jobs of the matching type."
+    },
+    "d": {
+      "text": "Incorrect. Cancelling the instance terminates execution rather than completing the service task and progressing the process instance to the next step."
+    }
+  },
+  "explanation": "Completing the instance requires a worker for the ship-without-insurance job type. The documented macOS command uses zbctl.darwin in insecure mode with the cat handler so every activated job is completed and the instance can progress.",
+  "docs": [
+    {
+      "title": "Complete a process instance",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ]
+}

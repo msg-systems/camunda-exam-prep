@@ -1,0 +1,50 @@
+{
+  "id": "ext-local-development-with-element-templates-147",
+  "topic": "extensions-integrations",
+  "subtopic": "local-development",
+  "difficulty": "easy",
+  "style": "recall",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "How do you provision a custom connector runtime so that it executes jobs in a Camunda 8 Run setup?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Copy the connector's `*-with-dependencies.jar` into the `custom_connectors` directory in the root folder of the Camunda 8 Run setup, then start C8 Run."
+    },
+    {
+      "id": "b",
+      "text": "Run `mvn install` on the connector project so it is registered in the local Maven repository that C8 Run reads on startup."
+    },
+    {
+      "id": "c",
+      "text": "Add the connector's Maven coordinates to `application.yaml` under `camunda.connectors.custom` and restart."
+    },
+    {
+      "id": "d",
+      "text": "Place the `.jar` path in `connector-secrets.txt` and reference its name from the element template."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs instruct you to build the fat jar with `mvn clean verify package` and copy the resulting `target/connector-template-*-with-dependencies.jar` into the `custom_connectors` directory in the C8 Run root, then start C8 Run with Docker Compose."
+    },
+    "b": {
+      "text": "C8 Run does not consume the local Maven repository; the jar must be placed in the `custom_connectors` directory."
+    },
+    "c": {
+      "text": "There is no `application.yaml` registration mechanism for custom connectors documented here — provisioning is jar drop-in."
+    },
+    "d": {
+      "text": "`connector-secrets.txt` is for secrets, not for connector binaries; jars go into `custom_connectors`."
+    }
+  },
+  "explanation": "C8 Run picks up custom connector runtimes by reading the `custom_connectors` directory in its root folder. You build the connector as a fat jar (for example `mvn clean verify package`), drop the `*-with-dependencies.jar` into that directory, and start C8 Run with Docker Compose. The connector is then ready to execute jobs as soon as a process references it.",
+  "docs": [
+    {
+      "title": "Local development with element templates",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/local-development-with-element-templates/"
+    }
+  ]
+}

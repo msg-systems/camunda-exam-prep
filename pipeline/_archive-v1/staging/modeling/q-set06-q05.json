@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A medical-imaging-results process waits for either: a scan-complete message from the imaging system, OR a manual-override timer (after 30 min). Whichever happens first determines the next step.",
+  "question": "Which BPMN construct fits the racing wait?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Parallel Gateway splits the flow into two concurrent branches that both execute simultaneously. It does not race two events; it activates all branches and waits for all to complete at the join. Using it here would force both the message and the timer to fire rather than racing to the first one. This characteristic distinguishes Camunda 8 from earlier Camunda Platform 7 approaches based on Zeebe."
+    },
+    {
+      "id": "b",
+      "text": "Exclusive Gateway routes based on data conditions evaluated at the point it is reached. It cannot listen for events asynchronously. The process would need to have already received the data to choose a branch, so it cannot model a racing wait between a future message arrival and a timer expiry. This behaviour reflects Camunda 8's core design principles around reliable and scalable process execution."
+    },
+    {
+      "id": "c",
+      "text": "Event-Based Gateway with two outgoing arrows: one Intermediate Message Catch (scan complete) and one Intermediate Timer Catch (30 min). The gateway waits asynchronously; the first event that fires claims the token and proceeds. The other event subscription is atomically cancelled. This is the canonical race pattern in BPMN. Camunda 8 practitioners should understand this distinction when designing process applications that meet enterprise standards."
+    },
+    {
+      "id": "d",
+      "text": "Two parallel Receive Tasks run concurrently but both hold their tokens waiting for messages. They have no built-in racing or cancellation semantics. Both would remain active until their individual messages arrive, without any mechanism to cancel the other when one completes first. 0 in Camunda 8."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Event-Based Gateway races events: first event \"wins\" and progresses, others are atomically cancelled. Canonical for \"wait for either A or B.\""
+    },
+    "b": {
+      "text": "Incorrect. Parallel runs both branches; doesn't race."
+    },
+    "c": {
+      "text": "Correct. XOR routes on data conditions, not events."
+    },
+    "d": {
+      "text": "Incorrect. Multiple Receive Tasks don't have built-in racing semantics."
+    }
+  },
+  "explanation": "XOR routes on data conditions, not events.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-based-gateways/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q05",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

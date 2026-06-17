@@ -1,0 +1,56 @@
+{
+  "id": "imp-set17-q44",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "External service returns paginated results. Worker fetches all pages. Wonders pattern.",
+  "question": "Worker paginated query handling?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Fetching only a single page of results from a paginated API and returning that partial data as the final result -- this does not accurately reflect the behavior. When a worker needs all pages, it must implement a loop: fetch page 1, check for a nextPage token or hasMore flag, accumulate results across all pages, and only return when there are no more pages. Returning only the first page would give the process incomplete data. Memory and activation timeout constraints must also be considered for large result sets, and a BPMN-level pagination loop may be preferable when page count is large."
+    },
+    {
+      "id": "b",
+      "text": "BPMN-level pagination loops using Standard Loop or Multi-Instance markers are a valid approach for large datasets where each page should be independently visible in Operate. The choice between process-level and worker-level pagination depends on the need for observability, activation timeout constraints, and the size of results per page."
+    },
+    {
+      "id": "c",
+      "text": "In worker code: loop through pages: the handler method fetches page 1, checks for a nextPage token or hasMore flag, accumulates results, and continues until all pages are retrieved. This approach encapsulates pagination logic in the worker and keeps the BPMN model simple with a single Service Task. Considerations include activation timeout (if pagination takes longer than the configured timeout), memory for accumulated results, and per-page retry on failure. For large result sets, consider chunked processing or BPMN-level pagination loops for better observability in Operate."
+    },
+    {
+      "id": "d",
+      "text": "Camunda automatically handles pagination for all external API calls -- this does not accurately reflect the behavior. Camunda and the Connector framework do not know the pagination protocol of any arbitrary external service. Pagination mechanisms vary widely across APIs -- offset-based page numbers, cursor tokens, next-link headers, or time-based ranges. The worker implementation is responsible for understanding and implementing the specific pagination protocol of the external API it calls. Camunda provides no built-in pagination abstraction for external service calls from job workers."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Worker pagination: Pattern: in-worker loop: `java @JobWorker(type = \"fetch-all-customers\") public Map handle() { List allCustomers = new ArrayList<>(); int page = 1; while (true) { PageResult result = api.getCustomers(page, 100); allCustomers.addAll(result.getCustomers()); if (result.getNextPage() == null) break; page = result.getNextPage(); } return Map.of(\"customers\", allCustomers); } Worker handles pagination internally. Pros: Simple BPMN: single Service Task. Encapsulated: worker handles. Cons: Long-running: worker takes pagination time. Activation timeout considerations. Large result in variable: if many pages. For large result sets: Pattern: chunked processing: Worker fetches batch. Process per batch: in BPMN (MI or loop). Avoid huge variable. [Service Task: Fetch Batch N] ├─ batch processed └─ if more → loop back ` For BPMN-level pagination loop (per Set 13 Q43): Each iteration: Service Task per page. Visible in Operate: each page as element instance. Better observability. For very large: Store results externally: S3, DB. Process via reference: not in variable. Camunda just orchestrates. For streaming: Some APIs: streaming endpoints. Worker streams + processes: chunks. Doesn't accumulate all. Pagination types: Offset-based: page + pageSize. Sometimes incomplete on data changes. Cursor-based: nextCursor token. Stable across changes. Time-based: since timestamp. For event streams. For nextLink (HAL): API returns next URL. Worker follows. Configuration in worker: pageSize: balance latency / throughput. Smaller: more requests; more progress visibility. Larger: fewer requests; longer per call. For retry on page failures: Per-page retry: don't restart from page 1. Track progress: which page reached. For idempotency: Same page fetched twice: same result typically. Safe. For rate limits: API rate limits: respect. Delay between pages: if needed. For Service Task activation timeout: If pagination > activation timeout: duplicate execution risk. Bound pages per Service Task: or split via MI. Pattern: MI over page numbers: Pre-determine page count: first call. MI iterates: page per iteration. Parallel possible: if API supports. For deduplication: Pages may have overlap: in some APIs. Deduplicate by ID. For result size: Each page: few KB to MB. Total: can grow large. For storage in Camunda: List variable: small to medium OK. Large: use Document Handling or external. For downstream processing: Process all items: MI over list. Or chunked: process N at a time. For monitoring: Worker logs progress: page 5/20 etc. Operate: total time. For testing: Mock API with multiple pages. Test pagination logic: edge cases. For specific Camunda 8 features: Long-running pagination: consider Connector pagination (per Set 13 Q43). For Connector with pagination support: Some REST Connectors: built-in pagination. Verify per Connector. For unstable pagination: Data changes during pagination: may miss / duplicate. Snapshot-based pagination: stable. Best practices: Bound pagination: max pages safety. Idempotent: safe re-execution. Progress logging: visibility. Sized for activation timeout. Anti-patterns: Infinite loops: no max page. All-in-memory for huge results: OOM risk. No retry per page: fail entire job. For the scenario (paginated results): Choose pattern: In-worker loop: simple cases. BPMN MI / loop: large + observability. External storage: very large."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q44",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

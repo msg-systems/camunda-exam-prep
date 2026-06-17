@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-migration-61",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Apex Insurance runs Camunda 8.8 across 7000 policies per day. After a process redesign the platform team prepares a migration plan that introduces two extra active review tasks on every running process instance so that auditors can intervene before payout. The architecture group must decide whether process instance migration alone is able to change the count of active elements.",
+  "question": "Which limitation applies to the number of active elements during process instance migration in Camunda 8.8?",
+  "options": [
+    { "id": "a", "text": "The number of active elements may be increased during migration by adding mappings that reference newly introduced target elements in the plan" },
+    { "id": "b", "text": "The number of active elements cannot be changed by migration, and process instance modification must be used to add or remove active elements" },
+    { "id": "c", "text": "The number of active elements may be reduced during migration when two source elements are mapped to a single shared target element in the plan" },
+    { "id": "d", "text": "The number of active elements is reconciled by the engine at validation, so any net difference is accepted as long as mappings exist for them" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Migration cannot add new active elements. The docs direct users to process instance modification when the count of active elements needs to change between source and target." },
+    "b": { "text": "Correct. The docs list this as a hard limitation: the number of active elements cannot be changed by migration. Process instance modification is the documented mechanism for altering the count of active elements." },
+    "c": { "text": "Incorrect. The plan can only map each sourceElementId once and the active element count must stay the same, so two source elements cannot collapse into a single target element via migration." },
+    "d": { "text": "Incorrect. The validator enforces the unchanged active element count rather than reconciling differences. Any mismatch leads to a rejection rather than acceptance." }
+  },
+  "explanation": "Process instance migration preserves the count of active elements. To add or remove active elements teams must use process instance modification, which is the documented alternative for changing the structure of a running instance.",
+  "docs": [
+    { "title": "Process instance migration", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/" }
+  ]
+}

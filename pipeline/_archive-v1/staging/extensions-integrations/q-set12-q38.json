@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q38",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL financial computation uses decimal(value, 2) for precision. The team wonders about FEEL's underlying numeric precision -- can it handle precise decimal arithmetic (like banking apps need)?",
+  "question": "FEEL numeric precision -- suitable for financial calculations?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL's number type is based on arbitrary-precision decimal arithmetic, similar to Java's BigDecimal, not IEEE 754 floating-point. 30000000000000004 due to binary representation limits. 3. Developers accustomed to JavaScript or Java double arithmetic must be aware that FEEL avoids these common floating-point pitfalls by design."
+    },
+    {
+      "id": "b",
+      "text": "FEEL uses arbitrary-precision decimal arithmetic where the precision is not artificially constrained to a fixed number of digits. Operations like multiplication, addition, and subtraction preserve the full precision of the input values. Division may produce repeating decimals that the implementation handles up to a defined implementation-level precision limit. The decimal(value, scale) function is used to explicitly round a result to a specific number of decimal places, not to work around an inherent precision cap."
+    },
+    {
+      "id": "c",
+      "text": "3 specification explicitly defines FEEL's number type as a decimal with specific arithmetic semantics. Camunda's FEEL implementation follows these specifications, ensuring predictable, deterministic precision for decimal operations. The specification-defined behavior provides concrete guarantees: decimal arithmetic without floating-point rounding errors, explicit rounding via decimal(value, scale) with banker's rounding, and null-safe behavior for null inputs. These guarantees make FEEL's numeric operations suitable for financial calculations that require exactness."
+    },
+    {
+      "id": "d",
+      "text": "FEEL uses arbitrary-precision decimal arithmetic (similar to Java's BigDecimal). , preserve precision. decimal(value, scale) rounds to specified scale (banker's rounding by default). Suitable for financial calculations as long as operations are explicit about scaling. 3) doesn't happen -- FEEL handles decimals correctly. Caveat: very large numbers / very many digits can have performance / memory implications."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL's number type is decimal (arbitrary precision), not float. This means: 0.1 + 0.2 in FEEL = exactly 0.3 (no float rounding error). 100 / 3 = exact representation up to the implementation's precision limit. Multiplication / addition / subtraction: preserve full precision. Division: may introduce repeating decimals; the implementation handles up to a defined precision. For financial calculations: Safe: FEEL's decimal arithmetic mirrors what financial systems expect. Explicit rounding: use decimal(value, 2) to round to 2 decimal places (typical for currency). Banker's rounding (round-half-even) by default -- reduces statistical bias over many rounding operations. Pitfalls to avoid: Implicit truncation: don't assume FEEL truncates; it preserves. Round explicitly when needed. Display formatting: FEEL's decimal preserves precision but display (e.g., in Operate) may show many digits; round before display. Performance: Arbitrary precision has memory + computation cost for very large numbers. Practical: financial calculations with values up to billions and 4-decimal precision are fast. Caveat: FEEL implementation specifics vary; verify with FEEL test cases for your Zeebe version if precision is critical."
+    },
+    "b": {
+      "text": "Incorrect. Decimal."
+    },
+    "c": {
+      "text": "Incorrect. Arbitrary."
+    },
+    "d": {
+      "text": "Correct. Spec defined."
+    }
+  },
+  "explanation": "Spec defined.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-numeric/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q38",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

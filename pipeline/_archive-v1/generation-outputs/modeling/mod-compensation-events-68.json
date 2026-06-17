@@ -1,0 +1,27 @@
+{
+  "id": "mod-compensation-events-68",
+  "topic": "modeling",
+  "subtopic": "compensation-events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Ridgeway Insurance issues 1200 policies per day in Camunda 8.8. A service task named Issue Policy reserves a policy number, and when a downstream payment step fails the team needs that reservation reversed before the process continues. The model has a compensation intermediate throw event later in the flow and the team must decide which construct actually performs the reversal.",
+  "question": "Which BPMN construct performs the reversal of the Issue Policy service task when the compensation throw event fires?",
+  "options": [
+    { "id": "a", "text": "A boundary error event attached to Issue Policy catches a thrown BPMN error and runs an inline error handler that releases the reserved policy number" },
+    { "id": "b", "text": "A compensation intermediate throw event placed after Issue Policy itself releases the reserved policy number when the process reaches that throw event" },
+    { "id": "c", "text": "A compensation boundary event attached to Issue Policy releases the reserved policy number directly when the compensation throw event is reached in the flow" },
+    { "id": "d", "text": "A compensation handler activity linked to the compensation boundary event on Issue Policy releases the reserved policy number when compensation is triggered" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Boundary error events react to thrown BPMN errors raised while the attached activity is active. They are not what reverses a previously completed task when a compensation throw event later fires." },
+    "b": { "text": "Incorrect. The compensation intermediate throw event triggers compensation. It does not itself perform the reversal; the work is delegated to the compensation handler associated with the boundary event." },
+    "c": { "text": "Incorrect. The compensation boundary event only associates the handler with the compensation activity. The boundary event itself does not execute the reversal logic when compensation is thrown." },
+    "d": { "text": "Correct. The compensation handler activity, linked to the compensation boundary event on the compensation activity, is what runs the reversal logic when the compensation throw event fires." }
+  },
+  "explanation": "Compensation in BPMN combines three parts. The compensation activity performs the original work, a compensation boundary event attached to it associates a handler, and the compensation handler activity is what actually undoes the original work when a compensation throw event fires.",
+  "docs": [
+    { "title": "BPMN compensation events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/" }
+  ]
+}

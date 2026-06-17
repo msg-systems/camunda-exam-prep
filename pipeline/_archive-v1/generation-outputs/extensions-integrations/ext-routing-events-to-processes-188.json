@@ -1,0 +1,27 @@
+{
+  "id": "ext-routing-events-to-processes-188",
+  "topic": "extensions-integrations",
+  "subtopic": "routing events inter-process messaging",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Insurance deploys two Camunda 8.8 processes, an invoice process and an order process, sharing 4500 transactions per day. A developer must implement a send task in the order process that either starts a new invoice instance or correlates a paid notification to a waiting order instance, following the documented Java job worker patterns.",
+  "question": "Which pair of API methods matches the documented Java send-task patterns for inter-process messaging?",
+  "options": [
+    { "id": "a", "text": "Call newCreateInstanceCommand with bpmnProcessId and latestVersion to start a new instance of the other process, and call newPublishMessageCommand with messageName and correlationKey to correlate a message to a running process instance" },
+    { "id": "b", "text": "Call newPublishMessageCommand with bpmnProcessId and latestVersion to start a new instance of the other process, and call newCreateInstanceCommand with messageName and correlationKey to correlate a message to a running process instance" },
+    { "id": "c", "text": "Call newCreateInstanceCommand with both bpmnProcessId and messageName to start a new instance of the other process, and call the same method again to correlate a message to a running process instance" },
+    { "id": "d", "text": "Call newSendSignalCommand with signalName to start a new instance of the other process, and call newPublishMessageCommand with signalName and correlationKey to correlate a message to a running process instance" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The Sending messages to other processes section shows a job worker routeInput that calls newCreateInstanceCommand with bpmnProcessId(\"invoice\").latestVersion() to start a new instance, and a job worker notifyOrder that calls newPublishMessageCommand with messageName(\"MsgPaymentReceived\") and correlationKey(orderId) to correlate to a running instance." },
+    "b": { "text": "Incorrect. The roles of the two commands are reversed in this option; newCreateInstanceCommand starts a new instance and newPublishMessageCommand correlates a message." },
+    "c": { "text": "Incorrect. newCreateInstanceCommand uses bpmnProcessId, not messageName; correlating a message requires the separate newPublishMessageCommand API." },
+    "d": { "text": "Incorrect. The documented Java samples use newCreateInstanceCommand and newPublishMessageCommand, not a signal-based API for starting or correlating between processes." }
+  },
+  "explanation": "Sending messages between processes uses newCreateInstanceCommand with bpmnProcessId and latestVersion to start a new instance of the other process, and newPublishMessageCommand with messageName and correlationKey to correlate a message to a running process instance.",
+  "docs": [
+    { "title": "Routing events to processes", "url": "https://docs.camunda.io/docs/components/best-practices/development/routing-events-to-processes/" }
+  ]
+}

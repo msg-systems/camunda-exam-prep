@@ -1,0 +1,63 @@
+{
+  "id": "imp-set14-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Custom Connector needs to access a third-party API key. Team wonders how to handle secrets in custom Connectors.",
+  "question": "Custom Connector secrets binding?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Hardcode in code -- wrong; security anti-pattern."
+    },
+    {
+      "id": "b",
+      "text": "SECRET_NAME}} syntax. At runtime, the Connector Runtime resolves and substitutes the placeholder with the actual value before passing inputs to the Connector code. The Connector class receives the resolved value; it never sees the raw placeholder. This applies equally to built-in and custom Connectors, keeping BPMN models free of credentials. Store secrets via Console UI or Kubernetes Secrets for Self-Managed."
+    },
+    {
+      "id": "c",
+      "text": "Passing API keys or secrets as process variables is technically feasible but considered a security anti-pattern. Process variables are visible in Operate, stored in the database, and may appear in logs or audit trails. NAME}} in the Element Template. This keeps sensitive values out of process state and centralizes credential management, enabling rotation without touching deployed BPMN models."
+    },
+    {
+      "id": "d",
+      "text": "NAME}} placeholder syntax available to built-in Connectors. The Connector Runtime performs secret substitution uniformly for all connector types before dispatching inputs. There is no restriction limiting secret access to only first-party connectors. Custom connectors built with the Connector SDK receive inputs with secrets already resolved, making them indistinguishable from built-in connectors at runtime."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Secrets in custom Connectors: Camunda secrets system: Storage: secrets registered with cluster (Console UI / API). Reference syntax: {{secrets.SECRET_NAME}}. Resolution: at task execution time, Connector Runtime substitutes the placeholder with actual value. In BPMN XML: only the placeholder appears; actual secret never written to model. Element Template definition: `json { \"label\": \"API Key\", \"type\": \"String\", \"binding\": { \"type\": \"zeebe:input\", \"name\": \"apiKey\" }, \"description\": \"Use {{secrets.MY_API_KEY}} to reference a cluster secret\" } In modeler: user types {{secrets.MY_API_KEY}} in the field. BPMN XML stores: xml At runtime: Connector Runtime sees {{secrets.MY_API_KEY}} in input. Looks up cluster's secret store. Substitutes with actual value. Passes actual value to Connector code. In Connector code (Java, current 8.8 SDK uses OutboundConnectorProvider + @Operation + @Variable annotations per connector-sdk.md:233-285): java @OutboundConnector(name = \"MyApi\", type = \"io.camunda:my-api:1\") public class MyApiConnector implements OutboundConnectorProvider { @Operation(id = \"call\") public String call(@Variable MyInput input) { String apiKey = input.apiKey(); // already substituted // use apiKey directly return \"OK\"; } public record MyInput(@NotNull String apiKey) {} } Per connector-sdk.md:563: \"Secrets are replaced automatically in the connector input when you use the variable binding... You will always receive inputs with secrets replaced.\" Connector code never sees the {{secrets.*}} placeholder; only the resolved value. Why this design: BPMN audit-safe: BPMN models can be shared / version-controlled without leaking secrets. Centralised secret management: cluster admin controls; rotate without touching BPMN. Environment-specific: dev / staging / prod each have own secrets; same BPMN. Connector SDK conventions: Document expected secret usage: in Connector docs / Element Template. Validate input: detect if placeholder wasn't substituted (e.g., starts with {{secrets.) and error. Don't log secrets: never log full input that may contain auth (per Set 13 Q11 LOGFIRE_TRACKING redaction memory). Secret management lifecycle: Create: via Console UI, API, or Kubernetes Secret (Self-Managed). Update: rotate periodically; new BPMN deploys use new value automatically. Delete: when no longer needed. Audit: log access if regulatory requirements. Anti-patterns: Hard-coding secret in Connector code: defeats secret management; rebuild needed for rotation. Passing secret via process variable: visible in Operate / logs; not secure. Logging secrets: even unintentionally; redact aggressively. Storing in BPMN comments: visible to anyone with model access. For Self-Managed: Secrets in env vars / Kubernetes Secrets / Vault. Connector Runtime config points to source. Same {{secrets.NAME}}` syntax in BPMN typically. Best practices: Use secrets binding consistently: standard pattern across all Connectors. Document required secrets: in Connector docs. Validate at runtime: if secret missing, fail with clear error. Rotate regularly: security hygiene."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q45",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 8.4 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

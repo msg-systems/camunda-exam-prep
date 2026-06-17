@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A payment processor integrates with a partner bank's REST API to settle interbank transfers. The partner bank enforces a strict rate limit of 5 requests per second per client -- exceeding the limit returns HTTP 429. The Camunda 8 process currently models settlement as a Parallel Multi-Instance Service Task that fans out to call the partner bank API for each of typically 50-200 line items per batch. Under load, the worker fires all multi-instance jobs concurrently, immediately tripping the rate limit. The team wants to keep the Multi-Instance abstraction (each line item is naturally one instance) but pace the API calls so the rate limit is respected without 429 storms.",
+  "question": "How should the developer configure the Multi-Instance Subprocess to fix this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Keep the Parallel Multi-Instance and add an Exclusive Gateway after the Service Task that loops back on 429, with a 1-second Timer Catch Event before retry. , responseCode = 429) and routes back to the Service Task via a loop if a rate-limit response was received. A 1-second Timer Catch Event introduces a delay before the retry attempt, allowing the rate-limit window to partially reset. The loop continues until a successful response is received or a maximum retry count is exceeded. Each iteration consumes one retry cycle, and the Exclusive Gateway condition can also route to an error path after a configurable number of attempts to prevent infinite loops."
+    },
+    {
+      "id": "b",
+      "text": "Keep the Parallel Multi-Instance but configure zeebe:taskDefinition retries=10 so Zeebe automatically retries the failed jobs after 429 responses. The retries attribute on zeebe:taskDefinition sets the maximum number of times Zeebe will re-activate a job after the worker signals failure via failJob. Spring Zeebe automatically decrements the retry counter when a @JobWorker method throws an exception. When retries reach zero, Zeebe creates an Incident that pauses the process instance until an operator resolves it via Operate and increases the retry count. A retryBackoff can also be configured to introduce delays between retry attempts using ISO-8601 duration syntax such as PT5S for a 5-second backoff."
+    },
+    {
+      "id": "c",
+      "text": "Change the marker from Parallel to Sequential Multi-Instance. Each line item is processed one at a time in deterministic order -- instance N+1 starts only when instance N completes and its job is acknowledged. Combined with natural API latency of approximately 200ms per call, the sustained request rate stays at or below 5 requests per second by design, without any explicit throttling logic in the worker or process model. The Sequential MI marker is a single configuration change in the BPMN element with no code modification required, and the full audit trail per item is preserved because each iteration creates its own job and completion record in Zeebe."
+    },
+    {
+      "id": "d",
+      "text": "Replace the Multi-Instance with a single Service Task that internally batches the N line items into a single bulk API call to the partner bank. A standard Service Task with a single job worker can receive the entire list of line items as a process variable, construct a bulk payload, and make one API request instead of N individual requests. The worker maps the input collection to the bulk API's expected format, sends the request, and maps the response back to output variables. This approach reduces network overhead to a single round trip and avoids all multi-instance complexity at the process level, keeping the BPMN diagram simpler. The bulk strategy is applicable when the target API provides a batch endpoint that accepts multiple items in one request."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. A loop-back retry would eventually respect the rate limit but only after firing all N requests in parallel and triggering 429s -- the bank may still blacklist for excess violations during the initial burst."
+    },
+    "b": {
+      "text": "Incorrect. Sequential Multi-Instance processes inner-instances one at a time, in order: instance N+1 starts only when instance N completes. Combined with natural API latency (~200 ms per call) this produces a sustained request rate at or below 5 req/sec by design. No 429s, no retries, predictable throughput."
+    },
+    "c": {
+      "text": "Correct. retries configures how many times Zeebe re-activates a failed job before creating an incident, NOT how fast jobs are dispatched. Classic \"wrong axis\": retries solve transient failures, not concurrency control."
+    },
+    "d": {
+      "text": "Incorrect. Bulk API call may sound elegant but the scenario specifies the partner bank's API is per-line-item -- there is no bulk endpoint, and inventing one is outside the developer's control. Also collapses audit granularity."
+    }
+  },
+  "explanation": "retries configures how many times Zeebe re-activates a failed job before creating an incident, NOT how fast jobs are dispatched. Classic \"wrong axis\": retries solve transient failures, not concurrency control.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q05",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

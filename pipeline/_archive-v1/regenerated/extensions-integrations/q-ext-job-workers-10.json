@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-10",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers-concept",
+  "difficulty": "easy",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Iris Marketplace runs a Camunda 8.8 catalogue update process that creates 9500 jobs per day across several BPMN service tasks. The platform team must encode failure handling on its Java workers so the engine raises an incident when remaining retries hit zero and so workers can optionally wait before the next retry through a documented retry back off field on the fail-job command.",
+  "question": "Which value in the Camunda 8.8 fail-job command causes the engine to raise an incident instead of immediately reassigning the job to another worker?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Setting the failure reason to INCIDENT in the fail-job payload causes Zeebe to raise an incident on the active task instead of reassigning the job, and the remaining retries field is then ignored by the engine"
+    },
+    {
+      "id": "b",
+      "text": "Setting maxJobsToActivate to zero on the original activation request causes Zeebe to raise an incident on the failure path, and the retry back off otherwise governs how soon the job is retried by the next worker"
+    },
+    {
+      "id": "c",
+      "text": "Setting remaining retries to zero or a negative value when failing the job causes Zeebe to raise an incident, and the job is not retried until the incident is resolved by a user or by an API call"
+    },
+    {
+      "id": "d",
+      "text": "Setting the job timeout to zero when failing the job causes Zeebe to raise an incident, and the retry back off is then interpreted as the suspension duration of the raised incident before the job is retried"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The fail-job command takes a remaining-retries count rather than a textual reason value; incident creation is driven by the retries value, not by an INCIDENT reason flag."
+    },
+    "b": {
+      "text": "Incorrect. maxJobsToActivate is part of the activation request, not the fail-job command; it does not control whether failing a job raises an incident."
+    },
+    "c": {
+      "text": "Correct. The Completing-or-failing-jobs section states that if remaining retries is zero or negative the job is not retried and an incident is raised; once the incident is resolved the job becomes retriable again."
+    },
+    "d": {
+      "text": "Incorrect. Incident creation is driven by the remaining-retries value supplied with the fail-job command, not by the job timeout; the timeout governs how long an activation remains assigned to a worker."
+    }
+  },
+  "explanation": "When a job worker sends a fail-job command, it supplies a remaining-retries count. If that count is greater than zero the job is retried and reassigned, optionally after a retry back off delay. If the count is zero or negative the engine raises an incident and the job is not retried until the incident is resolved.",
+  "docs": [
+    {
+      "title": "Completing or failing jobs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q27",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A complex DMN model has Decision A and Decision B. Decision A's body references Decision B's result -- e.g., A computes a final score by combining B's risk rating with other inputs. The DRD shows an Information Requirement arrow from B (supplier) to A (consumer).",
+  "question": "How does Decision A invoke Decision B in its FEEL body?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Reference Decision B's name directly in a FEEL expression within A's body -- the engine resolves the reference using the DRD dependency graph. When Decision A evaluates, the engine first evaluates Decision B (because the Information Requirement arrow from B to A declares that dependency), makes B's result available in A's evaluation context under B's name, then evaluates A. For example, if Decision B is named riskRating, A's FEEL body can reference =riskRating + otherFactor or =if riskRating > 5 then \"HIGH\" else \"LOW\"."
+    },
+    {
+      "id": "b",
+      "text": "Call Decision B using an explicit invoke(B) function call in Decision A's FEEL expression body -- invoke() is absent from the FEEL specification. FEEL has no function for explicitly invoking another decision at evaluation time. The DMN mechanism for chaining decisions is not a function call but a structural declaration via the DRD's Information Requirement arrows. When the DRD arrow from B to A exists, the engine automatically evaluates B before A and makes B's result available in A's FEEL context under B's name. No explicit invoke step is needed."
+    },
+    {
+      "id": "c",
+      "text": "The DRD Information Requirement arrow automatically injects Decision B's result into Decision A's evaluation context without A needing to reference B by name -- A can use the result implicitly. This claim overstates the automation. The DRD arrow declares that A may depend on B and ensures the evaluation order (B evaluates before A). The arrow is a dependency declaration, not an implicit variable substitution."
+    },
+    {
+      "id": "d",
+      "text": "Coordinate the decision chain at the BPMN level by creating two separate Business Rule Tasks: one for Decision B followed by another for Decision A, passing B's result as a process variable for A to consume. This is a BPMN-level anti-pattern for DMN decision chains: it breaks encapsulation (B's implementation leaks into the BPMN model), prevents the DRD from being a self-contained decision graph, and unnecessarily couples the BPMN flow to the internal structure of the decision model. The correct approach is for the BPMN to invoke only the top-level decision (A); the DRD handles B's evaluation internally."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. DMN's DRD specifies the dependency graph; FEEL references use names declared in the DRD. The engine evaluates dependencies in topological order: when A's evaluation begins, B has already been evaluated (because of the arrow), and B's result is in A's context. A's FEEL body can reference B like any other variable."
+    },
+    "b": {
+      "text": "Incorrect. No invoke() FEEL function; the DRD + name reference is the mechanism."
+    },
+    "c": {
+      "text": "Incorrect. The DRD doesn't auto-substitute; A still must reference B's name in its body. The DRD only declares \"A may use B\"; FEEL provides the use."
+    },
+    "d": {
+      "text": "Incorrect. Multiple Business Rule Tasks for chained decisions is the BPMN-level orchestration anti-pattern when DMN can handle the chain internally. BPMN should invoke the top-level decision; DMN handles upstream dependencies automatically."
+    }
+  },
+  "explanation": "DMN's DRD specifies the dependency graph; FEEL references use names declared in the DRD. The engine evaluates dependencies in topological order: when A's evaluation begins, B has already been evaluated (because of the arrow), and B's result is in A's context. A's FEEL body can reference B like any other variable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-requirements-graph/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q27",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

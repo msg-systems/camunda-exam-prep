@@ -1,0 +1,27 @@
+{
+  "id": "ext-configuration-54",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Harbor Insurance operates a Camunda Spring Boot Starter worker on Camunda 8.8 that handles 4600 jobs per day. The handler must fail the job in a controlled way with a custom error message, three retries, and a 10 seconds retryBackoff, and the team must choose between throwing a BpmnError to trigger a BPMN boundary error and throwing a JobError to drive the broker fail-job command.",
+  "question": "Which CamundaError factory method does the page document for failing a job in a controlled way with retries and retryBackoff?",
+  "options": [
+    { "id": "a", "text": "Call CamundaError.bpmnError with the BPMN error code and the explanation message and rethrow it so the broker translates the throw into a Fail Job API call with the configured retry settings" },
+    { "id": "b", "text": "Call CamundaError.systemError with the message, retries, and retryBackoff and rethrow it so the broker stops the worker and unblocks the process token at the boundary catch event" },
+    { "id": "c", "text": "Call CamundaError.retryError with the message and retryBackoff and rethrow it so the broker reschedules the job in the worker queue after the configured backoff duration elapses" },
+    { "id": "d", "text": "Call CamundaError.jobError with errorMessage, variables, retries, retryBackoff, and cause and rethrow it so the SDK calls the Fail Job API with the documented parameters" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. CamundaError.bpmnError throws a BpmnError to raise a BPMN error event, which is a business-level signal and is distinct from failing the job with retries and retryBackoff." },
+    "b": { "text": "Incorrect. There is no CamundaError.systemError factory documented; the controlled-fail path uses CamundaError.jobError with errorMessage, variables, retries, retryBackoff, and cause." },
+    "c": { "text": "Incorrect. CamundaError.retryError is not part of the documented API; the documented call is CamundaError.jobError, which takes retries and retryBackoff as parameters." },
+    "d": { "text": "Correct. The docs document CamundaError.jobError with five parameters errorMessage, variables, retries (default job.getRetries() minus one), retryBackoff (default PT0S), and cause, and note the SDK then calls the Fail Job API." }
+  },
+  "explanation": "To fail a job in a controlled way the handler throws CamundaError.jobError(errorMessage, variables, retries, retryBackoff, cause). The SDK then calls the Fail Job API; retries defaults to job.getRetries() minus one and retryBackoff defaults to PT0S.",
+  "docs": [
+    { "title": "Camunda Spring Boot Starter configuration", "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/" }
+  ]
+}

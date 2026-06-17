@@ -1,0 +1,63 @@
+{
+  "id": "imp-set13-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A compensation handler refund-card (Service Task) itself fails -- the refund API is down. The team wonders what happens when a compensation handler errors out.",
+  "question": "What happens when a Compensation Handler fails?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Handler skipped, cascade continues -- wrong; failure handled."
+    },
+    {
+      "id": "b",
+      "text": "All compensation is aborted when a handler fails -- partial; the actual behavior depends on the error handling configured for the failing handler. Compensation handlers are regular BPMN activities subject to standard error handling rules. If the handler has a configured Error Boundary Event, the error may be caught and handled locally within the compensation cascade. If uncaught, the compensation cascade pauses at the failing handler as an Incident, not necessarily aborting all compensation. Subsequent handlers in reverse order do not execute until the failing one is resolved."
+    },
+    {
+      "id": "c",
+      "text": "Compensation handler failure typically propagates as an Incident -- the compensation cascade pauses at the failing handler; the instance is in an incident state. Ops can fix the underlying issue (for example, restore the refund API, correct configuration) and then resolve the Incident to retry the handler. Alternatively, ops can update process variables if the failure was caused by bad data, then retry. The compensation cascade resumes from the paused handler and continues executing remaining handlers in reverse-completion order. Best practice: design compensation handlers with retry logic and idempotency to withstand transient failures."
+    },
+    {
+      "id": "d",
+      "text": "The process automatically restarts compensation from the beginning when a handler fails -- wrong; restarting from the beginning would re-execute already-completed compensation handlers, causing duplicate compensation actions (double refunds, duplicate rollbacks). Camunda's compensation model tracks which handlers have completed in the cascade. When a handler fails, the cascade pauses at exactly that handler. Only the failing handler needs to be retried after the issue is resolved -- previously completed compensation remains in effect and is not repeated."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Compensation handlers are regular activities (Service Tasks, Subprocesses, etc.); their failures follow standard error / incident handling: Failure flow: 1. Compensation throw triggers cascade. 2. Engine invokes Compensation Handler for completed activity. 3. Handler (Service Task) fails -- worker reports error / fail. 4. Standard error handling applies: retries (per task definition), Error Boundary on handler if any, Incident if uncaught. Implications: Cascade paused: until the failing handler is resolved, subsequent handlers in the cascade don't execute. Partial rollback state: some compensations done, others pending → system in inconsistent state until resolved. Best practices for reliable compensation handlers: Idempotency: handlers may run multiple times (retries); design to be safe. Retries with backoff: configure handler's task retries for transient errors. Fallback strategies: if primary refund API down, fall back to manual queue / alternate provider. Monitoring: alert on compensation handler incidents -- these indicate serious issues. Test failure modes: in dev, simulate handler failures; verify ops procedures. Edge cases: Nested compensation: handler invoking compensation throw inside itself? Verify Zeebe version's behavior. Multiple completed activities to compensate: cascade order is reverse-completion; failure pauses at the failing one. Compensation handlers warrant the same rigor as primary path logic -- perhaps more so, since they're recovery logic."
+    },
+    "b": {
+      "text": "Incorrect. Failure handled."
+    },
+    "c": {
+      "text": "Correct. Depends."
+    },
+    "d": {
+      "text": "Incorrect. Incorrect."
+    }
+  },
+  "explanation": "Depends.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q05",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 10.6 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

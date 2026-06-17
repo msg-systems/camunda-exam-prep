@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's Java Job Worker (built with Camunda Spring Boot Starter -- the canonical 8.8 framework that replaces the deprecated Spring Zeebe SDK per Pattern #18) processes claims via a Service Task. The worker's @JobWorker method takes a couple of minutes on average to call out to a slow downstream legacy system. Recently, ops noticed that some jobs are being processed twice -- the legacy system has internal deduplication so business-impact is low, but the logs show duplicate worker invocations for the same jobKey. The worker's timeout is set to default (5 minutes). The team checks worker logs: the duplicated invocations are spaced about 5 minutes apart -- the first invocation, then 5 minutes later a second invocation for the same job, even though the worker completed the job successfully between them.",
+  "question": "What is the most likely cause?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda Spring Boot Starter has a bug where it sometimes re-invokes the same @JobWorker method twice. Upgrade the library. The Camunda Spring Boot Starter does not have this systematic double-invocation bug. The duplicate invocation pattern described -- spaced exactly 5 minutes apart, matching the default job timeout -- is a textbook example of Zeebe's at-least-once delivery behaviour, not a library defect. The library correctly implements the job lifecycle by activating jobs, calling the @JobWorker method, and completing the job -- but if completion takes longer than the timeout, Zeebe itself re-activates the job as designed. Upgrading the library would not address the root cause."
+    },
+    {
+      "id": "b",
+      "text": "Zeebe creates a duplicate job in the broker when the worker's completeJob ACK doesn't arrive within 100 ms. Tune ACK timeout. This describes a fictional mechanism. There is no 100 ms ACK timeout in Zeebe's job completion semantics. When a worker calls completeJob, Zeebe processes the command via the append-only event log and returns a success response when the job completion record is committed. The job lock timeout (configured as the worker's timeout property) is the relevant timing parameter -- it determines how long a job stays locked to a worker before Zeebe re-activates it for another worker pick-up."
+    },
+    {
+      "id": "c",
+      "text": "The legacy system is sending duplicate webhooks back to Camunda, triggering the same process twice. Investigate the legacy system. The scenario describes worker invocations being duplicated (the same @JobWorker method being called twice for the same jobKey), not process instances being started twice. Webhook duplicates would create new process instances or correlate new messages -- they would not cause the same existing job to be processed twice by the worker. The 5-minute gap between invocations is also a strong discriminating signal: webhook retries typically happen in seconds to minutes at variable intervals, not at a fixed 5-minute interval that coincides exactly with the default job timeout."
+    },
+    {
+      "id": "d",
+      "text": "The worker's job processing takes longer than the timeout for a small fraction of jobs (network spike, GC pause, JVM hiccup). When the timeout expires, Zeebe re-activates the job, sending it to another worker (or the same worker again) which causes the duplicate invocation. Increase timeout or implement idempotency. The 5-minute gap between duplicate invocations is the definitive diagnostic clue: it matches the default job timeout exactly. 9 call duration (ensuring Zeebe doesn't re-activate until after the worker can reasonably be expected to have responded), and implement idempotency in the worker so that even if re-activation happens, processing the same job twice produces the same business outcome."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. This is the at-least-once delivery behaviour of Zeebe: when a worker activates a job, it holds a lock for the configured timeout. If the worker doesn't call completeJob or failJob within that window, Zeebe re-activates the job so it can be picked up -- possibly by the same worker. The \"5 minutes apart\" pattern matches the default 5-minute timeout exactly -- strong signal that the original processing exceeded the lock duration. The fix is to set timeout longer than P99.9 processing time AND implement idempotency in the worker or downstream."
+    },
+    "b": {
+      "text": "Incorrect. Camunda Spring Boot Starter does not have this bug; the duplicate-invocation pattern is Zeebe's documented at-least-once delivery, not a library defect."
+    },
+    "c": {
+      "text": "Incorrect. ACK timeout is not 100 ms; complete-job ACK semantics are different from job lock expiry."
+    },
+    "d": {
+      "text": "Correct. The scenario specifies the worker's invocations are duplicated, not that new process instances are starting."
+    }
+  },
+  "explanation": "The scenario specifies the worker's invocations are duplicated, not that new process instances are starting.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q42",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

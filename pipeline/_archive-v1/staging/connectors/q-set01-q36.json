@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team migrating a Camunda 8 self-managed (SM) deployment from version 8.7 to 8.8 reads in the upgrade notes that Connector secret resolution differs between SM and SaaS. In SaaS, secrets are configured via the Console UI; in SM, the team has been using environment variables on the Connector runtime container. After the 8.8 upgrade, an Outbound Connector's reference {{secrets.DB_PASSWORD}} fails with \"secret not found\". The team checks the Connector runtime container's environment -- the DB_PASSWORD env var is set correctly. They check the BPMN -- the placeholder syntax is correct. Yet the Connector cannot resolve the secret at runtime.",
+  "question": "What is the canonical Self-Managed Connector secret configuration model and the likely cause?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Self-Managed only supports secrets via Kubernetes Secrets, not environment variables. md:288, environment variables are supported as secret sources out of the box without any additional configuration. Kubernetes Secrets is an optional additional provider, not the exclusive one. The claim that env vars are unavailable is a fabricated restriction."
+    },
+    {
+      "id": "b",
+      "text": "Connector secret references must be prefixed with env. DB_PASSWORD}}. This is a fabricated placeholder syntax. NAME}} -- the same format in both environments. X}} syntax, no platform-specific prefix, and no need to change the BPMN XML when migrating between SaaS and SM. NAME}} to their respective storage backends transparently."
+    },
+    {
+      "id": "c",
+      "text": "DB_PASSWORD}} SHOULD resolve DB_PASSWORD env var directly. g. SUPER_SECRETS_DB_PASSWORD, (3) the default provider was disabled via CAMUNDA_CONNECTOR_SECRETPROVIDER_ENVIRONMENT_ENABLED=false (per :302), or (4) tenant-aware mode is on (CAMUNDA_CONNECTOR_SECRETPROVIDER_ENVIRONMENT_TENANTAWARE=true per :304) so the actual env var name expected is ${tenantId}_DB_PASSWORD."
+    },
+    {
+      "id": "d",
+      "text": "Self-Managed requires CAMUNDA_CONNECTOR_SECRETS_PROVIDER=ENVIRONMENT to be set. Without it the runtime defaults to a non-functional provider. This environment variable name is fabricated. md:288-304, the real configuration variables are: CAMUNDA_CONNECTOR_SECRETPROVIDER_ENVIRONMENT_ENABLED (to disable the default env-var provider), CAMUNDA_CONNECTOR_SECRETPROVIDER_ENVIRONMENT_PREFIX (to require a name prefix), and CAMUNDA_CONNECTOR_SECRETPROVIDER_ENVIRONMENT_TENANTAWARE (for multi-tenant setups). The env-var provider is active by default -- no activation variable is needed."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per connectors-configuration.md:288 verbatim \"By default, all environment variables can be used as connector secrets.\" The default provider is enabled by default and reads any env var. The four diagnostic axes for \"env var is set but secret-not-found\" are exactly the ones listed: process-level isolation (wrong container), prefix scoping, explicit disable, tenant-awareness -- each documented per :294-321. Pattern #70 from project history confirms this."
+    },
+    "b": {
+      "text": "Incorrect. SM supports multiple providers (env, Kubernetes Secrets, custom); the default is env-var-based and is enabled out of the box."
+    },
+    "c": {
+      "text": "Correct. The placeholder syntax {{secrets.NAME}} is unified across SaaS and SM. There is no env. prefix."
+    },
+    "d": {
+      "text": "Incorrect. CAMUNDA_CONNECTOR_SECRETS_PROVIDER is NOT a documented variable. The real env vars per connectors-configuration.md:300-304 are CAMUNDA_CONNECTOR_SECRETPROVIDER_ENVIRONMENT_ENABLED / _PREFIX / _TENANTAWARE (note: SECRETPROVIDER not SECRETS_PROVIDER, and they configure the env-var provider's behaviour -- they don't select a different provider)."
+    }
+  },
+  "explanation": "The placeholder syntax {{secrets.NAME}} is unified across SaaS and SM. There is no env. prefix.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/components/connectors/connectors-configuration/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q36",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

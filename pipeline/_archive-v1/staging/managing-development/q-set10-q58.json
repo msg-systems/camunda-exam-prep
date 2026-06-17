@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team plans a Camunda 8 Self-Managed cluster for production. Estimated load: 100 process instances / second sustained, peak 500 / second. They wonder about cluster sizing.",
+  "question": "What considerations drive Camunda 8 cluster sizing?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A single Zeebe broker node can handle any production workload including 500 process instances per second peak because Zeebe is designed to scale vertically -- this description does not reflect the actual behaviour. Single-broker configurations lack high availability: any broker restart or failure halts all processing. For production workloads requiring fault tolerance, a minimum of three brokers with replication factor 3 is standard. High-throughput scenarios also benefit from multiple partitions distributed across multiple brokers for horizontal scalability."
+    },
+    {
+      "id": "b",
+      "text": "Cluster configuration has no significant impact on Camunda 8 performance -- any cluster handles any workload given sufficient time -- this description does not reflect the actual behaviour. Cluster configuration critically affects throughput capacity, latency, availability, and cost. The number of Zeebe partitions determines parallel processing capacity; replication factor affects fault tolerance and write latency; Elasticsearch cluster sizing determines query performance and storage costs. Under-provisioned clusters produce backlogs, high latency, and potential data loss."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 Self-Managed cannot handle production workloads at scale and is only suitable for small development environments -- this description does not reflect the actual behaviour. Self-Managed Camunda 8 deployments run in production at enterprise scale. Large organisations deploy multi-broker Zeebe clusters with hundreds of partitions handling millions of process instances. The Kubernetes-based deployment with Helm charts supports horizontal scaling of all components. Self-Managed provides more configuration flexibility than SaaS for specific sizing requirements."
+    },
+    {
+      "id": "d",
+      "text": "md); (2) Operate / secondary storage (ES / OS / RDBMS per self-managed/concepts/secondary-storage/) -- instance volume × retention determines storage / cluster size; (3) Tasklist / Web Modeler -- typically lighter; sized for concurrent users; (4) Connector Runtime -- sized for concurrent Connector executions; (5) Network / storage: throughput, latency. Camunda publishes reference sizings; for production start with reference + load-test with representative workloads."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Production cluster sizing for Camunda 8 SM is multi-faceted: Zeebe brokers: Partitions: 100/s sustained might fit in 1-2 partitions; 500/s peak might need 4+. More partitions = more parallelism but also more replication overhead. Replication factor: 3 typical for fault tolerance. Broker count: at least replicationFactor brokers; for partition / leadership balance, more. Operate / Elasticsearch: Indexes grow with instance volume × variable size × retention duration. 500/s × seconds in retention period × variables-per-instance × ~bytes-per-variable = rough storage estimate. ES cluster sizing: master nodes + data nodes + shards; depends on query latency requirements. Tasklist / Web Modeler: Typically smaller; sized for concurrent users (modeling sessions, task assignees). Connector Runtime: Concurrent Connector executions / external API call latency / number of subscriptions. Reference + load-test: Camunda publishes reference sizings for various tiers (small / medium / large). For accurate sizing, load-test with representative workloads and measure. Provision with headroom for growth + traffic spikes. Other considerations: network bandwidth, disk I/O (Zeebe is write-heavy), CPU / memory per component."
+    },
+    "b": {
+      "text": "Incorrect. HA + scale need multiple brokers."
+    },
+    "c": {
+      "text": "Incorrect. Sizing critical."
+    },
+    "d": {
+      "text": "Correct. SM scales."
+    }
+  },
+  "explanation": "SM scales.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/zeebe/technical-concepts/clustering/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q58",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

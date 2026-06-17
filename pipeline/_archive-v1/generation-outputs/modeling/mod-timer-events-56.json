@@ -1,0 +1,27 @@
+{
+  "id": "mod-timer-events-56",
+  "topic": "modeling",
+  "subtopic": "timer-events",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Energy bills 250000 customers per month in Camunda 8.8. While a meter reading user task is open, the team wants the process to send a reminder every 24 hours up to 3 times without cancelling the user task, after which the reminders must stop while the user task itself remains active for completion.",
+  "question": "Which timer definition on a non-interrupting boundary event sends a reminder every 24 hours for a maximum of three iterations?",
+  "options": [
+    { "id": "a", "text": "A time cycle definition of R3/PT24H on a non-interrupting boundary timer that reschedules itself after each firing until three repetitions have been reached and then stops scheduling" },
+    { "id": "b", "text": "A time duration definition of PT24H on a non-interrupting boundary timer that reschedules itself every 24 hours indefinitely until the attached user task is completed by the assignee" },
+    { "id": "c", "text": "A time cycle definition of R3/PT24H on an interrupting boundary timer that triggers the reminder branch and cancels the meter reading user task after the third iteration fires" },
+    { "id": "d", "text": "A time date definition that points at a single instant 24 hours after activation on a non-interrupting boundary timer that fires three reminder events from that single date value" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. A non-interrupting boundary timer defined with a time cycle and repetitions greater than zero reschedules itself after each firing until the defined number of repetitions is reached, so R3/PT24H gives three reminders without cancelling the attached user task." },
+    "b": { "text": "Incorrect. A non-interrupting timer boundary event defined with a time duration triggers only a single time once the date is reached; it does not reschedule itself for further reminders." },
+    "c": { "text": "Incorrect. Interrupting boundary timers terminate the attached activity when they fire, so the meter reading user task would be cancelled rather than left active for the assignee." },
+    "d": { "text": "Incorrect. A time date definition points at a single instant rather than a repeating schedule, so it cannot produce three separate reminder events on the boundary event." }
+  },
+  "explanation": "Non-interrupting timer boundary events accept a duration, a cycle, or a date. Only the time cycle with repetitions greater than zero reschedules itself until the configured number of repetitions has fired, so R3/PT24H is the documented pattern for three reminders while the attached activity stays active.",
+  "docs": [
+    { "title": "BPMN timer events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/" }
+  ]
+}

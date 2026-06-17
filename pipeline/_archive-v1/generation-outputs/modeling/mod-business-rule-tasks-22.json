@@ -1,0 +1,27 @@
+{
+  "id": "mod-business-rule-tasks-22",
+  "topic": "modeling",
+  "subtopic": "business-rule-tasks",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Polaris Logistics models a shipping decision in Camunda 8.8 for 7000 shipments per day. The team writes BPMN XML by hand and needs the business rule task to call a deployed DMN decision named shipping_box_size and merge the outcome into a variable called boxSize, without specifying a binding type so that the latest deployed decision version is used by default.",
+  "question": "Which XML snippet inside the business rule task correctly configures the called decision in Camunda 8?",
+  "options": [
+    { "id": "a", "text": "A zeebe:calledElement child element with processId set to shipping_box_size and resultVariable set to boxSize is placed inside the extension elements" },
+    { "id": "b", "text": "A zeebe:taskDefinition child element with type set to shipping_box_size and resultVariable set to boxSize is placed inside the extension elements" },
+    { "id": "c", "text": "A zeebe:taskHeaders child element with decisionId set to shipping_box_size and resultVariable set to boxSize is placed inside the extension elements" },
+    { "id": "d", "text": "A zeebe:calledDecision child element with decisionId set to shipping_box_size and resultVariable set to boxSize is placed inside the extension elements" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The zeebe:calledElement element is used by call activities to reference another BPMN process by processId. It does not configure a DMN decision call from a business rule task." },
+    "b": { "text": "Incorrect. The zeebe:taskDefinition element configures a job worker implementation. Its type attribute names a job type rather than a DMN decision identifier." },
+    "c": { "text": "Incorrect. The zeebe:taskHeaders element passes static key-value parameters to job workers. It does not declare decisionId or resultVariable for a DMN call." },
+    "d": { "text": "Correct. The zeebe:calledDecision element with decisionId and resultVariable is the documented XML pattern for a business rule task that evaluates a deployed DMN decision." }
+  },
+  "explanation": "When a business rule task evaluates a deployed DMN decision, the XML uses a zeebe:calledDecision child element under bpmn:extensionElements. The decisionId and resultVariable attributes wire the BPMN element to the deployed decision and the result variable.",
+  "docs": [
+    { "title": "BPMN business rule tasks", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/" }
+  ]
+}

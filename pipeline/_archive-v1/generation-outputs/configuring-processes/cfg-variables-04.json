@@ -1,0 +1,27 @@
+{
+  "id": "cfg-variables-04",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Insurance starts a process instance carrying a JSON quote document averaging 1.6 MB per request across 4000 policies per day in Camunda 8.8. Operations is sizing the payload conservatively and wants to know the documented safety guidance for variable payload size in commands or events that include variables.",
+  "question": "What is the rule-of-thumb safe variable payload size for commands or events in Camunda 8.8?",
+  "options": [
+    { "id": "a", "text": "Approximately 4 MB per command, matching the hard payload limit, and the broker never appends follow-up records that duplicate the variable payload" },
+    { "id": "b", "text": "Approximately 1.5 MB per command or event, leaving headroom for follow-up records that the engine may append to temporarily duplicate the variable payload" },
+    { "id": "c", "text": "Approximately 256 KB per command, matching the gateway request quota documented for Zeebe ingress traffic shaping applied across the cluster" },
+    { "id": "d", "text": "Approximately 8 MB per command, doubling the 4 MB hard limit thanks to internal compression applied to the variable payload at submission time" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. 4 MB is the absolute payload limit including engine-internal data, not a safe rule of thumb. The docs explicitly warn that less than 4 MB is available for variables alone and that the broker may append follow-up records within the same batch." },
+    "b": { "text": "Correct. The documentation states that approximately 1.5 MB is considered safe for commands or events that include variables, given that the engine may append follow-up records that temporarily duplicate the variable payload within the same batch." },
+    "c": { "text": "Incorrect. There is no 256 KB gateway quota documented as the safe payload size for variables. The rule-of-thumb safety threshold cited in the variables concept page is approximately 1.5 MB per command or event." },
+    "d": { "text": "Incorrect. The documented payload limit is 4 MB and there is no doubling via compression. Operators should target around 1 MB and validate with a production-like test case to stay comfortably below the effective limit." }
+  },
+  "explanation": "The process instance payload is limited to 4 MB total, including engine-internal data. As a rule of thumb, approximately 1.5 MB is considered safe for commands or events that include variables, because the engine may append follow-up records that temporarily duplicate the payload within the same batch. Operators should target around 1 MB and validate under production-like load.",
+  "docs": [
+    { "title": "Variables", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+  ]
+}

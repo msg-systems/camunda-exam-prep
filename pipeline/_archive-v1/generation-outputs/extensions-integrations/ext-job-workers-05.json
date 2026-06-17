@@ -1,0 +1,27 @@
+{
+  "id": "ext-job-workers-05",
+  "topic": "extensions-integrations",
+  "subtopic": "Job streaming internals",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Marketplace deploys 24 Camunda 8.8 job workers behind 3 gateways serving 18000 jobs per hour for the shipment-prepare type. The platform engineer wants gateway aggregation of streams to actually coalesce these workers into one aggregated stream per broker so load is evenly distributed across gateways and the network footprint stays small.",
+  "question": "Which set of attributes must match across worker streams for Camunda 8.8 gateways to treat them as logically equivalent?",
+  "options": [
+    { "id": "a", "text": "Two streams are logically equivalent when they share the same job type, the same tenant id, the same activation timeout, and the same maxJobsActive value declared on the worker builder" },
+    { "id": "b", "text": "Two streams are logically equivalent when they share the same job type, the same worker name, the same poll interval, and the same fetch variables list declared on the worker builder" },
+    { "id": "c", "text": "Two streams are logically equivalent when they share the same job type, the same worker name, the same job activation timeout, and the same fetch variables list declared on the worker builder" },
+    { "id": "d", "text": "Two streams are logically equivalent when they share the same job type, the same gateway endpoint, the same activation timeout, and the same fetch variables list declared on the worker builder" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Camunda 8.8 documents tenant id and maxJobsActive as separate concerns from stream equivalence; logical equivalence is determined by job type, worker name, activation timeout, and fetch variables." },
+    "b": { "text": "Incorrect. Poll interval is not part of the documented stream equivalence criteria for Camunda 8.8 gateways; the documented attributes are job type, worker name, job activation timeout, and fetch variables." },
+    "c": { "text": "Correct. Camunda 8.8 documents two streams as logically equivalent when they target the same job type, share the same worker name, the same job activation timeout, and the same fetch variables; gateways aggregate such streams across brokers." },
+    "d": { "text": "Incorrect. Gateway endpoint is a client connection detail and is not part of logical equivalence; the documented attributes are job type, worker name, job activation timeout, and fetch variables." }
+  },
+  "explanation": "Camunda 8.8 gateways aggregate logically equivalent streams and register each aggregated stream to every broker. Two streams are logically equivalent when they target the same job type, share the same worker name, the same job activation timeout, and the same fetch variables.",
+  "docs": [
+    { "title": "Job workers", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+  ]
+}

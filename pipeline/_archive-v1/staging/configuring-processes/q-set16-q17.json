@@ -1,0 +1,69 @@
+{
+  "id": "imp-set16-q17",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Inbound Connector receives 1000 events/day; only 5% are relevant. Team wonders filtering before correlating.",
+  "question": "Inbound Connector activation condition?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Inbound Connectors in Camunda 8 support an activationCondition property -- a FEEL expression evaluated against the incoming event payload before any process action occurs. When the expression evaluates to true, the Connector correlates the event to Camunda (starting a process instance or triggering a message). When it evaluates to false, the event is silently discarded with no correlation. This upstream filter prevents unnecessary process instantiations. type = \"order_placed\" passes only relevant order events, while all others (shipment updates, payment confirmations) are dropped before reaching the engine."
+    },
+    {
+      "id": "b",
+      "text": "Inbound Connectors support activationCondition -- a FEEL expression evaluated against each incoming event before correlation. When the expression returns true, the Connector forwards the event to Camunda, triggering process instantiation or message correlation. When it returns false, the event is discarded with no engine activity. This server-side filter runs in the Connector Runtime layer, preventing 950 irrelevant daily events (out of 1000) from ever entering Zeebe. amount > 100. This reduces engine load, keeps Operate clean, and avoids creating thousands of trivially short process instances."
+    },
+    {
+      "id": "c",
+      "text": "Filter in BPMN -- this is only partially correct. , an XOR Gateway checking event type after correlation), this approach is significantly less efficient than using the activationCondition on the Inbound Connector. BPMN-level filtering requires the event to be correlated first, creating a process instance for each of the 1000 daily events, of which 950 would immediately end. This wastes engine resources, clutters Operate with thousands of short-lived instances, and increases operational noise. The activationCondition approach filters at the Connector layer before any process instantiation occurs."
+    },
+    {
+      "id": "d",
+      "text": "Source must filter -- this is only partially correct. While it is possible to filter events at the source system before publishing to the Inbound Connector, this is not always feasible or desirable. Source systems may not support filtering by all criteria, may be third-party services with limited configuration, or may need to publish events for multiple consumers with different filtering requirements. The activationCondition on the Inbound Connector provides a dedicated, process-specific filtering mechanism that does not require changes to the source system and can be configured independently per Connector deployment."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Inbound Connector filtering: activationCondition (typical): FEEL expression evaluated against incoming event. true: correlation proceeds. false: event ignored; no process activity. Configuration: `xml 100\" /> Verify exact configuration per Connector / version. Use cases: Type filter: feel =event.type in [\"order_placed\", \"order_updated\"] Only specific event types trigger. Region filter: feel =event.customer.country = \"DE\" EU-only events. Value filter: feel =event.amount > 1000 Large transactions only. Compound: feel =event.type = \"order_placed\" and event.amount > 100 and event.region = \"EU\" Negative filter: feel =not(event.type in [\"test\", \"debug\"]) Exclude noise. Benefits of upstream filtering: Performance: Filter at Connector layer. Don't activate process for irrelevant events. Reduce Camunda load. For high-volume sources: 1000 events/day, 5% relevant: only 50 correlate. 950 discarded at Connector layer. Camunda processes only 50. Alternative: BPMN-level filter: All events correlate; BPMN gateway filters. Wasteful: 1000 process instances; 950 end immediately. Higher cluster load. Operate clutter: many short-lived instances. activationCondition better: filter before BPMN. For complex filtering logic: Pattern 1: Simple FEEL: One-line condition. Most cases. Pattern 2: Multi-step filter: Use activationCondition for primary filter. Additional logic in process: secondary checks. Pattern 3: Pre-Camunda gateway: Custom service filters; calls Camunda only for relevant. More complex but maximum control. For Webhook Inbound: Auth + activationCondition combined. Reject early: malformed or irrelevant. For Kafka Inbound: Topic-level filtering in subscription. activationCondition for event-level. For polling Inbound (per Set 15 Q34): Filter polled data via activationCondition. Don't process all polled records. For correlation key + activation: correlationKey extracted regardless of activation. activationCondition: yes/no for correlation. Edge cases: Missing fields: feel =if event.type != null then event.type = \"order_placed\" else false Defensive against missing data. Null safety (per Set 15 Q40): Defensive checks before field access. For testing: Test activationCondition logic: with sample events. Verify: only intended events activate. Monitoring: Activation rate: how many events pass. Discard rate: how many filtered. Adjust condition: tune. For business rule changes: Update activationCondition: redeploy Connector. No code change to source system. Best practices: Use activationCondition for early filtering. Combine with correlation key: targeting + filtering. Test edge cases: missing fields, malformed events. Monitor: activation / discard rates. Anti-patterns: No filtering: high cluster load. Over-complex condition: hard to maintain. No null safety: errors on malformed events. For the scenario (5% relevant out of 1000): activationCondition` filters out 95%. Camunda processes only 50/day. Efficient + clean."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/inbound/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q17",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[2]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[3]"
+      }
+    ]
+  }
+}

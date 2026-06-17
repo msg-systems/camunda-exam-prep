@@ -1,0 +1,50 @@
+{
+  "id": "cfg-variables-10",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "hard",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A service task completes with the job variables `status` and `transactionId`. The task defines exactly one output mapping with `source: =status` and `target: paymentStatus`. Assuming neither variable existed before, which variables exist in the parent scope after the task completes?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only `paymentStatus` — `transactionId` has no output mapping, so it is not merged into the parent scope."
+    },
+    {
+      "id": "b",
+      "text": "Both `paymentStatus` and `transactionId` are merged into the parent scope."
+    },
+    {
+      "id": "c",
+      "text": "Both `status` and `paymentStatus` — the original `status` is also propagated alongside the mapped variable."
+    },
+    {
+      "id": "d",
+      "text": "An incident is raised because not every result variable has a corresponding output mapping."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state that when one or more output mappings are defined, result variables are set as local variables in the task scope, the output mappings are applied to create new variables, and only those mapped variables are merged into the parent scope. Variables with no mapping are not merged."
+    },
+    "b": {
+      "text": "Once any output mapping exists, only mapped variables are merged. `transactionId` has no mapping and stays as a local variable on the task scope, which is discarded when the scope is left."
+    },
+    "c": {
+      "text": "With an output mapping defined, the original `status` variable lives as a local variable on the task scope and is not propagated; only the mapped `paymentStatus` is merged into the parent."
+    },
+    "d": {
+      "text": "Partial mapping is allowed and explicitly documented. The docs even note that this can lead to a case where some variables are merged and others are not."
+    }
+  },
+  "explanation": "If one or more output mappings are defined on an activity, result variables are first set as local variables in the activity scope, then the mappings produce new variables that are merged into the parent scope. Result variables without a corresponding mapping stay local and are dropped when the scope is left.",
+  "docs": [
+    {
+      "title": "Variables",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ]
+}

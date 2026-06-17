@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A None Start Event accepts incoming data. The team wants to transform / enrich the data at the Start Event -- not in the calling API, not in a Service Task -- but right at instance entry. They wonder if Start Events support Output Mapping (not just Input).",
+  "question": "Do Start Events support Output Mapping (in addition to Input Mapping)?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Output Mapping at Start Event doesn't apply the same way as on Service Tasks. Start Events represent instance entry -- they don't \"produce output\" like a task does. What works at Start Events: - Input Mapping (<zeebe:input>): transforms incoming variables into process scope variables at instance start. Useful for normalisation / defaults / enrichment. - Output Mapping (<zeebe:output>): typically not applicable at None Start (no produced output to map). For Message Start Events, the message's payload becomes the initial variables; Output Mapping could conceptually transform that to process scope, but verify per Zeebe version's specific behavior. For transformations at entry: use Input Mapping at the Start Event (set variables, compute derived values, normalize)."
+    },
+    {
+      "id": "b",
+      "text": "Both Input and Output Mapping are fully supported at Start Events -- partial; the behavior actually varies by event type and context. Input Mapping is clearly meaningful at Start Events because incoming variables need transformation before entering process scope. Output Mapping is less applicable since Start Events do not produce output the way Service Tasks do -- there is no job completion result to map outward. For None Start Events, Output Mapping has no defined output source. For Message Start Events, some Camunda versions allow Output Mapping on the message payload, but the primary transformation mechanism remains Input Mapping."
+    },
+    {
+      "id": "c",
+      "text": "Only Output Mapping is supported at Start Events -- wrong; Input Mapping is the primary and clearly applicable mechanism at Start Events. Input Mapping transforms incoming variables at instance creation time, normalising data, applying defaults, or restructuring nested payloads. It operates on the variables passed when the process instance is created (via API call, message correlation, or timer). Output Mapping at a None Start Event has no conceptual output source to map from, making it inapplicable rather than the primary choice. Confusing these directions leads to incorrect configuration."
+    },
+    {
+      "id": "d",
+      "text": "No mappings of any kind are supported at Start Events -- wrong; Input Mapping is explicitly supported and commonly used. Input Mapping at a Start Event serves as the entry transformation layer for the entire process instance. Teams use it to normalise variable names, apply default values for optional parameters, compute derived fields, and restructure incoming payloads from flat to nested format. Without Input Mapping support at Start Events, every process would need a dedicated first Service Task to perform these transformations, adding unnecessary complexity."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Mapping behavior at Start Events: Input Mapping (clearly applicable): Transforms incoming variables before they land in process scope. Useful for: normalisation (customer_name → customer.fullName), defaults (priority if not provided → \"NORMAL\"), computation (createdAt: now()), restructuring (flat → nested). Output Mapping (less applicable): Start Events don't produce \"outputs\" like tasks -- there's no work happening that yields results to map. For None Start: no concept of output; Output Mapping typically isn't meaningful. For Message Start: the message's payload arrives; could conceptually be transformed via Output Mapping in some configurations, but verify per version. Usually Input Mapping at the Start Event handles transformation. Practical pattern: `xml ` Input Mapping at Start = entry transformation; cleaner than alternative patterns (first Service Task doing transformation, or burdening caller with transformation)."
+    },
+    "b": {
+      "text": "Incorrect. Output less applicable."
+    },
+    "c": {
+      "text": "Incorrect. Option d) -- Wrong."
+    },
+    "d": {
+      "text": "Incorrect. Incorrect."
+    }
+  },
+  "explanation": "Mapping behavior at Start Events: Input Mapping (clearly applicable): Transforms incoming variables before they land in process scope. Useful for: normalisation (customer_name → customer.fullName), defaults (priority if not provided → \"NORMAL\"), computation (createdAt: now()), restructuring (flat → nested). Output Mapping (less applicable): Start Events don't produce \"outputs\" like tasks -- there's no work happening that yields results to map. For None Start: no concept of output; Output Mapping typically isn't meaningful. For Message Start: the message's payload arrives; could conceptually be transformed via Output Mapping in some configurations, but verify per version. Usually Input Mapping at the Start Event handles transformation. Practical pattern: `xml ` Input Mapping at Start = entry transformation; cleaner than alternative patterns (first Service Task doing transformation, or burdening caller with transformation).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

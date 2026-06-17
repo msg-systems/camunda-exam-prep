@@ -1,0 +1,50 @@
+{
+  "id": "ext-configuration-28",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "hard",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A team sets `camunda.client.mode: saas` to pick up Camunda's SaaS preset, but their `application.yml` still contains several legacy or deprecated `camunda.client.*` properties from an earlier upgrade. Per the Modes section, what is the effect?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Any other set property — including legacy and deprecated ones — overrides the defaults applied by the mode, so the leftover properties can silently change behaviour."
+    },
+    {
+      "id": "b",
+      "text": "Mode defaults always win over any other property; legacy and deprecated entries are silently ignored."
+    },
+    {
+      "id": "c",
+      "text": "Spring Boot refuses to start because `mode` is mutually exclusive with any other connectivity property."
+    },
+    {
+      "id": "d",
+      "text": "Both sets are merged at runtime, with the legacy properties ignored if they are deprecated."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The note in the Modes section states explicitly: the defaults applied by the modes are overwritten by any other set property, including legacy/deprecated properties — and tells you to check configuration and logs to avoid unwanted override."
+    },
+    "b": {
+      "text": "The docs warn for exactly the opposite reason — leftover properties take precedence, which is why you have to audit them."
+    },
+    "c": {
+      "text": "The docs do not describe `mode` as mutually exclusive with all other properties; mode coexists with explicit overrides (intended ones like cloud credentials and unintended ones like legacy keys)."
+    },
+    "d": {
+      "text": "Deprecation does not stop a property from overriding the mode default; the docs warn that legacy/deprecated values still override."
+    }
+  },
+  "explanation": "Modes (`saas` / `self-managed`) ship meaningful defaults, but those defaults sit at the bottom of Spring's property precedence. Any explicit property — even a deprecated one left behind from a previous upgrade — overrides the mode default, which can produce unwanted behaviour. The fix is to clean up the YAML and watch the logs.",
+  "docs": [
+    {
+      "title": "Spring Boot Starter configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team wants to add headers (correlation ID, tracing) to all gRPC calls from worker. Wonders gRPC interceptors.",
+  "question": "Java SDK gRPC interceptors?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No interceptors -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "While it is technically possible to add custom headers to individual calls, this approach does not scale for cross-cutting concerns like correlation IDs or distributed tracing headers that must be applied to every outgoing gRPC request. ), which automatically applies the interceptor logic to all gRPC calls including job activation, without touching every individual command."
+    },
+    {
+      "id": "c",
+      "text": "ClientInterceptor interface, which is part of the gRPC Java library, not Camunda-specific. Teams can implement and register any custom interceptors, including OpenTelemetry tracing interceptors, Micrometer metrics interceptors, or custom correlation ID injectors. The builder also accepts AsyncExecChainHandler instances for the Apache HTTP transport used for REST API calls."
+    },
+    {
+      "id": "d",
+      "text": "md:208-220 -- verbatim example registering a Micrometer MetricCollectingClientInterceptor: the builder method withInterceptors(monitoringInterceptor) registers a gRPC ClientInterceptor that intercepts every outgoing gRPC call including ActivateJobsCommand, while withChainHandlers(monitoringHandler) registers an AsyncExecChainHandler for the Apache HTTP transport used for REST API calls. Both interceptors are registered once at client construction time and automatically applied to all subsequent calls, providing cross-cutting concerns like correlation ID injection, distributed tracing, and metrics collection without touching individual command invocations."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. gRPC interceptors: gRPC interceptor concept: Cross-cutting layer between application + gRPC stack. Intercept calls: before sending, after receiving. Add metadata: headers. Modify: not typically; mostly observe + augment. Java implementation: `java public class CorrelationIdInterceptor implements ClientInterceptor { @Override public ClientCall interceptCall( MethodDescriptor method, CallOptions options, Channel next) { return new ForwardingClientCall.SimpleForwardingClientCall<>( next.newCall(method, options)) { @Override public void start(Listener responseListener, Metadata headers) { Metadata.Key corrIdKey = Metadata.Key.of( \"x-correlation-id\", Metadata.ASCII_STRING_MARSHALLER); headers.put(corrIdKey, generateCorrelationId()); super.start(responseListener, headers); } }; } } Adds header to every call. Applying interceptor via CamundaClientBuilder per apis-tools/java-client/job-worker.md:212-220 (verbatim): java public CamundaClientBuilder configureClientMetrics( final CamundaClientBuilder builder, final MeterRegistry meterRegistry, final ObservationRegistry observationRegistry) { final ClientInterceptor monitoringInterceptor = new MetricCollectingClientInterceptor(meterRegistry); final AsyncExecChainHandler monitoringHandler = new ObservationExecChainHandler(observationRegistry); return builder.withInterceptors(monitoringInterceptor).withChainHandlers(monitoringHandler); } Both transports instrumented; all calls intercepted (gRPC ClientInterceptor covers ActivateJobsCommand; Apache AsyncExecChainHandler covers REST). Common interceptor use cases: Use case 1: Logging: java // Log every gRPC call: method, latency, status Use case 2: Tracing: java // OpenTelemetry: propagate trace context Use case 3: Auth: java // Add Bearer token header // SDK's CredentialsProvider handles standard // Custom interceptor for non-standard Use case 4: Metrics: java // Counter per method, latency histogram Use case 5: Retries: java // Retry on specific errors For OpenTelemetry: java ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port) .intercept(GrpcTracing.create(openTelemetry).newClientInterceptor()) .build(); Tracing context propagated. For metrics: java ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port) .intercept(MetricsInterceptor.create(meterRegistry)) .build(); Custom or library-provided. For interceptor chain: Multiple interceptors: java channel.intercept(interceptor1, interceptor2, interceptor3) Applied in order; modular. For server-side interceptors: ServerInterceptor: on Camunda broker side. For Operate API: similar. For Camunda SaaS: Customer has limited access: can't add server interceptors. Client-side: full control. For Self-Managed: Server-side interceptors: possible. Customize broker: advanced. For Camunda Spring Boot Starter (Pattern #54 -- replaces Spring Zeebe SDK as of 8.8): Customize CamundaClient via CamundaClientConfiguration bean wrapping CamundaClientBuilder.withInterceptors(...). Bean for ClientInterceptor: register via Spring + apply during client construction. For TypeScript SDK (Pattern #36 -- @camunda8/sdk): Different API surface: middleware in TS client constructor options; not gRPC-ClientInterceptor based. For REST APIs (per Set 15 Q50): HTTP interceptors: different but analogous. OkHttp / Apache HTTP: standard. For correlation across services: Pattern: trace ID: Generate at entry. Pass through interceptors. Visible in all downstream calls. For distributed tracing: W3C Trace Context: standard headers. Camunda passes through: ideally. For testing interceptors: Unit tests: verify header added. Integration: end-to-end. For performance: Interceptor overhead: minimal typically. Don't do heavy work: in interceptor. For ordering: Tracing first: capture full latency. Auth before tracing: don't trace auth fails. Logging last: capture all events. Best practices: Use for cross-cutting: not business logic. Keep light: minimal overhead. Test thoroughly: subtle bugs. Anti-patterns: Business logic in interceptor: misplaced. Heavy operations: slow down all calls. No tests: silent failures. For the scenario (correlation ID + tracing): ClientInterceptor: adds correlation ID header. OpenTelemetry interceptor: adds tracing. Apply to ZeebeClient channel. For Camunda Spring Boot Starter (Pattern #54): java @Bean public CamundaClientCustomizer correlationIdCustomizer() { return builder -> builder.withInterceptors(new CorrelationIdInterceptor()); } Wire via Spring-aware customizer pattern; the underlying CamundaClientBuilder.withInterceptors(...) API is doc-confirmed per job-worker.md:208-220`."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/#workarounds-for-additional-metrics"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q42",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 25 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 26.5 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set16-q47",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "RPA bot produces artifacts -- screenshots, logs, intermediate files. Team wonders how to manage / retain.",
+  "question": "RPA artifact management?",
+  "options": [
+    {
+      "id": "a",
+      "text": "RPA artifact management patterns: - Bot writes artifacts to local / shared storage. - Storage: typically S3 / blob / file system. - Reference in Camunda: artifact URLs as process variables. - Document Handling (per Set 13 Q14): for documents. - Retention: per privacy / compliance / cost policy. - Per-run organisation: bot ID + timestamp + job key in path."
+    },
+    {
+      "id": "b",
+      "text": "RPA bots regularly produce multiple types of artifacts during execution: screenshots for visual confirmation or debugging, execution logs recording each step's outcome, downloaded data files from target applications, and generated documents like PDFs or reports. Managing these artifacts is a standard concern in RPA orchestration. Ignoring artifacts means losing debugging information when bots fail, audit evidence for compliance requirements, and output documents that downstream process steps may need. Artifact management is a first-class operational concern in enterprise RPA implementations integrated with Camunda."
+    },
+    {
+      "id": "c",
+      "text": "Local only -- this is only partially workable for development but unsuitable for production. Storing artifacts on the bot's local filesystem creates single points of failure, makes artifacts inaccessible after the bot session ends, prevents multiple process instances from accessing the same artifacts, and does not survive bot machine restarts. Production artifact management requires external shared storage (S3, Azure Blob, NFS, or similar) where artifacts are stored with paths organized by job key and timestamp. The artifact URL or path is then passed as a process variable, making it accessible to downstream tasks."
+    },
+    {
+      "id": "d",
+      "text": "Bot must email -- this overstates the integration complexity. While email could be used as a notification mechanism to inform stakeholders of artifact availability, it is an inappropriate primary artifact storage mechanism. Emailing screenshots and log files introduces size limits, security concerns (sensitive automation data in emails), poor searchability, and no programmatic access for downstream process steps. The correct approach is storing artifacts in shared object storage (S3, blob), passing the URL as a process variable, and optionally triggering notifications through appropriate channels as a secondary step."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. RPA artifact handling: Common artifact types: Screenshots: On failure (per Set 13 Q47): debugging. Per step: visual trace. Final state: confirmation. Logs: Bot execution log. Per-step status. Errors / warnings. Intermediate files: Downloaded data. Generated documents. Processed inputs. Final outputs: Generated reports. Confirmation receipts. Storage approaches: Pattern 1: Cloud storage: S3 / Azure Blob / GCS: scalable, durable. Per-run prefix: bots////. Bot uploads: during / after run. Reference URL in process variables. Pattern 2: Local file system: Bot host disk: simple. Cons: not distributed; lost if host fails. Use for transient: not long-term. Pattern 3: Camunda Document Handling: Upload via API: bot calls Camunda Documents. Reference: document ID in process variable. Lifecycle: per Camunda TTL. For documents specifically: best fit. Pattern 4: Hybrid: Logs / screenshots: cloud storage. Business documents: Camunda Documents. Pick storage per artifact type. Retention policy: Drivers: Privacy: PII; minimize. Compliance: regulatory; retain per spec. Cost: storage scales with retention. Debugging: short-term need; longer if patterns analyzed. Typical policies: Screenshots on failure: 30-90 days. Successful run logs: 30 days. Business documents: per business rules. PII: minimize; redact where possible. Implementation: S3 lifecycle rules: auto-delete after N days. Camunda Documents TTL: per upload. Indexing / searchability: For finding artifacts: By bot ID: which bot ran. By job key: which Camunda job. By process instance: which process. By date: when. Path structure: ` s3://rpa-artifacts///// ├─ screenshot-step1.png ├─ screenshot-final.png ├─ bot-log.txt └─ output.csv Indexable from path. In Camunda: Process variable: rpaArtifacts = { folder: \"s3://...\", screenshots: [...], logs: [...] } Operators see artifact URLs. Operate integration: Display artifact URLs: in process instance variables. Click to view: open S3 link. For sensitive data: Redaction: Screenshots may capture PII. Redact before storage or skip on sensitive screens. Access control: S3 bucket policies: restrict access. Signed URLs: time-limited. Audit access: who viewed. For multi-tenant: Per-tenant storage: isolate. Tenant in path: s3://rpa-artifacts//.... For testing: Bot in test mode: separate storage. Don't pollute prod artifacts. For monitoring: Storage usage: track growth. Per-bot artifacts: identify chatty bots. Alert on excessive: tune. Best practices: Structured paths: searchable. Reference in Camunda: visibility. Retention policy: balance cost / debugging. Access control: protect sensitive. Audit access: log views. For audit: Tamper-evident storage: write-once where possible. Compliance archives: long-term storage. Anti-patterns: Unbounded retention: storage explosion. No reference in Camunda: lost artifacts. Local-only storage: lost on host failure. Public buckets: data exposure. For the scenario (manage / retain artifacts): 1. Decide storage: cloud preferred for production. 2. Structure paths: bot / job / timestamp. 3. Reference in process variables. 4. Set retention: per policy. 5. Monitor usage. For specific tools: Robot Framework: built-in screenshot keyword. Selenium: take_screenshot. Each framework: own conventions. For Camunda 8 RPA specifics (per rpa/overview.md, rpa/production.md): No built-in artifact storage shipped with the RPA worker -- handle externally (cloud blob / Document Handling per components/concepts/document-handling.md). rpa-worker.properties exposes secrets endpoint (:26) and Python extras (:82-83`) but no artifact-store config. Retention is application-level (S3 lifecycle / Camunda Documents TTL), not an RPA feature."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "RPA artifact handling: Common artifact types: Screenshots: On failure (per Set 13 Q47): debugging. Per step: visual trace. Final state: confirmation. Logs: Bot execution log. Per-step status. Errors / warnings. Intermediate files: Downloaded data. Generated documents. Processed inputs. Final outputs: Generated reports. Confirmation receipts. Storage approaches: Pattern 1: Cloud storage: S3 / Azure Blob / GCS: scalable, durable. Per-run prefix: bots////. Bot uploads: during / after run. Reference URL in process variables. Pattern 2: Local file system: Bot host disk: simple. Cons: not distributed; lost if host fails. Use for transient: not long-term. Pattern 3: Camunda Document Handling: Upload via API: bot calls Camunda Documents. Reference: document ID in process variable. Lifecycle: per Camunda TTL. For documents specifically: best fit. Pattern 4: Hybrid: Logs / screenshots: cloud storage. Business documents: Camunda Documents. Pick storage per artifact type. Retention policy: Drivers: Privacy: PII; minimize. Compliance: regulatory; retain per spec. Cost: storage scales with retention. Debugging: short-term need; longer if patterns analyzed. Typical policies: Screenshots on failure: 30-90 days. Successful run logs: 30 days. Business documents: per business rules. PII: minimize; redact where possible. Implementation: S3 lifecycle rules: auto-delete after N days. Camunda Documents TTL: per upload. Indexing / searchability: For finding artifacts: By bot ID: which bot ran. By job key: which Camunda job. By process instance: which process. By date: when. Path structure: ` s3://rpa-artifacts///// ├─ screenshot-step1.png ├─ screenshot-final.png ├─ bot-log.txt └─ output.csv Indexable from path. In Camunda: Process variable: rpaArtifacts = { folder: \"s3://...\", screenshots: [...], logs: [...] } Operators see artifact URLs. Operate integration: Display artifact URLs: in process instance variables. Click to view: open S3 link. For sensitive data: Redaction: Screenshots may capture PII. Redact before storage or skip on sensitive screens. Access control: S3 bucket policies: restrict access. Signed URLs: time-limited. Audit access: who viewed. For multi-tenant: Per-tenant storage: isolate. Tenant in path: s3://rpa-artifacts//.... For testing: Bot in test mode: separate storage. Don't pollute prod artifacts. For monitoring: Storage usage: track growth. Per-bot artifacts: identify chatty bots. Alert on excessive: tune. Best practices: Structured paths: searchable. Reference in Camunda: visibility. Retention policy: balance cost / debugging. Access control: protect sensitive. Audit access: log views. For audit: Tamper-evident storage: write-once where possible. Compliance archives: long-term storage. Anti-patterns: Unbounded retention: storage explosion. No reference in Camunda: lost artifacts. Local-only storage: lost on host failure. Public buckets: data exposure. For the scenario (manage / retain artifacts): 1. Decide storage: cloud preferred for production. 2. Structure paths: bot / job / timestamp. 3. Reference in process variables. 4. Set retention: per policy. 5. Monitor usage. For specific tools: Robot Framework: built-in screenshot keyword. Selenium: take_screenshot. Each framework: own conventions. For Camunda 8 RPA specifics (per rpa/overview.md, rpa/production.md): No built-in artifact storage shipped with the RPA worker -- handle externally (cloud blob / Document Handling per components/concepts/document-handling.md). rpa-worker.properties exposes secrets endpoint (:26) and Python extras (:82-83`) but no artifact-store config. Retention is application-level (S3 lifecycle / Camunda Documents TTL), not an RPA feature.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/rpa/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q47",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

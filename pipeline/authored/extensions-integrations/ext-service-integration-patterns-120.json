@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-120",
+  "topic": "extensions-integrations",
+  "subtopic": "call-activity-abstraction",
+  "difficulty": "hard",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A document storage service requires regular polling because firewall rules block real callbacks. According to the docs, what is the recommended way to keep the main business process diagram free of this technical complexity?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Extract the polling into a separate adapter process model and invoke it from the main process via a call activity."
+    },
+    {
+      "id": "b",
+      "text": "Hide the polling inside a FEEL function on an input mapping of the document storage service task."
+    },
+    {
+      "id": "c",
+      "text": "Replace the integration with a non-interrupting timer boundary event that fires on every polling interval."
+    },
+    {
+      "id": "d",
+      "text": "Encode the polling loop as a job-worker retry policy with a short backoff between failed attempts."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs describe exactly this: a separate 'document storage adapter' process implements the polling loop and persistent waiting, and the main business process simply invokes it via a call activity — so no technicalities clutter that diagram."
+    },
+    "b": {
+      "text": "FEEL on input mappings is for data shaping, not for orchestrating a polling loop with persistent waits."
+    },
+    "c": {
+      "text": "A non-interrupting timer fires next to the activity but doesn't model the polling-and-waiting protocol. It also pushes the technical concern back into the main diagram."
+    },
+    "d": {
+      "text": "Job-worker retries are for failed jobs, not for polling a remote system. The docs' recommendation is structural (a separate process behind a call activity), not a retry-policy tweak."
+    }
+  },
+  "explanation": "When a service integration's technicalities (here: polling because callbacks are blocked) would clutter the main process, the docs recommend creating a separate process for those technicalities and pulling it in via a call activity. The main business process stays focused on business logic; the adapter process owns the polling and waiting.",
+  "docs": [
+    {
+      "title": "Service integration patterns",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

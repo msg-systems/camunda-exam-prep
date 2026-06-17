@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q52",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Operate searches process instances by variable value. With millions of instances, search is slow. Team wonders if indexing affects search performance.",
+  "question": "Variable search indexing for Operate performance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Process variables are not indexed in Camunda 8 and cannot be queried across instances -- this approach has limitations. Variables are exported to secondary storage (Elasticsearch/OpenSearch, RDBMS, or embedded H2) by the Zeebe exporter and are queryable via Operate's Processes filters and the Orchestration Cluster REST API variable search. md:33-37) enables search and analytics. For high-volume variable queries, Elasticsearch/OpenSearch is the recommended backend. Variables should be kept small to avoid bloating the secondary storage index and slowing query performance."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 always performs a linear full-table scan when searching for process instances by variable values -- this approach has limitations. When configured with Elasticsearch or OpenSearch as secondary storage, variable searches benefit from ES/OS inverted index capabilities, enabling fast variable-based queries even across millions of process instances. The secondary storage exporter writes Zeebe events (including variable updates) to the configured backend, and Operate queries the indexed view rather than scanning primary Zeebe partition logs. For RDBMS backends, standard SQL index creation on variable columns enables efficient query plans without linear scans."
+    },
+    {
+      "id": "c",
+      "text": "io/docs/reference/glossary/#primary-storage). md:33-37: 1. Embedded H2 -- local dev / lightweight setups. 2. External RDBMS (Postgres / MySQL / MariaDB / Oracle / MSSQL) -- Self-Managed user-managed relational DB. 3. Elasticsearch / OpenSearch -- search-optimized backends (best for analytics + variable search at scale). Variables are indexed in whichever secondary backend is configured; ES/OS is the search-optimized choice for high-volume variable queries. Exporter writes Zeebe events → secondary storage with inherent latency; Operate UI then queries the indexed view (so freshness ≈ exporter lag + UI polling interval)...."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 Operate fundamentally cannot handle large process instance datasets and is only suitable for small-scale deployments -- this approach has limitations. Camunda 8 is designed for enterprise-scale process automation. With Elasticsearch/OpenSearch secondary storage, Operate can handle tens or hundreds of millions of process instances. Proper ES/OS cluster sizing (CPU, memory, shards, time-based indices, retention policies) enables large-scale deployments. Camunda SaaS runs at this scale for enterprise customers. md:33-37 secondary storage documentation specifically addresses scalability concerns. Variable size discipline (keeping variables small) further improves performance at scale."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate query performance: Architecture (8.8 -- per concepts/concepts-overview.md:24-37): Operate queries secondary storage populated from Zeebe's primary storage by exporters. Backend choice depends on deployment model: Local dev → embedded H2. Self-Managed: RDBMS (Postgres / MySQL / MariaDB / Oracle / MSSQL) or Elasticsearch / OpenSearch. SaaS → managed Elasticsearch-equivalent (search-optimized). Indexing flow: Zeebe primary storage → exporter → secondary storage (ES/OS or RDBMS). Variables → searchable fields in indexed view. Near-real-time (exporter latency + UI polling interval). Query performance: Indexed query: fast (milliseconds for typical queries). Non-indexed full-scan: slow (seconds-minutes). For Operate specifically: Most common queries are indexed. Variable name + value queries: typically indexed. Custom variable names: indexed dynamically. For high-volume: Scaling: Cluster size: more nodes for higher throughput. Sharding: distribute data. Replicas: redundancy + read parallelism. Index lifecycle: Time-based indices: per-day / per-month indices. Hot / warm / cold tiers: recent data on fast storage; old on slower. Retention: per Set 13 Q29. Performance tuning: For frequent queries: Identify hot queries: log analysis. Ensure indexed: check ES mapping. Optimize filter order: most-restrictive first. For variable searches: Typical: indexed. Large variable values: may impact index size. Recommendation: keep variables small (per Set 15 Q13). Common slow queries: Full-text search across all variables: heavy. Wildcard / pattern queries: slower than exact match. Sort by non-indexed field: slow. Optimization: Query design: Use filters not full-text: targeted. Pagination: don't fetch huge result sets. Aggregation queries: efficient for counts / sums. Index design: Mapping per field: types optimised. Avoid string analysis if exact match needed: keyword vs text. Resource sizing: CPU: query parsing + matching. Memory: index caching. Disk: index storage. Network: between Operate + ES. For millions of instances: Tune ES cluster appropriately. Use time-based index rotation. Archive old data. Monitoring: Query latency: track per query type. Index size: growth over time. ES cluster health: nodes, shards, replicas. Tools: Kibana (for ES): explore data, build dashboards. Prometheus + Grafana (per Set 13 Q56): cluster metrics. Operate's own metrics: query latency, etc. For the scenario (millions of instances, slow search): Step 1: Profile current: Identify slow query types. Measure latency. Step 2: Verify indexing: Check ES mapping for searched fields. Ensure indexed. Step 3: Resource check: CPU, memory, disk usage. Scale if saturated. Step 4: Query optimization: Add filters; reduce result set. Use exact match where possible. Step 5: Architecture: Time-based indices. Retention policy. Archive old data. Best practices: Plan capacity: model expected data growth. Monitor proactively: catch degradation early. Test queries: at scale before production. Document common queries: optimize specifically. Anti-patterns: Storing huge data in variables: index bloat. No retention policy: index grows forever. Wildcard searches across millions: slow."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/concepts-overview/#secondary-storage-implementations"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q52",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

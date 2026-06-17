@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-creation-34",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-creation",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A client invokes `CreateProcessInstance` against a process whose initial element is a single none start event. When is the response sent back to the client?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Immediately after the instance is created, before process execution begins."
+    },
+    {
+      "id": "b",
+      "text": "After the process instance reaches its first wait state."
+    },
+    {
+      "id": "c",
+      "text": "Only after the process instance has fully completed."
+    },
+    {
+      "id": "d",
+      "text": "After all activated jobs have been acknowledged by job workers."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state that `CreateProcessInstance` creates the new instance and immediately responds with the process instance ID; execution of the process occurs after the response is sent."
+    },
+    "b": {
+      "text": "There is no rule that the response is held until the first wait state. Execution is decoupled from the response."
+    },
+    "c": {
+      "text": "Waiting for completion is the behavior of `CreateProcessInstanceWithResult`, not the standard asynchronous `CreateProcessInstance`."
+    },
+    "d": {
+      "text": "The response does not depend on job worker activity; the engine returns the process instance ID as soon as the instance is created."
+    }
+  },
+  "explanation": "`CreateProcessInstance` is asynchronous: it creates the process instance, returns the process instance ID immediately, and then continues executing the process. If callers need to wait for results, they must use `CreateProcessInstanceWithResult` instead.",
+  "docs": [
+    {
+      "title": "Process instance creation",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/"
+    }
+  ]
+}

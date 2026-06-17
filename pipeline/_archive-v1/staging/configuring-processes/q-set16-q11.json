@@ -1,0 +1,56 @@
+{
+  "id": "imp-set16-q11",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task type process-payment deployed. No worker registered for this type. Team wonders what happens at runtime.",
+  "question": "Service Task with no registered worker?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Job stays in ACTIVATABLE state indefinitely: - Engine creates job when process reaches Service Task. - Job available; awaits worker activation. - No worker polls for type: job stays pending. - No automatic timeout / failure: job doesn't fail on its own. - Process stuck: at this task; no progress. - Symptoms in Operate: pending job; process not advancing. - Fix: register worker for type; job activates."
+    },
+    {
+      "id": "b",
+      "text": "In Camunda 8, a job that has no registered worker does not automatically fail or create an incident. The job remains in the ACTIVATABLE state indefinitely, waiting for a worker to poll for its job type. Auto-fail would require a configured timeout or retry mechanism, but absence of a worker alone does not trigger any failure logic. The process simply stalls at the Service Task. This distinction is important for operations: no alert from an incident means the stuck process might go unnoticed without proper pending-job monitoring."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 Service Tasks do not auto-complete when no worker is present. A Service Task requires an external worker to activate the job, perform the work, and explicitly call the complete command with the job key. Without a worker, the job sits idle in ACTIVATABLE state and the process does not advance. Auto-completion would bypass the entire job worker pattern and undermine the reliability guarantees of the system, since no actual work would have been performed."
+    },
+    {
+      "id": "d",
+      "text": "The process instance remains active, stuck at the Service Task waiting for the job to be picked up. Cancellation must be explicitly requested by an operator via Operate UI, the REST API, or the Java client. Automatic cancellation due to a missing worker would be an unsafe default: it would destroy in-flight process instances any time a worker temporarily disconnects or restarts, which would be catastrophic in production environments."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Job lifecycle without worker: Job lifecycle: 1. Process reaches Service Task: Engine creates job entry. Job has type, variables, headers. State: ACTIVATABLE. 2. Job available: Workers poll for type. No worker for this type: nothing happens. Job stays ACTIVATABLE. 3. Indefinite wait: No timeout for \"no worker.\" Process stuck at this element. Symptoms: In Operate: Process instance pending. Stuck at this activity. Pending job count: > 0 for this type. For developers: Process never completes. No incidents (job didn't fail; just pending). Diagnostic: Check 1: Worker registered: Worker code with Camunda Spring Boot Starter: @JobWorker(type = \"process-payment\") per apis-tools/camunda-spring-boot-starter/getting-started.md (NOT spring-zeebe-sdk/ which was renamed/replaced in 8.8 per camunda-spring-boot-starter/getting-started.md:16-22). Worker running? Check 2: Type spelling: BPMN: type=\"process-payment\". Worker: same string. Mismatch: case-sensitive; process-payment vs processPayment won't match. Check 3: Worker connectivity: Worker can reach Camunda? Auth valid? (per Set 14 Q44) Check 4: Worker actively polling: Long-poll active? Recent activity in logs? For multi-instance / scaling: One worker can handle multiple types: multiple @JobWorker annotations. Multiple workers same type: load-balanced. For type errors at deployment: Deployment doesn't validate worker existence: deploys even without worker. Validation happens at runtime. For tooling validation: CI check: verify every Service Task type has matching worker. Pre-deploy lint: catch missing workers. For \"no worker\" by design: External system invocation: if no auto-worker; manual trigger / API. Less common: usually means orchestration via worker. Recovery: Register worker: start a worker for the type. Job activates: worker picks up. Process advances: as normal. For development: Test workers locally: verify connectivity. Smoke test: deploy + send test instance + verify activation. For monitoring: Pending jobs metric (per Set 13 Q56): alert if high. Per-type pending counts: detect missing workers. For the scenario (no worker for \"process-payment\"): Job ACTIVATABLE: no progress. Operate shows pending. Fix: register worker. Operational learning: Deploy worker before process in CI/CD. Or: deploy together atomically. Avoid: deploying BPMN without worker. Anti-patterns: Assuming process runs without workers: stalls. No monitoring on pending jobs: unnoticed. Wrong type spelling: silent mismatch."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Job lifecycle without worker: Job lifecycle: 1. Process reaches Service Task: Engine creates job entry. Job has type, variables, headers. State: ACTIVATABLE. 2. Job available: Workers poll for type. No worker for this type: nothing happens. Job stays ACTIVATABLE. 3. Indefinite wait: No timeout for \"no worker.\" Process stuck at this element. Symptoms: In Operate: Process instance pending. Stuck at this activity. Pending job count: > 0 for this type. For developers: Process never completes. No incidents (job didn't fail; just pending). Diagnostic: Check 1: Worker registered: Worker code with Camunda Spring Boot Starter: @JobWorker(type = \"process-payment\") per apis-tools/camunda-spring-boot-starter/getting-started.md (NOT spring-zeebe-sdk/ which was renamed/replaced in 8.8 per camunda-spring-boot-starter/getting-started.md:16-22). Worker running? Check 2: Type spelling: BPMN: type=\"process-payment\". Worker: same string. Mismatch: case-sensitive; process-payment vs processPayment won't match. Check 3: Worker connectivity: Worker can reach Camunda? Auth valid? (per Set 14 Q44) Check 4: Worker actively polling: Long-poll active? Recent activity in logs? For multi-instance / scaling: One worker can handle multiple types: multiple @JobWorker annotations. Multiple workers same type: load-balanced. For type errors at deployment: Deployment doesn't validate worker existence: deploys even without worker. Validation happens at runtime. For tooling validation: CI check: verify every Service Task type has matching worker. Pre-deploy lint: catch missing workers. For \"no worker\" by design: External system invocation: if no auto-worker; manual trigger / API. Less common: usually means orchestration via worker. Recovery: Register worker: start a worker for the type. Job activates: worker picks up. Process advances: as normal. For development: Test workers locally: verify connectivity. Smoke test: deploy + send test instance + verify activation. For monitoring: Pending jobs metric (per Set 13 Q56): alert if high. Per-type pending counts: detect missing workers. For the scenario (no worker for \"process-payment\"): Job ACTIVATABLE: no progress. Operate shows pending. Fix: register worker. Operational learning: Deploy worker before process in CI/CD. Or: deploy together atomically. Avoid: deploying BPMN without worker. Anti-patterns: Assuming process runs without workers: stalls. No monitoring on pending jobs: unnoticed. Wrong type spelling: silent mismatch.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q11",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q52",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Ops keeps Operate open on the active-incidents dashboard for monitoring. They notice the data doesn't update instantly when new incidents appear in Zeebe -- there's a delay. They want to understand Operate's update model.",
+  "question": "How does Operate keep its data up to date with Zeebe events?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Operate displays real-time process instance data through a direct push mechanism where Zeebe broker pushes state changes to the Operate UI instantly as they occur -- this description does not reflect the actual behaviour. Operate does not receive real-time pushes from Zeebe. The architecture uses an exporter pipeline: Zeebe writes events to an Elasticsearch or OpenSearch cluster through the Elasticsearch Exporter, and Operate queries this secondary storage for its data. The exporter pipeline introduces a processing delay between when state changes occur in Zeebe and when they appear in Operate's UI."
+    },
+    {
+      "id": "b",
+      "text": "Operate includes auto-refresh functionality that periodically polls for updates without requiring manual page reloads. This delay comes from the Elasticsearch exporter pipeline that must process and index events before Operate can query them."
+    },
+    {
+      "id": "c",
+      "text": "8 supports three secondary storage backends: (1) Embedded H2 (lightweight/local), (2) external RDBMS (Postgres, MySQL, MariaDB, Oracle, MSSQL -- SM only), (3) Elasticsearch / OpenSearch (search-optimized analytics). The exporter writes runtime events from Zeebe into the chosen backend with inherent export latency (sub-seconds typically, can stretch to seconds under load or back-pressure). Operate UI polls/refreshes at intervals on top of that. Total user-visible latency = exporter lag + UI refresh interval."
+    },
+    {
+      "id": "d",
+      "text": "Operate queries the Zeebe broker directly via the gRPC API for every UI page load to display real-time process state as changes occur in the engine -- this description does not reflect the actual behaviour. Zeebe's primary storage is an append-only event journal optimised for write throughput and replication, not for complex query patterns needed by an operational UI. Operate reads from a query-optimised secondary store: Elasticsearch or OpenSearch in the standard deployment, or an embedded database in development mode. The Elasticsearch Exporter continuously processes Zeebe events to this secondary storage. Operate queries Elasticsearch for all instance lists, variable data, incidents, and audit history."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8.8's architecture decouples primary storage (Zeebe -- execution-optimized, event-sourced) from secondary storage (query-optimized) per concepts-overview.md:29-37. An exporter writes Zeebe events into the configured secondary backend; Operate queries that backend: Embedded H2 -- bundled with Camunda 8 Run, local-dev only. External RDBMS -- Postgres / MySQL / MariaDB / Oracle / MSSQL via the Camunda RDBMS exporter (SM deployments). Elasticsearch / OpenSearch -- search-optimized, used for analytics + operational visibility. This decoupling enables: Horizontal scalability of the observability layer independently from the broker. Eventual consistency -- there's a measurable lag between Zeebe event happening and its appearance in Operate (typically sub-second; can stretch under high load or back-pressure). Operate's UI then polls / refreshes at configured intervals (often around tens of seconds). So total user-visible latency = exporter lag + UI refresh interval."
+    },
+    "b": {
+      "text": "Incorrect. No real-time push."
+    },
+    "c": {
+      "text": "Correct. Auto-refresh exists but inherent export delay also matters."
+    },
+    "d": {
+      "text": "Incorrect. Operate uses ES, not direct Zeebe gRPC."
+    }
+  },
+  "explanation": "Auto-refresh exists but inherent export delay also matters.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/concepts-overview/#storage-architecture"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q52",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

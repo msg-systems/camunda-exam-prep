@@ -1,0 +1,63 @@
+{
+  "id": "imp-set09-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A parent process has a Call Activity invoking payment-child. The parent has variables {orderId, amount, customerEmail}. The team wonders which variables get passed to the child and how results return.",
+  "question": "How does variable propagation work between parent and Call Activity child?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The default behaviour is that all parent variables auto-propagate to the child process when propagateAllParentVariables is true. Relying on defaults without explicit input and output mappings can cause unintended variable overwrites when multiple child instances run concurrently."
+    },
+    {
+      "id": "b",
+      "text": "The child process does not operate in isolation from the parent -- it has access to parent variables through input mappings and propagation mechanisms. When a Call Activity invokes a child process, the engine can copy parent-scope variables into the child scope based on the configured propagation flags. Without any input mappings or propagation, the child starts with an empty scope, but this is a configuration choice, not a fundamental limitation of the Call Activity mechanism."
+    },
+    {
+      "id": "c",
+      "text": "Parent and child processes do not share the same variable scope -- they operate in completely separate scopes isolated from each other. Communication between the two scopes must cross a boundary via explicit input mappings (parent to child at start) and output mappings (child to parent at completion), or via the default propagation flags. This scoping isolation is an intentional Zeebe design choice that protects each process's data from unintended interference."
+    },
+    {
+      "id": "d",
+      "text": "md:43-53, attribute propagateAllParentVariables defaults true (all parent-scope vars copied into child), and propagateAllChildVariables defaults true (all child vars merged back at completion). Explicit input mappings on the Call Activity additionally create local variables in the child scope; output mappings at completion replace the all-merge with a curated subset. Best practice for parallel-flow / multi-instance Call Activities is to disable propagateAllChildVariables and use explicit output mappings to avoid race-condition overwrites (per :49)."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Parent and Call Activity child have separate variable scopes. Communication crosses the scope boundary via two complementary mechanisms (per call-activities.md:43-53): Defaults: propagateAllParentVariables=true (parent scope vars copied into child at start), propagateAllChildVariables=true (all child vars merged back at completion). Restrict / curate: set propagateAllParentVariables=\"false\" to copy only the Call Activity's local variables (those produced by input mappings); define output mappings at the Call Activity to replace the all-merge with a named subset. Input mappings: create new local variables in the Call Activity scope (and they get copied into the child). Output mappings: declare what merges back when the child completes -- overrides the propagateAllChildVariables all-merge behaviour. Best practice for parallel flow / multi-instance Call Activities: disable propagateAllChildVariables and use explicit output mappings to prevent race-condition overwrites of shared variables (per :49). Practical example for the scenario: Input mapping: orderId ← = orderId, amount ← = amount. customerEmail not passed (child doesn't need it). Output mapping: paymentReference ← = paymentRef (only this var merges back, others are dropped)."
+    },
+    "b": {
+      "text": "Incorrect. Depends on configuration; explicit best practice."
+    },
+    "c": {
+      "text": "Incorrect. Input mapping bridges."
+    },
+    "d": {
+      "text": "Correct. Separate scopes."
+    }
+  },
+  "explanation": "Separate scopes.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q22",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[1]"
+      }
+    ]
+  }
+}

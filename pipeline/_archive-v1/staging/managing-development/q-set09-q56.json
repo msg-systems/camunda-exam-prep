@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q56",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Auditors ask for who-did-what records on process instances: who started this instance, who completed task X, who modified variables, etc.",
+  "question": "Where does Camunda 8 expose audit / who-did-what records?",
+  "options": [
+    {
+      "id": "a",
+      "text": "8) captures user and client-initiated operations on process instances, variables, incidents, resources, and decisions. Operate's instance history shows the runtime timeline of each instance. Tasklist records task assignment and completion. Identity and Keycloak log authentication events and role changes. Claiming no audit capability exists misrepresents the platform's observability features."
+    },
+    {
+      "id": "b",
+      "text": "Optimize is an analytics platform focused on process performance metrics, bottleneck analysis, and KPI dashboards. It is not the primary location for individual user-action audit records such as who started a specific instance, who updated a variable, or who resolved an incident. These specific per-action audit records live in the dedicated Audit Log, Operate's instance history, Tasklist's task history, and Identity's authentication logs. Optimize provides aggregate analytics, not granular per-action audit trails."
+    },
+    {
+      "id": "c",
+      "text": "md:80-99) captures user/client Operations: Create/Cancel/Modify/Migrate process instance, Create/Update Variable, Resolve Incident, Create/Delete Resource, Batch ops, Decision ops -- each entry includes the actor and rejection reason where applicable. Operate's instance history shows the runtime flow-node activation/completion timeline (NOT necessarily who, since most state-changes are engine-driven, not user-driven). Tasklist shows User Task assign / complete with the assignee. Identity / Keycloak captures authentication events and role changes. Cluster gateway access logs (configurable at the network/ingress level) record raw API calls."
+    },
+    {
+      "id": "d",
+      "text": "Building custom audit logging is workable for very specialised compliance requirements that exceed what the built-in sources provide. 8), Operate instance history, Tasklist task records, and Identity authentication logs together cover the standard \"who-did-what\" audit requirements without requiring custom development. Custom audit logging becomes valuable only when teams need to aggregate multiple sources into a unified audit store, apply custom retention policies, or integrate with corporate audit systems."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Audit data lives across multiple Camunda 8 components in 8.8: Audit Log (first-class facility per audit-log/overview/recorded-operations.md:80-99): captures user/client-issued Operations on Process Instance (Create/Cancel/Modify/Migrate), Variable (Create/Update), Incident (Resolve), Resource (Create/Delete), Batch (Create/Suspend/Resume/Cancel), and Decision (Create/Delete/Evaluate). Each entry includes the actor, target entity, and rejection reasons where applicable. Searchable via dedicated Audit Log REST API. Operate instance history: shows the runtime timeline of an instance -- when each flow node activated/completed/failed. Most state changes are engine-driven; user-initiated changes propagate from the Audit Log. Tasklist task history: shows assignee, completion timestamp, completion variables for User Tasks. Identity / Keycloak logs: authentication events, role changes. Cluster API access logs: raw API calls (who, what endpoint, when) -- configured at the cluster gateway / network ingress level. For comprehensive audit, aggregate these into a central log store (ELK, Splunk, etc.) and build dashboards. For compliance-heavy use cases, plan for: Long retention: Operate's default retention may be too short; configure retention or export to long-term store. Immutability: protect audit records from tampering. Per-instance audit reports: query by instance for \"who touched this\" -- combine Audit Log entries with Operate instance timeline."
+    },
+    "b": {
+      "text": "Incorrect. Multiple sources."
+    },
+    "c": {
+      "text": "Correct. Optimize is analytics."
+    },
+    "d": {
+      "text": "Incorrect. Built-in covers basics; custom for advanced."
+    }
+  },
+  "explanation": "Optimize is analytics.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/audit-log/overview/recorded-operations/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q56",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

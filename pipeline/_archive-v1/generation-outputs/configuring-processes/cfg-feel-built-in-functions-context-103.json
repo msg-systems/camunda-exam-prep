@@ -1,0 +1,27 @@
+{
+  "id": "cfg-feel-built-in-functions-context-103",
+  "topic": "configuring-processes",
+  "subtopic": "feel",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helix Insurance evaluates 9000 claims per day in Camunda 8.8. Each FEEL expression in a DMN rule reads a deeply nested customer address from the claim payload context using the path customer.address.postalCode and must return null rather than throw an error when an intermediate entry is missing from the input.",
+  "question": "How does a FEEL expression retrieve the value at a nested path inside a context value?",
+  "options": [
+    { "id": "a", "text": "Call get value(context, keys) and pass the path as a list of strings; the engine returns the value at the nested entry" },
+    { "id": "b", "text": "Call get value(context, keys) and pass the path as a single dotted string; the engine returns the value at the nested entry" },
+    { "id": "c", "text": "Call get value(context, keys) and pass an empty keys list; the engine returns the value at the first nested entry" },
+    { "id": "d", "text": "Call get value(context, keys) and pass the keys as a list of integers; the engine returns the value at the indexed nested entry" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. get value(context, keys) takes a list of strings as the path; with keys [k1, k2] it returns the value at the nested entry k1.k2, and it returns null when keys are empty or the path does not exist." },
+    "b": { "text": "Incorrect. The keys argument is typed as list<string>, not a single string; passing a dotted string would be treated as one top-level key rather than a multi-step nested path." },
+    "c": { "text": "Incorrect. The documented behavior is that empty keys cause get value to return null; it does not return the value of any first or default entry in the context." },
+    "d": { "text": "Incorrect. The keys parameter is typed as list<string> and walks named entries by string key; integer indices are not the documented way to address nested context entries." }
+  },
+  "explanation": "FEEL's get value(context, keys) walks a context by the path described in the keys list of strings, returning the value at the nested entry. An empty keys list or a missing nested entry yields null instead of an error.",
+  "docs": [
+    { "title": "FEEL built-in context functions", "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-context/" }
+  ]
+}

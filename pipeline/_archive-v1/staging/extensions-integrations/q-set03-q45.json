@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team uses the Camunda Spring Boot starter (the successor to Spring Zeebe SDK, which is being removed in 8.10 per camunda-spring-boot-starter/getting-started.md:21-22) to write a Job Worker that handles archive-document Service Tasks. The handler does its work but doesn't need to return any variables -- the success itself is the signal. They want the simplest possible handler.",
+  "question": "Which Spring Boot starter handler signature is the simplest valid form?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The annotated handler method must return Map<String, Object> -- Spring Boot starter requires a map return type for job completion, even if no output variables are needed (in which case an empty map is returned). A void return type is the simpler and canonical choice for \"do work, no output variables\" handlers."
+    },
+    {
+      "id": "b",
+      "text": "An @JobWorker(type = \"archive-document\") annotated method with void return type and zero parameters (or with @Variable-annotated parameters for accessing specific input variables). md:530-532. This is the simplest valid handler form for a job that does work but produces no output variables."
+    },
+    {
+      "id": "c",
+      "text": "send() explicitly to signal job completion -- Spring Boot starter does not provide any automatic completion behavior. md:530-532), which automatically completes the job after the handler method returns successfully. send() pattern is the lower-level Java client API; Spring starter abstracts this away by design."
+    },
+    {
+      "id": "d",
+      "text": "The handler method must throw a specific completion exception (JobCompletedException or similar) when the job is finished to signal Zeebe that the work is done. No such completion exception exists in Spring Boot starter or the Java SDK. In the Spring Boot starter, throwing any exception from a handler method is interpreted as a job failure, not as a completion signal. A successful return from the void method (without exception) triggers auto-complete. Exceptions cause the job to be failed with the exception message and decremented retries."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Spring Zeebe's @JobWorker annotation supports void return type. Spring Zeebe auto-completes the job after the annotated method returns successfully (no exception thrown). For the simplest \"do work, no outputs\" case, this is the cleanest signature. @Variable parameter binding extracts process variables ergonomically."
+    },
+    "b": {
+      "text": "Correct. Map return is allowed but not required; void is simpler."
+    },
+    "c": {
+      "text": "Incorrect. That's plain Java client; Spring Zeebe abstracts this."
+    },
+    "d": {
+      "text": "Incorrect. Exceptions signal failure, not completion."
+    }
+  },
+  "explanation": "Map return is allowed but not required; void is simpler.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q45",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

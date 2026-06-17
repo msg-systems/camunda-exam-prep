@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-19",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client-metrics",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An ops engineer wires the Java client to Prometheus through the built-in Micrometer `JobWorkerMetrics`. Which metric name will keep working after version 8.10?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`camunda.client.worker.job.activated`"
+    },
+    {
+      "id": "b",
+      "text": "`zeebe.client.worker.job.activated`"
+    },
+    {
+      "id": "c",
+      "text": "`zeebe.client.worker.job.handled`"
+    },
+    {
+      "id": "d",
+      "text": "`camunda.client.worker.job.queued`"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The Micrometer implementation publishes `camunda.client.worker.job.activated` and `camunda.client.worker.job.handled` as the new, supported metrics — these are the names to use going forward."
+    },
+    "b": {
+      "text": "`zeebe.client.worker.job.activated` is marked deprecated in the docs and will be removed at 8.10; teams must migrate to the `camunda.client.*` equivalent before upgrading."
+    },
+    "c": {
+      "text": "`zeebe.client.worker.job.handled` is the other deprecated counter that will also be removed at 8.10."
+    },
+    "d": {
+      "text": "There is no built-in `camunda.client.worker.job.queued` metric; the queued/in-flight count is derived by subtracting handled from activated, not published as its own counter."
+    }
+  },
+  "explanation": "The built-in Micrometer `JobWorkerMetrics` exposes four metrics today: the new `camunda.client.worker.job.activated` and `camunda.client.worker.job.handled`, plus the deprecated `zeebe.client.worker.job.activated` and `zeebe.client.worker.job.handled`. The deprecated `zeebe.*` counters will be removed at 8.10, so only the `camunda.client.*` names survive long-term.",
+  "docs": [
+    {
+      "title": "Job worker",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

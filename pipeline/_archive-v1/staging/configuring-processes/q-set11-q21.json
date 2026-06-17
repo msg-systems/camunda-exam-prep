@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A C7-to-C8 migration team has a process with several Task Listeners: on-create (audit logging), on-assignment (notify assignee), on-completion (update downstream system). They wonder how to migrate each. Migration patterns for C7 Task Listeners in Camunda 8.",
+  "question": "Migration patterns for C7 Task Listeners in Camunda 8.?",
+  "options": [
+    {
+      "id": "a",
+      "text": "7. 7, Camunda 8 includes native User Task Listeners implemented as <zeebe:taskListeners> extension elements. These provide direct counterparts to C7's on-create, on-assignment, and on-completion lifecycle hooks via five supported eventType values: creating, assigning, updating, completing, and canceling. Each listener is implemented by a job worker subscribed to the configured type string."
+    },
+    {
+      "id": "b",
+      "text": "\"/> elements. The 5 supported eventType values are creating, assigning, updating, completing, canceling (per :157). Migration map: C7 on-create → C8 eventType=\"creating\"; C7 on-assignment → C8 eventType=\"assigning\"; C7 on-completion → C8 eventType=\"completing\". Each listener type is implemented by a job worker subscribing to the configured type string, using the same worker API as Service Tasks."
+    },
+    {
+      "id": "c",
+      "text": "7+. A monolithic Service Task cannot differentiate between creating, assigning, and completing lifecycle moments as separate jobs. Per-listener patterns using <zeebe:taskListeners> with distinct eventType values provide the same lifecycle granularity that C7's Task Listeners offered."
+    },
+    {
+      "id": "d",
+      "text": "The migration approach is to keep all Task Listeners running in a Camunda 7 environment indefinitely -- this defeats the goal of migrating to Camunda 8 and is not a viable long-term approach. Camunda 7 reaches end of life on October 31, 2025 for community edition and December 2027 for enterprise. Migration to Camunda 8's native User Task Listener mechanism (<zeebe:taskListeners>) provides the equivalent lifecycle hook functionality in a supported platform."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. C7 Task Listeners were Java code / scripts attached as lifecycle hooks. C8 has native equivalent since 8.7 -- User Task Listeners via extension on a Camunda user task, with 5 lifecycle eventTypes per user-tasks.md:151-161. Migration map: C7 on-create → C8 eventType=\"creating\": xml A job worker subscribed to type=\"audit-task-created\" runs on task creation. Visible in Operate as a separate listener job. C7 on-assignment → C8 eventType=\"assigning\": xml Fires when an assignee is set / changed. C7 on-completion → C8 eventType=\"completing\": xml Fires when the user submits the task; the listener can validate / reject before the task is finalised. Additional C8 lifecycle hooks not in C7: eventType=\"updating\" (variable update) and eventType=\"canceling\" (task termination by parent). For complex listener logic, additional patterns: Dynamic assignee: FEEL in . Validation: eventType=\"completing\" listener with reject capability (return non-zero to abort completion). Audit: combine creating + completing listeners for full lifecycle audit trail. Hoisted-to-flow alternative: if you prefer the listener logic to be visible in the BPMN diagram (rather than as a hook), use preceding / succeeding Service Tasks instead. The general principle: native task listeners preserve the C7 lifecycle-hook model in C8; choose hoisted Service Tasks only when diagram-level visibility is more important than separation of concerns."
+    },
+    "b": {
+      "text": "Correct. Patterns exist."
+    },
+    "c": {
+      "text": "Incorrect. Per-listener patterns more flexible."
+    },
+    "d": {
+      "text": "Incorrect. Goal is C8 migration."
+    }
+  },
+  "explanation": "Patterns exist.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q21",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

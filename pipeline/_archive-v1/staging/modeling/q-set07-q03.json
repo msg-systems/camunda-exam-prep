@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A claim-processing process has an Embedded Subprocess containing 5 inner activities. During execution, one of the inner activities may throw a BPMN error with errorCode \"INVALID_CLAIM\". The team wants to attach an Error Boundary Event to the subprocess itself (not to individual inner activities), so that any error propagating out of any inner activity is caught at the subprocess level and routed to a unified error-handling branch. The team is verifying their understanding of where the boundary attaches and how propagation works.",
+  "question": "When a Boundary Event is attached to an Embedded Subprocess element, what does it cover?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Each inner activity automatically -- Camunda auto distributes the boundary to all 5 inner activities, attaching a copy of the handler to each. If you want per activity coverage, you must explicitly attach a separate Boundary Event to each individual inner activity. The BPMN engine does not auto distribute or replicate boundaries from a parent element to its children. Each boundary is attached to exactly the element it is visually connected to in the diagram."
+    },
+    {
+      "id": "b",
+      "text": "Only the first inner activity -- the boundary scope is limited to whatever task runs first in the subprocess sequence, so only errors thrown at the initial step would be caught. This is not BPMN semantics; execution order has no bearing on boundary event coverage. The boundary attaches to its visible host element, which is the entire Embedded Subprocess, regardless of which inner activity happens to execute first. Temporal position in the flow does not define the boundary scope."
+    },
+    {
+      "id": "c",
+      "text": "The subprocess's parent scope -- events bubble all the way to the process root and the boundary effectively listens at the top level process scope rather than at the subprocess itself. This contradicts the BPMN scope rules: a Boundary Event's scope equals its visible host element, not the host's parent. While uncaught errors do propagate upward through scope hierarchy, a Boundary Event attached to the subprocess listens at the subprocess level, not at the parent process level above it."
+    },
+    {
+      "id": "d",
+      "text": "The subprocess as a whole -- the Boundary catches errors (or other events, depending on its type) that propagate out of any inner activity and reach the subprocess boundary. Inner activities without their own matching boundary will propagate the error up the scope hierarchy; the subprocess level boundary is the next available catcher. When the boundary fires (if interrupting), the subprocess is cancelled and flow routes via the boundary's outgoing arrow."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN boundary scope rule: a Boundary Event attaches to its visible host. For a Subprocess host, the boundary covers errors / events propagating out of any inner activity once they cross the subprocess border. Propagation works as follows: an inner activity throws an error → engine looks for a matching boundary on that activity first → if none, propagates to the enclosing scope (the subprocess) → if a matching boundary exists there, it fires. With an Interrupting boundary, the subprocess is cancelled, the inner state is discarded, and flow continues via the boundary's outgoing arrow."
+    },
+    "b": {
+      "text": "Incorrect. BPMN doesn't auto-distribute boundary attachment. If you wanted \"every inner activity has the same error handler,\" you'd model 5 boundaries (or, more idiomatically, attach one boundary at the subprocess level -- which is option a). The \"auto-distribute\" misconception likely comes from confusing Event Subprocesses (which catch in scope) with Boundary Events (which catch from a specific host)."
+    },
+    "c": {
+      "text": "Incorrect. BPMN doesn't single out the first activity. A boundary's scope is its visible host element, and once the boundary is attached to the subprocess element, it covers the whole subprocess regardless of which inner activity throws."
+    },
+    "d": {
+      "text": "Correct. Events do bubble up scope hierarchy if uncaught, but the boundary's scope is its own host -- not the host's parent. If the subprocess-level boundary doesn't catch, then propagation continues to the parent (process) scope, where a different listener could pick it up. Each scope has its own boundary attachments."
+    }
+  },
+  "explanation": "Events do bubble up scope hierarchy if uncaught, but the boundary's scope is its own host -- not the host's parent. If the subprocess-level boundary doesn't catch, then propagation continues to the parent (process) scope, where a different listener could pick it up. Each scope has its own boundary attachments.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/events/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

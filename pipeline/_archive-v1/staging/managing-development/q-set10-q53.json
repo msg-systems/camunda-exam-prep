@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q53",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team prepares a migration plan from order-v3 to order-v4. They have 1000 instances spread across two clusters (production + production-failover). They wonder if the migration plan is reusable across clusters.",
+  "question": "Is a Process Instance Migration plan reusable across clusters?",
+  "options": [
+    {
+      "id": "a",
+      "text": "While process instance keys and process definition keys are cluster-specific, the migration plan's logical content -- the mapping from source flow node IDs to target flow node IDs -- is definition-bound and reusable. The same flow node ID mappings apply wherever the same source and target process definitions are deployed."
+    },
+    {
+      "id": "b",
+      "text": "The plan structure (mappings from source to target flow nodes) is reusable -- defined as JSON / via Operate UI; can be applied to any cluster where both source and target process definitions are deployed. Cluster-specific elements (instance keys, process definition keys, which Operate to use) are cluster-bound. Best practice: define the migration plan as code / config (version-controlled); apply to each cluster's Operate / API individually."
+    },
+    {
+      "id": "c",
+      "text": "Migration plans are created for individual process instance keys and cannot be applied to multiple instances or reused across different deployments -- this description does not reflect the actual behaviour. Migration plans are defined at the level of process definition pairs: a source process definition and a target process definition. The plan specifies which source flow node IDs map to which target flow node IDs. The same plan can be applied to all instances of the source definition in any cluster where both the source and target definitions are deployed."
+    },
+    {
+      "id": "d",
+      "text": "Camunda automatically propagates migration plans across all clusters in an organisation once defined in one cluster -- this description does not reflect the actual behaviour. Migration plans are applied manually per cluster through Operate's UI or the migration REST API. There is no automatic cross-cluster plan propagation. For multi-cluster environments, the same plan structure must be applied to each cluster independently using the respective cluster's Operate interface or API with that cluster's access credentials."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Migration plan structure (source flow node ID → target flow node ID mappings) is logical / definition-bound, not cluster-bound: Reusable: the JSON / configuration describing the mappings can be saved (version-controlled) and applied to any cluster where the source and target process definitions are deployed. Per-cluster application: actual migration runs against each cluster's Operate / API independently. The plan structure is the same; the specific instance keys to migrate differ per cluster. Practical workflow for multi-cluster migration: 1. Develop the plan: in one cluster (e.g., staging), test the migration plan against representative instances. 2. Save the plan: export the mappings as JSON / config; version-control it. 3. Apply to production: use Operate UI / REST API in production to apply the same plan against production instances. 4. Apply to production-failover: same plan, different cluster. This pattern works because process definitions deployed across clusters (assuming same source/target processes deployed everywhere) have the same flow node IDs; the migration plan references IDs, not cluster-specific keys."
+    },
+    "b": {
+      "text": "Correct. Mapping reusable; per-cluster application."
+    },
+    "c": {
+      "text": "Incorrect. Plans per definition pair."
+    },
+    "d": {
+      "text": "Incorrect. Per-cluster application."
+    }
+  },
+  "explanation": "Mapping reusable; per-cluster application.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/process-instance-migration/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q53",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

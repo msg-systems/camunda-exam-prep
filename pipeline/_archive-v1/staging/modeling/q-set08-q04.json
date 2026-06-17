@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A long-running approval User Task should send periodic reminders to the assignee -- every 24 hours -- without cancelling the task. The reminders fire multiple times (not just once); the task stays active throughout.",
+  "question": "Which Timer Boundary Event configuration fits \"recurring reminders, task stays active\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Non-interrupting Timer Boundary Event configured with a Cycle expression like R/PT24H (recurring every 24 hours, unbounded) or R5/PT24H (5 times, capped). Non-interrupting means the host User Task is not cancelled when the timer fires -- it remains active for the assignee throughout all reminder cycles. The cycle expression re-arms the timer automatically after each firing. Each firing routes via the boundary event's outgoing arrow to a send-reminder path, typically a Service Task that sends an email notification to the assignee."
+    },
+    {
+      "id": "b",
+      "text": "Interrupting Timer Boundary Event with a cycle expression -- the interrupting variant would cancel the host User Task on the very first timer firing, completely defeating the requirement that the task stays active for the assignee. Once the User Task is cancelled by an interrupting boundary event, the assignee can no longer complete it through normal flow. All subsequent cycle firings become irrelevant because the task no longer exists."
+    },
+    {
+      "id": "c",
+      "text": "Non-interrupting Timer Boundary Event configured with a Duration expression PT24H -- this fires exactly once after 24 hours and does not recur. A Duration-type timer is a single-shot event: after the specified time elapses from the task's activation, the boundary fires once and then becomes inactive. The task itself remains active (non-interrupting), but only one reminder would ever be sent. For recurring reminders that continue every 24 hours until the task is completed, a Cycle expression is required rather than a Duration expression."
+    },
+    {
+      "id": "d",
+      "text": "Loop the entire process using an outer Sub-Process containing the User Task and re-entering via a back-edge sequence flow after each reminder -- this is significantly over-engineered. The design becomes complex because each loop iteration creates new User Task instances, complicating task tracking and completion detection. Managing the assignee state across loop iterations adds unnecessary complexity. A single Non-interrupting Timer Boundary Event with a Cycle expression is the canonical BPMN pattern for recurring reminders, requiring only one additional configuration on the existing User Task."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Two key properties combine here: (1) Non-interrupting (dashed border) means the host User Task isn't cancelled when the timer fires -- it stays active for the assignee. (2) Cycle (ISO 8601 R/PT24H or Rn/PT24H) means the timer recurs at the specified interval. Each cycle firing routes to the reminder branch (e.g., a Service Task that emails the assignee). The User Task can still be completed normally at any time, ending the cycle. This is the BPMN-canonical pattern for \"recurring task reminder.\""
+    },
+    "b": {
+      "text": "Incorrect. Interrupting boundary cancels the host on first fire. Task gone, no further reminders, no way for assignee to complete."
+    },
+    "c": {
+      "text": "Incorrect. Duration is single-shot; fires once. Won't repeat."
+    },
+    "d": {
+      "text": "Incorrect. Wrapping a User Task in a Multi-Instance subprocess to simulate recurrence is far more complex than a single Timer Boundary Event with a Cycle."
+    }
+  },
+  "explanation": "Two key properties combine here: (1) Non-interrupting (dashed border) means the host User Task isn't cancelled when the timer fires -- it stays active for the assignee. (2) Cycle (ISO 8601 R/PT24H or Rn/PT24H) means the timer recurs at the specified interval. Each cycle firing routes to the reminder branch (e.g., a Service Task that emails the assignee). The User Task can still be completed normally at any time, ending the cycle. This is the BPMN-canonical pattern for \"recurring task reminder.\"",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

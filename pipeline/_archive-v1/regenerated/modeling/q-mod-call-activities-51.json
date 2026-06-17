@@ -1,0 +1,50 @@
+{
+  "id": "mod-call-activities-51",
+  "topic": "modeling",
+  "subtopic": "subprocesses",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Yarrow SaaS runs a Camunda 8.8 tenant provisioning workflow handling 16000 tenants per month. A call activity sits inside a parallel multi-instance branch, and the architect wants to prevent variables produced by sibling branches from accidentally overriding each other when the child process instances complete.",
+  "question": "Which configuration on the call activity reduces the risk of accidental variable overrides when it sits inside a parallel flow?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set propagateAllParentVariables to false on the call activity so no variables from the parent process are copied into the child process instance on activation by Zeebe"
+    },
+    {
+      "id": "b",
+      "text": "Leave propagateAllChildVariables at its default value of true on the call activity so all child variables are merged into the parent process scope on completion of the child"
+    },
+    {
+      "id": "c",
+      "text": "Disable propagateAllChildVariables or define output mappings on the call activity so only the variables listed in those mappings propagate from the child to the parent scope"
+    },
+    {
+      "id": "d",
+      "text": "Set propagateAllChildVariables to true and add input mappings on the call activity so that every child variable is renamed by Zeebe before propagation to the parent scope"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. propagateAllParentVariables controls whether parent variables flow into the child; the accidental override risk is on the child-to-parent direction, not the parent-to-child direction."
+    },
+    "b": {
+      "text": "Incorrect. Leaving propagateAllChildVariables at its true default is exactly the configuration that produces accidental overrides in parallel branches, so it does not reduce the risk."
+    },
+    "c": {
+      "text": "Correct. The documentation recommends disabling propagateAllChildVariables or defining output mappings on the call activity in a parallel flow, so only intentionally listed variables propagate back to the parent scope."
+    },
+    "d": {
+      "text": "Incorrect. Input mappings affect what is copied into the child process instance, not what is propagated back to the parent, so they do not address the override risk."
+    }
+  },
+  "explanation": "When a call activity sits in a parallel flow, the documentation recommends disabling propagateAllChildVariables or defining output mappings so only intentionally selected variables propagate from the child instance to the parent scope.",
+  "docs": [
+    {
+      "title": "BPMN call activities",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/"
+    }
+  ]
+}

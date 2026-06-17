@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-21",
+  "topic": "connectors",
+  "subtopic": "sdk-outbound",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "In an outbound connector project, where must the SPI descriptor that exposes the `OutboundConnectorFunction` implementation class be placed so the connector runtime can auto-discover it?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Inside `pom.xml`, referenced from a `<services>` section."
+    },
+    {
+      "id": "b",
+      "text": "`src/main/resources/META-INF/services/io.camunda.connector.api.outbound.OutboundConnectorFunction`"
+    },
+    {
+      "id": "c",
+      "text": "Inside `element-templates/template-connector.json`, under a top-level `services` property."
+    },
+    {
+      "id": "d",
+      "text": "`src/main/java/io/camunda/connector/services/OutboundConnectorFunction.java`"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "`pom.xml` manages dependencies and build setup; the connector runtime uses Java's standard `ServiceLoader` SPI mechanism, not a Maven `<services>` element."
+    },
+    "b": {
+      "text": "The outbound project outline lists the SPI file at `src/main/resources/META-INF/services/io.camunda.connector.api.outbound.OutboundConnectorFunction`. Its content is the fully-qualified name of the function class, picked up by Java's `ServiceLoader`."
+    },
+    "c": {
+      "text": "`template-connector.json` is the element template that defines the modeling building blocks (bindings, properties); it does not register the runtime class with `ServiceLoader`."
+    },
+    "d": {
+      "text": "A `.java` source file under `src/main/java` does not satisfy the `ServiceLoader` contract; the file must be a plain-text descriptor under `META-INF/services` named after the SPI interface."
+    }
+  },
+  "explanation": "The Connector SDK relies on Java's `ServiceLoader` mechanism to detect outbound connector functions. The project outline shows a descriptor at `src/main/resources/META-INF/services/io.camunda.connector.api.outbound.OutboundConnectorFunction` whose contents are the fully-qualified class name of the implementation. Without that file, the runtime cannot auto-discover the connector even when the JAR is on the classpath.",
+  "docs": [
+    {
+      "title": "Connector SDK",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

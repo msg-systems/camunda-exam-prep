@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Self-Managed Camunda cluster needs patching / version upgrades with minimum downtime. Team wonders about rolling upgrade support.",
+  "question": "Cluster patching / rolling upgrade strategy?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Upgrading a Self-Managed Camunda 8 cluster requires full downtime -- all Zeebe broker nodes must be shut down simultaneously, upgraded, and restarted before the cluster becomes available again. This overstates the disruption. 5, rolling upgrades are supported. Upgrade brokers one at a time (highest-ID first), then gateways, then clients -- Zeebe is backward-compatible within one minor version so the cluster remains available during the rollover. tag=$NEW_VERSION triggers an automatic rolling update via the StatefulSet. Always take a backup before upgrading and test in a non-production staging environment."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 Self-Managed clusters auto-upgrade to the latest version whenever a new release is published; the cluster detects the new version and automatically performs the upgrade without operator intervention. Camunda 8 SaaS clusters are managed by Camunda and receive upgrades according to Camunda's maintenance schedule. Self-Managed clusters require manual operator-initiated upgrades using Helm charts or direct Docker image updates. There is no automatic upgrade mechanism built into Self-Managed deployments."
+    },
+    {
+      "id": "c",
+      "text": "Self-Managed Camunda 8 clusters have no supported upgrade path; once deployed at a specific version, the cluster must be completely destroyed and recreated from scratch with the new version, migrating all data manually. This misrepresents the documented behavior. 5 onwards, rolling upgrades are supported. One-step minor version upgrades and patch upgrades within the same minor version are the supported paths, and Helm-based deployments automate much of the rolling upgrade process."
+    },
+    {
+      "id": "d",
+      "text": "5): upgrade brokers one at a time in highest-ID-first order, then gateways, then clients. Zeebe's backward compatibility within one minor version keeps the cluster operational throughout. tag=$NEW_VERSION automates the rolling update. Supported paths: patch-to-patch within same minor, or one-step minor jump (no skipping minors). Always backup before upgrading and wait between broker restarts to allow snapshot creation."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Cluster upgrade strategies (Self-Managed): Rolling upgrade: Process: 1. Upgrade one Zeebe broker node to new version. 2. New node joins cluster; data synced from existing nodes. 3. Remaining old-version nodes serve traffic. 4. Repeat for next node; gradually all nodes on new version. Requires: protocol compatibility between adjacent versions (typically guaranteed within minor/patch upgrades; verify for major versions). Cluster stays available: traffic served by remaining nodes during each node's upgrade. Blue-green deployment: Process: 1. Stand up new cluster (new version) alongside old (running). 2. Migrate data / state to new cluster (snapshot + import, or live replication). 3. Switch traffic from old to new (DNS / load balancer change). 4. Decommission old cluster after validation. Pros: clean separation; easy rollback (switch back). Cons: requires 2x resources during transition; state migration complexity. Major version upgrades: Check release notes: may require: Intermediate upgrade steps (e.g., must go through version X before Y). Schema migrations. Configuration changes. Verify backward compatibility of: BPMN models (most should be compatible). DMN models. Forms. APIs / SDK versions. Backup + rollback plan: Snapshot data before upgrade: filesystem snapshots / database backups. Test rollback: rehearse restore procedure. Have rollback runbook: clear steps if upgrade goes wrong. Test in staging: Mirror production setup: same config, similar data volume. Apply upgrade: validate process / job behavior. Load test: ensure no perf regressions. Run for hours: catch slow leaks. SaaS (managed): Camunda handles upgrades; ops team mostly observes. Maintenance windows announced. Less control vs Self-Managed. Kubernetes-based deployments: StatefulSet rolling update. PodDisruptionBudget to ensure availability during upgrade. Helm chart updates with --upgrade flag. Best practices: Stay on supported versions: avoid lagging too far behind. Apply patches promptly: security + bug fixes. Document upgrade procedure: org-specific runbook. Coordinate with stakeholders: schedule windows, communicate."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. Partially correct."
+    },
+    "d": {
+      "text": "Correct. Incorrect."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/components/orchestration-cluster/zeebe/operations/update-zeebe/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q58",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "id": "imp-set08-q60",
+  "topic": "dev-environment",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A developer running Camunda 8 Run locally wants to customise configuration -- change the default Orchestration Cluster port (from :8080 to :9090 to avoid a clash with another local service) and supply a custom application.yaml (e.g., to swap secondary storage from H2 to external Postgres). They're looking for the right configuration mechanism.",
+  "question": "How does Camunda 8 Run support configuration customisation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 Run has no configuration options -- all settings like port numbers, connection strings, and feature flags are hardcoded defaults that cannot be changed without modifying the source code -- this description does not reflect the actual behaviour. Camunda 8 Run supports configuration through environment variables and Spring Boot configuration properties. Port numbers, database connection strings, authentication settings, and other parameters are configurable before startup through standard Spring Boot configuration mechanisms. The c8run documentation describes available configuration options for customising the local development environment."
+    },
+    {
+      "id": "b",
+      "text": "All Camunda 8 Run configuration must be done through the web UI after starting the application -- there is no pre-startup configuration available and all settings are managed at runtime through browser-based administration panels -- this description does not reflect the actual behaviour. yaml files, or command-line arguments. Post-startup UI configuration is available for some settings but is not the primary configuration mechanism for Camunda 8 Run."
+    },
+    {
+      "id": "c",
+      "text": "yaml file. exe start --port 8081 (Windows). yaml (:118). Important: per Pattern #9, the Orchestration Cluster is consolidated on a single port (Operate + Tasklist + Admin + REST /v2 all share it via path prefixes) -- there is no separate OPERATE_SERVER_PORT; --port rebinds the whole consolidated cluster."
+    },
+    {
+      "id": "d",
+      "text": "Customising Camunda 8 Run behaviour requires modifying the application source code and recompiling -- there are no external configuration files or environment variable options for changing the application's behaviour -- this description does not reflect the actual behaviour. Camunda 8 Run exposes configuration through standard Spring Boot mechanisms that do not require source code modification. yaml files, and JVM system properties allow customisation of ports, database connections, authentication, and other settings. The application is designed to be configurable through external settings."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 Run packages the Orchestration Cluster (Zeebe + Operate + Tasklist + Admin + REST /v2, plus optional Identity / Connectors) into a single binary with its own wrapper CLI. The real configuration surface is two-pronged: 1. Wrapper CLI flags (highest precedence; defined by c8run itself, not raw Spring Boot): --port N -- rebinds the consolidated Orchestration Cluster port (default 8080 → e.g. 9090 for the scenario) per c8run-troubleshooting.md:38-39. Path prefixes (/operate, /tasklist, /admin, /v2) follow automatically. --config -- supplies a custom application.yaml per c8run.md:236, :118. --docker -- switches to Docker Compose mode per :88. --keystore / --keystorePassword -- enables TLS (testing only) per :626. 2. configuration/application.yaml -- the underlying Spring Boot file shipped in the c8run distribution. Edit in place, or replace via --config. Used for secondary storage swap (H2 → Postgres / MySQL / etc. per :118-155, :502-508), auth enablement (:561), and advanced tuning. Default secondary storage in 8.9-alpha3 = H2 per :253-257 (persists across restarts). Important corrections vs common Spring Boot reflexes: There is no OPERATE_SERVER_PORT env var -- Operate is not on its own port; the whole Orchestration Cluster shares one port via path-prefix routing (Pattern #9: Operate at :/operate, Tasklist at :/tasklist, etc.). --server.port= raw Spring property is not the c8run-documented path -- use --port instead. Spring Boot actuator binds to the separate management port :9600 per the broader Camunda monitoring convention (not affected by --port)."
+    },
+    "b": {
+      "text": "Incorrect. Customisation supported."
+    },
+    "c": {
+      "text": "Correct. Pre-startup config."
+    },
+    "d": {
+      "text": "Incorrect. No source modification needed."
+    }
+  },
+  "explanation": "Pre-startup config.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/c8run-troubleshooting/#ports-already-in-use"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q60",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[2]"
+      }
+    ]
+  }
+}

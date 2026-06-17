@@ -1,0 +1,50 @@
+{
+  "id": "cfg-feel-context-expressions-117",
+  "topic": "configuring-processes",
+  "subtopic": "feel-context-expressions",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Oasis Insurance groups 2 validation checks on each journal entry across 5500 records per day in Camunda 8.8. The documented validate-data example assembles a context with named check entries plus a final result list that filters the checks by their violation count.",
+  "question": "How does the documented validate-data FEEL context example expose only the failing checks at the top level?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It declares each check with an error key and a violations key, then computes a result entry as a list filter over the check names that keeps only the entries whose violations list is non-empty"
+    },
+    {
+      "id": "b",
+      "text": "It declares each check with an error key and a violations key, then computes a result entry as a literal of the failing error texts, hard-coded for each kind of journal entry validation"
+    },
+    {
+      "id": "c",
+      "text": "It declares each check inside a list rather than a context, and the result entry is the index of the first check whose violations entry is null in the documented example"
+    },
+    {
+      "id": "d",
+      "text": "It declares each check as a function value, and the result entry calls each function in sequence and collects the return values into a single list of error strings for the caller"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The documented example wraps the named checks inside a context literal and computes the result entry as a list filter over the named checks where the predicate keeps entries with a non-empty violations list (count greater than zero), exposing only the failing checks at the top level."
+    },
+    "b": {
+      "text": "Incorrect. The result entry is computed dynamically from the violations of each named check rather than from a hard-coded list of error strings."
+    },
+    "c": {
+      "text": "Incorrect. The documented example wraps the named checks inside a context literal rather than a list, and the final result entry is a list filter over the named checks using the count of violations greater than zero as the predicate, not a null check on a list of checks."
+    },
+    "d": {
+      "text": "Incorrect. The checks are context entries with error and violations keys, not function values; the result is built by filtering the named checks by violation count."
+    }
+  },
+  "explanation": "The context expressions reference shows a validate-data context that defines named checks with error and violations entries, then uses a list filter over the named checks where the predicate compares the count of violations against zero to expose only the failing checks.",
+  "docs": [
+    {
+      "title": "FEEL context expressions",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-context-expressions/"
+    }
+  ]
+}

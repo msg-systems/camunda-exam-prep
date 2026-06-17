@@ -1,0 +1,50 @@
+{
+  "id": "ext-writing-good-workers-86",
+  "topic": "extensions-integrations",
+  "subtopic": "scaling workers",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Stellar Fintech runs a payment authorization process on Camunda 8.8 that performs 20 REST calls per job, each averaging 100 ms. The team observes a ceiling of 10 jobs per second on a single worker thread and needs to lift throughput to roughly 100 jobs per second across the worker pool while keeping a small CPU footprint.",
+  "question": "Which scaling technique does the writing-good-workers guide cite as raising blocking REST throughput from about 10 to 100 jobs per second?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Disable long polling on the worker and request a single job at a time so the broker pushes work faster than the worker can synchronously process REST calls in sequence"
+    },
+    {
+      "id": "b",
+      "text": "Pin one worker thread per CPU core and process all jobs strictly sequentially on that core to avoid context switching and maximize raw single-thread REST call throughput"
+    },
+    {
+      "id": "c",
+      "text": "Use a thread pool of 10 threads so blocked I/O threads overlap waiting time and roughly 10 times as many REST calls run in parallel against the same worker process"
+    },
+    {
+      "id": "d",
+      "text": "Move from a thread pool of 10 threads to a thread pool of 1000 threads to overlap thousands of REST calls regardless of the I/O latency or available CPU cores on the host"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The guide promotes batching and long polling for fetching jobs; reducing batch size or disabling long polling does not lift the blocking REST throughput ceiling."
+    },
+    "b": {
+      "text": "Incorrect. Strictly sequential per-core processing is the worst case for scalability; the guide raises throughput by using a thread pool of blocked I/O threads."
+    },
+    "c": {
+      "text": "Correct. The guide uses a thread pool of 10 threads with 100 ms REST latency to raise throughput from 10 to 100 jobs per second because blocked I/O threads do not consume CPU cores."
+    },
+    "d": {
+      "text": "Incorrect. The guide notes that sizing thread pools requires careful understanding; it recommends reactive programming over arbitrarily huge pools for further scaling."
+    }
+  },
+  "explanation": "Camunda 8.8 worker guidance shows that, given 100 ms blocking REST calls, sizing a thread pool to 10 threads overlaps I/O waits and lifts throughput from about 10 to about 100 jobs per second; reactive programming is recommended for further scaling.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

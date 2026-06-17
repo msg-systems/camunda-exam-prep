@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-migration-56",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Bank uses Camunda 8.8 to orchestrate 8000 loans per day. A long-running approval is waiting at a joining parallel gateway with one incoming sequence flow already taken from element A, while element B is still active at a user task. The platform team plans to migrate the running process instance to a newer process definition that inserts an extra element C in front of the joining parallel gateway.",
+  "question": "Which mapping condition must hold to migrate a process instance waiting at a joining parallel gateway?",
+  "options": [
+    { "id": "a", "text": "Map the source joining parallel gateway to a target joining gateway that has at least the same number of incoming sequence flows as the source" },
+    { "id": "b", "text": "Map the source joining parallel gateway to any target gateway of a matching type regardless of the number of incoming sequence flows present" },
+    { "id": "c", "text": "Map the source joining parallel gateway to a target exclusive gateway that reproduces the routing logic with the same outgoing sequence flows" },
+    { "id": "d", "text": "Skip a mapping for the source joining parallel gateway because joining gateways are never treated as active elements during instance migration" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The migration docs require the joining gateway to be mapped to a target joining gateway, and the target must have at least the same number of incoming sequence flows as the source so the partially completed join can continue to receive its remaining tokens." },
+    "b": { "text": "Incorrect. A matching gateway type alone is not enough; the documented rule additionally constrains the target to have at least as many incoming sequence flows as the source joining gateway." },
+    "c": { "text": "Incorrect. The documented scenario maps joining parallel and inclusive gateways to gateways of the same joining role, not to an exclusive gateway, so the incoming flow count rule still applies." },
+    "d": { "text": "Incorrect. A joining gateway that has taken incoming flows and is still waiting is an active element and the docs require a mapping instruction similar to other active elements." }
+  },
+  "explanation": "When a joining parallel or inclusive gateway is partially complete, migration treats it as an active element. The plan must map it to a target joining gateway that has at least the same number of incoming sequence flows so the remaining tokens can still arrive.",
+  "docs": [
+    { "title": "Process instance migration", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/" }
+  ]
+}

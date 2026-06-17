@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q11",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task has 3 Input Mappings: Source=A → Target=x, Source=B+x → Target=y, Source=x*2 → Target=z. Team wonders if mappings can reference earlier mappings' results.",
+  "question": "Input Mapping evaluation order + cross-references?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Input Mappings evaluate in declaration order; later mappings can reference earlier ones' targets in their source expressions. md:109: \"Variable mappings are evaluated in the defined order. \" For the scenario: - Mapping 1 (x = A): with parent scope {A: 5, B: 10}, sets local x = 5. - Mapping 2 (y = B + x): evaluates B + x = 10 + 5 = 15, sets local y = 15. - Mapping 3 (z = x 2): evaluates x 2 = 5 * 2 = 10, sets local z = 10. md:128-132: input mappings create local variables in the scope where the mapping is defined)."
+    },
+    {
+      "id": "b",
+      "text": "Input Mappings in Camunda 8 evaluate sequentially in declaration order, not in parallel, and later mappings can explicitly reference the target variables set by earlier mappings in the same mapping list. md:109. Stating that mappings evaluate in parallel with no cross-referencing contradicts the documented ordered evaluation contract. Camunda 8 defines sequential evaluation specifically to enable chained multi-step derivation patterns where one mapping builds on the computed result of another preceding mapping in the sequence."
+    },
+    {
+      "id": "c",
+      "text": "Input Mappings do not apply last-wins semantics. md:109. Last-wins behavior would only be relevant if multiple mappings targeted the same variable, which is an anti-pattern to avoid. In the scenario, three mappings write to distinct targets x, y, and z respectively -- there is no overwriting conflict, and each mapping contributes a unique variable to the task scope independently."
+    },
+    {
+      "id": "d",
+      "text": "Cross-referencing between Input Mappings is explicitly supported and documented in Camunda 8. md:109, mappings evaluate in declaration order and each source expression can access the target variable of any previously evaluated mapping in the sequence. This enables step-by-step derivation where intermediate computed values feed into subsequent calculations. Claiming cross-references between Input Mappings are impossible directly contradicts the documented sequential evaluation order in the Camunda 8 mapping contract. Teams rely on this behavior for multi-step data transformation patterns."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Input Mapping evaluation semantics (per concepts/variables.md:109, :128-134): Documented behavior: Order: mappings evaluate in declaration order (top to bottom in XML / property panel) -- variables.md:109. Cross-reference: each mapping's source expression can reference previously-evaluated mappings' target variables -- explicit second sentence of :109. Initial state: starts with parent scope variables; each mapping adds a new local variable to the scope where the mapping is defined (:132). Example breakdown: Initial parent scope: {A: 5, B: 10}. After Mapping 1 (x = A): Task scope: {A: 5, B: 10, x: 5}. After Mapping 2 (y = B + x): Source B + x = 10 + 5 = 15. Task scope: {..., y: 15}. After Mapping 3 (z = x 2): Source x 2 = 5 2 = 10. Task scope: {..., z: 10}. Final job variables: {A: 5, B: 10, x: 5, y: 15, z: 10} (or just task-local additions, depending on scope). Use cases for cross-references: Step-by-step derivation: compute intermediate values used in later mappings. DRY: extract common subexpressions. Clarity: complex calculations broken into named steps. Note: cross-mapping references are documented Camunda 8 behavior (variables.md:109), not a \"verify per version\" caveat. Other historical engines may differ, but in C8 8.8 the ordering + cross-reference contract is firm. Alternative pattern (when you'd rather keep mappings independent): Compute in one FEEL expression: =number(A) + number(B) in a single mapping for the derived target. Or use a FEEL context literal to compute multiple at once into a single target. Output Mappings: similar order semantics typically; verify per version. Mapping with FEEL functions: ` Mapping 1: total = sum(items.amount) Mapping 2: avg = total / count(items) Mapping 3: bonus = if avg > 100 then avg 0.1 else 0 ` Each builds on previous. Anti-pattern: Circular references: Mapping 1 references Mapping 2's target → undefined (Mapping 2 not yet evaluated). Always reference earlier mappings only in declaration order. Inspect in Operate: Operate shows job variables after Input Mapping applied. Useful for verifying mapping behavior in dev."
+    },
+    "b": {
+      "text": "Incorrect. Verify."
+    },
+    "c": {
+      "text": "Incorrect. Option d) -- Wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Input Mapping evaluation semantics (per concepts/variables.md:109, :128-134): Documented behavior: Order: mappings evaluate in declaration order (top to bottom in XML / property panel) -- variables.md:109. Cross-reference: each mapping's source expression can reference previously-evaluated mappings' target variables -- explicit second sentence of :109. Initial state: starts with parent scope variables; each mapping adds a new local variable to the scope where the mapping is defined (:132). Example breakdown: Initial parent scope: {A: 5, B: 10}. After Mapping 1 (x = A): Task scope: {A: 5, B: 10, x: 5}. After Mapping 2 (y = B + x): Source B + x = 10 + 5 = 15. Task scope: {..., y: 15}. After Mapping 3 (z = x 2): Source x 2 = 5 2 = 10. Task scope: {..., z: 10}. Final job variables: {A: 5, B: 10, x: 5, y: 15, z: 10} (or just task-local additions, depending on scope). Use cases for cross-references: Step-by-step derivation: compute intermediate values used in later mappings. DRY: extract common subexpressions. Clarity: complex calculations broken into named steps. Note: cross-mapping references are documented Camunda 8 behavior (variables.md:109), not a \"verify per version\" caveat. Other historical engines may differ, but in C8 8.8 the ordering + cross-reference contract is firm. Alternative pattern (when you'd rather keep mappings independent): Compute in one FEEL expression: =number(A) + number(B) in a single mapping for the derived target. Or use a FEEL context literal to compute multiple at once into a single target. Output Mappings: similar order semantics typically; verify per version. Mapping with FEEL functions: ` Mapping 1: total = sum(items.amount) Mapping 2: avg = total / count(items) Mapping 3: bonus = if avg > 100 then avg 0.1 else 0 ` Each builds on previous. Anti-pattern: Circular references: Mapping 1 references Mapping 2's target → undefined (Mapping 2 not yet evaluated). Always reference earlier mappings only in declaration order. Inspect in Operate: Operate shows job variables after Input Mapping applied. Useful for verifying mapping behavior in dev.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q11",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

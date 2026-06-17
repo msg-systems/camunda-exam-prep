@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A custom Outbound Connector needs to perform cleanup at process completion -- e.g., close an external session, release a license token. The team wonders if the Connector SDK supports lifecycle hooks.",
+  "question": "Does the Connector SDK support lifecycle hooks beyond the main execute method?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes -- the Connector SDK provides an onProcessComplete hook method that is invoked when the process instance containing the Connector's Service Task completes -- this hook has no runtime implementation in Camunda 8. The Camunda 8 Connector SDK does not define any process-level lifecycle hooks for Outbound Connectors. The SDK invokes OutboundConnectorFunction once per Service Task activation. There is no mechanism for the SDK to call back into the Connector when the encompassing process instance reaches its end state."
+    },
+    {
+      "id": "b",
+      "text": "md:233-234, :249-262); no \"process started / completed / before-activate / after-activate\" hook at the Connector level. For per-process cleanup: model an explicit Service Task at the end of the process that calls a \"release\" Connector -- the cleanup is part of the BPMN flow, not a hidden lifecycle. md:390: \"The InboundConnectorExecutable interface consists of two methods: activate and deactivate\" -- activate(InboundConnectorContext) per :409, :449-450 (async trigger to start listening), deactivate() per :419, :454 (\"graceful shutdown hook\")."
+    },
+    {
+      "id": "c",
+      "text": "Compensation Boundary Events and their handler activities fire when a Compensation Throw Event explicitly triggers them in the process flow, typically for transactional rollback of completed work. They are not a general-purpose process-lifecycle hook that fires at process completion. An explicit cleanup Service Task in the BPMN flow is more appropriate."
+    },
+    {
+      "id": "d",
+      "text": "Outbound Connectors do have a per-invocation execution lifecycle: the SDK calls the execute method and handles success or failure. What Outbound Connectors lack is a process-level lifecycle hook that fires at process start or completion. Inbound Connectors have activate and deactivate for managing persistent listener state, which has no equivalent in the per-invocation Outbound model."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Outbound Connector lifecycle is per-invocation: OutboundConnectorProvider SPI registers as a job worker keyed by the @OutboundConnector(type=...) annotation (per connector-sdk.md:233-234). The runtime invokes the connector per Service Task activation; performs the work; returns / completes (per :387). No \"process started,\" \"process completed,\" \"before activation,\" \"after activation\" hooks at the Connector level. For per-process cleanup (e.g., releasing a license token, closing an external session): Model it as a Service Task at the end of the process. The cleanup is explicit in the BPMN; readers see \"Release Session\" at the end. Use Compensation Events if the cleanup is conditional on process success / failure paths. Use End Events with cleanup logic in the form of preceding Service Tasks. Inbound Connectors are different: they have a documented two-method lifecycle on the InboundConnectorExecutable interface (per connector-sdk.md:386-454): activate(InboundConnectorContext context) -- asynchronous trigger to start listening to inbound events (:409, :449-450). deactivate() -- graceful shutdown hook (:419, :454)."
+    },
+    "b": {
+      "text": "Correct. No such hook."
+    },
+    "c": {
+      "text": "Incorrect. Compensation pattern; not the lifecycle hook."
+    },
+    "d": {
+      "text": "Incorrect. Outbound is per-invocation, no process-level hooks."
+    }
+  },
+  "explanation": "No such hook.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q45",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

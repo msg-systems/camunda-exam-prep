@@ -1,0 +1,27 @@
+{
+  "id": "ext-writing-good-workers-88",
+  "topic": "extensions-integrations",
+  "subtopic": "java client",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Catalyst Bank operates a Camunda 8.8 Java worker that performs a blocking RestTemplate call for a loan check on 8000 jobs per day. The platform team measures strictly sequential job processing on the default Java client configuration and needs to enable a fixed thread pool of 5 worker threads to overlap the blocking REST calls.",
+  "question": "Which Java client builder call sets the worker execution thread pool size to 5 threads in Camunda 8.8?",
+  "options": [
+    { "id": "a", "text": "Call .numJobWorkerExecutionThreads(5) on the ZeebeClient builder and build the client; the default thread pool size is one, so this widens parallelism to 5 threads for blocking workers" },
+    { "id": "b", "text": "Call .jobWorkerPoolSize(5) on the ZeebeClient builder and build the client; the default thread pool size is one, so this widens parallelism to 5 threads for blocking workers" },
+    { "id": "c", "text": "Call .executor(Executors.newFixedThreadPool(5)) on the ZeebeClient builder and build the client; the default thread pool size is one, so this widens parallelism to 5 threads" },
+    { "id": "d", "text": "Call .workerThreads(5) on the ZeebeClient builder and build the client; the default thread pool size is one, so this widens parallelism to 5 threads for blocking workers" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The documented Java snippet uses ZeebeClient.newClientBuilder().numJobWorkerExecutionThreads(5).build() to override the default single-thread pool and allow blocking workers to run in parallel." },
+    "b": { "text": "Incorrect. There is no jobWorkerPoolSize method in the documented Java client builder; the documented name is numJobWorkerExecutionThreads." },
+    "c": { "text": "Incorrect. The documented Java client builder does not take an external Executor for worker threads; it exposes numJobWorkerExecutionThreads to size the pool." },
+    "d": { "text": "Incorrect. The documented builder method is numJobWorkerExecutionThreads, not workerThreads; the example in the guide uses that exact name." }
+  },
+  "explanation": "The Camunda 8.8 Java client defaults to a single worker execution thread; to scale blocking workers, call numJobWorkerExecutionThreads(n) on the ZeebeClient builder, as shown in the writing-good-workers documentation example with 5 threads.",
+  "docs": [
+    { "title": "Writing good workers", "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/" }
+  ]
+}

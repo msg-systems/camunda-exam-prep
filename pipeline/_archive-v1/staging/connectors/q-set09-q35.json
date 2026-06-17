@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q35",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's CI/CD pipeline deploys BPMN to multiple environments (dev, staging, production). Connectors reference secrets that differ per environment (different API keys, URLs). The team wants to provision secrets per environment automatically as part of CI.",
+  "question": "How does the team manage per-environment secrets in CI/CD?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Configure cluster secrets per environment outside the BPMN -- secrets live in the cluster's secrets provider (Console UI for SaaS, env / Kubernetes / Vault for SM). PARTNER_API_KEY}}); the actual value differs per environment. CI/CD: deploy the same BPMN to each environment; provision secrets per environment via cluster API or IaC (Terraform / scripts). The BPMN is environment-agnostic."
+    },
+    {
+      "id": "b",
+      "text": "Embedding environment-specific values directly in BPMN files requires maintaining separate BPMN versions for each environment (dev, staging, production), which defeats the DRY principle. Changes to the BPMN model must then be applied to every environment-specific copy, increasing the risk of divergence. Additionally, embedding credentials in BPMN files creates security risks if the files are checked into version control or shared without proper access controls. This approach is an anti-pattern for multi-environment deployments."
+    },
+    {
+      "id": "c",
+      "text": "Any change to the process logic must be applied to every environment-specific copy manually, creating synchronisation problems and increasing the risk of environments drifting apart. The canonical approach separates the BPMN model from environment-specific configuration by using cluster secrets, allowing the same BPMN to deploy to every environment while secret values vary by cluster."
+    },
+    {
+      "id": "d",
+      "text": "Camunda fully supports per-environment secrets through cluster-resident secret stores. For SaaS clusters, secrets are configured in the Console UI per cluster. For Self-Managed deployments, secrets can be provisioned via environment variables, Kubernetes Secrets, or external secret management tools like HashiCorp Vault. KEY_NAME}} syntax, so the same BPMN works across all environments with different actual values per cluster."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The canonical pattern: separate BPMN model from environment-specific values. BPMN references secrets by name; secrets are environment-resident. Workflow: BPMN model: identical across environments. Connectors reference {{secrets.PARTNER_API_KEY}}, {{secrets.PARTNER_URL}}, etc. Cluster secrets: provisioned per cluster (per environment). Dev cluster has dev values; prod cluster has prod values. CI/CD pipeline: (1) deploy BPMN to each environment's cluster (identical BPMN); (2) provision secrets to each environment via API (Console API for SaaS, env / K8s / Vault tooling for SM) -- typically using IaC tooling for repeatability. This separation: Keeps BPMN environment-agnostic (single source of truth). Allows independent rotation of secrets per environment. Prevents accidentally deploying dev credentials to prod."
+    },
+    "b": {
+      "text": "Incorrect. Defeats DRY."
+    },
+    "c": {
+      "text": "Incorrect. Single-source-of-truth principle violated."
+    },
+    "d": {
+      "text": "Incorrect. Secrets supported."
+    }
+  },
+  "explanation": "The canonical pattern: separate BPMN model from environment-specific values. BPMN references secrets by name; secrets are environment-resident. Workflow: BPMN model: identical across environments. Connectors reference {{secrets.PARTNER_API_KEY}}, {{secrets.PARTNER_URL}}, etc. Cluster secrets: provisioned per cluster (per environment). Dev cluster has dev values; prod cluster has prod values. CI/CD pipeline: (1) deploy BPMN to each environment's cluster (identical BPMN); (2) provision secrets to each environment via API (Console API for SaaS, env / K8s / Vault tooling for SM) -- typically using IaC tooling for repeatability. This separation: Keeps BPMN environment-agnostic (single source of truth). Allows independent rotation of secrets per environment. Prevents accidentally deploying dev credentials to prod.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/console/manage-clusters/manage-secrets/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q35",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

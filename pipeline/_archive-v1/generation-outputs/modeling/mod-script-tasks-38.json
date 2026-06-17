@@ -1,0 +1,27 @@
+{
+  "id": "mod-script-tasks-38",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Retailer runs 12000 invoice calculations per day in Camunda 8.8. The team places a BPMN script task with a job worker implementation in the flow and registers an external job worker that polls for the configured job type to execute the calculation logic.",
+  "question": "What happens at runtime when a process instance enters this script task with a job worker implementation?",
+  "options": [
+    { "id": "a", "text": "Zeebe creates a job of the configured job type and the process instance waits for an external job worker to complete that job before continuing" },
+    { "id": "b", "text": "Zeebe evaluates the script inline against the broker engine and continues immediately without creating any job for an external worker to consume" },
+    { "id": "c", "text": "Zeebe pushes the script payload to a built-in script runtime that executes the script and completes the activity without any external worker subscription" },
+    { "id": "d", "text": "Zeebe creates a service task job under a reserved dmn job type and completes the script task as soon as the broker resolves the inline FEEL" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. With the job worker implementation, a script task behaves exactly like a service task: entering it creates a job of the configured type, and the instance waits for an external worker to complete it before the flow continues." },
+    "b": { "text": "Incorrect. The job worker implementation does not run the script in the broker; it relies on an external worker, and the instance waits for job completion before continuing." },
+    "c": { "text": "Incorrect. Jobs for script tasks are not processed by Zeebe itself; a job worker must be provided to handle them." },
+    "d": { "text": "Incorrect. There is no reserved dmn job type for script tasks, and the inline FEEL form is a different implementation choice rather than the job worker form described here." }
+  },
+  "explanation": "The job worker implementation of a script task is job-based: Zeebe creates a job of the configured type on activation and waits for an external worker to complete it. Inline FEEL execution is a different implementation choice for script tasks.",
+  "docs": [
+    { "title": "BPMN script tasks", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/script-tasks/" }
+  ]
+}

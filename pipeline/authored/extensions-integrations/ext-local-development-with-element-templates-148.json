@@ -1,0 +1,53 @@
+{
+  "id": "ext-local-development-with-element-templates-148",
+  "topic": "extensions-integrations",
+  "subtopic": "local-development",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An element template references a form `user-signup.form`. You want a CI script — not Desktop Modeler — to deploy the form to a local Camunda 8 Run cluster. Which Orchestration Cluster REST API call does the docs example use?",
+  "codeBlocks": {
+    "stem": "curl -L 'http://localhost:8080/v2/deployments' \\\n  -H 'Accept: application/json' \\\n  -F resources=@/pathToYourForm/user-signup.form"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "A multipart `POST` to `/v2/deployments` with the form file uploaded as the `resources` field."
+    },
+    {
+      "id": "b",
+      "text": "A `PUT` to `/v2/forms/user-signup` with the form file as the JSON body."
+    },
+    {
+      "id": "c",
+      "text": "A `POST` to `/v1/forms` with the form file as `application/json`."
+    },
+    {
+      "id": "d",
+      "text": "Drop the form file into the `custom_connectors` directory so C8 Run auto-deploys it on next start."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs show exactly this: a multipart `POST` to `/v2/deployments` with `-F resources=@.../user-signup.form`, returning a deployment payload that includes the form's `formKey`, `formId`, and `version`."
+    },
+    "b": {
+      "text": "There is no `PUT /v2/forms/{id}` endpoint in this guide; deployments are created through `POST /v2/deployments`."
+    },
+    "c": {
+      "text": "The example uses the v2 deployments endpoint, not a `v1/forms` JSON endpoint; resources must be sent as multipart form data, not JSON."
+    },
+    "d": {
+      "text": "`custom_connectors` is for connector runtimes; forms are deployed via the Orchestration Cluster REST API or Desktop Modeler."
+    }
+  },
+  "explanation": "To deploy additional dependencies — forms, DMN diagrams, subprocesses — the docs recommend scripting against the Orchestration Cluster REST API with a multipart `POST /v2/deployments`. The response confirms the deployment with the resource's key, id, and version, and the element template can then reference it (for example `user-signup.form`). Desktop Modeler is the manual alternative for the same workflow.",
+  "docs": [
+    {
+      "title": "Local development with element templates",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/local-development-with-element-templates/"
+    }
+  ]
+}

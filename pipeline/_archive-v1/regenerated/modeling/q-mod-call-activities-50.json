@@ -1,0 +1,50 @@
+{
+  "id": "mod-call-activities-50",
+  "topic": "modeling",
+  "subtopic": "subprocesses",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Xander Insurer attaches a boundary event to a Camunda 8.8 call activity that invokes a claims sub-process. The team handles 9500 claims per day and is choosing between interrupting and non-interrupting variants while needing to know how each option affects the called process instance and its variables.",
+  "question": "How does an interrupting boundary event on a call activity affect the called process instance and its variables in Camunda 8.8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The interrupting boundary event suspends the called process instance for PT5M and propagates its current variables to the call activity scope when the suspension ends"
+    },
+    {
+      "id": "b",
+      "text": "The interrupting boundary event terminates the call activity and the created process instance, and the variables of the created process instance are not propagated to the parent"
+    },
+    {
+      "id": "c",
+      "text": "The interrupting boundary event terminates only the call activity but lets the created process instance keep running and propagates its variables on its own completion path"
+    },
+    {
+      "id": "d",
+      "text": "The interrupting boundary event marks the call activity as failed and keeps the created process instance running so its variables can be propagated to the parent on retry"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The interrupting boundary event does not suspend the called process for a duration; it terminates the call activity and the child instance together."
+    },
+    "b": {
+      "text": "Correct. When an interrupting boundary event on a call activity is triggered, the call activity and the created process instance are terminated, and the variables of the created process instance are not propagated to the parent."
+    },
+    "c": {
+      "text": "Incorrect. Interrupting boundary events terminate the call activity and its child process instance together; they do not leave the child instance running."
+    },
+    "d": {
+      "text": "Incorrect. There is no retry-with-running-child semantic for interrupting boundary events on call activities; the child instance is terminated and its variables are not propagated."
+    }
+  },
+  "explanation": "An interrupting boundary event on a call activity terminates both the call activity and the created process instance. Variables held in the created instance are not propagated back to the calling process scope.",
+  "docs": [
+    {
+      "title": "BPMN call activities",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/"
+    }
+  ]
+}

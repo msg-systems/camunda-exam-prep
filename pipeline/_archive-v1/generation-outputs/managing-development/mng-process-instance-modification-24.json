@@ -1,0 +1,27 @@
+{
+  "id": "mng-process-instance-modification-24",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "NovaPay's payment-operations team uses Camunda 8.8 Operate to repair 240 process instances where tokens are stuck on a screening task after a 6 hours outage at a payments partner. The team wants to relocate every running token from the screening task to the manual-review task on each instance in one modification step rather than running two separate cancel and add modifications.",
+  "question": "Which property of the move operation lets the operator handle this relocation in a single modification step?",
+  "options": [
+    { "id": "a", "text": "Move treats the source and target flow nodes as two independent edits that must each be applied separately before the engine relocates the running tokens between the two nodes" },
+    { "id": "b", "text": "Move only relocates the most recently created token on the source flow node, so any other running tokens must be moved one by one through extra add operations on the target node" },
+    { "id": "c", "text": "Move is equivalent to combining Cancel on the source flow node with Add on the target flow node, so one move modification handles both halves of the relocation in a single step" },
+    { "id": "d", "text": "Move first asks the operator to delete the source flow node from the diagram, after which a fresh token is automatically created on the chosen target flow node by the engine" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The docs describe Move as one modification, not two separately applied edits. The operator selects source and target flow nodes, and a single move modification carries both halves of the relocation." },
+    "b": { "text": "Incorrect. Move acts on the running tokens of the source flow node as a group, not only the most recent token. No additional add operations are required to clear the source after a single move modification." },
+    "c": { "text": "Correct. The docs state the move operation is equivalent to combining Cancel and Add, so the operator selects the source flow node, clicks Move instance from the dropdown, and selects the target to complete the relocation in one pending modification." },
+    "d": { "text": "Incorrect. Move does not delete a flow node from the diagram. It asks the operator to choose source and target flow nodes on the running instance and produces a single pending modification reflected in the instance history." }
+  },
+  "explanation": "The move operation is equivalent to combining Cancel on the source node and Add on the target node. The operator selects the source flow node, clicks Move instance, then picks the target flow node so one pending modification captures both halves.",
+  "docs": [
+    { "title": "Process instance modification", "url": "https://docs.camunda.io/docs/components/operate/userguide/process-instance-modification/" }
+  ]
+}

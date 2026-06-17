@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-115",
+  "topic": "extensions-integrations",
+  "subtopic": "service-task-vs-send-receive",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A process integrates with a callback-style payment gateway whose response can arrive minutes — sometimes hours — later. Which BPMN element best fits this request/response, and why?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A send task followed by a receive task — you control the correlation ID and don't rely on an internal job instance key over long waits."
+    },
+    {
+      "id": "b",
+      "text": "A service task — Zeebe's generated job key is the simplest correlation, and waiting hours on an open job is fine."
+    },
+    {
+      "id": "c",
+      "text": "A service task — message buffering will queue the late response until the process catches up."
+    },
+    {
+      "id": "d",
+      "text": "A send task only — fire-and-forget removes the need to wait for the callback at all."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct per the docs' summary table: use send + receive 'when the response will take time (> some seconds), or you need a correlation ID you can control.' Over long waits, operational restarts can change a job key and break correlation, so an owned correlation ID is safer."
+    },
+    "b": {
+      "text": "Service tasks are fine for millisecond-range request/response, but the docs warn that cancelling and restarting an instance creates a new job key, breaking outstanding response correlation — a real risk over hours."
+    },
+    "c": {
+      "text": "Message buffering is a feature of the messages concept used by send + receive tasks, not of service tasks. Service tasks do not buffer messages."
+    },
+    "d": {
+      "text": "A send-task-only pattern is fire-and-forget — the process won't observe the callback at all, which fails the actual business requirement."
+    }
+  },
+  "explanation": "For long-running responses the docs recommend the send + receive task combo because (a) you own the correlation ID and don't depend on the engine-internal job instance key, and (b) message buffering and explicit correlation are part of the messages concept built into Zeebe. Service tasks are best when responses return within milliseconds.",
+  "docs": [
+    {
+      "title": "Service integration patterns",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

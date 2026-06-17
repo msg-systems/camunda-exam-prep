@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q06",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team learning BPMN compensation asks about the relationship between an activity and its compensation handler. They see in their diagram: a Service Task charge-card, a Compensation Boundary Event attached to it, and a connected Compensation Handler Task refund-card. They want to understand how these relate at runtime.",
+  "question": "What is the relationship between the activity, its Compensation Boundary, and the Compensation Handler at runtime?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Compensation Handler runs every time the host activity completes, similar to a downstream sequence flow task that always executes after the preceding task finishes. If the handler ran on every completion, it would be a normal downstream task in the process flow, not a compensation handler. Compensation handlers are dormant during normal flow and only activate when an explicit Compensation Throw event is issued to reverse previously completed work."
+    },
+    {
+      "id": "b",
+      "text": "The Compensation Handler is only invoked when compensation is thrown (Compensation Throw End Event or Intermediate Throw upstream), AND only if the host activity (charge-card) previously completed successfully. The Compensation Boundary Event establishes the link between the host activity and its handler; the handler remains dormant during normal flow. The handler is NOT part of the normal flow path -- it is a \"side flow\" that executes only when the saga-style rollback is triggered."
+    },
+    {
+      "id": "c",
+      "text": "The Compensation Handler runs concurrently with the host activity while the host is executing, similar to a parallel branch that starts at the same time. The Compensation Boundary Event only activates after the host activity has already completed successfully. The handler does not run while the host is active; it runs in response to a Compensation Throw event that occurs after the host finished, as part of a saga-style rollback sequence."
+    },
+    {
+      "id": "d",
+      "text": "The handler runs only when the host activity itself fails -- for example, when a payment processing error occurs in charge-card. This conflates two different BPMN mechanisms. Compensation is triggered by an explicit Compensation Throw event issued downstream when something else went wrong and the saga needs to undo prior successful work. Host failure is handled by Error Boundary Events, not Compensation Boundary Events. The host must have completed successfully for compensation to be applicable."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN compensation semantics: The Compensation Boundary Event is dormant in normal flow. It doesn't fire when its host completes; the host completing successfully puts it into \"compensable\" state -- meaning \"if compensation is thrown for this activity, I'll run the handler.\" A Compensation Throw event (End Event with compensation marker, or Intermediate Throw) triggers compensation cascade. Per compensation-events.md:31-35: \"The process instance invokes all compensation handlers at once without any specific order. If the order is important, the compensation can be triggered for a specific activity.\" For ordered rollback, chain Compensation Throws each with an explicit activityRef per :81-83. The handler runs as a \"side flow\" -- it executes its task (e.g., refund-card), then completes. Its outgoing arrow (typically empty / minimal) doesn't lead back to main flow; main flow either ended (Compensation End Event) or continues independently of compensation completion. Key insight: compensation isn't error handling; it's saga rollback. The host activity itself succeeded; the rollback fires because something downstream went wrong and the saga needs to undo successful prior work."
+    },
+    "b": {
+      "text": "Correct. Handler doesn't run on every host completion."
+    },
+    "c": {
+      "text": "Incorrect. Compensation runs sequentially after host (in reverse order), not concurrently."
+    },
+    "d": {
+      "text": "Incorrect. Compensation isn't triggered by host failure (that's Error Boundary). It's triggered by an explicit Compensation Throw downstream when the saga needs to undo prior successful work."
+    }
+  },
+  "explanation": "Handler doesn't run on every host completion.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q06",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

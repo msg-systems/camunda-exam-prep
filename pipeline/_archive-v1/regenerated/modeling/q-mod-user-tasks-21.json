@@ -1,0 +1,50 @@
+{
+  "id": "mod-user-tasks-21",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Insurance routes 3000 tasks per day in Camunda 8.8 to a pool of reviewers. The modeler needs the user task to pre-claim for the reviewer named in the process variable bookAuthor when present, while also allowing members of the group list reviewerRoles to pick the task up from Tasklist if needed.",
+  "question": "How should the zeebe:AssignmentDefinition element on the user task be configured to meet this requirement?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set assignee to the FEEL expression equals bookAuthor and set candidateGroups to the FEEL expression equals reviewerRoles, both evaluated on activating the user task itself"
+    },
+    {
+      "id": "b",
+      "text": "Set candidateUsers to the FEEL expression equals bookAuthor and set assignee to the FEEL expression equals reviewerRoles, both evaluated on activating the user task itself"
+    },
+    {
+      "id": "c",
+      "text": "Set assignee to the FEEL expression equals bookAuthor and set candidateUsers to the FEEL expression equals reviewerRoles, both evaluated only at process deployment time and never on activation"
+    },
+    {
+      "id": "d",
+      "text": "Set assignee and candidateGroups to comma-separated static lists derived from bookAuthor and reviewerRoles, with FEEL expressions treated as disallowed on the documented assignment attributes"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The assignee may be a static value or a FEEL expression that evaluates to a string and Tasklist claims the task for that user. The candidateGroups may be a static value or a FEEL expression that evaluates to a list of strings, evaluated on activating the user task."
+    },
+    "b": {
+      "text": "Incorrect. The assignee must evaluate to a string while candidateGroups and candidateUsers must evaluate to a list of strings, so swapping their roles violates the documented result types."
+    },
+    "c": {
+      "text": "Incorrect. Assignment expressions on user tasks are evaluated on activating the user task, not at deployment time, so the expressions must resolve at activation."
+    },
+    "d": {
+      "text": "Incorrect. FEEL expressions are explicitly supported on assignee, candidateUsers, and candidateGroups, so a static-only restriction does not match the documented behavior of these attributes."
+    }
+  },
+  "explanation": "The zeebe:AssignmentDefinition supports assignee, candidateUsers, and candidateGroups, each definable as a static value or a FEEL expression. Assignee must evaluate to a string, while candidateUsers and candidateGroups must evaluate to a list of strings on activation.",
+  "docs": [
+    {
+      "title": "BPMN user tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A payment process has a Service Task \"Charge Card\" with three distinct error scenarios: card declined (returns CARD_DECLINED), gateway timeout (returns GATEWAY_TIMEOUT), and fraud detected (returns FRAUD_DETECTED). Each must route to a different handler. The team initially attaches a single Error Boundary Event with errorCode = \"PAYMENT_ERROR\" and a downstream Exclusive Gateway switching on the error code, but the audit trail is muddled -- Operate shows all three failures as the same error in summary views, and the Exclusive Gateway adds extra noise to the BPMN model.",
+  "question": "Which is the correct BPMN-native error routing for typed errors?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Attach one catch-all Error Boundary Event with a generic errorCode and route to a downstream Script Task that parses the error message string to determine which of the three failure types occurred, then branches accordingly. Parsing error messages is fragile -- the message text can change between worker versions, the parsing logic must be maintained separately from the BPMN model, and Operate reports all three as the same error type. BPMN errorCode exists precisely to provide typed routing without message parsing."
+    },
+    {
+      "id": "b",
+      "text": "Attach three separate Error Boundary Events to the Service Task, each with a distinct errorCode matching what the worker throws (CARD_DECLINED, GATEWAY_TIMEOUT, FRAUD_DETECTED). Each boundary routes directly to its own dedicated handler. Zeebe matches thrown errors to the boundary event with the same errorCode, giving typed routing as first-class BPMN elements -- each error type has a named boundary, a separate handler, and clean per-type audit in Operate."
+    },
+    {
+      "id": "c",
+      "text": "Configure the Service Task with a zeebe:errorEventDefinition element that lists all three error codes in a single declaration, so the engine knows which codes may be thrown and can route them appropriately without separate boundary events on the BPMN diagram. There is no such multi-code property in Zeebe's BPMN extension schema. Error routing in Camunda 8 is configured on the Error Boundary Event elements themselves, each carrying one errorCode."
+    },
+    {
+      "id": "d",
+      "text": "Use a Subprocess wrapping the Service Task with three Error Catch Events placed inside the subprocess scope so that each error type is caught and handled within the same enclosing scope. Wrapping the task in a Subprocess and placing boundary events on the subprocess adds unnecessary scope nesting and complicates the Operate audit view for a problem that multiple Error Boundary Events directly on the Service Task already solve cleanly and without the extra scope layer."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. In Zeebe, multiple Error Boundary Events can be attached to the same activity, each with its own errorCode. Zeebe routes thrown errors to the matching boundary by code. This gives typed error routing as first-class BPMN elements -- each error type has its own named boundary, its own handler, clean Operate audit, no downstream Exclusive Gateway needed."
+    },
+    "b": {
+      "text": "Correct. Parsing error messages downstream is fragile (text can change, parsing logic must stay in sync). BPMN's errorCode is exactly the mechanism for typed error routing."
+    },
+    "c": {
+      "text": "Incorrect. No such Zeebe property zeebe:errorEventDefinition listing multiple codes. Error routing is configured on the boundary event, not the task."
+    },
+    "d": {
+      "text": "Incorrect. Wrapping in a Subprocess works mechanically but adds unnecessary scope nesting and Operate complexity for a problem that boundary events solve directly."
+    }
+  },
+  "explanation": "Parsing error messages downstream is fragile (text can change, parsing logic must stay in sync). BPMN's errorCode is exactly the mechanism for typed error routing.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q21",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

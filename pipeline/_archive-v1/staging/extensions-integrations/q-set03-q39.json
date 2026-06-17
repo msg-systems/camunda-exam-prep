@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q39",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL date computation determines whether a contract's start_date is at least 30 days before end_date. The dates come as ISO strings from a process variable.",
+  "question": "Which FEEL expression correctly performs the date arithmetic?",
+  "options": [
+    {
+      "id": "a",
+      "text": "date(end_date) - date(start_date) >= duration(\"P30D\") -- FEEL's date(string) built-in parses ISO 8601 date strings into FEEL date values; subtracting two date values yields a days and time duration type representing the elapsed time; duration(\"P30D\") constructs a 30-day ISO 8601 duration for comparison. The >= comparison between two durations checks whether the contract's span meets the 30-day minimum. All operations use FEEL's native temporal type system without external libraries."
+    },
+    {
+      "id": "b",
+      "text": "(end_date - start_date) > 30 -- subtracts the start_date string from the end_date string and compares the result to the integer 30. Since end_date and start_date are ISO date strings (not date values), this operation attempts string arithmetic which is undefined in FEEL and would return null or an error. Even if the strings were already parsed as date values, subtracting two dates returns a days and time duration type, which cannot be compared directly to a plain integer without explicit duration construction."
+    },
+    {
+      "id": "c",
+      "text": "daysBetween(start_date, end_date) >= 30 -- uses a daysBetween() function that computes the number of days between two dates and returns an integer for direct comparison to 30. FEEL does not have a daysBetween built-in function. Java and legacy Camunda 7 expression libraries had similar date utility functions, but FEEL's temporal arithmetic uses date subtraction (date(b) - date(a)) which returns a days and time duration type, compared using duration(\"P30D\") notation rather than plain integer values."
+    },
+    {
+      "id": "d",
+      "text": "FEEL does not support date arithmetic -- all date comparison logic for contract validity must be implemented in a Service Task using a Java or JavaScript Job Worker that computes the day difference programmatically, then returns a boolean to the process. FEEL has comprehensive built-in temporal arithmetic support. The date(string) function parses ISO date strings, subtraction between two dates produces a days and time duration, and duration(\"P30D\") creates a 30-day duration for comparison."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. FEEL's date(string) parses ISO date strings to date values. Subtraction of two dates yields a days and time duration. Comparison with duration(\"P30D\") (ISO 8601 duration) tests whether elapsed time is ≥ 30 days."
+    },
+    "b": {
+      "text": "Incorrect. Subtracting raw strings doesn't work -- they're not numbers."
+    },
+    "c": {
+      "text": "Incorrect. No daysBetween built-in in FEEL (Java/legacy Camunda 7 expression libraries had something similar)."
+    },
+    "d": {
+      "text": "Incorrect. FEEL has rich temporal arithmetic."
+    }
+  },
+  "explanation": "FEEL's date(string) parses ISO date strings to date values. Subtraction of two dates yields a days and time duration. Comparison with duration(\"P30D\") (ISO 8601 duration) tests whether elapsed time is ≥ 30 days.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-temporal/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q39",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q43",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Ops needs to set a process variable on a running instance to recover from an incident -- the variable customerId is missing. They use zbctl.",
+  "question": "Which zbctl subcommand sets a variable on a running instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "zbctl set variables <instanceKey> --variables '{\"customerId\":\"C-123\"}'. md:33 lists zbctl under community-clients, NOT a Camunda-maintained CLI -- the Camunda-maintained CLI is c8ctl at apis-tools/c8ctl/). Alternative for scriptable production: Orchestration Cluster REST API (/v2/process-instances/{key} family -- see Set variables docs) or c8ctl. md)."
+    },
+    {
+      "id": "b",
+      "text": "The zbctl community client does support setting variables on running process instances as a documented command. The zbctl set variables subcommand accepts an instance key and a JSON variables payload, updating the variable scope of the specified running instance. This functionality is particularly useful for incident recovery scenarios where a missing or incorrect variable needs to be provided to unblock a stuck process."
+    },
+    {
+      "id": "c",
+      "text": "The Operate UI does provide a way to update variables on running instances through its instance detail view. The zbctl command-line tool and the Orchestration Cluster REST API provide programmatic and scriptable alternatives that can be integrated into runbooks, CI/CD pipelines, or automated incident response workflows."
+    },
+    {
+      "id": "d",
+      "text": "Cancelling and recreating a process instance to recover from a missing variable is an unnecessarily heavy-handed approach. The process history, audit trail, and any completed tasks would be lost in the cancelled instance. The correct targeted recovery action is to set the missing variable on the running instance using zbctl or the REST API, then resolve the incident, allowing the process to continue from where it stopped without losing any work already done."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. zbctl is command-oriented; among its commands is setting variables on instances. The exact syntax / subcommand name varies across versions (zbctl set variables, zbctl publish-message, zbctl create instance, etc.). For setting variables: ` zbctl set variables --variables '{\"customerId\": \"C-123\"}' Refreshes the variable scope of the instance; if it was part of an Incident due to missing variable, ops can then resolve the Incident, and the job re-activates with the variable now present. Alternative: REST API PATCH /v2/process-instances/{key}/variables` does the same programmatically without zbctl."
+    },
+    "b": {
+      "text": "Incorrect. Supported."
+    },
+    "c": {
+      "text": "Incorrect. Operate UI works for one-off; zbctl / REST for scriptable."
+    },
+    "d": {
+      "text": "Incorrect. Not needed."
+    }
+  },
+  "explanation": "zbctl is command-oriented; among its commands is setting variables on instances. The exact syntax / subcommand name varies across versions (zbctl set variables, zbctl publish-message, zbctl create instance, etc.). For setting variables: ` zbctl set variables --variables '{\"customerId\": \"C-123\"}' Refreshes the variable scope of the instance; if it was part of an Incident due to missing variable, ops can then resolve the Incident, and the job re-activates with the variable now present. Alternative: REST API PATCH /v2/process-instances/{key}/variables` does the same programmatically without zbctl.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/community-clients/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q43",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

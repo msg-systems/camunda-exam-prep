@@ -1,0 +1,50 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-94",
+  "topic": "extensions-integrations",
+  "subtopic": "transactions",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A process calls a CRM service then a billing service as two separate service tasks; the CRM call commits, but the billing call fails. Why do the best practices recommend treating this with a **business transaction** instead of relying on a technical ACID rollback?",
+  "options": [
+    {
+      "id": "a",
+      "text": "ACID properties cannot be applied across distributed systems — there is no joined technical transaction spanning the workflow engine, CRM, and billing."
+    },
+    {
+      "id": "b",
+      "text": "Zeebe automatically rolls back the CRM call once the billing call fails; \"business transaction\" is just a synonym for that rollback."
+    },
+    {
+      "id": "c",
+      "text": "BPMN forbids more than one service task between gateways, so a technical transaction is structurally impossible."
+    },
+    {
+      "id": "d",
+      "text": "gRPC is non-transactional; switching the workers to REST would let Zeebe enforce a single ACID boundary across both services."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state ACID transactions cannot be applied to distributed systems; CRM, billing, and the workflow engine each have their own local transactions. A _business transaction_ accepts temporary inconsistency and resolves it explicitly."
+    },
+    "b": {
+      "text": "Zeebe does not roll back already-completed service calls. A business transaction is exactly the technique used _because_ there is no automatic distributed rollback."
+    },
+    "c": {
+      "text": "BPMN allows arbitrary sequences of service tasks; the constraint is the absence of distributed-ACID semantics, not BPMN structure."
+    },
+    "d": {
+      "text": "The transport protocol does not give Zeebe distributed-ACID capabilities. The limitation is fundamental to distributed systems, not to gRPC vs REST."
+    }
+  },
+  "explanation": "ACID transactions apply only within a single system (typically a database). When a process orchestrates multiple services, each has its own local transactions and the workflow engine has its own — they cannot be joined into one technical transaction. A _business transaction_ marks a section that should be 'all or nothing' from a business perspective, accepting that intermediate inconsistent states may exist and must be resolved explicitly.",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

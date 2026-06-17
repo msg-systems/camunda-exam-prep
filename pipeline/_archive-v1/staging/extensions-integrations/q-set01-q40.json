@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q40",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Camunda 8 process variable named customer is a complex context (object) with fields name, email, address (nested context with street, city, country), and orders (list). A FEEL expression elsewhere needs to access customer.address.country to determine VAT calculation. Sometimes customer.address is null (customers who haven't completed onboarding). The team needs a FEEL expression that safely returns the country string OR \"UNKNOWN\" if the address is missing.",
+  "question": "Which FEEL expression correctly handles the nullable nested access?",
+  "options": [
+    {
+      "id": "a",
+      "text": "country ?? \"UNKNOWN\" -- null-coalescing operator. The ?? null-coalescing operator is absent from FEEL. It is a JavaScript/TypeScript/C#/Kotlin operator where a ?? b returns a if non-null, otherwise b. The FEEL language specification has no syntactic operators for null handling -- all null fallback patterns use either the explicit if-then-else conditional or the Camunda Extension get or else(value, default) function. Using ?? in a FEEL expression causes a parse error. This is a high-frequency exam trap because the behaviour of ?? is exactly what's needed here, but FEEL does not provide it as an operator."
+    },
+    {
+      "id": "b",
+      "text": ": \"UNKNOWN\" -- null-safe navigation + Elvis operator. Neither ?. : (Elvis operator) exist in FEEL. property returns undefined/null instead of throwing when obj is null). = null ? x : y. The FEEL language uses a pure functional evaluation model where null propagates automatically through path navigation, and null fallback is handled by get or else()."
+    },
+    {
+      "id": "c",
+      "text": "md:70-93. country is null, the path likewise returns null. In either case, get or else intercepts the null and substitutes \"UNKNOWN\". This compact expression handles all null cases in the navigation chain -- missing address, null country, and the fully populated case where the actual country string is returned -- in a single readable expression."
+    },
+    {
+      "id": "d",
+      "text": "country -- explicit null check on parent before nested access. This expression is semantically correct and handles the null case properly. country. country on a null context returns null, not an exception), the explicit null check is redundant. country, \"UNKNOWN\") approach achieves exactly the same result in fewer tokens and more idiomatically expresses the \"provide fallback for null\" intent."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The canonical Camunda FEEL idiom for null-fallback is get or else(value, default) per feel-built-in-functions-boolean.md:70-93. Combined with FEEL's null-propagating path navigation (per feel-context-expressions.md), customer.address.country safely returns null when any intermediate is null, and get or else substitutes the default. One concise expression."
+    },
+    "b": {
+      "text": "Incorrect. No ?? operator in FEEL."
+    },
+    "c": {
+      "text": "Correct. Neither ?. (null-safe navigation) nor ?: (Elvis) exist in FEEL. These are TypeScript/Kotlin operators."
+    },
+    "d": {
+      "text": "Incorrect. FEEL does propagate null through path navigation, so the wrapped expression works. Option (a) is more concise."
+    }
+  },
+  "explanation": "Neither ?. (null-safe navigation) nor ?: (Elvis) exist in FEEL. These are TypeScript/Kotlin operators.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-boolean/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q40",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

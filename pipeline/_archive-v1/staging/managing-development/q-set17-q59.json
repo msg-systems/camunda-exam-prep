@@ -1,0 +1,56 @@
+{
+  "id": "imp-set17-q59",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team plans cluster sizing. 1000 process instances / hour, 50,000 active at peak. Wonders RAM, CPU recommendations.",
+  "question": "Capacity planning specifics?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Sizing factors: - Throughput: 1000/hour relatively low. - State: 50,000 active moderate. - Per component: Zeebe broker, Operate, Elasticsearch. - Reference architectures: per Set 14 Q54. - For 1000/hour + 50k active: small-to-medium cluster typical. - Specific RAM / CPU: per component + Camunda guide. - Always load-test: validate."
+    },
+    {
+      "id": "b",
+      "text": "A single standard cluster configuration works for all Camunda 8 deployments regardless of workload -- this does not accurately reflect the behavior. Cluster sizing must be tailored to the specific workload characteristics: throughput rate, number of active process instances, variable sizes, retention period, and high-availability requirements all influence the RAM, CPU, and storage requirements for each component. A cluster sized for 100 process instances per hour has dramatically different requirements than one handling 100,000 per hour. Camunda publishes reference sizing guidelines for different workload profiles that serve as starting points before load testing."
+    },
+    {
+      "id": "c",
+      "text": "Always provision maximum resources regardless of workload to ensure reliability -- this does not accurately reflect the behavior. Over-provisioning wastes significant cost, especially in cloud environments where resources are billed by consumption. The correct approach is to size based on measured or estimated workload requirements with appropriate headroom (typically 40-50% above baseline to handle bursts), then monitor resource utilization and scale when approaching limits. Camunda's Prometheus metrics provide the visibility needed to make informed scaling decisions based on actual utilization patterns."
+    },
+    {
+      "id": "d",
+      "text": "While 1000 processes per hour is a relatively low throughput rate, the 50,000 concurrently active instances represent a significant state footprint that requires adequate RAM for Zeebe broker state management, Elasticsearch indexing, and Operate querying. A single-node setup also provides no high availability. For production workloads with these characteristics, a 3-broker configuration with proper Elasticsearch sizing is more appropriate, even if the throughput itself is modest."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Capacity planning: Workload analysis: Throughput: 1000/hour = ~0.28/sec. Low. State: 50,000 active = moderate. Avg duration: state/throughput = 50,000/0.28/sec ≈ 50 hours per instance. Long-running processes implied. Per-component sizing (estimates; verify against Camunda guide): Zeebe Broker: Throughput: easily handles 1000/hour. State: needs RAM for 50k instances. Per instance: ~few KB state. Total: ~150 MB - 500 MB for state. Plus engine overhead: heap. Estimate: 2-4 GB RAM, 2 cores per broker. For HA: 3 brokers. Zeebe Gateway: Less heavy: handles client connections. Estimate: 1-2 GB RAM, 1 core per gateway. For HA: 2 gateways. Operate: Indexes: 50k active + history. Query load: depends on usage. Estimate: 2-4 GB RAM, 2 cores. Elasticsearch / OpenSearch: Index data: process + history. For 50k active + history: moderate. Estimate: 4-8 GB RAM, 2 cores per node. For HA: 3 ES nodes. Tasklist (if used): Lighter: 2-4 GB RAM, 1-2 cores. Identity / Keycloak: 2-4 GB RAM: typical. 1-2 cores. Total estimate: 3 Brokers: ~6-12 GB RAM total. 2 Gateways: ~2-4 GB RAM. 2 Operate: ~4-8 GB RAM. 3 ES nodes: ~12-24 GB RAM. Identity: ~2-4 GB. Grand total: ~30-50 GB RAM cluster. Verify against Camunda 8 sizing guides. Disk storage: Zeebe: State + journal: per broker. NVMe SSD: critical IOPS. Estimate: 50-100 GB per broker. Elasticsearch: Indices: scales with history retention. For 50k active + months of history: 50-200 GB. Backups: Off-cluster storage: per Set 17 Q53. Network: Internal cluster: moderate. External access: depends on clients. Bandwidth per broker: typically not bottleneck for this throughput. For SaaS: Camunda selects: per plan. Workload-fit plan: choose. For Self-Managed: Customer sizes: per workload. Reference + load test. Headroom: Don't size at 100%: leave 50% headroom. Burst capacity. Growth: Year-over-year growth: model. Initial size + grow. For peak vs average: Peak load: size for. Average: lower utilization. For business hours: Higher load during business hours. Auto-scaling: if K8s. For load testing: Synthetic: simulate workload. Tools: Camunda Benchmark, custom. Iterate: tune sizing. For HA: Tolerate 1 node failure: 3-node clusters typical. Cross-AZ: regional resilience. For network topology: Low latency cluster-internal: 1-2ms. High bandwidth: 10Gbps internal. For cloud: Right-size instances: AWS / GCP / Azure. VM type: per CPU/RAM/disk. For Kubernetes: Resource requests + limits. Pods on appropriate nodes. For multi-cluster: One per environment: dev, staging, prod. Dev smaller: less cost. For monitoring: Resource utilization: track. Approaching limits: alert. Tune. For Camunda's reference sizing: Camunda publishes guidelines: Small cluster: low throughput. Medium cluster: typical enterprise. Large cluster: high-scale. Verify against current version's published sizing. For specific Camunda 8 sizing: Check release notes: sizing changes. Beta features: may affect. For specific patterns: Long-running processes: State memory: matters. More RAM. High-throughput short processes: CPU: matters. More cores. For migration to bigger cluster: Rolling: minimize downtime. Or blue-green: cleaner. For cost optimization: Right-size: don't over. Reserved instances: discounts. Spot for non-critical. For multi-region: Disaster recovery: cluster per region. Cost: 2x or more. Anti-patterns: Under-sizing: production issues. Over-sizing: wasted cost. No load test: surprises. Best practices: Camunda reference + load test. Monitor + iterate. Plan for growth. HA: 3-node clusters. For the scenario (1000/hour + 50k active): Small-to-medium cluster. 3 brokers, 3 ES nodes, 2 each other. 30-50 GB RAM total: rough. Verify against Camunda guide + load test. For approval / budget: Cost estimate. Compare cloud providers."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Capacity planning: Workload analysis: Throughput: 1000/hour = ~0.28/sec. Low. State: 50,000 active = moderate. Avg duration: state/throughput = 50,000/0.28/sec ≈ 50 hours per instance. Long-running processes implied. Per-component sizing (estimates; verify against Camunda guide): Zeebe Broker: Throughput: easily handles 1000/hour. State: needs RAM for 50k instances. Per instance: ~few KB state. Total: ~150 MB - 500 MB for state. Plus engine overhead: heap. Estimate: 2-4 GB RAM, 2 cores per broker. For HA: 3 brokers. Zeebe Gateway: Less heavy: handles client connections. Estimate: 1-2 GB RAM, 1 core per gateway. For HA: 2 gateways. Operate: Indexes: 50k active + history. Query load: depends on usage. Estimate: 2-4 GB RAM, 2 cores. Elasticsearch / OpenSearch: Index data: process + history. For 50k active + history: moderate. Estimate: 4-8 GB RAM, 2 cores per node. For HA: 3 ES nodes. Tasklist (if used): Lighter: 2-4 GB RAM, 1-2 cores. Identity / Keycloak: 2-4 GB RAM: typical. 1-2 cores. Total estimate: 3 Brokers: ~6-12 GB RAM total. 2 Gateways: ~2-4 GB RAM. 2 Operate: ~4-8 GB RAM. 3 ES nodes: ~12-24 GB RAM. Identity: ~2-4 GB. Grand total: ~30-50 GB RAM cluster. Verify against Camunda 8 sizing guides. Disk storage: Zeebe: State + journal: per broker. NVMe SSD: critical IOPS. Estimate: 50-100 GB per broker. Elasticsearch: Indices: scales with history retention. For 50k active + months of history: 50-200 GB. Backups: Off-cluster storage: per Set 17 Q53. Network: Internal cluster: moderate. External access: depends on clients. Bandwidth per broker: typically not bottleneck for this throughput. For SaaS: Camunda selects: per plan. Workload-fit plan: choose. For Self-Managed: Customer sizes: per workload. Reference + load test. Headroom: Don't size at 100%: leave 50% headroom. Burst capacity. Growth: Year-over-year growth: model. Initial size + grow. For peak vs average: Peak load: size for. Average: lower utilization. For business hours: Higher load during business hours. Auto-scaling: if K8s. For load testing: Synthetic: simulate workload. Tools: Camunda Benchmark, custom. Iterate: tune sizing. For HA: Tolerate 1 node failure: 3-node clusters typical. Cross-AZ: regional resilience. For network topology: Low latency cluster-internal: 1-2ms. High bandwidth: 10Gbps internal. For cloud: Right-size instances: AWS / GCP / Azure. VM type: per CPU/RAM/disk. For Kubernetes: Resource requests + limits. Pods on appropriate nodes. For multi-cluster: One per environment: dev, staging, prod. Dev smaller: less cost. For monitoring: Resource utilization: track. Approaching limits: alert. Tune. For Camunda's reference sizing: Camunda publishes guidelines: Small cluster: low throughput. Medium cluster: typical enterprise. Large cluster: high-scale. Verify against current version's published sizing. For specific Camunda 8 sizing: Check release notes: sizing changes. Beta features: may affect. For specific patterns: Long-running processes: State memory: matters. More RAM. High-throughput short processes: CPU: matters. More cores. For migration to bigger cluster: Rolling: minimize downtime. Or blue-green: cleaner. For cost optimization: Right-size: don't over. Reserved instances: discounts. Spot for non-critical. For multi-region: Disaster recovery: cluster per region. Cost: 2x or more. Anti-patterns: Under-sizing: production issues. Over-sizing: wasted cost. No load test: surprises. Best practices: Camunda reference + load test. Monitor + iterate. Plan for growth. HA: 3-node clusters. For the scenario (1000/hour + 50k active): Small-to-medium cluster. 3 brokers, 3 ES nodes, 2 each other. 30-50 GB RAM total: rough. Verify against Camunda guide + load test. For approval / budget: Cost estimate. Compare cloud providers.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/about-self-managed/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q59",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

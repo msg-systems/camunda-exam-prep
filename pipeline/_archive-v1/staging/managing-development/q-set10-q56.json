@@ -1,0 +1,63 @@
+{
+  "id": "imp-set10-q56",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's compliance requirement: retain process instance history for 7 years. They're checking Operate's default retention.",
+  "question": "What's Operate's data retention default and how is it configured?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md documentation. Camunda 8 SaaS applies bounded default retention periods to control storage costs and maintain performance. md:13. History older than this threshold is automatically purged from the system under the default plan configuration."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 SaaS deletes all process instance history immediately after completion with no retention window -- this description does not reflect the actual behaviour. md. Completed process instances, their variable history, and activity history remain accessible in Operate for up to 30 days after completion. This window provides adequate time for operational review, incident investigation, and compliance spot-checks within normal operational timeframes."
+    },
+    {
+      "id": "c",
+      "text": "md:13. The full SaaS retention table (:13-17): Operate 30d, Optimize 180d, Tasklist 30d, Zeebe 7d, Usage metrics 730d (2 years). md. For 7-year compliance archive history to a long-term store (separate ES cluster, data warehouse, S3 archive) or stream Zeebe events to a compliance-grade store in parallel."
+    },
+    {
+      "id": "d",
+      "text": "Operate data retention in Camunda 8 cannot be changed from the default values under any circumstances -- this description does not reflect the actual behaviour. Camunda 8 SaaS Enterprise plan customers can negotiate custom retention periods with Camunda to meet specific compliance requirements. For Self-Managed deployments, data retention is fully configurable through Elasticsearch Index Lifecycle Management policies or OpenSearch Index State Management policies, allowing retention periods to be extended to months or years as needed by the organisation."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 SaaS default retention table per verbatim components/saas/data-retention.md:9-17: Operate: 30 days Optimize: 180 days Tasklist: 30 days Zeebe: 7 days Usage metrics: 730 days (2 years) Per :11 \"These are the defaults for our production clusters in the Starter and Enterprise plans\"; per :19 \"If there are specific requirements for your use-case, [reach out to us] to discuss your data retention needs under an Enterprise plan.\" Self-Managed: retention is configured independently per self-managed/components/orchestration-cluster/core-settings/concepts/data-retention.md (referenced from data-retention.md:24). Storage backend = Elasticsearch / OpenSearch / RDBMS depending on deployment. For 7-year compliance: SaaS: negotiate a custom retention with Camunda under an Enterprise plan. SM: configure ES ILM (Index Lifecycle Management) / OpenSearch ISM (Index State Management) policies for long-lived rollover indices, or keep Operate's online retention short and archive older data to a long-term store (S3, Glacier, data warehouse). Dedicated compliance pipeline: stream Zeebe events via an Exporter (per self-managed/concepts/exporters.md) to a compliance-grade store (immutable, tamper-proof) parallel to Operate. Operate for ops; compliance store for audit. Practical: 7 years is a lot of data; pure Operate retention is expensive. Hybrid (Operate for short-term ops + archive/exporter for long-term compliance) is the canonical answer."
+    },
+    "b": {
+      "text": "Incorrect. Defaults bounded."
+    },
+    "c": {
+      "text": "Correct. Retention exists."
+    },
+    "d": {
+      "text": "Incorrect. Configurable."
+    }
+  },
+  "explanation": "Retention exists.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/saas/data-retention/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q56",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[2]"
+      }
+    ]
+  }
+}

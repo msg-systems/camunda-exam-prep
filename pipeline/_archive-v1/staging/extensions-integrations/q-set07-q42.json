@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Ops needs to know how many running instances of daily-batch exist at this moment for capacity planning. They want a programmatic check -- not Operate UI clicks.",
+  "question": "Which Camunda 8 API + endpoint fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use the Operate UI -- navigate to the process definitions list, find daily batch, and manually count the running instances displayed on screen. While ops teams do use Operate's UI for ad-hoc investigation, this approach does not provide a programmatic check. Capacity planning and CI monitoring require automatable queries that return structured data and can be scripted, scheduled, or integrated into dashboards. A human reading a number from a web UI is not a reliable or repeatable programmatic verification method. The Orchestration REST API is the correct path for automation."
+    },
+    {
+      "id": "b",
+      "text": "Query the Zeebe gRPC API directly to search for running process instances -- use the gRPC client to send a query for active instances filtered by process definition ID. Zeebe's gRPC API is designed for command-side operations: starting process instances, completing jobs, publishing messages, deploying resources, and managing incidents. It is not a query API for operational state. Querying current instance counts, variable values, or active element states is the domain of the Orchestration Cluster REST API. There is no gRPC endpoint for process instance search."
+    },
+    {
+      "id": "c",
+      "text": "Query the Optimize API to count currently running instances of daily batch -- Optimize tracks historical process execution data and exposes analytics endpoints for duration trends, bottleneck analysis, and performance reporting. It is not designed for real-time queries of currently active instances: the data it holds may have ingestion latency, and it does not expose a \"count of instances in ACTIVE state right now\" query. For real-time operational state queries, the Orchestration REST API is the correct component."
+    },
+    {
+      "id": "d",
+      "text": "Orchestration Cluster REST API -- POST to /v2/process-instances/search with a request body that filters by processDefinitionId = \"daily batch\" and state = \"ACTIVE\". The response includes a structured list of matching process instances along with pagination metadata that gives the total count of results. This endpoint is the canonical programmatic query interface for real-time operational state in Camunda 8. Unlike Operate (which is a UI tool for humans), the REST API returns machine-readable JSON that CI systems, monitoring scripts, and capacity planning dashboards can parse and act upon automatically."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Orchestration Cluster REST API's /v2/process-instances/search endpoint is the canonical programmatic query. Filter by processDefinitionId and state; the response carries the matching list. For just the count, request pageSize=0 or check the response metadata for the total. This API is the modern unified query interface (replaces legacy Operate/Tasklist API queries)."
+    },
+    "b": {
+      "text": "Incorrect. Operate is for humans. For programmatic queries (CI checks, capacity planning, alerts), use the API."
+    },
+    "c": {
+      "text": "Incorrect. Zeebe gRPC is command-side (write operations). Query-side is the Orchestration REST API."
+    },
+    "d": {
+      "text": "Correct. Optimize answers \"how did instances behave historically?\" -- not \"how many are running right now?\""
+    }
+  },
+  "explanation": "Optimize answers \"how did instances behave historically?\" -- not \"how many are running right now?\"",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q42",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

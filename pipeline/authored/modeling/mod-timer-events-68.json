@@ -1,0 +1,53 @@
+{
+  "id": "mod-timer-events-68",
+  "topic": "modeling",
+  "subtopic": "xml representation",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "What does the XML below model for the activity `process-order`?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An interrupting boundary timer that cancels `process-order` after one hour."
+    },
+    {
+      "id": "b",
+      "text": "A non-interrupting boundary timer that fires up to three times, once per hour, while `process-order` is active."
+    },
+    {
+      "id": "c",
+      "text": "An intermediate catch event that pauses the process for three hours before continuing."
+    },
+    {
+      "id": "d",
+      "text": "A timer start event that launches `process-order` three times, one hour apart."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "An interrupting boundary timer would carry `cancelActivity=\"true\"` (the default), but here `cancelActivity` is explicitly `false`, so the activity is not terminated when the timer fires."
+    },
+    "b": {
+      "text": "`bpmn:boundaryEvent` with `cancelActivity=\"false\"` attached to `process-order`, plus a `timeCycle` of `R3/PT1H`, is the docs' XML example of a non-interrupting boundary timer that fires up to three times, every hour, while the activity is active."
+    },
+    "c": {
+      "text": "The element is `bpmn:boundaryEvent`, not an `intermediateCatchEvent`, and boundary timers do not pause the flow they are attached to."
+    },
+    "d": {
+      "text": "Timer start events use `bpmn:startEvent`, not `bpmn:boundaryEvent` attached to an activity via `attachedToRef`."
+    }
+  },
+  "explanation": "The docs' XML example shows a `bpmn:boundaryEvent` with `cancelActivity=\"false\"` and a `timeCycle` of `R3/PT1H` attached to `process-order`. That makes it a non-interrupting boundary timer that fires up to three times, every hour, while the activity is active.",
+  "docs": [
+    {
+      "title": "BPMN timer events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "<bpmn:boundaryEvent id=\"reminder\" cancelActivity=\"false\" attachedToRef=\"process-order\">\n  <bpmn:timerEventDefinition>\n    <bpmn:timeCycle>R3/PT1H</bpmn:timeCycle>\n  </bpmn:timerEventDefinition>\n</bpmn:boundaryEvent>"
+  }
+}

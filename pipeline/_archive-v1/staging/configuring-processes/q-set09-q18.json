@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q18",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An AI Agent Connector calls an LLM. Sometimes the LLM's response is truncated because it hit the maxTokens limit -- the response ends mid-sentence. The team wants to detect this and handle appropriately.",
+  "question": "How does the AI Agent Connector signal truncated responses?",
+  "options": [
+    {
+      "id": "a",
+      "text": "LLM response truncation due to hitting the maxTokens limit is not detectable from the Camunda 8 process side. When the AI Agent Connector receives a truncated response, the Connector simply passes the incomplete text to the process without any indication that the model stopped early. LLM provider APIs return structured metadata including a finishReason field that explicitly signals whether the model stopped naturally or was cut off by the token limit."
+    },
+    {
+      "id": "b",
+      "text": "When the AI Agent Connector detects a truncated LLM response via the finishReason metadata, it automatically retries the request with a higher maxTokens budget to obtain a complete response. This transparent auto-retry behavior means the BPMN process always receives a complete response. Some retry logic may exist for transient errors, but automatic token budget escalation on truncation is not standard behavior. Explicit finishReason detection in BPMN allows intentional handling strategies."
+    },
+    {
+      "id": "c",
+      "text": "Detect truncation by inspecting the last character of the LLM response text -- if the response ends with a period, assume it is complete; if it ends with any other character or is cut off mid-word, assume truncation occurred. This text-pattern heuristic is fragile and unreliable. Many legitimate LLM responses end without periods, such as lists, code blocks, bullet points, or structured outputs. The reliable approach is to use the structured finishReason metadata field instead."
+    },
+    {
+      "id": "d",
+      "text": "md:101-110 -- documented value \"STOP\" (natural completion). The underlying LangChain4j / provider SDK surfaces additional values commonly seen in practice: \"LENGTH\" (hit maxTokens / truncated), \"CONTENT_FILTER\" (safety filter triggered), \"TOOL_EXECUTION\" (model requested tool call, agentic flow). finishReason = \"LENGTH\" to a handler (retry with higher maxTokens, summarise differently, escalate)."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. LLM provider APIs (OpenAI, Anthropic, etc.) return structured response metadata including a finish reason. The Camunda AI Agent Connector typically surfaces this in the response object. Common finishReason values: \"stop\" / \"end_turn\": model completed naturally. \"length\" / \"max_tokens\": hit maxTokens limit; response truncated. \"content_filter\": safety filter prevented full response. \"tool_use\" / \"tool_calls\": model wants to call a tool (agentic flow). Downstream BPMN can route based on finishReason: if \"length,\" loop with higher token budget or summarise; if \"content_filter,\" escalate to human; if \"tool_calls,\" execute the requested tool. This makes the agent flow handle LLM behaviours gracefully."
+    },
+    "b": {
+      "text": "Incorrect. Detectable via finishReason."
+    },
+    "c": {
+      "text": "Incorrect. Some auto-retry exists; explicit detection via finishReason is more flexible."
+    },
+    "d": {
+      "text": "Correct. Punctuation isn't reliable."
+    }
+  },
+  "explanation": "Punctuation isn't reliable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/agentic-ai-aiagent/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q18",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

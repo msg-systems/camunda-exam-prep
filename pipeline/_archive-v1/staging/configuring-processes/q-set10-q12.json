@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task review-application should be assignable to a dynamic list of users computed at runtime -- e.g., the application's region determines which 2-3 reviewers are candidates. The team uses a FEEL expression that returns a list. How is candidateUsers configured with a dynamic FEEL list?",
+  "question": "How is candidateUsers configured with a dynamic FEEL list?",
+  "options": [
+    {
+      "id": "a",
+      "text": "candidateUsers only accepts static comma-separated strings of user identifiers and does not support dynamic evaluation -- this description does not reflect the actual behaviour. The candidateUsers attribute in Camunda 8 User Task configuration supports FEEL expressions that evaluate at task activation time. This enables dynamic computation of the candidate user list based on process variables, such as returning different reviewers depending on the customer region, document type, or other runtime data available in process scope."
+    },
+    {
+      "id": "b",
+      "text": "Use multiple separate Receive Tasks or User Tasks -- one for each candidate user -- so that each user gets their own task instance -- this is an incorrect architectural approach. The correct pattern for multiple candidates is a single User Task with the candidateUsers attribute set to a list of eligible users. All candidates see the same task and the first to claim it becomes the assignee. Creating separate tasks per candidate duplicates work and breaks task management semantics."
+    },
+    {
+      "id": "c",
+      "text": "Set the User Task's zeebe:assignmentDefinition attribute candidateUsers=\"=getReviewers(region)\" (or any FEEL expression returning a list of user identifiers). The expression evaluates at task activation time; the result must be a list of strings representing user identifiers known to Camunda Identity. The task appears in all listed users' Tasklist queues; the first user to claim the task becomes the sole assignee."
+    },
+    {
+      "id": "d",
+      "text": "Compute the candidate user list in a preceding Service Task and store it in a process variable, then reference that variable in the User Task -- this is a workable alternative but adds unnecessary complexity. The candidateUsers attribute directly accepts FEEL expressions that reference process variables or compute values inline at activation time. A preceding Service Task computation step is redundant when the FEEL expression can perform the same calculation, such as looking up reviewers by region, without additional BPMN elements."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. candidateUsers accepts FEEL expressions that evaluate to a list of strings. Examples: Static list: candidateUsers=\"alice,bob\" (comma-separated literal -- also supported). FEEL list expression: candidateUsers=\"=[\\\"alice\\\", \\\"bob\\\"]\" (FEEL list literal). Dynamic from variable: candidateUsers=\"=reviewers\" (where reviewers is a process variable holding a list). Computed: candidateUsers=\"=getReviewers(region)\" or candidateUsers=\"=if region = \\\"EU\\\" then [\\\"alice\\\", \\\"bob\\\"] else [\\\"charlie\\\"]\". The expression evaluates at task activation; result must be a list of strings (user identifiers known to Camunda Identity / IdP). Task is offered to all listed; first to claim becomes assignee. Companion: candidateGroups for group-based assignment with similar FEEL support."
+    },
+    "b": {
+      "text": "Incorrect. FEEL lists supported."
+    },
+    "c": {
+      "text": "Correct. Single task with multiple candidates is the canonical pattern."
+    },
+    "d": {
+      "text": "Incorrect. Inline FEEL works."
+    }
+  },
+  "explanation": "Single task with multiple candidates is the canonical pattern.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q12",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

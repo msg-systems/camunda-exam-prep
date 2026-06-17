@@ -1,0 +1,50 @@
+{
+  "id": "ext-configuration-57",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Tessera Insurance runs a Camunda 8.8 Spring Boot service that processes 21000 claims per day for a regional insurer. A platform engineer must run a warm-up routine that primes 4 in-memory caches and pre-fetches reference data the moment the Camunda client finishes connecting, before any job worker starts polling for service tasks.",
+  "question": "Which Camunda Spring Boot Starter integration lets the team react when the Camunda client has just been created?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Implement HealthIndicator and inspect the camunda.client.connected gauge so the warm-up routine triggers when the gauge transitions from zero to one during the application start sequence"
+    },
+    {
+      "id": "b",
+      "text": "Register a Spring @EventListener method that accepts CamundaClientCreatedEvent so the starter invokes the warm-up routine right after the Camunda client has been created"
+    },
+    {
+      "id": "c",
+      "text": "Annotate a bean method with @JobWorker(type = \"startup\") so the orchestration cluster pushes a synthetic job to the worker the moment the Camunda client finishes its handshake"
+    },
+    {
+      "id": "d",
+      "text": "Override the run method of CommandLineRunner and call CamundaClient newTopologyRequest in a loop until it returns, then trigger the warm-up routine from inside the runner method"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The starter does not expose a camunda.client.connected gauge as the lifecycle entry point; the documented hooks are Spring events such as CamundaClientCreatedEvent and CamundaClientClosingEvent."
+    },
+    "b": {
+      "text": "Correct. The Camunda Spring Boot Starter integrates with Spring events and publishes CamundaClientCreatedEvent and CamundaClientClosingEvent; a Spring @EventListener consuming CamundaClientCreatedEvent fires exactly when the Camunda client has been created."
+    },
+    "c": {
+      "text": "Incorrect. @JobWorker beans subscribe to BPMN service task jobs; there is no synthetic startup job pushed by the orchestration cluster when the Camunda client is created."
+    },
+    "d": {
+      "text": "Incorrect. Polling newTopologyRequest from a CommandLineRunner is not the documented lifecycle hook; the starter exposes Spring lifecycle events for that purpose."
+    }
+  },
+  "explanation": "The Spring Boot Starter publishes Camunda client lifecycle events such as CamundaClientCreatedEvent and CamundaClientClosingEvent, and also offers the CamundaClientLifecycleAware interface with onStart and onStop callbacks. A Spring @EventListener for CamundaClientCreatedEvent is the documented way to run code as soon as the client is ready.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

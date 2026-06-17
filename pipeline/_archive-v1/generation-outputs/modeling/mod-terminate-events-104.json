@@ -1,0 +1,27 @@
+{
+  "id": "mod-terminate-events-104",
+  "topic": "modeling",
+  "subtopic": "events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Insurance models a claims process in Camunda 8.8 that runs an embedded subprocess for 3000 claims per day. The subprocess has two concurrent activities, and a terminate end event is placed inside the subprocess. The team must predict what happens to the parent process flow and to the second concurrent activity inside the subprocess when the terminate end event fires.",
+  "question": "What is the documented behavior of a terminate end event placed inside an embedded subprocess?",
+  "options": [
+    { "id": "a", "text": "It terminates all element instances of the subprocess; after termination the subprocess completes and the process instance takes the outgoing sequence flows of the subprocess" },
+    { "id": "b", "text": "It terminates all element instances of the subprocess and immediately terminates the enclosing process instance, so no outgoing sequence flows of the subprocess are taken at all" },
+    { "id": "c", "text": "It terminates only the single token that reached the end event and lets the other concurrent activity in the subprocess continue until it completes naturally" },
+    { "id": "d", "text": "It terminates all element instances across the entire process, including activities outside the subprocess, regardless of which flow scope contains the terminate end event" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. A terminate end event inside an embedded or event subprocess terminates all element instances of that subprocess. After the termination the subprocess completes and the process instance continues by taking the outgoing sequence flows of the subprocess." },
+    "b": { "text": "Incorrect. The terminate end event is limited to its subprocess; after it terminates the subprocess instances the parent process continues along the outgoing sequence flows rather than ending immediately." },
+    "c": { "text": "Incorrect. The terminate end event cancels all element instances within its flow scope, not just the arriving token, so the other concurrent activity inside the subprocess is also terminated." },
+    "d": { "text": "Incorrect. The terminate end event does not terminate element instances outside its enclosing subprocess; its effect is bounded to the flow scope that contains it." }
+  },
+  "explanation": "A terminate end event inside an embedded or event subprocess terminates all element instances within that subprocess. The subprocess then completes and the process instance follows the outgoing sequence flows of the subprocess; the event does not affect element instances outside the subprocess.",
+  "docs": [
+    { "title": "BPMN terminate events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/terminate-events/" }
+  ]
+}

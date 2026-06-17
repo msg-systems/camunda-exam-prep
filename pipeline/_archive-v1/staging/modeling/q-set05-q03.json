@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An insurance-claim process may need to perform any combination of: photo analysis, witness interview, police-report request -- based on claim metadata. Multiple checks can run in parallel if their conditions hold, but if no condition matches, the flow should still continue (default path).",
+  "question": "Which gateway construct fits the split + the join?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Parallel split plus Parallel join. A Parallel Gateway always activates every outgoing sequence flow unconditionally, regardless of any data conditions. In this scenario not all three checks are always required; only those whose conditions match should run. Using a Parallel Gateway would force photo analysis, witness interview, and police-report request to execute every time, ignoring the claim metadata conditions."
+    },
+    {
+      "id": "b",
+      "text": "Exclusive split plus Exclusive join. An Exclusive Gateway routes flow to exactly one outgoing path -- the first condition that evaluates to true. In this scenario multiple checks may need to run simultaneously in parallel when their conditions hold. An Exclusive Gateway cannot activate more than one branch, so it would fail whenever multiple claim-investigation actions are required at the same time."
+    },
+    {
+      "id": "c",
+      "text": "Event-Based Gateway. An Event-Based Gateway races against incoming events and activates the branch corresponding to the first event that arrives, such as a message or timer. It does not evaluate data conditions on process variables. In this scenario the branching decision depends on claim metadata values, not on which external event arrives first, making Event-Based Gateway entirely unsuitable."
+    },
+    {
+      "id": "d",
+      "text": "Inclusive Gateway (OR) for split -- evaluates all outgoing conditions and activates every branch whose condition is true, allowing parallel execution of multiple paths. The Inclusive join waits only for the branches that were actually taken. A designated default flow handles the case when none of the conditions match, ensuring the process always continues rather than deadlocking."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Inclusive Gateway is purpose-built for \"one or many branches\" based on data conditions. The join knows which branches were taken and waits only for those. Default flow handles the zero-match case."
+    },
+    "b": {
+      "text": "Incorrect. Parallel always runs all branches regardless of conditions."
+    },
+    "c": {
+      "text": "Incorrect. Exclusive takes exactly one branch; can't run multiple in parallel."
+    },
+    "d": {
+      "text": "Correct. Event-Based races incoming events, not condition evaluation."
+    }
+  },
+  "explanation": "Event-Based races incoming events, not condition evaluation.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/inclusive-gateways/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

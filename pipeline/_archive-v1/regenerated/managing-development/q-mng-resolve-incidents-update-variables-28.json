@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-28",
+  "topic": "managing-development",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/guides/getting-started-orchestration-cluster/resolve-incidents-update-variables/"
+    }
+  ],
+  "subtopic": "Operate incidents",
+  "scenario": "At Nimbus Marketplace a developer follows the Camunda 8.8 getting-started guide on macOS to drive 15 instances forward, each carrying orderId 1234 and a 99 orderValue. The developer must complete both the Initiate Payment service task and the Payment Received intermediate message catch event end to end on a single instance.",
+  "question": "Which two zbctl.darwin commands does the macOS tab of the guide use to advance the instance to the XOR gateway?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The macOS tab uses ./bin/zbctl.darwin --insecure create worker initiate-payment --handler cat and ./bin/zbctl.darwin --insecure publish message payment-received --correlationKey 1234 to drive the instance forward"
+    },
+    {
+      "id": "b",
+      "text": "The macOS tab uses ./bin/zbctl.darwin --insecure submit job initiate-payment and ./bin/zbctl.darwin --insecure send signal payment-received --target-instance 1234 against the broker on the same machine"
+    },
+    {
+      "id": "c",
+      "text": "The macOS tab uses brew services start zeebe-worker initiate-payment and brew services start zeebe-message payment-received, which together drive the instance up to the XOR gateway evaluation step"
+    },
+    {
+      "id": "d",
+      "text": "The macOS tab uses ./bin/zbctl --insecure create worker initiate-payment --handler cat unchanged and skips the publish message step;  on macOS the Payment Received event fires automatically on worker completion"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The macOS tab of the guide runs ./bin/zbctl.darwin --insecure create worker initiate-payment --handler cat to complete the Initiate Payment job and then ./bin/zbctl.darwin --insecure publish message payment-received --correlationKey 1234 to advance the instance."
+    },
+    "b": {
+      "text": "Incorrect. The macOS flow uses create worker and publish message commands rather than submit job and send signal commands, and the correlationKey is supplied with --correlationKey 1234 rather than a --target-instance flag."
+    },
+    "c": {
+      "text": "Incorrect. The guide drives the macOS demo through community zbctl.darwin commands, not through brew services start commands that manage a separate zeebe-worker or zeebe-message service on the host."
+    },
+    "d": {
+      "text": "Incorrect. The publish message step is required on macOS as well, and the macOS tab uses the zbctl.darwin binary rather than reusing the Linux zbctl binary or relying on an automatic Payment Received event."
+    }
+  },
+  "explanation": "On macOS the guide first completes Initiate Payment with ./bin/zbctl.darwin --insecure create worker initiate-payment --handler cat. It then runs ./bin/zbctl.darwin --insecure publish message payment-received --correlationKey 1234 to clear the Payment Received intermediate message catch event before the XOR gateway."
+}

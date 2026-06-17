@@ -1,0 +1,76 @@
+{
+  "id": "imp-set14-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Camunda 8 TypeScript SDK worker (formerly \"Node.js SDK\"). Team wants to limit max concurrent jobs to 10 (e.g., to respect downstream API rate limits).",
+  "question": "TypeScript SDK max concurrent jobs config?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Always unlimited -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "js SDK does not limit concurrent job handling to exactly 1. The maxParallelJobs setting on JobWorkerConfig controls concurrency per worker. The default may be 1 but it is configurable to higher values like 10 for workloads where parallel job execution is safe and beneficial. Restricting to always 1 would create a bottleneck for high-throughput use cases where multiple jobs can be processed simultaneously without resource conflicts."
+    },
+    {
+      "id": "c",
+      "text": "js SDK is configurable through the maxParallelJobs property on JobWorkerConfig. The adaptive backpressure feature automatically adjusts job activation rates based on server-side signals, but the upper concurrency bound is explicitly set by the developer. Teams can tune this value per their downstream service capacity and worker resource profile."
+    },
+    {
+      "id": "d",
+      "text": "8 the legacy apis-tools/node-js-sdk/ is gone -- the supported package is the Camunda 8 SDK for TypeScript (apis-tools/typescript/). md:134-137 the option is maxParallelJobs: number (NOT maxParallelJobs). md:530: \"Set maxParallelJobs to the maximum number of jobs you want actively processing concurrently. The worker will long-poll for up to the remaining capacity each cycle. \""
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. TypeScript SDK concurrency tuning (@camunda8/sdk): Configuration per typescript/api-reference/index.md:436, 471: `ts import { Camunda8 } from \"@camunda8/sdk\"; const c8 = new Camunda8(); const worker = c8.createJobWorker({ type: \"process-payment\", maxParallelJobs: 10, timeout: 60_000, // 60s activation timeout jobHandler: async (job) => { // handler }, }); Key options per JobWorkerConfig.md: maxParallelJobs (:134-137): max concurrent in-flight jobs (e.g., 10) -- this is THE concurrency cap (replaces the old zeebe-node maxParallelJobs). timeout: activation timeout per job. maxJobsToActivate (JobActivationRequest.md:30-33): max jobs requested per activation call. Backpressure per backpressure.md:12-27: Adaptive client-side backpressure throttles SDK calls on server backpressure signals (default). Worker long-polls for up to (maxParallelJobs − active jobs) each cycle. When at the cap, no new activations are made until jobs complete. For rate-limited downstream: Set maxParallelJobs ≤ downstream rate budget. Combined with proper timeout, gives controlled throughput. Tuning examples: Conservative (slow downstream): maxParallelJobs: 5, timeout: 120000 (2 min). 5 jobs/2min = 2.5 jobs/min throughput cap. Aggressive (fast downstream): maxParallelJobs: 100, timeout: 30000` (30s). High concurrency; fast cycling. Mixed workloads (multiple workers): Different task types with different concurrency settings. Each worker independent. Beyond single-process limits: One Node process: thread-pool / event-loop limits. Horizontal scaling: multiple Node instances. Combined throughput = sum of per-instance maxParallelJobs. Per-job latency: Independent of concurrency setting. But high concurrency may saturate downstream → increased latency. Compared to Java (Spring Zeebe) (per Set 14 Q19): Similar concepts: maxParallelJobs + thread pool. Java: thread pool explicit. Node: async/await + event loop; concurrent doesn't mean parallel threads. Async-specific considerations (Node): Event loop: single-threaded; concurrency = interleaved async tasks. CPU-bound work: blocks event loop; reduces effective concurrency. For CPU-bound: use worker threads or child processes. For I/O-bound (HTTP, DB calls): event loop handles well. Monitoring: Track active jobs count. Track completion rate vs maxParallelJobs. Alert if at max for extended periods (under-provisioned). Best practices: Right-size maxParallelJobs: match downstream capacity + buffer. Activation timeout > worst-case job duration: avoid duplicate execution (per Set 13 Q10). Monitor saturation: scale horizontally if consistently at max. Test under load: validate before production. For rate limiting: Combine maxParallelJobs with explicit rate limiting in handler (token bucket etc.). Or use external rate limiter (Redis-based). maxParallelJobs alone doesn't enforce time-based rate limits."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/typescript-sdk/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q42",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 26 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 16.7 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

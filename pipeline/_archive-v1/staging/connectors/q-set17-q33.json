@@ -1,0 +1,70 @@
+{
+  "id": "imp-set17-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team integrates with AWS -- S3 uploads, Lambda invocations. Wonders if Camunda has AWS Connectors.",
+  "question": "AWS Connectors availability?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No AWS -- wrong typically."
+    },
+    {
+      "id": "b",
+      "text": "8 OOTB catalog includes multiple AWS Connectors (empirically verified via Glob across connectors/out-of-the-box-connectors/ -- Pattern #63): the catalog covers Lambda, SQS, SNS, S3, DynamoDB, EventBridge, Comprehend, Textract, Rekognition, SageMaker, and Bedrock -- a total of at least ten dedicated AWS service connectors. Each connector provides a dedicated element template that pre-configures authentication, endpoint handling, and common operation patterns. Authentication uses either AWS access key credentials or the Default Credentials Chain for role-based access. Teams building AWS-intensive integrations benefit from these pre-built connectors without writing custom connector code for standard AWS service interactions."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 only includes an out-of-the-box connector for Amazon S3 with no support for other AWS services -- this does not accurately reflect the behavior and significantly understates the catalog. 8 includes at least ten dedicated AWS connectors covering Lambda, SQS, SNS, S3, DynamoDB, EventBridge, and AI services including Comprehend, Textract, Rekognition, SageMaker, and Bedrock. Authentication options include AWS access key credentials and Default Credentials Chain for role-based access. Teams with AWS-intensive architectures benefit from these pre-built integrations without custom connector development for the covered services."
+    },
+    {
+      "id": "d",
+      "text": "Integrating Camunda 8 with AWS services always requires building custom connectors from scratch -- this overstates implementation effort. 8 ships with an extensive catalog of out-of-the-box AWS connectors covering Lambda, S3, SQS, SNS, DynamoDB, EventBridge, and AI services. For services already covered by existing connectors, teams configure and use them directly from the element template palette without writing connector code. Custom connector development is only needed for AWS services not covered by existing connectors, such as SES, API Gateway, or Kinesis, or when specialized behavior beyond standard connector capabilities is required."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. AWS Connectors in C8.8 OOTB catalog (empirically verified): Storage / Compute / Messaging: S3 Connector (amazon-s3.md): GetObject / PutObject / DeleteObject per :15-19. Lambda Connector (aws-lambda.md): Invoke Lambda functions (sync/async). SQS Connector (amazon-sqs.md): Outbound (send) + Inbound (consume). SNS Connector (amazon-sns.md): Publish notifications. DynamoDB Connector (amazon-dynamodb.md): Get / put / query items (NoSQL). EventBridge Connector (amazon-eventbridge.md): Event bus publishing. AI / ML: Bedrock (amazon-bedrock.md) -- managed LLM inference. Comprehend (amazon-comprehend.md) -- NLP. SageMaker (amazon-sagemaker.md) -- ML model invocation. Textract (amazon-textract.md) -- OCR document extraction. NOT in OOTB catalog (use REST Connector or build custom -- Pattern #43 fabrication-prone surfaces): SES (email -- use Email/SendGrid/Twilio instead). API Gateway, Step Functions, Kinesis, RDS, CloudWatch, Secrets Manager, etc. Auth approaches per amazon-s3.md:34-46: Credentials mode (SaaS / Self-Managed): Access key + Secret key required per :48-56. Bind via {{secrets.AWS_ACCESS_KEY}} / {{secrets.AWS_SECRET_KEY}} per console/manage-clusters/manage-secrets.md (Camunda secrets, NOT raw env vars). Default Credentials Chain mode (Hybrid / Self-Managed ONLY per :41-46): Uses the AWS Default Credential Provider Chain (https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html). Resolves credentials from: env vars (AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY), instance profile (EC2/EKS role), credential files, etc. Not available in SaaS because SaaS clusters have no host environment to inherit from. Configuration via Element Template (preferred -- zeebe:taskHeader raw-XML is not the canonical surface in 8.8 Connectors; the Web Modeler Element Template binds typed zeebe:input properties). For complex integrations: Step Functions: orchestrate AWS services. Camunda + AWS: complementary orchestration. For local testing: LocalStack: emulate AWS locally. Mock services: WireMock for HTTP-based. For multi-region: Region per Connector invocation. Configure per task. For cost management: AWS billing: separate from Camunda. Monitor: per-service usage. For security best practices: Least-privilege IAM: minimal permissions. Role-based (when AWS-hosted): preferred over keys. Rotate keys: regular. For Outbound use cases: Use case 1: Document storage: Process generates PDF. Upload to S3. Reference URL in variable. Use case 2: Async compute: Invoke Lambda for processing. Return result to process. Use case 3: Queue handoff: Send message to SQS. Downstream system consumes. For Inbound (with Inbound Connectors): Use case 4: Event-driven: SNS topic event. Camunda receives. Triggers process. For Camunda 8 SaaS hosted on AWS: Network proximity: lower latency to AWS services. VPC peering: secure access. For Camunda Self-Managed on AWS: IAM role for cluster: pre-configured. No keys in code: clean security. For Google Cloud / Azure: Similar Connectors (per Set 17 Q34). Cross-cloud integration possible. For Connector evolution: Camunda Marketplace: third-party additions. Community-built: open-source. Verify trust + maintenance. For custom AWS Connectors: AWS SDK in custom Connector: full SDK capabilities. For services not in catalog. For deployment: AWS Connector code: bundled in Connector Runtime. For custom: deploy with Runtime. Best practices: Use official Connectors when available. Secure credentials: secrets system. Least-privilege IAM. Monitor AWS usage. Test in dev with LocalStack. For the scenario (S3 + Lambda): S3 Connector: upload operations. Lambda Connector: invoke. Both typically available. For best results: Element Templates: easier modeler UX. Secrets binding: secure. Test thoroughly. Anti-patterns: Hardcoded credentials: use secrets. Over-permissioned IAM: limit scope. No error handling: graceful failures."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q33",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 26 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 28.1 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

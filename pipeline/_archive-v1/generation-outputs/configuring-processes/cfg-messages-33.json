@@ -1,0 +1,27 @@
+{
+  "id": "cfg-messages-33",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Wholesaler delivers 11000 orders per day in Camunda 8.8 and an architect must plan message correlation with set correlation key, set message ID and a positive TTL when the message arrives on an intermediate catch event inside the fulfilment process on the broker.",
+  "question": "Which behavior does the correlation overview document for a message with set correlation key, set message ID and a positive TTL on an intermediate event?",
+  "options": [
+    { "id": "a", "text": "The message is correlated to all matching subscriptions, ignoring the message ID since intermediate events do not perform any uniqueness check on the broker at all" },
+    { "id": "b", "text": "The message is correlated during the lifetime of the message if a matching subscription is active and there is no equal message already in the buffer on the broker" },
+    { "id": "c", "text": "A new process instance is started for every published message because intermediate events accept duplicate messages without consulting the buffer at correlation time" },
+    { "id": "d", "text": "The message is held without correlation until the matching subscription is explicitly resubscribed via an operator API call from the operations team on the broker" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The overview table applies the uniqueness check to intermediate events too when a message ID is set, rejecting equal messages already in the buffer on the broker." },
+    "b": { "text": "Correct. The overview row for set correlation key, set message ID and TTL > 0 on an intermediate event says the message is correlated during its lifetime if a matching subscription is active and there is no equal message in the buffer." },
+    "c": { "text": "Incorrect. Intermediate events never start a new process instance; they correlate only to existing subscriptions, as the overview rows for intermediate events make clear in every TTL configuration." },
+    "d": { "text": "Incorrect. The broker polls the buffer when a subscription opens; there is no operator-driven resubscribe API documented in the messages page for intermediate events at all." }
+  },
+  "explanation": "For set correlation key, set message ID and TTL > 0 on an intermediate event, the overview row states the message is correlated during the lifetime of the message if a matching subscription is active and there is no equal message in the buffer, combining buffering and uniqueness in a single row.",
+  "docs": [
+    { "title": "Messages", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+  ]
+}

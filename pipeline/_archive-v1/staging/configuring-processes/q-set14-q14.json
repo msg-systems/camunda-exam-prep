@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task needs to display an attached PDF document to the assignee -- invoice for review. Team wonders how to attach documents to User Tasks in Tasklist.",
+  "question": "Document attachment to User Task?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The workflow uploads a document and stores a document reference as a process variable. A Form linked to the User Task includes a Document component that renders a preview or download button bound to that reference variable, making the document visible to the Tasklist assignee. The Document Handling API manages upload, download, metadata, access control, and TTL-based expiry for attached documents."
+    },
+    {
+      "id": "b",
+      "text": "While storing an external URL to a document hosted in S3, SharePoint, or another DMS is a viable fallback pattern, it is not the only option for document attachment. Using the native API avoids external dependency management, provides consistent access control, and enables direct rendering via Form Document components without needing the assignee to have separate credentials for external systems."
+    },
+    {
+      "id": "c",
+      "text": "Embedding binary content such as a base64-encoded PDF directly in a process variable is technically possible but strongly discouraged. Process variables are stored in Zeebe's state machine, which is optimized for small structured data items, not large binary payloads. Storing megabytes of binary data per process instance causes significant storage overhead, degrades performance during variable propagation across scope boundaries, and inflates Operate's database size considerably. The recommended pattern is the Document Handling API with only the document reference stored in variables."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 Document Handling integration: upload the PDF invoice via the Document Handling API to get a document reference (ID, URL, metadata, content-type). g. invoiceDoc). Link the User Task to a Camunda Form that includes a Document component bound to that variable -- Tasklist renders an inline preview or download button for the assignee. The Document API handles access control, binary storage, and TTL-based cleanup. Store only references in process variables, not binary content."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Document attachment patterns: Lifecycle: 1. Upload: process or external system uploads document via Document API; returns document reference (ID, URL, metadata). 2. Store reference: in process variable: invoiceDoc = {id: \"doc-123\", contentType: \"application/pdf\", ...}. 3. Pass to User Task: variable visible in task scope. 4. Render: Form component or Tasklist UI displays document. Document API features (verify per version): Upload: POST with binary; returns reference. Download: GET by ID; streams binary. Metadata: filename, content type, size, expiry. TTL: configurable expiration. Form component for documents: Specific Document component in Forms (if available in version): Renders preview (PDF inline, image inline). Provides download button. Bound to document reference variable. Fallback: link/URL field showing download link. Custom Tasklist UI: Fetch task → see document variable. Call Document API to fetch binary. Render: PDF.js for PDFs, for images, generic download for others. Best practices: Store references, not binaries: don't put base64-encoded binary in process variables (storage explosion). TTL management: documents linger; clean up. Access control: ensure document API auth allows task assignee to read. Caching: download once, render multiple times. Pattern: Multi-doc review: Process variable: docs = [{id: \"d1\"}, {id: \"d2\"}, {id: \"d3\"}]. Form: list component showing each doc with preview/download. Assignee reviews multiple; completes task. Pattern: Upload during task: User Task with form containing file upload component. Form upload → Camunda Document API → process variable. Downstream tasks reference uploaded doc. Security considerations: Document access: assignee should only access docs in their task scope. Sensitive content: encryption at rest; HTTPS in transit. Audit: log who accessed which document when. External storage alternative: Documents in S3 / SharePoint / DMS. Process stores URL or reference. Tasklist renders link (download requires user's external auth). Verify Camunda 8 / Forms version's exact document component support."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. Bad pattern for binaries."
+    }
+  },
+  "explanation": "Bad pattern for binaries.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/overview/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q14",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

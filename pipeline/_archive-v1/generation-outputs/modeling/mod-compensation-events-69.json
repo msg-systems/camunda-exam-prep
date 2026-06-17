@@ -1,0 +1,27 @@
+{
+  "id": "mod-compensation-events-69",
+  "topic": "modeling",
+  "subtopic": "compensation",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Bank books 12000 transactions per hour through an embedded subprocess containing booking steps in Camunda 8.8. A compensation throw event lives inside that subprocess to roll back accounting entries when reconciliation fails.",
+  "question": "Which compensation handlers does the throw event invoke?",
+  "options": [
+    { "id": "a", "text": "Only compensation handlers attached to completed activities inside the same embedded subprocess that contains the throw event are invoked" },
+    { "id": "b", "text": "Compensation handlers attached to completed activities anywhere in the parent process scope are invoked from inside the embedded subprocess" },
+    { "id": "c", "text": "Compensation handlers attached to active or terminated activities inside the embedded subprocess are invoked together with completed ones" },
+    { "id": "d", "text": "Compensation handlers reached through any called child process via call activity are invoked transitively from the embedded subprocess" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. When a compensation throw event sits inside an embedded subprocess, the engine invokes only the compensation handlers within that subprocess and any nested subprocesses, not handlers outside it." },
+    "b": { "text": "Incorrect. A throw event located inside an embedded subprocess does not reach compensation handlers outside that subprocess; handlers in the parent scope are not invoked." },
+    "c": { "text": "Incorrect. Compensation handlers are invoked only for activities that completed; if the activity is active or terminated, its compensation handler is not invoked." },
+    "d": { "text": "Incorrect. Compensation triggering stops at a call activity, so handlers inside a called child process are never invoked unless a compensation boundary event is attached to the call activity itself." }
+  },
+  "explanation": "Compensation throw events that reside inside an embedded subprocess invoke only the compensation handlers attached to completed activities within that same subprocess and its nested subprocesses. Handlers outside the subprocess and inside child processes reached through call activities are not triggered.",
+  "docs": [
+    { "title": "BPMN compensation events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/" }
+  ]
+}

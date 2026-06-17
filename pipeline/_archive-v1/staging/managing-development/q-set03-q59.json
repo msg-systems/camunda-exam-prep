@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q59",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team accidentally started an instance of dev-test-process in production (wrong cluster). The instance is stuck waiting on a User Task that will never be completed because no one will work on it. They want to terminate this instance cleanly so it doesn't appear in active counts.",
+  "question": "Which Operate action ends the instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Cancel process instance -- available in Operate's instance actions menu -- terminates execution of the specific process instance immediately. The instance transitions to \"Cancelled\" state in Zeebe and no longer appears in the active instance count. The historical record of the instance (which tasks ran, variables set, how long it was active) is preserved in Operate for audit purposes. This is the canonical action for cleanly terminating an unwanted or stuck instance without leaving orphaned state."
+    },
+    {
+      "id": "b",
+      "text": "Delete the BPMN process definition from the cluster; Zeebe automatically cancels all running instances of that process when the definition is removed, since instances cannot continue executing against a deleted model. Deleting a process definition in Camunda 8 does not cancel running instances. Instances are pinned to their deployment version and continue executing their stored model snapshot even after newer versions are deployed or old definitions are removed. Instance termination requires explicit Cancel actions, not definition deletion."
+    },
+    {
+      "id": "c",
+      "text": "Open Operate and set the retries attribute to 0 on the User Task that is waiting for completion. When retries reach 0 on a User Task, Zeebe creates an Incident, which then allows the team to manually resolve or cancel it. User Tasks in Camunda 8 do not have a job-level retries attribute in the same sense as Service Tasks backed by Job Workers. User Tasks wait for human completion via the Tasklist API; they do not time out or create Incidents based on retries. Setting retries to 0 would not terminate the waiting User Task instance."
+    },
+    {
+      "id": "d",
+      "text": "Wait for the User Task's due date to pass; when the due date is reached, Camunda 8 automatically cancels the User Task and routes the process instance to a timeout path, terminating the instance cleanly without manual intervention. User Task due dates in Camunda 8 are metadata properties surfaced in Tasklist for display and prioritization purposes; they do not trigger automatic cancellation, routing, or instance termination when exceeded. A separate Timer Boundary Event on the User Task would be needed to enforce a deadline."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. \"Cancel process instance\" in Operate cleanly terminates the instance -- Zeebe transitions it to Cancelled state. Historical record preserved in Operate for audit. The standard cleanup action."
+    },
+    "b": {
+      "text": "Incorrect. Deleting BPMN doesn't cancel running instances."
+    },
+    "c": {
+      "text": "Incorrect. User Tasks don't have retries on job-completion semantics relevant here."
+    },
+    "d": {
+      "text": "Incorrect. User Task due dates surface as metadata, not auto-fail."
+    }
+  },
+  "explanation": "\"Cancel process instance\" in Operate cleanly terminates the instance -- Zeebe transitions it to Cancelled state. Historical record preserved in Operate for audit. The standard cleanup action.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/audit-operations/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q59",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

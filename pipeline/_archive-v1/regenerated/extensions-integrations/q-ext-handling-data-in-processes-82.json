@@ -1,0 +1,50 @@
+{
+  "id": "ext-handling-data-in-processes-82",
+  "topic": "extensions-integrations",
+  "subtopic": "handling-data-in-processes",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "NovaPay is a fintech bank running a loan origination process on Camunda 8.8 with 4500 loan applications per day. The core banking system already stores the customer and loan record data as the leading system, and the development team must decide what to keep inside Zeebe as process variables for each instance.",
+  "question": "Which approach matches the Camunda 8.8 best practice for process variables when leading systems already hold the business data?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Hold references such as numeric loan IDs that point to records kept inside the leading core banking system, so the process variable map stays lean across the 4500 daily loan applications at NovaPay"
+    },
+    {
+      "id": "b",
+      "text": "Hold a full copy of every customer and loan record returned by the core banking system so gateway decisions inside the process can run without ever contacting the leading system at runtime"
+    },
+    {
+      "id": "c",
+      "text": "Hold every JSON payload returned by every external call to the core banking system so Operate can later replay the full message body for any audit request on any past instance"
+    },
+    {
+      "id": "d",
+      "text": "Hold a denormalized snapshot of every related record from the core banking system so downstream service tasks throughout the loan process can avoid making any further external lookups"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The handling data in processes best practice tells teams to store references only, such as IDs, when leading systems already hold the business relevant data, keeping the process variable map lean and avoiding the variable size limitation."
+    },
+    "b": {
+      "text": "Incorrect. The best practice advises against excessive use of process variables and explicitly recommends holding references when the leading system already stores the business data, not full record copies."
+    },
+    "c": {
+      "text": "Incorrect. The page advises storing only the parts of an external payload that are relevant to the process, not the entire message body, which also increases coupling to the service interface."
+    },
+    "d": {
+      "text": "Incorrect. Storing a denormalized snapshot of every related record duplicates data already held by the leading system, which the best practice explicitly discourages in favor of references."
+    }
+  },
+  "explanation": "The Camunda 8.8 handling data in processes best practice recommends storing as few process variables as possible. When a leading system already holds the business relevant data, store references such as IDs to that data and avoid copying the full payload into Zeebe.",
+  "docs": [
+    {
+      "title": "Handling data in processes",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/handling-data-in-processes/"
+    }
+  ]
+}

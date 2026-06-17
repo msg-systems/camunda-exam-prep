@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q51",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A development team's workflow includes mandatory peer review of BPMN changes before deployment to staging. They want to enforce: developer modifies BPMN, opens a pull-request-style review in Web Modeler, second developer reviews and approves, then deployment happens. The team wants this enforced by Web Modeler rather than relying on team discipline.",
+  "question": "Which Web Modeler feature enables enforced peer review?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use the Process Application Pipeline -- Web Modeler's process application versioning + review workflow combined with the project-level deployment policy (only-approved-versions-deployable-to-prod). Author creates a version of the process application → requests a review → another collaborator (not the version creator -- enforced unless they are an org admin) views the changes via the version-compare diff, comments, and Approves or marks \"Changes requested\". An organisation admin can then enable a deployment policy on prod-tagged clusters so that non-admin deployments are only permitted for approved process-application versions."
+    },
+    {
+      "id": "b",
+      "text": "Set up the Web Modeler Git Sync integration to connect the process application to a GitHub or GitLab repository, then configure branch protection rules and required reviewers in the Git platform so that BPMN changes can only be merged via an approved pull request before any deployment can proceed. Git Sync with branch protection is a viable approach for technical code review in a CI/CD pipeline context, and is explicitly recommended by Camunda for complementing the Modeler-native review process."
+    },
+    {
+      "id": "c",
+      "text": "Web Modeler does not currently provide any built-in review or approval workflow for BPMN changes; all peer-review enforcement must be handled through team discipline, documented procedures, and external tooling such as calendar-based review meetings or spreadsheet checklists. Web Modeler does have a built-in Review + deployment-policy feature set within the Process Application Pipeline. The pipeline supports explicit version review requests, reviewer approval/rejection, version-diff comparison, and deployment policies that block non-approved deployments to production-tagged clusters."
+    },
+    {
+      "id": "d",
+      "text": "Use Camunda Optimize to build a monitoring dashboard that tracks process definition deployment events and automatically flags any deployments to the production cluster that were not preceded by a review meeting recorded in the team's calendar system, generating an alert for the compliance officer to investigate. Camunda Optimize is an analytics tool for operational and historical process performance data -- it is not a governance or deployment-control layer. It cannot enforce pre-deployment review requirements or block deployments based on review status."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Per process-application-pipeline.md:69-101 and process-application-versioning.md:36, the Process Application Pipeline has an explicit Validate → Review → Promote (deploy) flow. The Review step: (1) author creates a process-application version, (2) requests a review from the version-history page, (3) collaborators with edit permission see a notification, (4) a reviewer (cannot be the version's creator -- except organisation admin, per process-application-pipeline.md:85) views the diff, comments, requests changes, or Approves, (5) review status is logged in the version history + comment thread. Then in web-modeler-settings.md → process-application-deployment, an org admin can enable a deployment policy whereby non-admin users with deployment permissions can deploy to prod-tagged clusters only after a collaborator has approved the version. Together these two mechanisms enforce the peer-review gate. Note: Web Modeler's 4 collaboration roles are Project Admin / Editor / Commenter / Viewer per collaboration.md:29-32 -- there is no separate \"Reviewer\" role; any collaborator with edit permission can review (other than the version creator)."
+    },
+    "b": {
+      "text": "Incorrect. Git integration via Git Sync (process-application-pipeline.md:82, 93) is recommended explicitly for technical reviews, and lets you defer to GitHub/GitLab branch protection -- but it's complementary, not the Modeler-native gate the question asks about."
+    },
+    "c": {
+      "text": "Incorrect. Web Modeler does have review + deployment-policy features (Process Application Pipeline)."
+    },
+    "d": {
+      "text": "Incorrect. Optimize is analytics, not deployment governance."
+    }
+  },
+  "explanation": "Per process-application-pipeline.md:69-101 and process-application-versioning.md:36, the Process Application Pipeline has an explicit Validate → Review → Promote (deploy) flow. The Review step: (1) author creates a process-application version, (2) requests a review from the version-history page, (3) collaborators with edit permission see a notification, (4) a reviewer (cannot be the version's creator -- except organisation admin, per process-application-pipeline.md:85) views the diff, comments, requests changes, or Approves, (5) review status is logged in the version history + comment thread. Then in web-modeler-settings.md → process-application-deployment, an org admin can enable a deployment policy whereby non-admin users with deployment permissions can deploy to prod-tagged clusters only after a collaborator has approved the version. Together these two mechanisms enforce the peer-review gate. Note: Web Modeler's 4 collaboration roles are Project Admin / Editor / Commenter / Viewer per collaboration.md:29-32 -- there is no separate \"Reviewer\" role; any collaborator with edit permission can review (other than the version creator).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/process-applications/process-application-pipeline/#review"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q51",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

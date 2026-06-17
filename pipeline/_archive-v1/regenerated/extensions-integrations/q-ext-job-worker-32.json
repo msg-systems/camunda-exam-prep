@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-32",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client-job-worker",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "A SaaS provider running Camunda 8.8 with 21000 jobs per day wires Micrometer into its Java workers using the optional bundled JobWorkerMetrics implementation. The observability team must update its Prometheus dashboards to read the new metric names introduced for the Java client and to phase out the legacy zeebe-prefixed counters before upgrading.",
+  "question": "Which two new metric names does the Camunda 8.8 Java client's Micrometer-backed JobWorkerMetrics implementation expose?",
+  "options": [
+    {
+      "id": "a",
+      "text": "zeebe.client.worker.job.activated and zeebe.client.worker.job.handled, which remain the recommended names through the entire 8.x release line and require no dashboard changes"
+    },
+    {
+      "id": "b",
+      "text": "camunda.worker.jobs.activated.count and camunda.worker.jobs.handled.count, which sit under a camunda.worker namespace shared with the Spring Boot Starter and replace the older Zeebe names"
+    },
+    {
+      "id": "c",
+      "text": "io.camunda.client.worker.jobActivated and io.camunda.client.worker.jobHandled, which mirror the JobWorkerMetrics method names in a dotted notation for monitoring backends"
+    },
+    {
+      "id": "d",
+      "text": "camunda.client.worker.job.activated and camunda.client.worker.job.handled, which replace the legacy zeebe.client.worker.job names scheduled for removal in version 8.10 of Camunda"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The zeebe.client.worker.job.* counters are the legacy names and the docs schedule their removal at version 8.10; teams should switch to the camunda.client.worker.job names."
+    },
+    "b": {
+      "text": "Incorrect. The published metric names sit under camunda.client.worker.job, not camunda.worker.jobs, and use plain activated/handled suffixes rather than .count."
+    },
+    "c": {
+      "text": "Incorrect. The published names use camunda.client.worker.job.activated and camunda.client.worker.job.handled; there are no io.camunda dotted-method variants in the metrics table."
+    },
+    "d": {
+      "text": "Correct. The Available-metrics table lists camunda.client.worker.job.activated and camunda.client.worker.job.handled as the new metric names, replacing the legacy zeebe.client.worker.job.* counters scheduled for removal in version 8.10."
+    }
+  },
+  "explanation": "The Available-metrics section publishes two new Micrometer metric names: camunda.client.worker.job.activated counts jobs activated and camunda.client.worker.job.handled counts jobs handled. They replace the legacy zeebe.client.worker.job.activated and zeebe.client.worker.job.handled counters, which the docs schedule for removal in version 8.10.",
+  "docs": [
+    {
+      "title": "Java client job worker available metrics",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

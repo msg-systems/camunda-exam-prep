@@ -1,0 +1,27 @@
+{
+  "id": "mod-multi-instance-68",
+  "topic": "modeling",
+  "subtopic": "multi-instance",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Meridian Bank runs a parallel multi-instance task over 30 customers per batch in Camunda 8.8 and worries about race conditions on a shared variable named status that several worker callbacks update concurrently inside the batch.",
+  "question": "How do input variable mappings on a multi-instance activity reduce race conditions across parallel instances?",
+  "options": [
+    { "id": "a", "text": "An input mapping creates a process-level variable in the root scope so each instance can read the same value at activation time without conflicting with sibling instance writes" },
+    { "id": "b", "text": "An input mapping creates a local variable in the instance scope so worker updates stay inside the instance and do not overwrite any sibling instance variable of the same name" },
+    { "id": "c", "text": "An input mapping creates a global header at the multi-instance body level so every instance writes back through the header rather than through ordinary process variables" },
+    { "id": "d", "text": "An input mapping creates a copy on write proxy at the cluster level so concurrent writes by sibling instances are merged through a last-writer-wins strategy by the broker" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Putting the variable into the root scope exposes it to every parallel instance and reintroduces the race condition, which is the exact problem the local variable scope prevents." },
+    "b": { "text": "Correct. The documentation explains that input mappings can create new local variables in the scope of an instance, restricting visibility so that variables modified inside the instance do not affect sibling parallel instances." },
+    "c": { "text": "Incorrect. Multi-instance scoping uses local instance variables rather than a custom global header mechanism; there is no documented body-level header that workers write through." },
+    "d": { "text": "Incorrect. There is no copy-on-write proxy or last-writer-wins merging documented for multi-instance variables; isolation is achieved through local instance scope rather than a broker-level strategy." }
+  },
+  "explanation": "Input variable mappings on a multi-instance activity can create local variables in the instance scope, which prevents parallel instances from clobbering each other's values through the shared process scope.",
+  "docs": [
+    { "title": "BPMN multi-instance", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/" }
+  ]
+}

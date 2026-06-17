@@ -1,0 +1,27 @@
+{
+  "id": "ext-connecting-the-workflow-engine-with-your-world-101",
+  "topic": "extensions-integrations",
+  "subtopic": "job-worker",
+  "difficulty": "hard",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Wren Logistics opens a Camunda 8.8 Zeebe Java client subscription for the jobType serviceA to drive 7500 shipments per day through its dispatch handler. The platform team reviews the glue code and wants to verify that the fluent builder matches the documented snippet exactly, including the order of jobType, handler, and timeout, and the call that actually opens the subscription rather than only registering it.",
+  "question": "Which fluent Zeebe Java client builder opens a serviceA job subscription with a 10 seconds timeout on Camunda 8.8?",
+  "options": [
+    { "id": "a", "text": "Chain zeebeClient.newJobSubscription().type(\"serviceA\").lockOwner(\"w1\").lockTime(Duration.ofSeconds(10)).handler(new ExampleJobHandler()).open() to open the subscription" },
+    { "id": "b", "text": "Chain zeebeClient.newWorker().type(\"serviceA\").handler(new ExampleJobHandler()).lockTime(Duration.ofSeconds(10)).register() to register the worker on the broker" },
+    { "id": "c", "text": "Chain zeebeClient.newWorker().jobType(\"serviceA\").handler(new ExampleJobHandler()).timeout(Duration.ofSeconds(10)).open() to open the subscription for the worker" },
+    { "id": "d", "text": "Chain zeebeClient.newPollCommand().jobType(\"serviceA\").handler(new ExampleJobHandler()).timeout(Duration.ofSeconds(10)).send() to poll jobs from the broker once" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The Zeebe Java client builder is newWorker with jobType and timeout, not newJobSubscription with lockOwner and lockTime; that shape belongs to legacy non-Zeebe clients." },
+    "b": { "text": "Incorrect. The documented terminal call is open(), and the builder uses jobType plus timeout instead of type plus lockTime, so register() does not match the example." },
+    "c": { "text": "Correct. The docs show newWorker().jobType(\"serviceA\").handler(...).timeout(Duration.ofSeconds(10)).open() as the exact fluent chain that opens the long-polling subscription for the worker." },
+    "d": { "text": "Incorrect. There is no newPollCommand entry point in the Zeebe Java client snippet; long polling is set up by newWorker, and the terminal call is open() rather than send()." }
+  },
+  "explanation": "The Subscribing to tasks section uses zeebeClient.newWorker().jobType(\"serviceA\").handler(...).timeout(Duration.ofSeconds(10)).open(), which long-polls the broker for serviceA jobs; the open() terminal call is what actually starts the subscription.",
+  "docs": [
+    { "title": "Connecting the workflow engine with your world", "url": "https://docs.camunda.io/docs/components/best-practices/development/connecting-the-workflow-engine-with-your-world/" }
+  ]
+}

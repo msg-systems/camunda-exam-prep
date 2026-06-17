@@ -1,0 +1,27 @@
+{
+  "id": "cfg-feel-context-expressions-74",
+  "topic": "configuring-processes",
+  "subtopic": "feel-context-expressions",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Insurance audits 6500 claims per day in Camunda 8.8. A FEEL context expression defines two checks (documentType and ledgerType) where each check records an error message and a violations list, and the modeler must return only the checks whose violations list is non-empty as the final result of the surrounding context, following the validate-data example.",
+  "question": "Which FEEL pattern from the documented validate-data example keeps only the checks that produced at least one violation?",
+  "options": [
+    { "id": "a", "text": "Use a for comprehension over check1 and check2 that yields each check whose violations list reports a matching collection entry to the final result" },
+    { "id": "b", "text": "Use a sort by count(violations) over the list of checks so that checks whose violations list is non-empty are pushed to the front of the final result" },
+    { "id": "c", "text": "Use a filter [check1, check2][count(violations) > 0] over the list of checks to keep only those whose violations list contains at least one entry" },
+    { "id": "d", "text": "Use a fold over [check1, check2] that accumulates the first check whose violations list is non-empty and discards every later check from the final result" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documented validate-data example does not use a for comprehension at the top level to keep the failing checks; it relies on the filter notation [check1, check2][count(violations) > 0] for the result entry of the surrounding context." },
+    "b": { "text": "Incorrect. The documented example does not sort the checks by their violation counts; it filters the list of checks to keep only those whose violations list contains at least one matching collection entry from the journal." },
+    "c": { "text": "Correct. The documented validate-data example assigns result to [check1, check2][count(violations) > 0], which filters the list of checks down to those whose violations list has at least one entry, matching the audit requirement on the Nimbus journal." },
+    "d": { "text": "Incorrect. The documented filter keeps every check whose violations list is non-empty rather than only the first one, so a fold that discards later matches would not return the full set of failing checks from the journal." }
+  },
+  "explanation": "The validate-data example in the FEEL context expressions reference builds a context with two checks and assigns result to [check1, check2][count(violations) > 0], a filter expression that returns only the checks whose violations list is non-empty.",
+  "docs": [
+    { "title": "FEEL context expressions", "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-context-expressions/" }
+  ]
+}

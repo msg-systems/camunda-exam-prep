@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN table has hit policy ANY. Three rules match the input, all producing the same output \"APPROVED\". The team wonders if ANY allows this -- and what happens if outputs differ.",
+  "question": "Deep dive: what's the exact contract of the ANY hit policy?",
+  "options": [
+    {
+      "id": "a",
+      "text": "ANY hit policy: multiple rules may match a single input, but ALL matching rules must produce the SAME output value. If they do, the result is that single value. If they DON'T agree, evaluation throws an error (treated as Incident in BPMN context). \" Distinct from UNIQUE (requires exactly one match)."
+    },
+    {
+      "id": "b",
+      "text": "The ANY policy enforces consistency -- all matching rules must produce the same output value. If they do, that value is the result. If matching rules disagree, the evaluation fails with an error rather than randomly picking one value. \" This misconception commonly arises from the name, but the actual semantic is consistency enforcement."
+    },
+    {
+      "id": "c",
+      "text": "Claiming ANY returns a list of all outputs from matching rules describes the COLLECT hit policy without an aggregator function, not the ANY policy. COLLECT returns a list containing the output of every matching rule. ANY returns a single value -- but only when all matching rules agree on that value. If modelers need a list of all matching rule outputs, they should use COLLECT (optionally with an aggregator like SUM, MIN, MAX, or COUNT). ANY and COLLECT serve fundamentally different purposes despite both allowing multiple rule matches."
+    },
+    {
+      "id": "d",
+      "text": "Claiming ANY requires \"no match\" or that a match condition is not necessary fundamentally misrepresents the ANY hit policy. ANY, like other DMN hit policies, evaluates input conditions against the table's rules. Zero, one, or multiple rules may match. When zero rules match, the result is null/empty (similar to UNIQUE). When one or more rules match with consistent outputs, the result is that output value. When multiple rules match with inconsistent outputs, evaluation fails. A match occurring is the standard expected behavior, not an exception."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. ANY hit policy has a specific, often-confused semantic: Matching rules: zero, one, or many rules may match the input. Consistency check: if multiple match, all their outputs must agree (be equal). Result: the single value (when consistent). Error case: if matching rules disagree, evaluation fails → BPMN Incident. Use case: redundant rules that all lead to the same outcome. Example: Customer is VIP (rule 1: tier=PLATINUM → DISCOUNT_25). Customer has high lifetime value (rule 2: ltv>10000 → DISCOUNT_25). Customer in promotional segment (rule 3: segment=\"VIP_CAMPAIGN\" → DISCOUNT_25). A customer matching all three rules: ANY returns \"DISCOUNT_25\" (consistent). If one rule had output \"DISCOUNT_30\", evaluation fails -- modelers must fix inconsistency. ANY enforces a design contract: \"these rules represent the same decision; if they disagree, that's a modelling bug.\" Useful for catching subtle rule drift. Comparison: UNIQUE: exactly one match; multi-match = error. ANY: multiple matches OK if outputs agree; disagreement = error. FIRST: first match wins; ignores later matches silently. COLLECT (no aggregator): returns list of all matches. COLLECT-SUM/MIN/MAX/COUNT: aggregated single value."
+    },
+    "b": {
+      "text": "Incorrect. Consistency required."
+    },
+    "c": {
+      "text": "Incorrect. That's COLLECT."
+    },
+    "d": {
+      "text": "Incorrect. Matches required."
+    }
+  },
+  "explanation": "ANY hit policy has a specific, often-confused semantic: Matching rules: zero, one, or many rules may match the input. Consistency check: if multiple match, all their outputs must agree (be equal). Result: the single value (when consistent). Error case: if matching rules disagree, evaluation fails → BPMN Incident. Use case: redundant rules that all lead to the same outcome. Example: Customer is VIP (rule 1: tier=PLATINUM → DISCOUNT_25). Customer has high lifetime value (rule 2: ltv>10000 → DISCOUNT_25). Customer in promotional segment (rule 3: segment=\"VIP_CAMPAIGN\" → DISCOUNT_25). A customer matching all three rules: ANY returns \"DISCOUNT_25\" (consistent). If one rule had output \"DISCOUNT_30\", evaluation fails -- modelers must fix inconsistency. ANY enforces a design contract: \"these rules represent the same decision; if they disagree, that's a modelling bug.\" Useful for catching subtle rule drift. Comparison: UNIQUE: exactly one match; multi-match = error. ANY: multiple matches OK if outputs agree; disagreement = error. FIRST: first match wins; ignores later matches silently. COLLECT (no aggregator): returns list of all matches. COLLECT-SUM/MIN/MAX/COUNT: aggregated single value.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team uses 5 different Connectors: Slack, Email, REST, GitHub, Kafka. Team wonders if auth methods are consistent or per-Connector.",
+  "question": "Auth methods consistency across Connectors?",
+  "options": [
+    {
+      "id": "a",
+      "text": "All Camunda 8 Connectors use identical authentication methods and the same authentication mechanism applies universally â€” this approach has limitations. Different Connectors support different authentication methods based on the target system. 0 Client Credentials, and API Key. The Slack Connector uses Bot Token authentication. The GitHub Connector uses Personal Access Token or GitHub App. SMTP Connector uses username/password. Each Connector exposes authentication options relevant to its target service, and the supported methods are not identical across Connectors."
+    },
+    {
+      "id": "b",
+      "text": "0 as their authentication mechanism -- this approach has limitations. Authentication methods vary significantly by Connector based on what each external service supports. The REST Connector has five modes (None, API key, Basic, Bearer token, OAuth token). ). The Email Connector uses username/password over TLS/STARTTLS. The GitHub Connector supports Personal Access Token or GitHub App authentication. The Kafka Connector supports SASL_PLAIN, SASL_SCRAM, and mTLS. 0 standard across all connectors -- each adapts to its target service."
+    },
+    {
+      "id": "c",
+      "text": "Auth methods vary per Connector based on what each external service supports. REST Connector: five modes -- None, API key, Basic, Bearer token, OAuth token (client_credentials/password/refresh sub-modes). ) stored as Camunda secret. Email Connector (SMTP/IMAP): username + password over TLS/STARTTLS. GitHub Connector: Personal Access Token OR GitHub App (App ID + Installation ID + Private key). Kafka Connector: SASL_PLAIN, SASL_SCRAM-SHA-256/512, mTLS, plus additionalProperties for advanced cases. NAME}} placeholder syntax for credential values; Element Templates abstract the per-Connector auth UX."
+    },
+    {
+      "id": "d",
+      "text": "All Camunda 8 Connectors use only Bearer token authentication -- this approach has limitations. While Bearer token is one of the five authentication modes available in the REST Connector, the Camunda 8 built-in Connector library supports a wide variety of authentication approaches. Different connectors support the mechanisms appropriate for their target systems: API keys, Basic auth, GitHub App authentication, Bot OAuth tokens, SASL-based Kafka auth, and more. Restricting to Bearer token alone would prevent integration with services using API keys, Basic auth, or specialized token formats specific to platforms like Slack and GitHub."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per-Connector auth diversity: Why auth varies: Each external service has its own auth model. Camunda Connector adapts to target service. Modeler configures per Connector instructions. Per-Connector examples (each ground-truthed from the connector's own doc page): Slack Connector: Bot OAuth Token (xoxb-...) -- created on the Slack app's \"OAuth & Permissions\" page, stored as a Camunda secret. Email Connector (SMTP + IMAP): Username + password over TLS / STARTTLS. Separate credentials for SMTP (outbound) vs IMAP (inbound polling). REST Connector (connectors/protocol/rest.md:39-100+) -- five auth modes only: None: open APIs. API key: name + value, placed in Headers OR Query parameters (:60-62). Basic: username + password. Bearer Token: single token, sent as Authorization: Bearer …. OAuth Token: client_credentials / password / refresh-token grants; tokens cached per credentials. GitHub Connector (out-of-the-box-connectors/github.md:40-41) -- two auth modes only: Personal Access Token (PAT): user-level token. GitHub App: app-level installation; provide App ID + Installation ID + Private key (per :49-55), JWT minted internally. Kafka Connector (per Set 13 Q33): SASL_PLAIN: username + password. SASL_SCRAM-SHA-256 / -SHA-512: hashed challenge-response. mTLS: certificate-based. additionalProperties map for advanced/custom configurations. No auth: open cluster (rare in production). Common across all: Secrets binding (per Set 14 Q45): {{secrets.SLACK_BOT_TOKEN}}, {{secrets.SMTP_PASSWORD}}, etc. Same syntax across Connectors. Centralised secret management. Element Templates: Each Connector has its own template. Modeler-friendly UI per Connector. Hides auth complexity. Auth design patterns: For machine-to-machine (services): OAuth client credentials (per Set 14 Q55): standard for APIs. API keys: simpler; less secure. For human actions: OAuth user authorization: user grants. Personal Access Tokens: user-issued tokens. For sensitive operations: mTLS: certificate verification. Signed requests: HMAC. Best practices: Use Connector docs: each Connector has specific auth setup. Secrets management: consistent secrets binding. Rotate credentials: periodic security. Least privilege: scope tokens to minimum needed. For multi-Connector projects: Inventory Connectors used: track auth methods. Secrets inventory: which secrets per Connector. Rotation schedule: align with security policy. Document: for onboarding new team members. For SaaS vs Self-Managed: Secrets storage: SaaS uses Console; Self-Managed uses env / Vault. Auth methods: same per Connector. For partners: Partner provides auth setup: read their docs. Camunda Connector adapts: per partner's expectations. Anti-patterns: Inlining credentials in BPMN: use secrets. Same credential across Connectors: compromise of one affects all. No rotation: long-lived risk. For the scenario (5 different Connectors): Each has own auth setup: configure per Connector docs. Use secrets binding: consistent management. Document auth per Connector: for ops."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/available-connectors-overview/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q36",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

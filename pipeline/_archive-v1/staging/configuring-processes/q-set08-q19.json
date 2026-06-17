@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q19",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A daily-report process should run at most 30 times (a month of reports), then stop. The team configures a Start Event Timer Cycle. They write R30/PT24H and wonder if this is correct. What does the cycle R30/PT24H express?",
+  "question": "What does the cycle R30/PT24H express?",
+  "options": [
+    {
+      "id": "a",
+      "text": "\"Repeat 30 times, every 24 hours\" -- bounded ISO 8601 repeating interval. The R prefix indicates a cycle expression, the number 30 specifies the maximum repetition count, and PT24H is the ISO 8601 period duration of 24 hours. The timer fires up to 30 times with a 24-hour interval between each firing, then the cycle ends automatically. This syntax is supported in Camunda 8 Timer Start Events and Timer Boundary Events. For unbounded repetition, omit the count: R/PT24H. For a start-time-anchored cycle, insert the datetime: R30/2024-01-15T08:00:00Z/PT24H."
+    },
+    {
+      "id": "b",
+      "text": "The expression R30/PT24H means wait 30 hours before the first timer firing and then repeat every 24 hours indefinitely with no upper bound on total repetitions -- this is an incorrect parsing. In ISO 8601 repeating interval notation, the integer following the R prefix specifies the maximum repetition count, not a delay duration. R30/PT24H means fire at most 30 times with 24-hour intervals between each firing. An initial waiting delay before the first firing is not represented by the repetition count component; it would require specifying an explicit start datetime in the interval expression."
+    },
+    {
+      "id": "c",
+      "text": "The expression R30/PT24H means repeat indefinitely with no upper bound, firing every 30 hours, with the PT24H component representing an additional offset or secondary interval beyond the 30-hour primary interval -- this is an invented multi-interval interpretation with no basis in ISO 8601 cycle syntax. The standard R[n]/duration format is unambiguous: R30 means repeat 30 times and PT24H is the single interval duration. There is no secondary offset component or multi-interval semantics in this notation. The expression means exactly 30 repetitions at 24-hour intervals and nothing more."
+    },
+    {
+      "id": "d",
+      "text": "ISO 8601 cycle expressions in Camunda require a mandatory start date-time component -- R30/PT24H is syntactically incomplete because it omits the start time and will be rejected at deployment -- this description does not reflect the actual behaviour. The start time component in ISO 8601 repeating intervals is optional. R30/PT24H is a complete and valid cycle expression. When no start time is specified, the first interval begins from the moment the timer is activated, anchored to the deployment time for Timer Start Events or to the task activation time for Timer Boundary Events. The optional start time form R30/2024-01-15T08:00:00Z/PT24H anchors to a specific absolute time."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. ISO 8601 repeating interval format: R[n]/[start]/[interval] (with optional start). R30/PT24H reads as \"30 repetitions / 24-hour duration interval.\" The cycle fires 30 times, 24 hours apart, then completes. Bounded by R30. The unbounded form is R/PT24H (no number after R) -- repeat indefinitely. Note: when start is omitted, the engine typically anchors at the moment of activation (instance start or deployment time, depending on context). For deterministic start, include the start: R30/2026-06-01T09:00:00Z/PT24H."
+    },
+    "b": {
+      "text": "Incorrect. R30 = 30 reps, not 30 hours."
+    },
+    "c": {
+      "text": "Incorrect. Not how ISO 8601 cycles parse."
+    },
+    "d": {
+      "text": "Incorrect. Some implementations require start, others anchor at activation. The expression R30/PT24H is generally accepted in Zeebe."
+    }
+  },
+  "explanation": "ISO 8601 repeating interval format: R[n]/[start]/[interval] (with optional start). R30/PT24H reads as \"30 repetitions / 24-hour duration interval.\" The cycle fires 30 times, 24 hours apart, then completes. Bounded by R30. The unbounded form is R/PT24H (no number after R) -- repeat indefinitely. Note: when start is omitted, the engine typically anchors at the moment of activation (instance start or deployment time, depending on context). For deterministic start, include the start: R30/2026-06-01T09:00:00Z/PT24H.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q19",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

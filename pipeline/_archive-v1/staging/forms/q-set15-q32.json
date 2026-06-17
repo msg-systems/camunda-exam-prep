@@ -1,0 +1,63 @@
+{
+  "id": "imp-set15-q32",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team needs custom HTML in a form -- e.g., styled table, link, formatted instructions. Team wonders if Forms support HTML injection.",
+  "question": "Form custom HTML component?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 Forms do not support custom HTML components and are limited to built-in field types â€” this approach has limitations. The Camunda Forms schema supports an HTML View component that allows embedding arbitrary HTML markup within a form. This component accepts a static HTML string or a FEEL expression that evaluates to an HTML string, enabling rich custom content including styled text, tables, links, and formatted output. The HTML View component bridges the gap between Forms schema limitations and custom presentation needs."
+    },
+    {
+      "id": "b",
+      "text": "md:2-3) renders actual HTML content, including headings, lists, tables, inline styles, and <style> blocks. Markdown rendering is not a documented feature of the HTML view -- it renders HTML directly. CSS is auto-scoped to the component root. While <script> JavaScript is blocked for security, HTML elements and CSS styling provide rich presentation capabilities well beyond what Markdown alone could offer."
+    },
+    {
+      "id": "c",
+      "text": "md:2-3; palette label HTML). {{/loop}}) or plain HTML. Hide if (:14) FEEL boolean for conditional rendering. Columns (:15) Carbon-grid sizing. Security design (:17-25): all <script> JavaScript is blocked; templated text is HTML-escaped preventing variable injection; CSS is scoped to component root. Inline styles and <style> blocks are allowed. Purpose is presentation only -- not interactive, no JS event handlers. Use for dynamic instruction text, formatted tables, or conditionally shown notices based on process variables."
+    },
+    {
+      "id": "d",
+      "text": "Displaying dynamic HTML content in Camunda task forms requires building a custom Tasklist application -- this overstates the complexity. The standard Camunda 8 Tasklist already supports the HTML view form element out of the box without any customization. Dynamic content (like personalized instructions, computed summaries, or context-sensitive notices) can be rendered using Mustache templating with process variables inside the HTML view's Content property. A custom Tasklist is only needed for entirely custom UI frameworks, non-standard interaction patterns, or integration requirements that go far beyond what the standard Camunda Forms palette supports."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. HTML component in Forms: HTML component (typical): Drag into form. Edit HTML: in property panel. Renders as HTML in Tasklist. Use cases: Use case 1: Rich instructions: `html Review Steps Verify customer info Check supporting documents Submit decision Use case 2: Formatted tables: html ItemQty Widget5 Use case 3: External links: html Read full policy Use case 4: Conditional content: Variable interpolation: Customer: {{customerName}}. Renders dynamic content. Variable interpolation -- Mustache templating (per forms-element-library-html.md:85-99): Definitive syntax -- {{varName}} for value substitution, {{#loop list}}...{{this}}...{{/loop}} for iteration. NO FEEL =expr interpolation inside Content (FEEL belongs in Hide if only). Example (from doc :88-98): html {{pageTitle}} Welcome, {{user.name}}! Your selected color is: {{user.favoriteColor}} Your tasks for today are: {{#loop user.tasks}} {{this}} {{/loop}} At runtime the form renderer replaces placeholders with form/variable values, after escaping each templated text (HTML special chars encoded; variables cannot inject HTML or CSS structure). Security model -- sanitization by design (per forms-element-library-html.md:17-25): What is blocked: All JavaScript ( tags, on* handlers, javascript: URLs). Dynamic HTML/CSS via templating: templated text is HTML-escaped so process variables cannot inject markup. What is allowed: Static HTML authored in property panel (trusted modeler). Inline styles (style=\"...\"). blocks -- auto-scoped to the component root so they do not leak to the rest of the form. Individual style properties via templating (e.g., style=\"color: {{user.favoriteColor}};\" -- value escaped but inline-style property allowed). Sanitization is not a \"may\" -- it is built into the component (per :23-25); HTML view is meant solely for presentation of information. Best practice (per :23-25): Author HTML in form designer (trusted modeler -- XML schema is the trust boundary). Ensure variables coming into the form are trusted even though they are escaped. Use templating only where you really need it. CSS specifics: CSS auto-scoped to component root (:21) -- won't break surrounding form structure. blocks allowed inside Content. External CSS () typically blocked by sanitizer. Inline styles supported (including templated values for individual properties). JavaScript: Always blocked (:19) -- by design, not configurable. For dynamic behavior: use form components (Expression field for computed values, Hide if` per element for conditional visibility). For very custom UI: Custom Tasklist UI: build own front-end; full control. HTML component: 80% solution within standard Tasklist. Best practices: Use HTML for static content + interpolation: instructions, formatted info. Use native form components for data fields: text fields, selects, etc. Avoid sensitive logic in HTML: form components handle data flow. Test rendering: across browsers. Anti-patterns: Replacing form components with HTML: loses validation, data binding. Untrusted variable interpolation: XSS. Heavy HTML for layout: overcomplicates; use form layout features. For the scenario (styled table, link, instructions): HTML component fits. Compose desired content. Verify rendering in Tasklist. For more complex needs: Markdown rendering (verify): some Forms support Markdown. External component libraries: custom Tasklist with React etc."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-html/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q32",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[2]"
+      }
+    ]
+  }
+}

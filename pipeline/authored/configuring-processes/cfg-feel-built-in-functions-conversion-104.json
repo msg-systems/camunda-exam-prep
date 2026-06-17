@@ -1,0 +1,53 @@
+{
+  "id": "cfg-feel-built-in-functions-conversion-104",
+  "topic": "configuring-processes",
+  "subtopic": "feel-conversion-functions",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An output mapping reshapes a list of key/value records into a single context using FEEL with the expression shown. What does it return?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`{a:1, b:2}`"
+    },
+    {
+      "id": "b",
+      "text": "`{key: \"b\", value: 2}` — only the last entry is kept."
+    },
+    {
+      "id": "c",
+      "text": "The original list, returned unchanged."
+    },
+    {
+      "id": "d",
+      "text": "`null` — the input contains nested contexts and `context()` only accepts strings."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "`context(entries)` constructs a context from a list where each item is a context with exactly two entries: a string `key` and an `Any` `value`. Each entry contributes one key/value pair to the result, so `[{key:\"a\", value:1}, {key:\"b\", value:2}]` becomes `{a:1, b:2}`."
+    },
+    "b": {
+      "text": "All entries are included, not just the last one. The function would override an entry only if multiple input entries shared the same `key`."
+    },
+    "c": {
+      "text": "The purpose of `context()` is to convert the list of key/value records into a context; it is the reverse of `get entries()`."
+    },
+    "d": {
+      "text": "Nested contexts are exactly what `context()` expects as input. `null` is only returned if an entry is not a context or is missing the required `key`/`value` entries."
+    }
+  },
+  "explanation": "`context(entries)` is the inverse of `get entries(context)`. It constructs a single context from a list where each item is a two-entry context with a string `key` and an `Any` `value`. If keys collide, later entries override earlier ones. If any entry is malformed, the function returns `null`.",
+  "docs": [
+    {
+      "title": "FEEL conversion functions",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-conversion/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "context([{\"key\":\"a\", \"value\":1}, {\"key\":\"b\", \"value\":2}])"
+  }
+}

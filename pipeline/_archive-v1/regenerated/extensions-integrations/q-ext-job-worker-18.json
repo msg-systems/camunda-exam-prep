@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-18",
+  "topic": "extensions-integrations",
+  "subtopic": "java-job-worker",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Fintech wires a JobWorkerMetrics implementation into a Camunda 8.8 Java job worker that processes 4800 transactions per day. The developer uses the built in Micrometer adapter with a Prometheus MeterRegistry and needs the correct builder call to attach the metrics instance to the specific worker being opened.",
+  "question": "Which builder call attaches a JobWorkerMetrics implementation to a Camunda 8.8 Java job worker on the Java client?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Pass the JobWorkerMetrics instance to CamundaClientBuilder using .metrics(metrics) so the metrics instance applies globally to every job worker opened by the configured Camunda client at Helios Fintech"
+    },
+    {
+      "id": "b",
+      "text": "Register the JobWorkerMetrics instance with the gateway through client.registerMetrics(metrics) so the broker tags activate jobs responses sent to this Java client at Helios Fintech with the metrics instance"
+    },
+    {
+      "id": "c",
+      "text": "Wrap the JobHandler with a MetricsJobHandler decorator and the Java client at Helios Fintech automatically discovers the JobWorkerMetrics implementation through a JobHandler annotation on the wrapped handler"
+    },
+    {
+      "id": "d",
+      "text": "Pass the JobWorkerMetrics instance to the JobWorkerBuilder via .metrics(metrics) on client.newJobWorker so the worker at Helios Fintech reports its activated and handled job counts to the supplied metrics instance"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. JobWorkerMetrics is attached per worker on the JobWorkerBuilder via .metrics(metrics); the CamundaClientBuilder has no global metrics method that applies to every worker."
+    },
+    "b": {
+      "text": "Incorrect. There is no client.registerMetrics API and the broker does not tag responses with client metrics; the worker reports its own counters via the JobWorkerMetrics passed to the builder."
+    },
+    "c": {
+      "text": "Incorrect. The Java client does not discover metrics through a JobHandler annotation or a decorator class; the JobWorkerMetrics instance is supplied explicitly via the builder."
+    },
+    "d": {
+      "text": "Correct. The Usage example shows client.newJobWorker().jobType(...).handler(handler).metrics(metrics).open(); the .metrics(metrics) call on the JobWorkerBuilder attaches the JobWorkerMetrics implementation to the worker."
+    }
+  },
+  "explanation": "The Camunda 8.8 Java client attaches a JobWorkerMetrics implementation per worker via .metrics(metrics) on the JobWorkerBuilder returned from client.newJobWorker(). The optional built in Micrometer implementation is constructed with JobWorkerMetrics.micrometer().withMeterRegistry(...).build().",
+  "docs": [
+    {
+      "title": "Java client job worker",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

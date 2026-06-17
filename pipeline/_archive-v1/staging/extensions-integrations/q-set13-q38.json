@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q38",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL contains(string, search) checks substring. The team wonders if it's case-sensitive -- does contains(\"Hello\", \"hello\") return true or false? contains case-sensitivity?",
+  "question": "contains case-sensitivity?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The FEEL contains function performs case-insensitive comparison by default, so contains(\"Hello\", \"hello\") returns true because the function normalises case before comparing. This misrepresents the documented behavior for the standard FEEL contains implementation. Per the DMN FEEL specification, contains is case-sensitive. The string \"hello\" is not found within \"Hello\" because the capital H in \"Hello\" does not match the lowercase h in \"hello\". For case-insensitive matching, both strings must be normalised first using lower case() or upper case()."
+    },
+    {
+      "id": "b",
+      "text": "The FEEL contains function accepts an optional flag parameter to switch between case-sensitive and case-insensitive modes, similar to some regex engines that support i flag configuration. This misrepresents the FEEL contains signature. The standard FEEL contains(string, match) function takes exactly two parameters and has no optional flags for case sensitivity. Case-insensitive matching must be achieved by normalising both arguments before passing them to contains -- for example, contains(lower case(name), lower case(\"smith\"))."
+    },
+    {
+      "id": "c",
+      "text": "When contains encounters inputs with different capitalisation, it returns null rather than true or false, signalling that the comparison was inconclusive due to the case difference. This misrepresents the documented behavior. The FEEL contains function returns a boolean value (true or false) for valid string inputs, never null for a case difference. null is returned only if one of the arguments is itself null. For contains(\"Hello\", \"hello\"), the function returns false -- a definitive boolean result -- because the lowercase \"hello\" is not present in \"Hello\"."
+    },
+    {
+      "id": "d",
+      "text": "contains is case-sensitive in FEEL per the DMN FEEL specification. contains(\"Hello\", \"hello\") returns false because the lowercase \"hello\" is not literally present in \"Hello\" (which has a capital H). The comparison is exact character-by-character. For case-insensitive matching, normalise both sides to the same case before comparison: contains(lower case(name), lower case(searchTerm)). , Turkish), verify that the FEEL engine's lower case implementation handles locale-specific characters correctly."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL contains semantic (per DMN FEEL spec): Case-sensitive matching: contains(\"Hello World\", \"Hello\") → true. contains(\"Hello World\", \"hello\") → false (lowercase differs). contains(\"Hello World\", \"World\") → true. contains(\"Hello World\", \"world\") → false. For case-insensitive: `feel contains(lower case(name), lower case(\"smith\")) Normalise both to lowercase (or uppercase) first. Then contains checks against same-case strings. Locale considerations: lower case / upper case: typically Unicode-aware (e.g., Greek capital Σ → lowercase σ). Some locale-specific edge cases (e.g., Turkish dotted/dotless I) may behave unexpectedly with default case folding. Related case-sensitive functions (typically): starts with(s, prefix): also case-sensitive. ends with(s, suffix): also case-sensitive. matches(s, regex): regex flag controls case (some FEEL implementations). Best practices: Document expected case-sensitivity in input data contracts. Normalise at entry: convert inputs to canonical case in Input Mapping. For user-typed search: always lower-case both sides for forgiving UX. Anti-patterns: Relying on contains for fuzzy matching: it's strict literal. Mixing case-sensitive and case-insensitive checks in same model: inconsistency bugs. Verify exact contains` semantic in your FEEL version's docs."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. Partially correct."
+    },
+    "d": {
+      "text": "Correct. Incorrect."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-string/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q38",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

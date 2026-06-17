@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A pricing decision table determines discount per customer. The team wants to ensure that only one rule matches for any given input -- if two rules ever match, the deployment should fail (model-validation-time guard).",
+  "question": "Which hit policy provides this guarantee?",
+  "options": [
+    {
+      "id": "a",
+      "text": "UNIQUE hit policy requires that at most one rule in a DMN decision table matches any given input combination. If two or more rules match simultaneously, the Zeebe DMN evaluator throws a runtime error and raises an Incident on the calling Business Rule Task. UNIQUE is the default hit policy when no policy is explicitly declared on the decision table. It enforces strict non-overlap between rule conditions and is suitable when the decision designer guarantees disjoint input boundaries."
+    },
+    {
+      "id": "b",
+      "text": "ANY hit policy allows multiple rules to match the same input but requires all matching rules to return identical output values. If matching rules produce different outputs, a runtime error is raised. This is designed for redundant rules that repeat the same conclusion for different condition representations. ANY does not silently pick one match arbitrarily -- it validates output consistency across all matches. It is less restrictive about overlapping conditions than UNIQUE but still enforces output agreement."
+    },
+    {
+      "id": "c",
+      "text": "FIRST hit policy evaluates rules top-to-bottom and returns the output of the first rule that matches, ignoring all subsequent matches. Unlike UNIQUE, it tolerates overlapping rules without raising an error -- the rule order determines which output wins. FIRST is appropriate when rules are intentionally ordered by priority with more specific rules listed above more general fallback rules. It provides explicit priority-by-position semantics without requiring disjoint conditions."
+    },
+    {
+      "id": "d",
+      "text": "COLLECT hit policy collects all matching rule outputs into a list. With an aggregator (SUM, MIN, MAX, COUNT), it performs an aggregation over the collected outputs; without an aggregator, it returns a list of all matching output values. COLLECT does not raise an error on multiple matches -- it is designed for scenarios where multiple rules are expected to match and their outputs should be combined or aggregated rather than selecting a single result from competing matches. ###"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. UNIQUE mandates exactly one matching rule per evaluation; multiple matches throw an error. Used when rules should be mutually exclusive and overlap is a defect."
+    },
+    "b": {
+      "text": "Incorrect. ANY allows multiple rules to match as long as they produce identical output -- different intent."
+    },
+    "c": {
+      "text": "Incorrect. FIRST returns the first match in row order; multiple matches don't error."
+    },
+    "d": {
+      "text": "Incorrect. COLLECT gathers all matching outputs into a list."
+    }
+  },
+  "explanation": "UNIQUE mandates exactly one matching rule per evaluation; multiple matches throw an error. Used when rules should be mutually exclusive and overlap is a defect.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

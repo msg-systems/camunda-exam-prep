@@ -1,0 +1,27 @@
+{
+  "id": "cfg-messages-22",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Logistics aggregates package-scan events per shipment in Camunda 8.8. For one delivery the team expects 6 scan messages within 12 hours, and they want exactly one process instance per shipment that absorbs every scan and ends only after the last scan has been collected and processed downstream.",
+  "question": "Which message pattern matches publishing messages with a TTL greater than zero and a correlationKey that groups events per entity?",
+  "options": [
+    { "id": "a", "text": "The single-instance pattern, in which TTL of 0 and a correlation key identifying the entity guarantee that duplicate publishes are discarded while the original process instance is still running" },
+    { "id": "b", "text": "The non-interrupting boundary pattern, where the engine spawns a child token for each arriving scan and the parent token closes when the configured boundary timer event eventually expires" },
+    { "id": "c", "text": "The message aggregator pattern, where the first message creates a process instance and following messages with the same correlation key correlate into that instance during its lifetime" },
+    { "id": "d", "text": "The buffer-reset pattern, in which every new message with the same name clears earlier buffered messages and replays them against the receiver in their original chronological order" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The single-instance pattern is defined with TTL equal to zero and is aimed at creating exactly one instance per correlation key by discarding later equal publishes, not at aggregating multiple distinct events into one instance." },
+    "b": { "text": "Incorrect. The messages page does not document a non-interrupting boundary aggregation pattern; aggregation across messages is achieved through the correlationKey and a TTL greater than zero." },
+    "c": { "text": "Correct. The message aggregator pattern publishes messages with TTL greater than zero and a correlationKey grouping per entity; the first message creates a new process instance and following messages correlate into that instance during its lifetime." },
+    "d": { "text": "Incorrect. There is no documented buffer-reset pattern; the message buffer rejects equal incoming messages by uniqueness rules rather than clearing or replaying earlier ones." }
+  },
+  "explanation": "Among the documented message patterns, the aggregator combines a correlationKey that groups events per entity with TTL greater than zero. The first message creates a process instance and later messages with the same correlation key correlate into that instance during its lifetime, which is the textbook behavior for batching events per shipment.",
+  "docs": [
+    { "title": "Messages", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+  ]
+}

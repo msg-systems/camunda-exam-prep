@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Multi-Instance Subprocess processes a list of invoices. Inside each instance, the team wants to log a message like \"Processing invoice 3 of 7\" -- they need to know which iteration is currently running.",
+  "question": "Which engine-provided variable inside MI instances holds the 1-based index?",
+  "options": [
+    {
+      "id": "a",
+      "text": "iterationIndex -- this variable name has no implementation in the BPMN specification or in Camunda 8's Multi Instance runtime. ). BPMN specifies a precise vocabulary for Multi Instance scope variables, and iterationIndex is not in it. Using this name in a FEEL expression inside an MI scope would result in a null reference since the engine never populates a variable by this name. The correct engine-provided name is standardised by the BPMN specification."
+    },
+    {
+      "id": "b",
+      "text": "instanceNumber -- this variable name is similarly absent from the BPMN specification and Camunda 8's Multi Instance engine. It follows a naming pattern that sounds intuitive (the \"number\" of the current instance), but the BPMN standard chose a different, specific term for this purpose. Using instanceNumber in a FEEL expression within an MI scope would always evaluate to null because the engine does not set a variable by this name. The correct MI index variable name is part of the BPMN standard vocabulary and is consistently implemented across BPMN engines."
+    },
+    {
+      "id": "c",
+      "text": "No engine-provided iteration index exists -- the team must compute the index themselves by tracking position relative to the inputCollection array, using FEEL functions like list contains or indexOf to find the current inputElement within the collection. This claim is inaccurate. The BPMN specification explicitly defines loopCounter as a standard engine-provided variable inside every Multi Instance scope, giving a 1-based index for the current iteration. Manual position computation would be brittle and unnecessary given that the engine already supplies this value."
+    },
+    {
+      "id": "d",
+      "text": ", N for N instances). It is automatically available as a FEEL variable in any expression within the MI scope, including gateway conditions, service task input mappings, and logging expressions. The BPMN specification defines loopCounter as part of standard Multi Instance semantics, and Zeebe implements it consistently. Companion engine-provided MI variables include numberOfInstances (total count), numberOfActiveInstances, and numberOfCompletedInstances, which are useful for progress tracking and conditional completion criteria."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. loopCounter is BPMN's standard MI scope variable. Camunda 8 / Zeebe exposes it inside each inner-instance scope. Typical use: log messages (\"Iteration 3\"), conditional logic per index, debugging output. 1-based -- important detail (some languages use 0-based; FEEL/BPMN use 1-based). Available alongside the inputElement variable (the current item from inputCollection) and the additional engine helpers like numberOfInstances, numberOfActiveInstances, numberOfCompletedInstances."
+    },
+    "b": {
+      "text": "Incorrect. iterationIndex isn't a FEEL / BPMN variable. Modellers sometimes invent it from familiarity with other languages."
+    },
+    "c": {
+      "text": "Incorrect. instanceNumber similarly not in the spec."
+    },
+    "d": {
+      "text": "Correct. Engine provides loopCounter; manual computation isn't needed."
+    }
+  },
+  "explanation": "Engine provides loopCounter; manual computation isn't needed.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q14",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "id": "imp-set15-q49",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL needs to find index of substring in string: position of \"world\" in \"hello world\" = 7. Team wonders FEEL function.",
+  "question": "FEEL substring index?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL does not provide any substring search or index-finding functions â€” this approach has limitations. FEEL includes string contains(string, match) which returns true if the string contains the match substring. For finding positions, index of(list, match) returns a list of positions where the match appears in the list. For strings, substring before(string, match) and substring after(string, match) extract parts relative to a pattern. While there is no direct string index of function, FEEL provides multiple string search primitives for common substring operations."
+    },
+    {
+      "id": "b",
+      "text": "md:415-430 (signature index of(list: list, match: Any): list, example index of([1,2,3,2], 2) → [2,4]). md:108-123 returns the prefix; its length + 1 is the position of match: string length(substring before(\"hello world\", \"world\")) + 1 → 7. md:125-139 returns the suffix. md:142-160 is the existence check (boolean) -- guard before computing position. )) + 1 as the canonical position lookup."
+    },
+    {
+      "id": "c",
+      "text": "While contains(string, match) (:142-160) returns a boolean existence check, FEEL provides more: substring before(string, match) (:108-123) returns the prefix before the match, whose length plus one gives the position. substring after(string, match) (:125-139) returns the suffix. The combination string length(substring before(text, \"world\")) + 1 computes position idiomatically. Restricting available tools to only contains understates what FEEL string built-ins can achieve for position calculations."
+    },
+    {
+      "id": "d",
+      "text": "For simple position lookup, the substring before(string, match) approach is cleaner and more readable: string length(substring before(\"hello world\", \"world\")) + 1 → 7. Using regex for a simple literal search introduces unnecessary complexity and potential performance overhead."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL substring search (canonical pattern): No string index of built-in in FEEL: Per feel-built-in-functions-list.md:415-430 the only index of is index of(list: list, match: Any): list -- it operates on LISTS and returns ALL matching positions (verbatim example index of([1,2,3,2], 2) → [2,4]). Trying index of(\"hello world\", \"world\") produces a type error, not 7. Canonical FEEL string position pattern: `feel position: string length(substring before(\"hello world\", \"world\")) + 1 // → 7 Build-up: substring before(\"hello world\", \"world\") → \"hello \" per feel-built-in-functions-string.md:108-123. string length(\"hello \") → 6. +1 (FEEL is 1-indexed) → 7. Defensive variant (guard with contains): feel pos: if contains(s, target) then string length(substring before(s, target)) + 1 else null contains(string, match) per feel-built-in-functions-string.md:142-160 returns boolean -- call before computing position to avoid silently returning string length(s) + 1 when match is absent. For extracting AFTER the match use substring after(string, match) per :125-139 (mirror function). Multiple occurrences (list approach): Convert string to list of chars with split(string, delimiter), then use index of(list, match): feel // e.g. find all positions of \"o\" in \"foo bar foo\" index of(split(\"foo bar foo\", \"\"), \"o\") // → [2, 3, 10, 11] (Note: index of on lists returns the full positions list, NOT just the first match -- matches list semantics, NOT typical string-indexOf semantics.) Pattern 3 (recursive BKM if you want first-match-only on a list): feel function firstPos(s, sub) = if not(contains(s, sub)) then -1 else string length(substring before(s, sub)) + 1 For practical needs: Use case 1: Parse URL components: feel // Find \"://\" to get scheme end scheme: substring before(url, \"://\") rest: substring after(url, \"://\") Use case 2: Extract before delimiter: feel // Email: extract local part before @ localPart: substring before(email, \"@\") domain: substring after(email, \"@\") Use case 3: Strip prefix: feel if starts with(s, prefix) then substring(s, string length(prefix) + 1, string length(s) - string length(prefix)) else s Compare with regex: matches(s, pattern): returns boolean. replace(s, pattern, replacement): replaces matches. No direct \"match position\" function typical. For multiple occurrences: Built-in index of: returns first match typically. For all positions: custom logic. Encoding considerations: Character-based vs byte-based: typically character. Unicode: code points vs grapheme clusters. For the scenario (position of \"world\" in \"hello world\"): feel string length(substring before(\"hello world\", \"world\")) + 1 // → 7 No string index of built-in exists in FEEL (Pattern #43 -- fabricated function). The string-functions reference at feel-built-in-functions-string.md documents substring before :108-123 + substring after :125-139 + contains :142-160 as the canonical search/split primitives. A list-version index of exists at feel-built-in-functions-list.md:415-430` (returns ALL match positions as a list) -- different semantics. For complex parsing: Consider worker-side: more powerful string libraries. Pass parsed parts as variables: cleaner BPMN. Best practices: Use built-in when available: simpler than recursive FEEL. Defensive on not-found: don't compute substring from -1. Document expected format: contract."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-string/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q49",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[2]"
+      }
+    ]
+  }
+}

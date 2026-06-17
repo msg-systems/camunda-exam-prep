@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A B2B integration calls a partner API protected by OAuth2 client credentials. The API requires the client to fetch an access token from the partner's token endpoint, then use it as a Bearer header on each API call. The token expires after 1 hour. The team is configuring this in an Outbound HTTP Connector.",
+  "question": "How does the Outbound HTTP Connector handle OAuth2 token lifecycle?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Outbound HTTP Connector supports only static API keys and cannot handle OAuth2 flows -- teams requiring OAuth2 authentication with token lifecycle management must build a Custom Connector using the Connector SDK, implementing the token-fetch and caching logic themselves in Java or another supported language. 0 Client Credentials Flow as a built-in Authentication type, removing any need to build a custom connector solely for OAuth2 support."
+    },
+    {
+      "id": "b",
+      "text": "0 Client Credentials Flow. PARTNER_CLIENT_SECRET}} to avoid embedding credentials in the BPMN). Optionally specify the scope and audience fields if the partner's authorization server requires them. The Connector automatically fetches an access token before each call, caches it within its validity window, and refreshes it when nearing expiry -- without any manual token-management logic in BPMN."
+    },
+    {
+      "id": "c",
+      "text": "Use two separate Service Tasks in BPMN -- the first calls the token endpoint with client credentials to obtain a Bearer token, stores it as a process variable, and the second Service Task calls the partner API using the obtained token in the Authorization header. This manual coordination approach was necessary before the HTTP Connector's built-in OAuth2 support existed, but it creates unnecessary BPMN complexity, leaks tokens into process variables visible in Operate, and requires manual token expiry management."
+    },
+    {
+      "id": "d",
+      "text": "Configure the Authentication type as Bearer and manually construct the token value as a FEEL expression combining your client credentials; rely on a re-deployment of the Connector configuration each time the token expires to inject a fresh Bearer value. Static Bearer token injection cannot handle automatic token expiry -- the partner's access tokens expire after 1 hour, meaning every hour a human must intervene to re-deploy the process with a new token value, which is operationally infeasible for a production integration."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Outbound HTTP Connector natively supports OAuth 2.0 Client Credentials flow as an Authentication type. Configuration includes token endpoint URL, client ID, client secret (typically referenced via {{secrets.NAME}} placeholder), scope, and audience. The Connector manages the token lifecycle automatically -- fetches a token, caches it, refreshes when near expiry -- without manual coordination in BPMN."
+    },
+    "b": {
+      "text": "Correct. OAuth2 IS natively supported."
+    },
+    "c": {
+      "text": "Incorrect. Manual token coordination is the pre-OAuth2-support workaround. Native support eliminates this."
+    },
+    "d": {
+      "text": "Incorrect. Static Bearer requires manual refresh which is operationally infeasible for tokens that expire hourly."
+    }
+  },
+  "explanation": "OAuth2 IS natively supported.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q33",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

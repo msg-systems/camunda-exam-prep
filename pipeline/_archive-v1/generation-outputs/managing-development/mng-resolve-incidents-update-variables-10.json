@@ -1,0 +1,27 @@
+{
+  "id": "mng-resolve-incidents-update-variables-10",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Logistics ships 4000 orders per day in Camunda 8.8 on the order-process model. After repeated XOR gateway incidents during a 2 hour window at the logistics provider, the operations team must recall the exact data type their order-process model requires for orderValue so the gateway condition stops failing on new instances.",
+  "question": "Which data type must orderValue carry so the XOR gateway condition orderValue>=100 evaluates without raising an incident?",
+  "options": [
+    { "id": "a", "text": "The orderValue variable must be a JSON object containing a nested amount field so the XOR gateway condition orderValue>=100 can read the numeric amount of the order from the payload on the broker" },
+    { "id": "b", "text": "The orderValue variable must be a string formatted as an ISO 4217 currency literal so the XOR gateway condition orderValue>=100 can compare it against the 100 threshold defined on the gateway model" },
+    { "id": "c", "text": "The orderValue variable must be a boolean flag so the XOR gateway condition orderValue>=100 can route the instance along the higher-value sequence flow for every order processed by the provider" },
+    { "id": "d", "text": "The orderValue variable must be an integer so the XOR gateway condition orderValue>=100 can compare numeric values and route the order instance along the correct outgoing sequence flow on the model" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documented model requires orderValue to be an integer; the example incident message Cannot compare values of different types: STRING and INTEGER confirms the gateway compares orderValue itself as an integer, not a nested object field." },
+    "b": { "text": "Incorrect. A string value is exactly what causes the documented incident; the engine cannot compare a STRING against an INTEGER, so orderValue must be an integer for the gateway condition orderValue>=100 to evaluate." },
+    "c": { "text": "Incorrect. A boolean cannot satisfy a numeric comparison like orderValue>=100; the documented model requires an integer orderValue so the XOR gateway can evaluate the threshold and route the instance." },
+    "d": { "text": "Correct. The Operate guide shows that storing orderValue as a string raises an incident because the engine cannot compare STRING and INTEGER, so the operator removes the quotation marks to make orderValue an integer for the gateway." }
+  },
+  "explanation": "The order-process XOR gateway condition orderValue>=100 requires orderValue to be an integer so the engine can compare numeric values; a string value raises an incident with the message Cannot compare values of different types: STRING and INTEGER.",
+  "docs": [
+    { "title": "Variables and incidents", "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/" }
+  ]
+}

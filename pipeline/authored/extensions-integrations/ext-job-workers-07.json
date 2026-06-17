@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-07",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A worker for job type `foo` activates no jobs. Hitting `/actuator/jobstreams` on the gateway shows it as a client stream there, but on one broker it is missing from the remote stream's consumers. What does the troubleshooting guide recommend as the workaround?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Restart that gateway so its streams are recreated and re-registered with the brokers; this situation indicates a bug."
+    },
+    {
+      "id": "b",
+      "text": "Restart the worker process and let it reopen the client stream."
+    },
+    {
+      "id": "c",
+      "text": "Lower the worker's `maxJobsActive` so the broker stops applying backpressure to it."
+    },
+    {
+      "id": "d",
+      "text": "Rename the job type so the broker re-registers the stream from scratch."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Per the docs, missing presence on a broker indicates a bug; the suggested workaround is to restart the gateway, which causes some service interruption but forces all streams for that gateway to be recreated properly."
+    },
+    "b": {
+      "text": "Restarting the worker is the fix when the stream is missing from the gateway as a client stream, not from a broker as a remote-stream consumer."
+    },
+    "c": {
+      "text": "`maxJobsActive` tuning is for queue sizing under backpressure, not for missing remote stream registrations."
+    },
+    "d": {
+      "text": "Renaming the job type would change process semantics and is not a documented troubleshooting step."
+    }
+  },
+  "explanation": "The `/actuator/jobstreams` endpoint distinguishes client streams (on the gateway) from remote streams (the aggregated streams as seen by each broker). If a worker is present as a client stream but absent as a consumer on a broker, the docs flag it as a bug and suggest restarting that gateway to force its streams to be recreated. Restarting the worker is reserved for the case where the client stream itself is missing.",
+  "docs": [
+    {
+      "title": "Job workers",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

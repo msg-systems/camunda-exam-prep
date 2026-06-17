@@ -1,0 +1,70 @@
+{
+  "id": "imp-set13-q26",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN input column declares type number. A rule cell has => 100. The input passed at runtime is \"100\" (string). The team wonders if evaluation succeeds.",
+  "question": "Type mismatch between declared column type and runtime input value?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Auto-coerced -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "A type mismatch between the declared DMN input column type and the actual runtime value always produces an evaluation error that stops the decision and creates an incident. This overstates what happens."
+    },
+    {
+      "id": "c",
+      "text": "Declared data types on DMN input columns are irrelevant documentation that the engine ignores; evaluation proceeds identically whether types are declared or not. This understates type declarations. While Camunda 8 may not enforce strict type errors on mismatch, the declared type affects how comparison expressions are interpreted and validated. FEEL expressions in cells compare against typed values, so a string passed where a number is expected causes the comparison to fail in a type-specific way rather than being irrelevant."
+    },
+    {
+      "id": "d",
+      "text": "Type mismatches typically cause evaluation issues: when a DMN input column declares type number but receives a string value like \"100\" at runtime, FEEL comparisons such as >= 100 fail silently because the string and number types are distinct. The rule does not match even though the numeric value would satisfy the condition. , =number(amountStr) in the process variable mapping before the Business Rule Task) rather than relying on DMN to handle type conversion."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Type mismatches in DMN cause issues; type discipline matters: Effects of mismatch: Cell comparison fails to match: => 100 (number) compared against \"100\" (string) evaluates to false; rule doesn't match. Quiet bugs: no error per se, but unexpected results (rule that should match doesn't). Output of wrong type: if rule does match and outputs cast inputs to wrong type, downstream consumers see wrong type. Why this happens: DMN/FEEL is type-strict (per Set 13 Q22 discussion). String \"100\" ≠ number 100. Comparison operators (>, <, =) require matching types. Mitigations: At process layer (preferred): Input Mapping with conversion: Source: =number(amountStr), Target: amount before calling DMN. Form fields with correct types: use Number Input components in Camunda Forms instead of Text Input for numeric data. API contracts: ensure upstream services return correctly-typed JSON values. At DMN layer: Declare types deliberately: typed columns catch mismatches at evaluation. Conversion in cells: =number(amountStr) in cells -- less clean than process-layer conversion. At validation layer: Schema validation at process boundaries (REST endpoints, message receivers). Reject invalid types early rather than letting them propagate. Common pitfalls: Form text inputs feeding numeric DMN inputs: classic source of bugs. JSON parsing inconsistencies: some libraries quote numbers as strings. Variable shadowing with different types: same variable name at different scopes with different types. Be type-disciplined end-to-end."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. Partially correct."
+    },
+    "d": {
+      "text": "Correct. Incorrect."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q26",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 22 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 24.1 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

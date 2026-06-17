@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has 20 BPMN models using a \"Send Slack Notification\" pattern. They built a custom Element Template. New Slack-API version requires updating all 20 models. Team wonders if Element Template changes propagate automatically.",
+  "question": "Element Template inheritance / update propagation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Element Templates are typically applied at modelling time -- the template's configuration is baked into the BPMN XML when the template is applied to an element. Updates to the template don't auto-propagate to existing BPMN files; modelers need to re-apply the updated template to elements OR edit BPMN manually. Versioning patterns: - Template version field: increment when changing; some modelers detect version mismatch. - Bulk re-apply: tooling / scripts to update all BPMN files using the template. - Backward compatibility: design templates to support old + new formats during transition."
+    },
+    {
+      "id": "b",
+      "text": "Element Template changes do not automatically propagate to existing BPMN files. When a template is applied to a BPMN element, its configuration is baked directly into the BPMN XML at apply-time -- the deployed BPMN is self-contained and does not reference the template at runtime. Updating the template definition has no effect on previously configured BPMN files until modelers explicitly re-apply the updated template or use bulk-update tooling. The template version field exists specifically to detect stale usages in existing files."
+    },
+    {
+      "id": "c",
+      "text": "Element Templates are not immutable -- they can be updated, versioned, and published as new versions. The template JSON includes a version field that modelers and tooling use to detect when a template has been updated since it was last applied to a BPMN element. The template definition stored as a JSON file or in Web Modeler's template catalog can be freely modified. The concern is not whether the template itself can change, but whether changes automatically flow to existing BPMN files that used the prior version -- and they do not."
+    },
+    {
+      "id": "d",
+      "text": "Element Templates can and do change over time as connectors are updated, APIs evolve, and team conventions shift. The template JSON supports a version field precisely to track changes across releases. When the Slack API changes as in this scenario, the template is updated with new endpoint configuration, headers, or authentication parameters. The challenge is not whether templates can change -- they clearly can -- but how to propagate those changes to the 20 existing BPMN files that already have the old template version applied."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Element Template propagation model: Apply-time baking: Modeler selects template; modeler applies to BPMN element. Template's configuration is inlined into the BPMN XML: Properties set. Bindings created (zeebe:taskHeader, zeebe:input, etc.). Default values populated. Template metadata (modelerTemplate, modelerTemplateVersion) noted on the element. Decoupling after apply: BPMN XML self-contained: doesn't reference the template at runtime. Engine executes based on BPMN XML, not template. Implications: Template updated: existing BPMN files unchanged (still using old config). Modeler reopens existing file: may see \"template has newer version\" prompt (depends on Web Modeler version). Re-apply: explicit action to update element to new template version. Update propagation patterns: Pattern 1: Manual re-apply: Modeler opens each BPMN file. Selects element using template. Right-click → \"Update template\" or similar action. Template config refreshed; modeler may need to re-set custom values. Pattern 2: Bulk update tooling: Script parses BPMN files; finds elements with old template version; updates programmatically. Re-deploys updated BPMN models. Tools: custom scripts, bpmn-js manipulation, etc. Caution: review changes; test thoroughly. Pattern 3: Versioned template names: Old template: slack-notification-v1. New template: slack-notification-v2. Coexist; new BPMN files use v2; old files use v1 unchanged. Migrate gradually. Pattern 4: Backward-compatible template: Template supports both old and new Slack API formats. Conditional logic in mapping: if user sets new field, use new API; else fallback to old. Single template covers both; minimal disruption. For the scenario: 20 BPMN files need updating: Option 1: manual re-apply (20 modeler edits). Option 2: script to bulk-update template usages. Option 3: backward-compatible template (no BPMN edits needed). Best practices: Bump template version on every change. Document changes: changelog for template versions. Test new template version: dev / staging before broad propagation. Coordinate migration: avoid surprise updates breaking running processes. Versioning fields in template JSON: `json { \"$schema\": \"...\", \"id\": \"slack-notification\", \"name\": \"Slack Notification\", \"version\": 2, \"description\": \"Updated for Slack API v2\", ... } `"
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Element Template propagation model: Apply-time baking: Modeler selects template; modeler applies to BPMN element. Template's configuration is inlined into the BPMN XML: Properties set. Bindings created (zeebe:taskHeader, zeebe:input, etc.). Default values populated. Template metadata (modelerTemplate, modelerTemplateVersion) noted on the element. Decoupling after apply: BPMN XML self-contained: doesn't reference the template at runtime. Engine executes based on BPMN XML, not template. Implications: Template updated: existing BPMN files unchanged (still using old config). Modeler reopens existing file: may see \"template has newer version\" prompt (depends on Web Modeler version). Re-apply: explicit action to update element to new template version. Update propagation patterns: Pattern 1: Manual re-apply: Modeler opens each BPMN file. Selects element using template. Right-click → \"Update template\" or similar action. Template config refreshed; modeler may need to re-set custom values. Pattern 2: Bulk update tooling: Script parses BPMN files; finds elements with old template version; updates programmatically. Re-deploys updated BPMN models. Tools: custom scripts, bpmn-js manipulation, etc. Caution: review changes; test thoroughly. Pattern 3: Versioned template names: Old template: slack-notification-v1. New template: slack-notification-v2. Coexist; new BPMN files use v2; old files use v1 unchanged. Migrate gradually. Pattern 4: Backward-compatible template: Template supports both old and new Slack API formats. Conditional logic in mapping: if user sets new field, use new API; else fallback to old. Single template covers both; minimal disruption. For the scenario: 20 BPMN files need updating: Option 1: manual re-apply (20 modeler edits). Option 2: script to bulk-update template usages. Option 3: backward-compatible template (no BPMN edits needed). Best practices: Bump template version on every change. Document changes: changelog for template versions. Test new template version: dev / staging before broad propagation. Coordinate migration: avoid surprise updates breaking running processes. Versioning fields in template JSON: `json { \"$schema\": \"...\", \"id\": \"slack-notification\", \"name\": \"Slack Notification\", \"version\": 2, \"description\": \"Updated for Slack API v2\", ... } `",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/desktop-modeler/element-templates/using-templates/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q15",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-31",
+  "topic": "connectors",
+  "subtopic": "connector-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Meridian Payments, a fintech routing 9000 transactions per minute, is structuring a new outbound connector project for Camunda 8.8. A senior engineer reviews a pull request and needs to confirm which file makes the OutboundConnectorFunction class discoverable to the connector runtime at startup, so the runtime can auto-load the function without manual wiring.",
+  "question": "Which file in the outbound connector project outline exposes the function class to the connector runtime?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The pom.xml configuration file at the project root, which declares io.camunda.connector:connector-core as a dependency and registers the function via a Maven plugin during package time"
+    },
+    {
+      "id": "b",
+      "text": "The META-INF/services/io.camunda.connector.api.outbound.OutboundConnectorFunction file under src/main/resources, which lists the function class name for the Java ServiceLoader SPI"
+    },
+    {
+      "id": "c",
+      "text": "The element-templates/template-connector.json file at the project root, which declares zeebe:taskDefinition type so the runtime can resolve the function class by template id alone"
+    },
+    {
+      "id": "d",
+      "text": "The MyConnectorRequest.java input data object under src/main/java/io/camunda/connector, where an @OutboundConnector annotation tells the runtime which function class implements the worker"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The pom.xml manages dependencies and build configuration but does not expose the function class to the runtime; that role belongs to the ServiceLoader SPI file."
+    },
+    "b": {
+      "text": "Correct. The docs require exposing the function class name in the OutboundConnectorFunction SPI file under src/main/resources/META-INF/services so the Java ServiceLoader can discover it for a detectable connector function."
+    },
+    "c": {
+      "text": "Incorrect. The element template declares the modeling UI and binds the task definition type but it does not register the runtime function class via the SPI mechanism."
+    },
+    "d": {
+      "text": "Incorrect. The request class is an input data object; the @OutboundConnector annotation lives on the function class itself and the SPI services file is what makes it discoverable."
+    }
+  },
+  "explanation": "The outbound connector project outline places the runtime function discovery file at src/main/resources/META-INF/services/io.camunda.connector.api.outbound.OutboundConnectorFunction. That file lists the function class so the Java ServiceLoader SPI can auto-detect it.",
+  "docs": [
+    {
+      "title": "Connector SDK - Outbound connector project outline",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

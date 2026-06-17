@@ -1,0 +1,50 @@
+{
+  "id": "ext-properties-reference-69",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-properties",
+  "difficulty": "medium",
+  "style": "recall",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "On the Camunda 8.8 Spring Boot starter, what replaces the deprecated `zeebe.client.worker.threads` property?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`camunda.client.execution-threads`"
+    },
+    {
+      "id": "b",
+      "text": "`camunda.client.worker.threads`"
+    },
+    {
+      "id": "c",
+      "text": "`camunda.client.worker.defaults.threads`"
+    },
+    {
+      "id": "d",
+      "text": "`camunda.client.worker.defaults.execution-threads`"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The migration table maps `zeebe.client.worker.threads` to the client-level `camunda.client.execution-threads` (env `CAMUNDA_CLIENT_EXECUTIONTHREADS`). Thread-pool sizing moves out of the worker namespace."
+    },
+    "b": {
+      "text": "`worker.threads` is not preserved on the new namespace; the property is renamed and relocated to the top-level client config."
+    },
+    "c": {
+      "text": "Other worker properties (name, type, max-jobs-active) move to `worker.defaults.*`, but threads specifically is promoted to `camunda.client.execution-threads`."
+    },
+    "d": {
+      "text": "There is no `worker.defaults.execution-threads`; the docs only list `execution-threads` directly under `camunda.client`."
+    }
+  },
+  "explanation": "Most `zeebe.client.worker.*` properties relocate under `camunda.client.worker.defaults.*` (default-name, default-type, max-jobs-active). The thread count is the exception — it migrates to the client-wide `camunda.client.execution-threads` because the executor pool is shared across all workers.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot starter properties reference",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/properties-reference/"
+    }
+  ]
+}

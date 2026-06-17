@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q38",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL regex match matches(s, \"abc\") is case-sensitive by default. Team wants case-insensitive: matches \"ABC\", \"abc\", \"Abc\". Wonders how. FEEL matches regex case-insensitive flag?",
+  "question": "FEEL matches regex case-insensitive flag?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The FEEL matches function does not support any regex flags and always performs case-sensitive matching â€” this approach has limitations. The FEEL matches(input, pattern, flags) function accepts a third optional parameter for regex flags. The flag \"i\" enables case-insensitive matching. The flag \"s\" enables single-line mode (dot matches newline). The flag \"m\" enables multi-line mode (^ and $ match line boundaries). The flag \"x\" enables extended mode (whitespace ignored). These flags follow the FEEL specification for regular expression matching and are supported in Camunda 8."
+    },
+    {
+      "id": "b",
+      "text": "md:212-236) is the direct, idiomatic approach. The \"i\" flag instructs the regex engine to treat uppercase and lowercase as equivalent without needing to transform the input string first. Example: matches(\"FooBar\", \"foo\", \"i\") returns true per verbatim doc example :234."
+    },
+    {
+      "id": "c",
+      "text": "FEEL regex matching via matches() is always case-insensitive by default -- this approach has limitations. md:193-210. Without flags, matches(\"FooBar\", \"foo\") returns false because the lowercase foo pattern does not match the mixed-case FooBar input. Case-insensitive matching requires explicitly passing the \"i\" flag as the third argument: matches(\"FooBar\", \"foo\", \"i\") returns true (verbatim example :234). Developers relying on the assumption of default case-insensitivity will encounter unexpected false results in production FEEL expressions."
+    },
+    {
+      "id": "d",
+      "text": "md:212-236: \"s\" (dot-all, . matches newlines), \"m\" (multi-line, ^/$ match line breaks), \"i\" (case insensitive), \"x\" (comments, ignore whitespace in pattern). Multiple flags combine in one string: \"is\" for case-insensitive + dot-all. Verbatim example :234: matches(\"FooBar\", \"foo\", \"i\") → true. The 2-arg variant matches(input, pattern) at :193-210 is case-sensitive. Flags follow the XPath/XQuery regular expression flag specification as referenced in the DMN standard."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL matches with flags: Signature: matches(input: string, pattern: string, flags: string) → boolean Flags (DMN FEEL spec): \"i\" (case-insensitive): `feel matches(\"Hello\", \"hello\", \"i\") → true matches(\"Hello\", \"hello\") → false (default case-sensitive) \"s\" (dot-all): feel matches(\"line1\\nline2\", \".+\", \"s\") → true (. matches newline) \"m\" (multi-line): feel matches(\"line1\\nline2\", \"^line2\", \"m\") → true (^ matches start of line) \"x\" (whitespace ignored in pattern): feel matches(\"abc\", \"a b c\", \"x\") → true (pattern whitespace ignored) Combined: feel matches(text, \"pattern\", \"is\") → case-insensitive + dot-all matches(text, \"pattern\", \"im\") → case-insensitive + multi-line Examples: Email validation (case-insensitive domain): feel matches(email, \".+@example\\\\.com$\", \"i\") Match codes (case-insensitive): feel matches(code, \"^[a-z]{3}\\\\d+$\", \"i\") Compare with contains (per Set 13 Q38): contains(s, substring): case-sensitive by default; no flags. For case-insensitive contains: normalise via lower case. matches offers more flexibility (regex + flags). For multi-pattern OR: feel matches(text, \"(option1|option2|option3)\", \"i\") Match any of three options, case-insensitive. Regex syntax: POSIX-style typical in DMN FEEL. Anchors: ^, $. Quantifiers: , +, ?, {n,m}. Classes: [a-z], [^abc], \\d, \\w, \\s. Groups: (...), (?:...). Escaping: Backslash: \\\\ in FEEL string (string \\ literal) escapes regex special char. Special chars to escape: ., , +, ?, (, ), [, ], {, }, |, ^, $, \\. Example with escaping: feel matches(version, \"^v\\\\d+\\\\.\\\\d+\\\\.\\\\d+$\") Matches \"v1.2.3\" format. Best practices: Use flags judiciously: explicit is better than complex patterns. Test regex thoroughly: edge cases. Document regex intent: comment what the pattern checks. Avoid catastrophic backtracking: regex DoS risk on bad patterns. For very complex regex: Use replace (per Set 13 Q37) with regex + replacement. For extraction: regex groups. For the scenario (case-insensitive match): feel matches(input, \"abc\", \"i\") Or equivalently: feel matches(lower case(input), \"abc\") ` Flag approach more idiomatic. Anti-patterns: Over-complex regex: hard to maintain. No flag for case-insensitive when needed: explicit. Regex injection: don't build patterns from user input without escaping."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-string/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q38",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

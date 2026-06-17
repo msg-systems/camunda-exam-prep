@@ -1,0 +1,82 @@
+{
+  "id": "imp-set16-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Java SDK call returns ZeebeFuture. Team wonders how to handle (sync vs async).",
+  "question": "Java SDK ZeebeFuture pattern?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Synchronous only -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "The Camunda Java client supports both synchronous and asynchronous execution patterns. thenCompose() for asynchronous non-blocking operation. join() on the future blocks the current thread until the result is available, providing straightforward synchronous semantics. join() is commonly used because the worker framework already manages threading, and blocking within the handler is acceptable. Forcing async-only would unnecessarily complicate handler code for simple use cases."
+    },
+    {
+      "id": "c",
+      "text": "Manual threading -- this overstates what is required. The Camunda Java client's ZeebeFuture already implements CompletionStage<T>, providing the full Java async programming model without any need for manual thread management. Developers can use thenApplyAsync(), thenAcceptAsync(), or CompletableFuture composition patterns through the standard Java API. The client handles the underlying gRPC threading internally."
+    },
+    {
+      "id": "d",
+      "text": "exceptionally() for non-blocking chaining). join() is the common pattern since the worker framework manages the thread. exceptionally() avoids blocking. Always handle exceptions -- uncaught failures in async chains may silently swallow errors."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. ZeebeFuture pattern: Pattern: Most SDK calls return ZeebeFuture (or Future extending CompletionStage). Synchronous usage: `java // Block for result ProcessInstanceResult result = client.newCreateInstanceCommand() .bpmnProcessId(\"order-process\") .latestVersion() .variables(Map.of(\"orderId\", \"100\")) .send() .join(); long processInstanceKey = result.getProcessInstanceKey(); .join() blocks until response. Asynchronous usage: java // Don't block; chain callback client.newCreateInstanceCommand() .bpmnProcessId(\"order-process\") .latestVersion() .send() .thenAccept(result -> { log.info(\"Created instance: {}\", result.getProcessInstanceKey()); }) .exceptionally(e -> { log.error(\"Failed\", e); return null; }); // Code continues immediately doOtherWork(); Non-blocking; callback on completion. Error handling: Sync: java try { result = client.newCreateInstanceCommand()...send().join(); } catch (ClientException e) { // handle } Async: java future.exceptionally(e -> { // handle return null; }); Timeout: java result = future.get(30, TimeUnit.SECONDS); // timeout-aware For worker handlers: Inside @JobWorker handler: Pattern 1: Sync within handler: java @JobWorker(type = \"process\") public Map handle() { // call external API sync String result = externalApi.call(); // job.complete called automatically (autoComplete=true) return Map.of(\"result\", result); } Pattern 2: Async with autoComplete=false: java @JobWorker(type = \"process\", autoComplete = false) public void handle(ActivatedJob job, JobClient client) { externalApi.callAsync().thenAccept(result -> { client.newCompleteCommand(job.getKey()) .variables(Map.of(\"result\", result)) .send() .join(); }); } Worker returns immediately; completes job when async work done. For complete-command in worker: java client.newCompleteCommand(jobKey) .variables(Map.of(\"output\", \"value\")) .send() .join(); Synchronous typical; ensures sent before returning. For chained operations: java CompletableFuture instanceKey = client.newCreateInstanceCommand() ... .send() .toCompletableFuture() .thenApply(ProcessInstanceResult::getProcessInstanceKey); instanceKey.thenCompose(key -> { return doSomethingWithInstance(key); }); Reactive-style. CompletionStage interface: thenApply: transform result. thenAccept: consume result. thenCompose: chain another async. exceptionally: handle errors. whenComplete: handle both. allOf / anyOf: combine. For testing: Mock SDK calls: return mock futures. Verify sync vs async: behavior. For Spring Zeebe: SDK abstractions simplify. Auto-complete handles common pattern. Manual control for advanced. Best practices: Use sync (.join()) for simple linear workflows. Use async for parallelism / non-blocking. Always handle errors: exceptionally for async. Set timeouts: don't block forever. Anti-patterns: Ignoring future: result lost; errors silent. Blocking in async worker: defeats purpose. No error handling: silent failures. For the scenario (ZeebeFuture sync vs async): .join() for sync: common pattern. .thenApply()` etc. for async: chain. Choose by use case. For Node SDK comparison (per Set 14 Q42): Node uses Promises natively. Similar concepts. JS async/await vs Java CompletionStage."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q42",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-scenario-too-short",
+        "severity": "block",
+        "message": "scenario length 78 < 80 (catastrophically short)",
+        "where": "scenario"
+      },
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 26 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 18.5 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

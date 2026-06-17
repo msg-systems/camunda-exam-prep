@@ -1,0 +1,50 @@
+{
+  "id": "cfg-variables-06",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A variable `c` is created on the scope of an embedded subprocess. Later, a service task `Task D` placed outside the subprocess needs to read `c`. According to variable scope rules, what does `Task D` observe?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`Task D` cannot observe `c`, because activities outside the subprocess scope cannot see variables defined inside it."
+    },
+    {
+      "id": "b",
+      "text": "`Task D` sees the value of `c` because the subprocess scope is automatically merged into the root scope when the subprocess completes."
+    },
+    {
+      "id": "c",
+      "text": "`Task D` sees `c` only if the subprocess is configured as an event subprocess."
+    },
+    {
+      "id": "d",
+      "text": "`Task D` sees `c` because all variables are ultimately stored in the root scope regardless of where they were created."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Variables are visible only within the scope where they were created and in deeper child scopes. Activities outside of that scope cannot observe variables defined inside it, so a task outside the subprocess does not see `c`."
+    },
+    "b": {
+      "text": "Variables defined on an inner scope are not automatically promoted to the root scope when the scope ends. Promotion only happens through variable propagation on job/message completion, not as a side effect of the subprocess ending."
+    },
+    "c": {
+      "text": "Event subprocesses do not change scope visibility rules; an event subprocess is still its own scope and its variables are not exposed to outer activities."
+    },
+    "d": {
+      "text": "By default, variables created on an inner scope live in that inner scope. The root scope only sees them if they are explicitly propagated to it."
+    }
+  },
+  "explanation": "Variable scopes define visibility. The root scope is the process instance, and entering a subprocess or activity creates a new scope. Activities inside a scope can read all variables of that scope and parent scopes, but activities outside the scope cannot observe variables defined inside it.",
+  "docs": [
+    {
+      "title": "Variables",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ]
+}

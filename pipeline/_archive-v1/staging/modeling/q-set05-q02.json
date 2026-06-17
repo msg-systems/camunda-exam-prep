@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A loan-application Service Task calls a third-party credit-scoring API. The team wants: if the API throws BPMN Error \"CREDIT_UNAVAILABLE\", cancel the Service Task and route to a manual-review branch. Other errors should keep retrying.",
+  "question": "Which BPMN construct fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Non-interrupting Error Boundary Event. A non-interrupting boundary event (dashed border) creates a parallel branch without cancelling the host activity. Attaching one to the Service Task would allow both the retrying task and the manual-review branch to run simultaneously, which violates the requirement to cancel the task when the specific error code is thrown. An interrupting boundary event with a solid border is required here."
+    },
+    {
+      "id": "b",
+      "text": "Try/catch logic inside the worker with no BPMN event. Handling error routing entirely inside the worker hides important business logic from the process model. The BPMN diagram no longer visually represents the error path, making it harder to understand, govern, and test the process. Other teams cannot see from the model that a specific error triggers a manual-review flow."
+    },
+    {
+      "id": "c",
+      "text": "Interrupting Error Boundary Event with errorCode = \"CREDIT_UNAVAILABLE\" attached to the Service Task; the outgoing sequence flow routes to the manual-review branch. When the worker throws a matching BPMN error code, Zeebe cancels the Service Task and follows the boundary event outflow. Other error codes continue retrying normally per the job retry configuration. Only the explicitly matched error code triggers the boundary event and reroutes flow to the manual-review branch."
+    },
+    {
+      "id": "d",
+      "text": "Conditional Sequence Flow on the outgoing path of the Service Task. Conditional sequence flows evaluate FEEL expressions against process variables after the task completes successfully. They cannot intercept errors thrown during task execution, so they have no mechanism to detect an error code thrown by the worker mid-execution and reroute flow to the manual-review branch. Error boundary events, not conditional sequence flows, are the correct BPMN mechanism for this pattern."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Interrupting Error Boundary Event (solid border with error marker) cancels the host activity when the worker throws a matching BPMN error and routes flow out the boundary's outgoing arrow. With errorCode = \"CREDIT_UNAVAILABLE\", only that specific code triggers; other errors continue retrying."
+    },
+    "b": {
+      "text": "Incorrect. Non-interrupting (dashed) doesn't cancel the host -- the Service Task would keep retrying alongside the manual-review branch (parallel execution)."
+    },
+    "c": {
+      "text": "Correct. Worker-internal handling buries the routing decision; BPMN should express it visually."
+    },
+    "d": {
+      "text": "Incorrect. Conditional flows evaluate variables on completion, not on error throw."
+    }
+  },
+  "explanation": "Worker-internal handling buries the routing decision; BPMN should express it visually.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q02",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

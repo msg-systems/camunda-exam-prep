@@ -1,0 +1,63 @@
+{
+  "id": "imp-set06-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Two process instances are waiting on a Receive Task with message name OrderPaid and correlation key =orderId. A message is published with orderId = \"ORD-100\". Both waiting instances have orderId = \"ORD-100\".",
+  "question": "What happens?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Both instances receiving the message simultaneously would mean one published message correlates to multiple waiting subscriptions for the same process definition. Messages are not broadcast to all matching same-process subscriptions the way BPMN Signals are."
+    },
+    {
+      "id": "b",
+      "text": "Both messages being rejected implies the broker would discard a message when multiple same-process subscriptions match the same correlation key. This is also mistaken. Zeebe does not reject the message; it buffers it and correlates it to one matching subscription, leaving the other waiting for a subsequent publish. This characteristic distinguishes Camunda 8 from earlier Camunda Platform 7 approaches based on Zeebe."
+    },
+    {
+      "id": "c",
+      "text": "The message is correlated to exactly one of the waiting subscriptions of the same process. Zeebe explicitly defines this cardinality: when multiple subscriptions for the same process match the same message name and correlation key, the message correlates to only one subscription. The other instance keeps waiting and will consume a subsequent published message with the same name and key."
+    },
+    {
+      "id": "d",
+      "text": "Zeebe handles this case predictably by correlating to one subscription and buffering for timeToLive milliseconds. Duplicate correlation keys in concurrent instances are a design concern -- a best-practice recommendation -- but do not cause runtime crashes or system instability. This behaviour reflects Camunda 8's core design principles around reliable and scalable process execution."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per concepts/messages.md:85, Zeebe's cardinality is specified (not implementation-defined): when multiple subscriptions for the same process match the same name + correlation key, the message correlates to only one of them. The other remains open and consumes a subsequent same-key publish. Distinct from cross-process correlation (:87: \"When subscriptions are opened for different processes, the message is correlated to all the subscriptions\"). Design unique keys per concurrent instance when 1:1 routing matters."
+    },
+    "b": {
+      "text": "Incorrect. Messages aren't broadcast like Signals."
+    },
+    "c": {
+      "text": "Correct. Not rejected."
+    },
+    "d": {
+      "text": "Incorrect. No crash."
+    }
+  },
+  "explanation": "Not rejected.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q20",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-question-too-short",
+        "severity": "block",
+        "message": "question length 13 < 20 (catastrophically short)",
+        "where": "question"
+      }
+    ]
+  }
+}

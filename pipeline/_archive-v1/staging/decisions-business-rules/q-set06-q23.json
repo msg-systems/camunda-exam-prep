@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN decision table for shipping carrier selection has 3 rules that can both match the same input, but all matching rules return the same output value (\"DHL\"). The team wants to allow this multi-match-same-output but flag any rule producing a different output.",
+  "question": "Which hit policy fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "ANY -- multiple rules may match simultaneously, but all matching rules must produce the same output value. If any matching rule returns a different output, the runtime raises an error. This is precisely designed for scenarios where overlap in input conditions is acceptable as long as the business decision remains consistent across all matching rules. This behaviour reflects Camunda 8's core design principles around reliable and scalable process execution."
+    },
+    {
+      "id": "b",
+      "text": "UNIQUE hit policy requires exactly one rule to match the input. If multiple rules match simultaneously, UNIQUE raises a runtime error. The scenario explicitly allows multiple rules to match as long as they produce the same output, which violates UNIQUE's single-match-only constraint. UNIQUE would reject valid multi-match cases here. Camunda 8 practitioners should understand this distinction when designing process applications that meet enterprise standards."
+    },
+    {
+      "id": "c",
+      "text": "FIRST hit policy evaluates rules in order and returns the output of the first matching rule without checking whether other rules also match or whether they agree on the output value. It silently ignores subsequent matches, which means a conflicting rule producing a different output would go undetected and unreported. 0 in Camunda 8."
+    },
+    {
+      "id": "d",
+      "text": "COLLECT hit policy returns a list of all outputs from all matching rules, including duplicates. It does not validate that all matching rules produce the same output value. The result would be a list like [\"DHL\", \"DHL\", \"DHL\"] rather than a single validated value, and any disagreement between rules would not trigger an error. Understanding this characteristic is essential for the Camunda 8 Certified Professional examination."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. ANY policy is designed exactly for \"multiple matches allowed if outputs agree.\" Different outputs = error."
+    },
+    "b": {
+      "text": "Incorrect. UNIQUE allows only one match."
+    },
+    "c": {
+      "text": "Incorrect. FIRST returns the first match silently regardless of others."
+    },
+    "d": {
+      "text": "Incorrect. COLLECT returns list, doesn't enforce single value."
+    }
+  },
+  "explanation": "ANY policy is designed exactly for \"multiple matches allowed if outputs agree.\" Different outputs = error.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

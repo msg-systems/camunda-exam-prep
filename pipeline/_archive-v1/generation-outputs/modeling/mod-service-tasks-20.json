@@ -1,0 +1,50 @@
+{
+  "id": "mod-service-tasks-20",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Apex Bank routes 7500 jobs per day for service tasks in Camunda 8.8 to different worker pools depending on a process variable priorityGroup. The modeler needs the job type to switch between order-gold and order-standard at activation time and does not want to set retries explicitly on the task.",
+  "question": "How should the service task taskDefinition be configured to satisfy these requirements?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set type to a FEEL expression prefixed by equals that evaluates to a string such as order- concatenated with priorityGroup, and omit retries to take the default of three"
+    },
+    {
+      "id": "b",
+      "text": "Set type to the literal string order-gold and configure retries as a FEEL expression evaluating to the string priorityGroup so the broker maps it to a pool at activation"
+    },
+    {
+      "id": "c",
+      "text": "Leave type empty and set retries to a static value of zero so the engine falls back to a worker pool resolved from the process variable priorityGroup at runtime"
+    },
+    {
+      "id": "d",
+      "text": "Set type to a FEEL expression that evaluates to a number derived from priorityGroup and rely on a global default of ten retries when retries is omitted from the task"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The required type can be a static value or a FEEL expression prefixed by equals that evaluates to a string at activation, and the optional retries property defaults to three when it is omitted from the task definition."
+    },
+    "b": {
+      "text": "Incorrect. The retries property must evaluate to a number, not a string, and using a static literal type would defeat the requirement to switch job type per priority group at activation."
+    },
+    "c": {
+      "text": "Incorrect. The type property is required on a service task definition, and retries cannot be used as a fallback to resolve which worker pool handles the job."
+    },
+    "d": {
+      "text": "Incorrect. The type expression must evaluate to a string rather than a number, and the documented default for retries is three, not ten, when the property is omitted from the task."
+    }
+  },
+  "explanation": "A service task taskDefinition requires a type that resolves to a string, either statically or via a FEEL expression prefixed by equals evaluated on activation. The optional retries property defaults to three and must evaluate to a number.",
+  "docs": [
+    {
+      "title": "BPMN service tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/service-tasks/"
+    }
+  ]
+}

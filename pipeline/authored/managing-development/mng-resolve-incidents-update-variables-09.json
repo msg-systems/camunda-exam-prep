@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-09",
+  "topic": "managing-development",
+  "subtopic": "operate",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "In the Operate guide's `order-process.bpmn` example, why does supplying `orderValue` as the string `\"99\"` cause a problem at the XOR gateway?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The model requires `orderValue` as an integer for the XOR condition; comparing a string to an integer fails."
+    },
+    {
+      "id": "b",
+      "text": "The variable name must be `orderId`, not `orderValue`, for the XOR gateway to evaluate."
+    },
+    {
+      "id": "c",
+      "text": "`zbctl` always serialises variables as strings, so the gateway never receives integers regardless of input."
+    },
+    {
+      "id": "d",
+      "text": "XOR gateways accept only Boolean variables; numeric types are not evaluated at all."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The guide says the `order-process.bpmn` model required `orderValue` as an integer so the XOR gateway evaluation routes the instance; passing a string causes a type comparison failure."
+    },
+    "b": {
+      "text": "`orderId` is used as the correlation identifier later in the flow, not as the value the XOR gateway compares against."
+    },
+    "c": {
+      "text": "`zbctl` passes the JSON types as supplied. Quoting `99` makes it a string, but an unquoted `99` would be an integer."
+    },
+    "d": {
+      "text": "XOR gateways evaluate FEEL expressions on many types, including numerics. The issue here is type mismatch, not a numeric-vs-Boolean restriction."
+    }
+  },
+  "explanation": "The guide's `order-process.bpmn` example needs `orderValue` so the XOR gateway can route the instance. When the value is supplied as a string but the gateway condition expects an integer, the comparison cannot evaluate and the engine raises an incident on the gateway.",
+  "docs": [
+    {
+      "title": "Resolve incidents and update variables",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ]
+}

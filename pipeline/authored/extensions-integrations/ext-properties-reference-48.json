@@ -1,0 +1,50 @@
+{
+  "id": "ext-properties-reference-48",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A team reports that new jobs are not eagerly pushed to their Spring Boot workers — the workers always wait for the next poll. They have not touched `camunda.client.worker.defaults.stream-enabled`. What is the default, and what does it mean for how the worker fetches jobs?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The default is `false`; streaming is opt-in, so the worker uses polling only until the team sets `stream-enabled: true`."
+    },
+    {
+      "id": "b",
+      "text": "The default is `true`; the worker should already be streaming, so the symptom indicates a broker outage."
+    },
+    {
+      "id": "c",
+      "text": "The default is `null`, which falls back to streaming whenever a stream-timeout is configured."
+    },
+    {
+      "id": "d",
+      "text": "The default is `true`, but polling and streaming are mutually exclusive — enabling streaming would have disabled the existing poll."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The properties reference describes `stream-enabled` as an \"Opt-in feature flag that enables job streaming\" with a default of `false`. When disabled, the worker uses polling alone; enabling it makes the worker use both streaming and polling."
+    },
+    "b": {
+      "text": "The default is `false`, not `true`; no broker fault needs to be assumed to explain the absence of pushed jobs."
+    },
+    "c": {
+      "text": "The default is the boolean literal `false`, not `null`; `stream-timeout` only matters once streaming is enabled."
+    },
+    "d": {
+      "text": "When streaming is enabled, the worker uses both streaming and polling — they are explicitly described as complementary, not mutually exclusive."
+    }
+  },
+  "explanation": "`camunda.client.worker.defaults.stream-enabled` defaults to `false`. While disabled, workers rely solely on polling at `poll-interval` (default `PT0.1S`). Enabling streaming makes the worker open a long-lived stream that eagerly pushes new jobs, with polling continuing to pick up jobs created before the stream opened.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot starter properties reference",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/properties-reference/"
+    }
+  ]
+}

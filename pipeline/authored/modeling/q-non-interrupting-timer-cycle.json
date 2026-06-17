@@ -1,0 +1,27 @@
+{
+  "id": "mod-non-interrupting-timer-cycle",
+  "topic": "modeling",
+  "subtopic": "boundary events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A user task `Review document` has a non-interrupting boundary timer `R3/PT1H` whose outgoing flow leads to a send task `Send reminder`. The user completes the review after 2.5 hours. How many reminders are sent, and what happens to the user task?",
+  "options": [
+    { "id": "a", "text": "0 reminders; the task is cancelled by the first timer." },
+    { "id": "b", "text": "2 reminders; the task remains active and completes normally." },
+    { "id": "c", "text": "3 reminders; the task is cancelled by the third timer." },
+    { "id": "d", "text": "1 reminder; subsequent timer events are suppressed." }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "A non-interrupting boundary timer does not cancel the attached activity, so the user task keeps running and the user can still complete it." },
+    "b": { "text": "Non-interrupting boundary timers spawn parallel flows without affecting the task. `R3/PT1H` fires at 1h, 2h, and 3h, but by 2.5h only the 1h and 2h timers have fired, so 2 reminders are sent before the user completes." },
+    "c": { "text": "The task is not cancelled by a non-interrupting timer, and only two timers have fired by 2.5 hours; the third would have fired at the 3h mark." },
+    "d": { "text": "ISO 8601 cycle expressions like `R3/PT1H` fire repeatedly, not just once; the engine does not suppress subsequent events." }
+  },
+  "explanation": "Non-interrupting boundary timers spawn a parallel token down their outgoing path each time they fire and leave the attached activity running. With cycle `R3/PT1H` the timer can fire up to three times, but at 2.5 hours only two firings have occurred (at 1h and 2h), so two reminders are sent and the user task still completes normally.",
+  "docs": [
+    { "title": "BPMN timer events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/" }
+  ]
+}

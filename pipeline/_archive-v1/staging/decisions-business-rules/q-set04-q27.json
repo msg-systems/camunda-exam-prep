@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q27",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A diagnostic DMN has a Decision Requirements Diagram (DRD) with 3 chained decisions: Symptom Analysis → Diagnosis Group → Recommended Treatment. The Treatment decision depends on Diagnosis Group's output.",
+  "question": "How is this dependency expressed in DMN?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An Information Requirement arrow in a Decision Requirements Diagram (DRD) connects a supplier decision to a dependent decision, indicating that the output of the supplier is used as an input to the dependent. Drawing an Information Requirement from the Diagnosis Group decision to the Recommendation decision formally declares this dependency. At evaluation time, Zeebe evaluates the Diagnosis Group decision first and passes its output automatically as input context to the Recommendation decision."
+    },
+    {
+      "id": "b",
+      "text": "A Knowledge Requirement arrow connects a Business Knowledge Model (BKM) to a decision, indicating the decision invokes or reuses the logic encapsulated in the BKM. BKMs represent reusable decision logic libraries -- parametric functions that multiple decisions can invoke. A Knowledge Requirement is for BKM-to-decision relationships, not decision-to-decision dependencies. For connecting one decision as a supplier of input data to another decision, an Information Requirement is the correct DRD connector."
+    },
+    {
+      "id": "c",
+      "text": "An Authority Requirement arrow connects a knowledge source (an external authority, policy document, or expert) to a decision or BKM. It documents the governance provenance of a decision -- what external authority or regulation justifies the decision logic. Authority Requirements are informational metadata arrows in the DRD, not executable data flow connectors. They do not cause the engine to evaluate one decision and pass its output to another at runtime."
+    },
+    {
+      "id": "d",
+      "text": "Direct invocation using a FEEL invoke() function inside a decision table cell is not valid DMN syntax. FEEL does not have an invoke() built-in function for calling other decisions by name. Decision dependencies are declared structurally in the DRD using Information Requirement arrows, not expressed as FEEL function calls inside cell expressions. The DRD structure tells the evaluator which decisions to evaluate and in what order before combining their outputs. ###"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Information Requirement (solid arrow) is the DRG/DRD connector expressing \"this decision uses the output of that decision.\" Per decision-requirements-graph.md:85-114: XML `` inside the consuming decision. Required decisions' results are accessible by the producing decision's ID."
+    },
+    "b": {
+      "text": "Incorrect. Knowledge Requirement (dashed) is the DMN-spec connector for Business Knowledge Models (reusable decision logic), not decision-to-decision data flow. Camunda 8 doesn't implement Business Knowledge Models for execution."
+    },
+    "c": {
+      "text": "Incorrect. Authority Requirement () per decision-requirements-graph.md:140-160 expresses \"this knowledge source authorises this decision\" -- governance, not data flow. Has no execution semantics in Camunda 8."
+    },
+    "d": {
+      "text": "Incorrect. Decisions chain via DRG informationRequirement structure, not FEEL invocation. No invoke() function exists in FEEL."
+    }
+  },
+  "explanation": "Information Requirement (solid arrow) is the DRG/DRD connector expressing \"this decision uses the output of that decision.\" Per decision-requirements-graph.md:85-114: XML `` inside the consuming decision. Required decisions' results are accessible by the producing decision's ID.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-requirements-graph/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q27",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

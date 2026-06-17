@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-creation-51",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-creation",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Health, a hospital, is rehearsing two parallel notification branches of its 25-task admission workflow on a Camunda 8.8 sandbox covering 1200 instances per day. The QA team needs to activate both branches at the same time inside a single created process instance for one targeted test.",
+  "question": "How can two parallel branches be activated within the same created process instance for a targeted test?",
+  "options": [
+    { "id": "a", "text": "Provide multiple startInstructions entries on the same command, one per branch element id; the engine activates each named element when the process instance is created." },
+    { "id": "b", "text": "Provide a single startInstructions entry whose elementId is a comma-separated list of the two branch element ids; the engine parses the list and activates each branch." },
+    { "id": "c", "text": "Provide a single startInstructions entry pointing at the closest upstream joining gateway; the engine then fans out automatically to each downstream branch element." },
+    { "id": "d", "text": "Provide one startInstructions entry per branch but submit each as a separate CreateProcessInstance command; the gateway correlates them by processDefinitionKey at runtime." }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The documented behavior is that multiple startInstructions entries can be provided to start the process instance at more than one element; the engine activates each named element on creation." },
+    "b": { "text": "Incorrect. Each startInstructions entry references a single elementId; the engine does not parse comma-separated lists inside the elementId field." },
+    "c": { "text": "Incorrect. Targeting a gateway is not the documented mechanism for activating multiple branches; multiple startInstructions entries with distinct elementIds are." },
+    "d": { "text": "Incorrect. Each CreateProcessInstance call produces a separate process instance, so two calls cannot place two parallel branches inside the same single instance." }
+  },
+  "explanation": "Multiple startInstructions entries can be supplied on a single CreateProcessInstance command to start the same process instance at more than one element, which is how parallel branches are activated together in a test.",
+  "docs": [
+    { "title": "Process instance creation", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/" }
+  ]
+}

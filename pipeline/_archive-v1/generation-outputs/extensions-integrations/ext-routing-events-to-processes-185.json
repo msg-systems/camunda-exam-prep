@@ -1,0 +1,27 @@
+{
+  "id": "ext-routing-events-to-processes-185",
+  "topic": "extensions-integrations",
+  "subtopic": "routing events external integration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A fintech runs a Camunda 8.8 invoice process with multiple message start events and processes 6500 invoices per day. A platform engineer must decide whether to start instances by BPMN process ID via CreateProcessInstance or by named message via PublishMessage, since the team also wants control over which process definition version is used.",
+  "question": "Which trade-off matches what the Routing events from the outside section documents about CreateProcessInstance versus PublishMessage?",
+  "options": [
+    { "id": "a", "text": "CreateProcessInstance is used when a process has a single none start event and you can pick latestVersion or a specific version, while PublishMessage is required for processes with multiple message start events but you cannot influence the process definition version chosen" },
+    { "id": "b", "text": "CreateProcessInstance is used when a process has multiple message start events and lets you select a process definition version, while PublishMessage is used for none-start-event-only processes and always pins the latest version on the cluster" },
+    { "id": "c", "text": "CreateProcessInstance and PublishMessage are interchangeable for any process, and both let you pick latestVersion or a specific version of the process definition with the same fluent builder method" },
+    { "id": "d", "text": "CreateProcessInstance is for SaaS clusters only and PublishMessage is for Self-Managed clusters only, and only PublishMessage lets you influence the process definition version through a versionTag header" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The section states that CreateProcessInstance is the most common case when there is a single none start event, and the Java sample uses bpmnProcessId(\"invoice\").latestVersion() or .version(5). For multiple starting points you must use PublishMessage with the message name from BPMN, and the docs explicitly note that you cannot influence the version of the process definition used when starting by message." },
+    "b": { "text": "Incorrect. The roles are reversed: CreateProcessInstance is for none-start-event-only processes and PublishMessage is for processes with multiple message start events." },
+    "c": { "text": "Incorrect. PublishMessage does not let you choose the process definition version; that capability is specific to CreateProcessInstance." },
+    "d": { "text": "Incorrect. The section makes no distinction between SaaS and Self-Managed for these APIs and does not mention a versionTag header on PublishMessage." }
+  },
+  "explanation": "CreateProcessInstance is documented as the most common case when a process has only one none start event, with bpmnProcessId plus latestVersion() or a specific version. PublishMessage is required when there are multiple starting points via named messages, but it does not let you influence the process definition version.",
+  "docs": [
+    { "title": "Routing events to processes", "url": "https://docs.camunda.io/docs/components/best-practices/development/routing-events-to-processes/" }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "id": "imp-set16-q30",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A form has Submit + Cancel buttons. Team wonders what happens on each.",
+  "question": "Form Submit vs Cancel buttons?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Identical -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "The Cancel button in Camunda Tasklist does not complete the User Task. Clicking Cancel closes the form view and returns the user to the task list, but the task remains active and uncompleted in the process. No variables are written to the process scope, and the process does not advance. The task stays in Tasklist for the current assignee or available candidates to resume later. Confusing Cancel with Submit would mean tasks could be accidentally skipped, which would break process integrity and bypass required approvals or data collection steps."
+    },
+    {
+      "id": "c",
+      "text": "Camunda Tasklist forms provide both a Submit button and a Cancel button as standard UI controls. Submit validates the form and completes the task; Cancel closes the view without completing. Additionally, some Tasklist versions support a Save Draft function for saving intermediate form state without completing. The presence of Cancel is intentional: it allows users to open a task form to review it without committing to completion, or to abandon in-progress edits without unintended side effects on the process."
+    },
+    {
+      "id": "d",
+      "text": "Different actions: Submit and Cancel buttons perform fundamentally different operations on a User Task. Submit validates the form fields (required fields, format constraints), then on successful validation calls the complete-task API, writing the form field values as process variables and advancing the process to the next step. Cancel closes the form view in Tasklist without calling any completion API -- the User Task remains active, uncompleted, and assigned. No variables are written to the process scope on Cancel. The process does not advance. This lets users open a task to review it, or abandon in-progress edits, without accidentally completing the task. Some Tasklist versions also support a Save Draft function."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Form action semantics: Submit: Behavior: 1. Validate form (required fields, formats, etc. per Set 14 Q32). 2. On invalid: show errors; stay on form. 3. On valid: send variables to Camunda. 4. Camunda completes task; process advances. Effect: Task removed from Tasklist. Variables flow to process scope. Next activity activates. Cancel: Behavior: Close form view. Don't complete task. Task stays in Tasklist (claimed or available). User can return / someone else can. No state saved: in-progress edits lost (typical). Save Draft (some versions): Behavior: Save current form state. Don't complete task. User returns later: form pre-filled with saved. Use case: long forms; partial work in progress. In Tasklist UI: Submit button: completes task. Cancel button: returns without action. Save Draft (if supported): persist progress. For task state: Claimed: user holds task. Unclaimed (Cancel from claimed): may release claim. Released: available to other candidates. For form validation on Submit: Required fields: must have value. Regex patterns: must match. Custom validators: pass. For cancel handling in process: No automatic cancel of process: just form closed. For process cancellation: separate API / UI action. For task abort: separate concept. Action mapping: | UI Action | Effect on Task | Effect on Process | |-----------|----------------|-------------------| | Submit | Complete | Advances | | Cancel | None | Continues at same step | | Save Draft | Save state | Continues at same step | | Unclaim | Release | Continues; available | For custom button behavior: Form may support custom buttons: verify per version. Some Forms: allow defining custom actions. For complex flows: typically process design > custom buttons. For multi-step forms: Each step = separate User Task typically. Submit on step 1: completes; activates step 2. Cancel on step 1: stays at step 1. For approval flows: Approve / Reject buttons: two outcomes. Mapped via form value: e.g., decision = \"approved\" or \"rejected\". BPMN gateway: routes based on value. Example approval pattern: Form: `json { \"components\": [ {\"type\": \"select\", \"key\": \"decision\", \"values\": [ {\"value\": \"approved\", \"label\": \"Approve\"}, {\"value\": \"rejected\", \"label\": \"Reject\"} ]}, {\"type\": \"textarea\", \"key\": \"comments\"} ] } BPMN after User Task: XOR Gateway: based on decision`. Approved: continue. Rejected: alternative path. For Cancel-like business semantics: Add \"Reject\" option in form. Don't rely on UI Cancel: that just closes view. For undo / withdraw: Process design: model with explicit step. User performs: separate task / message. Best practices: Use Submit for completion: standard. Use Cancel for \"not now\": stay at task. Avoid relying on Cancel for business logic: model explicit. Test form lifecycle: across UI actions. Anti-patterns: Expecting Cancel to abort process: wrong; just closes view. No \"Reject\" path in BPMN: only happy path. Confusing buttons: clear labelling. For Tasklist customisation: Custom Tasklist UI: full control over buttons / actions. Default Tasklist: standard Submit / Cancel. For the scenario: Submit: completes task. Cancel: closes form; task stays. For \"reject\" semantic: add to form, not Cancel button."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/tasklist/userguide/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q30",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-scenario-too-short",
+        "severity": "block",
+        "message": "scenario length 70 < 80 (catastrophically short)",
+        "where": "scenario"
+      },
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 19 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 38.1 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

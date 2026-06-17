@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q35",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team builds a custom Java Connector. They debate packaging: uber-JAR (all dependencies bundled), thin library JAR (dependencies external), Spring Boot application, Docker container.",
+  "question": "What's the recommended packaging for custom Connectors?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Depends on deployment model: - Java JAR (uber-JAR or thin): built using Connector SDK Maven plugin or similar. Uploaded to the Connector Runtime (where deployed). The Runtime loads the JAR and registers the Connector. Most common for self-managed Connector Runtimes. - Spring Boot application: a full Connector Runtime application bundled with custom Connectors. Run as a process; manages its own lifecycle. - Docker container: deploy the Connector Runtime + custom Connectors as a containerised service; common in Kubernetes deployments. For most cases: build as JAR + deploy to existing Connector Runtime (the Camunda-managed one in SaaS, or your own in SM)."
+    },
+    {
+      "id": "b",
+      "text": "Custom Connectors should always be packaged as Docker containers regardless of deployment context -- this overstates the Docker requirement. Docker is one valid packaging approach, particularly for Kubernetes deployments, but it is not universally necessary. Building a JAR and deploying it to an existing Connector Runtime is often simpler and sufficient for most teams."
+    },
+    {
+      "id": "c",
+      "text": "Custom Connectors must always be packaged as standalone Spring Boot applications -- this overstates the Spring Boot requirement. A Spring Boot Connector Runtime application is one option for teams that need maximum control, custom Java versions, or many internal libraries."
+    },
+    {
+      "id": "d",
+      "text": "No packaging artifact is required to deploy a custom Connector -- this misrepresents the deployment model. Custom Connectors must be built into deployable artifacts. The Connector SDK facilitates building JAR files via Maven, which are then deployed to a Connector Runtime. Without a built artifact containing the Connector's implementation class annotated with @OutboundConnector or @InboundConnector, the runtime has no code to register and execute."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Connector packaging depends on the Connector Runtime deployment model: JAR upload to existing Connector Runtime: Most common pattern. Build with Maven (Camunda provides Connector SDK Maven plugin). Resulting JAR deployed to a Connector Runtime that's already running (SaaS-managed or SM self-hosted). Runtime hot-reloads or restarts to register the new Connector. Pros: simple deployment; lightweight. Cons: depends on the Runtime's compatibility / availability. Spring Boot application (custom Connector Runtime): The team runs their own Connector Runtime application bundling their custom Connectors. More control; isolated from Camunda's runtime updates. More operational burden (lifecycle, scaling, monitoring). Docker container: Containerised Connector Runtime (with custom Connectors) for Kubernetes / cloud deployments. Combines the Spring Boot model with container infrastructure benefits. Decision matrix: Most teams: build JAR; deploy to existing Runtime. Simplest. Specific Java versions / heavy custom logic / many internal libraries: custom Spring Boot Connector Runtime. Containerised infra: Docker / Kubernetes deployment. Verify Camunda's docs for the supported packaging formats in your version."
+    },
+    "b": {
+      "text": "Incorrect. JAR simpler often."
+    },
+    "c": {
+      "text": "Incorrect. JAR-to-Runtime more common."
+    },
+    "d": {
+      "text": "Incorrect. Packaging required."
+    }
+  },
+  "explanation": "Connector packaging depends on the Connector Runtime deployment model: JAR upload to existing Connector Runtime: Most common pattern. Build with Maven (Camunda provides Connector SDK Maven plugin). Resulting JAR deployed to a Connector Runtime that's already running (SaaS-managed or SM self-hosted). Runtime hot-reloads or restarts to register the new Connector. Pros: simple deployment; lightweight. Cons: depends on the Runtime's compatibility / availability. Spring Boot application (custom Connector Runtime): The team runs their own Connector Runtime application bundling their custom Connectors. More control; isolated from Camunda's runtime updates. More operational burden (lifecycle, scaling, monitoring). Docker container: Containerised Connector Runtime (with custom Connectors) for Kubernetes / cloud deployments. Combines the Spring Boot model with container infrastructure benefits. Decision matrix: Most teams: build JAR; deploy to existing Runtime. Simplest. Specific Java versions / heavy custom logic / many internal libraries: custom Spring Boot Connector Runtime. Containerised infra: Docker / Kubernetes deployment. Verify Camunda's docs for the supported packaging formats in your version.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q35",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

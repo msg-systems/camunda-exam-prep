@@ -1,0 +1,27 @@
+{
+  "id": "ext-build-your-own-client-09",
+  "topic": "extensions-integrations",
+  "subtopic": "oauth",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Borealis Bank's payments service makes 9000 requests per hour to the Zeebe gateway in Camunda 8.8 from a custom Go client. The team implements OAuth client credentials against the authorization server and must avoid hitting the token endpoint on every call to stay well below the 24 hours token lifetime returned by the OAuth response when integrating the new client.",
+  "question": "Which token-handling strategy aligns with the OAuth procedure documented for a custom Camunda 8 client?",
+  "options": [
+    { "id": "a", "text": "Cache the access token for its 86400 second lifetime returned in expires_in and request a new access token only when the cached one is close to expiring at the end of its window" },
+    { "id": "b", "text": "Request a fresh access token on every Zeebe API call so the authorization server stays the single source of truth for each outbound request that the payments service makes per hour" },
+    { "id": "c", "text": "Cache the client_id and client_secret pair as the bearer credential on the Authorization header and skip the token endpoint entirely once the credentials have been verified one time" },
+    { "id": "d", "text": "Cache the access token for 60 seconds and refresh it on every minute boundary regardless of the expires_in value that the authorization server returns alongside the access token body" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The docs state the token is valid for 86400 seconds (24 hours) as returned in expires_in, and they advise considering a mechanism to cache the token for that duration before requesting a new one from the authorization server." },
+    "b": { "text": "Incorrect. Requesting a token on every API call ignores the documented advice to cache the access token for its lifetime and creates avoidable load on the OAuth authorization server." },
+    "c": { "text": "Incorrect. The bearer credential placed on Zeebe API calls is the access_token returned by the OAuth endpoint, not the raw client_id and client_secret pair, which are used only at the token endpoint." },
+    "d": { "text": "Incorrect. A fixed 60-second refresh interval ignores the documented expires_in value of 86400 seconds and triggers many unnecessary calls to the authorization server every day." }
+  },
+  "explanation": "A custom Camunda 8 client obtains an access token via a POST to the authorization server with client_credentials. The response carries expires_in set to 86400 seconds (24 hours); the docs recommend caching the token for that lifetime instead of requesting a fresh one on every call.",
+  "docs": [
+    { "title": "Build your own client", "url": "https://docs.camunda.io/docs/apis-tools/build-your-own-client/" }
+  ]
+}

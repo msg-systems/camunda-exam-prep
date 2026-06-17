@@ -1,0 +1,27 @@
+{
+  "id": "con-connector-sdk-38",
+  "topic": "connectors",
+  "subtopic": "connector-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lumen Bank, a bank deploying 8 outbound connectors per release, wants unit tests for a custom Camunda 8.8 connector. A developer must check that the authentication token attribute correctly resolves a value placeholder like {{secrets.MY_TOKEN}} into the literal string token value, without spinning up a Zeebe cluster or a real job worker, in roughly 60 seconds per test class.",
+  "question": "Which helper does the Connector SDK provide to test secret replacement for outbound connector functions?",
+  "options": [
+    { "id": "a", "text": "A ZeebeTestEngineRule JUnit extension that boots an in-memory Zeebe broker, deploys the connector element template, and asserts that secret placeholders are resolved during real job activation events" },
+    { "id": "b", "text": "An OutboundConnectorContextBuilder that creates a test OutboundConnectorContext where the developer registers secrets such as MY_TOKEN, builds the context, and asserts the bound input value matches the resolved string" },
+    { "id": "c", "text": "A SecretsTestRunner annotation that replaces all secret placeholders with a Hashicorp Vault stub during test execution and fails the build whenever a secret value cannot be resolved from the configured stub" },
+    { "id": "d", "text": "A CamundaConnectorAssertJ entry point that observes the running job worker thread, captures every secret replacement event, and writes the resolved values into a temporary test log file for later inspection" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The SDK does not require booting an in-memory Zeebe to test secrets; the testing section abstracts from Camunda 8 internals and uses a context builder instead." },
+    "b": { "text": "Correct. The Testing section shows an OutboundConnectorContextBuilder that lets a test register secrets and build an OutboundConnectorContext used to call bindVariables and assert that placeholders are resolved into their secret values." },
+    "c": { "text": "Incorrect. There is no SecretsTestRunner annotation or Vault stub documented in the SDK testing section; secret tests work through the context builder." },
+    "d": { "text": "Incorrect. The SDK does not provide a CamundaConnectorAssertJ entry point that observes a running job worker thread; tests run directly against the function and a builder-provided context." }
+  },
+  "explanation": "The Connector SDK provides OutboundConnectorContextBuilder for unit testing outbound connector functions. The builder lets a test register secrets, build an OutboundConnectorContext, and verify that bindVariables resolves placeholders like {{secrets.MY_TOKEN}} into the configured values without involving a real Zeebe cluster.",
+  "docs": [
+    { "title": "Connector SDK - Testing", "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/" }
+  ]
+}

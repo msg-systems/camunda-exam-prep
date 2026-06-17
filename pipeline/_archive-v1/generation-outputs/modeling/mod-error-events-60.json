@@ -1,0 +1,27 @@
+{
+  "id": "mod-error-events-60",
+  "topic": "modeling",
+  "subtopic": "events",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Insurance models a claims-validation process in Camunda 8.8 where 2000 claims per day can throw a businessRule error. The architect must decide whether an error boundary event can remain attached to a service task without cancelling that activity at runtime.",
+  "question": "Which interrupting behavior is required for error boundary events and error event subprocesses?",
+  "options": [
+    { "id": "a", "text": "They must be interrupting; the process leaves the regular path and follows the catching error event flow once the error is caught" },
+    { "id": "b", "text": "They may be non-interrupting so the attached activity continues running while the catch path triggers a parallel handler branch" },
+    { "id": "c", "text": "They are interrupting only when attached to a service task; for user tasks they remain non-interrupting under the default behavior" },
+    { "id": "d", "text": "They are non-interrupting by default and become interrupting only when the activity declares a corresponding error reference at design time" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. Error boundary events and error event subprocesses must be interrupting; the process instance does not continue along the regular path and instead follows the catching error event flow." },
+    "b": { "text": "Incorrect. A non-interrupting error boundary event is not a valid configuration in Camunda 8.8; the regular path is always abandoned when the error is caught." },
+    "c": { "text": "Incorrect. The interrupting nature of an error catch event does not depend on the type of attached activity; error catch events are always interrupting." },
+    "d": { "text": "Incorrect. Error boundary events are interrupting by default and there is no flag that switches them based on whether the activity declares the error reference." }
+  },
+  "explanation": "Camunda 8.8 error boundary events and error event subprocesses are always interrupting. When the error is caught, the host scope is terminated and execution continues along the outgoing sequence flow of the catching error event rather than the regular activity path.",
+  "docs": [
+    { "title": "BPMN error events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/" }
+  ]
+}

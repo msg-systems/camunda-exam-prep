@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-27",
+  "topic": "configuring-processes",
+  "subtopic": "message-patterns",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A message aggregator uses TTL > 0 and correlation key `cust-1`. The aggregating instance for `cust-1` has just ended. A previously buffered message with the same correlation key was never correlated and its TTL has not expired. What happens to it?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A new process instance is created for the uncorrelated message."
+    },
+    {
+      "id": "b",
+      "text": "It is silently discarded because the prior instance already finished."
+    },
+    {
+      "id": "c",
+      "text": "It raises an incident on the completed process definition."
+    },
+    {
+      "id": "d",
+      "text": "It waits in the buffer until a new subscription for `cust-1` is registered."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The aggregator pattern docs explicitly state: when the instance ends and messages with the same correlation key are not correlated yet, a new process instance is created."
+    },
+    "b": {
+      "text": "Uncorrelated buffered messages are not discarded just because the prior instance finished; the pattern preserves them by creating a follow-up instance."
+    },
+    "c": {
+      "text": "Uncorrelated messages within their TTL are normal correlation events, not incidents on the completed instance."
+    },
+    "d": {
+      "text": "The buffered message does not sit waiting for a separate explicit subscription registration; the engine starts a new instance via the message start event to consume it."
+    }
+  },
+  "explanation": "In the message aggregator pattern, the first message starts a new instance and subsequent messages with the same correlation key are correlated to it. When the instance ends with leftover uncorrelated messages still within TTL, a new process instance is created so the data is not lost.",
+  "docs": [
+    {
+      "title": "Messages",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

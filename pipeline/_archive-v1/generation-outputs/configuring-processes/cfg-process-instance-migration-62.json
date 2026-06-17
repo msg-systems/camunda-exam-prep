@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-migration-62",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Bank runs Camunda 8.8 for 4000 loans per day. Many instances are waiting on a message catch event named PaymentReceived. The platform team plans a migration to a target process definition that maps PaymentReceived to a renamed equivalent and wants to know what must be true about the source message subscription before the migration command can succeed against the cluster.",
+  "question": "Which condition on a source message subscription must hold for a process instance migration across a mapped message catch event?",
+  "options": [
+    { "id": "a", "text": "The message subscription must be paused by the client on the broker before the migration command is accepted by the gateway in the cluster" },
+    { "id": "b", "text": "The message subscription must already have at least one buffered message waiting in the broker queue before the migration is initiated" },
+    { "id": "c", "text": "The message subscription for the source message catch event must be fully distributed across the cluster before the migration is started" },
+    { "id": "d", "text": "The message subscription must be deleted by the client and then recreated on the target catch event right after the migration completes" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The docs do not introduce a pause operation on subscriptions; the requirement is about full distribution across the cluster, not about pausing the subscription." },
+    "b": { "text": "Incorrect. The docs do not require a buffered message to be present before migration; the catch event can be migrated whether or not a message has already arrived." },
+    "c": { "text": "Correct. The catch event limitations explicitly state that the message subscription for the source message catch event must be fully distributed before the migration can proceed." },
+    "d": { "text": "Incorrect. The client does not delete and recreate the message subscription; the engine migrates the subscription itself when a mapping instruction is provided for the catch event." }
+  },
+  "explanation": "Migration of a message catch event depends on the source message subscription being fully distributed across the cluster. Once that is true, a mapping instruction for the catch event allows the engine to migrate the subscription onto the target element.",
+  "docs": [
+    { "title": "Process instance migration", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/" }
+  ]
+}

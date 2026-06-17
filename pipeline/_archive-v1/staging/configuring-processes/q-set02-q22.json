@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A logistics company's package-tracking process calls an external carrier API (FedEx) to query shipment status. The carrier API occasionally returns transient HTTP 500 errors (~1-2%). The team expects Camunda to retry automatically a few times before reporting an incident -- but currently each 500 immediately creates a permanent Incident in Operate, blocking shipment processing until a human resolves it.",
+  "question": "Which configuration correctly enables automatic retry before incident creation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set zeebe:taskDefinition retryBackoff=\"PT5S,PT15S,PT45S\" on the Service Task to declare an array of backoff durations. Zeebe will use progressive delays between retry attempts. The retryBackoff concept is real in Zeebe (it appears in the gRPC FailJobRequest and Spring Boot worker configuration) but it is not a static BPMN XML array property on the task definition element. Backoff timing is provided by the worker at job-failure time, not declared upfront in the BPMN model."
+    },
+    {
+      "id": "b",
+      "text": "Retry configuration is global for the entire cluster and applies to all jobs uniformly; per-BPMN-element retry count is absent from Zeebe's design and must be handled at the job-worker level instead. Per-element retry count is fully configurable in Zeebe -- set zeebe:taskDefinition retries=\"N\" directly on each Service Task in the BPMN. Different tasks can have different retry budgets. Cluster-level defaults exist but per-task configuration overrides them for precise control."
+    },
+    {
+      "id": "c",
+      "text": "Set zeebe:taskDefinition incidentAfter=3 on the Service Task to instruct Zeebe to allow three attempts before creating a permanent incident, keeping the incident-creation threshold distinct from the retry counter. There is no incidentAfter property in Zeebe's BPMN extension schema. Incident creation is triggered automatically when the job's retry counter reaches zero -- the retries property is the single control point. Setting retries=\"3\" allows three attempts before an incident is raised."
+    },
+    {
+      "id": "d",
+      "text": "Set zeebe:taskDefinition retries=\"3\" on the Service Task. When the worker calls failJob(jobKey, retries: N-1) or the Spring Zeebe framework auto-decrements retries on a thrown exception, Zeebe re-activates the job with the decremented counter. An Incident is created only when the retry counter reaches zero. This standard retry configuration resolves the scenario's problem of immediate incidents on transient HTTP 500 errors."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. In Zeebe's job lifecycle, the BPMN's zeebe:taskDefinition retries provides the initial retry budget (e.g., 3). When the worker calls failJob(jobKey, retries: N-1) (or, in Spring Zeebe, throws an exception that the framework auto-handles by decrementing), Zeebe re-activates the job with the decremented counter. When retries reach zero, Zeebe creates an Incident. Default is 3 but should be explicitly set in the BPMN for clarity."
+    },
+    "b": {
+      "text": "Incorrect. retryBackoff IS a real, documented Zeebe/Spring Zeebe property -- it appears in the gRPC FailJobRequest (int64 retryBackOff), the Spring Boot Camunda Client config (camunda.client.worker.defaults.retry-backoff), and the Spring JobError/CamundaError.jobError(...) API. It controls the delay before a failed job becomes re-activable (per-fail backoff), not the retry _count_ itself. The scenario asks how to enable retries before incident creation -- that is retries, not retryBackoff. retryBackoff is a complementary feature for smoothing transient-failure storms; it does not by itself enable retries."
+    },
+    "c": {
+      "text": "Incorrect. Retries are per-task in BPMN."
+    },
+    "d": {
+      "text": "Correct. incidentAfter is not a valid Zeebe property."
+    }
+  },
+  "explanation": "incidentAfter is not a valid Zeebe property.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q22",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

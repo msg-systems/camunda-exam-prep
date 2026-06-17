@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q35",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team uses an HTTP Outbound Connector to publish a message to a partner's queue. Due to at-least-once delivery, the same Connector might publish the same message twice. The team needs message-level idempotency at the partner.",
+  "question": "How does the team ensure message-level idempotency despite at-least-once delivery?",
+  "options": [
+    {
+      "id": "a",
+      "text": ", a composite of the BPMN element instance key and event type, or a business-level message ID derived from orderId. Because Camunda 8 provides at-least-once delivery semantics, the same Connector task may execute multiple times. The idempotency key enables the partner's queue or consumer to recognise and discard duplicate messages, preventing double-processing regardless of how many times the Connector fires."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8's job worker model provides at-least-once delivery semantics. A Connector task may execute multiple times if the worker activation times out before completion, if retries are configured, or if network issues cause the worker to lose contact with the broker. Applications must design for potential duplicate executions."
+    },
+    {
+      "id": "c",
+      "text": "Even with retries set to 1, a worker activation timeout can cause Zeebe to re-activate the same job for a second execution attempt. The original worker may still be running when the re-activation occurs. Idempotency keys address this case; reducing retries only decreases the probability without eliminating duplicates."
+    },
+    {
+      "id": "d",
+      "text": "Some messaging systems like AWS SQS FIFO and Kafka with idempotent producers do provide built-in deduplication. Including an explicit idempotency key makes the contract explicit and reliable regardless of partner capability."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Distributed messaging is inherently at-least-once; the canonical recourse is idempotency at the consumer. Camunda's at-least-once delivery means a Connector may publish the same message twice (e.g., due to worker timeout causing re-activation). To prevent duplicate processing at the partner: Include a deterministic idempotency key in every message -- derived from Camunda's BPMN context (instance key, element instance key) or business data (orderId + event type). The key is the same for the same logical message; differs for distinct messages. Partner deduplicates: the partner's message queue or consumer maintains a record of processed keys; duplicates are recognised and discarded. This pattern requires cooperation: the publisher includes the key; the consumer enforces deduplication. If the partner's queue (e.g., AWS SQS FIFO, Kafka with idempotent producers) supports built-in deduplication, leverage it. Practical implementation: in the Connector's request payload, include a header (X-Idempotency-Key: ) or body field (messageId: ). Pass a deterministic value derived from Camunda's context."
+    },
+    "b": {
+      "text": "Incorrect. At-least-once."
+    },
+    "c": {
+      "text": "Incorrect. Reducing retries doesn't eliminate worker-timeout duplicates."
+    },
+    "d": {
+      "text": "Incorrect. Idempotency key makes it explicit and reliable."
+    }
+  },
+  "explanation": "Distributed messaging is inherently at-least-once; the canonical recourse is idempotency at the consumer. Camunda's at-least-once delivery means a Connector may publish the same message twice (e.g., due to worker timeout causing re-activation). To prevent duplicate processing at the partner: Include a deterministic idempotency key in every message -- derived from Camunda's BPMN context (instance key, element instance key) or business data (orderId + event type). The key is the same for the same logical message; differs for distinct messages. Partner deduplicates: the partner's message queue or consumer maintains a record of processed keys; duplicates are recognised and discarded. This pattern requires cooperation: the publisher includes the key; the consumer enforces deduplication. If the partner's queue (e.g., AWS SQS FIFO, Kafka with idempotent producers) supports built-in deduplication, leverage it. Practical implementation: in the Connector's request payload, include a header (X-Idempotency-Key: ) or body field (messageId: ). Pass a deterministic value derived from Camunda's context.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q35",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "mod-business-rule-tasks-19",
+  "topic": "modeling",
+  "subtopic": "business-rule-tasks",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Bank deploys 12 microservices behind a BPMN flow in Camunda 8.8. Each underwriting case must run a deployed DMN decision named credit_band, and the business rule task must always evaluate the most recent deployed version so that 4500 loans per day pick up the latest scoring rules without redeploying the calling process.",
+  "question": "Which bindingType value on the called decision selects the most recent deployed version of credit_band at activation time?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The bindingType attribute set to latest selects the most recent deployed version of credit_band whenever the business rule task is activated"
+    },
+    {
+      "id": "b",
+      "text": "The bindingType attribute set to deployment selects the version of credit_band that was deployed with the current calling process definition"
+    },
+    {
+      "id": "c",
+      "text": "The bindingType attribute set to versionTag selects the deployed version of credit_band that matches the configured versionTag attribute value"
+    },
+    {
+      "id": "d",
+      "text": "The bindingType attribute set to current selects the in-progress draft version of credit_band that is staged in the connected modeler workspace"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The latest bindingType resolves the called decision to the most recent deployed version at the moment the business rule task is activated, which matches the requirement to always pick up the newest scoring rules."
+    },
+    "b": {
+      "text": "Incorrect. The deployment bindingType pins the called decision to the version that was deployed alongside the current calling process definition, which would freeze credit_band at parent deployment time."
+    },
+    "c": {
+      "text": "Incorrect. The versionTag bindingType selects the latest deployed version annotated with a specific tag, which requires every release to carry the right tag and does not always pick up the newest version."
+    },
+    "d": {
+      "text": "Incorrect. There is no current bindingType for a business rule task. The documented bindingType values are latest, deployment, and versionTag."
+    }
+  },
+  "explanation": "When bindingType is omitted or explicitly set to latest, a business rule task resolves the called DMN decision to the most recent deployed version at activation, which is the documented way to keep evaluating against the newest rules.",
+  "docs": [
+    {
+      "title": "BPMN business rule tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ]
+}

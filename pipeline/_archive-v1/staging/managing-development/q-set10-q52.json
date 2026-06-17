@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q52",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Ops wants to find process instances matching multiple criteria simultaneously: state = ACTIVE AND processDefinitionId = \"order-fulfillment\" AND variable priority = \"HIGH\". They use Operate's UI.",
+  "question": "Does Operate support combining multiple filter criteria in one query?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Operate only allows one active filter at a time -- applying a second filter replaces the previous one rather than combining both conditions -- this description does not reflect the actual behaviour. Operate's filter interface supports multiple simultaneous filter criteria applied together with AND logic. Teams can combine state filters, process definition filters, variable filters, date range filters, and other criteria in a single query. All active filters must match for an instance to appear in results, enabling precise targeted searches."
+    },
+    {
+      "id": "b",
+      "text": "The Operate web UI provides a filter panel with multiple criterion fields that can all be filled simultaneously. The UI supports combining state, process definition, version, date range, business key, parent instance, and variable filters in a single query. The REST API mirrors this capability for programmatic access. Both support multi-criteria filtering."
+    },
+    {
+      "id": "c",
+      "text": "Yes -- Operate's filter UI supports combining multiple criteria via implicit AND logic -- all selected filters must match for an instance to appear. md): state, process definition + version, start / end date, parent instance, variables, etc. Combining them narrows the result set. The REST API (POST /v2/process-instances/search per Orchestration Cluster API REST spec) supports the same composite-filter object."
+    },
+    {
+      "id": "d",
+      "text": "When multiple filters are active in Operate, process instances matching any one of the filter criteria are returned -- this is the OR interpretation rather than the correct AND logic. Operate applies all active filters with AND semantics: an instance must satisfy every active filter criterion to appear in the result set. This intersection behaviour is what makes combined filters useful for finding specific instances. Filtering by state AND process definition AND variable value narrows to a precise subset."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate's filter capabilities: UI filters: a panel with multiple criteria (process definition, version, state, start / end date, business key, parent instance, variables, etc.). Selecting multiple narrows by AND. REST API filters: pass a filter object with multiple fields; same AND logic. Example combined query for the scenario: State: ACTIVE Process Definition: order-fulfillment Variable filter: name priority, value \"HIGH\" Result: only instances matching all three. The intersection. OR semantics: typically achieved by running multiple separate queries and combining results client-side; some Operate versions may add UI-level OR support -- verify. Performance: complex combined filters are evaluated against Elasticsearch indexes; selectivity matters (most-selective filter applied first internally)."
+    },
+    "b": {
+      "text": "Incorrect. Combine supported."
+    },
+    "c": {
+      "text": "Correct. Both UI and API."
+    },
+    "d": {
+      "text": "Incorrect. AND."
+    }
+  },
+  "explanation": "Both UI and API.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/basic-operate-navigation/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q52",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "ext-job-worker-19",
+  "topic": "extensions-integrations",
+  "subtopic": "java-job-worker",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Bank tracks job polling rates on a Camunda 8.8 Java worker that activates 6500 jobs per day. The platform engineering team wants the ActivateJobsCommand polling count exported to Prometheus today without waiting for a built in counter, and prefers an approach that does not change the broker configuration.",
+  "question": "Which Camunda 8.8 documented workaround lets Aurora Bank track the ActivateJobsCommand polling count from a Java job worker?",
+  "options": [
+    { "id": "a", "text": "Register a gRPC ClientInterceptor or an Apache HttpClient AsyncExecChainHandler on the Camunda client builder so the interceptor counts every ActivateJobsCommand invocation issued by the Aurora Bank Java worker on its client channel" },
+    { "id": "b", "text": "Enable a camunda.client.metrics.activateJobs property on the JobWorkerBuilder so the Java client publishes a built in polling counter directly to the configured Micrometer MeterRegistry at Aurora Bank without any interceptors" },
+    { "id": "c", "text": "Set zeebe.broker.metrics.activateJobs to true in the broker configuration so Zeebe exports the polling rate of every connected Java worker through the orchestration cluster monitoring endpoint used by Aurora Bank" },
+    { "id": "d", "text": "Subclass the BackoffSupplier and increment a Micrometer Counter inside its method so the Aurora Bank Java worker treats every retry delay calculation as a single ActivateJobsCommand polling event for the metric" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The documented workaround uses a gRPC ClientInterceptor or Apache HttpClient AsyncExecChainHandler attached to the Camunda client builder to track client calls, including the ActivateJobsCommand invocation issued each time the worker polls for jobs." },
+    "b": { "text": "Incorrect. The Java client does not expose a built in activate jobs polling counter on the JobWorkerBuilder; the documented option is the gRPC ClientInterceptor or HttpClient chain handler workaround." },
+    "c": { "text": "Incorrect. The broker does not expose a per client polling rate metric via a zeebe.broker.metrics.activateJobs flag; tracking is done on the client side through an interceptor or chain handler." },
+    "d": { "text": "Incorrect. The BackoffSupplier only computes retry delays after failed polls and does not run on every poll, so it cannot be used as a proxy for the ActivateJobsCommand polling count." }
+  },
+  "explanation": "Camunda 8.8 deliberately limits the built in JobWorkerMetrics to jobs activated and jobs handled. To track additional metrics like the ActivateJobsCommand polling count, the docs recommend attaching a gRPC ClientInterceptor or an Apache HttpClient AsyncExecChainHandler to the client builder.",
+  "docs": [
+    { "title": "Java client job worker", "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/" }
+  ]
+}

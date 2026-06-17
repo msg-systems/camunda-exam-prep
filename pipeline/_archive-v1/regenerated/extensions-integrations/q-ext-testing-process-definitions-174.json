@@ -1,0 +1,50 @@
+{
+  "id": "ext-testing-process-definitions-174",
+  "topic": "extensions-integrations",
+  "subtopic": "testing",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Delta Insurance writes a Camunda 8.8 process test for an invoice approval flow with 3 worker classes including an ArchiveInvoiceWorker that calls a legacy ArchiveService. The team wants the test to cover the BPMN model and its glue code without contacting the real archive system on every CI run.",
+  "question": "Which scope should the Delta team include in the process test for the invoice approval flow?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Cover the BPMN model plus glue code such as worker classes, FEEL expressions, and any client API that maps data before calling the Camunda Client, while mocking workflow engine-independent business services"
+    },
+    {
+      "id": "b",
+      "text": "Cover the BPMN model only, exercising gateway FEEL expressions but excluding all worker classes and client API code; glue code belongs to a separate worker-unit scope"
+    },
+    {
+      "id": "c",
+      "text": "Cover the BPMN model and every backend system the workers call, including the real archive system, so the process test detects regressions across the full production landscape on every run"
+    },
+    {
+      "id": "d",
+      "text": "Cover the workers and FEEL expressions in isolation, without deploying the BPMN model, and rely on integration tests to verify that the model and the glue code work together"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Test scope and mocking section says the process test should cover the executable BPMN definition plus glue code that logically belongs to it: workers, FEEL expressions for gateways and IO mappings, and any client API doing data mapping before the Camunda Client call. Engine-independent business services are mocked."
+    },
+    "b": {
+      "text": "Incorrect. The best practice puts workers, FEEL, and the client API inside the process test scope; only engine-independent business services like ArchiveService are mocked out."
+    },
+    "c": {
+      "text": "Incorrect. The process test deliberately mocks engine-independent business services such as the real ArchiveService to stay fast and isolated; full backend coverage belongs to integration tests."
+    },
+    "d": {
+      "text": "Incorrect. The process test must include the BPMN model itself; isolating workers and FEEL alone does not validate the data flowing through the process."
+    }
+  },
+  "explanation": "A Camunda 8.8 process test covers the executable BPMN definition together with the glue code that belongs to it, including workers, FEEL expressions, and client-side mapping APIs, while mocking workflow engine-independent business services.",
+  "docs": [
+    {
+      "title": "Testing process definitions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/testing-process-definitions/"
+    }
+  ]
+}

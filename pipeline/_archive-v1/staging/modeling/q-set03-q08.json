@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q08",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A marketing platform sends customer engagement campaigns through multiple channels -- email, SMS, push notification. Each customer can have preferences enabling one or more channels. The campaign process needs to fan out to only the enabled channels for each customer (some get all three, some get just email, some get email + SMS). After all dispatched channels complete, the campaign moves to \"Track Delivery\" once and only once. The current model uses an Inclusive Gateway with three conditional flows (=preferences.email, =preferences.sms, =preferences.push), three Service Tasks (one per channel), and an Exclusive Gateway downstream. Customers with multiple enabled channels trigger \"Track Delivery\" multiple times -- duplicate tracking entries appear.",
+  "question": "Which BPMN join construct is correct for \"wait for only the activated parallel paths to complete\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Replace the downstream Exclusive Gateway with an Inclusive Gateway. The joining Inclusive Gateway waits specifically for the activated paths to complete, as Zeebe tracks which upstream branches were activated during the fan-out. When used as both fork and join (with the same gateway type on both sides), the Inclusive Gateway correctly handles \"wait for only the paths that were activated\" semantics, solving the duplicate-execution problem entirely."
+    },
+    {
+      "id": "b",
+      "text": "Replace the downstream Exclusive Gateway with a Parallel Gateway to join the channel branches before Track Delivery. A Parallel Gateway join waits for ALL incoming sequence flows to arrive before proceeding -- it always expects all defined paths. If only one channel (email) is enabled and the SMS and push flows were never activated, the Parallel Gateway would block indefinitely waiting for tokens that will never arrive on those inactive paths."
+    },
+    {
+      "id": "c",
+      "text": "Convert the three channel-specific Service Tasks into a Multi-Instance Subprocess iterating over an enabled-channels list. Multi-Instance is designed for running the same homogeneous activity repeatedly over a collection of items. The email, SMS, and push notification Service Tasks are three distinct heterogeneous tasks with different logic and configurations -- they do not represent the same activity repeated over a collection and do not fit the Multi-Instance abstraction."
+    },
+    {
+      "id": "d",
+      "text": "Add a Service Task downstream that polls the Operate API to check when all parallel channel tasks have completed before proceeding to Track Delivery. The Operate API is an operational query interface that provides eventual consistency with a processing lag -- it is not designed for real-time runtime flow control. Using it for synchronisation introduces latency, complexity, and potential race conditions, when the correct solution is a built-in BPMN gateway."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Inclusive Gateway is BPMN's conditional fork-join: at fan-out, evaluates conditions and activates only matching paths; at join, waits specifically for the paths that were activated upstream, not all paths defined. Zeebe tracks path activation state. Matches the \"wait for only activated parallel paths\" requirement precisely."
+    },
+    "b": {
+      "text": "Incorrect. Parallel Gateway always expects ALL incoming flows; would block waiting for paths that were never activated."
+    },
+    "c": {
+      "text": "Incorrect. Multi-Instance is for same activity repeated; three heterogeneous channel-specific Service Tasks don't fit MI."
+    },
+    "d": {
+      "text": "Incorrect. Operate API is eventually consistent and not for runtime control flow."
+    }
+  },
+  "explanation": "Inclusive Gateway is BPMN's conditional fork-join: at fan-out, evaluates conditions and activates only matching paths; at join, waits specifically for the paths that were activated upstream, not all paths defined. Zeebe tracks path activation state. Matches the \"wait for only activated parallel paths\" requirement precisely.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/gateways/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q08",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

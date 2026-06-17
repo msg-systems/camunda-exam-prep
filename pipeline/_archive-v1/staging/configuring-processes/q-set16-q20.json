@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Process V1 has ReviewTask. V2 renames to ReviewOrderTask. In-flight V1 instances at ReviewTask need migration. Team wonders mapping plan.",
+  "question": "Process migration mapping plan?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 process migration does not automatically detect or map renamed elements. When ReviewTask in V1 is renamed to ReviewOrderTask in V2, the element IDs differ, so the migration engine treats them as distinct elements with no automatic connection. An in-flight process instance paused at ReviewTask would fail migration or leave tokens at a non-existent element if auto-rename were assumed. The migration plan must include an explicit mappingInstructions entry: {\"sourceElementId\": \"ReviewTask\", \"targetElementId\": \"ReviewOrderTask\"}. Without this instruction, the migration API rejects the plan or leaves the instance in an invalid state."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8's process migration API supports renaming (ID changes) through explicit mapping instructions in the migration plan. The mappingInstructions array allows specifying sourceElementId and targetElementId pairs, enabling in-flight instances at a V1 element to be mapped to the corresponding V2 element even when the ID has changed. Without migration support for renames, any process evolution involving element ID changes would be blocked, which would be impractical for real-world process improvement cycles."
+    },
+    {
+      "id": "c",
+      "text": "Migration plan declares element-to-element mapping: via mappingInstructions in the migration plan JSON. Elements with the same ID in V1 and V2 are auto-mapped without needing an instruction. Renamed elements (like ReviewTask → ReviewOrderTask) require an explicit instruction. The plan is validated before applying: if a target element doesn't exist, the engine rejects the plan. Variables and task state are preserved for mapped elements. Multiple instructions can be provided for processes with several renamed or restructured elements."
+    },
+    {
+      "id": "d",
+      "text": "Must keep IDs -- this is only partially correct. While keeping element IDs stable simplifies migration (no explicit instructions needed for unchanged elements), Camunda 8 does support migrating instances to processes where element IDs have changed. The migration plan's mappingInstructions array is specifically designed for this scenario. Teams should strive for stable IDs as a best practice, but having to rename an element does not prevent migration; it just requires an explicit mapping instruction in the plan."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Migration mapping plan: Plan structure: JSON-typical format: `json { \"sourceProcessDefinitionKey\": 12345, \"targetProcessDefinitionKey\": 67890, \"mappingInstructions\": [ { \"sourceElementId\": \"ReviewTask\", \"targetElementId\": \"ReviewOrderTask\" }, { \"sourceElementId\": \"OldSubprocess\", \"targetElementId\": \"NewSubprocess\" } ] } Verify exact API format per Camunda 8 version. Auto-mapping: Same element ID in source + target: no instruction needed; auto-mapped. Example: V1 has OrderTask; V2 has OrderTask (same ID); auto-mapped. Explicit mapping: For renamed elements: instruction required. For restructured flow: explicit mapping. What can be mapped: Activities (tasks, subprocesses). Wait states (user task, receive task, intermediate catch events). Boundary events (verify). What might not be mappable: Significantly restructured flow: tokens may not have valid target. Removed elements: source has element not in target. Verify per version. Migration plan creation: Manual: Identify renamed / restructured elements. Build mapping JSON. Tools: Some Web Modeler versions may help generate plans. Diff tools comparing V1 / V2. Validation: Engine validates plan before applying. Invalid mapping (target doesn't exist): error. Applying plan: POST /v1/process-instances/{key}/migration {migrationPlan: {...}} Per-instance or bulk (per Set 14 Q53). Variable handling: Preserved (per Set 14 Q18). New V2 vars: absent until set. Boundary events on migrated elements: Migrate too: if mapped. Removed in V2: boundary lost. Verify behavior. For partial migrations: Some V1 instances to V2: cohabitation. Others stay V1: until drain naturally. For testing migrations: Test in staging: with realistic data. Validate post-migration state. Smoke test completion paths. For the scenario (ReviewTask → ReviewOrderTask): Plan: json { \"mappingInstructions\": [ {\"sourceElementId\": \"ReviewTask\", \"targetElementId\": \"ReviewOrderTask\"} ] } ` Apply to V1 instances at ReviewTask. For multiple renames + restructures: Multiple instructions in one plan. Comprehensive for complex changes. Best practices: Plan IDs deliberately: ID changes cause migration work. Keep IDs stable when possible: easier migration. Document migrations: per release. Test thoroughly: staging before prod. Anti-patterns: Frequent ID renames: more migration work. No migration plan: in-flight instances broken on V2. Bulk migration without testing: production surprises. Alternative: cohabitation: Don't migrate; let V1 finish naturally. Simpler operationally. For minor changes typically. For the scenario: Migration plan explicit for renamed task. Auto-map other unchanged elements. Test then apply."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q20",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[3]"
+      }
+    ]
+  }
+}

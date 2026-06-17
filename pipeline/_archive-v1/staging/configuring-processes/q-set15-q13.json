@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process variable holds a JSON object representing an entire customer record (~500 KB). Team wonders if there are size limits on Camunda variables.",
+  "question": "Process variable size limits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Process variables in Camunda 8 have no size limits and can store arbitrarily large payloads â€” this approach has limitations. Zeebe enforces hard limits on process variable sizes to protect broker performance and replication stability. The hard cap is approximately 4 MB per variable, with a recommended ceiling of 1 MB for production safety. Large variables bloat broker state, increase replication overhead, and can degrade cluster performance. Camunda recommends storing large data externally (S3, database) and keeping only references as process variables. The Document Handling API provides a native mechanism for binary file references."
+    },
+    {
+      "id": "b",
+      "text": "Yes -- process variables have practical and configured limits in Camunda 8. The primary constraint is the gRPC message size limit (default ~4 MB per message), which bounds the total variable payload in a single request. Single variables can approach this limit minus overhead, and total instance variable state contributes to serialization/deserialization overhead. , 500 KB JSON) are technically possible but represent an anti-pattern: they slow process execution, degrade Operate UI performance, and increase storage costs. Best practice is to store IDs/references in variables and fetch full data from source systems or use Document Handling for large binary content."
+    },
+    {
+      "id": "c",
+      "text": "Process variables in Camunda 8 have a hard 1 KB limit per variable -- this claim is a mischaracterization of the actual limits. There is no hard 1 KB limit enforced by the engine per variable. The effective constraint is the gRPC message size (default ~4 MB total payload), not a 1 KB per-variable restriction. Variables of tens to hundreds of KB are technically processable, though they become performance anti-patterns at larger sizes. The 1 KB figure may reflect a recommended practical guideline for variable size rather than a hard limit, but treating it as a firm constraint misrepresents Camunda 8 behavior."
+    },
+    {
+      "id": "d",
+      "text": "Process variables in Camunda 8 are unlimited by design and can store arbitrarily large data -- this approach has limitations. While the BPMN specification does not define variable size limits, Camunda 8 has practical constraints from its gRPC transport layer (default ~4 MB per message) and operational concerns like Operate query performance and storage costs. The Camunda documentation recommends against storing large data blobs in variables and instead advises using Document Handling for binary/large content, storing IDs and references rather than full records, and snapshoting only the minimal subset of fields actually needed by the process."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Variable size considerations: Camunda 8 limits: gRPC message limits: Default ~4 MB per message (configurable). Encompasses all variables in a single payload. Larger messages may need cluster configuration adjustment. Per-variable considerations: Single variable up to message limit minus overhead. Practical: tens to hundreds of KB before issues. Total process instance variables: Sum across all variables can be large. Performance degrades: large state slow to serialize / deserialize. Storage: more disk / memory. Operate impact: Large variables slow to display. Queries slower. UI may truncate display. For 500 KB customer record: Anti-pattern: inline entire customer record in variable. Better pattern: reference + lookup. Pattern 1: Reference: ` Variable: customerId = \"C-100\" Workers look up customer details from DB / API as needed. Pros: small variable; loose coupling. Cons: each lookup hits DB; latency. Pattern 2: Document Handling: Customer record uploaded as document. Variable: customerDocRef = \"doc-123\". Workers retrieve via Document API. Pattern 3: Cached context: Variable: customer = {id, name, tier, region} (small subset, ~1 KB). Full record fetched on-demand from external system. Pattern 4: Snapshot at start: Snapshot relevant fields into variables. Don't fetch full record again. Trade-off: stale data vs lookup cost. When inline is OK: Small data: 100 KB. Reference data: already lives in source system. Many process instances: scaling concerns. Cluster configuration: Adjustable limits (Self-Managed): gRPC message size. Per-instance variable storage. Verify Camunda 8 version's exact configs. For SaaS: Limits per plan tier. Verify before designing variable-heavy processes. Symptoms of oversized variables: Slow process execution: serialization overhead. gRPC errors: \"message too large\". Operate UI lag: display takes long. High disk usage: large state. Memory pressure: GC frequent. Monitoring: Variable size metrics: track per-instance. Alert on outliers: instances with huge variables. Periodic review: large variables indicate design issues. Best practices: Reference over embed: store IDs / refs, not full data. Use Document Handling: for binary / large structured data. Snapshot subsets: only what process needs. Monitor variable sizes: catch issues early. Test with realistic data: not just hello-world payloads. For the 500 KB scenario: Refactor: store customerId`; workers look up customer details. OR Document Handling: upload customer JSON; variable holds reference. OR snapshot: smaller subset of fields actually used in process. Anti-patterns: Hauling around large data: every task serializes the whole thing. Multiple copies of same data: parent + subprocess each have copy. Binary content as base64 in variable: explodes size; use documents."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q13",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

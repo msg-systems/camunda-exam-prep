@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task compute-decision is implemented by a worker that returns a structured result {\"approved\": true, \"score\": 87, \"comments\": \"All checks passed\"}. The team wants the next BPMN step (an Exclusive Gateway) to route based on approved, but they don't want score and comments polluting the process variable scope -- those should be ignored. Which Output Mapping configuration selectively propagates only approved?",
+  "question": "Which Output Mapping configuration selectively propagates only approved?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Configure no Output Mapping at all -- when a worker returns all three fields, Camunda 8's default behaviour merges every returned variable into the process scope. This means approved, score, and comments all become process variables accessible to all subsequent elements. While the gateway can still route using =approved, the other two fields remain as unnecessary clutter in the variable space. They appear in Operate's variable panel (confusing ops teams), in process migration plans, and create implicit coupling where future tasks might accidentally depend on undocumented variables."
+    },
+    {
+      "id": "b",
+      "text": "On the Service Task, add an Output Mapping: Target = decision, Source FEEL expression = =approved. Only decision lands in process scope (bound to the worker's approved field); score and comments are discarded. The downstream gateway condition becomes =decision = true (or similar)."
+    },
+    {
+      "id": "c",
+      "text": "approved in downstream expressions. The resultVariable attribute is specific to Business Rule Tasks (DMN decision evaluation results) -- it has no meaning on a Service Task. Attempting to configure this on a Service Task will either be ignored or cause validation errors. The correct mechanism for controlling what a Service Task propagates to process scope is Output Mapping, not resultVariable."
+    },
+    {
+      "id": "d",
+      "text": "Modify the worker code to return only approved from its result object, filtering out score and comments before completing the job. While this technically achieves the goal of not polluting process scope, it conflates two separate concerns: the worker's computational job (calculate the decision) and the process orchestration concern (which variables to propagate). If the team later needs score for a different BPMN task, they must change the worker code. The BPMN-side Output Mapping is the canonical separation: worker returns its full analytical result, the BPMN model controls what enters process scope."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Output Mapping is BPMN's mechanism for selective propagation from task local scope to process scope. Each mapping specifies a target name (becomes a process variable) and a FEEL source expression (read from task local scope, including the worker's returned values). Unmapped task locals are discarded. This keeps process scope tidy and explicitly contracted: only declared mappings appear."
+    },
+    "b": {
+      "text": "Correct. Without Output Mapping, Camunda 8's default is typically to merge all returned worker values into process scope. Functional but: (1) all fields visible in Operate (clutters), (2) downstream nodes can accidentally rely on undocumented fields (tight coupling), (3) larger payloads slow broker writes."
+    },
+    "c": {
+      "text": "Incorrect. resultVariable is for Business Rule Tasks (DMN-returning) and configures the variable name that captures the DMN result. Doesn't apply to Service Tasks."
+    },
+    "d": {
+      "text": "Incorrect. Workable but mixes concerns: worker logic is about computing the answer; BPMN logic is about routing and state. Output Mapping puts variable contract decisions in BPMN -- easier to change without re-deploying worker code."
+    }
+  },
+  "explanation": "Without Output Mapping, Camunda 8's default is typically to merge all returned worker values into process scope. Functional but: (1) all fields visible in Operate (clutters), (2) downstream nodes can accidentally rely on undocumented fields (tight coupling), (3) larger payloads slow broker writes.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/#inputoutput"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q13",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

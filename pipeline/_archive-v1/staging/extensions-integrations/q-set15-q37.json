@@ -1,0 +1,63 @@
+{
+  "id": "imp-set15-q37",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL needs the length of a string for validation: max 50 chars. Team wonders syntax. FEEL string length?",
+  "question": "FEEL string length?",
+  "options": [
+    {
+      "id": "a",
+      "text": "In FEEL, the string length function has a two-word name with a space: string length(string). The shorthand length(s) is not a FEEL built-in; calling it would return null or cause an error. md:70. FEEL uses multi-word function names with spaces as a naming convention (similar to lower case, upper case, substring before). The result counts Unicode code points, not bytes."
+    },
+    {
+      "id": "b",
+      "text": "md:57-70. Signature: string length(string: string): number. Example: string length(\"foo\") → 3 (verbatim doc :70). Counts Unicode code points, not bytes. Note the two-word name with a space -- FEEL multi-word built-in naming convention (same pattern as lower case, upper case, substring before, string join). Calling length(s) without the \"string\" prefix is incorrect -- that function does not exist in FEEL built-ins. Use in validation: string length(name) <= 50. ) <= 50."
+    },
+    {
+      "id": "c",
+      "text": "FEEL has no built-in function to measure string length -- developers must implement custom logic using character iteration -- this approach has limitations. md:57-70. It returns the number of Unicode code points in the string. This is a standard FEEL capability used in validation conditions, DMN decision table input entries, and BPMN gateway conditions. There is no need to implement any custom string length logic -- the built-in covers all standard string length measurement use cases."
+    },
+    {
+      "id": "d",
+      "text": "count in FEEL is a list function (count(list: list): number) that returns the number of elements in a list. Calling count(\"foo\") would not return 3 -- it would either error or return null because a string is not a list. The correct function for string character count is string length(string). While creative workarounds like count(string to code points(\"foo\")) could technically yield the character count, string length is the direct, idiomatic built-in."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL string length: Signature: string length(string) → number Examples: `feel string length(\"hello\") → 5 string length(\"\") → 0 string length(\"hello world\") → 11 string length(\"café\") → 4 (Unicode-aware) Note on naming: FEEL uses spaces in function names sometimes: string length, lower case, etc. No camelCase: not stringLength. Quirky but standardised in DMN FEEL spec. Use cases: Validation: feel isValid: string length(name) >= 1 and string length(name) 20 then substring(name, 1, 17) + \"...\" else name Conditional logic: feel format: if string length(zipCode) = 5 then \"5-digit\" else \"extended\" Compare with count (list): count(list): number of list elements. string length(string): number of characters. Different functions for different types. Unicode considerations: Code points vs grapheme clusters: complex Unicode (emojis with modifiers) may count differently. Verify behavior for international text. Typical: code points counted. Empty string: feel string length(\"\") → 0 string length(null) → error or null For null safety: feel =if name != null then string length(name) else 0 Related string functions: substring(s, start, length): extract part. upper case(s), lower case(s): case conversion. contains(s, substring): substring check (per Set 13 Q38). starts with(s, prefix), ends with(s, suffix). split(s, delimiter): tokenise. string join(list, delimiter): combine. For validation patterns: feel validation: { nameTooShort: string length(name) 50, emailValid: matches(email, \"^[^@]+@[^@]+$\"), isValid: not(nameTooShort) and not(nameTooLong) and emailValid } Combine multiple checks. For dynamic length limits: feel maxLength: if locale = \"en\" then 100 else 200 isValid: string length(description) <= maxLength Locale-specific limits. Anti-patterns: Using count` on strings: error. No null check: errors on null. Hardcoded limits: should be configurable."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-string/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q37",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-question-too-short",
+        "severity": "block",
+        "message": "question length 19 < 20 (catastrophically short)",
+        "where": "question"
+      }
+    ]
+  }
+}

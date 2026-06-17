@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q47",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An RPA bot fails mid-way through automating a desktop app (e.g., target app crashed). The team wonders how RPA errors propagate and how to handle them in BPMN.",
+  "question": "How does RPA error handling integrate with BPMN?",
+  "options": [
+    {
+      "id": "a",
+      "text": "RPA bot errors typically surface as BPMN errors on the RPA connector task. The Robot Framework script handles errors via [Teardown] keywords. Two failure modes exist: an incident (the default when unexpected errors exhaust retries, reported to Zeebe and visible in Operate) and a BPMN error (when the script explicitly uses the Throw BPMN Error MY_ERROR_CODE message keyword). The BPMN error is caught by an Error Boundary Event on the RPA connector task, matched by error code. The Throw BPMN Error keyword stops execution and always runs [Teardown] -- it cannot be caught inside the script itself. BPMN-level retries apply and the bot may be re-activated. Design RPA scripts with explicit error handling to distinguish recoverable errors (network blips, use retries) from unrecoverable ones (application unavailable, escalate via Throw BPMN Error)."
+    },
+    {
+      "id": "b",
+      "text": "Claiming that RPA bot errors simply crash the Zeebe worker process is only partially accurate for a specific failure scenario. If a bot script throws an unhandled exception that propagates to the RPA worker's execution handler without being caught, the worker process itself could terminate abnormally. The standard and recommended behavior is for bot errors to be reported back to Zeebe as BPMN incidents or BPMN error events, not as worker process crashes."
+    },
+    {
+      "id": "c",
+      "text": "Claiming there is no integration between RPA bot errors and BPMN error handling does not reflect the actual behavior. Camunda 8 RPA has a specific error propagation mechanism: Robot Framework scripts can use the Throw BPMN Error <errorCode> <message> keyword to explicitly signal BPMN-level error conditions back to the process engine. These errors are caught by Error Boundary Events attached to the RPA Connector task in the BPMN model, using the errorCode to route to the appropriate error handling path. Unhandled bot exceptions create BPMN incidents via the standard job failure mechanism, which can then be resolved in Operate."
+    },
+    {
+      "id": "d",
+      "text": "RPA automation frequently encounters failures: target applications may crash, windows may not render as expected, authentication may fail, or network connectivity issues may occur. A robust RPA solution explicitly designs for these failure scenarios. Camunda 8 RPA provides the Throw BPMN Error keyword specifically to communicate distinct failure types to the BPMN process, enabling structured error routing via Error Boundary Events. BPMN-level retries can handle transient failures, while permanent failures escalate to human intervention or alternative process paths."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. RPA error handling spans bot script + BPMN layers (per rpa/getting-started.md:121-167 \"Handling exceptions\"): Bot script layer (Robot Framework): [Teardown]: cleanup runs even after errors per :129-149. Throw BPMN Error : explicitly raises a BPMN error per :153-167; immediately stops the script, triggers [Teardown], propagates errorCode to Zeebe. Unhandled exceptions (no Throw BPMN Error): the RPA worker reports the failure to Zeebe; default behavior is incident creation if retries are exhausted per :125-128. RPA Worker layer: Worker subscribes to the RPA connector job type (NOT a custom Service Task type). Receives bot execution result; reports to Zeebe -- success or failure (with optional BPMN error if Throw BPMN Error was used). BPMN layer: Error Boundary on the RPA task catches by errorCode (e.g., MY_ERROR_CODE from the Throw BPMN Error call) → routes to handler (notify ops, retry, skip). Retries (zeebe:taskDefinition retries): for transient errors handled in-script (without Throw BPMN Error), BPMN-level retries re-activate the bot. Compensation: if RPA work needs reversing on downstream failure. Common bot error scenarios: Target application not running → distinct errorCode → escalate. Window not found / element missing → distinct errorCode → retry or escalate. Authentication failed → distinct errorCode → notify. Network connectivity → typically transient → BPMN retries. Best practices: Explicit errorCodes for distinct failure modes. Logging in bot: capture context for debugging. Monitoring: alert on bot failure rate spikes. Graceful degradation: design BPMN to handle bot unavailability (e.g., manual fallback path)."
+    },
+    "b": {
+      "text": "Incorrect. Bad design."
+    },
+    "c": {
+      "text": "Incorrect. Option d) -- Wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "RPA error handling spans bot script + BPMN layers (per rpa/getting-started.md:121-167 \"Handling exceptions\"): Bot script layer (Robot Framework): [Teardown]: cleanup runs even after errors per :129-149. Throw BPMN Error : explicitly raises a BPMN error per :153-167; immediately stops the script, triggers [Teardown], propagates errorCode to Zeebe. Unhandled exceptions (no Throw BPMN Error): the RPA worker reports the failure to Zeebe; default behavior is incident creation if retries are exhausted per :125-128. RPA Worker layer: Worker subscribes to the RPA connector job type (NOT a custom Service Task type). Receives bot execution result; reports to Zeebe -- success or failure (with optional BPMN error if Throw BPMN Error was used). BPMN layer: Error Boundary on the RPA task catches by errorCode (e.g., MY_ERROR_CODE from the Throw BPMN Error call) → routes to handler (notify ops, retry, skip). Retries (zeebe:taskDefinition retries): for transient errors handled in-script (without Throw BPMN Error), BPMN-level retries re-activate the bot. Compensation: if RPA work needs reversing on downstream failure. Common bot error scenarios: Target application not running → distinct errorCode → escalate. Window not found / element missing → distinct errorCode → retry or escalate. Authentication failed → distinct errorCode → notify. Network connectivity → typically transient → BPMN retries. Best practices: Explicit errorCodes for distinct failure modes. Logging in bot: capture context for debugging. Monitoring: alert on bot failure rate spikes. Graceful degradation: design BPMN to handle bot unavailability (e.g., manual fallback path).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/rpa/overview/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q47",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

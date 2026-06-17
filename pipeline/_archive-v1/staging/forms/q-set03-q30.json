@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q30",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A claims-filing form displays an applicant's name and date of birth pulled from earlier in the process. The user must confirm them but cannot edit these fields (they came from a verified source). The team wants the fields visible and visually clear that they're read-only.",
+  "question": "Which Forms feature provides read-only field display?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Hide the fields entirely and trust that the data will flow correctly to downstream process steps without user confirmation. This defeats the core requirement: the scenario explicitly states that the user must confirm the name and date of birth values. Hiding confirmed data removes any opportunity for the user to notice and flag discrepancies from the verified source, potentially allowing incorrect information to propagate through the claims process without human oversight."
+    },
+    {
+      "id": "b",
+      "text": "Use a Text Input field with the disabled: true property set so the field is unfocusable and appears locked. md line 18, the Disabled property is intended \"for use during development\" -- it is a design-time toggle, not a production runtime read-only mechanism. Disabled fields carry different accessibility semantics from read-only fields and are visually styled differently. The canonical runtime read-only mechanism is the dedicated Read only property (line 17), distinct from Disabled."
+    },
+    {
+      "id": "c",
+      "text": "Add a Service Task before the User Task that wraps the verified values into a special read-only variable type that Forms automatically renders as non-editable. Camunda 8 has no special read-only variable type; process variables are always mutable in principle and Forms does not infer display behavior from variable type metadata. Inserting an extra Service Task solely for data transformation into a non-existent variable type is an invented over-engineering approach that adds unnecessary complexity to the process model."
+    },
+    {
+      "id": "d",
+      "text": "birthDate}} to bind to process variables dynamically. md line 17). Both options display verified data clearly in a locked, non-editable state while keeping the fields visible for user confirmation."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Forms element library includes a Text view component (id forms-element-library-text) specifically for displaying read-only computed/static text -- the Text property accepts FEEL expressions (=...), plain text, or feelers templating ({{...}}) per forms-element-library-text.md line 13. Markdown is rendered in the output. Alternative: use a Textfield with the Read only property enabled (FEEL-expressible, per forms-element-library-textfield.md line 17) -- same visual lock, but the field looks editable."
+    },
+    "b": {
+      "text": "Incorrect. Hiding defeats the \"user must confirm\" requirement."
+    },
+    "c": {
+      "text": "Incorrect. Per forms-element-library-textfield.md line 18, the Disabled property is \"for use during development\" -- a design-time toggle, not the runtime read-only mechanism. The canonical runtime read-only setting is the dedicated Read only property (line 17), distinct from Disabled."
+    },
+    "d": {
+      "text": "Correct. No special read-only variable type; over-engineering."
+    }
+  },
+  "explanation": "No special read-only variable type; over-engineering.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q30",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

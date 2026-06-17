@@ -1,0 +1,27 @@
+{
+  "id": "frm-forms-config-data-binding-06",
+  "topic": "forms",
+  "subtopic": "data binding - path key",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vanta Health, a regional hospital network, admits 2500 records per week through Camunda 8.8 Forms. A number field on the admission form has the Key set to user.info.age, and a nurse enters 42 at the bedside, so the team must know the JSON shape the runtime produces in 3 seconds before downstream FEEL reads it.",
+  "question": "Which output data structure does the runtime produce on submission of this field?",
+  "options": [
+    { "id": "a", "text": "A single flat variable literally named user.info.age whose value is 42, with no nested object created in the process variables payload" },
+    { "id": "b", "text": "An array under user containing one object info that holds the age 42 in its first element, mirroring how dynamic lists serialise their rows" },
+    { "id": "c", "text": "A single variable whose name joins user, info, and age with underscores and holds the value 42 while the runtime collapses dotted keys to a flat name" },
+    { "id": "d", "text": "A nested object where user contains info, and info contains age set to 42, so the path key materialises as a real nested data structure" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Path keys are not stored as flat dotted names; the runtime materialises the dotted path into a nested object structure on submission." },
+    "b": { "text": "Incorrect. A plain field with a path key produces a nested object, not an array; arrays are the output of dynamic lists, not of a single field." },
+    "c": { "text": "Incorrect. The runtime does not rewrite dots into underscores; the documented behaviour is to materialise the path into nested objects." },
+    "d": { "text": "Correct. With the Key set to user.info.age and value 42, the documented output is the nested object {\"user\":{\"info\":{\"age\":42}}} on submission." }
+  },
+  "explanation": "Defining the Key as a path like user.info.age tells the runtime to build the matching nested object structure on submission instead of treating the dotted string as a single flat variable name.",
+  "docs": [
+    { "title": "Forms data binding", "url": "https://docs.camunda.io/docs/components/modeler/forms/configuration/forms-config-data-binding/" }
+  ]
+}

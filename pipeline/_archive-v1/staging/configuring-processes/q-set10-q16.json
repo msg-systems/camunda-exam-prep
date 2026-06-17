@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q16",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An IDP application processes uploaded PDF invoices. The team wonders how the document reference moves between BPMN: from the form upload (User Task), to the IDP task (extraction), to subsequent activities.",
+  "question": "How is the document reference passed between BPMN activities in an IDP workflow?",
+  "options": [
+    {
+      "id": "a",
+      "text": "IDP uses a proprietary hidden communication channel to transfer documents between workflow steps outside of the normal variable system -- this description does not reflect the actual behaviour. The Intelligent Document Processing feature in Camunda 8 follows standard process variable semantics for document transfer. Document references are stored and passed as regular process variables using the Document Handling reference format. There is no special channel, hidden protocol, or separate communication mechanism; everything flows through the normal Zeebe variable system."
+    },
+    {
+      "id": "b",
+      "text": "The IDP task configuration references a document-typed process variable that holds a Document Handling reference, not the actual binary content. The IDP runtime uses this reference to fetch the document from the Document Handling storage backend internally. Inlining the full binary would recreate the base64-inflation problem that Document Handling is designed to avoid."
+    },
+    {
+      "id": "c",
+      "text": "The document reference is stored as a process variable (a JSON object representing the Camunda Document reference). When the User Task's File Picker uploads a file, it lands in Document Handling storage; the reference becomes a process variable. The IDP task reads this variable, fetches the binary via Document Handling, extracts data. Subsequent activities reference the variable to access the document. The pattern is identical to any process variable flow -- IDP doesn't have special handoff semantics."
+    },
+    {
+      "id": "d",
+      "text": "Each BPMN activity that needs to process the document must independently upload its own copy to perform operations -- this is an unnecessarily wasteful pattern. The Document Handling architecture is designed specifically to upload once and reference repeatedly. The User Task uploads the file once to the Document Handling storage, producing a reference. Every subsequent activity -- IDP task, Service Tasks, User Tasks for review -- consumes the same reference to access the same stored binary without re-uploading."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Document Handling and IDP integration uses standard variable-passing semantics: User Task with File Picker: user uploads file; form binding writes the document reference (a JSON object identifying the document in Document Handling storage) to the bound process variable (e.g., invoiceDocument). IDP task: configured to read from a document-typed variable (e.g., =invoiceDocument); the IDP runtime fetches the binary via Document Handling, runs extraction, produces extracted fields as a structured variable (e.g., idpResult). Subsequent activities: read invoiceDocument (if they need the original) and idpResult (for extracted data). All flow via standard process variables -- no special handoff. This makes the workflow composable: User Task → IDP → Service Task → Human Review → ... -- each consumes documents via reference."
+    },
+    "b": {
+      "text": "Incorrect. Standard variables, not hidden channel."
+    },
+    "c": {
+      "text": "Correct. Reference passed, binary fetched internally."
+    },
+    "d": {
+      "text": "Incorrect. Upload once, reference everywhere."
+    }
+  },
+  "explanation": "Reference passed, binary fetched internally.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/idp/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q16",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

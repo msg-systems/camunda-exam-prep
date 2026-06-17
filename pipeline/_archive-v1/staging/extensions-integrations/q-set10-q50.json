@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q50",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's worker uses gRPC for Zeebe access; their backend service uses REST for the Orchestration API. They wonder about authentication differences between gRPC and REST.",
+  "question": "Are gRPC and REST authentication mechanisms different in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Both gRPC and REST connections to Camunda 8 SaaS use TLS for transport encryption. Authentication for both protocols uses OAuth2 client-credentials Bearer tokens. The certificate in gRPC is for TLS transport security, not for API-level authentication. The same Bearer token authorises API calls on both protocols."
+    },
+    {
+      "id": "b",
+      "text": "gRPC and REST in Camunda 8 use completely different authentication models that require separate credential sets -- one for gRPC and a different one for REST -- this description does not reflect the actual behaviour. Both protocols use the same unified OAuth2 client-credentials authentication model. The same API client ID and secret obtained from Camunda Console can generate access tokens used for both gRPC and REST calls. The token acquisition process and the token format are identical; only the delivery mechanism differs (gRPC metadata vs HTTP header)."
+    },
+    {
+      "id": "c",
+      "text": "gRPC connections to Camunda 8 do not require authentication because gRPC transport security through TLS provides sufficient protection -- this description does not reflect the actual behaviour. Camunda 8 SaaS requires OAuth2 Bearer token authentication for all API calls including gRPC. TLS provides transport-level encryption and optionally server certificate verification, but it does not authenticate the client application to the Camunda API. The Bearer token in gRPC call metadata provides the application-level identity and authorisation check."
+    },
+    {
+      "id": "d",
+      "text": "Both gRPC and REST use OAuth2 client-credentials flow with Bearer tokens -- the authentication model is identical for both protocols. The client obtains an access token using the client ID and secret from Camunda Console, then presents it as a Bearer token with every API call. For gRPC, the token is attached in call metadata; for REST, it is sent in the HTTP Authorization header. The same API client credentials work for both protocols."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 uses a unified OAuth2 client-credentials authentication model across both gRPC and REST APIs: Token acquisition: same -- POST to OAuth2 token endpoint with client_id, client_secret, audience; receive access token with TTL. gRPC: include the token in gRPC call metadata: authorization: Bearer . gRPC clients (Java, Go, Node SDKs) handle this transparently. REST: include in HTTP header: Authorization: Bearer . Standard REST client config. The same access token authorises both gRPC and REST calls (within the scopes granted to the API Client at provisioning). One client can speak both protocols. Transport layer: TLS: both gRPC and REST use TLS in SaaS / production. mTLS optional in some configs. Encryption: standard TLS encryption. Practical SDK handling: Camunda 8.8's official SDK matrix (per apis-tools/ overview) -- Camunda Java client, Camunda Spring Boot Starter (replaces the legacy Spring Zeebe naming per Pattern #18), Python SDK (official since 8.8 per apis-tools/python-sdk.md:10-21 -- fully-typed CamundaClient + CamundaAsyncClient), TypeScript SDK (@camunda8/sdk), and C# SDK -- all handle the OAuth2 client-credentials flow + token cache + protocol-specific delivery automatically. App code passes credentials + cluster address; SDK handles the rest. (The Go SDK is community-maintained per apis-tools/community-clients/index.md.)"
+    },
+    "b": {
+      "text": "Incorrect. gRPC over TLS uses transport certs; auth is also token-based."
+    },
+    "c": {
+      "text": "Incorrect. Same model."
+    },
+    "d": {
+      "text": "Correct. Auth required."
+    }
+  },
+  "explanation": "Auth required.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/console/manage-clusters/manage-api-clients/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q50",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

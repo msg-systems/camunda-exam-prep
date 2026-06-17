@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q28",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team wants to expose a DMN decision as an API endpoint (call directly without BPMN). Team wonders if Camunda 8 supports standalone decision invocation.",
+  "question": "Standalone decision invocation via API?",
+  "options": [
+    {
+      "id": "a",
+      "text": "DMN decisions deployed in Camunda 8 can be evaluated standalone without a BPMN Business Rule Task. mdx:32-36, accepting decisionDefinitionId and variables in the request body. md:751-781 provides the same capability. When invoked by decision ID, the latest deployed version is used. No BPMN process instance is required; the evaluation instance is still recorded in Operate. Use cases include validation APIs and testing pipelines."
+    },
+    {
+      "id": "b",
+      "text": "Decisions deployed to Camunda 8 are first-class resources that can be evaluated independently of any process instance. The REST API exposes a dedicated decision evaluation endpoint (POST /decisions/{decisionDefinitionKey}/evaluate or similar) that invokes the DMN engine directly with provided input variables."
+    },
+    {
+      "id": "c",
+      "text": "No BPMN process required. Useful for decision testing, external system integration, and decision-as-a-service patterns. The Camunda Client SDKs also wrap this capability. Each evaluation returns the decision output and all matched rules per the configured hit policy."
+    },
+    {
+      "id": "d",
+      "text": "Using an external DMN engine separate from Camunda to evaluate decisions is possible but introduces unnecessary complexity and duplication. Camunda 8 already has a built-in DMN engine that evaluates decisions deployed to the cluster, accessible via REST and gRPC APIs. Deploying and maintaining a second DMN engine creates synchronization challenges, version drift risks, and additional operational overhead. The native Camunda DMN evaluation endpoint eliminates the need for an external engine in the described scenario."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Standalone DMN evaluation via Camunda 8 API: API endpoints (Camunda 8.8): REST: POST /decision-definitions/evaluation (Orchestration Cluster API). gRPC: EvaluateDecision RPC on Zeebe gateway. Returns: synchronous decision output. Example REST call: `http POST /decision-definitions/evaluation Content-Type: application/json Authorization: Bearer { \"decisionDefinitionId\": \"creditCheck\", \"variables\": { \"customerId\": \"C-100\", \"loanAmount\": 5000 } } Response: json { \"decisionId\": \"creditCheck\", \"decisionVersion\": 3, \"result\": { \"approved\": true, \"limit\": 10000, \"interestRate\": 0.05 }, \"decisionInstanceId\": \"di-12345\" } ` Use cases: Use case 1: Validation microservice: External app needs to validate input against business rules. Calls DMN endpoint; gets decision. No process needed; just rule evaluation. Use case 2: Scoring service: Risk scoring exposed as API. Apps consume; route customers based on score. Use case 3: Embedded in non-Camunda apps: Microservice architecture; DMN engine as one service. Business rules centralised; multiple consumers. Use case 4: A/B testing rules: Deploy two decision versions. Route requests; analyse outcomes. Camunda Decisions become testable as services. vs BPMN-embedded: BPMN Business Rule Task: decision is part of a process flow. Standalone: decision evaluated outside any process. Audit / instance tracking: both produce decision instances recorded in Operate (per Set 13 Q29). Auth: SaaS: OAuth client credentials; cluster endpoint. Self-Managed: Identity / Keycloak or token-based per setup. Performance: Synchronous: typical evaluation is fast (ms-level for simple decisions). Caching: decisions deterministic given inputs → cacheable if inputs repeat. Concurrency: API scales per cluster capacity. Decision input validation: API validates input types (per declared input column types). Mismatches return error response. Result structure: Single output decision (one output column): result is the value. Multiple outputs: result is an object. COLLECT: result is a list. COLLECT with aggregator (per Q23): result is the aggregated scalar. Operational considerations: Decision deployment: Deploy DMN files via API or Web Modeler. Each deployment creates a new version. API calls reference by decisionId; latest version typically. Versioning: Specify version in request: pin to specific version. Default: latest. Decision instance retention: Each invocation logged (per Set 13 Q29). Useful for audit / replay. Best practices: Define clear input contracts: decisions are public API. Version explicitly when breaking: avoid surprises. Monitor decision invocations: latency, error rate. Document for consumers: input/output schemas, error responses."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/zeebe-api/gateway-service/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q28",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

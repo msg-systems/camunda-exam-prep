@@ -1,0 +1,27 @@
+{
+  "id": "ext-handling-data-in-processes-140",
+  "topic": "extensions-integrations",
+  "subtopic": "process-variables",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Bank runs 11 microservices on Camunda 8.8 that share a quote-approval process and reference process variables by string. The team wants to remove the copy-and-paste of variable name literals across services that handle 4500 transactions per day and add type-safe access with optional serialization logic for complex business objects.",
+  "question": "Which combination of techniques does the data-handling guidance recommend to avoid duplicated variable name strings and to add type-safe access?",
+  "options": [
+    { "id": "a", "text": "Define the variable names as XML attributes on the BPMN diagram and rely on Camunda Modeler to validate every string reference against the diagram at deployment time across all client services" },
+    { "id": "b", "text": "Collect variable names as constants in a dedicated interface and add a Process Data Accessor or Process Variable Accessor class that encapsulates casting and serialization logic for those variables" },
+    { "id": "c", "text": "Define a JSON schema document next to the BPMN file, register it as a process header in Operate, and read variables through that header instead of through the Camunda Java client API at runtime" },
+    { "id": "d", "text": "Define every variable as a static field on a generated handler class produced at process deployment and require all service task handlers to extend that base class for type-safe process variable access" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The docs do not propose BPMN-attribute declarations or Modeler-time validation for variable names; constants in code combined with accessor classes are the documented pattern." },
+    "b": { "text": "Correct. The guidance is to collect variable names in a constants holder (for example a Java interface such as TwitterDemoProcessConstants) and to add a Process Data Accessor or Process Variable Accessor class that centralises casting and serialization for those variables." },
+    "c": { "text": "Incorrect. There is no JSON-schema-via-Operate-header pattern in the guidance; constants plus accessor classes remain the documented recommendation for type-safe variable access." },
+    "d": { "text": "Incorrect. The Starter does not generate handler base classes at deployment; the documented pattern uses a constants interface and a hand-written Data Accessor class for type-safe access." }
+  },
+  "explanation": "The Using-constants-and-data-accessors section recommends two layers. First, collect variable names as constants (for example in a Java interface) so the code base no longer copy-pastes string literals. Second, add a Data Accessor class that centralises casting and serialization, available as either a Process Data Accessor for one process definition or a Process Variable Accessor for a single reusable variable.",
+  "docs": [
+    { "title": "Using constants and data accessors", "url": "https://docs.camunda.io/docs/components/best-practices/development/handling-data-in-processes/" }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-59",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A job worker user task currently assigned to `bob`, with a candidate group `reviewers`, a due date, and a form id, is migrated to a Camunda user task whose target definition specifies the same candidate group but does not set a priority. Which outcome is correct?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The candidate group, due date, and form id are preserved; the current assignee is dropped in favour of the target's initial assignee; the priority defaults to 50."
+    },
+    {
+      "id": "b",
+      "text": "The current assignee `bob`, candidate group, due date, form id, and priority are all preserved exactly as on the source job worker task."
+    },
+    {
+      "id": "c",
+      "text": "Embedded forms are supported across migration, so any embedded form on the source task is carried over unchanged."
+    },
+    {
+      "id": "d",
+      "text": "Open incidents on the job worker user task are migrated together with the task and may be resolved on the new Camunda user task afterward."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The target Camunda user task preserves candidate groups and users, due date, follow-up date, form id or form key, and customHeaders from the source. The current assignee is explicitly not preserved; the target's initial assignee is used. Priority comes from the target definition or defaults to 50 when none is set."
+    },
+    "b": {
+      "text": "The current assignee is explicitly not preserved on this migration. The new task gets the initial assignee defined in the target user task definition."
+    },
+    "c": {
+      "text": "Embedded forms are not supported. After migration, the form defined in the target user task definition is used."
+    },
+    "d": {
+      "text": "Incidents on the source job worker user task must be resolved before migration; otherwise the migration fails. They are not carried over."
+    }
+  },
+  "explanation": "Migrating a job worker user task to a Camunda user task (available since 8.8.20) preserves candidate groups and users, due date, follow-up date, form id or key, and customHeaders. The current assignee is dropped; the target's initial assignee applies. Priority comes from the target definition, defaulting to 50. Embedded forms are not supported, and any open incidents must be resolved before migration.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-getting-started-14",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A team adds the Camunda Spring Boot Starter and declares `@JobWorker` methods whose parameters they want bound to process variables _by name_, without specifying annotation values on each one. Per the getting-started page, what build setting must be enabled to make this work?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Enable the Java compiler flag `-parameters` (e.g. via `maven-compiler-plugin` `compilerArgs`)."
+    },
+    {
+      "id": "b",
+      "text": "Add `@EnableConfigurationProperties` to the Spring Boot application class."
+    },
+    {
+      "id": "c",
+      "text": "Set `camunda.client.worker.bind-by-name: true` in `application.yaml`."
+    },
+    {
+      "id": "d",
+      "text": "Build with JDK 17 — modern JDKs retain parameter names automatically with no extra flag."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The getting-started page lists this as Step 2: enable the Java compiler `-parameters` flag so parameter names are retained at runtime and can be matched to process variables without explicit annotation values."
+    },
+    "b": {
+      "text": "`@EnableConfigurationProperties` exposes `@ConfigurationProperties` beans; it has nothing to do with retaining method parameter names in bytecode."
+    },
+    "c": {
+      "text": "There is no such configuration property — name binding depends on bytecode-level parameter names, which the compiler emits only when `-parameters` is passed."
+    },
+    "d": {
+      "text": "The JDK version is unrelated; even on JDK 17+ the compiler strips method parameter names from class files unless `-parameters` is passed to `javac`."
+    }
+  },
+  "explanation": "By default the Java compiler does not emit method parameter names into the class file. The Spring Boot Starter needs those names to bind `@JobWorker` parameters to process variables without explicit annotation values, so the docs instruct teams to enable the `-parameters` compiler flag via `maven-compiler-plugin`, Gradle's `tasks.withType(JavaCompile)`, or the IntelliJ Java Compiler settings.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter - Get started",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/getting-started/"
+    }
+  ]
+}

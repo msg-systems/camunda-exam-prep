@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q09",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A BPMN activity needs to iterate over a list AND check a per-iteration completion condition. The team is choosing between Multi-Instance markers and Standard Loop marker.",
+  "question": "Multi-Instance vs Standard Loop -- when to use which?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Multi-Instance and Standard Loop markers are the same construct with different visual representations -- wrong; they are fundamentally distinct BPMN elements with different semantics, configuration, and runtime behavior. Multi-Instance iterates over a collection or cardinality-defined count, supports parallel execution, and has outputCollection for result aggregation. Standard Loop represents while-loop semantics with a loop condition. In Camunda 8 specifically, Standard Loop is not part of the current implementation per the BPMN coverage documentation, making the distinction operationally critical -- teams must use Multi-Instance for any iteration requirement."
+    },
+    {
+      "id": "b",
+      "text": "Multi-Instance (parallel or sequential bars): designed for iterating over a collection (inputCollection + inputElement) OR a known count (loopCardinality). md:100. , Standard Loop is not part of the current implementation in Camunda 8 (modeler may display the symbol but Zeebe does not execute it). For \"iterate list + completion condition\": Multi-Instance with completionCondition is the only canonical option. For while-loop semantics in C8, model an explicit BPMN loop (Service Task → XOR Gateway → back-edge with condition)."
+    },
+    {
+      "id": "c",
+      "text": "Standard Loop is the correct marker for iterating over collections -- wrong; that is Multi-Instance's purpose. Standard Loop is designed for while-condition semantics where the loop continues as long as a boolean condition remains true, without a predefined collection or count. Multi-Instance is specifically designed for collection iteration, providing inputCollection, inputElement, outputCollection, outputElement, and completionCondition configuration. Furthermore, Standard Loop is not part of the current implementation in Camunda 8, so attempting to use it for any iteration results in unsupported behavior."
+    },
+    {
+      "id": "d",
+      "text": "Multi-Instance is for iterating over collections or known counts. While Standard Loop is the BPMN-spec construct for while-loops, Camunda 8 does not implement it. Teams needing while-loop behavior in Camunda 8 must use an explicit BPMN loop pattern: a Service Task followed by an Exclusive Gateway with a back-edge condition that re-enters the task until the exit condition is met."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Two distinct BPMN looping constructs: Multi-Instance (‖ parallel or ≡ sequential bars): Purpose: iterate over a collection or known count. Configurations: inputCollection + inputElement: per-element iteration. loopCardinality: count-based iteration. completionCondition: early termination (when condition met, remaining instances cancel). outputCollection + outputElement: capture per-iteration results. Modes: Parallel (concurrent) or Sequential. Visual: bars in the activity's lower edge. Standard Loop (single curved arrow marker): BPMN-spec purpose: repeat the activity while a loop condition is true (while-loop semantics). Camunda 8 coverage: NOT implemented per bpmn-coverage.md:139 ( without className=\"implemented\"). Symbol may render in the modeler but Zeebe does not execute it; deployment-time / runtime behavior is unsupported. C8 workaround for while-semantics: explicit BPMN loop using a Service Task + XOR Gateway with a back-edge whose condition re-enters the task until the exit condition is met. Decision matrix: Iterate collection (process each order, etc.): Multi-Instance with inputCollection. Iterate count (run check 5 times): Multi-Instance with loopCardinality. Iterate until condition (poll until ready): explicit BPMN loop (Service Task + XOR Gateway + back-edge). Standard Loop marker is NOT runnable in C8. Collection + early stop: Multi-Instance + completionCondition. For \"iterate list AND completion condition\": Multi-Instance is the only canonical answer in Camunda 8."
+    },
+    "b": {
+      "text": "Correct. Distinct."
+    },
+    "c": {
+      "text": "Incorrect. That's MI."
+    },
+    "d": {
+      "text": "Incorrect. That's Standard Loop."
+    }
+  },
+  "explanation": "Distinct.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q09",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

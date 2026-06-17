@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-migration-59",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Logistics handles 9000 shipments per day in Camunda 8.8. Migration coordinators submit a migration plan that maps every active element of a running process instance except for one active service task whose elementId was renamed in the target process definition and was therefore overlooked in the plan that engineers prepared.",
+  "question": "What outcome occurs when one mapping instruction is missing for an active element during process instance migration?",
+  "options": [
+    { "id": "a", "text": "The migration completes for the mapped active elements and the unmapped active element is left attached to its original source process definition" },
+    { "id": "b", "text": "The migration completes by auto-mapping the unmapped active element to a target element that shares the same elementId in the target definition" },
+    { "id": "c", "text": "The migration completes and an incident is created on the unmapped active element so an operator can pick a target element after the fact" },
+    { "id": "d", "text": "The migration is rejected transactionally and the process instance remains on its current process definition without any change in state at all" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Migration is transactional, so partial outcomes are not possible. A missing mapping for any active element fails the whole command rather than leaving one element behind." },
+    "b": { "text": "Incorrect. The engine does not auto-match by elementId during migration. If a mapping is missing the migration command is rejected with an explanatory message." },
+    "c": { "text": "Incorrect. Migration does not create an incident on the unmapped element; instead the command itself is rejected up front and no state change takes place." },
+    "d": { "text": "Correct. The docs state that migration runs in a transactional manner: either all active elements are migrated or none. A missing mapping for any active element rejects the command and leaves the instance unchanged." }
+  },
+  "explanation": "Process instance migration is transactional. If any step fails, including a missing mapping for an active element, the entire migration is rejected with an explanatory message and the process instance stays on its current process definition.",
+  "docs": [
+    { "title": "Process instance migration", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/" }
+  ]
+}

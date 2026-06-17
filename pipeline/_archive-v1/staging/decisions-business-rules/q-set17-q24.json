@@ -1,0 +1,63 @@
+{
+  "id": "imp-set17-q24",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL needs inline function definition -- define and use in one expression. Wonders syntax.",
+  "question": "FEEL inline function definition?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No inline functions -- wrong typically."
+    },
+    {
+      "id": "b",
+      "text": "While BKM nodes are the formal DMN mechanism for reusable decision logic, FEEL also supports inline function definitions directly within expressions using the function(params) expression syntax."
+    },
+    {
+      "id": "c",
+      "text": "md:30-45: the function(params) expression syntax allows defining anonymous functions directly within a FEEL expression without requiring a BKM node. These functions can be stored in context entries and invoked by name within the same expression scope. This enables functional-style programming patterns in FEEL, including higher-order functions where built-in functions like sort or filter accept function arguments. Inline functions are particularly useful for encapsulating complex logic within a single decision or expression without DMN structural overhead."
+    },
+    {
+      "id": "d",
+      "text": "FEEL function definitions use Java-style method signatures with return type declarations and access modifiers -- this does not accurately reflect the behavior. FEEL is a functional expression language distinct from Java. Function definitions use the form function(param1, param2) body-expression with no type annotations, access modifiers, or return type declarations. Parameters are positional and types are inferred from usage. There are no classes, methods, or Java-style constructs in FEEL. The language is designed to be readable by business analysts, not Java developers."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL inline functions: Syntax (DMN FEEL spec): `feel function(parameters) returnExpression Examples: feel function(x) x 2 function(a, b) a + b function(name: string) \"Hello, \" + name Usage: Bind via context literal (Camunda FEEL has NO let..in syntax -- context literal is the canonical binding form per feel-context-expressions.md:35-43): feel { double: function(x) x 2, result: double(5) } // {double:..., result:10} Doc example verbatim from feel-context-expressions.md:177-183: feel { age: function(birthday) (today() - birthday).years, ages: for birthday in birthdays return age(birthday), minAge: min(ages) }.minAge Pass to higher-order functions: feel sort([3, 1, 2], function(a, b) a Literal expression (per dmn.md:66-74) -- wrap the FEEL function inside the literal expression body, give the BKM name (used as result variable), add parameters via the () UI. For BKM (per Set 14 Q25): BKM contains function. Reusable across decisions. Stronger than inline: for reuse. Inline vs BKM: | Aspect | Inline | BKM | |--------|--------|-----| | Scope | Single expression | Reusable across decisions | | Visibility | Local | DMN-model-wide | | Use case | One-off | Reusable logic | For Camunda 8 FEEL support (confirmed): Inline function syntax per feel-functions.md:30-45: function(args) body. Higher-order function support: sort(list, function(a,b) a b.priority) Sort by priority descending. Use case 3: Filtering (no function(...) wrapper needed -- direct predicate is the canonical FEEL filter form per feel-context-expressions.md:88-113): feel items[amount > 100] The loop variable item is implicit; element entries are accessed by key directly. Doc verbatim cite at :98-99 \"While filtering, the current element is assigned to the variable item and its entries can be accessed by their key.\" For DMN-only logic: No Boxed Function in C8 Modeler per dmn.md:23-28. Use BKM with literal expression (per dmn.md:66-74) -- give the BKM a name (= result var), add () params, write function(x) body inside the literal expression cell. For migration / refactoring: Inline function used multiple times: extract to BKM. BKM used once: maybe inline. For tests: Test functions inline: in unit test contexts. Verify behavior. For complex callbacks: External worker more flexible: Java / JS. FEEL functions: simple cases. Anti-patterns: Overly complex inline functions: hard to read. Inline when BKM fits: reuse forgone. Best practices: Use for simple one-off logic. Extract to BKM for reuse. Type parameters for clarity. Test functions. For the scenario* (inline function): feel function(x) x 2 `` Standard FEEL syntax (verify per Camunda 8). For verify: Camunda Modeler: try syntax."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-functions/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q24",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 14.8 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

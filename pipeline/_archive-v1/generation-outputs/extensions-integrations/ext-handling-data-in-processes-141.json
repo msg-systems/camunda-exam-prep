@@ -1,0 +1,27 @@
+{
+  "id": "ext-handling-data-in-processes-141",
+  "topic": "extensions-integrations",
+  "subtopic": "process-variables",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Insurance models a claim-handling process in Camunda 8.8 that processes 25000 claims per day, where each claim carries deeply nested customer, vehicle, and document data. The architecture team must decide how to persist this complex data without bloating process variables in the engine while still allowing rich SQL queries and custom data migration strategies.",
+  "question": "Which pattern does the data-handling best-practice page recommend for complex business data alongside a Camunda 8.8 process?",
+  "options": [
+    { "id": "a", "text": "Inline the entire nested object graph into a single process variable named context so every service task and gateway has immediate JSON access to all 25000 claim fields without using any external storage" },
+    { "id": "b", "text": "Spread each nested field of the complex object across hundreds of typed process variables on the instance so that gateways can reference any leaf directly through scalar FEEL expressions on the engine" },
+    { "id": "c", "text": "Introduce custom entities in a relational database keyed by an artificial UUID, store only that UUID as a process variable, and use a Data Accessor class to read or write the entity from the database when needed" },
+    { "id": "d", "text": "Attach the complex object as a BPMN data object on the start event and rely on Camunda to persist that data object as the canonical store for the instance instead of using regular process variables" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Inlining the full object graph violates the rule of thumb to keep variable maps lean and runs against the variable size limitation documented for process instances." },
+    "b": { "text": "Incorrect. Spreading every leaf into a separate variable also bloats the variable map; the documented pattern is to externalise the complex data and keep only a reference inside the process instance." },
+    "c": { "text": "Correct. The Complex-data-as-entities section recommends storing complex data as custom entities in a relational database, keeping only the entity's primary key (typically a UUID) as a process variable, and reading the entity through a Data Accessor class." },
+    "d": { "text": "Incorrect. Camunda 8 does not treat BPMN data objects as process variables; the docs recommend using data objects only occasionally for documentation, not as a canonical engine-side store." }
+  },
+  "explanation": "The Complex-data-as-entities section describes externalised process context. Complex business data is held in custom relational-database entities, only the entity's primary key (typically a UUID) is stored as a process variable, and a Data Accessor class reads or writes the entity. This pattern enables rich SQL queries and custom data migration strategies between process versions.",
+  "docs": [
+    { "title": "Complex data as entities", "url": "https://docs.camunda.io/docs/components/best-practices/development/handling-data-in-processes/" }
+  ]
+}

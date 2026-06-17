@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-113",
+  "topic": "extensions-integrations",
+  "subtopic": "service-task-vs-send-receive",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "negative",
+  "camundaVersion": "8.8",
+  "question": "Which statement about using a plain service task (instead of a send + receive task combo) for an asynchronous request/response is NOT correct?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Zeebe-internal job instance key serves as a unique correlation identifier that is generated for you."
+    },
+    {
+      "id": "b",
+      "text": "You must generate a unique correlation ID yourself (typically a UUID) before completing the job."
+    },
+    {
+      "id": "c",
+      "text": "Timeout handling and retry logic are built into the service task implementation of Zeebe."
+    },
+    {
+      "id": "d",
+      "text": "If the process instance is cancelled and restarted, the new job key cannot correlate the outstanding response anymore."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "True per the docs: with a service task the job instance key is generated for you and is unique for every message interchange — you don't have to think about race conditions or idempotency yourself."
+    },
+    "b": {
+      "text": "False — owning the correlation ID applies to the send + receive task pattern, where the docs say 'you need to provide the correlation ID yourself ... most likely end up with generated UUIDs.' With a plain service task, Zeebe generates the job key for you."
+    },
+    "c": {
+      "text": "True — the docs explicitly call out that timeout handling and retry logic are built into the service task implementation, along with a clear API for technical or business errors."
+    },
+    "d": {
+      "text": "True — the docs warn that cancelling and restarting an instance for operational reasons can lead to a new ID, and outstanding responses cannot be correlated anymore in such cases."
+    }
+  },
+  "explanation": "The service task path leans on Zeebe's auto-generated job instance key for correlation — option b describes the send + receive task pattern instead. The docs explicitly contrast them: service tasks get a generated key 'for you'; send + receive forces you to supply and own the correlation ID.",
+  "docs": [
+    {
+      "title": "Service integration patterns",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

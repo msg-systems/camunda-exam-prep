@@ -1,0 +1,27 @@
+{
+  "id": "ext-configuration-33",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vanta Logistics is migrating a shipment service to Camunda 8.8 over 4 weeks. The legacy Spring Boot application defines 6 workers including one whose @JobWorker(type = \"foo\") will move to a new application. During the transition the operations team wants to leave the legacy application running with its Camunda client active, but disable only the foo worker through configuration so the new application can pick it up without code changes.",
+  "question": "Which application.yaml override disables only the foo worker while leaving the other workers and the client running?",
+  "options": [
+    { "id": "a", "text": "Set camunda.client.worker.defaults.enabled to false; the configuration keeps the Camunda client available but stops every job worker registered in the application from running" },
+    { "id": "b", "text": "Set camunda.client.worker.foo.enabled to false; the configuration keeps the Camunda client available and disables only the foo worker through a per-name top-level key" },
+    { "id": "c", "text": "Set camunda.client.worker.override.foo.enabled to false; the configuration keeps the Camunda client available and disables only the foo worker through the documented override key" },
+    { "id": "d", "text": "Set camunda.client.worker.foo.annotation.enabled to false; the configuration keeps the Camunda client available and forces every other worker to inherit its annotation default" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The defaults.enabled key disables every worker in the application, which is the opposite of the scoped per-worker override the team needs for the foo worker during migration." },
+    "b": { "text": "Incorrect. The documented structure nests per-worker settings under override, not directly under worker; a top-level worker.foo key is not the configuration path described in the docs." },
+    "c": { "text": "Correct. The docs show that per-worker settings live under camunda.client.worker.override.<name>; setting override.foo.enabled to false disables only the foo worker and leaves the other workers and the client running." },
+    "d": { "text": "Incorrect. There is no annotation child key under the per-worker configuration; the documented override path is camunda.client.worker.override.<name>.enabled." }
+  },
+  "explanation": "The Camunda Spring Boot Starter lets you override individual @JobWorker settings under camunda.client.worker.override.<name>; setting override.foo.enabled to false disables only the foo worker, while defaults.enabled controls every worker at once.",
+  "docs": [
+    { "title": "Camunda Spring Boot Starter configuration", "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/" }
+  ]
+}

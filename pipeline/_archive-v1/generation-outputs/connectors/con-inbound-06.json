@@ -1,0 +1,27 @@
+{
+  "id": "con-inbound-06",
+  "topic": "connectors",
+  "subtopic": "inbound",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "A Camunda 8.8 healthcare provider receives 12000 records per day at an inbound HTTP Webhook from a lab-results gateway. Payloads are shaped {\"id\": 1, \"status\": \"OK\"} and the webhook should only start a process when status equals \"OK\". The id field from each accepted payload must be exposed as the BPMN process variable myDocumentId, matching the example in the inbound connector docs.",
+  "question": "Which combination of Activation condition and Result expression matches the documented HTTP webhook example?",
+  "options": [
+    { "id": "a", "text": "Activation condition =(status = \"OK\") and Result expression ={myDocumentId: id} so the FEEL evaluates against the process variables of the running instance" },
+    { "id": "b", "text": "Activation condition =(request.body.status = \"OK\") and Result expression ={myDocumentId: request.body.id} so the FEEL evaluates against the incoming request" },
+    { "id": "c", "text": "Activation condition =(request.body.status = \"OK\") and Result variable myDocumentId only, without a Result expression, so the entire request body is bound to the variable" },
+    { "id": "d", "text": "Activation condition =request.body.status and Result expression ={myDocumentId: request.body} so the status string itself is read as the boolean trigger value" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The Activation condition cannot reference process variables; it only sees the inbound request payload, so referencing bare status without the request.body prefix would not evaluate the incoming field at all." },
+    "b": { "text": "Correct. The documented Activation condition evaluates a FEEL boolean against the inbound payload via request.body.status, and the Result expression is a FEEL context that maps request.body.id onto the new process variable myDocumentId." },
+    "c": { "text": "Incorrect. Result variable and Result expression are separate fields, and setting only Result variable binds the whole body, not the documented {myDocumentId: request.body.id} mapping shown in the webhook example." },
+    "d": { "text": "Incorrect. The Activation condition expects a boolean FEEL expression, so returning the status string by itself is not equivalent to the documented equality comparison that gates trigger execution." }
+  },
+  "explanation": "The inbound HTTP webhook example shows that Activation condition is a FEEL boolean evaluated against the inbound request and may not reference process variables, while Result expression is a FEEL context that maps request.body.* fields onto BPMN process variables of the new instance.",
+  "docs": [
+    { "title": "Use inbound connectors - Example HTTP webhook", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/inbound/" }
+  ]
+}

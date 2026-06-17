@@ -1,0 +1,27 @@
+{
+  "id": "cfg-feel-built-in-functions-conversion-89",
+  "topic": "configuring-processes",
+  "subtopic": "feel",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helix Fintech books 11000 transactions per day in Camunda 8.8 with timestamps in Europe/Berlin but reports them in America/Los_Angeles local time. A FEEL expression in a script task must convert @\"2020-07-31T14:27:30@Europe/Berlin\" into the equivalent Los Angeles local time of 05:27:30 before the value reaches the downstream reporting rule.",
+  "question": "Which FEEL call converts @\"2020-07-31T14:27:30@Europe/Berlin\" to America/Los_Angeles local time as 05:27:30?",
+  "options": [
+    { "id": "a", "text": "Call date and time(date, \"America/Los_Angeles\") which keeps the wall clock at 14:27:30 and only relabels the zone of the returned value" },
+    { "id": "b", "text": "Call timezone(date, \"America/Los_Angeles\") which adjusts the time to 05:27:30 to match the local time of the target zone" },
+    { "id": "c", "text": "Call at timezone(date, \"America/Los_Angeles\") which adjusts the time to 05:27:30 to match the local time of the target zone" },
+    { "id": "d", "text": "Call date and time(date, \"America/Los_Angeles\") which adjusts the time to 05:27:30 to match the local time of the target zone" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The docs state that date and time(date, timezone) adjusts the time to match the local time of the target timezone when the input has a different zone; it does not preserve the original wall clock." },
+    "b": { "text": "Incorrect. There is no built-in timezone(date, timezone) function in FEEL; the documented Camunda Extension for this conversion is date and time(date, timezone)." },
+    "c": { "text": "Incorrect. There is no at timezone(date, timezone) function in FEEL; the documented Camunda Extension for converting a value to a given timezone is date and time(date, timezone)." },
+    "d": { "text": "Correct. The Camunda Extension date and time(date, timezone) returns the value at the given timezone and adjusts the time to match the local time of that zone; the docs show @\"2020-07-31T14:27:30@Europe/Berlin\" becomes 2020-07-31T05:27:30@America/Los_Angeles." }
+  },
+  "explanation": "The Camunda Extension date and time(date, timezone) returns the given date and time value at the given timezone; when the input has a different timezone, it adjusts the wall-clock time to match the local time of the target zone.",
+  "docs": [
+    { "title": "FEEL built-in conversion functions", "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-conversion/" }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "ext-configuration-30",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-starter",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A Spring Boot service sets `camunda.client.auth.client-id` and `camunda.client.auth.client-secret` but does not specify `camunda.client.auth.method`. Which authentication method does the Camunda client use, per the Authentication section?",
+  "codeBlocks": {
+    "stem": "camunda:\n  client:\n    auth:\n      client-id: my-app\n      client-secret: ${OIDC_SECRET}"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "OIDC — setting `client-id` or `client-secret` implies the OIDC authentication method when `method` is omitted."
+    },
+    {
+      "id": "b",
+      "text": "None — without an explicit `method: oidc`, no authentication is used and the credentials are ignored."
+    },
+    {
+      "id": "c",
+      "text": "Basic — the client treats `client-id` and `client-secret` as username and password."
+    },
+    {
+      "id": "d",
+      "text": "SaaS — providing client credentials automatically switches the client into SaaS mode."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The OIDC authentication subsection states this method will be implied if you set either `camunda.client.auth.client-id` or `camunda.client.auth.client-secret`, so omitting `method` still resolves to OIDC here."
+    },
+    "b": {
+      "text": "`none` is the no-auth preset; the docs say the client tries to detect the method from provided properties when `method` is omitted, so credentials do trigger detection."
+    },
+    "c": {
+      "text": "Basic is implied by `username` or `password`, not by `client-id` / `client-secret` — those are the OIDC triggers."
+    },
+    "d": {
+      "text": "SaaS mode is selected by `camunda.client.mode: saas`, not by setting auth credentials; mode and auth method are independent."
+    }
+  },
+  "explanation": "If `camunda.client.auth.method` is omitted, the Spring Boot Starter detects the method from the properties present. `client-id`/`client-secret` imply OIDC; `username`/`password` imply Basic. Setting `method` explicitly is only needed to override that detection.",
+  "docs": [
+    {
+      "title": "Spring Boot Starter configuration",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ]
+}

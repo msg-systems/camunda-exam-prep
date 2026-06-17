@@ -1,0 +1,53 @@
+{
+  "id": "cfg-feel-list-expressions-91",
+  "topic": "configuring-processes",
+  "subtopic": "feel-list-expressions",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A FEEL output mapping groups a list of invoices by person using the documented grouping idiom. Given the invoice context below, what does the expression return?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Two sublists: one with the four invoices for person `\"A\"` and one with the two invoices for person `\"B\"`."
+    },
+    {
+      "id": "b",
+      "text": "A single flat list containing all six invoices in their original order."
+    },
+    {
+      "id": "c",
+      "text": "A context with one entry per person, where each value is the list of that person's invoices."
+    },
+    {
+      "id": "d",
+      "text": "Only the first invoice encountered for each person."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "`distinct values(invoices.person)` yields `[\"A\", \"B\"]`. For each `p`, `invoices[person = p]` filters the original list, producing one sublist per person. The documented result is `[[A's four invoices], [B's two invoices]]`."
+    },
+    "b": {
+      "text": "A flat list would only result from concatenating, not from `for ... return`, which yields one element (the filtered sublist) per iteration."
+    },
+    "c": {
+      "text": "The expression uses `for ... return`, which produces a list, not a context literal keyed by person."
+    },
+    "d": {
+      "text": "The filter `invoices[person = p]` returns every matching invoice, not just the first one; that would require a trailing `[1]`."
+    }
+  },
+  "explanation": "The grouping idiom `for p in distinct values(invoices.person) return invoices[person = p]` iterates over each distinct person and emits the filtered sublist of invoices for that person. With the four `A` invoices and two `B` invoices in the example context, the result is a list of two sublists, exactly as the documented evaluation result shows.",
+  "docs": [
+    {
+      "title": "FEEL list expressions",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-list-expressions/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "for p in distinct values(invoices.person) return invoices[person = p]\n\n// context:\n// {\"invoices\":[\n//   {\"id\":1, \"person\":\"A\", \"amount\":10},\n//   {\"id\":2, \"person\":\"A\", \"amount\":20},\n//   {\"id\":3, \"person\":\"A\", \"amount\":30},\n//   {\"id\":4, \"person\":\"A\", \"amount\":40},\n//   {\"id\":5, \"person\":\"B\", \"amount\":15},\n//   {\"id\":6, \"person\":\"B\", \"amount\":25}\n// ]}"
+  }
+}

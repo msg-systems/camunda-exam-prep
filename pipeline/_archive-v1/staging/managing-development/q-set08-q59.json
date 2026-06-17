@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q59",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team plans to migrate running instances from BPMN v3 to v4. v4 made a breaking change -- a Service Task was renamed and the worker subscribes to a different task type now. The team wants to know if this migration is feasible.",
+  "question": "What kinds of BPMN changes make Process Instance Migration impossible (or risky)?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Migration requires the source and target flow nodes to be mappable -- for each active token in a source flow node, the migration plan must declare which target flow node it moves to. , Service Task → User Task) → migration may fail or produce inconsistent state; (3) internal state shape changed drastically. For the scenario's \"task renamed + different task type\": map the old node ID to the new node ID in the migration plan; running tokens move to the renamed node. The new task type means the worker subscription must be in place for the new type. Migration is feasible with proper mapping."
+    },
+    {
+      "id": "b",
+      "text": "Any breaking change to a BPMN process definition makes process instance migration impossible -- the presence of even a single structural difference between source and target versions prevents migration -- this is overstated. Camunda 8's process instance migration supports many types of breaking changes through explicit flow node ID mappings. Renamed activities, restructured subprocesses, and moved elements can all be migrated by mapping old flow node IDs to new ones in the migration plan. Only certain fundamental incompatibilities like removing active flow nodes with no valid mapping target prevent migration. Many breaking changes are migration-mappable with appropriate mapping definitions."
+    },
+    {
+      "id": "c",
+      "text": "Renaming BPMN flow nodes between process versions is automatically handled during migration with no explicit mapping required -- the engine matches nodes by element type and position rather than ID -- this description does not reflect the actual behaviour. Camunda 8 process instance migration matches flow nodes by their flow node IDs (the id attribute in the BPMN XML). When a node is renamed, its flow node ID changes, and the migration plan must include an explicit mapping from the old ID to the new ID. Without this mapping, the engine cannot determine that the renamed node corresponds to the original node, and active instances on the old node cannot be migrated."
+    },
+    {
+      "id": "d",
+      "text": "Process instance migration is always possible regardless of the structural changes made to the target process definition -- any BPMN can be migrated to any other BPMN -- this description does not reflect the actual behaviour. Some structural changes make migration impossible or produce incomplete results. Removing a flow node that has active process instance tokens with no equivalent target element in the migration plan prevents successful migration. Adding mandatory boundary events, changing subprocess structures, and removing elements with unresolvable token positions can all block migration for specific instances. ) are problematic."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Process Instance Migration requires a migration plan that maps source flow nodes to target flow nodes (by ID). For each running instance, active tokens are moved per the mapping. Changes that work: Renaming flow nodes (just map old ID → new ID). Inserting new flow nodes (active tokens past the insertion point don't see them; ones before see them when execution reaches there). Changing flow node attributes that don't break execution semantics. Changes that don't work cleanly (and may require pre-migration cancellation or Modify-Instance interventions): Removing flow nodes that have active tokens (no target to map to). Changing flow node type (Service Task → User Task) -- engine may reject or produce unexpected behaviour. Drastically different scope structures (subprocess restructuring). For \"renamed Service Task with new task type\": yes, migrate by mapping old node ID → new node ID. The worker subscription change is independent -- ensure the new worker is registered before activating migrated tokens."
+    },
+    "b": {
+      "text": "Incorrect. Many breaking changes are mappable."
+    },
+    "c": {
+      "text": "Incorrect. Explicit mapping needed."
+    },
+    "d": {
+      "text": "Incorrect. Some changes don't migrate cleanly."
+    }
+  },
+  "explanation": "Process Instance Migration requires a migration plan that maps source flow nodes to target flow nodes (by ID). For each running instance, active tokens are moved per the mapping. Changes that work: Renaming flow nodes (just map old ID → new ID). Inserting new flow nodes (active tokens past the insertion point don't see them; ones before see them when execution reaches there). Changing flow node attributes that don't break execution semantics. Changes that don't work cleanly (and may require pre-migration cancellation or Modify-Instance interventions): Removing flow nodes that have active tokens (no target to map to). Changing flow node type (Service Task → User Task) -- engine may reject or produce unexpected behaviour. Drastically different scope structures (subprocess restructuring). For \"renamed Service Task with new task type\": yes, migrate by mapping old node ID → new node ID. The worker subscription change is independent -- ensure the new worker is registered before activating migrated tokens.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/process-instance-migration/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q59",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

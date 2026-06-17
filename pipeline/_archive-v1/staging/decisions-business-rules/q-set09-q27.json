@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q27",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team wants to define a reusable calculation in DMN: \"compute compound interest given principal, rate, and years.\" They want it callable from multiple distinct decisions (a loan-application decision AND a savings-projection decision).",
+  "question": "Which Camunda 8 DMN approach fits \"reusable function across multiple decisions\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Separate Decision with a Literal Expression body containing the FEEL formula; both consumer decisions reference it via an informationRequirement link in the DRD. Each consumer evaluates the shared decision's result automatically via the DRD dependency resolver. This is the canonical cross-decision reuse pattern in Camunda 8."
+    },
+    {
+      "id": "b",
+      "text": "md:54-75. md:62, but is NOT a cross-decision reuse mechanism. Use BKM only when the same Decision needs the formula in multiple cells; for cross-decision reuse use option (a). md:56-58 BKM evaluation results are not displayed in Operate (debugging caveat)."
+    },
+    {
+      "id": "c",
+      "text": "A Boxed Function Expression as a BKM body -- not a Camunda 8 modeling primitive. md:62, :66-75 BKM bodies in C8 are Literal Expressions written in FEEL (where you can author function(p, r, y) ... syntax inside the literal expression). 3 spec defines a separate \"boxed function expression\" notation, but C8's Modeler exposes only Literal Expression as the BKM body editor."
+    },
+    {
+      "id": "d",
+      "text": "Using a Service Task in BPMN to perform compound interest arithmetic is cross-tool overkill. Service Tasks are designed for external side-effects such as database lookups, third-party API calls, or operations requiring external systems. Pure arithmetic like compound interest calculation belongs in DMN using FEEL expressions, which are native to the decision layer. Escalating simple calculations to BPMN Service Tasks adds unnecessary complexity, extra deployment units, and harder-to-maintain process diagrams."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. For reuse across distinct decisions in Camunda 8, model the calculation as its own Decision (with a Literal Expression body) and reference it from each consumer via informationRequirement: The shared Decision has a name (e.g., compoundInterest), parameters (via input data nodes), and a FEEL body. Consumer decisions declare informationRequirement to the shared Decision in the DRD (solid arrow with circle head -- different visual from BKM's Knowledge Requirement dashed arrow). At evaluation time, the DRG dependency resolver evaluates the shared Decision once per evaluation context and feeds its result into the consumers. Results are visible in Operate (per-Decision evaluation log). This is the canonical C8 cross-decision reuse pattern."
+    },
+    "b": {
+      "text": "Incorrect. BKM does exist in Camunda 8 since 8.6 per dmn.md:54-75 -- but dmn.md:64 verbatim limits reuse: \"Currently, you can only reuse BKMs within the same decision.\" So BKM is a within-decision helper, not a cross-decision module. Body type in C8 = Literal Expression in FEEL (per dmn.md:62: \"literal expressions written in FEEL, in almost the same way you would create a decision using a literal expression\"). Autosuggestion picks up the BKM name when you start typing in a parent Literal Expression of the same decision. Operate caveat: BKM evaluation results not displayed per dmn.md:56-58."
+    },
+    "c": {
+      "text": "Incorrect. Per dmn.md:23-28 the 4 modeled element kinds are Decision / Input data / Knowledge source / BKM. Per dmn.md:62, :66-75 BKM bodies in C8 are authored as Literal Expressions (FEEL). The DMN 1.3 spec defines a distinct \"boxed function expression\" notation, but C8's Modeler doesn't expose it as a separate editor -- you author a FEEL function-definition syntax (function (p, r, y) ) inside a Literal Expression instead."
+    },
+    "d": {
+      "text": "Incorrect. Pure arithmetic belongs in DMN; only escalate to BPMN Service Task for side-effects (DB lookup, external API) that aren't in scope of FEEL."
+    }
+  },
+  "explanation": "For reuse across distinct decisions in Camunda 8, model the calculation as its own Decision (with a Literal Expression body) and reference it from each consumer via informationRequirement: The shared Decision has a name (e.g., compoundInterest), parameters (via input data nodes), and a FEEL body. Consumer decisions declare informationRequirement to the shared Decision in the DRD (solid arrow with circle head -- different visual from BKM's Knowledge Requirement dashed arrow). At evaluation time, the DRG dependency resolver evaluates the shared Decision once per evaluation context and feeds its result into the consumers. Results are visible in Operate (per-Decision evaluation log). This is the canonical C8 cross-decision reuse pattern.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-requirements-graph/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q27",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

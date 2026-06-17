@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q02",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Multi-Instance Subprocess processes tasks. Each inner instance produces an output (boolean: success?). The team wants completion when 3 successes are achieved (regardless of total instances or order).",
+  "question": "How is \"complete on 3 successes\" expressed with completionCondition?",
+  "options": [
+    {
+      "id": "a",
+      "text": "=numberOfCompletedInstances >= 3 -- partial; this counts all completed inner instances regardless of whether the iteration was successful. The expression evaluates how many instances finished execution, but success is a business outcome (the output boolean variable) not the same as completion. A task that threw an error and triggered compensation also increments numberOfCompletedInstances, so this expression would trigger early completion even if zero successes occurred. The correct approach reads from outputCollection and filters for truthy values to distinguish successful from merely completed iterations."
+    },
+    {
+      "id": "b",
+      "text": "Cannot express success-counting in completionCondition -- wrong; FEEL filters work elegantly for this purpose. The outputCollection variable accumulates each instance's output element as iterations complete. A FEEL filter expression outputCollection[item = true] selects only the truthy values from the collection, and count() tallies them. This pattern is the canonical Multi-Instance approach for N-of-M semantics. The engine re-evaluates the completionCondition after each iteration, so the condition can terminate the MI body early the moment the third success is registered."
+    },
+    {
+      "id": "c",
+      "text": "Use FEEL filter + count on outputCollection: =count(outputCollection[item = true]) >= 3. md:67-86: \"While filtering, the current element is assigned to the variable item\"). md:100); when 3 successes are accumulated, the MI body completes (any still-active instances terminated). Requires: outputCollection configured + outputElement capturing each iteration's success flag."
+    },
+    {
+      "id": "d",
+      "text": "Use a counter variable in parent scope -- a workable workaround but outputCollection is the cleaner, canonical pattern. In this workaround, each iteration's Output Mapping increments a parent-scope counter when output = true. The completionCondition then reads that counter. This approach introduces mutable shared state that can cause race conditions in Parallel MI (concurrent increments may be non-atomic depending on engine behavior). The outputCollection approach is declarative, immutable per iteration, and evaluated safely per completion event."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Combining outputCollection + FEEL filter + count is the canonical pattern for \"complete when N items satisfy criterion\": Setup: inputCollection = =tasks. outputCollection = results (per-iteration output captured). outputElement = =output (each instance's boolean result). completionCondition = =count(results[item = true]) >= 3 -- FEEL filter list[predicate] with implicit item (per feel-list-expressions.md:75). Evaluation: After each inner instance completes, the engine updates outputCollection with that instance's outputElement. The engine re-evaluates completionCondition. If true → MI completes (remaining instances cancelled). Important: outputCollection contains results from completed instances only; instances still running aren't reflected yet. So the count grows as instances complete. Alternative patterns: Parent-scope counter: each iteration's Output Mapping increments a parent counter; completionCondition reads it. Workaround; outputCollection cleaner. Stop on first failure: combine with Error Boundary (per Set 11) for break semantics. Best practice: outputCollection + FEEL filter+count is the canonical \"N-of-M\" pattern."
+    },
+    "b": {
+      "text": "Incorrect. Counts completed regardless of success."
+    },
+    "c": {
+      "text": "Correct. Achievable."
+    },
+    "d": {
+      "text": "Incorrect. outputCollection cleaner."
+    }
+  },
+  "explanation": "Achievable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q02",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

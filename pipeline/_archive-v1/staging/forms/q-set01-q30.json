@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q30",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A government tax-filing portal uses Camunda 8 Forms (built in Web Modeler) to collect taxpayer data. The form has fields for firstName, lastName, dateOfBirth, and a nested object address with street, city, postalCode. The User Task assigns this form, and the process expects to read the submitted values as process variables. After deployment, the developer notices that the simple fields work but the nested address object is not populated -- the form submits but address remains null in the process scope. How should the developer configure data binding to capture the nested address structure?",
+  "question": "How should the developer configure data binding to capture the nested address structure?",
+  "options": [
+    {
+      "id": "a",
+      "text": "postalCode -- the Forms engine writes these as separate flat process variables. This misunderstands how field naming differs from data binding. In Camunda 8 Forms, the field's Key property (not just the display name or label) controls the data binding path. street does not create nested binding -- the engine treats it as an opaque identifier and writes a flat variable. The dot notation only activates nested object creation when used in the Key property."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 Forms lacks nested structure support; flatten the address into top-level fields. That premise is factually false -- Camunda 8 Forms fully supports nested data binding using dot-separated path notation in the field's Key property and the Path property on container elements like Groups and Dynamic Lists. md explicitly describes how nested objects are constructed from form field values at submission time. Flattening into top-level fields would cause downstream incompatibilities in processes that expect an address object."
+    },
+    {
+      "id": "c",
+      "text": "street}} in the field label, which auto-binds. This confuses two separate concerns in Camunda 8 Forms. The feelers templating syntax {{expression}} is used in label and text elements to display dynamic values from process variables -- it's a read-only rendering mechanism for showing data to the form user. It is evaluated at form load time and the rendered text is not written back as a data binding. It has no effect on where the form submission value is stored. Data binding is configured separately via the Key property on each input element."
+    },
+    {
+      "id": "d",
+      "text": "postalCode). md, the Forms engine writes to the nested path within the form variable at User Task completion. postalCode = \"10115\" are combined into a single address context object {street: \"123 Main St\", city: \"Berlin\", postalCode: \"10115\"}. md:14: \"Path: Assigns a path that maps its children into a data object\"."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 Forms supports nested binding via dot-separated path notation in the field's Key property. Setting Key = address.street on a text input tells the Forms engine to write the user-provided value to address.street within the form variable structure. The Forms runtime materialises the nested object correctly when the User Task completes. For container elements (Group, Dynamic list), use the equivalent Path property to scope nested children -- per forms-element-library-dynamiclist.md:14: \"Path: Assigns a path that maps its children into a data object, defined as a variable name or a dot separated variable accessor.\""
+    },
+    "b": {
+      "text": "Incorrect. Field names that look like address.street without explicit binding are treated as flat keys; the dot-separated semantics requires the canonical Key/Path binding property."
+    },
+    "c": {
+      "text": "Incorrect. Camunda 8 Forms supports nested data binding; flattening is not required."
+    },
+    "d": {
+      "text": "Correct. Forms templating syntax {{...}} (feelers) is for dynamic content interpolation in labels and text, not data binding. It does not auto-bind data on submit."
+    }
+  },
+  "explanation": "Forms templating syntax {{...}} (feelers) is for dynamic content interpolation in labels and text, not data binding. It does not auto-bind data on submit.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/configuration/forms-config-data-binding/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q30",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

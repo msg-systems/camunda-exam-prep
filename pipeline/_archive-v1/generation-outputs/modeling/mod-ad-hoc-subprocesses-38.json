@@ -1,0 +1,27 @@
+{
+  "id": "mod-ad-hoc-subprocesses-38",
+  "topic": "modeling",
+  "subtopic": "subprocesses",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Helios SaaS uses Camunda 8.8 to orchestrate customer onboarding through an ad-hoc sub-process that handles 200 customers per hour. A job worker drives the sub-process by activating inner elements through the adHocSubProcess job result and the team needs to know the rule that constrains what a single job result may express.",
+  "question": "Which constraint applies when the job worker completes its job with the adHocSubProcess job result?",
+  "options": [
+    { "id": "a", "text": "The job worker can both fulfill the completionCondition and activate new inner elements in a single adHocSubProcess job result response" },
+    { "id": "b", "text": "The job worker may activate new inner elements only when the previously activated elements have all reached a terminated state" },
+    { "id": "c", "text": "The job worker cannot fulfill the completionCondition and activate new inner elements at the same time in one adHocSubProcess job result" },
+    { "id": "d", "text": "The job worker must wait until every inner element has completed before submitting any adHocSubProcess job result back to Zeebe" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documentation states explicitly that a job worker cannot both fulfill the completion condition and activate new elements in the same job result; the two outcomes must be expressed in separate jobs." },
+    "b": { "text": "Incorrect. There is no rule requiring previously activated elements to be terminated before the worker activates additional ones; the worker freely chooses what to activate on each job." },
+    "c": { "text": "Correct. Per the job worker implementation, the worker may either activate more inner elements or fulfill the completion condition in a given adHocSubProcess job result, but it cannot do both at the same time." },
+    "d": { "text": "Incorrect. Zeebe creates a new job whenever any inner flow completes, so the worker submits job results repeatedly throughout execution rather than waiting for every inner element to finish first." }
+  },
+  "explanation": "On each adHocSubProcess job result, the worker either activates more inner elements or fulfills the completionCondition; the documentation states these two outcomes cannot be combined in a single response, so they happen across separate jobs created by Zeebe.",
+  "docs": [
+    { "title": "BPMN ad-hoc sub-processes", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/ad-hoc-subprocesses/" }
+  ]
+}

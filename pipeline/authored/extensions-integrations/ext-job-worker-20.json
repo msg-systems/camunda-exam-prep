@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-20",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client-metrics",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "The built-in `JobWorkerMetrics` only counts jobs activated and jobs handled. To also observe how often the worker issues `ActivateJobs` polls, which mechanism does the Java-client workaround recommend wiring into the `CamundaClientBuilder`?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A gRPC `ClientInterceptor` (or Apache HttpClient `AsyncExecChainHandler`) attached via `withInterceptors(...)` / `withChainHandlers(...)` on the client builder."
+    },
+    {
+      "id": "b",
+      "text": "A new `pollCount` method on `JobWorkerBuilder.metrics(...)` that publishes a third built-in counter."
+    },
+    {
+      "id": "c",
+      "text": "An additional Micrometer tag on the existing `camunda.client.worker.job.activated` counter that breaks it down per poll."
+    },
+    {
+      "id": "d",
+      "text": "A `pollInterceptor` registered directly on the `JobWorker` instance after `open()`."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The 'workarounds for additional metrics' section recommends a gRPC `ClientInterceptor` or Apache HttpClient `AsyncExecChainHandler` wired through `withInterceptors(...)` / `withChainHandlers(...)` on the builder. The docs show a Micrometer example using `MetricCollectingClientInterceptor` and `ObservationExecChainHandler`."
+    },
+    "b": {
+      "text": "There is no `pollCount` on `JobWorkerBuilder.metrics(...)`; the `JobWorkerMetrics` API is limited to `jobActivated(int)` and `jobHandled(int)`."
+    },
+    "c": {
+      "text": "Tags cannot synthesize a counter the built-in metrics do not increment; activated/handled are the only two `JobWorkerMetrics` records."
+    },
+    "d": {
+      "text": "There is no `pollInterceptor` API on `JobWorker`; the workaround intentionally routes through the client builder's gRPC/HTTP interceptors."
+    }
+  },
+  "explanation": "Built-in `JobWorkerMetrics` is deliberately narrow (activated/handled). For poll-level observability, the docs route teams through the underlying transport: attach a gRPC `ClientInterceptor` (e.g. Micrometer's `MetricCollectingClientInterceptor`) or, for the HTTP transport, an Apache HttpClient `AsyncExecChainHandler` (e.g. `ObservationExecChainHandler`) via `CamundaClientBuilder.withInterceptors(...)` / `.withChainHandlers(...)`.",
+  "docs": [
+    {
+      "title": "Job worker",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

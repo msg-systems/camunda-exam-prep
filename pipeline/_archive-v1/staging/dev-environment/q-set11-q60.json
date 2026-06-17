@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q60",
+  "topic": "dev-environment",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A developer wants to customise their Camunda 8 Run setup with several configuration overrides -- custom port, secondary storage backend, database connection. They wonder if a .env file is supported (vs setting env vars manually each session). Does Camunda 8 Run support a .env file for configuration in 8.8?",
+  "question": "Does Camunda 8 Run support a .env file for configuration in 8.8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "bat startup scripts -- this is fabricated behaviour. 8. bat. yaml, the --config CLI flag, or a specific whitelist of environment variables including ORCHESTRATION_CONFIG_FILE and JAVA_HOME."
+    },
+    {
+      "id": "b",
+      "text": "env files. properties, system environment variables, and command-line arguments. env file requires an external loader like Docker Compose or dotenv libraries. env files."
+    },
+    {
+      "id": "c",
+      "text": "env file mechanism. yaml (Spring Boot config), overridden with the --config <file> CLI flag on c8run start. env autoloader."
+    },
+    {
+      "id": "d",
+      "text": "Must edit the JAR directly to change Camunda 8 Run configuration -- this misrepresents how configuration is applied. yaml (edit before starting), the --config <file> CLI flag to supply a custom YAML file, or a small documented whitelist of environment variables (ORCHESTRATION_CONFIG_FILE, JAVA_HOME). No JAR editing is needed or documented. All configuration is applied externally without touching the distribution binaries."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 Run 8.8 uses three layered configuration mechanisms -- .env is not one of them: 1. configuration/application.yaml (primary): Spring Boot config; the c8run distribution ships a default at configuration/application.yaml. Edit the file to set port, secondary-storage backend (data.secondary-storage per c8run.md:508), connection strings, security toggles, etc. Persistent: edits survive restart. 2. --config CLI flag (per c8run.md:236, :539, :546): Supply a custom YAML for a non-default profile. Examples for relational DB presets: ./c8run start -docker --config configuration/application-postgresql.yaml (Mac/Linux, :119) .\\c8run.exe start --docker --config configuration\\application-postgresql.yaml (Windows, :184) Also takes ORCHESTRATION_CONFIG_FILE= env var (:117) as an alternative to the CLI flag. 3. Specific env vars: JAVA_HOME (required prerequisite, OpenJDK 21-25 per c8run.md:38, :44). ORCHESTRATION_CONFIG_FILE (selects active config file at startup, :117). No .env autoloader -- Spring Boot's native config loaders are application.yaml/application.properties/system env vars/CLI args, not .env. 4. CLI override of port specifically (per c8run-troubleshooting.md:38-39): --port wrapper flag rebinds the whole consolidated Orchestration Cluster (default :8080) to a different port. There is no separate Operate/Tasklist/Admin port to override -- all consolidated under one port with path prefixes (/operate, /tasklist, /admin, /v2). Windows control commands per c8run.md:80, :597: Start: .\\c8run.exe start (no start.bat exists). Stop: .\\c8run.exe stop (no shutdown.bat). For persistent local dev customisation in 8.8, edit configuration/application.yaml directly or maintain a custom YAML copy launched via --config. Use system env vars (in your shell profile) only for the documented whitelist above."
+    },
+    "b": {
+      "text": "Incorrect. No .env autoloader documented; start.bat/shutdown.bat are also fabricated (Windows uses .\\c8run.exe start/stop)."
+    },
+    "c": {
+      "text": "Correct. Spring Boot does not natively read .env files; configuration is YAML/properties + system env vars."
+    },
+    "d": {
+      "text": "Incorrect. Config is external (application.yaml + flags)."
+    }
+  },
+  "explanation": "Spring Boot does not natively read .env files; configuration is YAML/properties + system env vars.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/c8run/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q60",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

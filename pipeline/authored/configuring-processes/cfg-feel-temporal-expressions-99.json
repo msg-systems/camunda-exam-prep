@@ -1,0 +1,53 @@
+{
+  "id": "cfg-feel-temporal-expressions-99",
+  "topic": "configuring-processes",
+  "subtopic": "feel-temporal-expressions",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A FEEL output mapping evaluates the snippet below with the input variable `dates` set to `[\"2021-04-21T07:25:06.000Z\", \"2021-04-22T07:25:06.000Z\"]`. What is the resulting list?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`[\"21-Apr-2021\", \"22-Apr-2021\"]`"
+    },
+    {
+      "id": "b",
+      "text": "`[\"2021-04-21\", \"2021-04-22\"]`"
+    },
+    {
+      "id": "c",
+      "text": "`[\"21-April-2021\", \"22-April-2021\"]`"
+    },
+    {
+      "id": "d",
+      "text": "`[\"21-04-2021\", \"22-04-2021\"]`"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs' \"Change format of dates\" example shows exactly this expression and evaluation result: with the listed input it produces `[\"21-Apr-2021\", \"22-Apr-2021\"]`. The 3-letter month comes from `substring(month of year(date), 1, 3)`."
+    },
+    "b": {
+      "text": "ISO-style output would skip the formatting altogether; the snippet explicitly composes `day + \"-\" + month + \"-\" + year`, not the original ISO date string."
+    },
+    "c": {
+      "text": "The full month name is what `month of year` returns by itself (e.g. `\"April\"`). The snippet wraps it in `substring(..., 1, 3)`, which truncates to the first three characters."
+    },
+    "d": {
+      "text": "`month of year` returns the month name as a string (e.g. `\"April\"`), not a zero-padded number, so the formatted output cannot be `04`."
+    }
+  },
+  "explanation": "The docs' \"Change format of dates\" example builds a `dd-Mon-yyyy` string by combining `date.day`, `substring(month of year(date), 1, 3)`, and `date.year`. For the input `[\"2021-04-21T07:25:06.000Z\", \"2021-04-22T07:25:06.000Z\"]` the documented evaluation result is `[\"21-Apr-2021\", \"22-Apr-2021\"]`.",
+  "docs": [
+    {
+      "title": "FEEL temporal expressions",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-temporal-expressions/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "for d in dates return {\n  date: date(date and time(d)),\n  day: string(date.day),\n  month: substring(month of year(date), 1, 3),\n  year: string(date.year),\n  formatted: day + \"-\" + month + \"-\" + year\n}.formatted"
+  }
+}

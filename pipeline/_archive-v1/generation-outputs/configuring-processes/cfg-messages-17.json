@@ -1,0 +1,27 @@
+{
+  "id": "cfg-messages-17",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Orion Logistics publishes a shipment-arrived message that is awaited by both an inbound-handling process and a billing process in Camunda 8.8. Each process has 1 open subscription for the message name and correlationKey order-9001 across 12 instances of each definition on the cluster.",
+  "question": "How is a single published message correlated when subscriptions are open across two different BPMN process IDs?",
+  "options": [
+    { "id": "a", "text": "The message is correlated to only one subscription chosen by the cluster regardless of how many distinct BPMN process IDs subscribe to it" },
+    { "id": "b", "text": "The message is correlated to only the newest BPMN process ID version on the cluster, so subscriptions from older deployed versions are skipped" },
+    { "id": "c", "text": "The message is correlated to all matching subscriptions across the different BPMN process IDs that have an open subscription on the cluster" },
+    { "id": "d", "text": "The message is correlated to none of the subscriptions when two different BPMN process IDs both subscribe to the same message at the same time" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Single-correlation applies within a BPMN process ID across its versions; across different process IDs the docs state the message is correlated to all matching subscriptions." },
+    "b": { "text": "Incorrect. The docs do not select by newest version across different process IDs; the once-per-process rule is scoped to one BPMN process ID across its versions." },
+    "c": { "text": "Correct. When subscriptions are opened for different processes, the docs state the message is correlated to all the subscriptions, one per BPMN process ID." },
+    "d": { "text": "Incorrect. The docs do not discard the message when two process IDs subscribe; cross-process correlation is documented as allowed and applied to each matching subscription." }
+  },
+  "explanation": "Message cardinality is scoped per BPMN process ID. Within one process ID across all versions the message is correlated only once, even if multiple subscriptions are open. When subscriptions exist for different processes, the message is correlated to all the matching subscriptions, one per process ID.",
+  "docs": [
+    { "title": "Messages", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+  ]
+}

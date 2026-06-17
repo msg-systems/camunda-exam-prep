@@ -1,0 +1,53 @@
+{
+  "id": "cfg-feel-built-in-functions-string-113",
+  "topic": "configuring-processes",
+  "subtopic": "feel-built-in-functions",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An output mapping formats a 10-digit number using the FEEL expression below. What does the call return?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`\"(012) 345-6789\"`"
+    },
+    {
+      "id": "b",
+      "text": "`\"($1) $2-$3\"` — group references are returned literally because FEEL does not substitute capture groups."
+    },
+    {
+      "id": "c",
+      "text": "`\"012-345-6789\"` — group references are ignored and a single hyphen is inserted between digit runs."
+    },
+    {
+      "id": "d",
+      "text": "`null`, because `\\d` is not a supported regex token in FEEL."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs example matches exactly: `replace(\"0123456789\", \"(\\d{3})(\\d{3})(\\d{4})\", \"($1) $2-$3\")` returns `\"(012) 345-6789\"`. `$1`, `$2`, and `$3` are substituted with the captured groups."
+    },
+    "b": {
+      "text": "FEEL's `replace` does substitute capture groups via `$1`, `$2`, etc., per the docs. The references are not preserved literally in the output."
+    },
+    "c": {
+      "text": "FEEL's regex engine respects the supplied `replacement` template including the `(`, `)`, and `-` literals and the group back-references; it does not silently collapse them to a single hyphen."
+    },
+    "d": {
+      "text": "`\\d` is supported and is exactly the token used in the docs example for this function."
+    }
+  },
+  "explanation": "Three-argument `replace(input, pattern, replacement)` performs a regex replacement and supports `$N` back-references in the replacement string. Each `$N` is substituted with the contents of capture group `N`, producing the formatted phone-number-style string.",
+  "docs": [
+    {
+      "title": "FEEL string functions",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-string/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "replace(\"0123456789\", \"(\\d{3})(\\d{3})(\\d{4})\", \"($1) $2-$3\")"
+  }
+}

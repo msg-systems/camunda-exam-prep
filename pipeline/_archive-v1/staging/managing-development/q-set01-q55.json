@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q55",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process instance in production has stopped progressing -- Operate shows the instance has an Incident at a Service Task \"Send Notification\". The incident message reads: \"Failed to acquire SMS gateway connection -- connection timeout\". The team has fixed the SMS gateway issue. Now they want the instance to retry the Service Task without losing state.",
+  "question": "What is the correct procedure to resolve the incident?",
+  "options": [
+    {
+      "id": "a",
+      "text": ", a retry-attempt counter), and click \"Retry\". Zeebe re-activates the job; the worker picks it up and retries the SMS call. Clicking \"Retry\" in Operate resets the job's retry count to 1 (giving it one more attempt), makes the job activatable again, and the subscribed Job Worker picks it up on the next poll or stream cycle. All process state -- other variables, completed activity history, other in-flight tokens -- remains untouched. If the SMS gateway is confirmed fixed before clicking Retry, the retry should succeed and the incident clears automatically when the job completes."
+    },
+    {
+      "id": "b",
+      "text": "Wait for Zeebe to automatically retry -- incidents are temporary. Incidents in Zeebe are terminal states within the retry lifecycle, not temporary states. When a job fails and its retry count reaches zero, Zeebe creates an incident to signal that human intervention is required. After incident creation, the job remains blocked until an operator explicitly resolves the incident via Operate or the Orchestration Cluster API. Incidents do not self-resolve over time."
+    },
+    {
+      "id": "c",
+      "text": "Cancel the process instance and start a new one. This approach destroys all accumulated process state -- variables built up over prior steps, the audit trail of completed activities, any compensation handler registrations, and the customer's progress through the process flow. The scenario explicitly asks to retry the Service Task \"without losing state\". Cancelling the instance and restarting from scratch is the most destructive option, requiring the customer to go through all preceding steps again. The standard, non-destructive resolution mechanism is Operate's incident retry -- which re-activates only the failed job while preserving all process state intact."
+    },
+    {
+      "id": "d",
+      "text": "Delete the incident from the database directly. Directly manipulating the Zeebe or Elasticsearch/OpenSearch database records that back Operate is completely unsupported and dangerous. Zeebe's event-sourced append-only log and Operate's derived read-model are tightly coupled -- deleting an incident record from the database would leave the Zeebe broker still tracking the blocked job, causing an inconsistent state between Operate's view and the actual process execution state. Camunda explicitly prohibits direct database manipulation; all state changes must go through the Zeebe command API (via Operate UI or Orchestration Cluster REST API)."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Operate's incident resolution flow: select the incident, optionally update process variables (sometimes the cause is a variable value), and click \"Retry\". This resets the job retries on the affected job and Zeebe makes the job activatable again -- the worker picks it up and re-attempts. State (other variables, history, other in-flight activities) is preserved."
+    },
+    "b": {
+      "text": "Incorrect. Incidents are terminal until manually resolved -- Zeebe does not auto-retry after job retries reach zero (which is when the incident was created). Auto-retry happens within the retry budget, not after incident creation."
+    },
+    "c": {
+      "text": "Incorrect. Destroys state."
+    },
+    "d": {
+      "text": "Incorrect. Bypasses the orchestrator -- dangerous and unsupported."
+    }
+  },
+  "explanation": "Operate's incident resolution flow: select the incident, optionally update process variables (sometimes the cause is a variable value), and click \"Retry\". This resets the job retries on the affected job and Zeebe makes the job activatable again -- the worker picks it up and re-attempts. State (other variables, history, other in-flight activities) is preserved.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q55",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

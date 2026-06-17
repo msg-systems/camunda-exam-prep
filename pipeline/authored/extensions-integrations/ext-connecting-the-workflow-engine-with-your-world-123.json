@@ -1,0 +1,53 @@
+{
+  "id": "ext-connecting-the-workflow-engine-with-your-world-123",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Using the Java client command above, which process definition version is selected when starting the new instance?",
+  "codeBlocks": {
+    "stem": "zeebeClient.newCreateInstanceCommand()\n  .bpmnProcessId(\"someProcess\").latestVersion()\n  .variables(someProcessVariablesAsMap)\n  .send();"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "The most recently deployed version of the process definition whose id is `someProcess`."
+    },
+    {
+      "id": "b",
+      "text": "Version 1 of the process definition with id `someProcess`."
+    },
+    {
+      "id": "c",
+      "text": "One instance is started per deployed version of `someProcess`."
+    },
+    {
+      "id": "d",
+      "text": "The latest version across every deployed process, regardless of the `bpmnProcessId`."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The Java client example pairs `.bpmnProcessId(\"someProcess\")` with `.latestVersion()`, which targets the most recently deployed version of that specific process definition."
+    },
+    "b": {
+      "text": "`.latestVersion()` is the opposite of pinning to a specific version like 1; it always picks the latest deployment."
+    },
+    "c": {
+      "text": "`newCreateInstanceCommand` starts a single instance — there is no fan-out across versions."
+    },
+    "d": {
+      "text": "`.bpmnProcessId(...)` scopes the lookup to one process definition id; the `.latestVersion()` modifier is local to that id."
+    }
+  },
+  "explanation": "`newCreateInstanceCommand().bpmnProcessId(...).latestVersion()` is the documented pattern for starting an instance of the latest deployed version of a named process. `variables(...)` then attaches the initial process variables, and `.send()` dispatches the command to the broker.",
+  "docs": [
+    {
+      "title": "Connecting the workflow engine with your world",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/connecting-the-workflow-engine-with-your-world/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q53",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task instance has an Incident: \"Retries: 0\". The team has fixed the underlying issue (worker bug resolved) and wants to increase the retries for this specific job back to 3 so it can be re-activated.",
+  "question": "Which Operate action fits \"increase retries on a failed job\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Cancel the failing process instance entirely and re-start it from the beginning by deploying a new version of the BPMN and starting a fresh instance -- this loses all progress made in the current instance (completed tasks, collected variables, approvals obtained) and creates operational overhead. This approach is appropriate when the BPMN model itself needs to change or when instance data is irrecoverable. For the scenario where the worker bug is fixed and only the job needs its retry count reset, cancelling the instance is completely unnecessary. Operate's targeted Retry action is the correct, minimal intervention."
+    },
+    {
+      "id": "b",
+      "text": "md:157 (\"initiate a 'retry' of the process instance by selecting Retry\"). The Retry action resets the failed job's retries counter and re activates the job; the next worker subscription picks it up. The incident auto resolves on successful job completion. md:11 24)."
+    },
+    {
+      "id": "c",
+      "text": "Delete the Incident record directly from Operate's incident list -- remove the incident entry from the database so it no longer appears in the monitoring UI, even though the underlying job still has 0 retries. Operate does not expose a \"delete incident\" button because deleting the record without addressing the cause would leave the process instance in a broken state. Incidents in Operate are symptoms of underlying execution problems; they resolve automatically when their root cause is addressed. The correct resolution path is Retry (which resets retries and re-activates the job), Edit Variable (if a variable value needs correcting), or Modify (for structural changes)."
+    },
+    {
+      "id": "d",
+      "text": "Wait for Zeebe to automatically retry the job once the worker issue resolves -- Zeebe continuously monitors failed jobs and will re-activate them once the underlying worker problem is detected and resolved. This is inaccurate. Zeebe's contract is explicit: when a job's retry count reaches 0, the engine creates an Incident and stops all automated retry attempts for that specific job. The process instance pauses at the incident and will not progress until an operator takes an explicit action (Retry, Edit Variable, or Cancel). Zeebe does not continuously poll for worker recovery or apply any auto-healing behaviour."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Operate UI exposes a single Retry button at the process-instance level (top right of the instance page) per resolve-incidents-update-variables.md:157. The Retry resets the job's retries counter and re-activates the job; the incident auto-resolves upon the next successful job completion (now that the worker bug is fixed). There is no separate \"Update Retries\" action distinct from \"Retry\" -- single button covers both concerns. For multi-instance fan-out, the Selections flow (Selections → Retry) runs the same operation against a set of instances tracked as a batch operation (see Q59)."
+    },
+    "b": {
+      "text": "Correct. Cancel + re-deploy is for completely-different scenarios (e.g., BPMN changes that fundamentally break running instances). For a single job's transient failure, Update Retries is targeted."
+    },
+    "c": {
+      "text": "Incorrect. Incidents resolve when their cause is addressed (job activatable, variable correct, etc.), not by manual deletion."
+    },
+    "d": {
+      "text": "Incorrect. Zeebe's contract: retries = 0 ⇒ Incident, requires manual resolution. There's no auto-retry beyond the configured retries count."
+    }
+  },
+  "explanation": "Cancel + re-deploy is for completely-different scenarios (e.g., BPMN changes that fundamentally break running instances). For a single job's transient failure, Update Retries is targeted.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q53",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

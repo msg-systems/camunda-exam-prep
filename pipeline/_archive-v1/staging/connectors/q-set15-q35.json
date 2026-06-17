@@ -1,0 +1,63 @@
+{
+  "id": "imp-set15-q35",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "REST Connector needs to send custom headers (e.g., X-Tenant-Id, X-Request-Id). Team wonders how to configure.",
+  "question": "REST Connector custom headers?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:144-152): Property name in Element Template UI: Headers (Optional, under HTTP request configuration). a. io/\" }. Reserved process-variable names to avoid collisions (:9-13): body, url, method, headers, authentication, queryParameters, connectionTimeoutInSeconds, readTimeoutInSeconds -- do NOT create a process variable named headers. , \"X-Tenant-Id\": tenantId). Content-Type default (:154-158): if not set, connector auto-sets application/json. For multipart upload, set Content-Type: multipart/form-data. NAME}} (per Set 14 Q45 / Pattern #11 syntax). headers. (per :203)."
+    },
+    {
+      "id": "b",
+      "text": "The REST Connector in Camunda 8 only supports an Authorization header and no other custom HTTP headers -- this approach has limitations. The REST Connector's Headers property accepts any HTTP headers as a FEEL context (map): = { \"Content-Type\": \"application/json\", \"X-Tenant-Id\": tenantId, \"X-Request-Id\": requestId }. Any valid HTTP header name can be used as a context key. The Authorization header for Bearer tokens is a separate authentication configuration in the Authentication section -- it does not restrict what custom headers can be added in the Headers property."
+    },
+    {
+      "id": "c",
+      "text": "HTTP headers in the REST Connector are fixed at design time and cannot use process variables or dynamic FEEL expressions -- this approach has limitations. The Headers property value is a FEEL context where each value can reference process variables: = { \"X-Tenant-Id\": tenantId, \"X-Correlation-Id\": correlationId }. Dynamic header values are evaluated at execution time against current process variable values. NAME}} syntax. This enables completely dynamic header composition driven by process state, tenant configuration, or runtime context without any hardcoded values in the process model."
+    },
+    {
+      "id": "d",
+      "text": "Setting custom HTTP headers on outbound REST calls requires building a custom Connector -- this overstates the complexity. The built-in REST Connector's Headers property already supports arbitrary custom HTTP headers via a FEEL context expression. , a team-specific GraphQL wrapper with automatic error unwrapping), not for simply adding headers. The REST Connector with proper FEEL context in the Headers property handles the vast majority of real-world header customization needs without any additional development."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Custom REST Connector headers via FEEL Map: Configuration -- in the Headers field of the REST Connector property panel, enter a FEEL context expression (rest.md:146 verbatim -- \"the HTTP headers can be specified using the [FEEL Map] data type\"): `text = { \"X-Tenant-Id\": tenantId, \"X-Request-Id\": uuid(), \"X-Custom\": \"value\" } Behind the scenes, the Element Template binding stores this as a connector input (NOT a raw zeebe:taskHeader -- REST Connector reads it from input context). Reserved word collision: do NOT create a process variable named headers (:11). Common headers: Authentication: Authorization: Bearer token, Basic auth. X-API-Key: custom API key. Content negotiation: Content-Type: request body format. Accept: expected response format. Tracing: X-Request-Id: correlation ID for distributed tracing. traceparent: W3C Trace Context. Tenant routing: X-Tenant-Id: multi-tenant routing. Custom business: X-Customer-Id, X-Order-Id, etc. Dynamic values via FEEL: feel headers: { \"X-Tenant-Id\": tenantId, \"X-Request-Id\": uuid(), \"X-User-Id\": user.id, \"X-Region\": customer.region } For tracing: feel headers: { \"traceparent\": \"00-\" + traceId + \"-\" + spanId + \"-01\" } Propagate trace context through downstream calls. For static + dynamic mix: feel headers: { \"Content-Type\": \"application/json\", \"X-API-Version\": \"v2\", \"X-Customer-Id\": customer.id } Security headers: Authorization: Bearer / Basic. Secrets binding: ={{secrets.API_TOKEN}} (per Set 14 Q45). Don't inline credentials. For multi-tenant: X-Tenant-Id common pattern. Header per request: identifies tenant. Service uses for routing: which DB / config. For idempotency: Idempotency-Key: unique per logical request. Helps with retries (per Set 13 Q10). Generate: uuid() or business-meaningful ID. Best practices: Use standard headers where applicable: Authorization, Content-Type, etc. Custom headers prefixed X-: convention (though no longer strictly required by RFC). Document headers: in API contract / Element Template. Sensitive headers via secrets: never inline. Element Templates with header config -- the OOTB REST Connector template already exposes a Headers text-area (FEEL context input); custom Element Templates that wrap the REST Connector should mirror the same pattern (single property, FEEL context value) rather than per-header zeebe:taskHeader bindings: json { \"label\": \"Headers\", \"description\": \"Map of HTTP request headers\", \"type\": \"String\", \"feel\": \"required\", \"binding\": { \"type\": \"zeebe:input\", \"name\": \"headers\" }, \"value\": \"= { \\\"X-Tenant-Id\\\": tenantId, \\\"X-Request-Id\\\": uuid() }\" } Note: binding type is zeebe:input with name: \"headers\" (connector input), NOT zeebe:taskHeader. The connector reads it from the input context. Response headers: Connector response may include headers. Access via result expression: response.headers.x-rate-limit-remaining`. For tracking rate limits, etc. Anti-patterns: Hardcoding secrets in headers: use secrets binding. Long-lived static API keys without rotation: security risk. No tracing headers: harder to debug distributed flows. For the scenario (X-Tenant-Id, X-Request-Id): Configure headers map. Use FEEL for dynamic values (tenantId from variable, uuid() for request ID). Document for partner."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "Custom REST Connector headers via FEEL Map: Configuration -- in the Headers field of the REST Connector property panel, enter a FEEL context expression (rest.md:146 verbatim -- \"the HTTP headers can be specified using the [FEEL Map] data type\"): `text = { \"X-Tenant-Id\": tenantId, \"X-Request-Id\": uuid(), \"X-Custom\": \"value\" } Behind the scenes, the Element Template binding stores this as a connector input (NOT a raw zeebe:taskHeader -- REST Connector reads it from input context). Reserved word collision: do NOT create a process variable named headers (:11). Common headers: Authentication: Authorization: Bearer token, Basic auth. X-API-Key: custom API key. Content negotiation: Content-Type: request body format. Accept: expected response format. Tracing: X-Request-Id: correlation ID for distributed tracing. traceparent: W3C Trace Context. Tenant routing: X-Tenant-Id: multi-tenant routing. Custom business: X-Customer-Id, X-Order-Id, etc. Dynamic values via FEEL: feel headers: { \"X-Tenant-Id\": tenantId, \"X-Request-Id\": uuid(), \"X-User-Id\": user.id, \"X-Region\": customer.region } For tracing: feel headers: { \"traceparent\": \"00-\" + traceId + \"-\" + spanId + \"-01\" } Propagate trace context through downstream calls. For static + dynamic mix: feel headers: { \"Content-Type\": \"application/json\", \"X-API-Version\": \"v2\", \"X-Customer-Id\": customer.id } Security headers: Authorization: Bearer / Basic. Secrets binding: ={{secrets.API_TOKEN}} (per Set 14 Q45). Don't inline credentials. For multi-tenant: X-Tenant-Id common pattern. Header per request: identifies tenant. Service uses for routing: which DB / config. For idempotency: Idempotency-Key: unique per logical request. Helps with retries (per Set 13 Q10). Generate: uuid() or business-meaningful ID. Best practices: Use standard headers where applicable: Authorization, Content-Type, etc. Custom headers prefixed X-: convention (though no longer strictly required by RFC). Document headers: in API contract / Element Template. Sensitive headers via secrets: never inline. Element Templates with header config -- the OOTB REST Connector template already exposes a Headers text-area (FEEL context input); custom Element Templates that wrap the REST Connector should mirror the same pattern (single property, FEEL context value) rather than per-header zeebe:taskHeader bindings: json { \"label\": \"Headers\", \"description\": \"Map of HTTP request headers\", \"type\": \"String\", \"feel\": \"required\", \"binding\": { \"type\": \"zeebe:input\", \"name\": \"headers\" }, \"value\": \"= { \\\"X-Tenant-Id\\\": tenantId, \\\"X-Request-Id\\\": uuid() }\" } Note: binding type is zeebe:input with name: \"headers\" (connector input), NOT zeebe:taskHeader. The connector reads it from the input context. Response headers: Connector response may include headers. Access via result expression: response.headers.x-rate-limit-remaining`. For tracking rate limits, etc. Anti-patterns: Hardcoding secrets in headers: use secrets binding. Long-lived static API keys without rotation: security risk. No tracing headers: harder to debug distributed flows. For the scenario (X-Tenant-Id, X-Request-Id): Configure headers map. Use FEEL for dynamic values (tenantId from variable, uuid() for request ID). Document for partner.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/#http-headers"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q35",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

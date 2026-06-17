@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q17",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A REST Outbound Connector returns JSON {statusCode: 200, body: {orderId: \"ORD-5\"}}. Team wants only orderId to land in process variable.",
+  "question": "Connector Output result expression?",
+  "options": [
+    {
+      "id": "a",
+      "text": ", connectorResult). While this works, it stores the full response including unwanted fields, which bloats process variable state. orderId}. This keeps variable scope clean and process logic independent of the full API response structure."
+    },
+    {
+      "id": "b",
+      "text": "Connectors typically have resultExpression / Output Mapping for shaping output. The resultExpression property (bound to a task header) accepts a FEEL expression that extracts and transforms the raw connector response into specific process variables. orderId} extracts only the orderId field and discards the rest. Complementary BPMN Output Mapping on the Service Task provides additional post-Connector variable shaping. The resultVariable property alternatively stores the complete response under a single named variable. Best practice: use resultExpression to extract only what the process needs, keeping variable scope lean and decoupled from API response structure."
+    },
+    {
+      "id": "c",
+      "text": "Extracting specific fields from Connector response JSON and setting them as individual process variables is not possible -- this approach has limitations. The resultExpression feature in Camunda 8 Connectors is specifically designed for this purpose. statusCode}. The expression can also transform values, handle null cases defensively, and create derived fields."
+    },
+    {
+      "id": "d",
+      "text": "While a custom worker could certainly implement response transformation logic, Camunda 8 Connectors provide the resultExpression property (FEEL-based) precisely to avoid this need. Requiring a separate worker for response extraction adds unnecessary complexity, maintenance overhead, and latency. The declarative resultExpression approach keeps transformation logic co-located with the Connector configuration in the process model, visible to all team members and maintainable through the BPMN/Element Template tooling."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Connector output shaping: resultExpression / Output Mapping: In Element Template / Task Headers: resultExpression: FEEL extracting from raw response. Maps to specific process variables. Example: `xml Result variables: orderId: process variable set to extracted ID. status: process variable set to status code. vs resultVariable: resultVariable: stores entire response under named variable. Less granular; use for forward-the-whole-thing patterns. vs BPMN Output Mapping: Output Mapping on Service Task: shapes variables after Connector completes. Can complement: Connector resultExpression + BPMN Output Mapping. FEEL expressions in result: Extract single field: feel ={orderId: response.body.orderId} Multiple fields: feel ={ orderId: response.body.orderId, customerId: response.body.customerId, items: response.body.items } Transform during extraction: feel ={ orderId: response.body.orderId, totalCents: number(response.body.total) * 100, isHigh: response.body.total > 1000 } Conditional: feel =if response.statusCode = 200 then {success: true, data: response.body} else {success: false, error: response.body.error} For the scenario (extract only orderId): feel resultExpression: ={orderId: response.body.orderId} Process variable orderId gets the value; rest of response discarded. Benefits: Clean process variables: only what's needed. Smaller variable footprint: doesn't carry large response forward. Type clarity: shape variables as expected. Decouple from API shape: BPMN doesn't depend on full response structure. For ignoring entire result: resultExpression: empty / not set. Connector return discarded. Use when call is for side effects only. For complex responses: Multiple variables: extract several at once. Nested structures: preserve nesting if needed. Arrays: extract / filter lists. Anti-patterns: Storing whole large response: variable bloat (per Q13). No result handling: process can't use response. Coupling BPMN to API field names: change API → break BPMN. Best practices: Extract what process needs: nothing more. Defensive extraction: handle missing fields. Type conversion: convert strings to numbers etc. Document expected response: contract. Example: defensive extraction: feel ={ orderId: if response.body != null and response.body.orderId != null then response.body.orderId else null, status: if response.statusCode != null then response.statusCode else 0 } Handles potential nulls gracefully. In Element Template UI: Modeler sees: Property: Result Variable Property: Result Expression ` Fills as needed; template handles binding. For error responses: HTTP errors: typically Connector throws; Error Boundary catches. resultExpression: applies on success. For non-2xx that should still process: check Connector config (treat as success vs error)."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q17",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

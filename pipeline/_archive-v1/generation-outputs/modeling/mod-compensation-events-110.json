@@ -1,0 +1,27 @@
+{
+  "id": "mod-compensation-events-110",
+  "topic": "modeling",
+  "subtopic": "compensation-events",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Zenith Insurance models a Camunda 8.8 policy renewal process that runs 2000 policies per day. The team wants an error event subprocess inside the main flow to trigger compensation of previously completed activities in the outer scope when renewal fails, without changing the outer process layout.",
+  "question": "Which placement is valid for a compensation throw event that compensates activities in the outer scope from inside an error event subprocess?",
+  "options": [
+    { "id": "a", "text": "A compensation intermediate throw event placed at the boundary of the outer scope is invoked from the error event subprocess via a thrown error code reference on activation" },
+    { "id": "b", "text": "A compensation intermediate throw event placed in a separate error end event of the outer scope is invoked when the error event subprocess sends a correlation message" },
+    { "id": "c", "text": "A compensation intermediate throw event or compensation end event placed inside the error event subprocess broadcasts compensation in the outer scope of the event subprocess" },
+    { "id": "d", "text": "A compensation intermediate throw event placed in the outer scope is invoked automatically whenever any error event subprocess inside that same outer scope is triggered later" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The Triggering compensation from an event subprocess section places the compensation throw event itself inside the event subprocess, not at the boundary of the outer scope of the process." },
+    "b": { "text": "Incorrect. The page describes the compensation throw event living inside the event subprocess and broadcasting to the outer scope, not signalling another throw event in the outer scope by message." },
+    "c": { "text": "Correct. The page states that an interrupting or non-interrupting event subprocess can contain compensation intermediate throw events or a compensation end event, and these can broadcast the compensation within the outer scope of the event subprocess." },
+    "d": { "text": "Incorrect. Compensation does not fire automatically when an event subprocess triggers; the event subprocess itself must contain a compensation throw event or a compensation end event for the broadcast." }
+  },
+  "explanation": "Compensation throw events can be hosted directly inside an interrupting or non-interrupting event subprocess. From there they can target a specific activity or broadcast compensation within the outer scope of the event subprocess.",
+  "docs": [
+    { "title": "BPMN compensation events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set13-q48",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL arithmetic on financial calculations: =2.5 * 0.1. Team wonders if floating-point quirks (e.g., 0.1 + 0.2 = 0.30000000000000004 in JS) affect FEEL.",
+  "question": "FEEL decimal arithmetic precision?",
+  "options": [
+    {
+      "id": "a",
+      "text": "1 may have similar rounding artifacts. This misrepresents the documented behavior for FEEL's internal arithmetic. The Camunda FEEL engine implements the FEEL number type using Java's BigDecimal, which is an arbitrary-precision decimal type. 3, not the IEEE 754 approximation seen in JavaScript or other languages using binary floating-point."
+    },
+    {
+      "id": "b",
+      "text": "1 must be represented as scaled integers or processed through string conversion before use in arithmetic. This misrepresents the documented behavior. The FEEL number type explicitly supports both whole and floating-point numbers. In Camunda's FEEL engine, the number type maps to Java's BigDecimal, which handles arbitrary decimal fractions natively. 25."
+    },
+    {
+      "id": "c",
+      "text": "md:21-24 -- \"A whole or floating point number. The number can be negative. BigDecimal\"). NaN / ±Infinity are represented as null per :23. 3 -- no IEEE 754 artifact within FEEL itself. Pitfalls when crossing language boundaries: JSON parsers / JS engines use IEEE 754 doubles; values may lose precision when serialised through them."
+    },
+    {
+      "id": "d",
+      "text": "FEEL decimal precision is configurable via a numeric precision setting in the Camunda engine configuration; the default precision is low, which can cause rounding errors similar to JavaScript floats, but setting precision to 34+ digits resolves most financial calculation issues. BigDecimal by default in Camunda's implementation, which already provides exact decimal arithmetic. There is no need to configure precision to avoid IEEE 754 floating-point artifacts; those are avoided by design in FEEL's number type."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL number type per DMN spec: Arbitrary-precision decimals: DMN FEEL number type is logically arbitrary precision (BigDecimal in Java implementations). Result: standard arithmetic operations preserve precision. =0.1 + 0.2 → 0.3 (exact). =2.5 * 0.1 → 0.25 (exact). =1 / 3 → some representable decimal (terminating); FEEL handles per spec. Comparison with IEEE 754 (JS / float32 / float64): JS: 0.1 + 0.2 → 0.30000000000000004 (binary float can't exactly represent 0.1). Java float / double: same issue. FEEL BigDecimal: exact decimal representation; no binary-float artifact. Boundary issues: Serialization through JSON: FEEL computes precise value. Variable stored as decimal type. If serialised via standard JSON (which uses double): precision may be lost. Example: FEEL value 0.30 → JSON 0.3 → reparse as JS → 0.3 (or with float artifact in some libs). For high precision: use string-encoded decimals. REST APIs: JSON payload precision depends on parser library (Jackson can preserve via BigDecimal; default Java may use Double). Spring Zeebe SDK: typically preserves precision for FEEL variables. Worker languages: Java: BigDecimal preserves. JS / Node: Number is double; precision loss possible. Python: int / Decimal vs float matters. Best practices for financial calculations: Compute in FEEL: leverage exact arithmetic. Store as decimal string: when crossing JSON / language boundaries, use string-encoded decimals to avoid float drift. Round explicitly: use decimal(value, scale) FEEL function to control precision (per Set 11 Q49 discussion). Test edge cases: division by 3, repeating decimals, very small / large numbers. Verify exact arithmetic semantics in your Camunda FEEL version."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. Incorrect."
+    },
+    "d": {
+      "text": "Incorrect. Partially correct."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-data-types/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q48",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

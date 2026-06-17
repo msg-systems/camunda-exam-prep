@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team is choosing between RULE ORDER and COLLECT hit policies for a DMN that returns multiple matching rules' outputs. Both return lists; the team wonders what distinguishes them in semantics. (Variant trap: the DMN 1.3 spec also defines OUTPUT ORDER + PRIORITY but these are NOT in Camunda 8's supported set -- only UNIQUE/ANY/FIRST/RULE ORDER/COLLECT per decision-table-hit-policy.md:26-53.)",
+  "question": "What's the difference between RULE ORDER and COLLECT hit policies in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:101-110. COLLECT (without aggregator) returns the list of matching outputs in arbitrary order per :112-120. When priority must be encoded by physical row order → RULE ORDER; when set-membership matters and order doesn't → COLLECT. These are the only two hit policies in Camunda 8 that return lists."
+    },
+    {
+      "id": "b",
+      "text": "RULE ORDER and COLLECT are not identical -- they differ in a key aspect: the ordering of the output list they return when multiple rules match. RULE ORDER preserves the physical row order of the decision table, allowing authors to encode priority by arranging rules from top to bottom. COLLECT returns matching outputs in an arbitrary order determined by the engine. This ordering difference matters when downstream logic depends on list position."
+    },
+    {
+      "id": "c",
+      "text": "RULE ORDER and COLLECT do not represent sequential vs parallel execution -- both policies evaluate all rules in the same way at runtime. The distinction is purely about how the engine assembles and orders the output list from matching rules. RULE ORDER guarantees the list follows the table's physical row sequence; COLLECT makes no ordering guarantee. Neither policy executes rules in parallel or one at a time sequentially in the execution sense."
+    },
+    {
+      "id": "d",
+      "text": "RULE ORDER does not return a single value -- like COLLECT without an aggregator, it returns a list containing all matching rule outputs. A single value is only produced when COLLECT is combined with an aggregator function such as SUM, MIN, MAX, or COUNT. Both RULE ORDER and COLLECT are the two hit policies in Camunda 8 that return lists of results when multiple rules match the input."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Both policies return lists when multiple rules match, but with different ordering per decision-table-hit-policy.md: RULE ORDER (:101-110): verbatim \"The decision table result contains the output of all satisfied rules in the order of the rules in the decision table.\" Authors arrange rules from highest-priority to lowest, engine preserves that order. COLLECT (no aggregator) (:112-120): verbatim \"in an arbitrary order as a list\" -- engine may return in any order. Pattern #7 / #15 trap: Camunda 8 supports exactly 5 hit policies per :26-53 -- UNIQUE, ANY, FIRST, RULE ORDER, COLLECT. OUTPUT ORDER and PRIORITY are NOT in C8 (despite being in the DMN 1.3 spec). Canonical C8 workaround for \"sort by priority\": RULE ORDER with rules physically laid out in priority sequence, OR COLLECT + downstream FEEL sort() on the result list. COLLECT + aggregator (:139-170): 4 aggregators -- SUM / MIN / MAX / COUNT -- return single aggregated value (not list). With aggregator set, decision table must have exactly one output per :126. Note: only RULE ORDER and COLLECT return lists (:60-61); UNIQUE/FIRST/ANY return at most one output."
+    },
+    "b": {
+      "text": "Incorrect. Ordering semantics differ -- RULE ORDER preserves row order, COLLECT is arbitrary."
+    },
+    "c": {
+      "text": "Incorrect. Both about result ordering; execution is identical (all rules evaluated)."
+    },
+    "d": {
+      "text": "Incorrect. Both return lists; single value only via COLLECT + aggregator."
+    }
+  },
+  "explanation": "Both policies return lists when multiple rules match, but with different ordering per decision-table-hit-policy.md: RULE ORDER (:101-110): verbatim \"The decision table result contains the output of all satisfied rules in the order of the rules in the decision table.\" Authors arrange rules from highest-priority to lowest, engine preserves that order. COLLECT (no aggregator) (:112-120): verbatim \"in an arbitrary order as a list\" -- engine may return in any order. Pattern #7 / #15 trap: Camunda 8 supports exactly 5 hit policies per :26-53 -- UNIQUE, ANY, FIRST, RULE ORDER, COLLECT. OUTPUT ORDER and PRIORITY are NOT in C8 (despite being in the DMN 1.3 spec). Canonical C8 workaround for \"sort by priority\": RULE ORDER with rules physically laid out in priority sequence, OR COLLECT + downstream FEEL sort() on the result list. COLLECT + aggregator (:139-170): 4 aggregators -- SUM / MIN / MAX / COUNT -- return single aggregated value (not list). With aggregator set, decision table must have exactly one output per :126. Note: only RULE ORDER and COLLECT return lists (:60-61); UNIQUE/FIRST/ANY return at most one output.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

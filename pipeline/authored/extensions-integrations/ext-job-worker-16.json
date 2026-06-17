@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-16",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A Java job worker is configured with `maxJobsActive = 10`. After it has just activated 10 jobs from a single poll, at what point does it issue its next poll for more jobs?",
+  "options": [
+    {
+      "id": "a",
+      "text": "When the count of unhandled jobs drops below 30% of `maxJobsActive` rounded up — in this case below 3."
+    },
+    {
+      "id": "b",
+      "text": "Immediately after handling any one job, so the in-flight buffer is always topped up to `maxJobsActive`."
+    },
+    {
+      "id": "c",
+      "text": "Only after all 10 activated jobs have been handled, never before."
+    },
+    {
+      "id": "d",
+      "text": "After a fixed `pollInterval`, regardless of how many jobs are still in flight."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Each time a job is handled, the worker checks whether the unhandled count has dropped below 30% of `maxJobsActive` (rounded up). The first time that condition is met, it polls for more — for `maxJobsActive = 10` that threshold is 3."
+    },
+    "b": {
+      "text": "The worker does not re-poll after every single handled job; the docs describe a 30%-of-`maxJobsActive` threshold instead of one-at-a-time topping-up."
+    },
+    "c": {
+      "text": "Waiting until all jobs are handled would leave the worker idle right before re-polling; the threshold deliberately tops up before the buffer empties."
+    },
+    "d": {
+      "text": "`pollInterval` governs how long the worker waits when the previous poll returned no jobs (or failed). After a successful poll, the 30% threshold drives the next poll, not `pollInterval`."
+    }
+  },
+  "explanation": "The Java job worker pre-fetches `maxJobsActive` jobs and then polls again only when the number of unhandled jobs drops below 30% of `maxJobsActive`, rounded up. For `maxJobsActive = 10` that threshold is 3 unhandled jobs — matching the docs' worked example (with `maxJobsActive = 3` the threshold is 1). `pollInterval` applies to the empty-result and error paths, not to mid-batch top-ups.",
+  "docs": [
+    {
+      "title": "Job worker",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

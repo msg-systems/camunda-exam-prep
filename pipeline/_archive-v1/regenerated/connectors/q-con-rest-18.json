@@ -1,0 +1,50 @@
+{
+  "id": "con-rest-18",
+  "topic": "connectors",
+  "subtopic": "rest",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Sapphire Fintech, a fintech serving 30,000 customers in the SMB segment, uses a Camunda 8.8 outbound REST connector to call a partner's payments API protected by OAuth 2.0 client credentials. The team has stored the token endpoint, client ID, and client secret as cluster secrets named OAUTH_TOKEN_ENDPOINT, CLIENT_ID, and CLIENT_SECRET, and the partner requires the credentials to travel inside the form-encoded request body.",
+  "question": "Which Authentication configuration matches the partner's OAuth 2.0 client credentials requirements?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Authentication=OAuth 2.0; token endpoint={{secrets.OAUTH_TOKEN_ENDPOINT}}; Client ID={{secrets.CLIENT_ID}}; Client secret={{secrets.CLIENT_SECRET}}; Client authentication=Send client credentials in body"
+    },
+    {
+      "id": "b",
+      "text": "Authentication=Basic; Username={{secrets.CLIENT_ID}}; Password={{secrets.CLIENT_SECRET}}; with the OAuth token endpoint pasted directly into the URL field of the REST request"
+    },
+    {
+      "id": "c",
+      "text": "Authentication=OAuth 2.0; token endpoint=secrets.OAUTH_TOKEN_ENDPOINT; Client ID=secrets.CLIENT_ID; Client secret=secrets.CLIENT_SECRET; Client authentication=Send client credentials in body"
+    },
+    {
+      "id": "d",
+      "text": "Authentication=Bearer token; Bearer token={{secrets.CLIENT_SECRET}}; with the OAuth token endpoint and client ID configured elsewhere via custom HTTP Headers"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The REST connector OAuth 2.0 setup requires OAuth token endpoint, Client ID, and Client secret referenced via {{secrets.NAME}} placeholders in the Authentication section, plus an explicit Client authentication mode such as 'Send client credentials in body' chosen from the dropdown to match the partner's transport requirement."
+    },
+    "b": {
+      "text": "Incorrect. Basic authentication sends a username/password pair on every request and does not perform the OAuth 2.0 client credentials exchange against the token endpoint, so no access token is obtained before calling the API."
+    },
+    "c": {
+      "text": "Incorrect. Secrets must be wrapped in the placeholder syntax {{secrets.NAME}}; the bare secrets.* form is the legacy syntax called out in the connectors documentation and is not the reference form used in the OAuth fields."
+    },
+    "d": {
+      "text": "Incorrect. Bearer-token authentication uses a static token pasted into the Bearer token field and has no concept of a token endpoint or client ID; it skips the client credentials exchange the partner mandates."
+    }
+  },
+  "explanation": "To configure OAuth 2.0 client credentials on the REST connector, choose OAuth 2.0 in the Authentication section and fill in OAuth token endpoint, Client ID, and Client secret using {{secrets.NAME}} placeholders. Optional Scopes and Audience may also be set, and Client authentication chooses how the credentials travel (for example, 'Send client credentials in body').",
+  "docs": [
+    {
+      "title": "REST connector",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/"
+    }
+  ]
+}

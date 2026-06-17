@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q38",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL: condition not isActive. Team wonders not operator syntax. FEEL not operator?",
+  "question": "FEEL not operator?",
+  "options": [
+    {
+      "id": "a",
+      "text": "operator -- wrong typically."
+    },
+    {
+      "id": "b",
+      "text": "FEEL has no negation operator -- this does not accurately reflect the behavior. md:9-27. The function signature is not(negand: boolean): boolean and it returns the logical inverse of its argument. md:115-128 where not(\"valid\") negates the comparison. There is no ! prefix operator like in Java or JavaScript, but the not() function covers all negation use cases."
+    },
+    {
+      "id": "c",
+      "text": "FEEL negation behavior is configurable per deployment -- this does not accurately reflect the behavior. The not() function in FEEL has a fixed, standardized behavior defined by the DMN specification. It is not configurable through engine settings, cluster configuration, or process-level parameters. The function always returns the boolean inverse of its argument, returns null when given null input, and raises a type error for non-boolean arguments. The behavior is deterministic and consistent across all Camunda 8 deployments regardless of configuration."
+    },
+    {
+      "id": "d",
+      "text": "md:115-128 where it negates a comparison in decision table input entries. Both surfaces use the same parenthesized function-call syntax, distinguishing FEEL from languages that use a ! prefix operator. The function handles null inputs by returning null rather than raising an error, implementing three-valued logic."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL not operator: Syntax: not(expression): function-call form. Returns boolean: inverse of expression. Examples: `feel not(true) → false not(false) → true not(amount > 100) → amount NOT greater than 100 not(contains(s, \"x\")) → s NOT containing \"x\" For compound: feel not(a and b) → !(a && b) not(some x in items satisfies x = \"y\") → no element equals \"y\" De Morgan's laws apply. Comparison with other languages: | Language | Negation | |----------|----------| | FEEL | not(...) | | Java / JS / C | !... | | Python | not ... | | SQL | NOT ... | FEEL uses parentheses; reads naturally. In DMN Decision Table cells: Input entry with negation: not(\"VIP\") → not equal to \"VIP\" not(= 10) In Output Mapping: feel isPublic: not(isPrivate) In quantifiers (per Set 14 Q24): feel not(some x in items satisfies x.flagged) // Equivalent to: every x in items satisfies not(x.flagged) De Morgan transformation. Common patterns: Pattern 1: Inversion: feel isInactive: not(isActive) Pattern 2: Complex condition: feel notMatchingAny: not(contains(\"blocked status\", status)) Pattern 3: NOT IN: feel notInList: not(status in [\"active\", \"pending\"]) For boolean type: not requires boolean argument. Type-safe: error on non-boolean. For null handling: not(null) → null per feel-built-in-functions-boolean.md:25-27 (verbatim -- three-valued logic, NOT error). Defensive guard for boolean-required contexts: not(if x = null then false else x). For chained negations: feel not(not(x)) → x (double negation) Cancels out. For complex expressions: feel isAcceptable: not(isBanned) and not(isPending) and isActive Combine negations + positive. For readability: Positive forms preferred when possible. isActive clearer than not(isInactive). Use not when natural negation. For De Morgan transformations: feel not(a or b) ↔ not(a) and not(b) not(a and b) ↔ not(a) or not(b) Simplification. In Decision Table input expressions: Input: status Entry: not(\"REJECTED\") → matches anything except REJECTED Compact NOT IN. For multiple negations: feel not(status = \"A\") and not(status = \"B\") // Equivalent to: not(status in [\"A\", \"B\"]) Latter more compact. For business logic clarity: Comments: explain why negation. Variable names: positive when possible. For testing: Test boolean inputs: true, false, null. Verify negation. For type checking: not(123): type error (123 is number, not boolean). not(\"abc\"): type error. For coercion: No truthy / falsy in FEEL like JS. Strict boolean: per Set 13 Q22. For empty list / null check: feel hasItems: not(count(items) = 0) // Or: hasItems: count(items) > 0 Latter clearer. Anti-patterns: Double negation: confusing. Negation of complex: hard to read. Negation when positive clearer: avoid. Best practices: Use not() for natural negation. Positive forms preferred. Simplify via De Morgan. For the scenario (not isActive): feel not(isActive) Function-call form; required parentheses. For boolean variable naming: Positive names: isActive, hasOrder. Avoid isNotActive`: confusing."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-boolean/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q38",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-question-too-short",
+        "severity": "block",
+        "message": "question length 18 < 20 (catastrophically short)",
+        "where": "question"
+      },
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 28 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 19.9 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

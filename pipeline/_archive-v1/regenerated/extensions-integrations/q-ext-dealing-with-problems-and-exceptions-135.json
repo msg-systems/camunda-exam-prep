@@ -1,0 +1,50 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-135",
+  "topic": "extensions-integrations",
+  "subtopic": "problems-and-exceptions",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Iris SaaS orchestrates onboarding for 6700 customers per day on a Camunda 8.8 platform that updates a CRM and a billing system in sequence inside the same business transaction. The product team observed a marketing campaign sent to a customer who was active in the CRM but never reached the billing system, and is asking what design property describes this window.",
+  "question": "Which property does the best-practices guide say teams must accept and actively resolve in distributed integrations like this one?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Eventual consistency, which acknowledges that temporary inconsistencies are possible between systems and that the team must take measures to drive the state back to a consistent one, for example by deactivating the customer in the CRM"
+    },
+    {
+      "id": "b",
+      "text": "Strong consistency across all participating systems, enforced by a single Zeebe partition leader that holds a global lock until both the CRM and billing systems have acknowledged the write within a configured timeout window"
+    },
+    {
+      "id": "c",
+      "text": "Read-your-writes consistency for human users only, enforced by Operate caching the latest customer state across all upstream and downstream systems so any deviations are invisible to the campaign-management application layer"
+    },
+    {
+      "id": "d",
+      "text": "Snapshot isolation across distributed transactions, enforced by the Zeebe gateway taking a consistent snapshot of CRM and billing systems at each service task boundary so no inconsistency window can ever be observed"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Eventual consistency section names this property: temporary inconsistencies are possible and the team must take measures to get back to a consistent state eventually, for example by deactivating the customer in the CRM when billing fails."
+    },
+    "b": {
+      "text": "Incorrect. The page does not claim strong consistency across systems; on the contrary, it accepts that temporary inconsistencies are possible."
+    },
+    "c": {
+      "text": "Incorrect. Operate does not provide cross-system read-your-writes guarantees; the page describes eventual consistency, not a caching mechanism."
+    },
+    "d": {
+      "text": "Incorrect. There is no snapshot-isolation guarantee provided by the Zeebe gateway across downstream systems on this page."
+    }
+  },
+  "explanation": "The Eventual consistency section explains that in distributed integrations, the intermediate state where the CRM has a customer but the billing system does not is possible. Teams must accept this window and design measures, such as deactivating the customer in the CRM when billing fails, to drive the systems back to a consistent state eventually.",
+  "docs": [
+    {
+      "title": "Dealing with problems and exceptions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/"
+    }
+  ]
+}

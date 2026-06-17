@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q49",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team is deciding between gRPC and REST API for their Java service that issues Camunda 8 commands. They want better performance for high-throughput command issuance (10,000 commands/min).",
+  "question": "Which API choice fits the throughput requirement?",
+  "options": [
+    {
+      "id": "a",
+      "text": "REST API via the Orchestration Cluster API. REST uses HTTP request-response cycles with text-based JSON payloads over individual connections. At 10,000 commands per minute, each command incurs HTTP connection overhead, header parsing, and JSON serialisation cost."
+    },
+    {
+      "id": "b",
+      "text": "gRPC (Zeebe Java client / Spring Zeebe) -- uses HTTP/2 with binary Protocol Buffers serialization, persistent connections, and request multiplexing. These characteristics reduce per-command overhead and sustain higher throughput for repeated command issuance. Zeebe's primary native client protocol is gRPC; the Java SDK and Spring Zeebe starter use it internally for all workflow engine interactions, providing the best performance for 10,000+ commands per minute."
+    },
+    {
+      "id": "c",
+      "text": "Both gRPC and REST are equally performant for high-throughput command issuance and either can be used interchangeably without performance difference. This is an incorrect generalisation. gRPC's binary protocol with persistent HTTP/2 multiplexed connections provides measurably better throughput and lower latency for sustained high-volume command issuance compared to REST's per-request HTTP connection model with JSON serialisation overhead. The two are not interchangeable at scale."
+    },
+    {
+      "id": "d",
+      "text": "Polling via the REST API is faster than gRPC streaming for high-frequency command issuance. Polling introduces additional round-trip latency compared to persistent streaming connections. gRPC maintains long-lived connections with multiplexed request streams, avoiding the connection establishment overhead of individual REST polling requests. REST polling is inherently slower for sustained high-throughput scenarios due to per-poll connection and HTTP overhead."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. gRPC's binary protocol + persistent connections + streaming generally provides better performance for high-throughput scenarios than REST. Zeebe's primary client is gRPC; SDKs (Java, Spring Zeebe) use gRPC under the hood."
+    },
+    "b": {
+      "text": "Correct. REST adds HTTP per-request overhead; usable but suboptimal for 10k+ rpm."
+    },
+    "c": {
+      "text": "Incorrect. gRPC measurably faster for sustained throughput."
+    },
+    "d": {
+      "text": "Incorrect. Polling is slower than push."
+    }
+  },
+  "explanation": "REST adds HTTP per-request overhead; usable but suboptimal for 10k+ rpm.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/zeebe-api/gateway-service/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q49",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

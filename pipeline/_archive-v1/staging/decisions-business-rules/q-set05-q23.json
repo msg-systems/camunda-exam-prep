@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN table for eligibility checks is designed so rules are ordered by specificity: most specific rules first. The team wants the engine to stop at the first matching rule (no need to evaluate the rest).",
+  "question": "Which hit policy fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FIRST hit policy -- the engine evaluates rules in top-to-bottom row order and returns the output of the first matching rule, then stops evaluating remaining rules. When rules are ordered from most specific to most general, FIRST naturally implements a priority-first matching strategy without needing to evaluate rules that would be overridden by more specific ones at the top."
+    },
+    {
+      "id": "b",
+      "text": "UNIQUE hit policy requires at most one rule to match the given inputs, and the engine evaluates all rules before returning the result. If multiple rules match, it signals an error. UNIQUE does not stop evaluation at the first match and does not use row order to select among candidates, making it unsuitable for the row-ordered priority evaluation described in the scenario."
+    },
+    {
+      "id": "c",
+      "text": "PRIORITY hit policy selects the highest-priority matching rule based on a priority ordering defined for output values in each output column. Camunda 8 implements exactly five hit policies: UNIQUE, ANY, FIRST, RULE ORDER, and COLLECT. PRIORITY is defined in the DMN specification but is absent from the Camunda 8 supported policy set. Selecting PRIORITY in a Camunda 8 decision table produces an evaluation error at runtime. Its semantics also differ from row-order evaluation."
+    },
+    {
+      "id": "d",
+      "text": "ANY hit policy allows multiple rules to match the inputs, but only if all matching rules produce the same output value. If matching rules produce different outputs, the engine signals an error. ANY evaluates all rules without short-circuiting and returns a single output value. It does not order results by row sequence or stop at the first match found during evaluation."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. FIRST policy evaluates top-down by row order; returns the first match and short-circuits. Used when row order encodes priority (specific-first, generic-last)."
+    },
+    "b": {
+      "text": "Incorrect. UNIQUE requires exactly one match across all rules; evaluation order irrelevant."
+    },
+    "c": {
+      "text": "Incorrect. Camunda 8 supports exactly 5 hit policies -- UNIQUE / ANY / FIRST / RULE ORDER / COLLECT (per decision-table-hit-policy.md:26-53). PRIORITY is NOT in this list despite existing in the DMN-1.3 spec. Doubly wrong: also doesn't fit row-order semantics (PRIORITY ranks by output-value priority, not row order)."
+    },
+    "d": {
+      "text": "Incorrect. ANY allows multiple matches but requires all satisfied rules to produce the same output (decision-table-hit-policy.md:79-82); doesn't fit row-order short-circuit."
+    }
+  },
+  "explanation": "FIRST policy evaluates top-down by row order; returns the first match and short-circuits. Used when row order encodes priority (specific-first, generic-last).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

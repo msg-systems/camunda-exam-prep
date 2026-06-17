@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q38",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression filters a list of orders to keep only those over $1000: large_orders = [o in orders : o.total > 1000]. The team wants to extend this -- they also want to know the total count of large orders.",
+  "question": "Which FEEL approach computes both the filtered list and its count?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL does not support list filtering or counting natively -- to count the filtered large orders, the team must add a Service Task with a custom Job Worker that iterates the list programmatically and returns the count as a process variable. FEEL has rich built-in list manipulation capabilities including filter expressions ([item in list : condition] and the shorthand list[condition]) and the count(list) built-in function that returns list cardinality. Both filtering and counting are supported without any Service Task."
+    },
+    {
+      "id": "b",
+      "text": "count property on the list object to get its cardinality. size. Lists in FEEL are value-based collections, not objects with properties. To count list elements, use the count(list) built-in function: count(orders[total > 1000]). count property access would return null."
+    },
+    {
+      "id": "c",
+      "text": "count = length(large_orders) -- uses the length() built-in function to get the number of elements in the large_orders list. In FEEL, string length(string) is a string built-in function that returns the character count of a string value, not a list cardinality function. The correct list cardinality built-in is count(list). Using length() on a list would either return null or an error, not the element count. Function names matter in FEEL's strongly-typed built-in function library."
+    },
+    {
+      "id": "d",
+      "text": "large_orders = orders[total > 1000] using FEEL's filter shorthand syntax where list[condition] filters to elements matching the condition; then count = count(large_orders) applies the count(list) built-in function to return the number of elements. count (which is not a FEEL list property). Both expressions together capture the filtered list and its size."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL has two equivalent filter syntaxes: [item in list : condition] and shorthand list[condition]. For counting, the built-in is count(list) -- returns number of elements. Two-step expression captures both."
+    },
+    "b": {
+      "text": "Incorrect. FEEL supports this natively."
+    },
+    "c": {
+      "text": "Incorrect. FEEL lists don't expose a .count property; use count(list)."
+    },
+    "d": {
+      "text": "Correct. FEEL uses count(list), not length(list). (string length(s) exists for strings.)"
+    }
+  },
+  "explanation": "FEEL uses count(list), not length(list). (string length(s) exists for strings.)",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-list/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q38",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

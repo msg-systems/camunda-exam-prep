@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team initially plans a Transaction Subprocess with 3 inner Service Tasks. They want to cancel the transaction explicitly when a condition is met -- not via a runtime error, just \"we've decided to abort this transaction.\" Inside the transaction, they need a way to signal this cancellation. Before they build it, they check Camunda 8's BPMN coverage.",
+  "question": "Which approach fits \"explicit cancel-with-rollback\" in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Cancel End Event inside a Transaction Subprocess (BPMN-spec pattern) -- would trigger transactional cancellation with compensation cascade in BPMN spec. md:47-48, <TransactionalSubprocessSvg />, :570-571 <CancelBoundaryEventSvg />, and :575-578 <CancelEndEventSvg /> all lack className=\"implemented\" -- all three are modeler-visible only. Deployment of this combination produces no cancel-with-compensation execution."
+    },
+    {
+      "id": "b",
+      "text": "Error End Event -- this belongs to the error event family, which propagates BPMN error objects upward through scope boundaries to trigger matching Error Boundary Events or Error Event Subprocesses. This mechanism routes to error-handling paths but does not invoke compensation handlers for previously completed work. Error End Events are designed for error signalling and process deviation routing, not for executing compensating transactions or undoing the effects of completed service calls."
+    },
+    {
+      "id": "c",
+      "text": "Embedded Subprocess + per-activity Compensation Boundary Events + Compensation Throw on the cancellation path -- the canonical Camunda-8 saga/rollback pattern. md:39), Compensation is implemented (:142 <CompensationSvg className=\"implemented\" />, Compensation Boundary :545, Compensation Throw :551). Trigger via an XOR Gateway → Compensation Throw Intermediate Event → exit path. md:31-35 handlers fire \"at once without any specific order\"; for ordered rollback use one Compensation Throw per activity with activityRef per :73-83."
+    },
+    {
+      "id": "d",
+      "text": "md. Completed activities leave their side effects intact. A Terminate End Event provides a hard-stop mechanism when the process should end immediately, but it has no rollback capability. This makes it the wrong tool when reversing completed work across multiple activities is required."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Pattern #48 hit: Transaction Subprocess + Cancel End Event + Cancel Boundary Event ALL lack className=\"implemented\" in bpmn-coverage.md. The BPMN-spec semantic (Cancel End → Cancel Boundary catches → compensation cascade in reverse → terminate transaction) cannot be reproduced via these symbols in C8. Modelers can place them in Web/Desktop Modeler but the engine will not execute them."
+    },
+    "b": {
+      "text": "Incorrect. Error events propagate errors caught by Error Boundary / Error Event Subprocess -- not the rollback semantic of \"abort transaction with compensation.\""
+    },
+    "c": {
+      "text": "Correct. Terminate End Event ends the local scope but doesn't invoke compensation handlers -- running activities die, completed ones leave their effects in place. Use only when \"kill tokens, no rollback\" is the goal."
+    },
+    "d": {
+      "text": "Incorrect. Build the rollback-able subprocess as Embedded Subprocess with each undoable inner activity carrying a Compensation Boundary Event wired to its compensation handler. On the \"decide to abort\" branch, place a Compensation Throw Intermediate Event (no activityRef = all completed compensable activities fire; with activityRef = single specific activity). Per compensation-events.md:31-35 (verbatim): \"The process instance invokes all compensation handlers at once without any specific order. If the order is important, the compensation can be triggered for a specific activity.\" For ordered rollback, chain multiple Compensation Throws each with its own activityRef per :73-83. Pattern #1 reminder: handlers fire at once, NOT in reverse order of completion."
+    }
+  },
+  "explanation": "Terminate End Event ends the local scope but doesn't invoke compensation handlers -- running activities die, completed ones leave their effects in place. Use only when \"kill tokens, no rollback\" is the goal.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q05",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

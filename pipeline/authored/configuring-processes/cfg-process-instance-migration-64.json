@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-64",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "To change the message name on the start event of a message event subprocess during process instance migration, how should the mapping plan treat that message start event?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Omit the mapping instruction for the message start event so its old subscription is closed and a new subscription is opened with the target's message name."
+    },
+    {
+      "id": "b",
+      "text": "Map the source message start event to the target message start event so the subscription is migrated and the new message name is applied automatically."
+    },
+    {
+      "id": "c",
+      "text": "Map the source message start event to itself in the target to force the subscription to refresh."
+    },
+    {
+      "id": "d",
+      "text": "Provide a mapping between the enclosing event subprocesses; the new message name is then picked up automatically by the start event."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "To update the message name on a message event subprocess start event, you must omit the mapping instruction for the start event. The source subscription is closed and a new one is opened using the target's message name."
+    },
+    "b": {
+      "text": "Providing a mapping migrates the existing subscription, which preserves the original message name — the opposite of what is needed when renaming the message."
+    },
+    "c": {
+      "text": "Self-mapping is still a mapping instruction, so the subscription is migrated and the old message name is preserved."
+    },
+    "d": {
+      "text": "Mapping the enclosing event subprocess does not refresh the start event's subscription. The catch event itself must be left unmapped for the new message name to take effect."
+    }
+  },
+  "explanation": "Renaming the message on a message event subprocess start event during migration requires omitting the mapping instruction for the start event. That closes the existing subscription and opens a new one using the target's message name. Mapping the start event would migrate the existing subscription and keep the original message name.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

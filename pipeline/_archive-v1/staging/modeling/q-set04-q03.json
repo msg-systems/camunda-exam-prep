@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An e-commerce checkout has two alternative payment paths: card or PayPal. The user selects one at the start, and only that path executes. The two paths converge before the order-confirmation step.",
+  "question": "Which gateway pair correctly models this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Parallel Gateway (AND) splits flow into all outgoing branches simultaneously and the joining Parallel Gateway waits until every branch completes before continuing. In the checkout scenario, a Parallel Gateway split would activate both the card and PayPal payment paths concurrently â€” attempting to charge via both methods simultaneously. This creates double-charging and incorrect semantics. Parallel Gateway suits independent concurrent activities, not mutually exclusive alternatives where exactly one must execute."
+    },
+    {
+      "id": "b",
+      "text": "Inclusive Gateway (OR) evaluates conditions on all outgoing sequence flows and activates one or more branches whose conditions are true. The joining Inclusive Gateway waits for all activated branches to complete. While conditions can be designed so only one fires, this adds unnecessary complexity for a strict either/or choice. The scenario specifies exactly one payment method per transaction. Exclusive Gateway (XOR) is the simpler and more semantically precise construct for mutually exclusive single-outcome branching."
+    },
+    {
+      "id": "c",
+      "text": "Event-Based Gateway pauses the process and waits for whichever competing downstream event arrives first â€” Message events, Timer events, etc. It routes based on which event fires, not on a process variable value. In the checkout scenario, the payment method is already known when the split is reached. No waiting for external events is needed. Event-Based Gateway suits race-between-competing-events patterns, not data-driven routing based on a variable whose value is already determined before the gateway."
+    },
+    {
+      "id": "d",
+      "text": "Exclusive Gateway (XOR) to split and Exclusive Gateway (XOR) to join is the canonical BPMN mutually exclusive branching construct. The splitting XOR evaluates FEEL conditions on outgoing sequence flows and activates exactly one branch. The joining XOR merges any single arriving token without waiting for other branches. In Camunda 8 / Zeebe, XOR gateways with FEEL conditions are the standard either/or branching mechanism. This gateway pair correctly models one-of-two-alternatives-executes-then-converges. ###"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Exclusive Gateway (XOR) selects exactly one outgoing path based on condition (e.g., =paymentMethod = \"card\"). The joining XOR merges any single token without waiting for others. Canonical \"either/or\" branching."
+    },
+    "b": {
+      "text": "Incorrect. Parallel Gateway runs both paths -- would charge the customer twice."
+    },
+    "c": {
+      "text": "Incorrect. Inclusive Gateway allows one or many paths; XOR is sufficient and clearer for strict either/or."
+    },
+    "d": {
+      "text": "Correct. Event-Based Gateway routes on incoming events (Messages, Timers), not on a process variable. Used for \"wait for whichever arrives first\" scenarios."
+    }
+  },
+  "explanation": "Event-Based Gateway routes on incoming events (Messages, Timers), not on a process variable. Used for \"wait for whichever arrives first\" scenarios.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/exclusive-gateways/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

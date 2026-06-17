@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q57",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team deploys process v3.0. After deployment, in-flight v2.0 instances continue at v2.0 as expected. The team wants to migrate the 200 in-flight instances of v2.0 to v3.0 so they pick up new logic going forward. The v3.0 model has the same flow structure but renames some element IDs (e.g., task_validate_v2 → task_validate_v3).",
+  "question": "Which Operate feature handles this migration with renamed elements?",
+  "options": [
+    {
+      "id": "a",
+      "text": "0 to move the instance forward one at a time. Process Instance Modification operates on one instance at a time and is designed for targeted runtime interventions on specific instances -- not bulk operations. Applying Modification to 200 instances would require 200 separate manual operations in Operate. Process Instance Migration applies the mapping plan to all selected instances in a single batch operation."
+    },
+    {
+      "id": "b",
+      "text": "). Operate applies the plan to selected instances, repositioning tokens to mapped elements. Process Instance Migration is purpose-built for moving batches of instances from one process version to another. The migration plan's explicit element-ID mappings handle renamed elements cleanly -- no restriction requires keeping the same element IDs across versions. 0 elements in one operation."
+    },
+    {
+      "id": "c",
+      "text": "0 instances were cancelled. Cancelling instances destroys all accumulated process state -- User Task completions, Service Task outputs, variable values set by earlier steps -- and requires restarting the entire workflow from the beginning. This is destructive and not acceptable when the goal is to migrate existing in-flight work to the new version."
+    },
+    {
+      "id": "d",
+      "text": "Element ID changes between versions make migration impossible -- Zeebe's Process Instance Migration requires all element IDs to remain identical across the source and target versions, so teams must preserve original element IDs when refactoring BPMN models if they ever intend to migrate in-flight instances. The migration plan is specifically designed to handle element-ID differences between versions. Providing a source-to-target element-ID mapping in the plan is exactly how renamed elements are handled. There is no requirement to preserve the same IDs across versions when using migration with an explicit plan."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Process Instance Migration's migration plan explicitly handles element-ID changes. The plan maps source element ID → target element ID. Operate applies the plan to a batch of instances at once, repositioning each token to the mapped target element. This is purpose-built for the renamed-elements migration case."
+    },
+    "b": {
+      "text": "Correct. Modification is per-instance -- 200 instances would require 200 manual operations."
+    },
+    "c": {
+      "text": "Incorrect. Destroys state."
+    },
+    "d": {
+      "text": "Incorrect. Migration plan handles renames; no constraint on keeping same IDs."
+    }
+  },
+  "explanation": "Modification is per-instance -- 200 instances would require 200 manual operations.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/process-instance-migration/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q57",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

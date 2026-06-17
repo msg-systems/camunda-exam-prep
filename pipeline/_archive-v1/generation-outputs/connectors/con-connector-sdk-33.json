@@ -1,0 +1,27 @@
+{
+  "id": "con-connector-sdk-33",
+  "topic": "connectors",
+  "subtopic": "connector-sdk",
+  "difficulty": "hard",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Catalyst Bank, a bank running 600 microservices, has a custom outbound connector that calls a downstream pricing API in Camunda 8.8. The author wants the connector to retry on transient HTTP 502 responses with a 10 second backoff and exactly 5 retry attempts, signalled from the connector function itself rather than relying on the job's default behaviour.",
+  "question": "How does ConnectorRetryException relate to the surrounding job retries and backoffDuration according to the Connector SDK?",
+  "options": [
+    { "id": "a", "text": "The exception is purely informational and ignored by the runtime: retries and backoffDuration are always taken from the job's deployment definition, and the developer cannot override either value from the function body" },
+    { "id": "b", "text": "The runtime automatically decreases the retries field by one on every throw and resets backoffDuration to zero, so the developer only sets the initial limit and never touches the values after that" },
+    { "id": "c", "text": "When retries or backoffDuration are not set, the runtime uses the job's existing values; when they are set, they override the job values as is, and the developer is responsible for decreasing the retries count" },
+    { "id": "d", "text": "The exception forces an immediate BPMN error event and disables Zeebe job retries entirely, meaning backoffDuration is interpreted as a one-shot delay before throwing the error on the boundary" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The SDK explicitly allows the developer to override retries and backoffDuration through the exception; the runtime does not ignore those values when they are set." },
+    "b": { "text": "Incorrect. The runtime does not automatically decrement the retries count or reset the backoff; the developer must decrease the number of retries themselves." },
+    "c": { "text": "Correct. The docs state that if retries or backoffDuration are not set on the ConnectorRetryException, the runtime uses the job values, otherwise the values are taken as is to override the job values, and the developer is responsible for decreasing the retries count manually." },
+    "d": { "text": "Incorrect. ConnectorRetryException signals a retryable technical error and works with normal Zeebe job retries; it does not force a BPMN error or disable retries, which is what jobError or bpmnError handle instead." }
+  },
+  "explanation": "ConnectorRetryException lets a connector function override the job's retries and backoffDuration. Unset fields fall back to the job's own values, set fields override them as is, and decrementing the retries count is the developer's responsibility in the function body.",
+  "docs": [
+    { "title": "Connector SDK - Outbound connector runtime logic", "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/" }
+  ]
+}

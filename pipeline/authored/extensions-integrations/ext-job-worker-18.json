@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-18",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client-metrics",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A team subscribes to the two built-in `JobWorkerMetrics` counters and wants the number of jobs currently buffered by the worker but not yet handled. Which calculation gives that count?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`jobActivated - jobHandled`"
+    },
+    {
+      "id": "b",
+      "text": "`jobHandled - jobActivated`"
+    },
+    {
+      "id": "c",
+      "text": "`jobActivated * pollInterval`"
+    },
+    {
+      "id": "d",
+      "text": "`jobHandled / maxJobsActive`"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state that subtracting the two counters (`jobActivated - jobHandled`) gives the count of queued or buffered jobs — jobs the worker has activated but not yet handled."
+    },
+    "b": {
+      "text": "Reversing the subtraction would always be ≤ 0 because, for a single worker, `jobHandled` cannot exceed `jobActivated`."
+    },
+    "c": {
+      "text": "Multiplying a count by a time interval mixes unrelated dimensions and is not a calculation the docs describe."
+    },
+    "d": {
+      "text": "Dividing handled count by `maxJobsActive` does not produce an in-flight count; the docs simply describe a subtraction."
+    }
+  },
+  "explanation": "`JobWorkerMetrics` exposes two counters: `jobActivated` is incremented before a job is passed to the handler, and `jobHandled` is incremented when the handler returns (whether or not it succeeded). The docs explicitly call out that `jobActivated - jobHandled` gives the in-flight (queued or buffered) job count — useful for tuning concurrency, scaling workers, or sizing `maxJobsActive`.",
+  "docs": [
+    {
+      "title": "Job worker",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

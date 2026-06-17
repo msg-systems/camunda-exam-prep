@@ -1,0 +1,27 @@
+{
+  "id": "mod-tasks-19",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Polaris Bank orchestrates 12000 microservice invocations per day across roughly 30 different BPMN tasks in Camunda 8.8. The team wants to confirm the basic runtime contract that applies to every BPMN task element before standardizing how each microservice call is modeled in the process.",
+  "question": "What is the basic runtime behavior of a BPMN task element in Camunda 8.8?",
+  "options": [
+    { "id": "a", "text": "When the token reaches a task, the token stops and Zeebe creates a job; a registered worker performs the work, and on completion the token continues on the outgoing sequence flow" },
+    { "id": "b", "text": "When the token reaches a task, the token continues immediately and Zeebe creates a job in parallel; the outgoing sequence flow is then taken without waiting for the worker to complete" },
+    { "id": "c", "text": "When the token reaches a task, Zeebe evaluates an inline script against the broker; no job is created, no worker is involved, and the outgoing sequence flow is taken on completion" },
+    { "id": "d", "text": "When the token reaches a task, Zeebe correlates an incoming message before any job is created; only after correlation succeeds does the token continue along the outgoing sequence flow" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The documented contract for BPMN tasks is that whenever a token reaches a task, the token stops, Zeebe creates a job, and a registered worker performs the work; when the worker signals completion, the token continues on the outgoing sequence flow." },
+    "b": { "text": "Incorrect. The token does not continue immediately when a task is entered; it stops at the task until the registered worker signals completion of the corresponding job." },
+    "c": { "text": "Incorrect. Inline script evaluation by the broker is not the general behavior of BPMN tasks; the documented contract is that Zeebe creates a job and a registered worker performs the work." },
+    "d": { "text": "Incorrect. Message correlation as a precondition is not the general behavior of BPMN tasks; the documented runtime contract is job creation and worker-driven completion." }
+  },
+  "explanation": "Tasks are atomic units of work. When a token reaches a task, the token stops and Zeebe creates a job and notifies a registered worker. When the handler signals completion, the token continues on the outgoing sequence flow.",
+  "docs": [
+    { "title": "BPMN tasks", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/tasks/" }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-local-development-with-element-templates-146",
+  "topic": "extensions-integrations",
+  "subtopic": "local-development",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An element template references `secrets.MY_TOKEN` and runs in a custom connector deployed as part of a Camunda 8 Run Docker Compose setup. Where do you provide the value for `MY_TOKEN`?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Add `MY_TOKEN=value` (one secret per line) to `connector-secrets.txt` in the root directory of the Camunda 8 Run setup."
+    },
+    {
+      "id": "b",
+      "text": "Set it as a property in the element template JSON next to the field that references it."
+    },
+    {
+      "id": "c",
+      "text": "Export `MY_TOKEN` as a shell environment variable before running `start.sh`; C8 Run reads it automatically."
+    },
+    {
+      "id": "d",
+      "text": "Create a Kubernetes `Secret` named `MY_TOKEN` and mount it into the connector container."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs say to add secrets to `connector-secrets.txt` in the C8 Run root directory, one `NAME=VALUE` per line; the value is then exposed to the connector runtime as `secrets.NAME`."
+    },
+    "b": {
+      "text": "Element templates only reference secrets; the values must be provisioned to the connector runtime, not embedded in the template."
+    },
+    "c": {
+      "text": "C8 Run's documented mechanism for the Docker Compose setup is the `connector-secrets.txt` file, not arbitrary shell env vars on the host."
+    },
+    "d": {
+      "text": "Kubernetes Secrets apply to Helm/K8s installs, not to a C8 Run Docker Compose setup; that section explicitly points to `connector-secrets.txt`."
+    }
+  },
+  "explanation": "When custom connectors are deployed as part of the C8 Run Docker Compose setup, secrets are provisioned via `connector-secrets.txt` in the root directory, one `NAME=VALUE` per line. The connector runtime then exposes each entry as `secrets.NAME`. Only when you run the connector outside the C8 Run compose setup does the docs guide you to configure secrets as environment variables instead.",
+  "docs": [
+    {
+      "title": "Local development with element templates",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/local-development-with-element-templates/"
+    }
+  ]
+}

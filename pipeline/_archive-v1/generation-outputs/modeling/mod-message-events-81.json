@@ -1,0 +1,27 @@
+{
+  "id": "mod-message-events-81",
+  "topic": "modeling",
+  "subtopic": "events",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vertex Insurer routes 9000 events per day into Camunda 8.8 message start events that spin up new policy applications. A second message with the same correlationKey arrives while the first application instance is still active, and the integration team needs the documented behavior.",
+  "question": "How does a published message with a correlationKey affect instance creation at a message start event when a matching instance is already active?",
+  "options": [
+    { "id": "a", "text": "If a process instance is already active and was started by a message with the same correlationKey, the new message is dropped silently and never buffered for retry" },
+    { "id": "b", "text": "If a process instance is already active and was started by a message with the same correlationKey, the new message is not correlated and is buffered when its time to live is greater than 0" },
+    { "id": "c", "text": "If a process instance is already active and was started by a message with the same correlationKey, the new message always spawns an additional concurrent instance of the same process version" },
+    { "id": "d", "text": "If a process instance is already active and was started by a message with the same correlationKey, the new message is correlated to that running instance as if it were a catch event" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documentation specifies buffering rather than dropping; if the message has a time to live greater than 0 it is held until the active instance completes or is terminated." },
+    "b": { "text": "Correct. The documentation states that if an instance with the same correlationKey is active, the message is not correlated and a new instance is not created; the message is buffered when its time to live is greater than 0." },
+    "c": { "text": "Incorrect. A duplicate correlationKey suppresses new instance creation in the documented behavior; the engine does not spawn additional concurrent instances of the same correlated value." },
+    "d": { "text": "Incorrect. The documentation says the message is not correlated to the active instance in this case; instead it is buffered for a later instance once the active one finishes." }
+  },
+  "explanation": "Message start events do not create a new instance when an active instance with the same correlationKey exists; the message is buffered as long as its time to live is greater than 0 and consumed when the active instance ends.",
+  "docs": [
+    { "title": "BPMN message events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/" }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "ext-writing-good-workers-85",
+  "topic": "extensions-integrations",
+  "subtopic": "data minimization",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Meridian Bank runs a loan origination process on Camunda 8.8 with 40 process variables per instance and 6500 jobs per day. A specific job handler only reads 2 of those variables. The platform team must minimize broker load and network bandwidth on job activation while keeping the rest of the variables untouched on the instance.",
+  "question": "Which job worker configuration does the best-practices guide recommend to minimize data transferred on job activation?",
+  "options": [
+    { "id": "a", "text": "Keep the default activation behaviour so every variable visible in the scope is fetched, then ignore the unused ones inside the worker handler code at runtime" },
+    { "id": "b", "text": "Set the FetchVariables parameter on the worker to the specific variable names the handler needs, so only those variables are read and transferred from the broker" },
+    { "id": "c", "text": "Disable variable activation entirely on the worker and read each required variable through a separate REST call against the Operate variables API at job start" },
+    { "id": "d", "text": "Activate every variable in the scope but compress the payload on the broker side using gzip so the network bandwidth stays low even for large instances" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. By default the job payload contains all variables in scope; the guide explicitly recommends configuring FetchVariables rather than relying on the default." },
+    "b": { "text": "Correct. The guide recommends using the FetchVariables parameter and only fetching the variables the handler needs to keep transferred data minimal and improve performance." },
+    "c": { "text": "Incorrect. The recommended mechanism is the FetchVariables parameter on the job worker, not an out-of-band call to the Operate variables API." },
+    "d": { "text": "Incorrect. The guide focuses on minimizing what data is read on activation via FetchVariables, not on compressing the full payload of every variable in scope." }
+  },
+  "explanation": "Camunda 8.8 job workers can declare the FetchVariables parameter to receive only the variables a handler actually needs on activation, saving broker resources and network bandwidth compared to fetching the full set of in-scope variables.",
+  "docs": [
+    { "title": "Writing good workers", "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q48",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A bank's reporting tool calls the Optimize API to fetch monthly operational metrics. The tool uses OAuth2 client credentials to authenticate. After a 6-month period of stable operation, the tool's auth fails with HTTP 401 \"Invalid token\". The OAuth2 client credentials haven't changed.",
+  "question": "Which is the most likely cause and the fix?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda periodically rotates the OAuth2 signing keys used to issue tokens for the Optimize API; after 6 months the original client credentials have become invalid because the cluster has revoked them as part of a scheduled key-rotation policy. The client must re-register in Camunda Console to obtain new credentials. Camunda does not routinely rotate OAuth2 client credentials or cluster signing keys on a scheduled basis. The most likely cause of a 401 after stable operation is token expiry and missing refresh logic, not key rotation. Re-registration is not the correct fix here."
+    },
+    {
+      "id": "b",
+      "text": "8 introduced a breaking change to the Optimize API's authentication scheme -- the service no longer accepts OAuth2 Bearer tokens and now requires API key authentication passed in a custom header. Teams must generate an API key in Console and switch all Optimize API clients to use the new header-based authentication scheme. 8. It continues to use OAuth2 client credentials. The fix for HTTP 401 after 6 months of operation is implementing token refresh for the expiring access token, not migrating to a different authentication mechanism."
+    },
+    {
+      "id": "c",
+      "text": "The client's access token has expired and the tool isn't refreshing. Implement token refresh logic -- re-fetch a new access token from the OAuth2 token endpoint when the cached token expires or when a 401 is returned. e. 5 minutes); always read expires_in rather than assuming a fixed lifetime."
+    },
+    {
+      "id": "d",
+      "text": "The cluster's network firewall rules were tightened after 6 months, blocking the reporting tool's IP address range. The team must whitelist the tool's outbound IP in the Camunda SaaS network configuration or on-premises firewall to restore connectivity. Network firewall blocks produce connection timeouts or HTTP 403 Forbidden errors -- not HTTP 401 Unauthorized. A 401 response confirms the request reached the server and was processed, but authentication failed. The correct diagnosis is expired access token, not a network access change."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. OAuth2 client credentials grant yields tokens with an issuer-defined TTL. The token endpoint returns the lifetime in the expires_in field -- the Optimize API auth doc's example response is expires_in: 300 (5 minutes); SaaS Cluster API tokens are longer (24-hour validity per manage-api-clients.md). A long-running tool that caches a single token forever will eventually find it expired. Per the doc's ## Token expiration section: \"Access tokens expire according to the expires_in property of a successful authentication response. After this duration, in seconds, you must request a new access token.\" Fix: implement token refresh -- many SDKs handle this automatically; otherwise, catch 401 → re-fetch → retry, or pre-emptively refresh near expiry."
+    },
+    "b": {
+      "text": "Incorrect. Camunda doesn't routinely rotate OAuth2 keys; the issue is token lifecycle, not key rotation."
+    },
+    "c": {
+      "text": "Correct. API keys aren't the replacement."
+    },
+    "d": {
+      "text": "Incorrect. Network rules don't produce 401 (would be connection failure or 403)."
+    }
+  },
+  "explanation": "API keys aren't the replacement.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/optimize-api/optimize-api-authentication/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q48",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "cfg-signals-39",
+  "topic": "configuring-processes",
+  "subtopic": "signals",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Insurance models a Camunda 8.8 claims-handling process that already publishes 18,000 messages per day to single instances. Architects now want to notify every running claim that a regulatory deadline has passed using a single platform-level event rather than correlating thousands of individual messages by key.",
+  "question": "How do signals differ from messages in this Camunda 8.8 scenario according to the documentation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A signal is broadcast and triggers all matching signal events at once, while a message is correlated to a specific process instance through correlation keys."
+    },
+    {
+      "id": "b",
+      "text": "A signal is correlated to a single process instance through a signal key, while a message is broadcast to all running process instances that subscribe by name."
+    },
+    {
+      "id": "c",
+      "text": "Both signals and messages are correlated by a single key to one process instance, but signals are kept on a separate partition for higher throughput per second."
+    },
+    {
+      "id": "d",
+      "text": "Both signals and messages are broadcast to all instances by default, with the difference being that signals also persist for new instances created later in the day."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs describe signals as a similar concept to messages but explain that messages are correlated to a specific process instance while signals trigger all matching signal events with a single broadcast."
+    },
+    "b": {
+      "text": "Incorrect. This reverses the documented behaviour; messages are the per-instance correlated concept, while signals are the broadcast concept that fans out to all matching events."
+    },
+    "c": {
+      "text": "Incorrect. Messages are not broadcast and signals are not correlated by a single key to one instance; the two concepts differ in delivery rather than in partition placement."
+    },
+    "d": {
+      "text": "Incorrect. Messages are explicitly correlated to one process instance, and the docs do not describe signals as persisting beyond active subscriptions for future instances created later."
+    }
+  },
+  "explanation": "Messages and signals are both event-style triggers, but the docs single out the key difference that messages are correlated to a specific process instance, while a single signal broadcast triggers every matching signal event at the same time across the cluster.",
+  "docs": [
+    {
+      "title": "Signals",
+      "url": "https://docs.camunda.io/docs/components/concepts/signals/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A risk-assessment process runs for each customer in a list. The customer list comes from a previous step. The team wants all customers assessed in parallel to minimise total processing time. Each assessment produces a score; all scores are collected at the end.",
+  "question": "Which BPMN construct fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Sequential Multi-Instance Subprocess creates one instance per collection element but runs them one after another â€” each must complete before the next starts. While this correctly iterates over the customer list and collects scores, it runs serially rather than concurrently. The scenario explicitly requires all customers assessed in parallel to minimise total processing time. Sequential mode satisfies iteration and collection but directly contradicts the parallel execution performance requirement."
+    },
+    {
+      "id": "b",
+      "text": "Loop with Exclusive Gateway iterating through customers is not a native BPMN construct. BPMN does not have a dedicated loop gateway â€” a looping pattern using XOR and a counter variable requires manual counter management and awkward variable accumulation. Multi-Instance is the purpose-built BPMN iteration pattern. The XOR loop approach provides no native output collection mechanism, requiring custom accumulation logic in every worker and producing diagrams harder to read and maintain than Multi-Instance constructs."
+    },
+    {
+      "id": "c",
+      "text": "Parallel Multi-Instance Subprocess with inputCollection equal to customers, inputElement equal to customer, outputCollection equal to scores, and outputElement equal to score is the canonical Camunda 8 construct for concurrent collection iteration. Parallel MI creates one subprocess instance per collection element, running all instances concurrently. Each instance produces a score that accumulates into the output collection. This precisely implements for-each-customer-in-parallel with aggregated result collection as required."
+    },
+    {
+      "id": "d",
+      "text": "Single Service Task with FEEL for-loop expression hides iteration inside a task. While FEEL for-loops can produce lists, they cannot model per-customer process steps with independent error handling, retries, timer boundaries, or BPMN sub-flows. Multi-Instance Subprocess exposes each iteration as a visible BPMN element with its own lifecycle â€” enabling per-instance incident management in Operate, independent retry policies, and the full set of BPMN constructs within each customer assessment iteration. ###"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Parallel Multi-Instance executes one instance per inputCollection element concurrently. outputElement per instance accumulates into outputCollection. Designed exactly for \"for each X in parallel + collect results.\""
+    },
+    "b": {
+      "text": "Incorrect. Sequential runs instances one-after-another -- slower; question says \"in parallel.\""
+    },
+    "c": {
+      "text": "Correct. BPMN doesn't have a loop gateway construct; Multi-Instance is the proper iteration pattern."
+    },
+    "d": {
+      "text": "Incorrect. Stuffing iteration into FEEL inside one Service Task hides what BPMN should expose visually; also limits per-instance error handling, retries, etc."
+    }
+  },
+  "explanation": "BPMN doesn't have a loop gateway construct; Multi-Instance is the proper iteration pattern.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q05",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

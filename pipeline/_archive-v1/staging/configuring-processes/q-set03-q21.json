@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task's worker (Java) hits an unexpected runtime exception (NullPointerException). The worker code calls throwError(jobKey, errorCode: null, errorMessage: \"NPE encountered\") -- passing null for the errorCode because the developer isn't sure what code to use. The Service Task has one Error Boundary Event configured with errorCode = \"PROCESSING_ERROR\".",
+  "question": "What happens at runtime?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe treats a null errorCode as a wildcard that matches any configured Error Boundary Event, so the boundary event with errorCode \"PROCESSING_ERROR\" fires immediately when throwError is called with null. An error boundary event with a specific code like \"PROCESSING_ERROR\" requires an exact code match and will not trigger on null."
+    },
+    {
+      "id": "b",
+      "text": "The thrown error has no errorCode (null was passed), so the Error Boundary Event configured with errorCode \"PROCESSING_ERROR\" does not match -- exact code matching is required. The error then propagates upward through enclosing scopes, searching each containing scope (subprocesses, then process level) for an Error Catch event that either matches the code or has no code specified (catch-all). If no matching handler is found at any level, Zeebe creates an Incident on the Service Task."
+    },
+    {
+      "id": "c",
+      "text": "Throwing an error with a null errorCode produces an Incident immediately in Zeebe, bypassing all boundary event matching and scope propagation entirely. This misrepresents the actual error handling mechanism: Zeebe always attempts to match and propagate errors through the scope hierarchy before creating an Incident as a last resort. An immediate Incident would only occur if errorCode propagation were explicitly unavailable for null values, but the actual behavior involves propagation first."
+    },
+    {
+      "id": "d",
+      "text": "When throwError is called with null errorCode, Zeebe automatically substitutes a default internal errorCode (\"UNCAUGHT\") which will match only Error Boundary Events configured with that exact string. A null errorCode remains absent in the error propagation chain, and matching proceeds based on scope traversal rules without any code substitution."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN error handling propagates upward through enclosing scopes until a matching Error Catch (boundary or event subprocess) is found. An error with a specific errorCode matches only events with that exact code; an error with no code matches a \"catch-all\" Error Catch (one without specified code). If neither matches at any enclosing scope, Zeebe creates an Incident. The team's boundary expecting \"PROCESSING_ERROR\" doesn't match an empty errorCode, so the error propagates up -- and if no enclosing scope has an Error Catch, Incident is created."
+    },
+    "b": {
+      "text": "Correct. Null errorCode doesn't wildcard-match."
+    },
+    "c": {
+      "text": "Incorrect. Propagation happens first."
+    },
+    "d": {
+      "text": "Incorrect. No default substitution; null stays null."
+    }
+  },
+  "explanation": "Null errorCode doesn't wildcard-match.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q21",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

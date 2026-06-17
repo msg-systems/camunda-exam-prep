@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Multi-Instance Subprocess processes orders. Each iteration may throw an error (e.g., partner API failure). The team wants: if ANY iteration errors, the whole MI breaks early (cancel remaining iterations) and routes to an error handler.",
+  "question": "How does MI handle \"break on first error\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set the completionCondition to detect error state and break out -- this approach is partial at best. A completionCondition can inspect process variables to detect that an error flag was set, but it does not natively intercept a thrown BPMN Error event propagating up the scope hierarchy. The condition evaluates on each inner-instance completion, not on error propagation. The direct mechanism for breaking MI on a BPMN Error is an Interrupting Error Boundary Event placed on the MI subprocess element."
+    },
+    {
+      "id": "b",
+      "text": "Place an Interrupting Error Boundary Event on the MI subprocess element. When any inner instance throws an error and it propagates up to the subprocess border, the boundary fires (interrupting), cancelling all remaining inner instances and the MI as a whole. Flow routes via the boundary's outgoing arrow to the error handler. Combine with per-inner-instance error handling if some errors should be tolerated (boundary on inner activity to catch + recover; otherwise propagate up to MI boundary)."
+    },
+    {
+      "id": "c",
+      "text": "Multi-Instance automatically cancels all remaining iterations when any single inner instance throws an error -- this invents built-in error-cancellation behaviour that requires explicit modelling. Without an Interrupting Error Boundary Event on the MI subprocess element, a thrown error propagates upward through the scope hierarchy to the grandparent scope rather than triggering automatic MI cancellation. The auto-cancel behaviour must be explicitly configured through boundary event placement."
+    },
+    {
+      "id": "d",
+      "text": "There is no way to break a Multi-Instance subprocess early when an inner instance throws a BPMN error -- this understates the available error handling constructs. Placing an Interrupting Error Boundary Event on the MI subprocess element provides exactly this capability. When any inner instance propagates an error to the MI boundary, the boundary fires, cancels all remaining inner instances and the entire MI activity, then routes flow to the configured error handler via the boundary's outgoing sequence flow."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. \"Break MI on first error\" pattern: Inner instance throws error: worker calls job.error({errorCode: \"FAILED\"}) or similar. Error propagates up scope hierarchy: from inner activity → MI subprocess border. Interrupting Error Boundary on MI subprocess: catches the error. Cancels the MI activity (all remaining inner instances cancelled). Flow routes via boundary's outgoing arrow: to the error handler. Hybrid pattern (some errors tolerated, others break): Per-inner-activity Error Boundary: catch specific transient errors; route to recovery / retry path within the inner instance. The inner instance completes successfully despite the error (or fails non-fatally without propagating). MI-level Error Boundary: catches errors NOT caught by inner activity (propagated up). Breaks the MI. This layered approach: handle expected errors per-instance; break on unhandled / fatal errors. Note: for \"break on first error,\" consider also setting completionCondition for early exit on other criteria (e.g., enough successes). Multiple mechanisms compose for sophisticated MI control."
+    },
+    "b": {
+      "text": "Correct. completionCondition can detect but Error Boundary is direct."
+    },
+    "c": {
+      "text": "Incorrect. Without boundary, error propagates to grandparent."
+    },
+    "d": {
+      "text": "Incorrect. Boundary handles."
+    }
+  },
+  "explanation": "completionCondition can detect but Error Boundary is direct.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q13",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

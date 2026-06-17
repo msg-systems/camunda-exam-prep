@@ -1,0 +1,50 @@
+{
+  "id": "ext-camunda8-sdk-65",
+  "topic": "extensions-integrations",
+  "subtopic": "typescript-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Meridian Retail runs a short-lived order intake process on Camunda 8.8 that handles 7200 orders per day. The Node.js caller starts an instance and must receive the final variable values such as userTaskStatus in the response, rather than only the process instance key, so a confirmation can be returned to the customer.",
+  "question": "Which TypeScript SDK call starts a short-lived process instance and returns the final variable values once it completes?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Invoke camunda.createProcessInstance with the processDefinitionId so the SDK creates the instance and returns the final variables once the process ends"
+    },
+    {
+      "id": "b",
+      "text": "Invoke camunda.startAndAwait with the processDefinitionId so the SDK starts the instance and returns the variables only after the process completes"
+    },
+    {
+      "id": "c",
+      "text": "Invoke camunda.createProcessInstanceWithResult with awaitCompletion set to true so the SDK returns once the process completes with final variables"
+    },
+    {
+      "id": "d",
+      "text": "Invoke camunda.runProcessSync with the processDefinitionId so the SDK starts the instance and synchronously blocks the thread until the result returns"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. createProcessInstance returns as soon as the instance is created with only the process instance ID; it does not wait for completion or return final variable values."
+    },
+    "b": {
+      "text": "Incorrect. There is no startAndAwait method on the SDK; the documented short-running call is createProcessInstanceWithResult with awaitCompletion set to true."
+    },
+    "c": {
+      "text": "Correct. The Create a process instance section uses createProcessInstanceWithResult with awaitCompletion set to true, which returns once the process completes and exposes result.variables."
+    },
+    "d": {
+      "text": "Incorrect. There is no runProcessSync method on the SDK; the documented approach for short-running processes is createProcessInstanceWithResult with awaitCompletion set to true."
+    }
+  },
+  "explanation": "For short-running processes the SDK uses createProcessInstanceWithResult with awaitCompletion set to true; the returned object exposes the processInstanceKey and the final result.variables once the process ends.",
+  "docs": [
+    {
+      "title": "Camunda 8 TypeScript SDK",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ]
+}

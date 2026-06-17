@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team integrates with Kafka -- when a message arrives on order-events topic, a process instance should start. The cluster is Self-Managed.",
+  "question": "Which Connector type fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Kafka Producer connector -- the outbound direction of the Kafka Connector pair. The Kafka Producer connector publishes messages to a Kafka topic when a Service Task is executed during process flow. It is designed to send data out to Kafka, not to consume incoming messages from a topic. Using it to start a process instance when a Kafka message arrives is the wrong directional connector for this use case."
+    },
+    {
+      "id": "b",
+      "text": "Kafka Consumer connector (the inbound direction) -- subscribes to a Kafka topic using a consumer group, receives incoming messages, and publishes a BPMN Message that triggers a waiting Message Start Event in Zeebe. Configure the bootstrap server, topic name, consumer group ID, and authentication via Camunda Secrets. When a message arrives on order-events, the connector creates a new process instance automatically."
+    },
+    {
+      "id": "c",
+      "text": "Custom Service Task with a Job Worker that polls the Kafka topic manually at regular intervals. Building a custom polling Job Worker for Kafka duplicates functionality already provided by the out-of-the-box Kafka Consumer Connector. The Connector handles consumer group lifecycle, offset management, retry logic, authentication secrets, and payload mapping that a custom worker would need to reimplement from scratch."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 ships the Kafka Connector as a fully supported out-of-the-box component in both outbound (Producer) and inbound (Consumer) directions. The Connector is available for Self-Managed and SaaS deployments and supports authentication via Camunda Secrets, consumer groups, topic subscriptions, and payload extraction. 3 onward where Kafka connectors ship by default."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Kafka connector ships in two flavors per kafka.md:11-15: Kafka Producer connector (outbound) and Kafka Consumer connector (inbound). For a Kafka-triggered Start Event, use the Consumer connector -- configure bootstrap server + topic + consumer group + auth (via Camunda secrets). The connector publishes a BPMN Message that the Message Start Event correlates to start an instance."
+    },
+    "b": {
+      "text": "Correct. Producer = publish to topic; the question requires consume."
+    },
+    "c": {
+      "text": "Incorrect. Custom polling Service Task duplicates what the Consumer connector already does (lifecycle, retries, secrets handling, payload mapping)."
+    },
+    "d": {
+      "text": "Incorrect. Kafka is supported as an out-of-the-box connector (both directions)."
+    }
+  },
+  "explanation": "Producer = publish to topic; the question requires consume.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/kafka/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q33",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

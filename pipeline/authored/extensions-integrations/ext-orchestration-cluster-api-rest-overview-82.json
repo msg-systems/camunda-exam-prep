@@ -1,0 +1,50 @@
+{
+  "id": "ext-orchestration-cluster-api-rest-overview-82",
+  "topic": "extensions-integrations",
+  "subtopic": "orchestration-cluster-rest-api",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A client calling the Orchestration Cluster REST API starts receiving `HTTP 503` responses during a traffic spike. What does the docs recommend the client do?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Treat it as a backpressure signal and eventually retry the requests after a backoff period."
+    },
+    {
+      "id": "b",
+      "text": "Stop sending requests permanently and reauthenticate before any further calls."
+    },
+    {
+      "id": "c",
+      "text": "Treat it like a `409 Conflict` and resend the request immediately without any backoff."
+    },
+    {
+      "id": "d",
+      "text": "Switch to a different cluster endpoint because `503` indicates the cluster is permanently down."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Per the docs, `503` means the service is currently unavailable, often because the system is signalling backpressure to prevent compute resources from being exhausted. Clients are recommended to eventually retry those requests after a backoff period."
+    },
+    "b": {
+      "text": "`503` is not an authentication failure (that would be `401`), and the docs do not advise stopping all traffic permanently."
+    },
+    "c": {
+      "text": "`409 Conflict` is a separate code meaning the resource is not in the correct state; conflating it with `503` and skipping the backoff defeats backpressure protection."
+    },
+    "d": {
+      "text": "`503` is transient (backpressure or temporary unavailability), not a sign that the cluster is permanently gone."
+    }
+  },
+  "explanation": "The status-code reference describes `503` as the backpressure signal: the cluster is protecting itself from resource exhaustion and the appropriate client behaviour is to back off and retry, not to fail hard, reauthenticate, or hammer the endpoint. Other codes have distinct meanings — `400` for bad input, `401` for auth, `404` for missing resources, `409` for state conflicts, `412` for failed preconditions, and `500` for generic server errors.",
+  "docs": [
+    {
+      "title": "Orchestration Cluster API (REST) overview",
+      "url": "https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/orchestration-cluster-api-rest-overview/"
+    }
+  ]
+}

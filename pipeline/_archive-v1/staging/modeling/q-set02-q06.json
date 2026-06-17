@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q06",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A regional hospital integrates its patient registration system (Camunda 8 process) with an external insurance verification service operated by a separate government health agency. When a patient is admitted, the hospital's Camunda flow needs to: (1) submit insurance verification request to the agency, (2) wait for the agency's response, (3) proceed with admission based on whether coverage is approved. The hospital's developer initially modeled this as a single Pool with a Service Task calling the agency's REST API. But the architect points out the BPMN model should reflect organisational reality -- the hospital and agency are separate organisations with separate process engines, so the model must use two Pools. After the developer adds a second Pool labeled \"Government Insurance Agency\" and draws a Sequence Flow from the hospital's Service Task into the agency's Receive Task, the BPMN validator throws an error: \"Sequence Flow cannot cross Pool boundary\".",
+  "question": "What is the correct BPMN construct for communication between two independent organisations modeled as separate Pools?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Add a Parallel Gateway in the hospital Pool with one branch crossing into the agency Pool via a Sequence Flow. A Parallel Gateway forks token flow within a single process engine -- adding one does not enable cross-pool token passing. 0 specification violation that triggered the validator error in the scenario. This approach does not resolve the problem."
+    },
+    {
+      "id": "b",
+      "text": "Replace the cross-pool Sequence Flow with a Message Flow. On the hospital side, use a Send Task or Message Throw Event; on the agency side, use a Receive Task or Message Catch Event. Zeebe correlates incoming messages by a correlationKey expression. 0, Message Flow is the designated construct for communication between separate organisations or process engines; it represents asynchronous message passing without implying shared execution context."
+    },
+    {
+      "id": "c",
+      "text": "Move the agency Pool into the hospital Pool as a Lane labeled \"Insurance Agency Role\". Lanes are visual subdivisions within a single Pool representing different roles or departments within one organisation that share the same process engine and execution scope. Merging the government agency into a hospital Lane would falsely imply that the hospital controls the agency's workflow execution -- structurally and organisationally inaccurate."
+    },
+    {
+      "id": "d",
+      "text": "Use a Signal Throw Event in the hospital Pool to broadcast to all listening processes including the agency Pool. Signal Events in BPMN represent a system-wide broadcast intended for \"any process globally that is listening for this signal\". Signal semantics are for fan-out to potentially many receivers, not for point-to-point handover between two specific organisations. Using a Signal here would also miss the correlation key mechanism needed to route the response back to the correct instance."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. In BPMN 2.0, Sequence Flow is intra-pool only -- it expresses token flow within one process engine. Message Flow is the cross-pool construct representing asynchronous message passing between separate organisations/engines. The hospital Pool uses a Send Task/Message Throw to publish; the agency Pool uses a Receive Task/Message Catch to consume. In Zeebe, the receiver subscribes with a correlation key (e.g., =patient_id); incoming messages with matching keys activate the awaiting catch."
+    },
+    "b": {
+      "text": "Correct. Parallel Gateway forks tokens within a single process, NOT across organisational boundaries. Drawing a Sequence Flow from the gateway into another Pool is exactly the BPMN violation that triggered the error."
+    },
+    "c": {
+      "text": "Incorrect. Lanes are visual subdivisions within a single Pool representing roles inside one organisation -- not independent organisations. Putting the agency in a hospital Lane would imply the hospital controls agency execution, which is factually wrong."
+    },
+    "d": {
+      "text": "Incorrect. Signal Events broadcast to all listening processes globally, NOT specifically to a designated counterparty. Signal is BPMN's \"system-wide event bus\" -- used for \"any process listening for X should react\", not for point-to-point handover."
+    }
+  },
+  "explanation": "Parallel Gateway forks tokens within a single process, NOT across organisational boundaries. Drawing a Sequence Flow from the gateway into another Pool is exactly the BPMN violation that triggered the error.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q06",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

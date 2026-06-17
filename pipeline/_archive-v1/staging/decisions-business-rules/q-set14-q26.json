@@ -1,0 +1,63 @@
+{
+  "id": "imp-set14-q26",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has 50+ DMN decisions. They deploy each separately. Team wonders if there's a versioning strategy -- version each individually, or bundle.",
+  "question": "DMN deployment versioning strategy?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Single big file -- wrong typically."
+    },
+    {
+      "id": "b",
+      "text": "Bundling all DMN decisions into a single decision requirements graph (DRG) file is not always the recommended approach. Large monolithic DRGs become difficult to maintain, version, and test independently. Camunda supports multiple DMN files where each file contains related decisions. Separating decision files by domain or lifecycle allows teams to version and deploy them independently, reducing the risk of unintended side effects when updating one decision set."
+    },
+    {
+      "id": "c",
+      "text": "DMN decision versioning is important in production environments where business rules change over time. Camunda 8 deploys DMN resources as versioned resources alongside BPMN, and process definitions can reference specific decision requirement IDs. Without versioning, updating a shared decision table immediately affects all process instances that call it, including long-running instances that should apply the rules in force at their start time. Version binding enables controlled rollouts of business rule changes."
+    },
+    {
+      "id": "d",
+      "text": "Each DMN file deploys as a unit; each decision within gets versioned per its decisionId. Two main deployment strategies: (1) One DMN file per logical domain -- deploy related decisions together, version as a unit; simple but redeploys all on any change. (2) One DMN file per decision -- maximum modularity; each decision has independent versioning but more files to manage. Business Rule Tasks reference by decisionId and optionally pinned version. Choose the strategy based on how frequently individual decisions change relative to their peers."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. DMN deployment + versioning patterns: Camunda 8 deployment unit: One .dmn file = one deployment resource. Versioning per decision: each decisionId in the file gets versioned independently when the file is redeployed. Atomic file deployment: all decisions in one file deploy together. Strategy 1: Per-decision files: Setup: 1 decision per .dmn file. 50 decisions = 50 files. Pros: Granular changes: edit one decision; redeploy one file. Clear ownership: easier to track per-decision history. Independent evolution: each decision versions independently. Cons: Many files to manage: directory cluttered. Manual coordination: related decisions evolve separately; may drift. More deployment events: 50 separate deploys. Strategy 2: Logical-grouping files (DRD-based): Setup: Group related decisions in same .dmn file via DRD (per Set 13 Q27). E.g., \"credit-decisioning.dmn\" with 5 decisions composing credit logic. 10 grouped files cover 50 decisions. Pros: Atomic deploys: related decisions update together; consistent state. DRD visible: see decision relationships in modeler. Easier reuse: BKM + dependent decisions in same file. Cons: Coarser versioning: changing one decision bumps version for all in file. Larger deployment payload: more change visible in audit log per deploy. Strategy 3: Hybrid: Group tightly-coupled decisions: in DRD files. Standalone decisions: in own files. Mix per real coupling. Decision version semantics (per Set 13 Q28): Process invokes by decisionId (typically latest version). When file redeployed: all decisions in file get new version (even if logic unchanged). Side effect: re-deploying a file with one change forces version bump for unchanged decisions in same file. For 50 decisions: Approach A: Per-decision files (50 files): Easy to track changes; each decision has clean history. Modular but high file count. Approach B: Domain grouping (5-10 files): \"credit-decisions.dmn\" (10 decisions), \"fraud-decisions.dmn\" (8), etc. Each file represents a domain. Group based on real coupling. Approach C: Mix: DRD groups for genuinely-related decisions. Standalone files for unrelated. Operational considerations: CI / CD: Automate deployment: detect changed files; deploy only those. Atomic releases: deploy related changes together. Rollback: deploy previous version of file. Audit / Compliance: Per-decision history: regulators may need per-decision evolution. Track decisionId + version + deployment timestamp. Best practices: Match deployment unit to coupling: tightly coupled → group; independent → separate. Document grouping rationale: explain in README why decisions co-located. Version major changes deliberately: when breaking, signal via clear messaging."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q26",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 15.6 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

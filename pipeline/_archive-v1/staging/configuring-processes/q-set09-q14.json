@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A document-review Multi-Instance Subprocess iterates over reviewers. Each reviewer provides an approval (boolean). The team wants the MI to complete early when 3 reviewers have approved (no need to wait for the rest). Which completionCondition FEEL expression fits \"3+ approvals\"?",
+  "question": "Which completionCondition FEEL expression fits \"3+ approvals\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "=numberOfCompletedInstances >= 3 -- this expression counts all completed inner instances regardless of their outcome. It will terminate the Multi-Instance early as soon as 3 reviewers have responded, even if those 3 reviewers all rejected the document. The condition does not distinguish approvals from rejections. If the first 3 reviewers reject and the 4th would have approved, the MI terminates prematurely with an incorrect early-exit. The logic needs to filter by the approval = true outcome."
+    },
+    {
+      "id": "b",
+      "text": "=loopCounter >= 3 -- this uses loopCounter, which is a per-inner-instance variable representing the sequential index of the current inner instance within the Multi-Instance loop. It is scoped to each individual inner instance and does not provide an aggregate count across all inner instances. Using loopCounter >= 3 would evaluate to true inside the 3rd-or-later instance scope but does not measure how many approvals have been accumulated across all instances."
+    },
+    {
+      "id": "c",
+      "text": "Complex FEEL expressions including list filtering and aggregation functions have been claimed to not work in the completionCondition attribute of a Multi-Instance activity. Only simple comparisons like numberOfCompletedInstances >= n are sometimes expected. The completionCondition attribute accepts any FEEL boolean expression, including list filtering, count functions, quantifiers, and any other FEEL language construct. Full FEEL is evaluated at each inner instance completion."
+    },
+    {
+      "id": "d",
+      "text": "md:67-86. Recomputes after each inner instance completes; when expression flips to true, MI terminates remaining active instances. Requires the MI activity to declare outputCollection + outputElement so per-instance results accumulate into outputs."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. completionCondition is a FEEL boolean expression evaluated after each inner instance completes. For \"3 approvals,\" count the approvals accumulated in the outputCollection. Canonical FEEL filter form per feel-list-expressions.md:67-86: list[predicate] -- current element bound to implicit item; nested fields referenced by name directly in the predicate: `feel = count(outputs[approval = true]) >= 3 (Equivalent explicit form: count(outputs[item.approval = true]).) Alternative -- quantified-expression style: = count(outputs) - count(outputs[approval != true]) >= 3. For just \"at-least-one-approved\" boolean: = some o in outputs satisfies o.approval = true. ⚠ Anti-patterns to avoid (these don't compile in Camunda's FEEL): count(reviewers where approval = true) -- FEEL has no where filter keyword (SQL/LINQ reflex). count([item in outputs : item.approval = true]) -- bracket-comprehension with : separator is fabricated; FEEL projection uses for x in xs return expr per feel-control-flow.md`. When the expression returns true, MI terminates remaining active instances and the multi-instance body completes."
+    },
+    "b": {
+      "text": "Incorrect. Counts all completed without distinguishing approve/reject; would complete when 3 reviewers have responded (any answer), not specifically when 3 approved."
+    },
+    "c": {
+      "text": "Incorrect. loopCounter is the per-instance index."
+    },
+    "d": {
+      "text": "Correct. Full FEEL supported."
+    }
+  },
+  "explanation": "Full FEEL supported.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q14",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

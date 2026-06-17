@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Java Camunda Spring Boot Starter worker subscribes to enrich-data (Spring Zeebe SDK is being removed in C8.10 per apis-tools/camunda-spring-boot-starter/getting-started.md:21-22). The worker doesn't know in advance which process variables it might need -- they vary per process. The team is considering fetchAllVariables. What does fetchAllVariables = true do, and what's the trade-off vs fetchVariables whitelist?",
+  "question": "What does fetchAllVariables = true do, and what's the trade-off vs fetchVariables whitelist?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Using fetchAllVariables = true for all workers regardless of their actual variable needs is an inefficient default. Workers that only need two or three specific variables would still receive the entire process variable payload on every job activation, wasting bandwidth and memory. The correct approach is to use the fetchVariables whitelist for workers with known fixed variable requirements, reserving fetchAllVariables = true only for workers that genuinely need dynamic access to all variables, such as logging or audit workers."
+    },
+    {
+      "id": "b",
+      "text": "md:383-385 -- the worker activation includes all process variables in the job payload. force-fetch-all-variables: true per :390-396. Use it when the worker truly needs ad-hoc variable access; use fetchVariables = {\"a\", \"b\"} whitelist per :353 (or implicit detection via @Variable parameter annotations per :435-451, or @VariablesAsType MyClass per :461-467) for known-variable workers (recommended for performance)."
+    },
+    {
+      "id": "c",
+      "text": "force-fetch-all-variables. md:383-385, this is a supported and documented mechanism for controlling variable fetching behaviour in the SDK. The feature exists and functions as documented. The feature is real and well-documented in the SDK reference. Workers that need dynamic variable access can legitimately use this flag."
+    },
+    {
+      "id": "d",
+      "text": "Whether all workers fetch all variables by default depends on the specific SDK version and its configuration defaults. The default behaviour is not guaranteed to be consistent across versions, making explicit configuration the safe practice. Teams should not rely on assumed default behaviours for variable fetching, especially in production environments where bandwidth and memory efficiency matters. Explicit fetchVariables whitelisting documents the worker's contract clearly."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Trade-off: fetchAllVariables = true: gets all process variables on each activation. Simple to use (no list to maintain); wasteful if the process has many variables and the worker uses only a few. Bandwidth cost (variables serialised on the wire); memory cost (worker holds them). fetchVariables = {\"a\", \"b\"} whitelist: only specified variables included. Efficient; explicit contract (the worker declares what it needs). Default behaviour varies by SDK version and configuration; explicit setting is best practice. Decision rule: Known fixed variables the worker uses → fetchVariables whitelist (efficient + explicit). Ad-hoc / dynamic variable access (e.g., a logging worker that dumps everything) → fetchAllVariables = true."
+    },
+    "b": {
+      "text": "Correct. Whitelist preferred for known cases."
+    },
+    "c": {
+      "text": "Incorrect. Both typically supported."
+    },
+    "d": {
+      "text": "Incorrect. Verify default."
+    }
+  },
+  "explanation": "Whitelist preferred for known cases.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/configuration/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q41",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

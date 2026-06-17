@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q06",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's BPMN has a Receive Task waiting for \"OrderShipped\" and an alternative they're considering: an Intermediate Message Catch Event. Both wait for messages. The team wonders what distinguishes them.",
+  "question": "What's the distinction between Receive Task and Intermediate Message Catch Event?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Functionally completely different -- this overstates the distinction between the two constructs. Both the Receive Task and the Intermediate Message Catch Event create a message subscription in Zeebe that waits for a matching message with the correct correlation key. The engine suspends the process instance at both constructs and resumes execution once the expected message arrives. From a runtime behaviour perspective, the two are nearly identical in how message correlation and flow resumption work."
+    },
+    {
+      "id": "b",
+      "text": "Functionally similar -- both wait for matching messages with correlation keys -- but BPMN distinguishes them semantically. \" From the engine's perspective they behave similarly. \""
+    },
+    {
+      "id": "c",
+      "text": "Receive Task is asynchronous while the Intermediate Message Catch Event is synchronous -- this is a fundamental mischaracterisation of both constructs. Both are inherently asynchronous waiting mechanisms in Camunda 8. Neither blocks an execution thread; both create a durable message subscription that persists in the Zeebe state until the matching message is published and correlated. The process instance remains suspended at both constructs until the message arrives, regardless of how much time passes."
+    },
+    {
+      "id": "d",
+      "text": "Only one of the two constructs is supported in Camunda 8 while the other has no implementation -- this is factually incorrect. md. Both can be modelled in Web Modeler and Desktop Modeler, deployed to Zeebe clusters, and executed at runtime with standard message correlation. No limitation restricts teams to using only one of these constructs."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Functionally similar at the engine level (both create a message subscription, wait for matching message, route via outgoing arrow). The distinction is semantic / visual: Receive Task (rectangle with envelope marker): \"the process is performing a task -- it's waiting to receive something.\" Use when the wait is a meaningful step that participants in the process should recognise as work (e.g., \"Receive Payment Confirmation\"). Intermediate Message Catch Event (circle with envelope, in-flow): \"an event happens at this point -- a message arrives.\" Use when the wait is an event interruption to the flow, less \"active work\" and more \"pause for signal.\" Both are interchangeable in many cases; pick by which semantic communicates intent better to BPMN readers. Receive Task may have additional task-level features in some implementations (e.g., the task element has Input/Output mappings, etc.); event-level constructs are leaner."
+    },
+    "b": {
+      "text": "Correct. Functionally similar."
+    },
+    "c": {
+      "text": "Incorrect. Both async."
+    },
+    "d": {
+      "text": "Incorrect. Both supported."
+    }
+  },
+  "explanation": "Functionally similar.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/receive-tasks/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q06",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

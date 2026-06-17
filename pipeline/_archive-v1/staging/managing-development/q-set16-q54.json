@@ -1,0 +1,88 @@
+{
+  "id": "imp-set16-q54",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Multi-tenant cluster. Tenant A shouldn't see Tenant B's data. Team wonders isolation guarantees.",
+  "question": "Tenant isolation in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No isolation -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Network-level only -- this is only partially correct. While network-level isolation (separate clusters or namespaces) provides strong physical separation, Camunda 8 Self-Managed's multi-tenancy also provides logical isolation within a single installation. md. Network isolation alone does not provide the fine-grained, per-resource access control that the platform's tenant model delivers within one installation."
+    },
+    {
+      "id": "c",
+      "text": "Always cluster-per-tenant -- this is only partially correct. Camunda 8 Self-Managed supports logical multi-tenancy within a single installation, where multiple tenants share one cluster but their data is isolated through tenant identifiers, authorization scoping, and server-side filtering. For high-security requirements or compliance mandates, separate clusters may still be preferred. md."
+    },
+    {
+      "id": "d",
+      "text": "md: tenant data is separated through multiple enforcement layers including authentication (tenant-scoped tokens), authorization (Management Identity tenant claims), API filtering (server-side queries filtered by tenant ID), resource tagging (all deployments and instances tagged with tenant ID), and UI filtering (Operate, Tasklist show only tenant's data). Self-Managed supports logical multi-tenancy in a single installation; SaaS uses organization-level cluster separation."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Tenant isolation layers: Layer 1: Authentication: Tenant-scoped tokens. OAuth client: per tenant. JWT claims: include tenant. Server validates: matches tenant. Layer 2: Authorization: Per-tenant permissions. Roles within tenant: admin, operator, viewer. No cross-tenant access: blocked. Layer 3: API filtering: Server filters all queries by tenant. Even with admin role: only sees own tenant. Enforced server-side: not client-side. Layer 4: Resource tagging: Process definitions tagged: tenant ID. Process instances: inherit tenant. Jobs, decisions, etc.: tagged. Queries filter: by tenant tag. Layer 5: UI: Operate / Tasklist views: tenant-scoped. Users only see their tenant's data. Layer 6: Logging / audit: Logs include tenant. Cross-tenant access attempts: alerted. For data isolation in storage: Shared cluster: Logical separation: tenant column / field. Encryption keys: per tenant (advanced). Cluster-per-tenant: Physical separation. Maximum isolation. More expensive. For SaaS isolation guarantees: Per organisation / cluster: only mechanism -- multi-tenancy.md:8-10 says SaaS does NOT support in-cluster multi-tenancy. Use separate clusters for tenant separation on SaaS. For Self-Managed: Configure tenants via Management Identity (self-managed/components/management-identity/). Tenant claims in OIDC token; Orchestration Cluster validates. Admin centralizes management (components/admin/tenant.md). Potential leak vectors: Vector 1: Misconfigured permissions: User has access to multiple tenants. Mitigation: review permissions; principle of least privilege. Vector 2: Cross-tenant references: Variable references another tenant's process. Mitigation: validate references. Vector 3: Backup / restore: Tenant A's backup restored, includes tenant B data? Mitigation: per-tenant backup if possible. Vector 4: Logs: Tenant A's logs visible to tenant B operators. Mitigation: log filtering by tenant. Vector 5: Metrics: Cluster-wide metrics include all tenants. Mitigation: per-tenant metric labels. For testing isolation: Penetration test: simulate cross-tenant attempts. Verify rejected. Audit logs: capture attempts. For compliance: GDPR: tenant data segregation. HIPAA: patient data per healthcare tenant. Financial: per-customer isolation. For SaaS organisations: Camunda enforces organisation boundaries. Cluster per org typically. For Self-Managed strict requirements: Cluster-per-tenant: physical isolation. Especially regulated industries. For shared cluster trade-offs: Pros: Cost-efficient. Easier scaling. Operational simplicity. Cons: Logical-only isolation. Bug risk = leak. Resource competition. For monitoring isolation: Audit cross-tenant access: alert. Permission reviews: periodic. Penetration testing: regular. Best practices: Use multi-tenancy features: don't roll own. Test isolation: regularly. Document model: tenant approach. Cluster-per-tenant for high-regulated. Audit access: especially admin actions. Anti-patterns: Shared cluster without rigorous isolation. Admin role spanning tenants. Manual tenant management: error-prone. For the scenario (Tenant A vs B): Verify Camunda 8 multi-tenancy: enable + configure. Per-tenant auth + auth: enforce. API filtering: server-side. Test: cross-tenant attempts rejected. For Camunda 8 maturity: Multi-tenancy evolving. Verify features per version. Camunda roadmap items: enhancements."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/multi-tenancy/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q54",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 22 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[1]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[2]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 21.6 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

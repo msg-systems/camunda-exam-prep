@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q23",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A loyalty-rewards DMN may have multiple rules matching the same input -- e.g., a customer qualifies for multiple discounts. The team wants all matching rules' outputs returned as a list, ordered by row order in the table.",
+  "question": "Which hit policy fits \"all matches as list, in row order\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "RULE ORDER -- returns the list of all matching rules' outputs ordered by their row position in the decision table. This is distinct from COLLECT (returns all matches but provides no row-order guarantee in the DMN spec), FIRST (returns only the single first matching rule's output, not a list), and OUTPUT ORDER (returns list ordered by the output column's allowed-values priority, not by row sequence). When row order carries semantic meaning -- such as applying discounts in a predefined priority -- RULE ORDER is the explicit choice."
+    },
+    {
+      "id": "b",
+      "text": "Use COLLECT hit policy without an aggregator to get all matching rules -- this returns all matching rule outputs as a list but without a row-order guarantee. COLLECT evaluates all rules and collects their outputs, but the DMN specification does not mandate that COLLECT preserves the table's row sequence. When row order is semantically meaningful -- such as applying discounts in a defined priority sequence -- RULE ORDER is the appropriate policy because it explicitly guarantees row-order correspondence."
+    },
+    {
+      "id": "c",
+      "text": "Use OUTPUT ORDER hit policy to get all matches ordered by row position -- this confuses two different ordering bases. OUTPUT ORDER returns a list ordered by the output value list's priority ranking, not by row position in the table. The ordering comes from the output column's allowed-values list definition, not from the physical row sequence of the decision table. RULE ORDER is the policy that guarantees row-sequence ordering for matching results."
+    },
+    {
+      "id": "d",
+      "text": "Use FIRST hit policy to get all matches listed in row order -- this misidentifies the FIRST policy's behaviour. FIRST returns a single scalar value -- the output of the first matching rule in row order -- not a list of all matches. When the requirement is to collect all matching rule outputs into a list while preserving row sequence, RULE ORDER is the correct choice. FIRST would discard all subsequent matches after the first."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. RULE ORDER hit policy: returns a list of all matching rules' outputs, ordered by row order in the decision table. The first matching rule's output appears first in the list, second matching second, etc. Distinct from related policies: COLLECT (no aggregator): returns list of matches, but doesn't guarantee row order -- typical implementations return evaluation order, which may match row order in practice but isn't part of the spec contract. OUTPUT ORDER: returns list ordered by the output value list's priority ordering, not row order. FIRST: returns single value (first match by row order), not list. PRIORITY: returns single value (highest-priority output per value list), not list. When to use RULE ORDER: You want a list AND row order matters semantically (e.g., \"apply discounts in priority order; rows are arranged by application priority\"). Distinct from COLLECT for the order guarantee. Performance: similar to COLLECT -- evaluates all rules."
+    },
+    "b": {
+      "text": "Incorrect. No row-order guarantee."
+    },
+    "c": {
+      "text": "Incorrect. Output value priority."
+    },
+    "d": {
+      "text": "Incorrect. Not list."
+    }
+  },
+  "explanation": "RULE ORDER hit policy: returns a list of all matching rules' outputs, ordered by row order in the decision table. The first matching rule's output appears first in the list, second matching second, etc. Distinct from related policies: COLLECT (no aggregator): returns list of matches, but doesn't guarantee row order -- typical implementations return evaluation order, which may match row order in practice but isn't part of the spec contract. OUTPUT ORDER: returns list ordered by the output value list's priority ordering, not row order. FIRST: returns single value (first match by row order), not list. PRIORITY: returns single value (highest-priority output per value list), not list. When to use RULE ORDER: You want a list AND row order matters semantically (e.g., \"apply discounts in priority order; rows are arranged by application priority\"). Distinct from COLLECT for the order guarantee. Performance: similar to COLLECT -- evaluates all rules.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q23",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

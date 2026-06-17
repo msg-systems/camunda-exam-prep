@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team familiar with Camunda 7 asks: \"C7 had Conditional Start Events that fired when a condition became true (e.g., when temperature > 90). Does Camunda 8 have an equivalent?\"",
+  "question": "Does Camunda 8 support Conditional Start Events?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes, Camunda 8 supports Conditional Start Events using a zeebe:conditionalStartEvent Zeebe-namespace extension element to declare the trigger condition. This is an invented construct. No such Zeebe-namespaced extension element exists. The actual mechanism uses the standard BPMN bpmn:conditionalEventDefinition element with a bpmn:condition attribute written in FEEL. Camunda 8 follows the BPMN specification for conditional events, not a custom Zeebe-specific namespace for this feature."
+    },
+    {
+      "id": "b",
+      "text": "This is an unnecessary workaround. Native Conditional Start Events are implemented as first-class BPMN coverage in Camunda 8. The workaround was a pattern for older versions but is no longer needed for current Camunda 8 releases."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 DOES have Conditional Start Events -- root-level conditional start events are implemented BPMN coverage. Deploying a process with a conditional start event creates a subscription; when the FEEL condition evaluates to true via external API trigger, the engine starts a new process instance. Critical difference vs C7: the C8 engine does not auto-poll arbitrary state; root-level conditional starts must be triggered externally. Inside running instances, event-subprocess and boundary conditional events evaluate automatically on variable changes."
+    },
+    {
+      "id": "d",
+      "text": "Yes, Camunda 8 supports Conditional Start Events and they work identically to Camunda 7, automatically polling the engine state when declared conditions become true without any external trigger. However the trigger semantics differ significantly. C7 polled engine state automatically, while C8 root-level conditional starts require an explicit external API trigger. The mental model from C7 does not transfer unchanged."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per bpmn-coverage.md:461-465 (Conditional Start Event marked implemented) and conditional-events.md:23-33. Three flavours of conditional events in C8: Root-level Conditional Start Event (:23-33): deploys a subscription; triggered by external API call (POST /condition-events/evaluate or equivalent SDK) -- the API delivers the variable context, engine evaluates FEEL, starts instance if true. NOT an internal poll. Event Subprocess Conditional Start Event (:35-45): inside an active instance, evaluates automatically on variable change events; can be interrupting or non-interrupting. Conditional Boundary Event (:53-62): monitors data while host activity is active; evaluates on variable change events with variable filters (create, update). The C7 \"poll-for-condition\" mental model maps to inside-instance conditional events (event-subprocess / boundary), which DO evaluate automatically on variable change. The C7 root-level \"fire when global state crosses threshold\" maps to API-triggered Conditional Start + an external watcher (Polling Connector, webhook, or worker) that calls the API when the condition flips."
+    },
+    "b": {
+      "text": "Incorrect. No zeebe:conditionalStartEvent extension -- uses standard bpmn:conditionalEventDefinition + bpmn:condition FEEL per conditional-events.md:64-78."
+    },
+    "c": {
+      "text": "Correct. No longer needed; native Conditional Start Event is implemented."
+    },
+    "d": {
+      "text": "Incorrect. BPMN element present; trigger model differs (API-driven for root-level, NOT engine-polled)."
+    }
+  },
+  "explanation": "No longer needed; native Conditional Start Event is implemented.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/conditional-events/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q05",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

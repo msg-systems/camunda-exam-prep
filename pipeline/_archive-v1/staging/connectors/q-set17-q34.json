@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team uses Azure or Google Cloud. Wonders parallel Connector availability.",
+  "question": "Google Cloud / Azure Connectors?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only AWS -- wrong typically."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 only provides cloud-agnostic protocol connectors and has no connectors for specific cloud platforms -- this does not accurately reflect the behavior. While Camunda 8 does include cloud-agnostic protocol connectors such as REST, GraphQL, and SOAP, it also provides cloud-provider-specific connectors. AWS has an extensive catalog of dedicated connectors. Google Cloud Platform and Azure also have dedicated connectors for services like Google Cloud Functions and Azure Service Bus. The catalog spans both protocol-level and cloud-service-specific integrations."
+    },
+    {
+      "id": "c",
+      "text": "Integrating Camunda 8 with Google Cloud or Azure always requires custom connector development -- this overstates implementation effort. 8 includes out-of-the-box connectors for Google Cloud Platform and Azure services in the catalog. For GCP, dedicated connectors cover Cloud Storage, Gemini, Maps Platform, Sheets, and Drive. For Azure, Blob Storage and Azure OpenAI are included. Teams can use these pre-built connectors without writing custom code. Custom development is only needed for specialized GCP or Azure services not yet covered by the existing catalog."
+    },
+    {
+      "id": "d",
+      "text": "8 OOTB cloud catalog is much narrower than AWS (empirically verified via Glob -- Pattern #63): while AWS has 10+ dedicated connectors, the GCP and Azure catalogs are smaller with fewer pre-built connectors per cloud platform. GCP connectors cover services such as Google Cloud Functions and Pub/Sub. Azure connectors include Azure Service Bus and Azure Functions. For AWS-heavy architectures the pre-built catalog is richest; for GCP or Azure, more custom development or REST connector configuration may be needed for complete coverage."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Cloud Connectors empirically verified in C8.8 OOTB catalog: Google Cloud (5 OOTB): Cloud Storage (google-cloud-storage.md) -- object upload/download/list (GCS bucket ops). Gemini (google-gemini.md) -- Google's LLM (text + multimodal). Maps Platform (google-maps-platform.md) -- geocoding/places APIs. Sheets (google-sheets.md) -- read/write spreadsheets. Drive (googledrive.md) -- file management. Auth: Service Account JSON key via {{secrets.GCP_SA_KEY}} (standard). Workload Identity for GKE-hosted (binds K8s SA → GCP SA, no key file). Azure (2 OOTB): Blob Storage (azure-blob-storage.md) -- object ops on Azure Storage containers. Azure OpenAI (azure-open-ai.md) -- Azure-hosted OpenAI models. Auth: Microsoft Graph auth (Client credentials / Delegated) per _partials/_microsoft-graph-auth.md for Graph-API-based connectors (Teams / O365 Mail). Storage-account key via {{secrets.AZURE_KEY}} for Blob Storage. Azure OpenAI: deployment key. NOT in OOTB catalog (use REST Connector or Marketplace / custom -- Pattern #43): GCP missing: Cloud Functions, Pub/Sub, BigQuery, Firestore, Cloud Run, Cloud SQL, Cloud Build, Compute Engine, Vision, Translate. Azure missing: Functions, Service Bus, Cosmos DB, Event Hubs, Logic Apps, Key Vault, App Service, Cognitive Services (other than Azure OpenAI). For coverage gaps: Pattern: REST Connector: Direct cloud REST API. Auth: manual (per cloud). More work but covers all services. Pattern: Custom Connector: Cloud SDK in Java: full SDK capabilities. Build with Connector SDK. Deploy to Runtime. For Camunda 8 SaaS: Available Connectors: typically subset of all clouds. Custom Connectors: verify deployment options. For Self-Managed: Full control: deploy custom Connectors. All cloud SDKs: usable. For hybrid cloud: Camunda orchestrates across clouds. One process: AWS S3 + Azure Function + GCP Pub/Sub. Each via Connector. For service availability tracking: Camunda releases: add Connectors over time. Marketplace: third-party. Community: open-source. For cost management: Multi-cloud: complex billing. Tag resources: per process. For security: Each cloud's IAM: principle of least privilege. Secrets per cloud: separate management. Audit access: per cloud. For data residency: EU data in EU clouds: GDPR. Camunda cluster region: matter for cross-region calls. For testing: Cloud emulators: LocalStack (AWS), Azure Storage Emulator, etc. Local dev: avoid real cloud costs. For migration between clouds: Camunda agnostic: same BPMN. Replace Connectors: vendor-specific. Process logic same. For monitoring: Each cloud's monitoring: native (CloudWatch, Stackdriver, Azure Monitor). Camunda metrics: process-level. Correlate: for end-to-end visibility. For specific cloud features: AWS-specific: Step Functions, IoT, etc. Azure-specific: Logic Apps, Cognitive Services. GCP-specific: Cloud Run, AI Platform. Camunda + cloud-native: Camunda for orchestration. Cloud-native for compute / storage. Complementary. For Camunda Marketplace (verify): Centralised Connector catalog. Community contributions. For verification per Camunda 8 version: Catalog page: see available Connectors. Release notes: new additions. Best practices: Use official Connectors when available. REST + manual auth for unmapped services. Custom Connectors for advanced. Secure credentials: secrets. Anti-patterns: Hardcoded cloud credentials: security. Over-broad permissions: risk. No multi-cloud testing. For the scenario (Google / Azure): Verify catalog: which Connectors available. REST Connector fallback: for missing. Custom for advanced."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. overstates."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q34",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-scenario-too-short",
+        "severity": "block",
+        "message": "scenario length 73 < 80 (catastrophically short)",
+        "where": "scenario"
+      },
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 28 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 20.3 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

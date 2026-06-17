@@ -1,0 +1,27 @@
+{
+  "id": "cfg-messages-19",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Insurance, an insurer running 3000 claims through Camunda 8.8, correlates payout-ready messages to long-running claim instances. Each publish sets a correlationKey of the claim number, leaves the messageId unset, and uses a TTL of 24 hours. The receiver is an intermediate message catch event inside the claim instance.",
+  "question": "How does the broker treat such a publish (correlationKey set, no messageId, TTL greater than 0) against an intermediate message catch event?",
+  "options": [
+    { "id": "a", "text": "The message is dropped if no subscription is currently active because intermediate catch events ignore TTL and only consume messages that are already waiting at the subscription point" },
+    { "id": "b", "text": "The message creates a new process instance keyed on the correlationKey if no instance is active, and otherwise buffers against that instance until the configured TTL window expires" },
+    { "id": "c", "text": "The message is correlated during its lifetime if a matching subscription is active, and any new equal message that arrives in the meantime is buffered alongside it until the lifetime ends" },
+    { "id": "d", "text": "The message is correlated only at the exact moment the subscription first becomes active, with no buffering and no waiting, regardless of the configured TTL value on the publish call" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The correlation overview table is explicit that with TTL greater than zero the message waits in the buffer for its lifetime, so a subscription that activates later within that window can still consume it." },
+    "b": { "text": "Incorrect. Only message start events create new process instances; intermediate catch events correlate into existing instances and never start a new one in any row of the overview table." },
+    "c": { "text": "Correct. The overview table row for correlation key set, no messageId, TTL greater than 0, intermediate event states that the message is correlated during its lifetime if a matching subscription is active and that new equal messages are buffered." },
+    "d": { "text": "Incorrect. TTL is exactly the lifetime during which the broker holds the message and waits for a matching subscription; treating it as a single instantaneous match would contradict the documented overview behavior." }
+  },
+  "explanation": "The messages overview table maps every combination of correlation key, message ID, and TTL onto either a start event or an intermediate event behavior. With a correlation key set, no message ID, TTL greater than zero, and an intermediate event, the broker correlates during the lifetime and buffers any new equal messages.",
+  "docs": [
+    { "title": "Messages", "url": "https://docs.camunda.io/docs/components/concepts/messages/" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q32",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A donation form's \"Amount\" field accepts numbers but the team wants to constrain to multiples of 5 (e.g., $5, $10, $15...). Users should not be able to enter $7.",
+  "question": "Which Number element property fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use a regex Pattern constraint on the Number field to restrict values to multiples of five. The Camunda Forms Number element's validation block exposes only Required, Minimum, and Maximum properties. The Pattern constraint is exclusively available on Textfield and Textarea elements, not on Number. Applying a regex to numeric input for step validation is both architecturally wrong and technically impossible given the Number element's validation schema."
+    },
+    {
+      "id": "b",
+      "text": "The Number element cannot constrain input to multiples of a given value; only minimum and maximum validation are possible. This is factually incorrect. 8 includes an Increment property that defines the valid step between accepted values. Setting Increment to five restricts the up/down stepper arrows to multiples of five and rejects non-multiple values on form submission, directly implementing the multiples-of-five constraint."
+    },
+    {
+      "id": "c",
+      "text": "Set the Increment property to 5 on the Number element, combined with Minimum and Maximum validation bounds. The Modeler property panel exposes the Increment setting (labeled \"Increment\", not \"step\") which defines the interval between valid values. The rendered form's up/down arrows step by five, and the form submission validates that the entered value is a multiple of the increment within the configured bounds."
+    },
+    {
+      "id": "d",
+      "text": "Write a custom JavaScript validator function for the form to check that the donation amount is a multiple of five at submission time. Camunda 8 Forms do not support arbitrary custom JavaScript validators as an extensibility mechanism within the form designer. The built-in Increment property on the Number element handles this constraint natively without requiring any custom code or external validation scripts."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Camunda Forms 8.8 Number element exposes an Increment property (per forms-element-library-number.md:18 -- \"Defines the increment between valid field values\"). Combined with Validation > Minimum and Maximum (:26-27), this constrains submitted values to multiples of the increment within the configured range. (The property is called Increment, not step; step is the underlying HTML5 attribute name but the Modeler property panel uses \"Increment\".)"
+    },
+    "b": {
+      "text": "Incorrect. Number element has no Pattern validation -- the validation block exposes only Required, Minimum, Maximum (forms-element-library-number.md:24-27). Pattern validation exists on Textfield/Textarea only."
+    },
+    "c": {
+      "text": "Correct. Increment property covers this directly."
+    },
+    "d": {
+      "text": "Incorrect. Built-in Increment suffices; Forms doesn't support arbitrary JS validators."
+    }
+  },
+  "explanation": "Increment property covers this directly.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-number/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q32",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

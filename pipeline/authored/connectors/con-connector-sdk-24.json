@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-24",
+  "topic": "connectors",
+  "subtopic": "inbound-outline",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A team builds a custom inbound connector, ships the JAR to the connector runtime, but the connector is never detected and never activates. Which missing project file is the most likely cause?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The element template at `element-templates/inbound-template-connector.json`."
+    },
+    {
+      "id": "b",
+      "text": "The SPI descriptor at `src/main/resources/META-INF/services/io.camunda.connector.api.inbound.InboundConnectorExecutable`."
+    },
+    {
+      "id": "c",
+      "text": "A `@Service` annotation on `MyConnectorExecutable.java` so Spring registers the class."
+    },
+    {
+      "id": "d",
+      "text": "A `<packaging>connector</packaging>` element in `pom.xml` so the runtime recognises the JAR as a connector."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Missing the element template would block users from modeling a task with this connector in the modeler, but the runtime still loads classes; that is not what stops the executable from being detected."
+    },
+    "b": {
+      "text": "The inbound connector project outline says that to make the function detectable you must expose the executable class in the `InboundConnectorExecutable` SPI implementation file under `META-INF/services`. Without that descriptor, the runtime's `ServiceLoader` cannot find the class even when the JAR is on the classpath."
+    },
+    "c": {
+      "text": "The SDK does not require a Spring `@Service` annotation; discovery uses Java's standard `ServiceLoader` SPI, not Spring component scanning."
+    },
+    "d": {
+      "text": "There is no Maven `connector` packaging type; the docs describe a regular Maven (or Gradle) build that produces a normal JAR, and discovery is via the SPI file, not packaging."
+    }
+  },
+  "explanation": "Inbound connectors are discovered through Java's `ServiceLoader`. The project outline calls for a descriptor at `src/main/resources/META-INF/services/io.camunda.connector.api.inbound.InboundConnectorExecutable` whose content is the fully-qualified executable class. If that file is missing or empty, the runtime cannot detect the executable even when the JAR is on the classpath.",
+  "docs": [
+    {
+      "title": "Connector SDK",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Two process instances both subscribe to Message \"PAYMENT_CONFIRMED\" with correlation key customerId=\"C-100\". Publisher sends one such message. Team wonders if both instances get it or if a conflict arises.",
+  "question": "Multiple subscriptions same key -- conflict?",
+  "options": [
+    {
+      "id": "a",
+      "text": "In Camunda 8, a Message correlates to at most one active subscription matching the combination of message name and correlation key. If two process instances both subscribe with the same (name, key) pair, which one receives the message is undefined -- the behavior is a modeling error representing ambiguous correlation. Both instances receiving the same message simultaneously contradicts the 1-to-1 targeting semantics that differentiate Messages from Signals."
+    },
+    {
+      "id": "b",
+      "text": "Camunda's correlation typically enforces 1-to-1 matching -- Message correlates to ONE active subscription matching (name, key). If two instances have same (name, key) active: which one matches is undefined / engine-specific; this is a modeling error indicating ambiguous correlation. For 1-to-N broadcast: use Signal instead (per Set 14 Q6). For 1-to-1: ensure correlation keys are globally unique across active instances (typical pattern: customerId + orderId composite)."
+    },
+    {
+      "id": "c",
+      "text": "Duplicate correlatable subscriptions with the same (message name, correlation key) pair may or may not result in an explicit error depending on the Camunda 8 version. Some versions silently accept the duplicate and deliver ambiguously; others may raise a correlation conflict. Either way, the outcome is undefined and constitutes a modeling flaw. The correct fix is to make correlation keys unique per instance using composite keys that include order-specific identifiers alongside the customer ID."
+    },
+    {
+      "id": "d",
+      "text": "Message delivery in Camunda 8 is not randomized. The engine correlates deterministically based on the (message name, correlation key) pair. When two subscriptions share the same pair, the behavior is implementation-specific rather than random, but it remains a modeling error regardless. The correct approach is to ensure correlation keys are globally unique across all active subscriptions, typically by using composite keys that incorporate order IDs or other instance-specific identifiers."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Multiple subscriptions same key -- modelling error scenario: Camunda 8 correlation model: Message correlates by (Message name, Correlation Key value). Active subscriptions waiting on this pair: typically one expected. Multiple subscriptions same pair: undefined which gets the message (engine implementation detail). Generally: indicates a correlation design flaw. Why this is a problem: Ambiguous routing: which instance should receive? Non-deterministic: hard to debug, may behave differently in different versions. Race conditions: timing-dependent results. Common causes of the scenario: Cause 1: Over-broad correlation key: Using only customerId when there are multiple parallel orders for same customer. Each order process subscribes with same customerId; can't tell apart. Fix: include order-specific key: customerId + orderId. Cause 2: Stale subscriptions: Old process instances stuck in catch state but should have completed. Multiple \"ghosts\" waiting on same key. Fix: clean up via Operate; ensure processes complete cleanly. Cause 3: Genuine many-to-one need: Multiple instances genuinely need same event. Wrong tool: Message; right tool: Signal (broadcast). Solutions: Solution 1: Make correlation key unique per instance: Composite keys: customerId + \"-\" + orderId (per Set 13 Q20). Ensure across all active subscriptions, the key value is unique. Solution 2: Switch to Signal: If multiple instances genuinely need same event: Signal broadcasts. Each instance with Signal subscription receives. Solution 3: Aggregator process: Single \"router\" process receives the Message. Router determines which downstream instance(s) need to know; publishes targeted Messages or Signals. Centralised correlation logic. Solution 4: Cancel one of the duplicates: If duplicate subscriptions are accidental: cancel duplicate instances. Investigate why duplicates created. Detecting the issue: Operate: filter subscriptions by name/key; spot duplicates. Logging: log subscription creation; alert on duplicates. Tests: integration tests exercising correlation paths. For the scenario (two instances same (name, key)): Undefined behavior; one (random) wins. Fix: make keys unique per instance, OR use Signal if broadcast needed. In some engine versions: May throw an error at subscription time (duplicate detection). May silently accept; ambiguous correlation later. Verify your Camunda 8 version's exact behavior."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q21",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

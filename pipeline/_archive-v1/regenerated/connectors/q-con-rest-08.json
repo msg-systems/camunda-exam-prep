@@ -1,0 +1,50 @@
+{
+  "id": "con-rest-08",
+  "topic": "connectors",
+  "subtopic": "REST connector - proxy configuration",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Bank, a retail bank, runs Camunda 8.8 Self-Managed with 12 workers and 4 brokers behind a corporate proxy on port 3128. The platform team must choose between JVM properties and environment variables so the proxy applies at the right scope across the runtime for outbound HTTP traffic.",
+  "question": "What is the documented scope difference between JVM properties and environment variables for proxy configuration in Self-Managed?",
+  "options": [
+    {
+      "id": "a",
+      "text": "JVM properties scope the proxy only to the connector runtime, while environment variables affect the whole JVM and any internal HTTP client including the Zeebe client"
+    },
+    {
+      "id": "b",
+      "text": "JVM properties scope the proxy to the whole JVM and any internal HTTP client including the Zeebe client, while environment variables scope it only to the connector and REST-based connectors"
+    },
+    {
+      "id": "c",
+      "text": "JVM properties scope the proxy to a single connector instance per job, while environment variables apply the proxy once per cluster startup across all brokers and workers globally"
+    },
+    {
+      "id": "d",
+      "text": "JVM properties scope the proxy per outbound URL pattern, while environment variables scope the proxy only to inbound webhook traffic received by REST-based connectors at runtime"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The scopes are reversed: JVM properties affect the whole runtime, and environment variables are the option that scopes the proxy to only the connector and REST-based connectors."
+    },
+    "b": {
+      "text": "Correct. JVM properties affect the whole JVM and any internal HTTP client (including the Zeebe client), while environment variables narrow the proxy to only the connector and REST-based connectors."
+    },
+    "c": {
+      "text": "Incorrect. JVM properties are not per-job or per-instance; they affect the whole runtime. Environment variables also persist continuously, not just at a one-time cluster bootstrap event."
+    },
+    "d": {
+      "text": "Incorrect. Proxy configuration applies to outbound HTTP requests issued by the runtime or connector; neither option is keyed by URL pattern or restricted to inbound webhook traffic."
+    }
+  },
+  "explanation": "The REST connector documents two proxy configuration types with different scope. JVM properties affect the whole JVM and any internal HTTP client, including the Zeebe client. Environment variables affect only the connector and REST-based connectors.",
+  "docs": [
+    {
+      "title": "REST connector - configure a proxy server in Self-Managed",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/"
+    }
+  ]
+}

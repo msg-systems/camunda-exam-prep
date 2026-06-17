@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q07",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's XOR Gateway has 3 outgoing flows: =age = 65, =score > 80. They wonder what happens if a record matches multiple conditions (e.g., age=70 AND score=85 -- both >=65 and >80 true).",
+  "question": "What happens when multiple XOR Gateway conditions match?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Activating all matching outgoing flows when multiple conditions are true describes the semantics of an Inclusive (OR) Gateway, not an Exclusive (XOR) Gateway. The fundamental contract of XOR is that exactly one outgoing flow is taken, regardless of how many conditions evaluate to true. Using XOR when you intend \"activate all branches whose conditions match\" is a modelling error that will produce unexpected results. If multiple branches should activate simultaneously based on independent conditions, use an Inclusive Gateway, which supports one-or-many matching branches by design."
+    },
+    {
+      "id": "b",
+      "text": "The selection of which outgoing flow to take when multiple XOR conditions match is not random in Camunda 8. Zeebe evaluates outgoing sequence flows in a deterministic order based on the order they appear in the BPMN XML. The first flow whose condition evaluates to true is selected. This means the behavior is fully reproducible: the same process data always results in the same flow being taken. The apparent \"random\" selection is actually an order-dependent deterministic choice, which is why modelers must understand flow ordering when conditions can overlap."
+    },
+    {
+      "id": "c",
+      "text": "Claiming the engine raises an error when multiple XOR Gateway conditions match does not reflect the actual behavior. Zeebe does not throw an error or create an incident in this situation. Instead, it silently takes the first matching flow in evaluation order and ignores all remaining conditions. This silent behavior is a potential source of bugs: if a modeler expects an error to alert them to overlapping conditions, they will be surprised to find the process silently took an unintended path. Modelers must ensure conditions are mutually exclusive by design to avoid this silent mismatch."
+    },
+    {
+      "id": "d",
+      "text": "XOR takes the FIRST matching flow in declaration / evaluation order -- engine evaluates flows in their order; first one whose condition is true is taken; remaining flows are NOT evaluated. The order is significant. To avoid ambiguity, design mutually-exclusive conditions OR rely on the engine's deterministic ordering. If conditions can overlap, this can lead to subtle bugs -- prefer either:"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Exclusive Gateway (XOR) semantics: exactly one outgoing flow is taken. When multiple conditions evaluate true, the engine picks the first matching flow per its evaluation order (typically the order they appear in BPMN XML). Remaining flows aren't evaluated; only the chosen path executes. Implications: Order matters: if you have overlapping conditions, the order in BPMN determines outcome. Hidden bugs possible: if a reader doesn't realise conditions overlap, they may be surprised by which flow is taken. Best practices: Design mutually exclusive conditions: ensure only one matches at a time (e.g., partition the input space cleanly). Use default flow: explicit \"else\" path for \"no other matches\"; reduces ambiguity. Document overlap intent: if overlap is intentional (e.g., priority order encoded in flow order), comment in BPMN. Consider Inclusive Gateway: if multiple branches should activate when conditions overlap, that's Inclusive's design. For the scenario (age=70, score=85 matching >=65 and >80): XOR takes whichever appears first in flow order. If age >= 65 is first, that path runs; score > 80 skipped. If you wanted both to run (parallel handling), use Inclusive Gateway."
+    },
+    "b": {
+      "text": "Incorrect. Inclusive semantic."
+    },
+    "c": {
+      "text": "Incorrect. Deterministic."
+    },
+    "d": {
+      "text": "Correct. First match silent."
+    }
+  },
+  "explanation": "First match silent.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/exclusive-gateways/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q07",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

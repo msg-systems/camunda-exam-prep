@@ -1,0 +1,63 @@
+{
+  "id": "imp-set14-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team builds a custom Connector for their internal CRM. They use Camunda 8 SaaS. Team wonders how to deploy the custom Connector to SaaS.",
+  "question": "Custom Connector deployment to SaaS?",
+  "options": [
+    {
+      "id": "a",
+      "text": "SaaS doesn't allow custom -- partial; verify."
+    },
+    {
+      "id": "b",
+      "text": "Custom Connectors are not deployed to Camunda SaaS the same way BPMN process definitions are. BPMN and DMN files deploy to the Zeebe broker via the deployment API. Custom Connectors are Java or JavaScript runtime components that require a dedicated Connector Runtime container to host and execute them. They are execution code, not BPMN artifacts. In SaaS, custom Connectors typically run in a self-managed hybrid deployment where the Connector Runtime connects to the SaaS Zeebe cluster via outbound gRPC."
+    },
+    {
+      "id": "c",
+      "text": "md:19-38): deploy your own Connector Runtime container in your infrastructure, configure it with SaaS cluster OAuth client credentials, then point it at your SaaS Zeebe endpoint. The runtime polls for Connector jobs, executes them in your environment (with access to your internal systems), and reports results back. This enables custom Connectors on SaaS without violating the SaaS security boundary or requiring Self-Managed deployment."
+    },
+    {
+      "id": "d",
+      "text": "Custom Connectors are not restricted to Self-Managed Camunda 8 deployments. The hybrid deployment model specifically enables custom Connectors with Camunda SaaS: deploy your own Connector Runtime container that authenticates to the SaaS cluster, executes Connector jobs in your infrastructure, and reports results back via the Zeebe API. This officially documented hybrid approach allows teams to run proprietary custom Connectors against SaaS clusters without needing to self-manage the Zeebe broker, making Self-Managed just one of several valid deployment options."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Custom Connector + SaaS considerations: Custom Connector basics: Build: Java: Connector SDK; build JAR. Other languages: may have alternative SDKs / runtimes. Element Template: define for Web Modeler property panel. Implementation: handle input, perform action, return output. For Self-Managed (simpler for custom): Mount Connector JAR in Connector Runtime container. Restart Runtime; Connector available. Or: build custom image with Connectors bundled. For SaaS (verify per version): Option 1: Camunda-supported uploads: SaaS may allow uploading custom Connector packages. Console UI / API for upload. Cluster runs them. Verify specific support + size limits. Option 2: External Connector Runtime: Deploy your own Connector Runtime instance (e.g., as Kubernetes pod). Runtime connects to Camunda SaaS via OAuth client credentials. Runtime polls SaaS for jobs of your Connector's type. Pros: full control; Cons: extra infrastructure. Option 3: Webhook + external service: Webhook Inbound Connector in SaaS catches HTTP webhook. External service exposes business logic via HTTP. BPMN ↔ External via Webhook. Pros: no Connector SDK needed; Cons: less integrated; more network hops. Option 4: REST Outbound + external service: REST Outbound Connector calls your custom service. Custom logic in service. Simple integration via HTTP. For the CRM scenario: Approach A: Webhook / REST integration: Build CRM API endpoint. BPMN uses REST Connector to invoke. No custom Connector deployment; just standard REST. Pros: simple, works in SaaS; Cons: less native UX (no custom Element Template polish unless using Element Templates). Approach B: External Connector Runtime with custom Connector: Build custom Connector (CrmConnector class). Deploy to your-controlled Connector Runtime. Runtime registers Connector type with SaaS cluster (via OAuth). BPMN uses custom Connector type. Pros: native Connector UX, custom Element Template; Cons: maintain Runtime. Approach C: Upload to SaaS (if supported): Verify SaaS version's custom Connector upload feature. Upload JAR via Console. Cluster integrates. Element Templates (regardless of deployment approach): Upload Element Template JSON to Web Modeler project. Provides nice UI for modelers regardless of Connector implementation. Best practices: Start simple: use REST/Webhook for low-investment integration. Upgrade to custom Connector: when polished UX matters and team has SDK skills. Document the architecture: which layer handles what. Versioning: custom Connectors need versioning like any code. Trade-offs: | Approach | UX | Effort | Maintenance | |----------|-----|--------|-------------| | REST Connector + custom API | Generic; modeler types URL | Low | Low | | Element Template + REST | Polished UX, calls REST | Medium | Low | | External Connector Runtime | Native | High | Medium (Runtime ops) | | SaaS-uploaded Connector | Native | Medium | Low (Camunda manages) |"
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q36",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 12.6 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Java worker processes Service Tasks for \"compute-pricing\". The process instance has many variables, but the worker only needs productId and quantity for its computation. Currently the worker receives the full variable payload (~50 KB per job) on every activation, slowing down job processing and inflating network traffic. The team wants to reduce the activated variables to just what's needed.",
+  "question": "Which Job Worker configuration limits the variables fetched?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Configure the Service Task's zeebe:taskDefinition variableNames property in the BPMN extension elements to declare a comma-separated list of variable names that the worker requires. Zeebe reads this property at job-activation time and sends only those named variables to the worker, filtering out all others before dispatching the job. There is no such variableNames property in the Zeebe BPMN extension schema for zeebe:taskDefinition. Variable filtering is configured on the worker's SDK client, not on the BPMN task definition element. The correct worker-side SDK property is fetchVariables."
+    },
+    {
+      "id": "b",
+      "text": "Use input mapping on the Service Task to copy only the productId and quantity variables into a sub-scope before activation, so that the worker receives only those two variables in its scope and the rest of the 50 KB payload is excluded from the sub-scope context. Input mapping at the BPMN level performs scope-variable copying within the process model. It does not reduce the network activation payload sent to the worker -- the Zeebe broker sends whatever is visible in the current scope regardless. Only the SDK-level fetchVariables filter controls what is included in the physical job-activation message."
+    },
+    {
+      "id": "c",
+      "text": "When Zeebe activates a job, it always serialises and transmits the complete variable payload of the process instance scope to the worker -- there is no mechanism for the worker or the BPMN model to request a subset. The worker must receive and discard the variables it does not need on the client side. The fetchVariables configuration on the SDK's job worker builder instructs Zeebe to filter the activation payload server-side, transmitting only the specified variable names. This significantly reduces network traffic and worker memory consumption for variable-heavy processes."
+    },
+    {
+      "id": "d",
+      "text": "Configure the worker with fetchVariables = [\"productId\", \"quantity\"] (Java SDK) or equivalent property in other SDKs. Zeebe sends only these variables in the job activation payload. When fetchVariables is set, the Zeebe broker filters the activation message server-side to include only the listed variable names, reducing the network payload from the full 50 KB instance scope down to just the two variables the worker needs. Other SDKs expose the same capability through their respective worker-builder APIs."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe Java client (and other SDKs) supports fetchVariables configuration on the JobWorker builder. When set, Zeebe filters the variables sent in job activations to only those listed -- drastically reducing network payload and worker memory for variable-heavy processes."
+    },
+    "b": {
+      "text": "Incorrect. Input mapping at the BPMN level performs scope copying, but the activation payload to the worker still includes whatever's visible in scope. fetchVariables is the worker-side filter."
+    },
+    "c": {
+      "text": "Incorrect. Input mapping helps if used carefully but doesn't replace fetchVariables for the worker's network payload."
+    },
+    "d": {
+      "text": "Correct. fetchVariables exists exactly to reduce payload."
+    }
+  },
+  "explanation": "fetchVariables exists exactly to reduce payload.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q42",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

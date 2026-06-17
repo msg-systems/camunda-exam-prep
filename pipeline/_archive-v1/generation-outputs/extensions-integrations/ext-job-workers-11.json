@@ -1,0 +1,27 @@
+{
+  "id": "ext-job-workers-11",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers-concept",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Insurance configures a Camunda 8.8 claim-validation service task in a process that handles 4200 claims per day. The developer must understand exactly into which scope the engine merges variables on a complete-job command versus a fail-job command so the downstream gateway and the next BPMN activity receive the validation outcome variable as expected.",
+  "question": "How does the Camunda 8.8 engine merge variables supplied with a complete-job command versus a fail-job command from a worker?",
+  "options": [
+    { "id": "a", "text": "complete-job stores its variables only in the task's local scope and discards them at the next gateway, while fail-job propagates its variables up to the process instance scope so the next worker can read them later" },
+    { "id": "b", "text": "complete-job propagates its variables up to the process instance scope as JSON, while fail-job rejects any payload that contains variables and only accepts the remaining-retries count from the failing worker" },
+    { "id": "c", "text": "complete-job and fail-job both propagate their variables up from the task scope to the process instance scope; the only behavioural difference is whether remaining retries are decremented on the broker side" },
+    { "id": "d", "text": "complete-job propagates its variables from the task scope to higher scopes of the process instance, while fail-job only creates variables in the local scope of the failing task during the failure event" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The scope semantics are reversed: complete-job propagates variables from the task scope to higher scopes, while fail-job keeps the supplied variables local to the failing task." },
+    "b": { "text": "Incorrect. fail-job can carry variables; the docs note that failing with variables is useful for example to add detail to an incident or to record partial progress for the next attempt." },
+    "c": { "text": "Incorrect. complete-job and fail-job differ in their variable scope semantics: complete propagates upward, fail stays in the local task scope only." },
+    "d": { "text": "Correct. The Completing-or-failing-jobs section states that on complete-job variables are propagated from the task scope to higher scopes of the process instance, while on fail-job the variables are only created in the local scope of the failing task." }
+  },
+  "explanation": "Variables attached to a complete-job command are merged from the job's task scope up into higher scopes of the process instance so that downstream activities can read them. Variables attached to a fail-job command are created only in the local scope of the failing task, which is useful when failing with extra detail for an incident or for partial progress state.",
+  "docs": [
+    { "title": "Completing or failing jobs with variables", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q30",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A medical-intake form has a Radio field \"Pregnant?\" (yes/no). The follow-up field \"Weeks of pregnancy\" should appear only if the user selected \"yes.\" The team wants no JavaScript -- pure declarative.",
+  "question": "Which Forms feature fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Using two separate forms -- one with the Weeks field and one without -- requires a gateway in the BPMN process to choose which form to render based on the rental type variable. This doubles form maintenance effort: any change to shared fields must be made in both forms. It also creates two separate User Task configurations instead of one. The Hide if feature in Camunda Forms is designed precisely to avoid this pattern, providing conditional field visibility within a single unified form definition."
+    },
+    {
+      "id": "b",
+      "text": "Hiding form fields via custom CSS requires injecting stylesheet overrides into the Camunda Forms rendering context, which is not a supported configuration method in Camunda 8. Form schema properties control field visibility, not CSS class manipulation. Custom CSS approaches are brittle, version-dependent, and bypass the form schema contract. The Hide if property in the Form Editor provides the correct, supported, and maintainable mechanism for conditional field visibility without any CSS customisation."
+    },
+    {
+      "id": "c",
+      "text": "JavaScript event listeners on form elements require custom scripting infrastructure outside the Camunda Forms schema. Camunda 8 Form definitions are JSON schemas rendered by the Forms engine with no supported mechanism for injecting custom JavaScript event handlers. Event listeners would require embedding JavaScript in the form host page and hooking into form component internals -- bypassing the Forms schema entirely. The Hide if FEEL expression in the form schema achieves the same result declaratively."
+    },
+    {
+      "id": "d",
+      "text": "The Weeks field Hide if property accepts a FEEL expression evaluated against current form variable values. Setting Hide if to a FEEL condition that checks whether the rental type variable equals \"daily\" causes the Weeks input to disappear when daily is selected and reappear when weekly is selected. This is declarative model-time configuration in the Camunda 8 Form schema with no custom JavaScript required. The condition is re-evaluated whenever referenced variables change, providing dynamic field visibility. ###"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Every Camunda Forms element exposes a \"Hide if\" property in the properties panel (JSON-schema attribute conditional.hide) accepting a FEEL boolean expression. The element is hidden when the expression evaluates to true. Semantics are inverse to \"show when\" -- to \"appear only if pregnant = yes\" you write the inverse: =pregnant != \"yes\". Per forms-element-library-number.md:21 (and all element-library files): Hide if: [Expression] to hide the [element]."
+    },
+    "b": {
+      "text": "Incorrect. Two forms duplicate fields; \"Hide if\" keeps the form DRY in a single schema."
+    },
+    "c": {
+      "text": "Incorrect. CSS-hidden fields are still rendered into the DOM, still validated, and still serialised on submit. \"Hide if\" removes the field from the form lifecycle entirely."
+    },
+    "d": {
+      "text": "Correct. Question says \"no JavaScript\"."
+    }
+  },
+  "explanation": "Question says \"no JavaScript\".",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-number/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q30",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

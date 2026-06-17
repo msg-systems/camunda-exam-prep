@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's process generates PDF contracts and stores them via Document Handling. They want to share the document with a customer via a pre-signed URL that the customer can download from for a limited time without authenticating to Camunda.",
+  "question": "Does Document Handling support pre-signed URLs for external access?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Depends on the storage backend -- when Document Handling is configured with cloud object storage (S3, Azure Blob, GCS), the storage backend's native pre-signed URL mechanism can be used. The team typically: (1) retrieves the document reference from Camunda; (2) generates a pre-signed URL via the storage backend's API or SDK; (3) shares the URL with the customer. Camunda Documents API itself may not directly issue pre-signed URLs; the integration is at the storage layer."
+    },
+    {
+      "id": "b",
+      "text": "Yes, the Camunda Documents API has built-in pre-signed URL generation capability accessible directly through the API. Any document stored via Camunda Document Handling can have a time-limited pre-signed URL generated through a dedicated API endpoint without needing to interact with the underlying storage backend directly. This depends on the specific Camunda version and storage configuration. Whether native generation is exposed directly by the API requires verification against current documentation."
+    },
+    {
+      "id": "c",
+      "text": "Documents stored via Camunda Document Handling must always be served through Camunda's authenticated REST API. Customers and external systems accessing documents always need valid Camunda credentials or tokens; there is no mechanism to provide time-limited unauthenticated access through pre-signed URLs or similar techniques. When using cloud storage backends like S3, Azure Blob, or GCS, pre-signed URLs are a standard mechanism for providing time-limited unauthenticated download access."
+    },
+    {
+      "id": "d",
+      "text": "The only reliable way to share documents with external customers without exposing Camunda credentials is to build a custom worker that proxies document requests -- the worker authenticates to Camunda internally, retrieves the document bytes, and serves them to the customer via a temporary public URL it generates. When cloud storage backends natively support pre-signed URLs, the customer can download directly from storage without a proxy layer or custom Connector."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Document Handling's architecture separates the document reference (in Camunda) from the binary storage (configurable backend). For cloud backends (S3, Azure Blob, GCS), pre-signed URLs are a backend-native feature -- typically generated via the cloud SDK with a duration parameter (e.g., \"valid for 1 hour\"). The team's pattern: 1. Retrieve the document reference from Camunda Documents API. 2. Extract the storage-backend-specific identifier (S3 key, blob name, etc.). 3. Use the cloud SDK / API to generate a pre-signed URL with the desired duration. 4. Share the URL with the customer; they download directly from the storage backend without authenticating to Camunda. Some Camunda configurations may proxy this through a Camunda-managed endpoint; verify the current Document Handling docs for direct integration features."
+    },
+    "b": {
+      "text": "Incorrect. Native generation may or may not be exposed by Camunda's API directly."
+    },
+    "c": {
+      "text": "Incorrect. Pre-signed URLs are standard for cloud-backed documents."
+    },
+    "d": {
+      "text": "Incorrect. Custom worker proxying is unnecessary when backend supports natively."
+    }
+  },
+  "explanation": "Document Handling's architecture separates the document reference (in Camunda) from the binary storage (configurable backend). For cloud backends (S3, Azure Blob, GCS), pre-signed URLs are a backend-native feature -- typically generated via the cloud SDK with a duration parameter (e.g., \"valid for 1 hour\"). The team's pattern: 1. Retrieve the document reference from Camunda Documents API. 2. Extract the storage-backend-specific identifier (S3 key, blob name, etc.). 3. Use the cloud SDK / API to generate a pre-signed URL with the desired duration. 4. Share the URL with the customer; they download directly from the storage backend without authenticating to Camunda. Some Camunda configurations may proxy this through a Camunda-managed endpoint; verify the current Document Handling docs for direct integration features.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/getting-started/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q15",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

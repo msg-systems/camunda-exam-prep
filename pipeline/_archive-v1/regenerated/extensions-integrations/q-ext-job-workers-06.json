@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-06",
+  "topic": "extensions-integrations",
+  "subtopic": "Streaming backpressure",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Stellar Bank runs 8 streaming job workers across 2 gateways for 6000 transactions per minute in Camunda 8.8. One worker is slow and its receive method blocks for several seconds at a time, causing the gateway send buffers to fill up. The platform engineer needs to predict what the gateway does with the next job pushed toward this client.",
+  "question": "What does a Camunda 8.8 gateway do with a streamed job when the targeted client is marked not-ready?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The gateway buffers the job in its outbound send queue until the slow client unblocks, after which the same job is delivered to that specific worker over the existing stream connection"
+    },
+    {
+      "id": "b",
+      "text": "The gateway returns the job to the broker with a NOT_FOUND error so the broker raises an incident on the associated task, and the worker is taken out of the stream pool until it is restarted"
+    },
+    {
+      "id": "c",
+      "text": "The gateway sends the job over polling instead of streaming so the slow worker fetches it on the next activate-jobs request, and streaming is disabled for that worker until it is restarted"
+    },
+    {
+      "id": "d",
+      "text": "The gateway tries to re-route the job to another logically equivalent worker, and if none can receive it the job is returned to the broker which may retry it via another gateway"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The gateway does not buffer pushed jobs indefinitely for a not-ready client; Camunda 8.8 documents that the gateway tries to re-route the job to another logically equivalent worker once the client is marked not-ready."
+    },
+    "b": {
+      "text": "Incorrect. NOT_FOUND is the rejection used when two workers complete the same job after a timeout, not the response to a not-ready streaming client, and backpressure does not raise an incident by itself."
+    },
+    "c": {
+      "text": "Incorrect. Streaming is not silently downgraded to polling for a slow worker; the gateway re-routes the pushed job to another logically equivalent worker or returns it to the broker for another gateway."
+    },
+    "d": {
+      "text": "Correct. Camunda 8.8 documents that when a streaming client is not ready, the gateway tries to re-route the job to another logically equivalent worker; if none can accept it, the job is returned to the broker which may retry via another gateway."
+    }
+  },
+  "explanation": "When a streaming client blocks, its gateway marks it not-ready and tries to re-route the pushed job to another logically equivalent worker. If no logically equivalent worker on that gateway is ready, the job is returned to the broker which may retry it via another gateway.",
+  "docs": [
+    {
+      "title": "Job workers",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A backend uses OAuth2 client-credentials to get an access token for Camunda 8 SaaS APIs. The token expires after 1 hour. The team wants to handle refresh.",
+  "question": "Which approach fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Requesting a new token before every single API call without caching adds one token-request round-trip to every API call. This doubles the latency for each operation and significantly increases load on the OAuth token endpoint. For high-frequency API usage this becomes a noticeable performance and reliability concern. Teams building on Camunda 8 should consider this when designing process models for production deployment."
+    },
+    {
+      "id": "b",
+      "text": "Cache the token in memory; before each API call, check expiry against the expires_in value returned by the OAuth endpoint; if expired (or near expiry), request a new token. Camunda SDKs handle this transparently -- when writing raw HTTP code, implement the refresh check explicitly. This is standard OAuth2 client-credentials best practice for minimizing token endpoint load while ensuring fresh tokens."
+    },
+    {
+      "id": "c",
+      "text": "Hardcoding a long-lived static token is problematic because SaaS access tokens expire per their expires_in field. A hardcoded token will eventually expire, causing all API calls to fail with 401 errors until manually replaced. Token caching with automatic refresh is the reliable production pattern. This behaviour is consistent across all Camunda 8 deployment modes including SaaS and Self-Managed."
+    },
+    {
+      "id": "d",
+      "text": "All OAuth2 access tokens have a lifetime defined by the expires_in field in the token response. SaaS Cluster API tokens have a documented TTL. Relying on tokens never expiring would eventually produce 401 authentication failures in production."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Standard OAuth2 client-credentials practice: cache + refresh on expiry. Token TTL is per-issuer via expires_in (no fixed value): SaaS Cluster API ~24h per manage-api-clients.md:73; Optimize API doc example = 300s (5 min). Camunda SDKs handle the refresh automatically; raw HTTP code must implement the check."
+    },
+    "b": {
+      "text": "Correct. Token-per-call slams the auth endpoint and adds latency."
+    },
+    "c": {
+      "text": "Incorrect. SaaS tokens expire."
+    },
+    "d": {
+      "text": "Incorrect. Tokens expire -- TTL via expires_in per OAuth2 spec (per-issuer; SaaS Cluster API ~24h, Optimize example 300s)."
+    }
+  },
+  "explanation": "Token-per-call slams the auth endpoint and adds latency.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/console/manage-clusters/manage-api-clients/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q45",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

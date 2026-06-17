@@ -1,0 +1,27 @@
+{
+  "id": "ext-camunda8-sdk-102",
+  "topic": "extensions-integrations",
+  "subtopic": "typescript-sdk",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Insurance models a claims process and deploys it from a Node.js script with the Camunda 8 TypeScript SDK against Camunda 8.8, expecting 7500 instances per day. The developer must structure the deploy code correctly so that the network call resolves before the script exits, because the SDK documents that methods which operate over the network return promises rather than blocking.",
+  "question": "Why does the quickstart wrap the deploy call inside an async main function in the documented example?",
+  "options": [
+    { "id": "a", "text": "Network operations are asynchronous and SDK methods that operate over the network return promises, so callers must await them inside an async function such as main to obtain the response" },
+    { "id": "b", "text": "Network operations are synchronous in the SDK but TypeScript requires every top-level program entry point to be declared as async main even when no promise is returned by the call" },
+    { "id": "c", "text": "Network operations stream events via callbacks and the async main wrapper exists to register an event listener on the camunda instance before the first deploy call is made" },
+    { "id": "d", "text": "Network operations expose RxJS observables and the async main wrapper exists to subscribe to the deploy observable so that the script does not exit before the first emission" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The docs state that network operations are asynchronous and that methods over the network return promises, so the quickstart wraps the main function as async to await deployResourcesFromFiles." },
+    "b": { "text": "Incorrect. Network operations are not synchronous in the SDK; the async wrapper is required because the deploy call returns a promise that must be awaited for the response payload." },
+    "c": { "text": "Incorrect. The deploy step does not register a callback subscription; deployResourcesFromFiles returns a promise that resolves to the deploy response payload." },
+    "d": { "text": "Incorrect. The TypeScript SDK does not expose deploy operations as RxJS observables; deployResourcesFromFiles returns a standard promise resolved with the deploy response." }
+  },
+  "explanation": "Network operations in the TypeScript SDK are asynchronous and methods over the network return promises, so the quickstart wraps the deploy logic in an async main function and awaits camunda.deployResourcesFromFiles.",
+  "docs": [
+    { "title": "Camunda 8 TypeScript SDK", "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/" }
+  ]
+}

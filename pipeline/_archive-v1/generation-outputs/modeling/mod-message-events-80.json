@@ -1,0 +1,27 @@
+{
+  "id": "mod-message-events-80",
+  "topic": "modeling",
+  "subtopic": "events",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Tessera Insurance correlates an external payment notification to a single waiting policy instance among 8000 policies in Camunda 8.8. The architect must avoid broadcasting the notification to every active instance, so the integration must use the 1:1 sender-to-recipient event category.",
+  "question": "Which event type delivers a 1:1 correlation from one publisher to one waiting process instance?",
+  "options": [
+    { "id": "a", "text": "A message event delivers a 1:1 correlation, routing the published message to the single waiting instance that matches the message name and correlation key value" },
+    { "id": "b", "text": "A signal event delivers a 1:1 correlation, routing the broadcast to the single instance whose name matches the published signal value at the throw site of the event" },
+    { "id": "c", "text": "A message event delivers a 1:N correlation, fanning the published message out to every waiting instance whose start event references the same configured message name" },
+    { "id": "d", "text": "A signal event delivers a 1:1 correlation by name match only, ignoring any correlation key value supplied alongside the published signal payload from the client" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The documentation states that message events are used if a single process instance needs to wait for a message, forming a 1:1 sender-to-recipient relationship that cannot have more than one recipient." },
+    "b": { "text": "Incorrect. Signal events form a 1:N relationship in the documentation; a thrown signal triggers every waiting catch in matching processes, which is the opposite of a 1:1 correlation." },
+    "c": { "text": "Incorrect. Messages are described as 1:1 in the documentation, and the message has only one recipient; the 1:N fan-out behavior belongs to signal events instead." },
+    "d": { "text": "Incorrect. Signals route by name to every matching listener in a 1:N relationship; they are not described as a 1:1 correlation channel for a single waiting instance." }
+  },
+  "explanation": "The documentation contrasts messages with signals: message events form a single-sender to single-recipient (1:1) relationship, while signal events form a single-sender to several-recipient (1:N) relationship.",
+  "docs": [
+    { "title": "BPMN message events", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/" }
+  ]
+}

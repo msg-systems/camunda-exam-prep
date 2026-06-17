@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q40",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL expression customer.tier. If customer is null, expression errors. Team wonders null-safe patterns in FEEL.",
+  "question": "FEEL null-checking patterns?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL expressions are automatically null-safe and never throw errors when accessing properties of null values â€” this approach has limitations. FEEL expressions can produce null when navigating properties of null context values, and in some cases navigation can result in evaluation errors. c where a is null or b is not a property of a returns null but deeper chaining can cause issues. Camunda 8 FEEL provides the ? : null-coalescing operator and the get or else function for explicit null safety, but these must be used deliberately."
+    },
+    {
+      "id": "b",
+      "text": "Null pointer-style errors when accessing fields on null variables in FEEL are unavoidable and must be handled with try-catch in Java workers -- this approach has limitations. FEEL provides first-class null safety patterns that prevent null access errors entirely within the expression language. field = value short-circuit, and the get or else(value, default) built-in all handle nulls gracefully within FEEL. There is no need to push null handling up to Java workers unless business logic requires more complex recovery behavior beyond simple defaulting."
+    },
+    {
+      "id": "c",
+      "text": "md:70-93 that returns value if not null, else default (verbatim examples: get or else(\"this\", \"default\") → \"this\"; get or else(null, \"default\") → \"default\"). Idiomatic collection default: =get or else(items, []). FEEL has no JavaScript-style ?. safe-navigation operator -- use explicit if or get or else. name else \"unknown\"."
+    },
+    {
+      "id": "d",
+      "text": "FEEL expressions support try/catch blocks for handling null access exceptions -- this approach has limitations. FEEL is a declarative expression language and has no imperative control flow constructs like try/catch, throw, or catch. FEEL does not have exception handling syntax. ), and built-in functions like get or else(). , complex recovery logic, logging), that belongs in a job worker written in Java or another language, not in FEEL expressions."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL null-safety patterns: Pattern 1: Explicit if-check: `feel customerName: if customer != null then customer.name else \"Unknown\" Pattern 2: Short-circuit and: feel isPremium: customer != null and customer.tier = \"premium\" If customer is null, short-circuits to false (verify FEEL short-circuit behavior). Pattern 3: Default for missing fields: feel age: if person.age != null then person.age else 0 Pattern 4: For collections: feel itemCount: if items != null then count(items) else 0 totalAmount: sum(if items != null then items else []) Pattern 5: Nested defensive: feel city: if customer != null and customer.address != null then customer.address.city else \"Unknown\" Multi-level null checks. Safe-navigation operator: FEEL does not provide a JavaScript-style ?. safe-navigation operator. Use explicit if checks or get or else. Coalesce (native via get or else): Per feel-built-in-functions-boolean.md:70-93 Camunda Extension: feel get or else(primary, \"fallback\") // primary if not null, else \"fallback\" For 3-way fallback chain, nest: feel get or else(primary, get or else(secondary, fallback)) Equivalent to if primary != null then primary else if secondary != null then secondary else fallback but tighter. For null vs missing field: Null value: explicitly set to null. Missing field: field doesn't exist in context. In FEEL: typically treated similarly (access returns null). For deeply nested: Wrap in helper / BKM: feel function getCityOrDefault(c) = if c != null and c.address != null then c.address.city else \"Unknown\" Call: getCityOrDefault(customer). For boolean operations: feel isFlagged: customer != null and customer.flagged = true Null in arithmetic: feel total: (if price != null then price else 0) * quantity Avoid null + 5 (error). Null in strings: feel display: (if firstName != null then firstName else \"\") + \" \" + (if lastName != null then lastName else \"\") Avoid null + \"...\". For DMN evaluation: Null inputs: may cause rule mismatches or errors. Defensive cell expressions: handle nulls. Default rules (per Set 13 Q27): catch null / unmatched. For Operate visibility: Null values shown as \"--\" typically. Easier to debug if explicit handling. Best practices: Null-defensive at boundaries: input data, external responses. Trust internal data: less defensive within process. Document expected nulls: which fields may be null. Test null cases: explicit unit tests. Anti-patterns: No null handling: errors at runtime. Over-defensive: every access wrapped in if (verbose). Generic catch-all: hides specific issues. For the scenario: feel tier: if customer != null then customer.tier else \"unknown\" Or idiomatically via get or else: feel tier: get or else(customer.tier, \"unknown\") (customer.tier returns null if customer is null OR tier field is missing; get or else` substitutes default.)"
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-boolean/#get-or-elsevalue-default"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q40",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

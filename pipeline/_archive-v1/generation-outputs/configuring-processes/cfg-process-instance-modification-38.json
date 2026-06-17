@@ -1,0 +1,27 @@
+{
+  "id": "cfg-process-instance-modification-38",
+  "topic": "configuring-processes",
+  "subtopic": "modification",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora, a logistics provider on Camunda 8.8, runs a dispatch process with an interrupting message event subprocess containing task C. Across 3500 shipment instances, task A is complete and task B is active; the external system that publishes the interrupting message has been down for 8 hours. The operator wants to use a modification to activate the interrupting event subprocess and replicate the documented effect on task B.",
+  "question": "What is the documented effect on task B when Aurora activates the interrupting event subprocess by modification?",
+  "options": [
+    { "id": "a", "text": "The engine terminates task B automatically once the interrupting event subprocess is activated by modification and also clears any other running activities inside the dispatch process at Aurora" },
+    { "id": "b", "text": "The engine rejects the activation because an interrupting event subprocess can only be activated by the real message; modification targets are limited to non-interrupting subprocesses at Aurora" },
+    { "id": "c", "text": "The engine activates the event subprocess and enters its start event, but task B keeps running, so both task B and task C are active until task B is terminated explicitly at Aurora" },
+    { "id": "d", "text": "The engine activates the event subprocess, terminates task B, and also re-activates task A so the process replays from the beginning of the event subprocess flow at Aurora" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The docs explicitly state that activating the interrupting event subprocess by modification does not interrupt the process instance or terminate task B automatically." },
+    "b": { "text": "Incorrect. The Activate an interrupting event subprocess section describes using modification to activate exactly this construct, so it is supported, not rejected." },
+    "c": { "text": "Correct. The docs state the event subprocess becomes active and enters its start event, but the activation does not interrupt the process instance or terminate task B, so both tasks B and C are active." },
+    "d": { "text": "Incorrect. The docs do not describe re-activating task A; only the event subprocess is activated and task B remains running until explicitly terminated by an additional instruction." }
+  },
+  "explanation": "Activating an interrupting event subprocess via modification activates the subprocess and enters its start event, but the interrupting semantics do not fire. Task B keeps running, so to simulate true interruption an additional terminate instruction for task B is required.",
+  "docs": [
+    { "title": "Process instance modification", "url": "https://docs.camunda.io/docs/components/concepts/process-instance-modification/" }
+  ]
+}

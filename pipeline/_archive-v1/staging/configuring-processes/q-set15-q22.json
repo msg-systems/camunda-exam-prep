@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q22",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Camunda Form deployed. Team wonders if Form has executable attribute like BPMN process.",
+  "question": "Form executable attribute?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda Forms have an isExecutable attribute analogous to the BPMN process isExecutable flag -- this approach has limitations. Camunda Forms are passive rendering declarations, not executable process models. Forms have their own attributes (id, schemaVersion, executionPlatform, executionPlatformVersion, components) but no isExecutable concept. The isExecutable attribute belongs exclusively to the BPMN <process> element and signals deployability for the Zeebe execution engine. , and rendered by Tasklist when a task activates. The concept of \"executability\" simply does not apply to form definitions."
+    },
+    {
+      "id": "b",
+      "text": "Camunda Forms cannot be independently deployed to a cluster and must always be embedded within BPMN processes -- this approach has limitations. form JSON resources to the Camunda 8 cluster, similar to how BPMN and DMN files are deployed. When deployed independently, forms are versioned and referenced by formId from User Tasks via zeebe:formDefinition. form. Independent deployment enables form versioning, reuse across multiple processes, and separate lifecycle management."
+    },
+    {
+      "id": "c",
+      "text": "All Camunda 8 deployable artifacts (BPMN, DMN, Forms) share a common isExecutable attribute that controls whether each is executed by the engine -- this approach has limitations. Only the BPMN <process> element uses isExecutable. DMN decisions use a different execution model (evaluation triggered by Business Rule Tasks or REST API, not an isExecutable flag). Forms have no execution attribute at all -- they are passive rendering schemas. Each artifact type has its own deployment and execution model specific to its purpose: processes execute flows, decisions evaluate logic, forms render UI for human tasks."
+    },
+    {
+      "id": "d",
+      "text": "Forms typically don''t have BPMN-style isExecutable attribute -- Forms are passive renderers, not executable processes. ) with validation and layout; they are rendered by Tasklist when a User Task activates. Form attributes include id, schemaVersion, executionPlatform, executionPlatformVersion, and components -- but no isExecutable. form JSON → reference from User Task via zeebe:formDefinition formId=... → Tasklist fetches and renders → user submits → data flows to process variables."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Form lifecycle vs Process lifecycle: BPMN Process: Executable: engine runs the flow. isExecutable=\"true\": deployable / runnable. Camunda Form: Renderer / declaration: defines fields, validation, layout. Not executed by engine: rendered by Tasklist when task activated. No isExecutable concept: doesn't apply. Form structure (JSON typical): `json { \"schemaVersion\": 16, \"id\": \"review-form\", \"type\": \"default\", \"components\": [ { \"type\": \"textfield\", \"key\": \"feedback\", \"label\": \"Your feedback\" } ], \"executionPlatform\": \"Camunda Cloud\", \"executionPlatformVersion\": \"8.4.0\" } Form attributes: id: form identifier (referenced by User Tasks). schemaVersion: Form schema version (compatibility marker). type: form type (default, embedded, etc.). executionPlatform / executionPlatformVersion: target Camunda version. components: array of form fields. No isExecutable: forms aren't \"executed\" in BPMN sense. Form deployment: Deploy form to cluster (like BPMN / DMN). Form versioned (auto-increment on redeploy). User Tasks reference by formId. Form lifecycle: 1. Modeled: in Web Modeler / Desktop Modeler. 2. Deployed: form stored in cluster. 3. Referenced: BPMN User Task references via zeebe:formDefinition formId (per Set 13 Q11). 4. Rendered: when task active, Tasklist fetches + renders. 5. Submitted: user fills + completes; data flows to process variables. Versioning: Each deploy: new version. User Tasks bind to version (latest typically; sticky in some configs). For executability semantic: BPMN processes: \"executable\" means engine runs the flow. DMN decisions: similar concept; decision is \"evaluated\" by engine. Forms: rendered by client (Tasklist UI); engine doesn't \"execute\" them. Differences in deployment: BPMN / DMN: deploy as .bpmn / .dmn files. Form: deploy as .form (JSON) file. Different MIME types / file extensions. Forms in process flow: Linked at User Task: formId attribute. Submit triggers task completion: variables saved. Engine continues: per BPMN flow. For external Forms (legacy): formKey with URL: external form (per Set 13 Q11). Renders external HTML; submit calls Camunda API. For embedded Forms: type: \"embedded\"`: form embeds in custom UI. Modern Tasklist uses Camunda Forms natively. Best practices: Don't look for isExecutable on Forms: concept doesn't apply. Deploy + version explicitly: track form changes. Document form schema: what fields, types, validators. Anti-patterns: Treating Forms as executable: confuses with BPMN. Inline form definitions in BPMN: deploy separately for reuse / versioning."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q22",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

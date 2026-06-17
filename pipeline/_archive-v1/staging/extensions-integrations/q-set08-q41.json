@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Java Job Worker handles archive-large-file -- the worker triggers an async backup process that takes several minutes. The worker doesn't want to block on the async work; instead, it wants to signal \"I've started the work; complete the job later when the async work finishes.\"",
+  "question": "Which Spring Zeebe pattern fits \"start async work, complete the job later\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Always configure the job handler with autoComplete = true so the job completes automatically when the handler method returns -- this description does not reflect actual behaviour for async scenarios where work continues after the handler returns. complete() when the handler method exits, regardless of whether the actual work is finished. For fire-and-forget async patterns where an async task starts in the handler and completes later, using autoComplete would mark the job complete before the async work finishes, causing the process to advance prematurely."
+    },
+    {
+      "id": "b",
+      "text": "send() when the async work finishes. The worker method returns immediately after starting the async work; Zeebe holds the job's activation timeout window."
+    },
+    {
+      "id": "c",
+      "text": "Boundary Events respond to external triggers arriving at an active task: timers, messages, errors, signals, and escalations from outside. They are not a mechanism for a job worker to signal its own completion asynchronously. send() from the async callback."
+    },
+    {
+      "id": "d",
+      "text": "Asynchronous job handler patterns have no implementation in the Spring Zeebe integration -- all job handlers must complete synchronously before the handler method returns -- this description does not reflect the actual behaviour. Spring Zeebe fully supports asynchronous job processing through the autoComplete = false annotation attribute. When autoComplete = false is set on a @ZeebeWorker handler, the SDK does not automatically complete the job when the method returns. The handler can start async work and return immediately, then later call the Zeebe client's complete command explicitly from the async callback when the work finishes."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. autoComplete = false is Spring Zeebe's async pattern. By default (autoComplete = true), Spring Zeebe automatically calls complete() after the method returns. With autoComplete = false, the worker assumes responsibility for completing the job -- typically from a different thread / callback / event handler. The method body can: (1) start the async work and return, leaving the job activation in place; (2) the async completion callback later calls client.newCompleteCommand(jobKey).send() to mark the job complete. Critical concerns: Timeout management: the job has an activation timeout. If the async work exceeds it, Zeebe re-activates the job (potentially leading to duplicate execution). Tune the timeout to the expected async work duration. Persistence of jobKey: the worker must store the jobKey somewhere accessible from the async completion thread (typically in-memory map keyed by a business identifier, with appropriate cleanup). Failure handling: if the async work fails, call client.newFailCommand(jobKey).send() to signal failure (decrements retries) or client.newThrowErrorCommand(jobKey).errorCode(...).send() for BPMN errors."
+    },
+    "b": {
+      "text": "Correct. Auto-completion before async work finishes is wrong."
+    },
+    "c": {
+      "text": "Incorrect. Boundary Events are external; not for worker-async."
+    },
+    "d": {
+      "text": "Incorrect. Async supported."
+    }
+  },
+  "explanation": "Auto-completion before async work finishes is wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q41",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

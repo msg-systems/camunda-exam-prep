@@ -1,0 +1,50 @@
+{
+  "id": "mod-send-tasks-41",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Marketplace publishes 4500 order events per day to a Kafka topic named payment from Camunda 8.8. A modeler must configure the BPMN send task so the right pool of workers picks up the job and so the static Kafka topic name travels with each job without being passed as a process variable.",
+  "question": "How should the modeler configure the send task to route jobs to the correct workers and carry the static topic name?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set the job type on the task definition to a value such as kafka and add a task header that carries the static topic name to the subscribed job workers"
+    },
+    {
+      "id": "b",
+      "text": "Set the job type on the task definition to payment and rely on the topic header being injected by Zeebe automatically based on the configured job type name"
+    },
+    {
+      "id": "c",
+      "text": "Leave the task definition empty and put the topic value into an input variable mapping so that the worker reads the topic from the activated job payload variables"
+    },
+    {
+      "id": "d",
+      "text": "Configure the topic on the BPMN messageRef of the send task and let Zeebe correlate the outgoing publication based on the resolved message name at activation"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. A send task defines a job type the same way a service task does so that the right workers subscribe to the job, and task headers pass static parameters such as the Kafka topic name to those workers."
+    },
+    "b": {
+      "text": "Incorrect. There is no automatic topic header injection in Zeebe; static parameters such as the topic name must be declared explicitly via task headers on the send task."
+    },
+    "c": {
+      "text": "Incorrect. Without a task definition there is no job type for workers to subscribe to, and variable mappings transform variables rather than carry static configuration values."
+    },
+    "d": {
+      "text": "Incorrect. Send tasks are job-based outbound publication elements; they do not use messageRef-driven correlation to deliver static configuration to workers."
+    }
+  },
+  "explanation": "Send tasks declare a job type via the task definition so the right workers subscribe, and task headers carry static parameters such as the Kafka topic name. Variable mappings transform dynamic variables but are not the place for static configuration.",
+  "docs": [
+    {
+      "title": "BPMN send tasks",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/send-tasks/"
+    }
+  ]
+}

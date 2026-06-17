@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q01",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A parent process invokes a child via Call Activity. The child computes discountResult and the team wants this value back in the parent's scope as discountAmount after the child completes.",
+  "question": "How does the child's value reach the parent's scope?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Assuming child variables auto-propagate to the parent scope without configuration is a common misconception. In Camunda 8 Zeebe, child and parent process instances maintain separate variable scopes by design. Even when propagateAllChildVariables defaults to true, best practice requires explicit Output Mapping to curate which variables cross the scope boundary. Without an explicit mapping, the variable names, types, and values from the child may not reliably appear in the parent under the expected names."
+    },
+    {
+      "id": "b",
+      "text": "Configure Output Mapping on the Call Activity in the parent: Target: discountAmount, Source: =discountResult. When the child completes, its variables are exposed to the Call Activity's Output Mapping; the FEEL expression reads from the child's scope and writes to the parent's scope. Without explicit Output Mapping the child's variables may not reliably appear in the parent under the expected name. Set propagateAllChildVariables=\"false\" and declare explicit Output Mappings so the variable contract is curated and visible in the BPMN XML."
+    },
+    {
+      "id": "c",
+      "text": "Using a Service Task after the Call Activity to query child instance results is an over-engineered approach that introduces unnecessary complexity. The Service Task would need to call Operate or another API to look up the completed child instance's variables, adding network latency, failure modes, and coupling to the monitoring layer. Output Mapping on the Call Activity is the direct, clean, BPMN-native solution that Zeebe supports without requiring any additional infrastructure calls or custom worker code."
+    },
+    {
+      "id": "d",
+      "text": "Assuming parent and child processes share the same variable scope does not reflect the actual behavior in Camunda 8. Call Activity invocations create a child process instance with its own isolated variable scope. Variables set inside the child are not automatically visible in the parent scope without a configured crossing mechanism. The scope isolation is intentional: it prevents accidental data leakage between processes and enforces clear contracts about what data flows in (Input Mapping) and out (Output Mapping) across the boundary."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Call Activity child and parent have separate variable scopes. Communication crosses the scope boundary via explicit Input / Output Mappings: Input Mapping: parent → child (what data the child receives at start). Output Mapping: child → parent (what data the parent receives back at child completion). The Output Mapping is configured on the Call Activity element in the parent's BPMN. Each mapping declares Target (the parent's variable name) and Source (a FEEL expression evaluating against the child's scope at completion time). Practical example: `xml Without Output Mapping, the parent doesn't see child results unless propagateAllChildVariables is enabled. Per call-activities.md:43-53, both propagateAllParentVariables (parent → child, default true) and propagateAllChildVariables (child → parent, default true) attributes exist as merge-by-default behaviour; mappings are used to curate / restrict which variables cross the scope boundary, not to enable propagation. Best practice: set propagateAllChildVariables=\"false\"` and declare explicit Output Mappings so the contract is curated and visible in the BPMN XML."
+    },
+    "b": {
+      "text": "Correct. Explicit mapping required."
+    },
+    "c": {
+      "text": "Incorrect. Output Mapping is the clean path."
+    },
+    "d": {
+      "text": "Incorrect. Separate scopes."
+    }
+  },
+  "explanation": "Explicit mapping required.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q01",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

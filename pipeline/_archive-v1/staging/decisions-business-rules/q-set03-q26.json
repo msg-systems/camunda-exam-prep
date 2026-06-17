@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q26",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A complex tax-calculation DRD has 5 decisions: BaseTax, Deductions, Credits, Adjustments, FinalTax. The first four are independent decisions that each take from the same shared inputs (income, taxYear, filingStatus). They feed into FinalTax. The team draws four arrows from the shared input to each of the four decisions and observes that the diagram visually clutters with parallel arrows.",
+  "question": "Which DRD element cleanly represents a shared input referenced by multiple decisions?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Duplicate the shared inputs into four separate Input Data nodes, one for each decision that consumes them -- income, taxYear, and filingStatus would each appear four times in the DRD. While this makes the information flow from each input to each decision explicit through direct one-to-one connections, it violates the single-source-of-truth principle for the input data and makes the diagram harder to maintain. When input names or types change, four separate nodes must be updated instead of one."
+    },
+    {
+      "id": "b",
+      "text": "Combine all four independent decisions (BaseTax, Deductions, Credits, Adjustments) into a single \"supernode\" composite decision element that encapsulates all four logical components. 3 specification or the Camunda 8 implementation. Each decision in a DRD must be a separate Decision element; business logic for each must remain in its own decision table or DRD sub-decision, not merged into a single composite node."
+    },
+    {
+      "id": "c",
+      "text": "Input Data is not a valid DRD element -- it is absent from the DMN specification's graphical notation. Shared inputs to multiple decisions must be configured at the Business Rule Task level using input variable mappings in the BPMN process. DMN diagrams should only contain Decision nodes connected by Knowledge Requirements, with all input data flowing from the BPMN process context rather than being represented as DRD nodes. This misrepresents the DMN metamodel and the Camunda 8 DRD element vocabulary."
+    },
+    {
+      "id": "d",
+      "text": "Use a single Input Data node representing the shared input variables (income, taxYear, filingStatus) defined once in the DRD. Connect this single node to all four consumer decisions -- BaseTax, Deductions, Credits, and Adjustments -- using Information Requirement arrows. Each arrow simply expresses that the target decision consumes data from this input. The Input Data node is defined once, eliminating duplication while the four arrows clearly show each decision's dependency on the shared inputs."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. DMN's Input Data node is the canonical element representing inputs shared across decisions. Define once, connect to all consumers via Information Requirement arrows. The diagram cleanly expresses \"these 4 decisions all consume these inputs\" with one input node + 4 arrows."
+    },
+    "b": {
+      "text": "Incorrect. Duplicating Input Data clutters the diagram and breaks the \"single source of truth\" principle."
+    },
+    "c": {
+      "text": "Incorrect. No \"supernode\" concept in DMN."
+    },
+    "d": {
+      "text": "Correct. Input Data IS a DMN element."
+    }
+  },
+  "explanation": "Input Data IS a DMN element.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-requirements-graph/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q26",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

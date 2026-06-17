@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q25",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Decision Table has output column. Wonders if declared type matters for validation.",
+  "question": "Decision output type declaration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Not needed -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "md:9-13, :22: DMN decision table output columns carry a type annotation that the Camunda 8 engine uses to parse and convert returned values. When the output type is declared as integer, long, double, string, boolean, or date, the engine coerces the cell value to that type before returning results. This ensures that downstream FEEL expressions and variable assignments receive correctly typed values. Without type declarations, values default to string and may require explicit casting."
+    },
+    {
+      "id": "c",
+      "text": "While the engine can process untyped outputs, relying on runtime inference leads to unpredictable behavior when cell values are inconsistent. Declaring the typeRef attribute explicitly on the output column ensures that the engine coerces all returned values to the specified type, catches type mismatches early, and provides a clear contract for downstream FEEL expressions that consume the decision output."
+    },
+    {
+      "id": "d",
+      "text": "The typeRef attribute on an output column is not merely a comment. The Camunda 8 DMN engine uses it to parse and coerce output cell values to the declared type. A string cell value in a column declared as integer will be converted to an integer. When there is a type mismatch that cannot be coerced, the engine raises an error. The type declaration therefore affects runtime behavior, not just documentation."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Output type declaration: Decision Table output column attributes: Name: identifier. Type: number, string, boolean, date, etc. Allowed values (optional): subset (e.g., enum). Example: `xml \"low\",\"medium\",\"high\" Type = string; allowed = low/medium/high. Validation: Cell expressions: result must match type. Invalid output: typically engine error / null. For allowed values: Output entries: must be from allowed list. For PRIORITY hit policy (per Set 13 Q23): ordering by allowed list. For downstream: Consumers know type. No type surprises. Without type declaration: Untyped: any value allowed. More flexible: but error-prone. Type errors deeper: harder to debug. Common types: string: text. number: numeric. boolean: true/false. date / time / dateTime: temporal. List types: list, etc. Custom types: defined in DMN. For Decision Table multiple output columns (per Set 15 Q24): Each column own type. Result is object with typed fields. For COLLECT hit policy with aggregator (per Set 14 Q23): C+ / C / C#: numeric. Output column type: must support aggregation. For type-strict evaluation: Output cells: FEEL evaluated. Result type: checked against declared. Mismatch: error / null. For nullable: Default cells: may produce null. Engine handling: per version. For testing: Unit tests: verify output types correct. Schema validation: BPMN/DMN tooling. For"
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-output/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q25",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 20 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 24.4 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

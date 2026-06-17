@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN decision-table input column applicationDate is typed as date. A rule's input entry is < date(\"2025-01-01\"). The input value at evaluation is date(\"2024-12-15\").",
+  "question": "Does the rule match?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No -- DMN input entries can only test for exact equality when the column type is date. To check whether a date falls before 2025-01-01, the team must use a workaround such as splitting into year/month/day integer components. This claim is inaccurate. FEEL implements full temporal comparison semantics for all date and time types. = all work on date, time, date and time, and duration values with chronological ordering. The unary test < date(\"2025-01-01\") in a DMN input cell is a standard and well-supported pattern."
+    },
+    {
+      "id": "b",
+      "text": "Yes -- FEEL's date comparison is temporal (chronological): date(\"2024-12-15\") < date(\"2025-01-01\") evaluates to true because December 15, 2024 comes before January 1, 2025 in calendar order. The unary test < date(\"2025-01-01\") in a DMN input cell matches any date value that is chronologically earlier than January 1, 2025, which includes the input value date(\"2024-12-15\"). FEEL implements full temporal comparison semantics for date, time, date and time, and duration types, so the comparison operators <, <=, >, >= all work correctly with date values."
+    },
+    {
+      "id": "c",
+      "text": "A type mismatch error occurs because the input entry < date(\"2025-01-01\") attempts to compare a raw ISO date string to a date-typed input column value, and FEEL cannot compare strings to dates. This claim misunderstands FEEL's date() constructor. The expression date(\"2024-12-15\") does not produce a string -- it constructs a FEEL date value by parsing the ISO 8601 string. The comparison date(\"2024-12-15\") < date(\"2025-01-01\") is a date-to-date comparison, fully supported by FEEL's temporal ordering. Both operands are correctly typed as date values."
+    },
+    {
+      "id": "d",
+      "text": "The rule match depends on the time zone -- date(\"2024-12-15\") in one time zone may actually represent a different calendar day than in another time zone, making the comparison result ambiguous. , date and time(\"2024-12-15T23:00:00+05:00\")), where the UTC-equivalent moment may cross a day boundary. Comparing two date values is purely chronological with no time zone ambiguity."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL implements temporal arithmetic for dates: , >=, =, != all work and respect chronological order. 2024-12-15 < 2025-01-01 is true. The DMN rule with input entry < date(\"2025-01-01\") matches."
+    },
+    "b": {
+      "text": "Correct. FEEL supports comparison operators, not just equality."
+    },
+    "c": {
+      "text": "Incorrect. Both date(\"2024-12-15\") and date(\"2025-01-01\") are date values (constructor converts strings). Comparison is between dates, not string-vs-date."
+    },
+    "d": {
+      "text": "Incorrect. Pure date type is date-only (no time, no zone). Time zone matters for date and time type. Question uses date() constructor; no time component."
+    }
+  },
+  "explanation": "FEEL supports comparison operators, not just equality.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-temporal/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q29",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

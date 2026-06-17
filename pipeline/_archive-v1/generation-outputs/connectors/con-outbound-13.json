@@ -1,0 +1,25 @@
+{
+  "id": "con-outbound-13",
+  "topic": "connectors",
+  "subtopic": "outbound",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vector Logistics, a freight broker calling 18000 rate-quote APIs per day, uses an outbound HTTP-JSON connector in Camunda 8.8 to fetch carrier prices. The team wants 12 retries spaced 30 seconds apart per call to absorb upstream throttling, replacing the default of 3 retries executed sequentially without any delay between attempts.",
+  "question": "Which BPMN-level configuration delivers 12 retries spaced 30 seconds apart for this outbound connector?",
+  "options": [
+    { "id": "a", "text": "Set retries=\"12\" on the zeebe:taskDefinition element and add a retryBackoff task header bound to the ISO 8601 duration value PT30S in the element template" },
+    { "id": "b", "text": "Set retries=\"12\" on the zeebe:taskDefinition element and add a retryDelay task header bound to the ISO 8601 duration value PT30S in the element template" },
+    { "id": "c", "text": "Set retries=\"12\" in the element template properties and add a retryBackoff process variable that carries the ISO 8601 duration value PT30S at runtime" },
+    { "id": "d", "text": "Set retries=\"12\" on the zeebe:taskHeaders element and add a retryBackoff field on the task definition with the ISO 8601 duration value PT30S at deploy time" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The retries attribute sits on the zeebe:taskDefinition element, and the connector runtime recognises retryBackoff as a reserved task header with an ISO 8601 duration value; binding retryBackoff to PT30S therefore spaces the 12 retries 30 seconds apart instead of running them immediately." },
+    "b": { "text": "Incorrect. The reserved task header documented for spacing retries is retryBackoff, not retryDelay; an unknown header is ignored by the connector runtime, so the retries would still run back-to-back without any delay." },
+    "c": { "text": "Incorrect. retryBackoff is a task header on the BPMN element template, not a process variable; the connector runtime reads the value from the task header at job-failure time, not from runtime process variables on the instance." },
+    "d": { "text": "Incorrect. The retries attribute belongs to zeebe:taskDefinition (not zeebe:taskHeaders), and retryBackoff is a task header rather than a property on the task definition; the two schema slots have been swapped here." }
+  },
+  "explanation": "Connector execution defaults to 3 immediate retries on failure. To change the count, set the retries attribute on zeebe:taskDefinition in the BPMN XML. To add a delay between attempts, bind a retryBackoff task header (a reserved key handled by the connector runtime) to an ISO 8601 duration such as PT30S; the property can be hidden or made visible by changing its type.",
+  "docs": [ { "title": "Outbound connectors", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/outbound/" } ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set17-q43",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "REST Connector calls API requiring OAuth client credentials flow. Wonders Connector handling.",
+  "question": "REST Connector OAuth flow handling?",
+  "options": [
+    {
+      "id": "a",
+      "text": ", Send client credentials in body). NAME}} per :114-118 -- never inline secrets in BPMN XML. - Connector fetches token automatically + caches in-memory until expiry, then refreshes on demand. - Adds Authorization: Bearer <token> header to target API call automatically. - For non-standard OAuth flows (Authorization Code / Refresh Token / Password / PKCE): NOT in the built-in mode dropdown -- use a custom Connector or pre-fetch the token via a preceding Service Task."
+    },
+    {
+      "id": "b",
+      "text": "The Connector handles the client-credentials flow internally, fetches the token from the configured token endpoint, caches it in memory until expiry, and automatically refreshes it. Manual token management is only needed for non-standard OAuth flows like Authorization Code that are not in the built-in mode dropdown."
+    },
+    {
+      "id": "c",
+      "text": "The REST Connector has no OAuth support and cannot handle OAuth-protected APIs -- this does not accurately reflect the behavior. md:100-121. The Authentication section in the element template includes fields for OAuth token endpoint, client ID, client secret, optional scopes, optional audience, and client authentication method. The Connector fetches and manages the access token automatically, adding the Authorization: Bearer header to the target API call without any external token management code."
+    },
+    {
+      "id": "d",
+      "text": "0 client-credentials flow with dynamic token fetching. The built-in OAuth mode goes beyond a static Bearer token by fetching a fresh access token from the authorization server, handling expiry and renewal automatically, and using proper client authentication methods. Static Bearer tokens require manual rotation, while the OAuth mode manages token lifecycle automatically."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. REST Connector OAuth: OAuth client credentials flow: 1. Service has: client_id + client_secret. 2. POST to token URL: with credentials. 3. Receive access_token + expires_in. 4. Use token: Bearer header in API calls. 5. Refresh: before expiry. REST Connector configuration via element-template (per Pattern #62 -- REST Connector properties bind as zeebe:input, NOT zeebe:taskHeader): Element-template \"Authentication\" group fields populate zeebe:input entries under the Connector's input context, e.g.: `xml Typically authored via Modeler properties panel, not raw XML. Connector behavior: On task execution: 1. Check cached token: still valid? 2. If not: POST to token endpoint. 3. Get token. 4. Add Authorization: Bearer header. 5. Call target API. Token caching: Per Connector instance: in-memory. Until expiry. Refreshed on demand. For multi-tenant: Different credentials per tenant: different cached tokens. For SDK-level OAuth (per Set 14 Q44): Camunda SDK OAuth: for Camunda APIs. REST Connector OAuth: for external APIs. Separate: each manages own tokens. For other OAuth flows: Authorization code flow: Browser-based; user interaction. Not for service-to-service: typically. Implicit flow: Deprecated. Refresh token flow: For long-lived sessions. Verify Connector support. Password / resource owner: Discouraged: only legacy. PKCE: For public clients: mobile / SPA. Not typical for server-to-server. Camunda 8 REST Connector typically: Client credentials: primary OAuth flow. Other flows: less common; verify. For custom auth schemes: Custom Connector: Build with auth logic. Token fetch + caching: in code. For non-OAuth auth: Basic auth: standard. API key: header. Custom HMAC: per partner spec. For testing: Local development: Test OAuth server (e.g., Keycloak local). Mock token endpoint. CI: Test credentials: not prod. For error handling: OAuth fails: Connector error: Authorization failed. BPMN Error Boundary can catch. API call fails post-auth: 401: token invalid; refresh + retry. 403: scope insufficient; investigate. For audit: Log auth events: who fetched token when. Don't log tokens: security. For token rotation: client_secret rotation: update secret in Camunda. No BPMN changes: secret reference unchanged. Next invocation: picks up new. For multi-region: Token URL per region: configure. Audience per service. For testing OAuth flow: bash curl -X POST \\ -d \"grant_type=client_credentials\" \\ -d \"client_id=X\" \\ -d \"client_secret=Y\" \\ -d \"audience=Z\" ` Verify OAuth setup manually. For OpenID Connect: OAuth + identity: more than just access. For service-to-service: typically just OAuth. For JWT tokens: OAuth often returns JWT: signed token. Camunda doesn't validate (passes through). Target API validates. For token introspection (advanced): Target API may introspect token: with OAuth server. Not Camunda's concern: typically. For mTLS + OAuth combined: Strong auth: both layers. Configure both. For PKI / mTLS only: No OAuth: just certificates. REST Connector mTLS: verify support. Best practices: Use Connector OAuth feature: built-in. Secrets management for credentials. Test in dev with real OAuth server. Monitor auth failures: alert. Anti-patterns: Manual token fetch when Connector handles. Hardcoded tokens: short-lived; rotation issue. No error handling: silent failures. For the scenario (OAuth client credentials): Configure REST Connector with OAuth settings. Connector handles token lifecycle. Secrets for credentials. For older Camunda 8 versions: Pre-fetch token in Service Task. Pass as Bearer: less clean. For modern Camunda 8: Built-in OAuth: standard pattern."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "REST Connector OAuth: OAuth client credentials flow: 1. Service has: client_id + client_secret. 2. POST to token URL: with credentials. 3. Receive access_token + expires_in. 4. Use token: Bearer header in API calls. 5. Refresh: before expiry. REST Connector configuration via element-template (per Pattern #62 -- REST Connector properties bind as zeebe:input, NOT zeebe:taskHeader): Element-template \"Authentication\" group fields populate zeebe:input entries under the Connector's input context, e.g.: `xml Typically authored via Modeler properties panel, not raw XML. Connector behavior: On task execution: 1. Check cached token: still valid? 2. If not: POST to token endpoint. 3. Get token. 4. Add Authorization: Bearer header. 5. Call target API. Token caching: Per Connector instance: in-memory. Until expiry. Refreshed on demand. For multi-tenant: Different credentials per tenant: different cached tokens. For SDK-level OAuth (per Set 14 Q44): Camunda SDK OAuth: for Camunda APIs. REST Connector OAuth: for external APIs. Separate: each manages own tokens. For other OAuth flows: Authorization code flow: Browser-based; user interaction. Not for service-to-service: typically. Implicit flow: Deprecated. Refresh token flow: For long-lived sessions. Verify Connector support. Password / resource owner: Discouraged: only legacy. PKCE: For public clients: mobile / SPA. Not typical for server-to-server. Camunda 8 REST Connector typically: Client credentials: primary OAuth flow. Other flows: less common; verify. For custom auth schemes: Custom Connector: Build with auth logic. Token fetch + caching: in code. For non-OAuth auth: Basic auth: standard. API key: header. Custom HMAC: per partner spec. For testing: Local development: Test OAuth server (e.g., Keycloak local). Mock token endpoint. CI: Test credentials: not prod. For error handling: OAuth fails: Connector error: Authorization failed. BPMN Error Boundary can catch. API call fails post-auth: 401: token invalid; refresh + retry. 403: scope insufficient; investigate. For audit: Log auth events: who fetched token when. Don't log tokens: security. For token rotation: client_secret rotation: update secret in Camunda. No BPMN changes: secret reference unchanged. Next invocation: picks up new. For multi-region: Token URL per region: configure. Audience per service. For testing OAuth flow: bash curl -X POST \\ -d \"grant_type=client_credentials\" \\ -d \"client_id=X\" \\ -d \"client_secret=Y\" \\ -d \"audience=Z\" ` Verify OAuth setup manually. For OpenID Connect: OAuth + identity: more than just access. For service-to-service: typically just OAuth. For JWT tokens: OAuth often returns JWT: signed token. Camunda doesn't validate (passes through). Target API validates. For token introspection (advanced): Target API may introspect token: with OAuth server. Not Camunda's concern: typically. For mTLS + OAuth combined: Strong auth: both layers. Configure both. For PKI / mTLS only: No OAuth: just certificates. REST Connector mTLS: verify support. Best practices: Use Connector OAuth feature: built-in. Secrets management for credentials. Test in dev with real OAuth server. Monitor auth failures: alert. Anti-patterns: Manual token fetch when Connector handles. Hardcoded tokens: short-lived; rotation issue. No error handling: silent failures. For the scenario (OAuth client credentials): Configure REST Connector with OAuth settings. Connector handles token lifecycle. Secrets for credentials. For older Camunda 8 versions: Pre-fetch token in Service Task. Pass as Bearer: less clean. For modern Camunda 8: Built-in OAuth: standard pattern.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/#rest-connector-oauth-token"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q43",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

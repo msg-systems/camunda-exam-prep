@@ -1,0 +1,50 @@
+{
+  "id": "ext-testing-process-definitions-178",
+  "topic": "extensions-integrations",
+  "subtopic": "testing",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Halcyon Marketplace plans 12 process tests against a Camunda 8.8 invoice approval flow, distributed across the happy path, rejection, approval timeout, and archive error. The architect wants a clear definition of the chunk-based strategy before writing the first deviation test.",
+  "question": "What does testing a Camunda 8.8 process in chunks actually mean according to the best practices?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Identify the important paths and chunks of the process, such as happy path, rejection, approval timeout, and archive error, and write a dedicated test method for each chunk so deviations are covered alongside the happy path"
+    },
+    {
+      "id": "b",
+      "text": "Slice the BPMN file into smaller BPMN files at every gateway and write a test for each slice separately, so the original process model is only assembled when running integration tests"
+    },
+    {
+      "id": "c",
+      "text": "Pick a single representative process instance per release and use it as the only chunk under test, on the assumption that other paths will be exercised manually during exploratory testing"
+    },
+    {
+      "id": "d",
+      "text": "Cover only error paths with dedicated test methods; the happy path is sufficiently covered by the production telemetry produced by Operate during the first week after a release"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Testing your process in chunks section recommends identifying the important paths of the process (happy path, rejection, timer-driven automatic approval, archive error) and dedicating a test method to each chunk, with the happy path tested fully in one big method."
+    },
+    "b": {
+      "text": "Incorrect. The best practice does not split the BPMN file itself; it splits the test coverage across important paths through the same model."
+    },
+    "c": {
+      "text": "Incorrect. One chunk per release leaves the deviating paths uncovered, which is the opposite of the chunk-based recommendation."
+    },
+    "d": {
+      "text": "Incorrect. The happy path is part of the chunk-based strategy and is explicitly tested in one consistent end-to-end method, not deferred to Operate."
+    }
+  },
+  "explanation": "Testing a Camunda 8.8 process in chunks means writing dedicated test methods for the important paths through the model, such as the happy path plus rejection, timer-driven approval, and archive error.",
+  "docs": [
+    {
+      "title": "Testing process definitions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/testing-process-definitions/"
+    }
+  ]
+}

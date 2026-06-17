@@ -1,0 +1,50 @@
+{
+  "id": "mod-error-events-90",
+  "topic": "modeling",
+  "subtopic": "error-events",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Stellar Insurance runs a Camunda 8.8 claim validation process where a job worker validates 1800 claims per hour. The worker has fetched a job and detected a business rule violation that should follow the modelled error path rather than return as a generic technical incident on the task.",
+  "question": "Which mechanism is documented for the worker to throw a BPMN error for the currently processed job in Camunda 8.8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The worker calls a gateway error end event REST endpoint directly so the engine maps the response payload to a modelled error code on the running process instance scope"
+    },
+    {
+      "id": "b",
+      "text": "The worker calls the throw error client command for the active job, which throws the BPMN error and disables the job so other workers cannot activate or complete it again"
+    },
+    {
+      "id": "c",
+      "text": "The worker completes the job with a special errorCode field on the result payload, which the engine interprets as throwing the matching modelled error code on the task"
+    },
+    {
+      "id": "d",
+      "text": "The worker calls a generic fail job command with the errorCode embedded in the failure message, which the engine then converts into a BPMN error event on the task"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The page describes a throw error client command tied to an active job, not a direct REST call to an error end event endpoint of the gateway in the orchestration cluster."
+    },
+    "b": {
+      "text": "Correct. The Throwing the error section states that a worker can use the throw error client command while processing a job; this throws the BPMN error and disables the job so it cannot be activated or completed by other workers."
+    },
+    "c": {
+      "text": "Incorrect. There is no errorCode field on the standard complete job payload; the documented path is the dedicated throw error client command on the gRPC and REST job APIs of the cluster."
+    },
+    "d": {
+      "text": "Incorrect. Fail job is the retry path for technical failures; the documented BPMN error throw is the throw error client command, not the fail job command in the orchestration cluster API."
+    }
+  },
+  "explanation": "A worker raises a BPMN error from a running job by calling the throw error client command on the orchestration cluster API. The command throws the configured BPMN error and disables the job so it is not re-activated by other workers.",
+  "docs": [
+    {
+      "title": "BPMN error events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/error-events/"
+    }
+  ]
+}

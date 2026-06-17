@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's DMN decision RiskAssessment is currently deployed at version 3. A new version 4 fixes a bug in the risk calculation logic. The team deploys v4 to the same cluster. Some processes that started under v3 are still in-flight and their Business Rule Tasks haven't yet evaluated RiskAssessment. The Business Rule Task in the BPMN was defined without an explicit bindingType attribute on its zeebe:calledDecision. What version of RiskAssessment will in-flight processes call when their Business Rule Task evaluates it?",
+  "question": "What version of RiskAssessment will in-flight processes call when their Business Rule Task evaluates it?",
+  "options": [
+    {
+      "id": "a",
+      "text": "In-flight processes call v3 automatically because Zeebe implicitly pins decision references to the version that was the latest when each process instance was created -- regardless of whether bindingType is set. Without an explicit bindingType=\"deployment\" the Business Rule Task uses latest semantics, which resolves the decision at task-activation time. When v4 is deployed, any in-flight BRT that activates after deployment resolves to v4, not v3. There is no implicit version-at-instance-start pinning."
+    },
+    {
+      "id": "b",
+      "text": "In-flight processes call v4 (the new latest) -- because the Business Rule Task uses the default bindingType=\"latest\", which resolves the decision at the moment the task is activated, not at process-instance start. To pin in-flight callers to v3, the BPMN author had to set bindingType=\"deployment\" explicitly. The default latest semantics mean a new deployment lifts in-flight callers onto the newer version unless backward compatibility is explicitly guaranteed."
+    },
+    {
+      "id": "c",
+      "text": "The version resolution behaviour is configurable per Business Rule Task via a versionStrategy property that accepts values like pinToDeployment, useLatest, and useVersionTag, giving fine-grained control over which decision version each task resolves at activation. The configurable property is real but it is named bindingType with values latest, deployment, and versionTag -- not versionStrategy. Using the wrong attribute name causes the BPMN parser to silently ignore the property and fall back to the latest default."
+    },
+    {
+      "id": "d",
+      "text": "In-flight processes encounter a \"decision version mismatch\" error at evaluation time because Zeebe detects a conflict between the version pinned to the process instance at creation and the now-current deployed version, requiring an explicit process instance migration step to resolve. No such mismatch error exists in Zeebe. The engine cleanly resolves to the version the bindingType semantics select at activation time. Missing versions raise incidents only when versionTag references a tag that was never deployed."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per business-rule-tasks.md lines 45-54, the bindingType attribute on zeebe:calledDecision accepts three values: latest, deployment, versionTag. If the attribute is not specified, latest is used as the default. latest means \"the latest deployed version at the moment the business rule task is activated\" -- therefore, when an in-flight process's BRT activates AFTER v4 was deployed, the engine resolves to v4. Best-practices guide (choosing-the-resource-binding-type.md lines 35, 47) explicitly warns this default can surprise: a new deployment lifts in-flight callers onto the newer version unless backwards compatibility is guaranteed. To keep in-flight callers on v3, the BPMN must use bindingType=\"deployment\" (pins to the process's deployment-time decision version) or bindingType=\"versionTag\" with a fixed tag."
+    },
+    "b": {
+      "text": "Correct. This is the opposite of the documented default. There is no implicit \"pin to process-instance-start\" behavior -- without an explicit bindingType=\"deployment\", the BRT will always resolve latest at activation time."
+    },
+    "c": {
+      "text": "Incorrect. The configurable property IS real, but it is called bindingType (with values latest / deployment / versionTag), NOT versionStrategy. Get the spelling right or deployment will silently use the default latest."
+    },
+    "d": {
+      "text": "Incorrect. No such mismatch error. The engine cleanly resolves to whichever version the bindingType semantics select; missing versions raise an incident only when versionTag references a tag that was never deployed."
+    }
+  },
+  "explanation": "This is the opposite of the documented default. There is no implicit \"pin to process-instance-start\" behavior -- without an explicit bindingType=\"deployment\", the BRT will always resolve latest at activation time.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/business-rule-tasks/#defining-a-called-decision"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q29",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

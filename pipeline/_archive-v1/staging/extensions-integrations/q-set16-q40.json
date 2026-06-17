@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q40",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL: now() returns current date and time. Team wonders if timezone affects value. FEEL now() and today() timezone?",
+  "question": "FEEL now() and today() timezone?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Always UTC -- this is only partially correct; the actual timezone depends on the engine's JVM configuration. In Camunda SaaS and most cloud deployments, the engine JVM defaults to UTC, making now() return UTC time. timezone flag, resulting in now() returning local time. today() similarly returns the current date per the engine's timezone. For processes with business-hours or date-comparison logic, timezone mismatch between engine and user expectations can cause incorrect results."
+    },
+    {
+      "id": "b",
+      "text": "FEEL's now() and today() functions return the current time according to the process engine's JVM/container timezone, not the timezone of the user who submitted the form or triggered the process. In cloud-hosted environments (Camunda SaaS), the engine typically runs in UTC, so now() returns a UTC timestamp regardless of where users are located. A user in New York triggering a process at 8 PM ET would produce a now() value of 1 AM UTC. Teams must explicitly convert or apply timezone offsets when business logic requires user-local time interpretation."
+    },
+    {
+      "id": "c",
+      "text": "now() and today() return engine time (verify TZ): now() returns the current date and time value based on the process engine's system clock and configured timezone. For Camunda SaaS and most cloud deployments, this is typically UTC. today() returns the current date component only. If processes compare now() against business-hours rules expecting local time, timezone mismatch can cause incorrect evaluations. The recommended practice is to configure the engine timezone explicitly and document it, or to pass the user's local time as a process variable rather than relying on now() for user-context-dependent logic."
+    },
+    {
+      "id": "d",
+      "text": "Timezone is directly relevant when using now() or today() for business logic decisions. If the engine runs in UTC but business rules define thresholds like \"orders placed before 5 PM local time get same-day processing,\" the timezone mismatch will cause incorrect results for users in different time zones. Examples include SLA calculations, business hours checks, day-of-week logic, and date comparison rules. Teams that ignore timezone when using temporal FEEL functions will encounter subtle, hard-to-debug errors that only manifest in specific geographic contexts."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL temporal functions + TZ: now(): Returns current date and time. TZ: engine / cluster default. Typical: UTC for cloud deployments. today(): Returns current date. TZ-dependent: which day depends on TZ. Example: midnight UTC vs midnight Tokyo → different today() values. For specific TZ: `feel // Specific TZ moment date and time(now(), \"@Europe/Sofia\") Verify exact syntax per FEEL version. Common issues: Issue 1: Server TZ vs user TZ: User in Tokyo (UTC+9). Server in UTC. \"Today\" for user = previous day for server (around midnight). Business logic surprises. Issue 2: DST transitions: \"Spring forward\": 02:00 → 03:00. \"Fall back\": 02:00 → 01:00. Calculations crossing DST: unexpected. Issue 3: Date boundaries: Beginning of day: depends on TZ. Month / year boundaries: same. Best practices: Pattern 1: Always UTC for storage: Store dates / times in UTC. Convert to user TZ only for display. Pattern 2: Pass user TZ as variable: Process variable: userTimezone = \"Europe/Sofia\". Compute in user TZ when needed. Pattern 3: Pre-compute on entry: At process start: compute relevant dates in business TZ. Use computed values throughout. For comparison: feel // UTC comparison =now() > deadline // both in UTC; works For business-day logic: feel // FEEL doesn't natively know business days // Compute externally or via custom BKM For temporal in DMN tables: Input: date / date-time. Range: [date(\"2026-01-01\")..date(\"2026-12-31\")]. TZ consideration: ensure consistent. For Timer events (per Set 16 Q10): ISO 8601 with TZ: explicit. Cron expressions: may need TZ config. For audit / logging: Log in UTC: standard. Display in user TZ: UX. Camunda 8 TZ configuration: Verify per version: Cluster TZ: typically UTC. Override: configuration option. For SaaS: Camunda manages: typically UTC. No customer control over server TZ. For Self-Managed: Configure cluster TZ: standard JVM TZ settings. TZDB updates: keep current. For Output Mapping: feel ={createdAt: now()} Stores engine current time. For \"now\" in different scopes: now() in BPMN Input Mapping: at task creation. now() in DMN evaluation: at decision evaluation. Each evaluation independent: not cached. For testing time-dependent logic: Inject time (advanced): override now() for tests. Mock: in worker tests. Test data with explicit dates. Performance: now() / today()` cheap. No I/O. For the scenario (timezone affects): Yes: TZ affects what \"today\" / \"now\" means. Engine TZ matters: typically UTC. For user-facing: convert / handle in app layer. Verify in your Camunda 8 version: Default TZ. Configuration options. TZDB version. Anti-patterns: Assuming user TZ matches server: bugs around midnight. No DST consideration: spring/fall surprises. Hardcoded TZ in BPMN: rigid."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-temporal/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q40",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q28",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN decision is called from a BPMN Business Rule Task. The team wonders what variables the DMN can access during evaluation -- only what's passed in, or all caller's process variables?",
+  "question": "What's the DMN evaluation context -- caller's whole scope or specific inputs?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Claiming that a DMN decision can only access variables explicitly passed to it via Input Mapping is only partially accurate. In Camunda 8, when a Business Rule Task invokes a DMN decision, the evaluation context typically includes the full set of process variables available at the Business Rule Task's point of execution. Input expressions in the DMN table can reference any of those variables by name without requiring an explicit BPMN-level Input Mapping."
+    },
+    {
+      "id": "b",
+      "text": "When Camunda 8 evaluates a decision via a Business Rule Task, the decision engine receives the process instance's current variable set as its evaluation context. FEEL input expressions in the decision table can directly reference process variable names."
+    },
+    {
+      "id": "c",
+      "text": "The DMN evaluation context typically includes the caller's process variables at the moment of evaluation. The DMN can reference any process variable in its input expressions. Best practice: declare expected inputs explicitly (via DMN's input data elements OR via input expressions referencing specific variable names), so the DMN's interface is documented. Avoid the DMN deeply navigating caller's structures -- couples DMN to caller's data shape."
+    },
+    {
+      "id": "d",
+      "text": "Claiming that all process variables are automatically translated and mapped into the DMN's declared input columns is only partially correct. Process variables are available in the evaluation context and can be referenced in input expressions, but they are not automatically renamed or transformed to match DMN input column names. The decision's FEEL input expressions must explicitly reference the variable names as they exist in the process scope. If a process uses deeply nested structures, the DMN must navigate those with appropriate FEEL path expressions rather than relying on any automatic translation or flattening behavior."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. DMN evaluation in Camunda 8: Caller's variables in scope: the DMN can reference process variables by name in its input expressions. Decision body sees the context: input expressions evaluate FEEL against this context. Example: `xml xml customer.tier When evaluation happens, FEEL evaluates customer.tier against the caller's variable set; the result feeds the input column's value tests. Implications: Convenience: don't need explicit Input Mapping bridging BPMN→DMN for variables already in process scope. Coupling: DMN depends on caller's variable names; renaming a BPMN variable could break the DMN. Best practices for cleanish coupling: Declare Input Data nodes in DRD: document what data the DMN expects (even if not enforced at runtime, it's good architecture). Use input expressions that pull specific fields: rather than navigating deep, keep input expressions shallow (e.g., expect tier` at top-level; caller's Input Mapping flattens nested fields). Don't navigate caller's internal structure deeply: makes DMN brittle to caller changes. Some Camunda 8 configurations may allow narrower context (only declared inputs); verify per version."
+    },
+    "b": {
+      "text": "Incorrect. Depends on configuration."
+    },
+    "c": {
+      "text": "Correct. Access."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "Access.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q28",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[3]"
+      }
+    ]
+  }
+}

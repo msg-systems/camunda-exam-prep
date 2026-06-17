@@ -1,0 +1,27 @@
+{
+  "id": "mng-delete-resources-78",
+  "topic": "managing-development",
+  "subtopic": "operate",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Insurance runs Camunda 8.8 with 4500 policies per day. A platform engineer is asked to delete an old onboarding process definition version from Operate, but the previous release still has 12 running instances on that exact version on the cluster. The team wants to know what the userguide says about deleting a process definition that still has running instances.",
+  "question": "What does the Processes-page delete-resources flow specify when the selected process definition version still has running instances?",
+  "options": [
+    { "id": "a", "text": "The selected process definition version must have no running instances before deletion; otherwise the userguide says it is not possible to delete the definition, and the user must cancel or resolve those instances first" },
+    { "id": "b", "text": "The selected process definition version is allowed to have up to 50 running instances, which Operate moves to the latest deployed version automatically when the Delete button is clicked" },
+    { "id": "c", "text": "The selected process definition version is deleted in place and any running instances on it are converted to incidents in Operate so an operator can resolve them after deletion completes" },
+    { "id": "d", "text": "The selected process definition version is deleted, and any running instances on it are paused for 30 minutes while a background migration job moves them to the next deployed version on the cluster" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The note on Delete process definition from Processes page states that the selected process definition version must have no running instances; otherwise it is not possible to delete the definition. The note points the operator to cancel or resolve running instances first using basic Operate navigation." },
+    "b": { "text": "Incorrect. There is no documented threshold like 50 running instances, and Operate does not auto-migrate instances to the latest version when Delete is clicked; the deletion is blocked while running instances exist." },
+    "c": { "text": "Incorrect. Running instances are not converted to incidents on deletion; the userguide simply blocks deletion until the operator cancels or resolves the running instances themselves." },
+    "d": { "text": "Incorrect. There is no 30 minutes pause-and-migrate behaviour described in the docs; deletion of the process definition version is gated on the version having no running instances." }
+  },
+  "explanation": "Delete process definition from Processes page wraps the version filter and Delete button in a guardrail note: the chosen process definition version must have no running instances. Otherwise deletion is blocked, and the operator must first cancel or resolve those running instances via basic Operate navigation.",
+  "docs": [
+    { "title": "Delete resources", "url": "https://docs.camunda.io/docs/components/operate/userguide/delete-resources/" }
+  ]
+}

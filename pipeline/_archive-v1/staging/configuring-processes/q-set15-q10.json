@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Timer Start Event needs to fire every weekday at 9 AM. Team wonders ISO 8601 cron-like syntax in Camunda.",
+  "question": "Timer Cycle for weekday schedule?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Camunda 8 Timer Cycle accepts both ISO 8601 repeating intervals (R/PT1H for hourly) and cron expressions (0 9 1-5 for weekdays at 9 AM). Cron expressions are the natural fit for calendar-based schedules with day-of-week constraints. The ISO 8601 format suits fixed-interval repetition but cannot express day-of-week filtering without complex workarounds. Both formats are documented and supported in Camunda 8 timer event configuration."
+    },
+    {
+      "id": "b",
+      "text": "3 cron expressions (6-field format: seconds minutes hours day-of-month month day-of-week). ISO 8601 is well-suited for simple fixed-rate intervals, while cron handles complex business schedules like weekday-only firing. Ignoring ISO 8601 overlooks a widely-used and well-documented timer format in Camunda 8."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 Timer Start Events do not support business-day schedules and can only fire at fixed intervals -- this approach has limitations. 3 CronExpression format (6-field cron: seconds minutes hours day-of-month month day-of-week) for Timer Cycles. This enables complex business-day schedules such as 0 0 9 MON-FRI (every weekday at 9 AM) or 0 0 9-17 MON-FRI (every hour from 9 AM to 5 PM on weekdays). The Camunda documentation explicitly uses this weekday cron pattern as an example, confirming business-day scheduling is a supported feature."
+    },
+    {
+      "id": "d",
+      "text": "3 CronExpression (6-field: seconds minutes hours day-of-month month day-of-week). The documented example 0 0 9-17 MON-FRI fires every hour 9 AM-5 PM on weekdays; idiomatic weekday-9-AM form is 0 0 9 MON-FRI. ISO 8601 handles fixed-rate intervals; cron handles complex business schedules. Cron times default to server time zone -- explicit TZ configuration prevents DST surprises."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Timer Cycle formats: ISO 8601 Repeating Interval format: R/: repeat indefinitely. R/: repeat n times. R//: start at specific time; repeat. Examples: R/PT1H: every hour. R5/PT30M: every 30 minutes, 5 times. R/2026-05-15T09:00:00Z/P1D: starting May 15 9 AM, every day. ISO 8601 limitations: Fixed intervals: every N seconds/minutes/hours/days. Can't express: \"weekdays only\", \"1st of month\", \"every Monday\". For business-day schedules: cron more suitable. Cron expressions (Spring 5.3 CronExpression per timer-events.md:104): Format (6 fields): seconds minutes hours day-of-month month day-of-week. Documented Camunda example: 0 0 9-17 MON-FRI -- every hour 9 a.m.-5 p.m. UTC Monday-Friday (:106). Examples (idiomatic per Camunda doc style): 0 0 9 MON-FRI → every weekday at 9 AM. 0 0 0 1 → 1st of every month at midnight. 0 /15 → every 15 minutes. 0 0 9-17 ? MON-FRI → every hour 9 AM - 5 PM on weekdays. Cron pieces: : any value. ?: no specific value (used for day-of-month or day-of-week when other is specified). ,: list separator (e.g., MON,WED,FRI). -: range (e.g., MON-FRI). /: step (e.g., /15 = every 15). In Camunda 8: Timer cycle expression: in Timer Event configuration. Format: ISO 8601 OR cron (verify both supported). Time zone: cron usually requires explicit TZ; ISO 8601 uses TZ in date portion. For the scenario (weekdays 9 AM): Cron (idiomatic per timer-events.md:106): 0 0 9 MON-FRI ISO 8601 alone: not expressible. Workaround with ISO 8601: Set Timer for every day at 9 AM (R/2026-05-15T09:00:00/P1D). At start of process: check if weekday; if not, end early. Less elegant; uses cycles on weekends. Time zone handling: In ISO 8601 with time zone: R/2026-05-15T09:00:00+02:00/P1D Fires at 9 AM Sofia time daily. In cron: Server time zone by default OR explicit TZ. Anti-pattern: server in UTC, cron in business TZ → off-by-hours. Fix: configure timer time zone or use UTC explicitly. DST considerations: Spring forward: 9 AM might be missed or doubled (depending on offset). Fall back: 9 AM might fire twice. For business-critical: account for DST behavior. TZDB: cron implementations should handle DST. Verify Camunda 8 timer features: ISO 8601: supported. Cron: may be supported (depends on version). Composite schedules: may need workarounds. Best practices: Use ISO 8601 for simple intervals: fixed-rate. Use cron for business schedules: weekdays, monthly, etc. Explicit time zones: avoid ambiguity. Test DST behavior: especially around spring/fall transitions. Document schedule: in BPMN annotation. For Timer Boundary / Intermediate Timer: Duration: PT5M (5 min from now). Date: 2026-12-31T23:59:59Z (specific moment). Cycle: only for Timer Start Events typically (recurring). Anti-patterns: Polling cron when ISO 8601 fits: more cycles than needed. No TZ specification: ambiguous; surprise at deploy time. Complex cron in BPMN: hard to read; comment liberally."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/timer-events/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-connecting-the-workflow-engine-with-your-world-125",
+  "topic": "extensions-integrations",
+  "subtopic": "integration-patterns",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "The messaging example pays through an external service modeled as a send task followed by a receive task instead of a single service task. Per the docs, why are send and receive tasks used here?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The payment service might be long-running — for example, expired credit cards that need updating or wire transfers that must happen — so send and receive separate the request from the response."
+    },
+    {
+      "id": "b",
+      "text": "BPMN forbids a single service task from publishing to AMQP, so it must be split into two tasks."
+    },
+    {
+      "id": "c",
+      "text": "The Kafka connector requires send and receive tasks because Kafka has no synchronous reply primitive."
+    },
+    {
+      "id": "d",
+      "text": "Send and receive tasks consume less memory than a service task on the Zeebe broker."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The doc's spoiler alert says send and receive tasks are used because the payment service might be long-running — citing expired credit cards that need updating or wire transfers that need to happen — so the response cannot be modeled as a synchronous service-task call."
+    },
+    "b": {
+      "text": "BPMN does not prohibit a service task from publishing to AMQP; the choice in the doc is about long-running response time, not protocol legality."
+    },
+    "c": {
+      "text": "This example uses RabbitMQ/AMQP, not Kafka, and the rationale is asynchronous long-running behaviour rather than a Kafka constraint."
+    },
+    "d": {
+      "text": "The doc does not discuss broker memory as the reason; the rationale is purely about the payment service's potentially long-running nature."
+    }
+  },
+  "explanation": "When an external interaction can take an unbounded amount of time — like a payment that may need a card update or wire transfer — modeling it as a send task plus a separate receive task lets the process wait for an explicit correlated message instead of pretending the call is synchronous. The doc spells this out as the reason for choosing the two-task pattern over a single service task.",
+  "docs": [
+    {
+      "title": "Connecting the workflow engine with your world",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/connecting-the-workflow-engine-with-your-world/"
+    }
+  ]
+}

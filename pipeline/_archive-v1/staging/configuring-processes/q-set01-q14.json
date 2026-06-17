@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Business Rule Task references DMN \"claim-routing\" containing AutoApprovalCheck, RiskScoring, RoutingDecision (final). Configured with decisionId: claim-routing and resultVariable: routingResult. Variable receives nested object with all three decision outputs instead of just final.",
+  "question": "Why is result nested + how to fix?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The DMN engine always returns the outputs of all decisions in the diagram as a single nested map keyed by decision ID. RoutingDecision to extract the final decision's output."
+    },
+    {
+      "id": "b",
+      "text": "RoutingDecision to directly write the final decision output to that nested path. The dot notation in this field does not perform JSONPath-style targeting; it is simply treated as a variable name containing a literal dot, which is non-standard and would not produce the intended output."
+    },
+    {
+      "id": "c",
+      "text": "DMN always returns the full Decision Requirements Graph output when a Business Rule Task references any decision in the diagram, meaning the nested result with all three decisions is the correct and expected behaviour. Downstream processes should simply adapt to this structure by extracting the desired output from the nested map. This misunderstands how Camunda 8's DMN engine works -- when you specify a decisionId, the engine evaluates only that decision and the upstream decisions it depends on, returning the output of the specified decision as the primary result."
+    },
+    {
+      "id": "d",
+      "text": "The decisionId property on the Business Rule Task references a specific decision node within the DMN model, not the entire DMN diagram file. When set to RoutingDecision, the Camunda 8 DMN engine evaluates that specific decision and automatically walks its Information Requirements backwards to evaluate all upstream dependent decisions in the correct order. The resultVariable then receives the output of only that specific decision, not the entire DRG output. The current misconfiguration sets decisionId to the diagram or DRG ID, causing all decisions to be returned."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. decisionId references specific decision id; engine resolves Information Requirements upstream."
+    },
+    "b": {
+      "text": "Incorrect. Workaround hides misconfiguration."
+    },
+    "c": {
+      "text": "Incorrect. resultVariable is flat name."
+    },
+    "d": {
+      "text": "Correct. Specific-decision eval is the correct approach."
+    }
+  },
+  "explanation": "Specific-decision eval is the correct approach.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q14",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

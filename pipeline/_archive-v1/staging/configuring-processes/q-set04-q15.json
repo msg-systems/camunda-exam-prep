@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A claims process must store uploaded photos and PDFs (5-50 MB each) as part of the process state. Storing them as base64 process variables would bloat the broker state.",
+  "question": "Which Camunda 8.6+ feature handles this cleanly?",
+  "options": [
+    {
+      "id": "a",
+      "text": "6+ â€” is the first-class document-as-variable feature. Upload binary files via the Documents API to receive a document reference. Pass the reference as a lightweight process variable. Binary content is stored in the configured backend (in-memory for development, S3 or GCS for production). Downstream tasks and Connectors fetch the document via the reference when needed. This keeps broker state lean while providing full Camunda-managed document lifecycle including TTL."
+    },
+    {
+      "id": "b",
+      "text": "Base64-encoding and storing binary content as a process variable is an anti-pattern in Camunda 8. Process variables are stored in the Zeebe broker state and replicated across the cluster. Large binary payloads encoded as base64 strings significantly bloat broker state, increase memory pressure, slow replication, and degrade cluster performance. For 5-50 MB files, base64 encoding increases size by approximately 33 percent. Camunda Document Handling exists specifically to prevent this state-bloat anti-pattern."
+    },
+    {
+      "id": "c",
+      "text": "Storing files outside Camunda and passing only a URL as a process variable avoids state bloat but bypasses Camunda-managed document lifecycle features: no automatic TTL expiration, no access control integration with Camunda Identity, no document reference type awareness in Forms file upload components, and no correlation between document lifecycle and process instance lifecycle. Document Handling provides all these integration points while an external URL approach provides none of them."
+    },
+    {
+      "id": "d",
+      "text": "6. The Documents API accepts binary uploads and returns typed document references that integrate with process variables, Forms file upload components, Connectors, and IDP tasks. Rejecting a requirement that is met by an existing platform capability would be incorrect. Document Handling is the designed solution for exactly this binary attachment use case in Camunda 8 processes. ###"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda 8.6+ Document Handling is the first-class document-as-variable feature. Documents API stores binary content in configured storage backend; the process variable holds a reference. Downstream tasks/Connectors fetch the document via the reference when needed."
+    },
+    "b": {
+      "text": "Incorrect. Base64 in variables bloats broker state, hurts performance."
+    },
+    "c": {
+      "text": "Incorrect. Plain URL works but loses Camunda-managed lifecycle, TTL, security integration."
+    },
+    "d": {
+      "text": "Incorrect. Document Handling is the answer."
+    }
+  },
+  "explanation": "Camunda 8.6+ Document Handling is the first-class document-as-variable feature. Documents API stores binary content in configured storage backend; the process variable holds a reference. Downstream tasks/Connectors fetch the document via the reference when needed.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/overview/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q15",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

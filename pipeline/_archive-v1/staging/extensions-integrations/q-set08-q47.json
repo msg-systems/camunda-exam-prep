@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q47",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has an RPA bot script that automates a SAP integration. They've improved the script across versions (v1, v2, v3 -- each fixing edge cases). The team wonders about versioning -- how does Camunda 8 handle RPA bot script versions?",
+  "question": "How does Camunda 8 RPA handle bot script versioning?",
+  "options": [
+    {
+      "id": "a",
+      "text": "\" This is different from BPMN/DMN versioning (where running tokens stay pinned to the deployed-time version): newly activated RPA jobs -- even those triggered from a BPMN instance started before the new script was deployed -- pull the latest script. md:34-54), not by version pin. Deployment is via Web Modeler / Desktop Modeler / zbctl deploy like any other resource."
+    },
+    {
+      "id": "b",
+      "text": "RPA Robot Framework scripts in Camunda 8 are not versioned resources -- each deployment simply overwrites the previous script with no version history maintained -- this description does not reflect the actual behaviour. RPA scripts are deployable resources in Camunda 8 with the same versioning model as BPMN and DMN resources. Each deployment creates a new version record. Previous versions are retained and remain executable. Process definitions reference a specific script resource, and the versioning model ensures that process instances continue using the script version deployed at their start time without being affected by subsequent script updates."
+    },
+    {
+      "id": "c",
+      "text": "Each new RPA script version requires updating and redeploying the BPMN process definition to reference the new script version -- this description does not reflect the actual behaviour. The BPMN references the RPA task by resource ID and an optional label that is independent of the specific script version. When a new script version is deployed, the existing BPMN continues to function because the reference uses a stable resource identity rather than a version-specific pointer. Script version updates do not require BPMN modifications or redeployment. The RPA task configuration uses stable resource identifiers that persist across consecutive script version deployments without disrupting running processes."
+    },
+    {
+      "id": "d",
+      "text": "md:169. RPA script versioning behaviour differs from BPMN versioning. md:169 that do not simply mirror the BPMN version-pinning model. Teams should consult the production documentation for the precise version resolution behaviour workers always pull the latest. For breaking changes that must coexist with older logic, use a distinct label on the new script + worker pair so the BPMN can pin via label."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. RPA in Camunda 8 deliberately diverges from BPMN/DMN versioning semantics. Per rpa/production.md:169 (\"Script handling and versioning\"): \"RPA workers fetch the latest script version automatically.\" This means: when you deploy script v3, every subsequent RPA job activation (including from BPMN instances that started under v1 or v2) executes v3. The BPMN-side reference is by resource ID + optional label (per production.md:34-54), not by version pin. Practical workflow: improve the script, deploy as new version → all running and new BPMN instances start using v(n) on next RPA task activation. Backwards-incompatible behaviour change → use a new label on both the script and a dedicated worker pool so the BPMN can route v3 traffic to a separate worker fleet while v2 continues serving instances still expecting old behaviour (per production.md:50-54)."
+    },
+    "b": {
+      "text": "Incorrect. Scripts are versioned (each deploy is a new version), but the runtime selection rule is \"latest\", not version-pinned."
+    },
+    "c": {
+      "text": "Incorrect. BPMN references RPA task by resource ID + optional label; version is not part of the reference."
+    },
+    "d": {
+      "text": "Incorrect. Running tasks do not stay pinned in RPA -- production.md:169 is explicit that workers fetch the latest script. Pinning behaviour is the BPMN/DMN semantic, not the RPA one."
+    }
+  },
+  "explanation": "RPA in Camunda 8 deliberately diverges from BPMN/DMN versioning semantics. Per rpa/production.md:169 (\"Script handling and versioning\"): \"RPA workers fetch the latest script version automatically.\" This means: when you deploy script v3, every subsequent RPA job activation (including from BPMN instances that started under v1 or v2) executes v3. The BPMN-side reference is by resource ID + optional label (per production.md:34-54), not by version pin. Practical workflow: improve the script, deploy as new version → all running and new BPMN instances start using v(n) on next RPA task activation. Backwards-incompatible behaviour change → use a new label on both the script and a dedicated worker pool so the BPMN can route v3 traffic to a separate worker fleet while v2 continues serving instances still expecting old behaviour (per production.md:50-54).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/rpa/production/#labels"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q47",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

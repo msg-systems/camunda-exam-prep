@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A loan-approval process has a User Task manual-review that should display a Camunda Form in Tasklist. The team has built the form in Web Modeler (it has its own resource ID, e.g., loan-review-form-v1) and deployed it to the cluster. They're configuring the User Task to reference this deployed form.",
+  "question": "Which User Task attribute binds the task to the deployed Camunda Form?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set formUrl to a hosted form page URL, pointing to an externally hosted form system. ), it bypasses Camunda's built-in Tasklist form rendering entirely. Variable binding, validation constraints, submit lifecycle, and the Camunda form schema are bypassed when using an external URL. The form renderer at the external URL must independently handle reading and writing process variables through separate API calls. This is useful for advanced custom UIs but is not the canonical path for Camunda-native Forms."
+    },
+    {
+      "id": "b",
+      "text": "Use an externalReference attribute pointing to an external HTML page URL, relying on the external page to render the form and manage data exchange. This shares the same fundamental drawback as the formUrl approach: Camunda's integrated form rendering in Tasklist is bypassed, meaning built-in variable pre-population, schema validation, and form submission lifecycle management are unavailable. External rendering requires custom code on the HTML page to interact with the Orchestration REST API for variable reads and writes, substantially increasing integration complexity."
+    },
+    {
+      "id": "c",
+      "text": "Set the User Task's formId attribute (in Web Modeler property panel: \"Form ID\" field) to reference the deployed form by its ID -- Tasklist auto fetches the form definition and renders it. Alternative for external forms: formKey referencing an external URL or formal Camunda Form key. \"."
+    },
+    {
+      "id": "d",
+      "text": "Embed the Form JSON schema directly inline inside the BPMN XML as a sub-element of the User Task. This approach is architecturally incorrect for Camunda 8: Forms are first-class independently deployed resources with their own resource IDs, version histories, and deployment lifecycles. Inlining the Form schema into BPMN would prevent Web Modeler from editing the Form separately, break the Tasklist's form-fetching workflow, and couple the Form update cycle to BPMN redeployments. The separate resource model is intentional for modular development and form reuse across multiple processes."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8's canonical form binding for User Tasks references a deployed Form by ID. In BPMN XML this appears as `` inside the User Task's extensionElements. Web Modeler exposes this via the property panel (\"Type: Camunda Form (linked)\" + Form ID field). Tasklist sees the formId on the activated task, fetches the form definition from the cluster, and renders it. Form data binds to process variables on completion."
+    },
+    "b": {
+      "text": "Incorrect. formKey (or equivalent external-URL property) is for hosting forms outside Camunda -- e.g., a custom React app or third-party form service. Useful for advanced UI but loses the integrated Tasklist experience."
+    },
+    "c": {
+      "text": "Correct. \"External reference\" is similar to (b) -- for integrating with external systems. Not the canonical path for Camunda-deployed forms."
+    },
+    "d": {
+      "text": "Incorrect. Forms are first-class deployed resources, not embedded in BPMN. Inlining would break Web Modeler's form-editing workflow."
+    }
+  },
+  "explanation": "\"External reference\" is similar to (b) -- for integrating with external systems. Not the canonical path for Camunda-deployed forms.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q12",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

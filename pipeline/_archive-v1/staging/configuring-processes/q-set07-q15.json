@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A multi-step contract-processing workflow uploads several PDF documents (the original contract, amendments, signed final version) via Document Handling. After the process completes, a compliance officer wants to retrieve all documents that were attached to a specific process instance for audit.",
+  "question": "Which approach fits \"list all documents for a given instance\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Query the Documents API filtered by process instance ID, or by custom metadata you set at upload time -- for example, a processInstanceKey metadata field. The API returns a list of document references together with their metadata (MIME type, file size, upload timestamp, custom tags). The canonical pattern for audit retrieval is to set metadata at upload time that uniquely identifies the associated process instance, then use those metadata fields as filter criteria when querying later. This gives a stable, programmatic, and index-friendly path that does not depend on variable naming conventions."
+    },
+    {
+      "id": "b",
+      "text": "Scan the process variables of the process instance via the Operate or Orchestration REST API -- document references uploaded during the process are often stored as process variables (the Documents API returns a document reference object that can be assigned to a variable). The team could iterate over all variables and identify those with document reference types. While workable as a secondary technique, this approach is brittle: it depends on consistent variable naming conventions across all document upload steps, misses documents not stored as variables, and does not leverage the metadata-based filtering the Documents API was designed to provide."
+    },
+    {
+      "id": "c",
+      "text": "The Operate UI does not expose document attachments in any meaningful way -- documents are entirely invisible in the process monitoring interface. The more important point is that Operate is a monitoring tool for ops teams managing live process instances, not a compliance-grade document management interface. For audit retrieval, the Documents API with its metadata filtering is the appropriate path."
+    },
+    {
+      "id": "d",
+      "text": "Retrieving all documents associated with a specific process instance is not possible -- no API provides this functionality. This claim is inaccurate. The Camunda 8 Documents API is explicitly designed to support this use case. At upload time, the team sets custom metadata including a process instance identifier; at query time, the API filters by that identifier and returns the matching document list. Document handling is a documented, supported capability for compliance, audit, and operational workflows."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Documents API supports filtered listing by metadata. The canonical pattern: at upload, set metadata including processInstanceKey (or a custom business identifier). Then query the API filtering on that key -- get back the list of documents with their references, sizes, MIME types, upload timestamps. This is the audit-ready path: stable contract, programmatic, indexed (depending on storage backend)."
+    },
+    "b": {
+      "text": "Incorrect. Process variables hold document references; you could enumerate variables and pick out those of document type. But this couples to variable naming conventions and doesn't catch documents uploaded outside the variable model."
+    },
+    "c": {
+      "text": "Incorrect. Operate shows variables (including document references), but it's a monitoring UI, not an audit-grade document explorer. For programmatic retrieval, use the API."
+    },
+    "d": {
+      "text": "Incorrect. Documents API supports this use case."
+    }
+  },
+  "explanation": "The Documents API supports filtered listing by metadata. The canonical pattern: at upload, set metadata including processInstanceKey (or a custom business identifier). Then query the API filtering on that key -- get back the list of documents with their references, sizes, MIME types, upload timestamps. This is the audit-ready path: stable contract, programmatic, indexed (depending on storage backend).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/getting-started/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q15",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

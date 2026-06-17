@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q43",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team uses zbctl from a CI script. The cluster is SaaS -- requires OAuth2 client credentials. The team wonders how to pass credentials to zbctl.",
+  "question": "How are zbctl credentials configured for SaaS?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:48-55 verbatim. zbctl reads them and handles OAuth2 token exchange automatically. ). In CI, env vars from CI secrets are typical. md). Similarly guides/setup-client-connection-credentials/ is 404 -- canonical replacement is components/console/manage-clusters/manage-api-clients/."
+    },
+    {
+      "id": "b",
+      "text": "zbctl cannot authenticate to SaaS clusters because it only supports anonymous or certificate-based authentication, not OAuth2 token exchange -- this description does not reflect the actual behaviour. zbctl supports SaaS OAuth2 client-credentials authentication through standard environment variable configuration. The tool reads ZEEBE_CLIENT_ID, ZEEBE_CLIENT_SECRET, CAMUNDA_OAUTH_URL, and ZEEBE_ADDRESS from the environment and performs the OAuth2 token exchange automatically before making gRPC calls to the Zeebe gateway."
+    },
+    {
+      "id": "c",
+      "text": "Embed the SaaS API client ID and secret directly in the BPMN process model as process variables or task headers -- this would create a serious security vulnerability. Credentials embedded in BPMN files are stored in the deployment, visible in the database, potentially logged in audit trails, and accessible to anyone with read access to the process definition. CI/CD credentials should be managed as environment variables or CI secrets, not embedded in deployable artefacts."
+    },
+    {
+      "id": "d",
+      "text": "zbctl can connect to Camunda SaaS clusters without any authentication configuration because SaaS clusters accept anonymous connections for the Zeebe gRPC API -- this description does not reflect the actual behaviour. Camunda SaaS clusters require OAuth2 client-credentials authentication for all API access including the Zeebe gRPC gateway. Unauthenticated connections are rejected with authentication errors. Every tool, SDK, or CLI client must obtain a valid access token before making API calls to a SaaS cluster."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. zbctl supports SaaS OAuth2 client-credentials authentication via standard environment variables or command-line flags: Environment variables (typical for CI): ZEEBE_ADDRESS: e.g., mycluster.zeebe.camunda.io:443. ZEEBE_CLIENT_ID: API client ID from Console. ZEEBE_CLIENT_SECRET: API client secret. CAMUNDA_OAUTH_URL: token endpoint (e.g., Auth0 URL). Command-line flags: --address, --clientId, --clientSecret, --audience, etc. zbctl performs OAuth2 token exchange transparently and uses the Bearer token for gRPC calls. CI pattern: Store credentials as CI secrets (GitHub Actions secrets, GitLab CI variables, etc.). Inject as env vars in the CI step. Run zbctl deploy ... -- credentials used automatically. For Self-Managed: same env vars; the OAuth URL points to your IdP (Keycloak, etc.)."
+    },
+    "b": {
+      "text": "Incorrect. Supports OAuth."
+    },
+    "c": {
+      "text": "Incorrect. Don't embed credentials in BPMN."
+    },
+    "d": {
+      "text": "Incorrect. Auth required."
+    }
+  },
+  "explanation": "zbctl supports SaaS OAuth2 client-credentials authentication via standard environment variables or command-line flags: Environment variables (typical for CI): ZEEBE_ADDRESS: e.g., mycluster.zeebe.camunda.io:443. ZEEBE_CLIENT_ID: API client ID from Console. ZEEBE_CLIENT_SECRET: API client secret. CAMUNDA_OAUTH_URL: token endpoint (e.g., Auth0 URL). Command-line flags: --address, --clientId, --clientSecret, --audience, etc. zbctl performs OAuth2 token exchange transparently and uses the Bearer token for gRPC calls. CI pattern: Store credentials as CI secrets (GitHub Actions secrets, GitLab CI variables, etc.). Inject as env vars in the CI step. Run zbctl deploy ... -- credentials used automatically. For Self-Managed: same env vars; the OAuth URL points to your IdP (Keycloak, etc.).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/community-clients/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q43",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

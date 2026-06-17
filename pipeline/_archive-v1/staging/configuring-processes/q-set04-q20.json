@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A document-tracking process attaches files via Document Handling. The team wants old documents to be automatically purged 90 days after the process completes -- for compliance.",
+  "question": "Which Document Handling configuration fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A Cron job scanning and deleting documents via the Documents API technically achieves automatic purging but reinvents functionality that Document Handling TTL already provides natively. Implementing a Cron-based cleanup requires additional infrastructure: a scheduled task runner, API client code, error handling for delete failures, and ongoing maintenance. It also introduces timing gaps between when documents expire logically (90 days) and when the Cron job happens to run. TTL is the simpler and more reliable native solution."
+    },
+    {
+      "id": "b",
+      "text": "Manually deleting documents via the Operate UI does not scale for compliance-driven automatic purging of potentially thousands of documents across hundreds of process instances. Manual deletion requires operators to periodically review and delete expired documents â€” prone to human error, delays, and missed items. Compliance requirements need automated, auditable processes for data lifecycle management. Document TTL provides exactly this: automated, consistent, engine-managed expiration without manual operator intervention."
+    },
+    {
+      "id": "c",
+      "text": "Configuring TTL (time-to-live) at upload via the Document Handling API is the native solution. The cluster has a default TTL of 30 days. expiresAt). The storage backend honours this expiration and purges documents automatically without any external job, Cron schedule, or manual intervention required."
+    },
+    {
+      "id": "d",
+      "text": "6+ fully supports TTL-based automatic expiration. expiresAt field on the upload API. Claiming TTL is unsupported would be factually wrong â€” it is a documented first-class feature of the Document Handling subsystem. Rejecting requirements that platform capabilities already meet leads to unnecessary custom solutions being built outside the platform. ###"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Document Handling has a cluster-default TTL (30 days, per getting-started.md:30) and accepts per-document custom expiration via the metadata.expiresAt field on the upload API. Storage backend purges expired documents automatically. For a 90-day requirement, upload each document with expiresAt = now + 90d in metadata."
+    },
+    "b": {
+      "text": "Incorrect. Cron + API works but reinvents what TTL provides."
+    },
+    "c": {
+      "text": "Correct. Doesn't scale."
+    },
+    "d": {
+      "text": "Incorrect. TTL is supported."
+    }
+  },
+  "explanation": "Doesn't scale.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/getting-started/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q20",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

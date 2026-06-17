@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q39",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression needs coalesce behaviour -- return the first non-null value from a list of candidates. E.g., return customer.preferredEmail, else customer.primaryEmail, else \"unknown@example.com\". They wonder if FEEL has coalesce().",
+  "question": "Does FEEL have a built-in coalesce function (first-non-null)?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:70-91 -- returns value if non-null, otherwise default. primaryEmail). com\")). Companion null-test built-in: is defined(value) per :29-59 (returns false for null or undefined-context-entry)."
+    },
+    {
+      "id": "b",
+      "text": "md or any other section of Camunda's FEEL built-in function catalogue. The canonical FEEL mechanism for null-fallback is get or else(value, default) for two candidates, or nested calls of that function for three or more candidates."
+    },
+    {
+      "id": "c",
+      "text": "Use firstNonNull(a, b, c) to return the first non-null candidate value -- this function name is invented and has no entry in FEEL's built-in function library. Camunda's FEEL does not include a variadic first-non-null function under any name. md:70-91, which can be nested for three or more candidates or combined with list-filter projections."
+    },
+    {
+      "id": "d",
+      "text": "FEEL has no mechanism for providing fallback values when a variable or expression evaluates to null -- this ignores the purpose-built get or else(value, default) function. md:70-91, get or else returns the first argument if non-null, otherwise returns the second argument. Combined with is defined() for undefined-path detection and list-filter projection patterns, FEEL provides comprehensive null-fallback capabilities without requiring any workaround."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda FEEL solves null-fallback via the get or else built-in per feel-built-in-functions-boolean.md:70-91: Signature: ` get or else(value: Any, default: Any): Any Worked examples from the docs (:85-91): get or else(\"this\", \"default\") // \"this\" get or else(null, \"default\") // \"default\" get or else(null, null) // null Two-candidate fallback (the common case): =get or else(customer.preferredEmail, customer.primaryEmail) Three-candidate fallback (nest): =get or else( customer.preferredEmail, get or else(customer.primaryEmail, \"unknown@example.com\") ) Multi-candidate via list + filter + first (canonical FEEL list filter with implicit item, per feel-list-expressions.md:67-86): =[customer.preferredEmail, customer.primaryEmail, \"unknown@example.com\"][item != null][1] The list filter list[predicate] uses the implicit item binding for each element; [1] takes the first match (FEEL is 1-indexed). NOT canonical FEEL (avoid -- anti-pattern): ❌ Bracket-comprehension [item in list : predicate] -- this DMN-spec syntax is fabricated for Camunda FEEL (Pattern #23). Camunda's filter syntax is list[predicate] with implicit item, not [binding in list : predicate]. ❌ Projection abuse: [v in [a, b, c] : v != null][1] mixes syntaxes that don't combine in Camunda FEEL. ❌ \"Custom BKM with Boxed Function Expression\" -- Boxed Function Expression body type is not in Camunda 8 modeler (Pattern #41); and BKMs are same-decision-only (Pattern #34) so they wouldn't share across decisions anyway. Companion null-checks: is defined(value) per :29-59 -- true if value is non-null and the context entry exists (handles null and undefined path access). instance of per feel-boolean-expressions.md:184-221` -- type narrowing within a guarded branch. Use cases: graceful defaults for optional fields, configuration cascades (instance-specific → project-default → hardcoded), display fallbacks (preferred → primary → \"unknown\")."
+    },
+    "b": {
+      "text": "Incorrect. No coalesce(...) in the FEEL boolean built-ins list -- get or else is the canonical two-arg fallback function."
+    },
+    "c": {
+      "text": "Incorrect. No firstNonNull() function."
+    },
+    "d": {
+      "text": "Incorrect. get or else is purpose-built for this; list-filter projection covers multi-candidate cases."
+    }
+  },
+  "explanation": "Camunda FEEL solves null-fallback via the get or else built-in per feel-built-in-functions-boolean.md:70-91: Signature: ` get or else(value: Any, default: Any): Any Worked examples from the docs (:85-91): get or else(\"this\", \"default\") // \"this\" get or else(null, \"default\") // \"default\" get or else(null, null) // null Two-candidate fallback (the common case): =get or else(customer.preferredEmail, customer.primaryEmail) Three-candidate fallback (nest): =get or else( customer.preferredEmail, get or else(customer.primaryEmail, \"unknown@example.com\") ) Multi-candidate via list + filter + first (canonical FEEL list filter with implicit item, per feel-list-expressions.md:67-86): =[customer.preferredEmail, customer.primaryEmail, \"unknown@example.com\"][item != null][1] The list filter list[predicate] uses the implicit item binding for each element; [1] takes the first match (FEEL is 1-indexed). NOT canonical FEEL (avoid -- anti-pattern): ❌ Bracket-comprehension [item in list : predicate] -- this DMN-spec syntax is fabricated for Camunda FEEL (Pattern #23). Camunda's filter syntax is list[predicate] with implicit item, not [binding in list : predicate]. ❌ Projection abuse: [v in [a, b, c] : v != null][1] mixes syntaxes that don't combine in Camunda FEEL. ❌ \"Custom BKM with Boxed Function Expression\" -- Boxed Function Expression body type is not in Camunda 8 modeler (Pattern #41); and BKMs are same-decision-only (Pattern #34) so they wouldn't share across decisions anyway. Companion null-checks: is defined(value) per :29-59 -- true if value is non-null and the context entry exists (handles null and undefined path access). instance of per feel-boolean-expressions.md:184-221` -- type narrowing within a guarded branch. Use cases: graceful defaults for optional fields, configuration cascades (instance-specific → project-default → hardcoded), display fallbacks (preferred → primary → \"unknown\").",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-boolean/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q39",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task external-api-call has variable retry needs: for some customer tiers (PREMIUM) the team wants more retries (5), for standard customers fewer (2). The retry count should be dynamic per instance based on the customer.tier variable. Can the BPMN's retries attribute use a FEEL expression for dynamic per-instance retries?",
+  "question": "Can the BPMN's retries attribute use a FEEL expression for dynamic per-instance retries?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No -- the retries attribute on a Zeebe task definition is a static integer that must be a literal number and cannot reference process variables or use expressions -- this description does not reflect the actual behaviour. Zeebe evaluates the retries attribute as a FEEL expression when it begins with the equals sign prefix. This allows the retries count to be computed from process variables at runtime. tier = \"PREMIUM\" then 5 else 2 uses a FEEL conditional to assign different retry counts based on the customer's tier value at the moment the task activates."
+    },
+    {
+      "id": "b",
+      "text": "The equals-sign prefix to signal FEEL evaluation is correct, but no proprietary syntax is required. Any valid FEEL expression that produces a number is accepted. Standard FEEL conditionals like = if tier = \"premium\" then 5 else 2 work without extensions. The key point is that FEEL evaluation in retries is fully supported using standard FEEL expressions."
+    },
+    {
+      "id": "c",
+      "text": "Yes -- the zeebe:taskDefinition retries attribute accepts a FEEL expression evaluated at task activation time. tier = \\\"PREMIUM\\\" then 5 else 2\" sets retries to 5 for premium customers and 2 for others. The Zeebe engine evaluates the FEEL expression at the moment the task activates and uses the result as the job's retry counter. Any valid FEEL expression that produces a number is accepted, including references to process variables, nested context navigation, conditional expressions, and arithmetic calculations. This enables sophisticated per-instance retry policies."
+    },
+    {
+      "id": "d",
+      "text": "Zeebe supports FEEL expressions in the retries field, enabling a single Service Task to compute its retry count dynamically from process variables at activation time. Duplicating Service Tasks solely for retry count variation creates maintenance overhead and bloats the BPMN model without any technical benefit."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Zeebe's zeebe:taskDefinition retries attribute supports FEEL expressions (with = prefix). The engine evaluates the expression at task activation and the resulting number sets the job's initial retries. This allows per-instance retry counts based on any process variable. Practical use cases beyond customer tier: vary retries by priority (= if priority = \"HIGH\" then 10 else 3), by environment (= if env = \"PROD\" then 5 else 1), by retry budget tracking, etc. Note: this is a relatively recent capability; if you're on an older Zeebe version, the support may differ. Verify the docs for your version."
+    },
+    "b": {
+      "text": "Incorrect. FEEL is supported in many Zeebe BPMN attributes including retries."
+    },
+    "c": {
+      "text": "Correct. The = prefix is the canonical FEEL expression marker, but the answer's core point (FEEL supported in retries) is the same as (a)."
+    },
+    "d": {
+      "text": "Incorrect. Two Service Tasks with different static retries would require Gateway routing, doubled maintenance. FEEL handles it inline."
+    }
+  },
+  "explanation": "The = prefix is the canonical FEEL expression marker, but the answer's core point (FEEL supported in retries) is the same as (a).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/service-tasks/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q12",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

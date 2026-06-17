@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q49",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL navigates deep nested: order.customer.address.city. Wonders deep navigation.",
+  "question": "FEEL nested context navigation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Manual unpack -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "city chains dots to traverse nested context entries at each level. Null propagates through the chain: if any intermediate key is missing, the result is null rather than an error. There is no ?. safe-navigation operator in FEEL. city, \"unknown\"). For dynamic path access where the key is a variable, use get value(context, key) for a single key or get value(context, keys) with a list of strings for a multi-level path."
+    },
+    {
+      "id": "c",
+      "text": "FEEL context access only supports one level of nesting -- this does not accurately reflect the behavior. FEEL supports chained dot notation for arbitrarily deep context navigation. city traverse four levels of nesting through three intermediate contexts. The dot operator can be chained as many times as needed to reach any nested entry. When any intermediate level is null, FEEL propagates null through the chain rather than throwing an error, making it safe to use but requiring null guards for defensive expressions."
+    },
+    {
+      "id": "d",
+      "text": "FEEL only supports bracket notation for context access -- this does not accurately reflect the behavior. FEEL uses dot notation for context property access, not bracket notation. city uses dots to traverse nested contexts. There is no order[\"customer\"][\"address\"][\"city\"] bracket notation for property access in standard FEEL. For dynamic path access where the key is a variable, the get value(context, key) function or its multi-key variant get value(context, keys) (a Camunda extension) can be used programmatically."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL deep navigation: Dot notation: `feel order.customer.address.city Chain dots; navigate nested. Examples: feel customer.id → \"C-100\" order.lineItems[1].sku → first item's SKU config.api.endpoints.users → nested config value For lists: feel customers[1].address.city → first customer's city Combine index + dot. For null safety (per Set 15 Q40): feel if order != null and order.customer != null and order.customer.address != null then order.customer.address.city else null Verbose but safe. No ?. safe-navigation operator in Camunda FEEL (Pattern -- Set 15 Q40 finding): order?.customer?.address?.city syntax does NOT exist. try(...) keyword does NOT exist either. Idiomatic null-safe defaults via get or else per feel-built-in-functions-boolean.md:70-93: feel city: get or else(order.customer.address.city, \"UNKNOWN\") Or via get value with path list for partial-path-may-be-missing: feel city: get value(order, [\"customer\", \"address\", \"city\"]) // returns null on missing path For very deep nesting: feel config.environments.production.regions.us.endpoints.api.v2.timeout Deep navigation works but consider: Restructuring: Flatten at boundary. Provide shorter paths to common values. Helper functions / BKM: feel function getCityForOrder(o) o.customer.address.city Encapsulate navigation. Inside a FEEL context literal {} (per feel-context-expressions.md:11-43; Boxed Context body NOT in C8 Modeler per Pattern #41): feel { city: order.customer.address.city, country: order.customer.address.country, ... } Flatten in context. For mixed lists + objects: feel orders[1].items[2].vendor.contact.email Combination. For dynamic paths (per feel-built-in-functions-context.md:9-56): get value(context, key): Any -- single-key access; returns null on missing. get value(context, keys): Any Camunda Extension -- keys is list for nested path traversal. Useful when path is computed at runtime (e.g., key list passed as variable). For paths from variables: feel // path = \"customer.id\" // Need: navigate dynamically (not standard FEEL) Typically requires custom logic. For comparison with JS / Python: | Language | Deep access | |----------|-------------| | JS | obj.a.b.c or obj?.a?.b?.c | | Python | obj.a.b.c or obj.get(\"a\", {}).get(\"b\", {}).get(\"c\") | | FEEL | obj.a.b.c or if-defensive... | For validating depth: feel isValidStructure: order != null and order.customer != null and order.customer.address != null and order.customer.address.city != null Defensive check. For type mismatches in path: If middle node not object: error. Defensive: check types. For Decision Tables: Input expressions: can use deep paths. Cell logic: similar. For complex outputs: feel { customer: { contact: { email: order.customer.email, phone: order.customer.phone } } } Construct nested output. For accessing nested for FEEL functions: feel string length(order.customer.fullName) Function on nested value. For Element Templates: FEEL expression referencing nested. Modeler-friendly: even deep paths. For documenting: Document expected structure: per process variable. Avoid surprises. For evolution: Schema changes in nested: break callers. Versioning considerations. For testing: Test with nested data: realistic. Null at each level: edge cases. For Operate visibility: Nested variables displayed: JSON tree. Navigate visually. Anti-patterns: Too deep nesting: hard to maintain. No null safety: errors common. Best practices: Reasonable nesting depth: 3-4 levels max. Null safety at boundaries. Helper functions for common paths. For the scenario (order.customer.address.city`): Standard FEEL access. Null safety recommended. 3 levels OK; deeper consider restructure. For schemas: Document nesting: per process. Type-aware: clear contracts. For interfaces between systems: Flatten at boundary often easier. Reduce nesting entering Camunda. For decision input: Pass top-level vars: not deeply nested. Input Mapping flattens."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-data-types/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q49",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 23 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 22.6 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

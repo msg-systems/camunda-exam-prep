@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q09",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An order management process at an e-commerce platform allows customers to cancel their order at any point before fulfillment. The cancellation is initiated by the customer clicking a \"Cancel Order\" button, which publishes a OrderCancelled message correlated by order_id. When this message arrives, the process must perform a graceful cancellation: refund payment, release inventory, send confirmation email. The cancellation must work regardless of which step the order is currently at -- payment processing, picking, packing, or awaiting shipment. The team wants to model the cancellation handler in a way that lives alongside the main flow without cluttering it and interrupts whatever activity is currently active when the message arrives. The handler should run only once per process instance.",
+  "question": "Which BPMN construct models the cancellation handler correctly?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Attach a Non-interrupting Message Boundary Event to every Service Task in the main flow, each routing to a shared \"Handle Cancellation\" subprocess. A Non-interrupting Message Boundary Event on a Service Task fires when the specified message arrives while the task is active, spawning a new parallel token that follows the boundary's outgoing sequence flow -- in this case toward the cancellation handler subprocess. The original Service Task continues executing in parallel. Attaching this boundary to every task in the main flow would cause the cancellation handler to run concurrently with whichever activity is currently active, so the refund and inventory release could begin while the picking or packing task is still running."
+    },
+    {
+      "id": "b",
+      "text": "Wrap the main flow in a Subprocess and add an Event Subprocess inside it with an Interrupting Message Start Event correlated on order_id. When the OrderCancelled message arrives and is correlated to the process instance by its order_id, the Interrupting Message Start Event triggers the Event Subprocess. Because the Start Event is Interrupting, Zeebe cancels all currently active flow nodes in the enclosing Subprocess scope -- whichever task is running at that moment is terminated -- and the Event Subprocess's flow takes over exclusively. The refund, inventory release, and confirmation email then execute as the sole active path."
+    },
+    {
+      "id": "c",
+      "text": "Place a Message Catch Event at the start of the process before the main flow begins, so the process waits to receive the cancellation message before proceeding with order fulfilment. An Intermediate Message Catch Event creates a blocking wait state -- the process token pauses at that point and waits until a message with the configured name and correlation key is received. The message correlation key is matched against the value of a specified process variable to find the correct waiting instance among all active subscriptions. This pattern is appropriate when a process must receive a specific trigger before it can proceed with the next step."
+    },
+    {
+      "id": "d",
+      "text": "Use an Event-Based Gateway as the first element in every parallel branch of the main flow, with a Message Catch Event for cancellation on one branch and the next task on the other. An Event-Based Gateway suspends the token and waits for one of several competing events to fire; whichever fires first claims the token and the others are cancelled. Placing an Event-Based Gateway before each task creates a local race: either the cancellation message arrives and routes to the cancellation handler, or the process continues to the next task. This models the cancellation check correctly at each individual step but requires inserting an Event-Based Gateway and two outgoing paths before every activity in the main flow, cluttering the diagram significantly."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Event Subprocess with an Interrupting Message Start Event is the BPMN-canonical pattern for \"asynchronous interrupt at any point in a scope\". When the OrderCancelled message arrives, the parent scope (outer subprocess) is terminated -- Zeebe cancels whichever activity is currently active -- and the event subprocess's flow takes over. Because it's Interrupting, it cleans up the scope; because it's a Start Event (not Boundary on every task), it doesn't clutter the main flow."
+    },
+    "b": {
+      "text": "Correct. Non-interrupting Boundary on every Service Task means every task spawns a new parallel token when the message arrives -- main flow continues AND cancellation handler runs concurrently. Refunding while still picking and packing is exactly the failure mode the scenario forbids."
+    },
+    "c": {
+      "text": "Incorrect. A Message Catch Event before the main flow would block process start until cancellation arrives -- completely backwards semantics."
+    },
+    "d": {
+      "text": "Incorrect. Event-Based Gateway models \"first of N events wins\" at a specific point -- not \"interrupt at any point\". You would have to place this gateway before every task."
+    }
+  },
+  "explanation": "Non-interrupting Boundary on every Service Task means every task spawns a new parallel token when the message arrives -- main flow continues AND cancellation handler runs concurrently. Refunding while still picking and packing is exactly the failure mode the scenario forbids.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q09",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

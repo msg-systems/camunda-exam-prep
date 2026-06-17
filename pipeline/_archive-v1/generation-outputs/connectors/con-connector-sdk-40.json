@@ -1,0 +1,27 @@
+{
+  "id": "con-connector-sdk-40",
+  "topic": "connectors",
+  "subtopic": "connector-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Granite Utility, a utility provider with 600000 customers, runs Camunda 8.8 Self-Managed on Kubernetes and packages a custom connector as a JAR. A platform engineer must launch the official Docker connectors runtime image so it picks up the custom JAR, connects to a Zeebe gateway at 10.0.0.42:26500, and skips inbound polling because the same cluster runs no inbound connectors for now.",
+  "question": "Which command surface does the Connector SDK document for running the Docker runtime image with a custom connector and inbound polling disabled?",
+  "options": [
+    { "id": "a", "text": "Mount the connector.jar at /opt/app/connector.jar, set ZEEBE_CLIENT_BROKER_GATEWAY-ADDRESS to the gateway URL, and set CAMUNDA_CONNECTOR_POLLING_ENABLED to false in the docker run command" },
+    { "id": "b", "text": "Copy the connector.jar into /var/connectors/classpath, point ZEEBE_GATEWAY_ENDPOINT at the gateway URL, and run the image with a CLI flag --inbound=off to disable inbound polling at startup" },
+    { "id": "c", "text": "Bake the connector.jar into a derived image extending camunda/connectors, set CAMUNDA_OPERATE_CLIENT_URL to the gateway URL, and pass CAMUNDA_CONNECTOR_INBOUND_DISABLED true through a secrets file mounted at runtime" },
+    { "id": "d", "text": "Place the connector.jar in /lib/ext on the host, expose ZEEBE_BROKER_PORT 26500 to the container, and configure the broker itself to set CONNECTORS_POLLING_ENABLED=false via a sidecar configmap" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The docs show docker run with -v $PWD/connector.jar:/opt/app/connector.jar to add the jar to the classpath, ZEEBE_CLIENT_BROKER_GATEWAY-ADDRESS to point at the Zeebe gateway, and CAMUNDA_CONNECTOR_POLLING_ENABLED=false to disable inbound connectors." },
+    "b": { "text": "Incorrect. The documented mount path is /opt/app/connector.jar, the gateway is set through ZEEBE_CLIENT_BROKER_GATEWAY-ADDRESS, and there is no --inbound=off CLI flag in the example." },
+    "c": { "text": "Incorrect. CAMUNDA_OPERATE_CLIENT_URL points at Operate (used by inbound connectors), not the Zeebe gateway, and the inbound polling toggle is CAMUNDA_CONNECTOR_POLLING_ENABLED, not CAMUNDA_CONNECTOR_INBOUND_DISABLED." },
+    "d": { "text": "Incorrect. The Zeebe broker port and broker configuration are not how the connectors runtime image is wired; the image reads its own environment variables shown in the docker run example." }
+  },
+  "explanation": "The Docker runtime image command mounts the connector jar at /opt/app/connector.jar, configures ZEEBE_CLIENT_BROKER_GATEWAY-ADDRESS for Zeebe, CAMUNDA_OPERATE_CLIENT_URL for inbound connectors, and accepts secrets via env vars or a file. Setting CAMUNDA_CONNECTOR_POLLING_ENABLED=false disables inbound connectors.",
+  "docs": [
+    { "title": "Connector SDK - Docker runtime image", "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/" }
+  ]
+}

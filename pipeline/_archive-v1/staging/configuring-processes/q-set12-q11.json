@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q11",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A worker reads a nested process variable: customer.address.city. The team wonders if Input Mapping FEEL needs special syntax for deep nesting.",
+  "question": "How does Input Mapping navigate nested variable structures?",
+  "options": [
+    {
+      "id": "a",
+      "text": "city, Target: deliveryCity. FEEL handles arbitrary nesting via dots. For dynamic keys, bracket access: customer[\"address\"][\"city\"]. Both work; dots are typical for static known keys. Null safety: if any intermediate is null, the expression evaluates to null (FEEL null-tolerant). city else null."
+    },
+    {
+      "id": "b",
+      "text": "FEEL's path navigation is not restricted to single-level property access. city) and bracket notation (customer[\"address\"][\"city\"]). Deep nesting is a first-class feature used extensively in real-world processes where customer objects, order structures, and complex domain models span multiple levels of nesting."
+    },
+    {
+      "id": "c",
+      "text": "The suggestion to use a \"special path syntax\" for deep nesting implies that FEEL requires some non-standard path language or XPath-like notation for nested access. This does not reflect the actual behavior. city uses the same dot operator that any FEEL expression uses for context navigation. There is no separate, special-purpose path syntax to learn. The same FEEL you use for conditions and calculations applies directly to property access at any depth."
+    },
+    {
+      "id": "d",
+      "text": "Flattening nested variables before using them in Input Mappings is an unnecessary workaround that adds complexity to the process. FEEL natively handles nested context access without requiring any pre-processing step. Flattening would require an additional Service Task or worker to restructure data, increasing process complexity, latency, and maintenance burden. FEEL's dot navigation directly accesses nested fields within a single expression evaluation, making pre-flattening redundant and wasteful."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. FEEL provides natural deep-nesting access: Dot navigation (static known keys): customer.name (top-level field). customer.address.city (two-level deep). order.lineItems[1].product.category (deep with list indexing). Bracket access (dynamic keys): customer[\"address\"][\"city\"] -- equivalent to dots. customer[dynamicFieldName] -- when key is computed. Null safety: FEEL is null-tolerant: null.field returns null (no NullPointerException). Whole expression with nested access may evaluate to null if any step is null. For defensive coding: =if customer != null and customer.address != null then customer.address.city else \"unknown\". Input Mapping FEEL evaluates against the current scope's variables; nested access is transparent. Practical use: extract specific nested fields without bringing the whole parent object into worker scope; reduces bandwidth + clarifies worker contract."
+    },
+    "b": {
+      "text": "Incorrect. Deep nesting works."
+    },
+    "c": {
+      "text": "Incorrect. Dot navigation IS the path syntax."
+    },
+    "d": {
+      "text": "Incorrect. Not needed."
+    }
+  },
+  "explanation": "FEEL provides natural deep-nesting access: Dot navigation (static known keys): customer.name (top-level field). customer.address.city (two-level deep). order.lineItems[1].product.category (deep with list indexing). Bracket access (dynamic keys): customer[\"address\"][\"city\"] -- equivalent to dots. customer[dynamicFieldName] -- when key is computed. Null safety: FEEL is null-tolerant: null.field returns null (no NullPointerException). Whole expression with nested access may evaluate to null if any step is null. For defensive coding: =if customer != null and customer.address != null then customer.address.city else \"unknown\". Input Mapping FEEL evaluates against the current scope's variables; nested access is transparent. Practical use: extract specific nested fields without bringing the whole parent object into worker scope; reduces bandwidth + clarifies worker contract.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q11",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

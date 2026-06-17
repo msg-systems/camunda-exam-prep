@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Node.js worker handles process variables. The team wonders what JavaScript types Zeebe's variables map to.",
+  "question": "How do Camunda 8 process variable types map to JavaScript types in Node SDK?",
+  "options": [
+    {
+      "id": "a",
+      "text": "js SDK does not reflect the actual behavior. js SDK preserves the native JavaScript types that correspond to those JSON types. JSON numbers map to JavaScript Number, JSON booleans map to JavaScript Boolean, JSON arrays map to JavaScript Array, and JSON objects map to JavaScript plain Object. Only values that were originally stored as strings in the process arrive as JavaScript strings. The direct JSON-to-JS type mapping means workers can use process variables with their natural JavaScript types without performing explicit string parsing for most data."
+    },
+    {
+      "id": "b",
+      "text": "js SDK overstates the conversion burden. js SDK (@camunda8/sdk) handles the JSON-to-JavaScript type mapping automatically for all primitive types: numbers, strings, booleans, null values, arrays, and objects. MAX_SAFE_INTEGER precision limit to strings or BigInt values. For the majority of variable types, the SDK's automatic handling is sufficient."
+    },
+    {
+      "id": "c",
+      "text": "js SDK does not reflect the actual behavior. Camunda 8 process variables support arbitrary JSON structures, including deeply nested objects and arrays. When a worker receives a variable containing a nested object like {customer: {address: {city: \"Berlin\"}}}, it arrives as a standard nested JavaScript object. Workers can navigate the nested structure using normal JavaScript dot notation and bracket access, and they can set nested objects as output variables by returning them from the job handler. The only practical constraint is that variables must be JSON-serializable."
+    },
+    {
+      "id": "d",
+      "text": "8) uses a mostly direct JSON-to-JavaScript type mapping. JSON numbers map to JavaScript Number, JSON booleans to Boolean, JSON arrays to Array, JSON objects to plain Object, and null to null. String variables remain strings. MAX_SAFE_INTEGER require BigInt or string handling. For the vast majority of Camunda 8 variable types, the SDK's automatic mapping is sufficient and workers can use variables with their natural JavaScript types."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8's variable model is JSON-typed. Node SDK maps directly: Primitive types: JSON number → JS Number (float64). Caveat: JS Number precision is limited to ~2^53; very large IDs (above this) lose precision. Use strings for large identifiers. JSON string → JS String. JSON boolean → JS Boolean. JSON null → JS null or undefined (verify SDK convention). Collections: JSON array → JS Array. JSON object → JS Object (plain, not Class instance). Dates / Times (FEEL-style): Typically serialised as ISO 8601 strings. SDK may or may not parse to JS Date; your code typically does the conversion if needed: new Date(variable.timestamp). Nested: JSON nested objects map to nested JS objects. job.variables.customer.address.city works naturally in JS. Special considerations: Large numbers: pass as strings to avoid precision loss. Dates: be consistent -- store as ISO strings in process variables; parse to JS Date in worker if needed for date math. Type checking: worker code can use typeof / Array.isArray / instanceof for runtime type checks. Same model as standard JSON parsing."
+    },
+    "b": {
+      "text": "Incorrect. Native types."
+    },
+    "c": {
+      "text": "Incorrect. SDK handles most; date/time may need manual parsing."
+    },
+    "d": {
+      "text": "Correct. Supported."
+    }
+  },
+  "explanation": "Supported.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q42",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

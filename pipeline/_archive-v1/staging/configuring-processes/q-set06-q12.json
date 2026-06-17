@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task executive-approval should be offered to a dynamic list of users computed from a process variable -- e.g., the requester's manager + their backup. The list is [\"alice\", \"bob\"] for this instance.",
+  "question": "Which assignment configuration fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The assignee property on a User Task accepts a single username or FEEL expression resolving to one user. It assigns the task directly to one person, not to a list. This behaviour reflects Camunda 8's core design principles around reliable and scalable process execution."
+    },
+    {
+      "id": "b",
+      "text": "candidateGroups accepts a list of group names and makes the task visible to all members of those groups. Groups are organizational roles, not individual user lists. When the candidate list is a specific dynamic set of individual usernames computed at runtime, candidateGroups targets the wrong entity type and requires group membership management. Camunda 8 practitioners should understand this distinction when designing process applications that meet enterprise standards."
+    },
+    {
+      "id": "c",
+      "text": "candidateUsers set to a FEEL list expression such as =approvers offers the task to each listed user. The first candidate to claim the task becomes the assignee. This supports dynamic user lists computed from process variables, satisfying the runtime computation requirement without hardcoded user identifiers in the model. 0 in Camunda 8."
+    },
+    {
+      "id": "d",
+      "text": "Creating one task per user via Multi-Instance Subprocess would spawn separate task instances for each approver. This means both alice and bob each get their own independent task requiring independent completion, rather than one shared task where the first to claim owns it. The semantics are wrong for a single-task-first-claim scenario. Understanding this characteristic is essential for the Camunda 8 Certified Professional examination."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. assignmentDefinition.candidateUsers accepts FEEL list expression. Each listed user sees the task; first claim wins."
+    },
+    "b": {
+      "text": "Incorrect. assignee is single-user."
+    },
+    "c": {
+      "text": "Correct. Groups, not individual user lists."
+    },
+    "d": {
+      "text": "Incorrect. MI creates many tasks; here one task is shared."
+    }
+  },
+  "explanation": "Groups, not individual user lists.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q12",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

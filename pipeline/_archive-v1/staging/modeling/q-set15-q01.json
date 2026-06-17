@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q01",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process needs to emit a notification event as part of its flow -- not waiting for response. Team wonders if BPMN has a throw event that publishes without blocking.",
+  "question": "Intermediate Throw Event types?",
+  "options": [
+    {
+      "id": "a",
+      "text": "While Message Throw is the most common type, Camunda 8 also supports Signal Throw (broadcasts to all matching subscriptions by name), Escalation Throw (raises escalation caught by Escalation Boundary or Event Subprocess), Compensation Throw (triggers compensation handlers), and Link Throw/Catch pairs (purely visual diagram navigation). For signaling broadcast notifications, the Signal Throw Event is more appropriate."
+    },
+    {
+      "id": "b",
+      "text": "BPMN Intermediate Throw Events publish events without waiting: Message Throw creates a worker-backed job in Camunda 8; Signal Throw broadcasts to all matching subscriptions by name; Escalation Throw raises intra-scope escalation caught by Escalation Boundary or Event Subprocess; Compensation Throw triggers registered compensation handlers; Link Throw/Catch are purely visual connectors with no runtime effect. All Intermediate Throw Events emit and immediately continue process flow without blocking for a response. For request-response, pair a Throw with a subsequent Catch or Receive Task."
+    },
+    {
+      "id": "c",
+      "text": "Unlike Catch Events that suspend a token until an event arrives, Throw Events emit the event and immediately continue to the next element. The Message Throw in Camunda 8 does create a job (worker-backed) and waits for worker completion, but after the worker completes the job, flow continues -- it does not wait for any message correlation response. Blocking patterns require explicit Catch Events or Receive Tasks paired with the Throw."
+    },
+    {
+      "id": "d",
+      "text": "A Service Task creates a job and waits for worker completion before flow continues, which works but bypasses BPMN's purpose-built event constructs. Intermediate Throw Events (Message, Signal, Escalation) are designed specifically for event emission within process flows. Using a Service Task for notification emissions adds unnecessary complexity compared to the clean semantics provided by BPMN Throw Event types."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN Throw Event taxonomy: Visual notation: Intermediate Throw Event: double-line circle with filled icon (vs hollow icon for Catch). Type-specific icon inside: envelope (message), triangle (signal), arrow up (escalation), etc. Message Throw Event (Camunda 8 specifics per message-events.md:60-80): In C8, message throw events behave exactly like service tasks / send tasks -- they create a job with the configured job type and wait for the job worker to complete it. They do NOT publish a message to a broker-side subscription registry. \"Zeebe does not correlate a message thrown by a message throw event to a message catch event.\" Instead, the job worker is responsible for publishing the message to whatever external system (Kafka, HTTP, another C8 process via the orchestration API, etc.) the business case needs. Doesn't wait for catch correlation -- but DOES wait for job-worker completion before continuing. Use case: notify another process / external system; the worker payload determines targeting. Signal Throw Event: Publishes a Signal by name (broadcast). All matching subscriptions receive (per Set 14 Q6). Use case: system-wide notification. Escalation Throw Event: Raises an escalation in scope. Caught by Escalation Boundary on enclosing activity OR Escalation Event Subprocess. Non-interrupting by default (vs Error which is interrupting). Use case: signal \"needs attention\" without aborting process. Compensation Throw Event: Triggers compensation for completed activities (per Set 14 Q20). Per compensation-events.md:32-35: \"The process instance invokes all compensation handlers at once without any specific order.\" (NOT LIFO -- common misconception inherited from other engines.) Throw event stays active until all invoked handlers complete (:28-29). For ordered rollback, use a sequence of Compensation Intermediate Throw events each with activityRef targeting one specific compensation handler. Link Throw / Catch Events (pair): Purely visual -- connects sections of large diagram without long sequence flow lines. No runtime effect; semantically equivalent to direct connection. Throw vs End Events: End Event: terminates the current branch / process. Intermediate Throw: emits event; flow continues. End Event with marker (e.g., Message End): terminates AND emits. For the scenario (emit notification, don't wait): Message Throw Event: if specific target. Signal Throw Event: if broadcast. In Camunda 8 (per bpmn-coverage.md Events table): Message Throw + Signal Throw + Escalation Throw + Compensation Throw + Link Throw/Catch are all implemented. Message Throw is job-backed (see above) -- needs a worker; Signal Throw is broker-side broadcast; Escalation Throw is intra-process scope-walking; Compensation Throw walks compensation handlers; Link Throw is purely a diagram-readability device. Example XML (Message Throw): `xml ` Publishing patterns: Pattern 1: Throw + Continue: Process emits event; doesn't await response. Useful for \"fire and forget\" notifications. Pattern 2: Throw + Catch later: Process emits; later expects response (different Message Catch). Async request-response. Pattern 3: Throw + parallel Catch: Emit; flow continues; parallel branch waits. Used in choreographies."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/message-events/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q01",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

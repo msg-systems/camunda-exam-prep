@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q59",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's Business Rule Task occasionally produces wrong decision outputs. Operate shows the BPMN process completed, but customer support reports incorrect outcomes. The team needs to audit which DMN decision rule fired for a specific instance to understand whether the rule logic is wrong or the input data was wrong.",
+  "question": "Where in Operate can the team see DMN evaluation history per process instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Decision Instance view in Operate -- every DMN evaluation produces a Decision Instance with inputs, fired rules, and outputs, linked to the parent Process Instance. The team opens Operate, navigates to the specific process instance, and follows the link from the Business Rule Task to its Decision Instance. , customerAge = 45, creditScore = 620), which specific rules fired (by row number in the decision table), and the output values produced. This allows the team to determine definitively whether the rule logic is wrong (a rule that shouldn't have fired did) or the input data was wrong (correct rule fired but input was erroneous)."
+    },
+    {
+      "id": "b",
+      "text": "Process Instance history -- DMN evaluation is logged as an activity in the process instance audit log; click the Business Rule Task to see the details. While the Business Rule Task in the process instance view does show that the task executed and may link to the associated Decision Instance, this approach stops short of the dedicated Decision Instance view which provides the full audit trail: exact inputs passed to the DMN engine, the specific rules (by row number) that matched, and the exact output values produced. The process instance history view is about the process flow -- which activities ran, in what order, with what timing. The Decision Instance view is specifically designed for DMN evaluation forensics."
+    },
+    {
+      "id": "c",
+      "text": "Audit log API -- DMN evaluations are written to the Camunda audit log; query via API. There is no dedicated \"Audit log API\" in Camunda 8. DMN evaluation history is accessible through the Orchestration Cluster REST API (which provides a GET /decision-instances endpoint and GET /decision-instances/{decisionInstanceKey} for detail) and through Operate's UI Decision Instance view. The term \"Camunda audit log\" is not a specific product or API in the Camunda 8 architecture -- Operate is the operational view of execution history, and Optimize is the analytics tool for historical aggregations."
+    },
+    {
+      "id": "d",
+      "text": "Operate does not store DMN evaluation history; check Optimize for analytical history. This is factually incorrect. Operate does store DMN evaluation history in the form of Decision Instances -- a dedicated entity type in Operate's data model, queryable through the Operate UI's Decision Instances view and through the Orchestration Cluster REST API. \") and is not the place to look for a specific instance's evaluation details. For per-instance DMN debugging, Operate's Decision Instance view is the correct and available tool."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Operate has a dedicated Decision Instance view that records every DMN evaluation as a first-class entity. For each evaluation, you see: the decision ID, inputs passed in, which rules fired (with their row numbers), outputs produced, and a back-link to the parent process instance. This is the canonical audit trail for DMN debugging."
+    },
+    "b": {
+      "text": "Incorrect. The Business Rule Task in the process instance view does link to the Decision Instance, but the Decision Instance is a separate entity with its own dedicated view in Operate."
+    },
+    "c": {
+      "text": "Incorrect. \"Audit log API\" is not the canonical Camunda 8 mechanism; Operate's Decision Instance view is."
+    },
+    "d": {
+      "text": "Incorrect. Operate stores Decision Instance history."
+    }
+  },
+  "explanation": "Operate has a dedicated Decision Instance view that records every DMN evaluation as a first-class entity. For each evaluation, you see: the decision ID, inputs passed in, which rules fired (with their row numbers), outputs produced, and a back-link to the parent process instance. This is the canonical audit trail for DMN debugging.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/basic-operate-navigation/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q59",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-properties-reference-66",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-properties",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A Spring Boot 8.8 worker still has `zeebe.client.job.timeout=PT5M` in `application.yaml`. Which new property should it migrate to?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`camunda.client.worker.defaults.timeout`"
+    },
+    {
+      "id": "b",
+      "text": "`camunda.client.job.timeout`"
+    },
+    {
+      "id": "c",
+      "text": "`camunda.client.worker.timeout`"
+    },
+    {
+      "id": "d",
+      "text": "`camunda.client.defaults.job-timeout`"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The `zeebe.client.job.*` migration table maps `zeebe.client.job.timeout` to `camunda.client.worker.defaults.timeout` (env `CAMUNDA_CLIENT_WORKER_DEFAULTS_TIMEOUT`). The `defaults` stanza is where job-worker behaviour now lives."
+    },
+    "b": {
+      "text": "The new namespace does not keep a top-level `job` segment; what used to be `zeebe.client.job.*` is now under `camunda.client.worker.defaults.*`."
+    },
+    "c": {
+      "text": "There is no `camunda.client.worker.timeout`; the timeout is one level deeper under `worker.defaults.timeout`."
+    },
+    "d": {
+      "text": "No such property exists in the 8.8 starter; `defaults` is a child of `worker`, not of `client`."
+    }
+  },
+  "explanation": "Job-worker tuning that used to live under `zeebe.client.job.*` now sits under `camunda.client.worker.defaults.*`. So a per-worker default timeout migrates from `zeebe.client.job.timeout` to `camunda.client.worker.defaults.timeout`, exactly as the migration table states.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot starter properties reference",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/properties-reference/"
+    }
+  ]
+}

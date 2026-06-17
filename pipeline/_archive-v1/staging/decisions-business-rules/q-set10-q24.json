@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q24",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team has multiple DMN files: tax-rules.dmn (defines tax calculations), discount-rules.dmn (defines discounts), pricing-decision.dmn (uses both). The team wonders if DMN supports importing definitions across files.",
+  "question": "Does DMN support imports / cross-file references?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Without DMN import support, files must indeed be self-contained. 8. Practically, related decisions should be co-located in a single file for guaranteed execution."
+    },
+    {
+      "id": "b",
+      "text": "Yes -- Camunda 8 automatically discovers and links related DMN decisions across files based on matching namespace declarations during deployment -- this describes a mechanism that has no runtime implementation in Camunda 8. DMN cross-file dependencies in any engine require explicit import declarations, not namespace-based auto-discovery. The DMN specification's import element is declarative and must name the imported file or namespace explicitly. Automatic cross-file resolution based on deployment proximity or shared namespaces is not a feature of Camunda 8."
+    },
+    {
+      "id": "c",
+      "text": "). The importing DMN declares the import; uses the imported elements via their qualified names. Useful for modular DMN architectures -- shared rules / BKMs across multiple decision files. Caveat: Zeebe's coverage of DMN imports has varied; verify the current docs for your version. In versions with limited import support, the practical alternative is to deploy related decisions in a single DMN file and use DRD dependencies."
+    },
+    {
+      "id": "d",
+      "text": "Use a BPMN Call Activity to invoke decisions from other DMN files as reusable called processes -- this is an incorrect abstraction. Call Activities in BPMN invoke other BPMN process definitions identified by their process ID. They cannot directly reference or invoke DMN decision tables from other files. To use a decision from a separate DMN file, a Business Rule Task references the decision's ID, and both the BPMN and DMN must be deployed to the same cluster. Call Activity is a BPMN-to-BPMN mechanism."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. DMN spec defines for cross-file referencing -- analogous to import statements in programming languages. An importing DMN declares which other DMN file's definitions it depends on; references them by qualified name. Practical caveat: Camunda 8 / Zeebe's DMN runtime does NOT document support for DMN imports in 8.8 -- 0 references to DMN element in docs/components/modeler/dmn/. Per dmn.md:23-28, the supported DMN element kinds are only Decision (tables + literal expressions), Input data, Knowledge source, and BKM. The element is absent from this coverage list. Where imports aren't supported: Practical workaround: keep related decisions in a single DMN file; use DRD's internal Information / Knowledge / Authority Requirements for in-file modularity. For truly shared logic across processes: invoke separately-deployed decisions from BPMN (via Business Rule Tasks); use the deployment-time decision ID as the cross-process binding."
+    },
+    "b": {
+      "text": "Incorrect. Without imports, files self-contained."
+    },
+    "c": {
+      "text": "Correct. Imports are explicit, not auto-discovery."
+    },
+    "d": {
+      "text": "Incorrect. Call Activity is BPMN."
+    }
+  },
+  "explanation": "Imports are explicit, not auto-discovery.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q24",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

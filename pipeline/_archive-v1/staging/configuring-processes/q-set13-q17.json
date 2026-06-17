@@ -1,0 +1,63 @@
+{
+  "id": "imp-set13-q17",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team uses AI Agent Connector extensively. They wonder about token usage tracking -- how to monitor LLM costs, set budgets, alert on overruns.",
+  "question": "How might token usage / costs be tracked for AI Agent Connector usage?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No tracking possible -- wrong; LLM responses include usage."
+    },
+    {
+      "id": "b",
+      "text": "A combination of approaches is best for tracking AI Agent Connector token usage and costs in Camunda 8. Capture token metadata from the connector response into process variables (the AI Agent Connector typically returns inputTokens, outputTokens, and totalTokens in its response). Aggregate per-instance token counts across multiple LLM calls using BPMN output mapping. Emit Micrometer metrics from custom job workers for Prometheus/Grafana dashboards. Enforce budget gates using BPMN gateways that check accumulated token variables before each LLM invocation. Combine all layers for full visibility and cost control."
+    },
+    {
+      "id": "c",
+      "text": "Only the LLM provider's own dashboard can track token usage and Camunda has no access to this data -- partial; while provider dashboards are the primary billing source, teams can implement multiple additional layers within Camunda. The AI Agent Connector response includes token usage metadata that can be captured in process variables. Process-level aggregation tracks per-instance costs. BPMN logic can enforce budget constraints before each LLM call. Connector-emitted metrics can feed Prometheus or Datadog for team-level cost attribution and alerting. Relying solely on provider dashboards provides aggregate billing visibility but lacks process-level granularity."
+    },
+    {
+      "id": "d",
+      "text": "Camunda automatically enforces token budgets for AI Agent Connector usage without any custom configuration -- partial; automatic budget enforcement depends significantly on the Camunda version and the specific AI features available. In current versions, budget tracking and enforcement require explicit design: BPMN variables to accumulate token counts, gateway conditions to check remaining budget, and alternative routing when budgets are exhausted. Camunda does not automatically cap spending or stop process instances when LLM costs exceed a threshold. Budget management is a process design responsibility, not an automatic platform feature."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. LLM token usage tracking benefits from multi-layer visibility + control: Layer 1: LLM provider dashboards: OpenAI, Anthropic, etc., provide: Per-day / per-month usage charts. Cost breakdowns by model. Budget alerts (email when approaching budget). API key-level tracking (different keys for different teams / projects). Setup: provision keys; set budget alerts; review periodically. Layer 2: Connector-emitted metrics: LLM responses typically include a usage field: {prompt_tokens, completion_tokens, total_tokens}. AI Agent Connector code logs these per invocation. Aggregate in Prometheus / Grafana / Datadog: Counter: total tokens used per model / per process. Cost calculation: tokens × per-token price. Per-process attribution: which BPMN processes are most expensive. Layer 3: Per-process variables: Store token counts in process variables (e.g., =outputs: append(outputs, {timestamp: now(), tokens: response.usage.total_tokens})). Downstream analysis: query Operate for high-cost instances. Layer 4: Budget enforcement at process level: Track running cost per process / customer / tenant. Before invoking AI Agent: check budget; if low, route to alternative. Hard caps: terminate processes that exceed budget. Best practices: Estimate before deploying: load-test to predict token usage / costs. Cap maxTokens per call: prevent runaway responses. Use cheaper models for simpler tasks: route to right model based on complexity. Monitor + alert: automated thresholds reduce surprise."
+    },
+    "b": {
+      "text": "Correct. Trackable."
+    },
+    "c": {
+      "text": "Incorrect. Multiple layers."
+    },
+    "d": {
+      "text": "Incorrect. Verify per version."
+    }
+  },
+  "explanation": "Trackable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/agentic-orchestration/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q17",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 11.3 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

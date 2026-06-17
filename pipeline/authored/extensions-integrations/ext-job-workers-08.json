@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-08",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A process instance has tags `Priority:High` and `region:EU`. When a service task activates, a job is created. Later, an operator adds `Priority:Low` to the same process instance. What tag set will the worker see on that already-created job?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Exactly `Priority:High` and `region:EU` — the tag set on the job is a snapshot taken at job creation and never changes."
+    },
+    {
+      "id": "b",
+      "text": "`Priority:High`, `Priority:Low`, and `region:EU` — tag updates on the process instance propagate to in-flight jobs."
+    },
+    {
+      "id": "c",
+      "text": "`Priority:Low` and `region:EU` — a newer value for an existing tag name overrides the older one on the job."
+    },
+    {
+      "id": "d",
+      "text": "An empty tag set, because `Priority` is case-sensitive and conflicts with `priority` reserved by the engine."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Per the docs, when a BPMN element is activated and creates a job, the job receives a copy of all tags from the process instance at that exact moment, and the tag set on the job is immutable thereafter."
+    },
+    "b": {
+      "text": "Job tags are explicitly immutable after creation; later changes to the process instance do not flow into existing jobs."
+    },
+    "c": {
+      "text": "Tags are not overwritten by name on the job — the entire tag set is a snapshot, frozen at creation."
+    },
+    "d": {
+      "text": "`Priority` is not a reserved key, and case-sensitivity (`Priority:High` ≠ `priority:high`) has no bearing on emptiness here."
+    }
+  },
+  "explanation": "Job tags are a snapshot copy of the process instance tag set, taken once when the BPMN element is activated. After creation, the job's tag set cannot be modified, added to, or removed — including by changes made later on the parent process instance. Tags are case-sensitive, so `Priority:High` and `priority:high` would be treated as distinct entries.",
+  "docs": [
+    {
+      "title": "Job workers",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

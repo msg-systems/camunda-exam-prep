@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q18",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Ad-hoc Subprocess for document-review has 5 inner tasks: review images, check signatures, verify dates, scan watermark, cross-reference DB. The reviewer should complete at least 3 before the Ad-hoc subprocess concludes.",
+  "question": "Which configuration fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set loopCardinality = 3 on the Ad-hoc Subprocess. The loopCardinality property belongs to Multi-Instance configuration and controls the number of parallel or sequential instances to create from a collection. Ad-hoc Subprocesses do not use loopCardinality; they use the completionCondition property to determine when the subprocess should terminate based on inner activity execution state. Setting loopCardinality on an Ad-hoc Subprocess has no effect in the Zeebe engine."
+    },
+    {
+      "id": "b",
+      "text": "Use an Inclusive Gateway inside the subprocess with three outgoing paths for the required checks. Gateways route process flow; they do not determine when an Ad-hoc Subprocess as a whole terminates. An Inclusive Gateway could control which inner tasks start, but terminating the Ad-hoc Subprocess after any three tasks complete requires the completionCondition property on the Ad-hoc Subprocess element itself, not gateway configuration."
+    },
+    {
+      "id": "c",
+      "text": "Ad-hoc Subprocesses always require all inner tasks to complete before the subprocess finishes. This is factually flawed. Ad-hoc Subprocesses in Camunda 8 support a completionCondition FEEL expression that is evaluated after each inner activity completes. When the condition returns true, any still-executing activities are cancelled and the Ad-hoc Subprocess finishes, enabling partial completion with fewer than all inner tasks having run."
+    },
+    {
+      "id": "d",
+      "text": "Set the completionCondition on the Ad-hoc Subprocess -- a FEEL expression counting completed inner activities such that when three or more have finished the subprocess terminates. The FEEL expression evaluates after each inner activity completes; remaining active activities are cancelled when the condition becomes true. This directly matches the requirement of completing after at least three of five reviews are done."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Ad-hoc Subprocess uses completionCondition to determine when it terminates. FEEL expression has access to inner activity execution state. Counting completed activities >= 3 matches the requirement."
+    },
+    "b": {
+      "text": "Incorrect. loopCardinality is Multi-Instance, not Ad-hoc."
+    },
+    "c": {
+      "text": "Incorrect. Gateway routes flow, not Ad-hoc termination."
+    },
+    "d": {
+      "text": "Correct. Ad-hoc supports partial completion via completionCondition."
+    }
+  },
+  "explanation": "Ad-hoc supports partial completion via completionCondition.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/ad-hoc-subprocesses/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q18",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

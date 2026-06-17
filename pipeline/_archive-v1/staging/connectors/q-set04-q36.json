@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Outbound HTTP Connector calls a partner API. The partner enforces a 30-second timeout. The team wants the Connector call to time out client-side at 25 seconds (before partner times out) so the process can retry or fall back cleanly.",
+  "question": "Which Connector property fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The job-activation timeout (retryBackoff or job timeout in Zeebe job configuration) controls how long a job remains activated before it is returned to the job queue for re-activation if the worker crashes. It does not limit how long the HTTP call within the worker takes. A 25-second job activation timeout would return the job to the queue 25 seconds after activation, not 25 seconds after the HTTP call started -- these are different lifecycle events in the job execution model."
+    },
+    {
+      "id": "b",
+      "text": "A Timer Boundary Event on the Service Task interrupts the task if the timer fires while the task is active. The HTTP call runs inside the Connector runtime independently of BPMN timer evaluation. If the HTTP call hangs indefinitely, the job worker thread is blocked regardless of the BPMN timer. HTTP timeout configuration inside the Connector is the correct mechanism."
+    },
+    {
+      "id": "c",
+      "text": "The HTTP Connector in Camunda 8 exposes connection timeout and read timeout configuration fields in the Connector properties. Setting the read timeout to 25 seconds ensures that if the external API does not respond within 25 seconds, the Connector throws a timeout error that can be caught by an Error Boundary Event. This is connector-level configuration -- no job activation timeout or Timer Boundary Event is needed. The timeout is enforced by the HTTP client within the Connector runtime."
+    },
+    {
+      "id": "d",
+      "text": "HTTP Connector timeout configuration is fully supported and adjustable in Camunda 8. Connection timeout and read timeout fields are exposed in the Connector properties panel. The claim that timeouts are fixed and unconfigurable is factually incorrect. Default timeout values exist but can be overridden per task in the BPMN properties. Assuming defaults are immutable leads to unnecessary workarounds when direct Connector configuration provides the needed control. ###"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. HTTP Connector exposes timeout settings (connect/read). Set to 25s to abort the call before partner times out; Connector raises a failure → BPMN can handle via retries / Error Boundary."
+    },
+    "b": {
+      "text": "Incorrect. Job-activation timeout governs how long the worker holds the job, not per-call HTTP timeout."
+    },
+    "c": {
+      "text": "Correct. Timer Boundary cancels the task on timeout but doesn't gracefully close the HTTP request; Connector-level timeout is cleaner."
+    },
+    "d": {
+      "text": "Incorrect. Timeouts are configurable."
+    }
+  },
+  "explanation": "Timer Boundary cancels the task on timeout but doesn't gracefully close the HTTP request; Connector-level timeout is cleaner.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q36",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

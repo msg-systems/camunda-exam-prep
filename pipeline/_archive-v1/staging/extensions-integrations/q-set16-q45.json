@@ -1,0 +1,82 @@
+{
+  "id": "imp-set16-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Custom Connector code needs to log decisions, errors, latencies. Team wonders integration with cluster logging.",
+  "question": "Custom Connector logging?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No logging -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "class)) for Java-based Connectors provides the canonical logging integration. error()) are emitted through the Connector Runtime's logging configuration, which can output JSON-structured logs for aggregators like Datadog, ELK Stack, or Grafana Loki. Include job key and process instance key in log messages for correlation. Structured logging with MDC (Mapped Diagnostic Context) provides per-invocation context. Sensitive data (API keys, PII) must be redacted before logging. For latency measurement, log timestamps around external API calls."
+    },
+    {
+      "id": "c",
+      "text": "Only Camunda logs -- this is only partially correct. While Camunda's engine and runtime components produce their own logs (Zeebe, Operate, Tasklist), custom Connector code running in the Connector Runtime can add its own application-level log statements using standard logging frameworks (SLF4J, Logback, Log4j2). These custom logs integrate with the same logging pipeline and appear alongside Camunda's own log output. , \"Processing order ID X with tier Y\") that Camunda's built-in logging would never capture. Restricting to Camunda-only logs would lose all custom Connector observability."
+    },
+    {
+      "id": "d",
+      "text": "Print statements -- this is a poor practice for production systems. println() bypasses the logging framework, loses log levels (INFO, WARN, ERROR), cannot be filtered or routed to log aggregators, does not support structured output (JSON), and cannot be controlled by runtime log level configuration. In container environments, stdout and stderr may be discarded or mixed with unrelated output. SLF4J with a proper backend (Logback or Log4j2) provides log levels, structured output, runtime reconfiguration, MDC context, and integration with centralized logging infrastructure. Print statements are acceptable only for debugging in a local development throwaway context."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Custom Connector logging: Java SDK with SLF4J (canonical 8.8 OutboundConnectorProvider + @Operation API per connector-sdk.md:233-291): `java public class MyConnector implements OutboundConnectorProvider { private static final Logger logger = LoggerFactory.getLogger(MyConnector.class); @Operation(id = \"call\") public Result call(@Variable MyInput input) { logger.info(\"Processing input for customer {}\", input.getCustomerId()); long start = System.currentTimeMillis(); try { Result result = callExternalService(input); long latency = System.currentTimeMillis() - start; logger.info(\"Call succeeded in {}ms\", latency); return result; } catch (Exception e) { logger.error(\"Call failed\", e); throw e; } } } Doc uses the SLF4J idiom LOG.debug(...) / LOG.error(..., args) in connector-sdk.md:431-439 example. Structured logging: java logger.atInfo() .addKeyValue(\"customerId\", input.getCustomerId()) .addKeyValue(\"latencyMs\", latency) .addKeyValue(\"operation\", \"external-call\") .log(\"Operation completed\"); Outputs JSON-like structure for log aggregators. Or with MDC (Mapped Diagnostic Context): java MDC.put(\"customerId\", input.getCustomerId()); try { // operations logger.info(\"Step 1 complete\"); logger.info(\"Step 2 complete\"); } finally { MDC.clear(); } All logs in scope include customerId. Connector Runtime config: yaml logging: level: root: INFO com.mycompany.connectors: DEBUG pattern: console: \"%d{HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n\" Logback / Log4j configuration. Log aggregation: Standard pattern: Connector Runtime container logs to stdout. Container orchestrator (K8s, etc.) collects. Forwarded to Splunk, ELK, Datadog, etc. For Camunda-specific integration: Logfire (per memory notes): structured logging endpoint. OTLP: OpenTelemetry Logs. Verify SDK helpers: logging utilities. Per-invocation context: Include in logs: Job key: which job. Process instance key: which process. Element ID: which BPMN element. Tenant ID: multi-tenant. Access from context: java ActivatedJob job = context.getJob(); // verify SDK method long jobKey = job.getKey(); long processInstanceKey = job.getProcessInstanceKey(); Set in MDC for log correlation. Sensitive data: Redaction: java // Don't log API keys / secrets logger.info(\"Sending request with API key length: {}\", apiKey.length()); // Redact in log statements logger.info(\"Customer email: @\"); Per memory: logfire_redact() pattern for stripping API keys from error responses. Common patterns to redact: API keys: starts with sk-, pk-, etc. Bearer tokens: in Authorization headers. PII: customer data per GDPR. Credit cards: PCI compliance. Log levels: DEBUG: detailed; per call. INFO: significant events; per invocation. WARN: recoverable issues. ERROR: failures. FATAL: catastrophic. For production: INFO level: typical baseline. DEBUG: enable temporarily for diagnosis. WARN/ERROR: always. Performance: Logging overhead: small but non-zero. Async appenders: minimize impact. Don't log in hot loops: aggregate. For metrics: Logging != metrics: different purposes. Logs: detailed events. Metrics: aggregated counters. Use Prometheus / micrometer for metrics (per Set 13 Q56). For Operate visibility: Process variables: visible in Operate. Don't log entire payload: redundant with Operate. Log decisions / control flow: complement Operate. For audit: Specific audit events: log to dedicated stream. Compliance: regulatory needs. Best practices: Use SLF4J + structured logging. Include context: process / job keys. Redact sensitive: aggressive. Log levels appropriately: not everything at INFO. Centralised aggregation: ELK, Splunk, etc. Searchable: index key fields. Anti-patterns: Print statements: bypass framework. No context: hard to correlate. Logging secrets: security violation. Excessive logging: noise. For the scenario (log decisions, errors, latencies): java logger.atInfo() .addKeyValue(\"decision\", \"approved\") .addKeyValue(\"latencyMs\", latency) .addKeyValue(\"customerId\", customerId) .log(\"Approval decision made\"); ` Structured, contextual, searchable."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q45",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 20 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[2]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 33.5 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

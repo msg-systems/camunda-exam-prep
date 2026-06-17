@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q17",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Timer Boundary uses ISO 8601 duration PT15M30S (15 min 30 sec). Team wonders if Zeebe respects sub-minute precision or rounds.",
+  "question": "Timer precision -- ISO 8601 sub-minute?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe does not restrict timer precision to whole minutes. ISO 8601 duration format supports seconds (S) and even sub-second components, and Camunda 8 parses these correctly. PT15M30S specifies 15 minutes and 30 seconds, which the engine respects in its scheduling. Real-world firing precision is approximately second-level due to broker scheduling overhead, but the 30-second component is acknowledged and not silently truncated to the nearest minute."
+    },
+    {
+      "id": "b",
+      "text": "Zeebe typically supports sub-minute precision for timer durations per ISO 8601 -- PT15M30S means 15 minutes 30 seconds exactly. Precision in practice: depends on engine's clock-tick granularity. Real-world precision: typically second-level or better; not millisecond-precise (broker scheduling overhead). For sub-second precision needs: timers aren't the right tool -- consider external schedulers or event-driven patterns. Verify exact precision in your Camunda 8 version."
+    },
+    {
+      "id": "c",
+      "text": "Claiming millisecond timer precision overstates what Camunda 8 reliably delivers. 1S for 100ms, actual timer firing is subject to broker scheduling overhead, Zeebe partition tick frequency, and system load, making millisecond-accurate firing unrealistic in practice."
+    },
+    {
+      "id": "d",
+      "text": "Zeebe does not silently round down sub-minute timer durations to whole minutes. The engine parses the full ISO 8601 duration expression including seconds and sub-second components and schedules accordingly. PT15M30S is stored and used as 15 minutes and 30 seconds, not rounded to 15 minutes. If any approximation occurs, it is due to scheduling granularity in the broker, not deliberate rounding-down of the specified duration value."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Timer precision in Camunda 8: ISO 8601 duration format: PT15M30S: 15 minutes + 30 seconds. PT1H: 1 hour. P1D: 1 day. PT0.5S: 500 ms (sub-second). P1DT12H: 1 day + 12 hours. Zeebe precision: Engine evaluates the duration; schedules trigger at deadline. Clock tick granularity: depends on internal scheduling; typically second-level or better. Real-world latency: 100ms-few seconds variance from exact deadline due to: Scheduling overhead. Tick frequency. Load on broker. Sub-second specifications: respected in syntax; actual firing may be approximate. Common timer expressions: PT5M: 5 minutes (very common, well-supported). PT30S: 30 seconds (works; expect small drift). PT100ms or PT0.1S: 100 ms (specifiable; firing precision varies -- likely not exactly 100ms). R/PT1H: repeat hourly (Timer Cycle). 2025-12-31T23:59:59Z: specific date (Timer Date). For the scenario (PT15M30S): Zeebe respects the 30-second portion. Expected firing ~ 15 min 30 sec after timer start. Real firing may be 15:30 ± few seconds due to scheduling. When timers fall short: Sub-second precision needs: not Zeebe's strength; use external schedulers. Real-time / hard deadlines: BPMN engines aren't real-time systems. High-frequency repeating: timer cycle with sub-minute period strains engine -- reconsider design. Best practices: For human-relevant timers (minutes / hours / days): Zeebe's precision is more than adequate. Use ISO 8601 naturally. For sub-minute timers: Specify in seconds for clarity (PT30S not PT0.5M). Test actual firing behavior in your environment. For very precise / real-time needs: Use external systems (cron, real-time schedulers). Camunda receives notifications via Message events. For business-day calculations: ISO 8601 doesn't natively support \"next business day.\" Compute date externally; pass as dueDate variable; Timer Date references variable. Time zone considerations: Date Timer: ISO 8601 date includes timezone; engine respects. Duration Timer: relative to \"now\"; timezone-neutral. Cycle Timer: cron-like; timezone matters for \"every day at 9am\" type rules. Verify your Camunda 8 version's exact precision for sub-minute / sub-second timers."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Overstates."
+    },
+    "c": {
+      "text": "Incorrect. overstates."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Overstates.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q17",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

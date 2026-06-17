@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q57",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's CI/CD pipeline deploys BPMN / DMN / Form changes. They want to automate the full flow: PR merge → CI pipeline → deploy to dev → deploy to staging → deploy to prod (with manual approvals between stages).",
+  "question": "Which CI/CD patterns fit Camunda 8 multi-environment deployment?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The simplest and most efficient CI/CD strategy is to deploy BPMN changes directly to production without any staging or validation steps -- this eliminates the quality gates that prevent breaking changes from reaching production users. Deploying untested BPMN to production risks creating Incidents from malformed processes, breaking message correlation for in-flight instances, and causing downstream service failures. A multi-stage pipeline with bpmnlint validation, staging environment testing, and manual approval gates before production is the documented best practice."
+    },
+    {
+      "id": "b",
+      "text": "Multi-stage pipeline with manual gates is the recommended pattern: BPMN, DMN, and Form files in Git as source of truth; PR merge triggers CI with bpmnlint validation; auto-deploy to dev on merge; integration tests in dev; manual approval gates before staging and production promotions; same artifacts deployed across all environments with environment-specific secrets injected per cluster. Tools: zbctl or the REST API for deployment, GitHub Actions/GitLab CI/Jenkins as CI orchestrator."
+    },
+    {
+      "id": "c",
+      "text": "All Camunda 8 deployments should be done manually by an operator for each environment -- this abandons the automation benefits of CI/CD. Manual deployments are error-prone, slow, and inconsistent. Automated pipelines with bpmnlint validation, multi-environment progression, and post-deploy smoke tests are the documented best practice for mature development organisations."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 processes have characteristics that make them incompatible with standard CI/CD pipeline tooling -- this contradicts the documented integration capabilities. Camunda 8 is designed for CI/CD integration. BPMN, DMN, and Form files are version-controllable text artifacts. The zbctl CLI and REST API enable programmatic deployment from any CI/CD system including GitHub Actions, GitLab CI, Jenkins, and Azure DevOps. Process variables, secrets, and environment-specific configurations are externalisable for multi-environment support."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Multi-environment Camunda 8 CI/CD pipeline best practices: Source-controlled BPMN / DMN / Forms: Git as source of truth. Web Modeler Git Sync (where supported) or developers commit directly. Branch protection: require PR + review. Validation in CI: bpmnlint for BPMN structural checks. DMN syntax validation. Form schema validation. Custom tests: process flow correctness (using Play API), Connector unit tests. Multi-environment deployment: Dev: auto-deploy on merge for fast feedback. Staging: gated; pre-production validation. Prod: gated; manual approval; deploy via zbctl / REST API. Same artifacts across environments: Build once (validated BPMN / DMN / Form files); deploy same to all envs. Environment-specific values via cluster secrets (not in artifacts). Verification: Each stage: smoke test after deploy. Roll forward (deploy fix) preferred over roll back; preserve audit. Tooling: GitHub Actions / GitLab CI / Jenkins as orchestration. zbctl or REST API for deployment. Vault / cloud provider's secret manager for cluster secrets. Observability: Each deployment logged; trace artifact version to deployment. Monitoring alerts on post-deploy issues (incidents spike, latency degradation)."
+    },
+    "b": {
+      "text": "Correct. Direct to prod skips validation."
+    },
+    "c": {
+      "text": "Incorrect. Automation valuable."
+    },
+    "d": {
+      "text": "Incorrect. Designed for CI/CD."
+    }
+  },
+  "explanation": "Direct to prod skips validation.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/best-practices/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q57",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

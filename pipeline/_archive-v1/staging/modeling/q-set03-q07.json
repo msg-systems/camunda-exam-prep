@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q07",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team migrating a Camunda 7 process to Camunda 8 encounters a Gateway condition that worked in 7 but breaks in 8. The Camunda 7 model has an Exclusive Gateway with sequence-flow conditions written in JUEL: ${orderAmount > 1000}. When the BPMN is imported into Camunda 8 Web Modeler and deployed, the gateway always routes to the default flow regardless of the orderAmount variable value.",
+  "question": "Why does the JUEL condition not work, and what is the correct Camunda 8 syntax?",
+  "options": [
+    {
+      "id": "a",
+      "text": "JUEL is supported in Camunda 8 via a compatibility shim, so the expression engine should evaluate ${orderAmount > 1000} correctly. The problem must be a variable scoping issue -- perhaps orderAmount is defined in an outer scope that the gateway cannot access. Zeebe's embedded expression engine evaluates only FEEL, not JUEL."
+    },
+    {
+      "id": "b",
+      "text": "Both JUEL and FEEL expressions work in Camunda 8; the problem is that the > comparison operator is reserved and must be replaced with gt in FEEL syntax. FEEL actually uses standard mathematical comparison operators including >, <, >=, and <=. There is no gt keyword in FEEL. Additionally, JUEL is not evaluated in Camunda 8 -- only FEEL is supported."
+    },
+    {
+      "id": "c",
+      "text": "Sequence flow conditions on Exclusive Gateways are fully evaluated by Zeebe using FEEL expressions. The gateway correctly routes based on the FEEL condition result. The issue in this scenario is expression language mismatch, not a missing feature."
+    },
+    {
+      "id": "d",
+      "text": "} syntax is silently ignored by Zeebe, causing the expression to evaluate as null or falsy and route through the default flow. The correct FEEL syntax uses the = prefix: =orderAmount > 1000. All Camunda 7 JUEL expressions must be rewritten to FEEL during migration -- this is the most common C7→C8 migration pitfall."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 7 uses JUEL (${expression}) for expressions; Camunda 8 uses FEEL (=expression). Zeebe evaluates only FEEL -- JUEL syntax is unrecognised, the expression evaluates to null or default behaviour (routes through default flow), depending on context. Migration must rewrite all expressions from JUEL to FEEL: ${orderAmount > 1000} → =orderAmount > 1000."
+    },
+    "b": {
+      "text": "Incorrect. No JUEL compatibility in Camunda 8."
+    },
+    "c": {
+      "text": "Incorrect. FEEL uses standard mathematical operators including >. There's no gt keyword."
+    },
+    "d": {
+      "text": "Correct. Camunda 8 evaluates sequence-flow conditions; FEEL is the language."
+    }
+  },
+  "explanation": "Camunda 8 evaluates sequence-flow conditions; FEEL is the language.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/what-is-feel/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q07",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q24",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A customer-tagging DMN evaluates a customer and may apply multiple tags like \"VIP\", \"LOYAL\", \"AT_RISK\". The output is intentionally a list of strings -- the BPMN downstream uses this list as the customer's tags collection.",
+  "question": "Can a DMN decision return a list as its output, and how does the caller receive it?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No -- DMN decision tables can only return scalar values (a single string, number, boolean, or date). Returning a list of strings like [\"VIP\", \"LOYAL\", \"AT_RISK\"] is architecturally unsupported. This claim is inaccurate. The DMN specification and Camunda 8's implementation both support list outputs: the COLLECT hit policy (without an aggregator) collects all matching rules' outputs into a list and returns it as the decision result. Additionally, output columns can be typed as lists. The caller receives the native list via the Business Rule Task's resultVariable and can navigate it with FEEL functions."
+    },
+    {
+      "id": "b",
+      "text": "Yes, but only when all matching rules produce identical output values -- the decision automatically deduplicates and returns a single value. This describes the ANY hit policy, not a list return. The ANY policy allows multiple rules to match, but constrains them all to return the same value; if different values would be produced, ANY raises an error. For the scenario where multiple distinct tags like \"VIP\" and \"LOYAL\" should all be returned together as a collection, ANY is the wrong policy since the outputs differ by design. COLLECT without an aggregator is the correct choice."
+    },
+    {
+      "id": "c",
+      "text": "Yes -- DMN supports list outputs natively. The most common pattern: use the COLLECT hit policy without an aggregator, which collects all matching rules' output values into a list and returns it as the decision result. , tags = [\"VIP\", \"LOYAL\", \"AT_RISK\"]). Downstream FEEL expressions can then navigate the list: =tags contains \"VIP\", =count(tags), or =tags[1]. This is the canonical DMN pattern for multi-label classification use cases."
+    },
+    {
+      "id": "d",
+      "text": "Yes, but the DMN engine serialises the list as a JSON-encoded string in the resultVariable, requiring the downstream BPMN to parse it manually using string manipulation or a custom FEEL function before it can be used as an actual list. This claim is inaccurate. Camunda 8's variable system stores list values as native structured types, not as JSON strings. The FEEL engine on the receiving side has full native access to the list through standard FEEL list operations without any manual parsing step."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. DMN decisions can return lists in two main ways: (1) COLLECT hit policy collects all matching rules' outputs into a list (no aggregator means \"give me the list\"); (2) a single output column typed as list returning a FEEL list expression. The Business Rule Task's resultVariable captures whatever the decision returns -- list, scalar, or context -- preserving structure. The caller's FEEL has full access: tags contains \"VIP\", count(tags) > 0, tags[1], etc."
+    },
+    "b": {
+      "text": "Incorrect. DMN supports lists."
+    },
+    "c": {
+      "text": "Correct. ANY allows multiple matches but constrains them to produce identical outputs; result is the single value (not a list). For a list of varied tags, COLLECT is the right policy."
+    },
+    "d": {
+      "text": "Incorrect. The engine returns native list values, FEEL-navigable. No JSON-string decoding step."
+    }
+  },
+  "explanation": "ANY allows multiple matches but constrains them to produce identical outputs; result is the single value (not a list). For a list of varied tags, COLLECT is the right policy.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q24",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

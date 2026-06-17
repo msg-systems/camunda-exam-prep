@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q09",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An order-fulfillment process has an Embedded Subprocess containing 4 inner activities. One inner activity may throw an error. The team wants the error caught inside the subprocess -- not propagated to the parent. Either an Error Boundary Event attached to the failing inner activity, OR an Event Subprocess inside the Embedded Subprocess catching the Error Start.",
+  "question": "Which option fits \"catch errors within the Embedded Subprocess scope\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Only Error Boundary Events work for catching errors within an Embedded Subprocess scope. An Event Subprocess with an Error Start Event placed inside the Embedded Subprocess is not a valid pattern for error catching. Both mechanisms are valid and commonly used for scoped error handling. Error Boundary catches errors from specific individual activities; Event Subprocess with Error Start catches errors at the entire subprocess scope. Choosing between them depends on the desired granularity of error handling."
+    },
+    {
+      "id": "b",
+      "text": "Both are valid scope-local error-catching patterns. An Error Boundary Event on the specific failing inner activity catches its errors with activity-level granularity and minimal scope impact. An Event Subprocess with Error Start Event inside the Embedded Subprocess catches errors that bubble up to the subprocess boundary (those uncaught by inner activity-level boundaries) -- useful when multiple inner activities might throw the same error type and you want centralized subprocess-wide handling. Choose based on granularity needed."
+    },
+    {
+      "id": "c",
+      "text": "Only an Event Subprocess with an Error Start Event inside the Embedded Subprocess works for catching errors within the subprocess scope. An Error Boundary Event attached directly to the inner failing activity is not sufficient for scope-local error catching. Error Boundary provides activity-specific handling while Event Subprocess provides subprocess-wide handling."
+    },
+    {
+      "id": "d",
+      "text": "Neither Error Boundary Events nor Event Subprocesses inside an Embedded Subprocess can prevent errors from propagating to the parent process. Errors always bubble up through subprocess boundaries in Camunda 8, so the only option is to handle them at the parent level. Both mechanisms in fact catch errors within the Embedded Subprocess scope and prevent propagation to the parent process, providing proper error containment."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Both mechanisms catch errors at the Embedded Subprocess scope, but with different granularity: Error Boundary on inner activity: catches errors thrown by that specific activity. Outgoing arrow handles the error case for that activity. Activity-specific. Event Subprocess with Error Start inside Embedded Subprocess: catches errors that bubble up from any inner activity (when activity-level boundaries don't catch them). Useful when several inner activities might throw the same error type, or when you want a centralised \"error handler\" for the subprocess. BPMN propagation: an error first looks for matching catch on the throwing activity → then on the containing scope (Embedded Subprocess) -- where Event Subprocess Error Start catches → if uncaught there, propagates to parent process. So you can layer: activity-specific Error Boundaries for known specific errors, plus subprocess-wide Event Subprocess Error Start for catch-all within the subprocess. The error doesn't propagate to the parent process if either inner catch handled it. The subprocess's containment provides isolation."
+    },
+    "b": {
+      "text": "Correct. Both patterns valid."
+    },
+    "c": {
+      "text": "Incorrect. Both patterns valid."
+    },
+    "d": {
+      "text": "Incorrect. Both catch in scope."
+    }
+  },
+  "explanation": "Both patterns valid.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/event-subprocesses/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q09",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

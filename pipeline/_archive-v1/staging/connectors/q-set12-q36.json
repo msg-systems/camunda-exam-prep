@@ -1,0 +1,69 @@
+{
+  "id": "imp-set12-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A custom Connector has many configuration values -- API endpoints, retry settings, feature flags. The team wonders if Connectors should read these from environment variables vs Element Template properties.",
+  "question": "Environment variables vs Element Template properties for Connector configuration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Claiming that all Connector configuration should always use environment variables is only partially correct. Environment variables are well-suited for cross-cutting operational settings like default timeouts, retry policies, feature flags, and infrastructure endpoint URLs that vary by deployment environment. Placing all configuration in environment variables would eliminate the modeler's ability to customize individual task behavior in the BPMN diagram."
+    },
+    {
+      "id": "b",
+      "text": "Claiming that all Connector configuration should always be provided through Element Template properties is only partially correct. Putting infrastructure-level configuration into Element Templates unnecessarily couples the BPMN model to environment topology."
+    },
+    {
+      "id": "c",
+      "text": "The most effective approach combines both environment variables and Element Template properties, assigning each type of configuration to the mechanism that fits its purpose. Environment variables are ideal for cross-cutting operational settings: default HTTP timeouts, retry policies, connection pool sizes, infrastructure endpoint URLs, and feature flags that vary by deployment environment and are managed by operations teams. Using this hybrid approach gives operations teams control over infrastructure without requiring BPMN changes, while giving modelers flexibility to configure each task's behavior individually within the diagram."
+    },
+    {
+      "id": "d",
+      "text": "Hardcoded values such as API endpoints, timeout durations, and feature flags require a code change, rebuild, and redeployment every time a configuration value needs to change. This approach makes it impossible to configure the Connector differently across development, staging, and production environments without maintaining separate code branches. Using environment variables for operational settings and Element Template properties for per-task settings provides the flexibility that hardcoded values eliminate."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Configuration layers serve different purposes: Element Template properties (per-task, modeler concern): What: properties specific to each Service Task usage -- channel name, recipient address, message template, target URL per partner. Who configures: modelers via Web Modeler property panel. Scope: per BPMN element instance; varies across uses. Examples: Slack channel name; HTTP endpoint URL; subject line for an email. Environment variables / config files (per-deployment, ops concern): What: cross-cutting Connector Runtime settings -- default timeouts, retry behaviour, feature flags, infrastructure URLs. Who configures: ops / deployment engineers via env vars / Kubernetes ConfigMaps / Vault / etc. Scope: per Connector Runtime instance / cluster. Examples: default HTTP timeout; max concurrent requests; enable / disable a feature flag; logging level. Cluster secrets (per-environment secrets, ops concern): Sensitive values -- API keys, OAuth secrets, credentials. Stored via secrets provider; referenced in Element Templates via {{secrets.NAME}}. Combined: Element Template references a property → modeler sets value → at runtime, the Connector reads it. Connector code also reads env vars at startup for runtime config. Secrets accessed via SDK's secret API. Anti-patterns: Putting infrastructure URLs (CRM endpoint per environment) in Element Template properties -- modeler shouldn't have to know dev vs prod URLs. Putting per-task values in env vars -- every modeler can't customise."
+    },
+    "b": {
+      "text": "Incorrect. Some config belongs in BPMN."
+    },
+    "c": {
+      "text": "Correct. Some config is ops-level."
+    },
+    "d": {
+      "text": "Incorrect. anti-pattern."
+    }
+  },
+  "explanation": "Some config is ops-level.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q36",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[1]"
+      }
+    ]
+  }
+}

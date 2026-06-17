@@ -1,0 +1,50 @@
+{
+  "id": "ext-properties-reference-67",
+  "topic": "extensions-integrations",
+  "subtopic": "spring-boot-properties",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A worker uses `zeebe.client.message.time-to-live=PT10M` on Camunda 8.8. Which replacement property does the migration table point to?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`camunda.client.message-time-to-live`"
+    },
+    {
+      "id": "b",
+      "text": "`camunda.client.message.time-to-live`"
+    },
+    {
+      "id": "c",
+      "text": "`camunda.client.worker.defaults.message-time-to-live`"
+    },
+    {
+      "id": "d",
+      "text": "`camunda.client.ttl.message`"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The `zeebe.client.message.*` table maps `zeebe.client.message.time-to-live` to `camunda.client.message-time-to-live` (env `CAMUNDA_CLIENT_MESSAGETIMETOLIVE`) — flattened, not nested under a `message.` sub-key."
+    },
+    "b": {
+      "text": "The new property name flattens the `.message.` segment; `camunda.client.message.time-to-live` (with the dot) is not the form the docs list."
+    },
+    "c": {
+      "text": "Message TTL is a client-level concern, not a worker default; it does not live under `worker.defaults.*` in the new namespace."
+    },
+    "d": {
+      "text": "There is no `camunda.client.ttl.*` group on the page; the docs reuse a single flat key `message-time-to-live`."
+    }
+  },
+  "explanation": "The deprecated `zeebe.client.message.time-to-live` is replaced by the flat property `camunda.client.message-time-to-live`. Note the migration drops the `.message.` segment in favour of the hyphenated key. The sibling `max-message-size` is migrated the same way to `camunda.client.max-message-size`.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot starter properties reference",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/properties-reference/"
+    }
+  ]
+}

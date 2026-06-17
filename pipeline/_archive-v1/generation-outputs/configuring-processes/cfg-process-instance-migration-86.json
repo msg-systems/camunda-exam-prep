@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-86",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "A SaaS provider rolls 1800 instances back from a process version containing a message event subprocess to an earlier version that no longer has that subprocess. Service task A remains active in both versions and the team needs the message subscription removed during migration so the rolled-back instances no longer correlate the message that the older version does not handle.",
+  "question": "Which migration plan removes the existing message subscription when migrating service task A to the version that no longer contains the message event subprocess?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Provide only a mapping from active service task A to A so the source message subscription is closed because no target catch event is referenced as the destination of a mapping"
+    },
+    {
+      "id": "b",
+      "text": "Provide a mapping from active service task A to A and a mapping from the source message start event to a special tombstone target id so the broker removes the subscription"
+    },
+    {
+      "id": "c",
+      "text": "Provide no mappings at all so the engine drops every event subscription on the source process instance and migrates the active element using its default element identifier"
+    },
+    {
+      "id": "d",
+      "text": "Provide a mapping from active service task A to A and add a variable instruction unsubscribe set to true so the engine closes the orphan message subscription on activation"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. A catch event in the source process whose mapping is not provided has its associated subscription closed during migration. Mapping only the active service task A is therefore sufficient to remove the orphan message subscription from the rolled-back instance."
+    },
+    "b": {
+      "text": "Incorrect. There is no tombstone target id in the migration command. Removal of a source subscription is signalled implicitly by simply not providing a mapping for that source catch event in the migration plan."
+    },
+    "c": {
+      "text": "Incorrect. The migration plan must map every active element. Without a mapping for the active service task A, the validation step rejects the migration command and no subscriptions are touched at all."
+    },
+    "d": {
+      "text": "Incorrect. The migration command does not expose an unsubscribe variable instruction. Subscription removal is controlled solely by omitting the catch event from the migration plan, not by a variable side channel."
+    }
+  },
+  "explanation": "If a catch event in the source process is not mapped, the engine closes its subscription during migration. So removing an event subscription is achieved by simply leaving its source catch event out of the migration plan while still mapping every active element.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

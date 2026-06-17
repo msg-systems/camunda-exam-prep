@@ -1,0 +1,53 @@
+{
+  "id": "ext-connecting-the-workflow-engine-with-your-world-124",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "The Java client opens the subscription above for jobs of type `serviceA`. How does the docs say the client retrieves jobs from the workflow engine under the hood?",
+  "codeBlocks": {
+    "stem": "zeebeClient\n  .newWorker()\n  .jobType(\"serviceA\")\n  .handler(new ExampleJobHandler())\n  .timeout(Duration.ofSeconds(10))\n  .open();"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "Long polling — the subscription uses long polling internally to retrieve jobs."
+    },
+    {
+      "id": "b",
+      "text": "The engine pushes jobs to the worker over a persistent WebSocket from the broker."
+    },
+    {
+      "id": "c",
+      "text": "The client listens on an internal JMS queue exposed by the Zeebe broker."
+    },
+    {
+      "id": "d",
+      "text": "Jobs are written to a shared filesystem volume that the worker polls every second."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state that subscriptions are how a handler is connected to Zeebe and that they internally use long polling to retrieve jobs."
+    },
+    "b": {
+      "text": "The transport is gRPC/REST with long polling on subscriptions, not a WebSocket push pattern from the broker."
+    },
+    "c": {
+      "text": "Zeebe does not expose a JMS queue for clients; subscriptions are the documented mechanism."
+    },
+    "d": {
+      "text": "Shared filesystem polling is not part of the Zeebe client model — jobs are activated through the subscription API."
+    }
+  },
+  "explanation": "`newWorker().jobType(...).handler(...).open()` registers a subscription that pulls activated jobs from Zeebe using long polling. The handler is then invoked per job — typically completing the job via `client.newCompleteCommand(job.getKey()).send()` (or letting the Spring `@JobWorker` autoComplete do it).",
+  "docs": [
+    {
+      "title": "Connecting the workflow engine with your world",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/connecting-the-workflow-engine-with-your-world/"
+    }
+  ]
+}

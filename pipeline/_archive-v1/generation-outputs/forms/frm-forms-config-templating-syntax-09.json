@@ -1,0 +1,27 @@
+{
+  "id": "frm-forms-config-templating-syntax-09",
+  "topic": "forms",
+  "subtopic": "feelers - loops and accessors",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Aurora Outdoors sends an order confirmation summary to 4500 customers per month through a Camunda 8.8 templated email task that uses Feelers. The data carries a top-level currency field and an items array, where each item has a name and a price property, and the template must render one line per item showing the item name and the currency-prefixed price.",
+  "question": "Which Feelers template correctly renders the per-item lines using the documented loop and accessor rules?",
+  "options": [
+    { "id": "a", "text": "A template with a loop over items that references the item name as this.name and the price as parent.currency joined to price on each rendered line" },
+    { "id": "b", "text": "A template with a loop over items that references the item name as name and the outer currency as parent.currency joined to price on each rendered line" },
+    { "id": "c", "text": "A template with an if block over items that references the name and the currency through the parent accessor on every iteration of the items array" },
+    { "id": "d", "text": "A template with a loop over items that references the currency as this.currency and the name as parent.name on each rendered line of the output" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Inside a loop the object properties are referenced directly by their key, so using this.name introduces an unnecessary accessor that does not match the documented pattern for object items." },
+    "b": { "text": "Correct. Inside a loop, object properties are referenced by their key directly, and data outside the item scope, such as the top-level currency, is reached through the parent accessor." },
+    "c": { "text": "Incorrect. The if tag conditionally renders a block, but iteration over an array requires the loop tag, so the per-item lines would not repeat with an if construct." },
+    "d": { "text": "Incorrect. Within the loop, currency lives in the outer scope and must be reached through parent, while name belongs to the current item and is referenced directly." }
+  },
+  "explanation": "Feelers loops expose object properties of the current item by their key. To reach data outside the item scope, such as the top-level currency, the template uses the parent accessor, so name resolves to the item property and parent.currency reaches the outer field.",
+  "docs": [
+    { "title": "Forms templating - Feelers syntax", "url": "https://docs.camunda.io/docs/components/modeler/forms/configuration/forms-config-templating-syntax/" }
+  ]
+}

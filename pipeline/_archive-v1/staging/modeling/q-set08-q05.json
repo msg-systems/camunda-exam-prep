@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A finance team has a 6-step transactional saga: validate-order, reserve-inventory, charge-card, book-shipping, send-confirmation, update-ledger. The team specifies strict transactional semantics: if any step fails, all completed steps must roll back via their compensation handlers, then the BPMN flow takes a \"rollback completed\" path. This is more than ad-hoc compensation throw; it's the formal BPMN Transaction pattern.",
+  "question": "Which BPMN construct expresses transactional rollback with a built-in cancellation pathway?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A Transaction Subprocess (Subprocess with transactionalSubprocess marker -- double-bordered visually) containing the 6 tasks, each with their Compensation Boundary Events + handlers. Inside, a Cancel End Event triggers transactional cancellation. Outside the subprocess border, a Cancel Boundary Event catches the cancellation and routes to \"rollback completed\" path. md:570, :577. Cannot be deployed."
+    },
+    {
+      "id": "b",
+      "text": "Six explicit Service Tasks with manually modelled reverse-flow paths leading back to individual compensation tasks connected by explicit sequence flows. This approach is verbose and loses the declarative compensation abstraction that BPMN provides. Each compensation step requires explicit conditional routing logic to determine which steps have completed and need reverting. Adding or removing steps from the saga requires updating all the reverse-flow routing paths. The Compensation Boundary Event pattern expresses the rollback intent declaratively and is significantly easier to read and maintain."
+    },
+    {
+      "id": "c",
+      "text": "Embedded Subprocess containing the 6 tasks (each with Compensation Boundary Events + handlers), plus a Compensation Throw Intermediate Event on the failure exit path. The Compensation Throw triggers all completed inner activities' compensation handlers; the subprocess then exits via the \"rollback completed\" path. md:38-39, :141-142. This is the Camunda-8-idiomatic equivalent of BPMN's Transaction pattern."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 has no support for transactional rollback patterns whatsoever -- this is a misleading framing of the actual implementation coverage. md. The distinction is between the formal Transaction marker being absent versus the compensation mechanism being fully available."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Although BPMN-spec-valid and modeler-visible, Transaction Subprocess + Cancel End + Cancel Boundary are all unimplemented in Zeebe per bpmn-coverage.md:47-49, :570, :577. A diagram using them is documentation-only -- it won't run."
+    },
+    "b": {
+      "text": "Incorrect. Per bpmn-coverage.md:47-49 the Transaction Subprocess symbol carries no className=\"implemented\" (not deployable); per :570, :577 both Cancel Boundary and Cancel End Events are likewise NOT implemented. The Camunda-8-idiomatic equivalent of BPMN's Transaction pattern is: Embedded Subprocess wrapping the 6 tasks (each with Compensation Boundary Events + handlers), terminated on the failure branch by a Compensation Throw Intermediate Event. Per compensation-events.md:31-35 the engine triggers compensation handlers at once without any specific order (NOT LIFO/reverse-order) -- if an explicit per-activity order is required, use multiple Compensation Throw Events with activityRef per :73-83. After Compensation Throw completes, the subprocess exits via the \"rollback completed\" sequence flow."
+    },
+    "c": {
+      "text": "Correct. 6 manual reverse paths bloat the diagram and lose the compensation abstraction. The Compensation Boundary + Throw pattern already expresses \"reverse this activity\" declaratively."
+    },
+    "d": {
+      "text": "Incorrect. Compensation IS supported (bpmn-coverage.md:141-142 shows the Compensation marker as implemented); only the formal Transaction Subprocess marker isn't."
+    }
+  },
+  "explanation": "6 manual reverse paths bloat the diagram and lose the compensation abstraction. The Compensation Boundary + Throw pattern already expresses \"reverse this activity\" declaratively.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q05",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

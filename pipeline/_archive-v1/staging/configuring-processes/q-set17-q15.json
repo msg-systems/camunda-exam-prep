@@ -1,0 +1,56 @@
+{
+  "id": "imp-set17-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Simple User Task: assignee just confirms. No form needed; just complete button. Team wonders pattern.",
+  "question": "User Task without form?",
+  "options": [
+    {
+      "id": "a",
+      "text": "User Task can exist without form: - No formId / formKey in BPMN -- omitting the zeebe:formDefinition extension element is perfectly valid. - Tasklist UI: shows task with completion button only; no form fields are rendered when no form is bound. - No data input: just acknowledgement -- the task completes when the assigned user presses the complete button. - Variables: from process scope are still accessible in read-only mode via Tasklist's variable view. - Use case: approval confirmation, manual action acknowledgement, human checkpoint before continuing process flow. - Assignee / candidates: still configured normally via zeebe:assignmentDefinition; form binding is orthogonal to assignment."
+    },
+    {
+      "id": "b",
+      "text": "A Camunda 8 User Task must always have a form attached or it will not work in Tasklist -- this does not accurately reflect the behavior. User Tasks support form-less configurations in Camunda 8. When no zeebe:formDefinition is attached, the Tasklist application displays the task with available process variables in read-only mode and a complete button."
+    },
+    {
+      "id": "c",
+      "text": "The correct approach for a User Task requiring only confirmation is to create an empty form with no fields -- this partially addresses the need but adds unnecessary complexity. Creating and maintaining an empty form schema is overhead that provides no benefit over a form-less task configuration. Camunda 8 natively supports User Tasks without form bindings, which achieves the same acknowledgement-only UX with less configuration. Using an empty form is a workaround rather than the idiomatic solution."
+    },
+    {
+      "id": "d",
+      "text": "For simple confirmation scenarios a Service Task should replace the User Task -- this misidentifies the appropriate element. Service Tasks represent automated work with no human interaction. When a human needs to explicitly confirm an action or acknowledge a task, a User Task is semantically correct regardless of whether a form is needed. Using a Service Task for human acknowledgement would require custom implementation to route human actions back to the process engine."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. User Task without form: BPMN allows: User Task without zeebe:formDefinition. Just task definition: assignee / candidates. No form binding. In Tasklist: Task appears: in user's list. Detail view: shows variables (read-only typical). Complete button: submit without form data. Variables: Process variables visible: in details panel (verify per version). Read-only: no editing. For context: orderId, customer, etc. Use cases: Use case 1: Approval: User reviews context (no input needed). Clicks \"Complete\" = approved. For reject: separate task / form. Use case 2: Acknowledgement: \"Confirm you've reviewed\". No input; just acknowledgement. Use case 3: Manual action confirmation: \"Physical inspection done; click Complete.\" Per Set 14 Q7 (vs Manual Task). Use case 4: Approval gate: Wait state for approval. User just confirms. For approve/reject without form: Pattern: two tasks. Approve Task (no form): complete = approved. Boundary or alternative: for reject scenarios. Or via form (simpler): Single task with form: decision field. Per Set 16 Q30: form actions. For data confirmation: Pre-filled variables visible: from process. Read-only display: no edit. For audit: Task completion logged: who, when. No additional data: just ack. For UI customisation: Tasklist may need configuration for form-less display. Custom Tasklist: full control. Alternative: minimal form: Form with single read-only field + comment. More flexibility: optional comment. For Camunda 8: User Task supports form-less: typically. Verify per version: Tasklist rendering. For very simple tasks: Question: does need to be User Task? If purely automated: Service Task. If just informational: maybe sequence flow alone with annotation. If human action needed: User Task even without form. For Manual Task (per Set 14 Q7): No system involvement: completely outside. User Task without form: tracked by engine; just no form UX. Different. For accessibility: Task without form: simpler UI. Screen readers: announce task + complete button. For task title / description: name attribute: shown. documentation (per Set 16 Q9): more detail. Form-less tasks rely on these: context. For audit trail: Completion event: same as form-based. Identity captured. For multi-step approvals: Chain of form-less tasks: each approves. Audit who approved at each step. Best practices: Use form-less for pure acknowledgement. Use form when data input needed. Clear task title: user knows what to do. Documentation field: details. Anti-patterns: Form-less when data needed: lose input. Confusing context: user unsure what to do. For the scenario (just confirms): Form-less User Task: appropriate. Tasklist shows complete button. Simple UX. For monitoring: Completion metrics: same as other tasks. Duration tracking."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "User Task without form: BPMN allows: User Task without zeebe:formDefinition. Just task definition: assignee / candidates. No form binding. In Tasklist: Task appears: in user's list. Detail view: shows variables (read-only typical). Complete button: submit without form data. Variables: Process variables visible: in details panel (verify per version). Read-only: no editing. For context: orderId, customer, etc. Use cases: Use case 1: Approval: User reviews context (no input needed). Clicks \"Complete\" = approved. For reject: separate task / form. Use case 2: Acknowledgement: \"Confirm you've reviewed\". No input; just acknowledgement. Use case 3: Manual action confirmation: \"Physical inspection done; click Complete.\" Per Set 14 Q7 (vs Manual Task). Use case 4: Approval gate: Wait state for approval. User just confirms. For approve/reject without form: Pattern: two tasks. Approve Task (no form): complete = approved. Boundary or alternative: for reject scenarios. Or via form (simpler): Single task with form: decision field. Per Set 16 Q30: form actions. For data confirmation: Pre-filled variables visible: from process. Read-only display: no edit. For audit: Task completion logged: who, when. No additional data: just ack. For UI customisation: Tasklist may need configuration for form-less display. Custom Tasklist: full control. Alternative: minimal form: Form with single read-only field + comment. More flexibility: optional comment. For Camunda 8: User Task supports form-less: typically. Verify per version: Tasklist rendering. For very simple tasks: Question: does need to be User Task? If purely automated: Service Task. If just informational: maybe sequence flow alone with annotation. If human action needed: User Task even without form. For Manual Task (per Set 14 Q7): No system involvement: completely outside. User Task without form: tracked by engine; just no form UX. Different. For accessibility: Task without form: simpler UI. Screen readers: announce task + complete button. For task title / description: name attribute: shown. documentation (per Set 16 Q9): more detail. Form-less tasks rely on these: context. For audit trail: Completion event: same as form-based. Identity captured. For multi-step approvals: Chain of form-less tasks: each approves. Audit who approved at each step. Best practices: Use form-less for pure acknowledgement. Use form when data input needed. Clear task title: user knows what to do. Documentation field: details. Anti-patterns: Form-less when data needed: lose input. Confusing context: user unsure what to do. For the scenario (just confirms): Form-less User Task: appropriate. Tasklist shows complete button. Simple UX. For monitoring: Completion metrics: same as other tasks. Duration tracking.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q15",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

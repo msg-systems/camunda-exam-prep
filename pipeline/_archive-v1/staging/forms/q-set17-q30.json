@@ -1,0 +1,70 @@
+{
+  "id": "imp-set17-q30",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Form has Number field for \"Order Quantity\" (integer) and \"Total Amount\" (decimal). Wonders configuration.",
+  "question": "Form Number component integer vs decimal?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Same type -- partial."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 Forms do not have a dedicated number input component and require text fields for all numeric input -- this does not accurately reflect the behavior. Camunda Forms include a dedicated Number component for numeric input with properties such as decimalDigits for decimal precision control, increment for step size, and validation for minimum and maximum values. Using a text field for numeric input would require manual validation logic that the Number component handles automatically without custom code."
+    },
+    {
+      "id": "c",
+      "text": "The Camunda Forms Number component always restricts input to integer values with no decimal support -- this does not accurately reflect the behavior. The Number component supports both integer and decimal input. The decimalDigits property controls how many decimal places are permitted. Setting decimalDigits to 0 restricts to integers while setting it to 2 allows two decimal places. This flexibility makes the Number component suitable for both whole-number fields like quantities and decimal fields like prices without separate component types."
+    },
+    {
+      "id": "d",
+      "text": "md:11-31 (canonical property names from :13-30): the Number component provides decimalDigits to control how many decimal places are allowed, increment to set the step size for spinner controls, and serializeToString to control whether the value is stored as a string or numeric type in the process variable. Validation properties support minimum and maximum value constraints. The component renders a numeric input field with optional up/down spinner controls in the Tasklist UI."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Number component configuration per forms-element-library-number.md:11-31: Canonical property names (doc-verbatim labels): Decimal digits (decimalDigits in JSON) -- max digits after the decimal. Increment (increment in JSON) -- step between valid values (1 = integer, 0.01 = cents). Validation > Required / Minimum / Maximum (validate.required / validate.min / validate.max). Serialize to string (serializeToString) -- preserves arbitrary precision for currency. For integer-only: `json { \"type\": \"number\", \"key\": \"quantity\", \"label\": \"Quantity\", \"validate\": { \"required\": true, \"min\": 1, \"max\": 1000 }, \"increment\": 1, \"decimalDigits\": 0 } Increment=1 + decimalDigits=0 enforces integer entry. For decimal: json { \"type\": \"number\", \"key\": \"amount\", \"label\": \"Total Amount\", \"validate\": { \"required\": true, \"min\": 0 }, \"increment\": 0.01, \"decimalDigits\": 2, \"appearance\": { \"prefix\": \"€\" } } Decimal allowed; 2 fraction digits; prefix shows currency. Doc note (forms-element-library-number.md:34): Number can be bound to numeric data or to strings parsed via JavaScript tryParse; enable Serialize to string for arbitrary precision (e.g., financial values where JS Number` precision is insufficient). For currency: Format with currency symbol: in display. Stored as plain number. Currency code separate variable: or part of formatting. For percentage: Display as %: but store as decimal (0.20 = 20%). Or display + store as integer: 20 = 20%. Variable storage: Form submits number: stored as number in process variable. FEEL receives number: arithmetic works. For input parsing: User types \"100\": parsed to number 100. User types \"100.50\": parsed to 100.50 (if decimal allowed). Invalid input: validation error. For locale: Comma vs period decimal: depends on locale. Display: per user locale. Stored: canonical (period decimal). For very large numbers: Number type: typically supports up to JS Number precision. For higher: string representation. For currency precision (per Set 13 Q48): FEEL decimals: arbitrary precision. JSON / JS: limited. For exact: store as string or use decimal() FEEL. For UI hints: Placeholder: example value. Help text: explain expected. For zero values: Allowed: per min config. Required: distinct from zero. For negative: min: -X: allow negative. min: 0: only non-negative. For dependent fields: *Quantity Price = Total: computed field (per Set 15 Q31). Live update: as user types. For form submission validation: Client-side: in Tasklist before submit. Server-side: process logic verifies. For Operate visibility: Number variables: displayed. Formatted per locale. For arithmetic in FEEL: Quantity unitPrice: works. Type-safe. For decision input: Number variable: passed to DMN. Type matches (per Set 17 Q23). For best UX: Increment buttons: for small ranges. Numeric keyboard on mobile: type=\"number\". Validation feedback: inline. Anti-patterns: Storing numbers as strings: type errors later. No constraints: invalid data. Inconsistent formatting: confusing. Best practices: Type as number: explicit. Set constraints: min, max, step. Decimal config: per business need. Test edge cases: 0, negatives, very large. For the scenario: Quantity: integer (step=1, decimalDigits=0). Total Amount: decimal (step=0.01, decimalDigits=2). Both Number type: different constraints. For computed totals: Subtotal = quantity unitPrice. Total = subtotal + tax. Computed fields** (per Set 15 Q31)."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/forms-element-library-number/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q30",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 21 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 26.0 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

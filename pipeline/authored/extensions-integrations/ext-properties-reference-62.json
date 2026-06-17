@@ -1,0 +1,50 @@
+{
+  "id": "ext-properties-reference-62",
+  "topic": "extensions-integrations",
+  "subtopic": "deprecated-properties",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A team is migrating off the deprecated `common.keycloak.*` namespace. They previously set `common.keycloak.url` and `common.keycloak.realm`. What does the Camunda 8.8 reference prescribe?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set `camunda.client.auth.token-url` to the issuer URL and drop `realm` — there is no Keycloak-specific configuration for Camunda; the issuer is provided as a URL."
+    },
+    {
+      "id": "b",
+      "text": "Set `camunda.client.keycloak.url` and `camunda.client.keycloak.realm` — Keycloak remains a first-class identity provider with its own namespace."
+    },
+    {
+      "id": "c",
+      "text": "Rename `common.keycloak.realm` to `camunda.client.auth.realm` — only `realm` is renamed; `url` continues to work unchanged."
+    },
+    {
+      "id": "d",
+      "text": "Keep `common.keycloak.url` and `common.keycloak.realm` — they are still the recommended way to point at Keycloak in self-managed deployments."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The deprecation table maps both `common.keycloak.url` and `common.keycloak.token-url` to `camunda.client.auth.token-url`, with the explicit hint that there is no Keycloak-specific configuration for Camunda — the issuer is provided as a URL. `common.keycloak.realm` has no replacement entry for the same reason."
+    },
+    "b": {
+      "text": "There is no `camunda.client.keycloak.*` namespace in the reference; the docs state plainly that Keycloak-specific configuration is no longer used by Camunda."
+    },
+    "c": {
+      "text": "`realm` is not renamed under `auth.realm`. The docs collapse Keycloak's `<base>/realms/<realm>/...` structure into the single issuer URL the user supplies."
+    },
+    "d": {
+      "text": "Both properties are listed in the deprecation table, so they are not the recommended ongoing way to configure auth."
+    }
+  },
+  "explanation": "Camunda 8.8 treats the OAuth issuer as an opaque URL set via `camunda.client.auth.token-url`. The legacy `common.keycloak.*` properties — including `realm`, which has no direct replacement — were specific to one identity provider and are deprecated; the issuer URL is now the only Keycloak-related setting needed.",
+  "docs": [
+    {
+      "title": "Camunda Spring Boot Starter - properties reference",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/properties-reference/"
+    }
+  ]
+}

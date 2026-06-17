@@ -1,0 +1,56 @@
+{
+  "id": "imp-set16-q43",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "REST Connector calls partner API requiring form-encoded body (application/x-www-form-urlencoded), not JSON. Team wonders config.",
+  "question": "REST Connector form-encoded body?",
+  "options": [
+    {
+      "id": "a",
+      "text": "REST Connector supports form-encoded body via configuration: set the request Content-Type header to application/x-www-form-urlencoded and provide the body as a URL-encoded string (key1=value1&key2=value2). Some Connector versions offer a dedicated Form Data body type option in the Element Template UI. The body string can be constructed in FEEL: =\"client_id=\" + clientId + \"&client_secret=\" + clientSecret + \"&grant_type=client_credentials\". URL-encode special characters in values to comply with the encoding standard. Verify the specific Connector version's native support for form serialization before building manually."
+    },
+    {
+      "id": "b",
+      "text": "The Camunda REST Connector supports multiple content types, not just JSON. By setting the Content-Type request header to application/x-www-form-urlencoded and providing the body as a URL-encoded string (key1=value1&key2=value2), the Connector sends form-encoded data. Some versions of the REST Connector also provide a dedicated \"Form Data\" body type option in the Element Template. JSON is the most common format but is not the only supported one. APIs that require OAuth token exchanges, legacy web service endpoints, and HTML form emulation all commonly require form-encoded bodies."
+    },
+    {
+      "id": "c",
+      "text": "Custom Connector required -- this overstates the complexity needed. The standard Camunda REST Connector can handle form-encoded requests by setting Content-Type: application/x-www-form-urlencoded and building the encoded body string in FEEL or as a static value. , binary payloads, custom authentication flows, or non-HTTP protocols). For a standard form-encoded HTTP POST, the built-in REST Connector is sufficient and requires only configuration, not custom Java code."
+    },
+    {
+      "id": "d",
+      "text": "The Camunda REST Connector is a general-purpose HTTP client that supports any content type that can be expressed in an HTTP request. Form-encoded bodies (application/x-www-form-urlencoded) are standard HTTP request bodies supported by any HTTP client library. The Connector can be configured with the correct Content-Type header and the URL-encoded body string. 0 token requests (which use form encoding for grant_type, client_id, client_secret fields) and legacy API integrations."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Form-encoded body in REST Connector: Content type: ` application/x-www-form-urlencoded Body format: key1=value1&key2=value2&key3=value3 URL-encoded; special chars escaped. Configuration approaches: Approach 1: Explicit content-type + body string: xml Send literal string. Approach 2: FEEL build: feel body: \"grant_type=client_credentials&client_id=\" + clientId + \"&client_secret=\" + clientSecret Concatenate fields. Caution: special char escaping (=, &, etc. in values). For values with special chars: URL-encode values: replace = with %3D, & with %26, etc. FEEL may or may not have encodeURIComponent-equivalent; verify. Approach 3: Object → form encoding (if Connector supports): feel body: { grant_type: \"client_credentials\", client_id: clientId, client_secret: clientSecret } Connector serializes to form-encoded based on Content-Type. Verify Camunda 8 / Connector version support. Common use cases: OAuth token request: Content-Type: application/x-www-form-urlencoded Body: grant_type=client_credentials&client_id=x&client_secret=y&audience=z Standard OAuth flow. Legacy APIs: Older REST APIs using form encoding. Pre-JSON era. HTML form submissions: Simulating browser forms. For multipart/form-data (file uploads): Different: not URL-encoded. Boundaries separating parts. Camunda Connector: verify support; may need specific patterns. For file uploads via REST: Base64 encode in JSON (simple). Multipart: if supported (verify). Pre-signed URLs: client uploads to storage; Camunda gets URL. For OAuth specifically: Camunda SDK auto-handles (per Set 14 Q44). For external OAuth via Connector: manual implementation. Building form-encoded body in FEEL: feel body: string join( [ \"grant_type=\" + grantType, \"client_id=\" + clientId, \"client_secret=\" + clientSecret ], \"&\" ) Use string join (per Set 14 Q49 for string join pattern). For value encoding: If values have spaces / special chars: manual encoding. urlEncode function: verify FEEL support. Or: pre-encode in worker / upstream. For testing: Use Postman / curl: verify request format. Camunda Connector output: log to inspect. For Element Templates: Custom Element Template for form-encoded. Modeler-friendly: enter key-value pairs. Template generates form-encoded body. Anti-patterns: Mixing content types: JSON header with form body. Unencoded values: malformed body. Hardcoded credentials: use secrets (per Set 16 Q33). Best practices: Use exact Content-Type header: required. URL-encode values: handle special chars. Document body format: clear contract. Test with partner's API: verify expected format. For the scenario (form-encoded body): 1. Content-Type: application/x-www-form-urlencoded`. 2. Body: form-encoded string. 3. Build via FEEL or static (if values known). 4. Encode values with special chars. Verify Connector specifics: Some Connector versions: native object → form encoding. Others: manual string construction. For complex flows: OAuth dance: token request, then API calls. Camunda SDK handles internally for own auth. External OAuth: manual or use libraries."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Overstates."
+    },
+    "c": {
+      "text": "Incorrect. overstates."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Form-encoded body in REST Connector: Content type: ` application/x-www-form-urlencoded Body format: key1=value1&key2=value2&key3=value3 URL-encoded; special chars escaped. Configuration approaches: Approach 1: Explicit content-type + body string: xml Send literal string. Approach 2: FEEL build: feel body: \"grant_type=client_credentials&client_id=\" + clientId + \"&client_secret=\" + clientSecret Concatenate fields. Caution: special char escaping (=, &, etc. in values). For values with special chars: URL-encode values: replace = with %3D, & with %26, etc. FEEL may or may not have encodeURIComponent-equivalent; verify. Approach 3: Object → form encoding (if Connector supports): feel body: { grant_type: \"client_credentials\", client_id: clientId, client_secret: clientSecret } Connector serializes to form-encoded based on Content-Type. Verify Camunda 8 / Connector version support. Common use cases: OAuth token request: Content-Type: application/x-www-form-urlencoded Body: grant_type=client_credentials&client_id=x&client_secret=y&audience=z Standard OAuth flow. Legacy APIs: Older REST APIs using form encoding. Pre-JSON era. HTML form submissions: Simulating browser forms. For multipart/form-data (file uploads): Different: not URL-encoded. Boundaries separating parts. Camunda Connector: verify support; may need specific patterns. For file uploads via REST: Base64 encode in JSON (simple). Multipart: if supported (verify). Pre-signed URLs: client uploads to storage; Camunda gets URL. For OAuth specifically: Camunda SDK auto-handles (per Set 14 Q44). For external OAuth via Connector: manual implementation. Building form-encoded body in FEEL: feel body: string join( [ \"grant_type=\" + grantType, \"client_id=\" + clientId, \"client_secret=\" + clientSecret ], \"&\" ) Use string join (per Set 14 Q49 for string join pattern). For value encoding: If values have spaces / special chars: manual encoding. urlEncode function: verify FEEL support. Or: pre-encode in worker / upstream. For testing: Use Postman / curl: verify request format. Camunda Connector output: log to inspect. For Element Templates: Custom Element Template for form-encoded. Modeler-friendly: enter key-value pairs. Template generates form-encoded body. Anti-patterns: Mixing content types: JSON header with form body. Unencoded values: malformed body. Hardcoded credentials: use secrets (per Set 16 Q33). Best practices: Use exact Content-Type header: required. URL-encode values: handle special chars. Document body format: clear contract. Test with partner's API: verify expected format. For the scenario (form-encoded body): 1. Content-Type: application/x-www-form-urlencoded`. 2. Body: form-encoded string. 3. Build via FEEL or static (if values known). 4. Encode values with special chars. Verify Connector specifics: Some Connector versions: native object → form encoding. Others: manual string construction. For complex flows: OAuth dance: token request, then API calls. Camunda SDK handles internally for own auth. External OAuth: manual or use libraries.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/rest/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q43",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

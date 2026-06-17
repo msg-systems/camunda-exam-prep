@@ -1,0 +1,50 @@
+{
+  "id": "cfg-feel-built-in-functions-context-166",
+  "topic": "configuring-processes",
+  "subtopic": "feel-built-in-functions-context",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Tessera Insurance runs Camunda 8.8 over 6500 policies per day and stores nested per-policy data on the process instance as {x:1, y: {z:0}}. A modeller needs the documented call to context put() that updates the nested entry y.z to the value 2 without rewriting the top-level entry x, using the keys-variant of the function on the context built-in functions page.",
+  "question": "Which call to the keys-variant of context put() updates the nested entry y.z to 2 on {x:1, y: {z:0}}?",
+  "options": [
+    {
+      "id": "a",
+      "text": "context put({x:1, y: {z:0}}, \"y.z\", 2); the docs document a dotted-path string as the second argument and state that the engine traverses the dots to update the nested entry y.z on the input context at evaluation"
+    },
+    {
+      "id": "b",
+      "text": "context put({x:1, y: {z:0}}, [\"y\", \"z\"], 2); the docs document context put(context, keys: list<string>, value: Any): context and show it returning {x:1, y: {z:2}} when the keys list defines a nested path"
+    },
+    {
+      "id": "c",
+      "text": "context put({x:1, y: {z:0}}, \"y\", \"z\", 2); the docs document a variadic form of context put() that accepts each key as its own positional argument and the value as the final positional argument"
+    },
+    {
+      "id": "d",
+      "text": "context put({x:1, y: {z:0}}, {keys: [\"y\", \"z\"], value: 2}); the docs document an options-context as the second argument of context put() that bundles the keys list together with the value to assign on the input context"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The keys-variant takes a list of strings rather than a dotted-path string; the docs document context put(context, keys: list<string>, value: Any): context, where the path is a FEEL list, not a string with dots."
+    },
+    "b": {
+      "text": "Correct. The context built-in functions page documents context put(context: context, keys: list<string>, value: Any): context. If keys contains [k1, k2], the function adds or overrides the nested entry k1.k2 = value, and the page shows context put({x:1, y: {z:0}}, [\"y\", \"z\"], 2) returning {x:1, y: {z:2}}."
+    },
+    "c": {
+      "text": "Incorrect. The function does not accept a variadic key list; the docs document the path as a single list-of-strings argument followed by the value argument."
+    },
+    "d": {
+      "text": "Incorrect. The function does not accept an options-context; the docs document the keys-variant signature as context put(context, keys: list<string>, value: Any): context with three positional arguments."
+    }
+  },
+  "explanation": "context put(context: context, keys: list<string>, value: Any): context adds a new entry with the given value at the path defined by the keys. If keys contains [k1, k2], it adds or overrides the nested entry k1.k2 = value, and context put({x:1, y: {z:0}}, [\"y\", \"z\"], 2) returns {x:1, y: {z:2}}.",
+  "docs": [
+    {
+      "title": "FEEL built-in functions: context",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-context/"
+    }
+  ]
+}

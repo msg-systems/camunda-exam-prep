@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A customer-service platform integrates an LLM to dynamically route complex tickets to the right department. The LLM is given the ticket text and history; based on its reasoning, it should call one or more of: \"Tag Ticket\", \"Search Knowledge Base\", \"Generate Reply Draft\", \"Escalate to Senior Agent\". The LLM decides which actions to take, in what order, and how many times -- the orchestration is not deterministic. The team wants the LLM agent to drive the orchestration with BPMN as the audit/control layer.",
+  "question": "Which Camunda 8.8 pattern fits this dynamic, agent-driven orchestration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "AI Agent Connector -- a single BPMN element that invokes the LLM with a structured prompt and maps the response into a process variable. Best suited for one-shot generation tasks where the LLM produces a single structured output. For multi-step agentic reasoning where the agent decides the next action based on the result of the previous one, the single-element Connector is too rigid -- it cannot express iterative tool selection driven by intermediate results from within the BPMN flow structure."
+    },
+    {
+      "id": "b",
+      "text": "A regular Subprocess with all four actions as sequential or parallel activities and an Inclusive Gateway routing based on the agentDecision variable set by the LLM upfront. This approach requires the LLM to make all routing decisions as a single upfront choice before any actions execute, which cannot represent step-by-step agentic reasoning where each decision depends on the result of the previous action. The non-deterministic, iterative nature of LLM agent behaviour does not fit this deterministic routing structure."
+    },
+    {
+      "id": "c",
+      "text": "Ad-hoc Subprocess containing the four candidate actions as inner activities. The LLM agent inside the subprocess dynamically selects which activities to run in what order based on intermediate results; the BPMN structure provides the audit trail, defines available activities, and specifies termination criteria. Activities can execute in any order, repeatedly, or not at all -- exactly suited to non-deterministic agent orchestration."
+    },
+    {
+      "id": "d",
+      "text": "A Multi-Instance Subprocess with inputCollection = agentSelectedActions where the LLM pre-computes the full list of actions to execute, and each element in the collection triggers one iteration of the subprocess. Multi-Instance executes the same subprocess logic repeatedly for each element in a pre-defined input collection. It cannot represent dynamic step-by-step reasoning -- the entire action list must be determined before any actions run, and actions cannot be selected based on results from previous iterations mid-execution."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8.8's Ad-hoc Subprocess is purpose-built for dynamic, agent-driven orchestration. The Ad-hoc Subprocess contains candidate inner activities that can execute in any order, repeatedly, or not at all -- exactly suited to an LLM agent that reasons step-by-step about which action to take next. The BPMN provides the structural boundary (which actions are allowed, termination criteria) while the agent drives the order."
+    },
+    "b": {
+      "text": "Incorrect. AI Agent Connector is for structured LLM invocation (single call with prompt + response). For multi-step agentic reasoning where the agent chooses next action based on previous result, the connector pattern is too rigid -- better suited for one-shot generation tasks (option of Set 1 Q20)."
+    },
+    "c": {
+      "text": "Correct. Inclusive Gateway requires the agent's selection to be expressed in a single decision upfront. For dynamic step-by-step orchestration where the next step depends on the previous result, this is too rigid."
+    },
+    "d": {
+      "text": "Incorrect. Multi-Instance is for repeating the same activity with different inputs, not for choosing among heterogeneous activities dynamically."
+    }
+  },
+  "explanation": "Inclusive Gateway requires the agent's selection to be expressed in a single decision upfront. For dynamic step-by-step orchestration where the next step depends on the previous result, this is too rigid.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/ad-hoc-subprocesses/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q20",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

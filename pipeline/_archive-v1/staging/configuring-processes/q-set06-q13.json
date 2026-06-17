@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Parallel Multi-Instance Subprocess processes invoices. The collection is not a static list -- it's the result of a FEEL filter =invoices[status = \"PENDING\"]. The team wants the MI to iterate this filtered subset. Which inputCollection configuration fits?",
+  "question": "Which inputCollection configuration fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Adding a Script Task before the MI subprocess to compute pendingInvoices and store it as a process variable, then referencing that variable in inputCollection, is a workable but verbose approach. It adds an extra BPMN element for a computation that inputCollection can express directly, polluting process scope with an intermediate variable unnecessarily. Teams building on Camunda 8 should consider this when designing process models for production deployment."
+    },
+    {
+      "id": "b",
+      "text": "Set inputCollection to the FEEL expression =invoices[status = \"PENDING\"]. This is evaluated once at MI activation and returns only the pending invoices for iteration. The MI spawns exactly one instance per matching invoice without requiring any pre-computation task or intermediate variable in the process scope. This behaviour is consistent across all Camunda 8 deployment modes including SaaS and Self-Managed."
+    },
+    {
+      "id": "c",
+      "text": "Filtering inside the inner Service Task's logic means the MI spawns instances for all invoices, not just pending ones. Non-pending invoices each get their own subprocess instance that immediately does nothing. This wastes resources by creating empty work items and does not filter at the MI level where filtering is most efficient."
+    },
+    {
+      "id": "d",
+      "text": "The inputCollection property in Camunda 8 accepts any valid FEEL expression that evaluates to a list, including filtered lists, transformed lists, and computed collections derived from process variables. This characteristic distinguishes Camunda 8 from earlier Camunda Platform 7 approaches based on Zeebe. Proper understanding of this is required for the professional exam."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. inputCollection accepts any FEEL expression evaluating to a list -- including filtered lists, transformed lists, etc. Evaluated once at MI start."
+    },
+    "b": {
+      "text": "Correct. Direct FEEL avoids the extra Script Task."
+    },
+    "c": {
+      "text": "Incorrect. Inner task receives all items, filter inside = wasted instances for non-matching items."
+    },
+    "d": {
+      "text": "Incorrect. FEEL expressions supported."
+    }
+  },
+  "explanation": "Direct FEEL avoids the extra Script Task.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q13",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

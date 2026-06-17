@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q11",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A BPMN Exclusive Gateway has a sequence flow with condition expirationDate < now(). The team wonders if this works directly, or if now() needs special handling. Can FEEL date arithmetic with now() be used in Sequence Flow conditions?",
+  "question": "Can FEEL date arithmetic with now() be used in Sequence Flow conditions?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes -- Sequence Flow conditions accept any FEEL expression that evaluates to a boolean, including those using temporal functions like now(), today(), date(), and duration(). The full FEEL temporal library is available. Example: =expirationDate < now() compares the stored date variable against the current moment at the instant the gateway is reached during process execution. Temporal comparisons like =dueDate > today() and duration arithmetic work equally well inline without any preprocessing."
+    },
+    {
+      "id": "b",
+      "text": "No, Sequence Flow conditions in Camunda 8 are limited to simple variable comparisons like x > 5 or status = \"approved\". Complex temporal function calls like now() require careful testing within sequence flow condition expressions. Camunda 8 sequence flow conditions in fact accept any FEEL expression that evaluates to a boolean, including the full FEEL temporal function library."
+    },
+    {
+      "id": "c",
+      "text": "Yes, FEEL date arithmetic with now() works in Sequence Flow conditions, but you must first assign the result of now() to a process variable via Input Mapping on the preceding task before the gateway. Direct inline now() calls in a condition expression will not work correctly without this intermediate variable assignment step. FEEL functions including now() work directly inline within condition expressions."
+    },
+    {
+      "id": "d",
+      "text": "Yes, FEEL date arithmetic with now() works in Sequence Flow conditions, but only when you include the = prefix required for FEEL expressions in BPMN attributes. Without the = prefix the engine treats the text as a static string value rather than a FEEL expression."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Sequence Flow conditions in C8 are FEEL expressions (prefixed with =) that must evaluate to boolean. The full FEEL vocabulary is available -- including temporal functions, list operations, arithmetic, string functions, etc. now() returns current date and time; comparison with a date and time variable works directly: `` =expirationDate today() (not yet due), =creationDate >= now() - duration(\"P30D\") (within last 30 days), =workingHours and weekday(today()) >= 1 and weekday(today()) <= 5 (composite conditions)."
+    },
+    "b": {
+      "text": "Incorrect. Full FEEL supported."
+    },
+    "c": {
+      "text": "Incorrect. Inline FEEL works; no Input Mapping intermediate needed."
+    },
+    "d": {
+      "text": "Incorrect. The = prefix is required for FEEL expressions in BPMN attributes; the core answer is the same."
+    }
+  },
+  "explanation": "Sequence Flow conditions in C8 are FEEL expressions (prefixed with =) that must evaluate to boolean. The full FEEL vocabulary is available -- including temporal functions, list operations, arithmetic, string functions, etc. now() returns current date and time; comparison with a date and time variable works directly: `` =expirationDate today() (not yet due), =creationDate >= now() - duration(\"P30D\") (within last 30 days), =workingHours and weekday(today()) >= 1 and weekday(today()) <= 5 (composite conditions).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q11",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

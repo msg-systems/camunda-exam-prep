@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A university admissions office runs three distinct admissions processes -- undergraduate, postgraduate, and doctoral -- each modelled as a separate BPMN process in Camunda 8 Self-Managed. All three include an identical 5-step transcript-verification sub-flow: fetch transcript from source institution, validate seals/signatures, check grading scale, verify completion dates, archive verified copy. Currently each admissions process has an inline copy of this 5-step block. Last quarter, when the registrar adopted a new transcript-validation standard, the team updated UG and PG but missed the PhD process -- producing inconsistent verifications between programs. The admissions IT lead wants to extract transcript verification into a single deployable artifact so future changes touch one place. In-flight admissions that have already passed verification should continue with their original version; new admissions pick up the latest.",
+  "question": "Which BPMN construct fits this cross-process reuse with version isolation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Deploy transcript verification as a standalone BPMN process and invoke it from each admissions process via a Call Activity referencing the verification process by processId and setting bindingType=\"deployment\" (or \"versionTag\" with a stable tag) so in-flight callers stay on their original verification version. This gives true model reuse -- one deployable artifact, all three admissions processes call it. Changes to verification logic require only one deployment."
+    },
+    {
+      "id": "b",
+      "text": "Convert the verification block into an Embedded Subprocess in each admissions process and apply an Element Template to all three subprocess copies for shared configuration of properties like service URLs. Element Templates standardise design-time configuration of a single element but do not eliminate code duplication. Three embedded subprocesses with the same template still represent three separate copies of the 5-step flow -- all three must be updated when the verification logic changes."
+    },
+    {
+      "id": "c",
+      "text": "Implement verification as a Custom Connector with the Connector SDK; a single Service Task in each admissions process calls it. Custom Connectors are designed for single-call external integrations, not multi-step internal orchestration. Wrapping 5 sequential internal BPMN steps inside a Connector hides them from the process diagram and removes per-step visibility in Operate, eliminating the per-step audit trail the compliance team requires."
+    },
+    {
+      "id": "d",
+      "text": "Model verification as a Parallel Multi-Instance Subprocess with iterations representing the 5 steps, using an inputCollection of step identifiers. Multi-Instance is designed for repeating the same activity over a collection of similar items. The 5 verification steps are heterogeneous activities with different Service Task types, different inputs, and different outputs -- they are not iterations of one repeated operation and cannot be modelled as Multi-Instance."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Call Activity is the BPMN standard for cross-process reuse. Critical: the bindingType attribute controls which version of the called process is used -- latest (default), deployment, or versionTag (per call-activities.md lines 21-31). For true \"version isolation\" the team must set bindingType=\"deployment\" (in-flight admissions stay on the verification version that was deployed alongside their admissions-process version) or bindingType=\"versionTag\" (pin to a named tag). Default latest does NOT preserve version-on-call semantics -- every Call Activity activation, including by in-flight callers, resolves to the newest deployed verification version. Variables are mapped via Call Activity input/output mappings."
+    },
+    "b": {
+      "text": "Incorrect. Element Templates standardise configuration of a single element (URL, headers, etc.), not multi-step process logic. Three embedded subprocesses with identical templates still mean three copies of the 5-step flow -- changes still go to three places."
+    },
+    "c": {
+      "text": "Incorrect. Custom Connector is for single-call external integrations, not multi-step internal orchestration with per-step audit trail in Operate. Wrapping 5 internal steps inside a Connector hides them from BPMN."
+    },
+    "d": {
+      "text": "Incorrect. Multi-Instance is for repeating the same activity N times. The 5 verification steps are heterogeneous activities, not iterations of one operation."
+    }
+  },
+  "explanation": "Call Activity is the BPMN standard for cross-process reuse. Critical: the bindingType attribute controls which version of the called process is used -- latest (default), deployment, or versionTag (per call-activities.md lines 21-31). For true \"version isolation\" the team must set bindingType=\"deployment\" (in-flight admissions stay on the verification version that was deployed alongside their admissions-process version) or bindingType=\"versionTag\" (pin to a named tag). Default latest does NOT preserve version-on-call semantics -- every Call Activity activation, including by in-flight callers, resolves to the newest deployed verification version. Variables are mapped via Call Activity input/output mappings.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/call-activities/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

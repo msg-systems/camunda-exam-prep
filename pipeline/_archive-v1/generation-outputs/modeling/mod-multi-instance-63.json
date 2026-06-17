@@ -1,0 +1,27 @@
+{
+  "id": "mod-multi-instance-63",
+  "topic": "modeling",
+  "subtopic": "multi-instance",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Quanta SaaS provisions 1500 tenants per day in Camunda 8.8 by iterating a multi-instance service task over a tenant list. The platform engineer reviews how the multi-instance body relates to the inner activity so workers are scheduled correctly.",
+  "question": "What does the multi-instance body do at activation time?",
+  "options": [
+    { "id": "a", "text": "The multi-instance body activates and creates one inner activity instance for every element of the inputCollection, either sequentially or in parallel" },
+    { "id": "b", "text": "The multi-instance body activates and creates a single inner activity instance that is then re-entered once for each element of the inputCollection in turn" },
+    { "id": "c", "text": "The multi-instance body activates and waits for an external job worker to publish each element of the inputCollection before any inner activity instance is created" },
+    { "id": "d", "text": "The multi-instance body activates and creates one inner activity instance per partition of the running Zeebe cluster, independent of the inputCollection size" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The documentation states that when the activity is entered, the multi-instance body is activated and one instance for every element of the inputCollection is created, either sequentially or in parallel." },
+    "b": { "text": "Incorrect. The documented behavior is to create one instance per element rather than re-entering a single instance; re-entry semantics are not part of the multi-instance body description." },
+    "c": { "text": "Incorrect. The multi-instance body evaluates the inputCollection expression locally on activation; it does not subscribe to a job worker to obtain the collection elements one at a time." },
+    "d": { "text": "Incorrect. The number of instances is driven by the size of the inputCollection, not by the number of partitions in the running Zeebe cluster as suggested by the option." }
+  },
+  "explanation": "The multi-instance body activates and creates one inner activity instance per element of the inputCollection, with the chosen execution mode determining whether instances run sequentially or in parallel.",
+  "docs": [
+    { "title": "BPMN multi-instance", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/" }
+  ]
+}

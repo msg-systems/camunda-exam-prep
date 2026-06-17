@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q53",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process instance has an active Incident because a Service Task's worker repeatedly fails (NullPointerException in handler). The team fixes the worker code and redeploys. The process instance now needs to resume from the failed point -- restart the worker activation.",
+  "question": "Which Operate action resumes a process instance after fixing the underlying cause?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Cancel the failed process instance in Operate and then restart a new instance from the beginning with the original input variables. Cancelling loses all accumulated process state, variable history, and audit trail from steps already completed before the failure. If the instance completed multiple prior steps successfully, those results are discarded. Cancelling and restarting forces the business to repeat all prior validated work unnecessarily when the failure was isolated to one specific Service Task."
+    },
+    {
+      "id": "b",
+      "text": "Click \"Resolve Incident\" on the Incident detail in Operate. , 3) and Zeebe immediately re-activates the job, making it available for a worker to pick up. The fixed worker -- now running with the patched code that no longer throws NullPointerException -- picks up the re-activated job and completes it successfully. The process instance continues from exactly where it failed, with all prior execution state preserved."
+    },
+    {
+      "id": "c",
+      "text": "Use Operate's Instance Modification feature to move the process token forward, skipping the failed Service Task entirely and continuing from the next step as if the task completed. Skipping a task leaves its work undone -- the Service Task's side effects (whatever the worker would have done) do not occur. The scenario requires retrying with a fixed worker, not skipping. Using Modify to skip would leave a gap in the expected processing and likely produce incorrect downstream results."
+    },
+    {
+      "id": "d",
+      "text": "Redeploy the BPMN process definition to the cluster -- Zeebe will detect the deployment, automatically re-evaluate any active Incidents on instances of that process, and resume execution with the updated model. Deploying a new BPMN version creates a new process definition version but has no effect on active Incidents in existing instances. Instances running on older versions continue with their original model snapshot. Incidents must be explicitly resolved through the Resolve Incident action, not implicitly via redeployment."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. \"Resolve Incident\" in Operate is the canonical action: sets job retries back to configured value, Zeebe re-activates the job, the fixed worker (now running with patched code) picks up and processes successfully. Instance continues from where it failed."
+    },
+    "b": {
+      "text": "Correct. Cancelling loses all process state and history; Resolve Incident is cleaner."
+    },
+    "c": {
+      "text": "Incorrect. Modify to skip is for cases where you don't want to retry -- not the standard \"fix-and-retry\" flow."
+    },
+    "d": {
+      "text": "Incorrect. Redeploying the BPMN doesn't auto-resume incidents; you must explicitly resolve."
+    }
+  },
+  "explanation": "Cancelling loses all process state and history; Resolve Incident is cleaner.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q53",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

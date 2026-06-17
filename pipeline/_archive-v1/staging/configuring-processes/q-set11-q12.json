@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q12",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A User Task has BOTH formKey AND formId configured (rare but possible in some tooling). The team wonders which takes precedence.",
+  "question": "What happens when a User Task has both formKey and formId configured?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Both formId and formKey render simultaneously, providing two different form views for the same task -- this describes behaviour that does not occur. A User Task renders exactly one form per activation. The formId and formKey attributes belong to different User Task implementation strategies and are not additive. The Camunda user task (Zeebe-native, recommended) uses formId for deployed Camunda Forms; the job-worker user task (legacy) uses formKey. Tasklist resolves a single form reference per task based on the active implementation type. Best practice: configure only one attribute matching your chosen implementation."
+    },
+    {
+      "id": "b",
+      "text": "When both are present, formKey always wins and formId is ignored -- this declares a precedence rule that is not documented for Camunda 8. The formKey attribute belongs to the job-worker-based User Task implementation while formId belongs to the Zeebe-native Camunda User Task implementation. Because these attributes serve different implementation paths, their interaction when both are present is implementation-defined and version-dependent rather than following a declared priority rule."
+    },
+    {
+      "id": "c",
+      "text": "5), referencing a deployed Camunda Form. formKey belongs to the legacy job-worker User Task, supporting both embedded Camunda Forms and external form URLs. Having both attributes on the same zeebe:formDefinition element targets two distinct implementation paths. Best practice: configure only the attribute matching your chosen User Task type."
+    },
+    {
+      "id": "d",
+      "text": "Deployment to Zeebe fails validation when both formId and formKey are present on the same User Task -- some tooling and validators may issue warnings about this configuration, but it does not necessarily block deployment in all Zeebe versions. The combination is a modelling anti-pattern because the two attributes serve distinct implementation paths. The recommended resolution is to remove the attribute that does not match the chosen User Task implementation type rather than relying on deployment rejection to catch the issue."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. formId and formKey belong to two distinct user task implementations (per user-tasks.md:118, :134-143, :263): Camunda user task (Zeebe-native, recommended since 8.5): references a Camunda Form deployed in the cluster (Tasklist resolves and renders). For a custom non-Camunda form key, use on the same Camunda user task. Job worker user task (legacy worker-based implementation): -- supports both embedded Camunda Forms (where formKey=\"camunda-forms:bpmn:\" references a extension inside the BPMN XML, per :283) and external custom form keys. Having both formId AND formKey on the same zeebe:formDefinition element is therefore not a documented \"alternative form options\" configuration -- they are attributes used by different user task implementations. The modeller's UI typically surfaces only the one relevant to the selected implementation type. Behaviour with both present is implementation-defined; the docs do not state a precedence rule. Best practice: configure only the attribute matching the chosen user task type -- formId (or externalReference) for Camunda user tasks, formKey for job worker user tasks. If you see both in legacy BPMN files (e.g., from old migrations or modeller bugs), clean up to use only the appropriate one for the active implementation."
+    },
+    "b": {
+      "text": "Incorrect. Not simultaneously rendered."
+    },
+    "c": {
+      "text": "Correct. Version-dependent."
+    },
+    "d": {
+      "text": "Incorrect. Some validators warn."
+    }
+  },
+  "explanation": "Version-dependent.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q12",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

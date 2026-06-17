@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Sequential Multi-Instance Subprocess processes a list of orders sequentially. The team wants each iteration to accumulate a running total of processed amounts into a single shared variable totalProcessed (e.g., totalProcessed += currentOrder.amount). They wonder how this works with MI's scope rules.",
+  "question": "How does a Sequential MI accumulate a value across iterations?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set a process-scoped variable inside each iteration and the values will automatically accumulate or combine -- this description does not reflect actual behaviour due to scope isolation in Multi-Instance iterations. Each Sequential MI iteration executes within its own inner scope. Variables written within one iteration's scope do not automatically transfer to the next iteration's inner scope. Without explicit Output Mapping propagation to the parent scope or using outputCollection, per-iteration state does not carry forward between sequential iterations."
+    },
+    {
+      "id": "b",
+      "text": "Use the built-in loopCounter variable as an accumulator to track running totals across MI iterations -- this misunderstands loopCounter's purpose. The loopCounter is a read-only special variable automatically set by the engine to the current iteration index (1-based) within a Multi-Instance body. It serves as a positional index for correlating input and output collection elements, not as a writable accumulator. Attempting to write to loopCounter or use it for accumulation would not work as expected."
+    },
+    {
+      "id": "c",
+      "text": "Multi-Instance activities fundamentally do not support any form of data accumulation across iterations -- this description does not reflect the actual behaviour. After all MI iterations complete, this collection is propagated to the parent scope. Downstream FEEL expressions can then compute aggregations such as sum(), min(), max(), or count() over the collected values to produce derived metrics."
+    },
+    {
+      "id": "d",
+      "text": "Use outputCollection to gather per-iteration results into a list, then aggregate outside the MI. Sequential MI iterations run in separate inner scopes; updating a shared variable across iterations requires either: (1) accessing the parent scope's variable (FEEL navigates the scope hierarchy) AND using Output Mapping to write back to the parent; or (2) using outputCollection to collect each iteration's contribution, then a Service Task / FEEL expression after MI sums them. The cleaner pattern is outputCollection + post-MI aggregation."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Sequential MI iterations each have their own inner scope. Variables set in one iteration's inner scope don't carry to the next iteration's inner scope (unless via the parent's scope). Patterns for accumulation: Pattern 1: outputCollection + post-MI aggregation (cleanest). Configure outputCollection = collectedAmounts, outputElement = = currentOrder.amount (the leading = marks the FEEL expression form per multi-instance.md:53: \"outputElement is an expression that defines the output of the instance (e.g. = result)\"). The expression is evaluated when each instance completes (:55). After each iteration, collectedAmounts accumulates the per-iteration value at the same index as the corresponding inputCollection element (:55), giving deterministic order even for parallel MI. After MI completes, the local collectedAmounts variable is propagated to the parent scope (:51); use FEEL =sum(collectedAmounts) in an Output Mapping or a downstream Service Task to get totalProcessed. Pattern 2: Read-modify-write to parent scope (less clean). Inner iteration's Output Mapping writes back to parent scope's totalProcessed: Target: totalProcessed (parent scope), Source: =totalProcessed + currentOrder.amount. Requires parent scope's totalProcessed initialised before MI starts. More error-prone with concurrent or async edge cases. Pattern 1 is preferred for clarity and immutability."
+    },
+    "b": {
+      "text": "Incorrect. Per-iteration writes shadow."
+    },
+    "c": {
+      "text": "Incorrect. loopCounter is index."
+    },
+    "d": {
+      "text": "Correct. Achievable."
+    }
+  },
+  "explanation": "Achievable.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q14",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

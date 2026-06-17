@@ -1,0 +1,27 @@
+{
+  "id": "cfg-variables-03",
+  "topic": "configuring-processes",
+  "subtopic": "variables",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Stellar Bank stores currency amounts as process variables across 9000 transactions per day in Camunda 8.8. The team needs to understand how non-integer numeric values are represented internally so they can decide whether to store high-precision balances as JSON numbers or as strings.",
+  "question": "How are non-integer numeric process variables stored according to Camunda 8.8?",
+  "options": [
+    { "id": "a", "text": "As IEEE-754 double-precision values providing roughly 15 to 17 significant decimal digits, with no arbitrary BigDecimal precision available" },
+    { "id": "b", "text": "As BigDecimal values providing arbitrary precision suitable for currency and high-precision calculations across the process payload" },
+    { "id": "c", "text": "As 64-bit signed integers truncated to the nearest whole number, with fractional digits stored separately in a sidecar variable scope" },
+    { "id": "d", "text": "As fixed-point decimal values constrained to 8 fractional digits matching the Camunda 7 numeric variable storage contract for processes" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The documentation specifies that non-integer numbers are stored as IEEE-754 double-precision values, giving roughly 15 to 17 significant decimal digits, and explicitly states there is no arbitrary BigDecimal precision in process variables." },
+    "b": { "text": "Incorrect. BigDecimal-style arbitrary precision is not the variable storage model in Camunda 8. The docs recommend storing such values as strings or in an external data store when high precision is required, rather than as numeric process variables." },
+    "c": { "text": "Incorrect. Integers and non-integers are distinct cases in the documentation. Integers are bounded to the 64-bit integer range, while non-integers use IEEE-754 doubles. No truncation or sidecar scope is documented." },
+    "d": { "text": "Incorrect. There is no Camunda 7 fixed-point decimal contract carried over to Camunda 8.8. Non-integer numeric variables use IEEE-754 double-precision according to the variables concept page in the documentation." }
+  },
+  "explanation": "Camunda 8.8 stores process variables as JSON values. Integer numbers are bounded to the 64-bit integer range and non-integer numbers use IEEE-754 double-precision, which provides roughly 15 to 17 significant decimal digits. For arbitrary precision or very large numbers, store the value as a string or in an external data store rather than as a numeric process variable.",
+  "docs": [
+    { "title": "Variables", "url": "https://docs.camunda.io/docs/components/concepts/variables/" }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q25",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A BPMN Business Rule Task invokes a DMN decision. The DMN's table has output columns named category (string) and score (number). The task has resultVariable = \"decision\". The team is wondering how to access the two output fields downstream.",
+  "question": "How are DMN output columns exposed to downstream BPMN via resultVariable?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The DMN output column names (category and score) automatically become top-level process variables after the Business Rule Task completes, meaning =category and =score are directly accessible in subsequent BPMN elements without configuring a resultVariable. While this behaviour exists in some DMN runtime implementations, Camunda 8's canonical contract uses resultVariable as the explicitly named holder of the decision result. Relying on implicit variable injection makes the process model's data contract invisible and harder to reason about; the resultVariable pattern makes it explicit and prevents name collisions with existing process variables."
+    },
+    {
+      "id": "b",
+      "text": "The resultVariable (here decision) holds the entire result object returned by the DMN evaluation. DMN output column names become field names of that result object. score. This structure is preserved when the DMN has multiple output columns -- each column name maps to a field in the result context. For decisions with a single output column, some engines may flatten the result to the bare scalar value, so multi-column decisions always produce a structured context object that is navigable by field name."
+    },
+    {
+      "id": "c",
+      "text": ", if the decision ID is riskAssessment, the result appears in a variable called riskAssessment). No such auto-naming behaviour exists. The resultVariable attribute on the Business Rule Task is the explicit, user-configured knob for naming the result holder. If resultVariable is not set, the team must use Output Mapping to propagate specific result fields to named variables. Auto-naming from decision ID is an invented convention not part of the Camunda 8 contract."
+    },
+    {
+      "id": "d",
+      "text": "The Business Rule Task's result is always stored in a process variable named result regardless of any configuration -- this is a hardcoded default that cannot be changed. This claim is inaccurate. The resultVariable attribute is precisely what allows teams to choose the result variable's name. , creditDecision, riskRating) to make process variables self-documenting and to avoid collisions when multiple Business Rule Tasks run in the same process."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The contract: resultVariable names the top-level holder; DMN output columns become its fields. So with resultVariable = \"decision\" and outputs category + score, you get decision.category and decision.score in process scope. The structure preserves the DMN model. Note: when the DMN has a single output column (no name needed), some engines flatten the result to the bare value; multi-column always gives a structured object. Always verify with the Zeebe version's docs."
+    },
+    "b": {
+      "text": "Correct. Some DMN runtimes allow column names to become top-level variables directly. Camunda 8's contract makes resultVariable the explicit holder; column names appear as its fields."
+    },
+    "c": {
+      "text": "Incorrect. No auto-naming-from-decision-ID."
+    },
+    "d": {
+      "text": "Incorrect. resultVariable can be any name."
+    }
+  },
+  "explanation": "Some DMN runtimes allow column names to become top-level variables directly. Camunda 8's contract makes resultVariable the explicit holder; column names appear as its fields.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q25",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

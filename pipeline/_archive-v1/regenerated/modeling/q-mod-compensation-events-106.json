@@ -1,0 +1,50 @@
+{
+  "id": "mod-compensation-events-106",
+  "topic": "modeling",
+  "subtopic": "compensation-events",
+  "difficulty": "medium",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Bank uses a Camunda 8.8 onboarding process that runs 500 instances per day across 4 tenants. A compensation intermediate throw event reaches its activation, but only some of the previously activated activities have actually completed; others are still running or were terminated minutes earlier.",
+  "question": "Which set of compensation handlers does the compensation throw event invoke when it activates in this scope?",
+  "options": [
+    {
+      "id": "a",
+      "text": "It invokes the compensation handlers of activities that are currently active inside its scope and skips activities that have already completed or were terminated earlier"
+    },
+    {
+      "id": "b",
+      "text": "It invokes the compensation handlers of every activity inside its scope including those that are still active and those that were terminated earlier in the same instance"
+    },
+    {
+      "id": "c",
+      "text": "It invokes only the compensation handlers of activities that have already completed inside its scope and skips active or terminated activities in the same scope"
+    },
+    {
+      "id": "d",
+      "text": "It invokes only the compensation handlers of activities that were terminated inside its scope and skips active and completed activities in the same scope of the throw"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Triggering compensation section states that compensation handlers of active or terminated activities are not invoked; only handlers of completed activities run when the compensation throw event activates."
+    },
+    "b": {
+      "text": "Incorrect. Handlers of active activities and of terminated activities are explicitly excluded; only completed activities trigger their associated compensation handlers in the scope of the throw event."
+    },
+    "c": {
+      "text": "Correct. When a process instance reaches a compensation intermediate throw or end event, it triggers compensation in its scope and invokes the compensation handlers of completed activities only; active and terminated activities are skipped."
+    },
+    "d": {
+      "text": "Incorrect. Terminated activities do not run their compensation handlers; the documented behaviour limits invocation to handlers of activities that completed normally inside the scope."
+    }
+  },
+  "explanation": "A compensation throw event triggers compensation within its scope and invokes the handlers of completed activities only. Active and terminated activities are skipped, and the throw event remains active until every invoked handler completes.",
+  "docs": [
+    {
+      "title": "BPMN compensation events",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-71",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A migration plan contains a mapping instruction whose `sourceElementId` does not refer to any element in the process instance's current process definition. What happens when the migration command is submitted?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The invalid mapping is silently skipped and the rest of the plan is applied."
+    },
+    {
+      "id": "b",
+      "text": "The migration is rejected during the validation phase before any element is migrated."
+    },
+    {
+      "id": "c",
+      "text": "The migration runs up to the invalid mapping, then rolls back only that instruction."
+    },
+    {
+      "id": "d",
+      "text": "Zeebe creates the missing source element on the fly and proceeds with the mapping."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Invalid mapping instructions are never silently skipped. Validation explicitly checks that the source element ID refers to an existing element in the process instance's definition."
+    },
+    "b": {
+      "text": "Validation runs before execution and checks the mapping instructions. If a `sourceElementId` does not refer to an existing element in the instance's process definition, validation fails and the entire migration is rejected; no element is migrated."
+    },
+    "c": {
+      "text": "Migration is transactional — either all active elements migrate or nothing does. There is no partial rollback of single instructions."
+    },
+    "d": {
+      "text": "Zeebe does not synthesize missing elements. Mapping instructions must reference elements that actually exist in the relevant process definitions."
+    }
+  },
+  "explanation": "The migration plan is validated before execution. One of the validation checks is that each mapping instruction's `sourceElementId` refers to an existing element in the process instance's process definition. If it does not, validation fails and the migration command is rejected before any active element is migrated.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

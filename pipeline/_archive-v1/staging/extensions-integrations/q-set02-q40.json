@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q40",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FEEL expression aggregates customer orders by region. The input is orders -- list of objects, each with region (string) and amount (number). The team wants to return a list of {region, totalAmount} objects -- one per distinct region.",
+  "question": "Which FEEL expression correctly groups and sums?",
+  "options": [
+    {
+      "id": "a",
+      "text": "sum(\"amount\") to aggregate the amounts within each group, producing a collection of {region, totalAmount} pairs. method() dot notation) on list or context values. FEEL is a functional expression language; grouping and aggregation are performed using for-in-return, distinct values(), list filtering, and sum()."
+    },
+    {
+      "id": "b",
+      "text": "select region, sum(amount) from orders group by region -- write a SQL-style aggregate query using SELECT ... FROM ... GROUP BY syntax directly as a FEEL expression, leveraging FEEL's claimed support for relational query semantics to group the orders list and compute the sum of amounts per region. FEEL is not SQL and does not support SELECT, FROM, GROUP BY, or any other SQL DDL/DML syntax. FEEL is a functional expression language defined by the DMN standard. SQL-style queries are not valid FEEL expressions."
+    },
+    {
+      "id": "c",
+      "text": "amount)} -- use FEEL's for-in-return iteration with distinct values() to enumerate unique regions, then filter the orders list for each region using a FEEL predicate expression and call sum() on the filtered amounts. This expression is FEEL-idiomatic: distinct values() extracts unique region strings, for-in-return iterates over them, and the filter [region = r] (using a renamed iteration variable to avoid shadowing) selects matching orders. Note: the variable name region shadows the outer field in the exact expression shown -- rename the iteration variable to r for clarity."
+    },
+    {
+      "id": "d",
+      "text": "aggregateBy(orders, \"region\", \"amount\", \"sum\") -- call the FEEL aggregateBy() built-in function, passing the list, the group-by field name, the aggregate field name, and the aggregation type as string arguments to produce a grouped result without manual iteration. There is no aggregateBy() built-in function in the FEEL standard library or in Camunda 8's FEEL implementation. Grouping and aggregation must be composed manually using for-in-return, distinct values(), list filtering, and the sum() built-in."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL's for-in-return produces a list. distinct values(orders[].region) gives the unique regions. For each region, filter the orders by matching region (note: the inner region reference shadows the outer; for clarity, rename to e.g., r: for r in distinct values(orders[].region) return {region: r, totalAmount: sum(orders[region = r][*].amount)}). FEEL idiomatic."
+    },
+    "b": {
+      "text": "Incorrect. FEEL doesn't have JS-style chained methods like .groupBy() or .sum()."
+    },
+    "c": {
+      "text": "Correct. FEEL doesn't have SQL syntax."
+    },
+    "d": {
+      "text": "Incorrect. No aggregateBy() built-in."
+    }
+  },
+  "explanation": "FEEL doesn't have SQL syntax.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-list/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q40",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

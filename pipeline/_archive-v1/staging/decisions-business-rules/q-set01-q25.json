@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q25",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A property insurance platform calculates premium adjustments via a Decision Table named premium-adjustment. Each row represents a risk factor (flood zone, fire zone, age of property, etc.) with an output column \"adjustment_percentage\". The compliance officer requires that at most one rule should fire per property -- if multiple risk factors apply, the rule with the highest priority (e.g., flood zone always trumps age of property) should win. The decision table's Hit Policy must enforce this.",
+  "question": "Which Camunda 8 Hit Policy configuration correctly enforces \"single winner by highest priority\"?",
+  "options": [
+    {
+      "id": "a",
+      "text": "PRIORITY -- Zeebe evaluates all matching rules, then returns the single output with the highest priority. 3 specification but is absent from the Camunda DMN engine. md:26-53, Camunda 8 supports exactly five hit policies: UNIQUE, ANY, FIRST, RULE ORDER, and COLLECT. Selecting PRIORITY in the Camunda Web Modeler would cause a deployment failure. 3 spec often choose this option in error."
+    },
+    {
+      "id": "b",
+      "text": "FIRST -- author the rules in priority order (flood-zone rule first, fire-zone second, age last) and rely on FIRST returning the first matching rule's output by row order. md:26-53 -- only UNIQUE / ANY / FIRST / RULE ORDER / COLLECT are supported)."
+    },
+    {
+      "id": "c",
+      "text": "COLLECT without aggregator + FEEL max() in a downstream task. With COLLECT (no aggregator), the DMN engine evaluates all rules and returns a list of every matching rule's output. adjustment_percentage) in FEEL to extract the highest-priority value. This decouples priority logic from row order -- row reordering won't change semantics -- but requires an additional task for post-processing. More complex than FIRST for this use case."
+    },
+    {
+      "id": "d",
+      "text": "Neither -- for explicit priority ranking, use OUTPUT ORDER with output priorities defined per output column annotation. 3 specification hit policy that is absent from Camunda 8, just like PRIORITY. md:26-53. Additionally, OUTPUT ORDER returns a sorted list, not a single winner -- so even if it were available, it would not satisfy the \"at most one rule\" requirement."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per decision-table-hit-policy.md:26-53, Camunda 8 supports exactly five hit policies: UNIQUE / ANY / FIRST / RULE ORDER / COLLECT. PRIORITY is NOT supported in C8 (it exists in DMN-1.3 spec but is not implemented in the Camunda DMN engine). The canonical C8 workaround for \"single winner by priority\" is FIRST with rules authored in priority order: list flood-zone rules first, fire-zone second, age last; FIRST returns the topmost matching rule. The drawback is that priority semantics are now coupled to row order (reordering rows changes behaviour). For complex priority schemes consider option (c)."
+    },
+    "b": {
+      "text": "Correct. PRIORITY is NOT one of the five C8 hit policies per decision-table-hit-policy.md:26-53. The XML representation PRIORITY would be rejected at deploy time. This is the DMN-1.3 spec answer, not the Camunda 8 answer."
+    },
+    "c": {
+      "text": "Incorrect. COLLECT without aggregator returns a list of outputs from all matching rules; a downstream Script Task or FEEL output mapping with max(adjustmentList) picks the highest. More verbose than option (a) but decouples priority from row order."
+    },
+    "d": {
+      "text": "Incorrect. OUTPUT ORDER is also NOT supported in C8 per decision-table-hit-policy.md:26-53. And semantically it returns a sorted list, not a single winner."
+    }
+  },
+  "explanation": "PRIORITY is NOT one of the five C8 hit policies per decision-table-hit-policy.md:26-53. The XML representation PRIORITY would be rejected at deploy time. This is the DMN-1.3 spec answer, not the Camunda 8 answer.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q25",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

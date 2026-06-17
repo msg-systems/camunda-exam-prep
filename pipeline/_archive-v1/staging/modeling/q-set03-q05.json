@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q05",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A smart-energy utility ingests meter readings every 15 minutes from 500 meters per neighbourhood. The Camunda 8 process triggers a \"process-readings\" workflow that uses a Parallel Multi-Instance Subprocess to fan out to all 500 meters and call the meter-management API to fetch and validate each reading. The meter-management API has a strict rate limit of 2 requests per second per client -- exceeding it returns HTTP 429 and persistent violators get temporarily suspended. Currently the worker fires all 500 multi-instance jobs concurrently, immediately tripping the rate limit; cascading 429 retries push neighbourhood batch processing from seconds into hours. The utility ops team wants to preserve the Multi-Instance abstraction (one iteration per meter is natural) but pace API calls to fit the 2 req/sec limit.",
+  "question": "Which Multi-Instance configuration solves this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Keep Parallel Multi-Instance and configure zeebe:taskDefinition retries=20 so 429-failed jobs are retried until they succeed. The retries attribute controls how many times Zeebe re-activates a failed job for error recovery -- it does not control dispatch rate or concurrency. With Parallel Multi-Instance, all 500 jobs still fire simultaneously; when all 500 receive HTTP 429, they all retry simultaneously, re-tripping the rate limit in an infinite storm pattern."
+    },
+    {
+      "id": "b",
+      "text": "Keep Parallel Multi-Instance and add a Timer Catch Event inside each iteration with 500ms delay before the API call, hoping the stagger will reduce concurrent API hits. Because all 500 Parallel MI iterations start simultaneously, all 500 internal timers begin counting down at the same moment. After 500ms they all expire simultaneously, and all 500 API calls fire at the same time -- the timer provides zero effective throttling in a parallel context."
+    },
+    {
+      "id": "c",
+      "text": "Change the marker from Parallel to Sequential Multi-Instance. Each meter is processed one at a time -- iteration N+1 starts only after iteration N completes. With the API's typical latency of ~500ms per call, the sustained throughput stays at or below 2 requests per second, matching the rate limit by construction. No 429 errors, no retry storms, and predictable batch latency."
+    },
+    {
+      "id": "d",
+      "text": "Replace the Multi-Instance with a single Service Task that batches all 500 meters into one bulk API call, passing the meter IDs in one request body. The partner's API specification describes per-meter calls at 2 req/sec -- no bulk endpoint exists. Inventing a batch endpoint that is absent from the partner specification is non-implementable. This approach would also collapse individual per-meter audit rows in Operate into a single opaque task."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Sequential Multi-Instance processes iteration N+1 only after iteration N completes. With ~500 ms typical API latency per meter call, this produces a sustained request rate at or below 2 req/sec -- under the API's threshold by construction. No 429s, no retry storms, predictable throughput. Trade-off is total batch latency (500 ms × 500 = 4 minutes) but that IS the rate-limit-imposed throughput ceiling."
+    },
+    "b": {
+      "text": "Incorrect. retries controls failed-job re-activation count, not dispatch rate. With Parallel MI, all 500 jobs fire concurrently; if the API returns 429, they all retry concurrently and re-trip the rate limit. Classic wrong-axis pattern."
+    },
+    "c": {
+      "text": "Correct. Parallel MI fires all iterations concurrently; if each iteration has an internal 500ms timer, all 500 timers tick down concurrently and all 500 API calls fire after the same 500ms wait. No effective throttle."
+    },
+    "d": {
+      "text": "Incorrect. The API is described as per-meter at 2 req/sec, not bulk-accepting. Inventing a bulk endpoint that doesn't exist is non-implementable. Also collapses per-meter audit in Operate to a single row."
+    }
+  },
+  "explanation": "Parallel MI fires all iterations concurrently; if each iteration has an internal 500ms timer, all 500 timers tick down concurrently and all 500 API calls fire after the same 500ms wait. No effective throttle.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q05",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

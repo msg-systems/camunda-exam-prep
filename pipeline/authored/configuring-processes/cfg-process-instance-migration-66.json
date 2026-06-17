@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-66",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A process instance is waiting on service task `A`, which has no compensation boundary event in the source. The target process attaches a compensation boundary event to service task `A`, and the instance is migrated with mapping `A`->`A`. When is the compensation subscription opened?",
+  "options": [
+    {
+      "id": "a",
+      "text": "On completion of element `A`, because compensation subscriptions are opened for activities that are currently active or have not yet been started."
+    },
+    {
+      "id": "b",
+      "text": "Immediately at migration time, since the compensation boundary event exists in the target."
+    },
+    {
+      "id": "c",
+      "text": "Never, because the source instance did not have a compensation boundary event when service task `A` was activated."
+    },
+    {
+      "id": "d",
+      "text": "Only when a compensation throw event is later reached, because subscriptions are created lazily by throw events."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "When a compensation boundary event is added during migration, a new subscription is opened for activities that are currently active or have not yet been started. Since `A` is active, the subscription is created when `A` completes."
+    },
+    "b": {
+      "text": "Compensation subscriptions are not opened at migration time. They are opened when a task with a compensation boundary event completes."
+    },
+    "c": {
+      "text": "The source state does not block the subscription. The activity is currently active, which is exactly the case where a new compensation subscription is opened on completion."
+    },
+    "d": {
+      "text": "Compensation throw events trigger registered compensation handlers; they do not retroactively create subscriptions for activities that completed without one."
+    }
+  },
+  "explanation": "When a compensation boundary event is added during migration, a new compensation subscription is opened only for activities that are currently active or have not yet been started; already-finished activities are excluded. Since service task `A` is active at migration time, the subscription is created when `A` completes.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

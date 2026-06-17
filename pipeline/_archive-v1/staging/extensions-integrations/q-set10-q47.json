@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q47",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's RPA bot script needs input parameters from BPMN (e.g., the customer ID to look up in SAP) and produces output values (extracted data). The team wonders how data flows between BPMN and the RPA bot.",
+  "question": "How do BPMN process variables and RPA bot input/output values map?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:59) uses BPMN's standard Input / Output Mappings PLUS automatic variable-to-Robot-variable mapping. md:85: \"Process variables will be mapped to robot variables automatically\"; per :86: \"Use the Camunda library and the Set Output Variable keyword to set return variables\". Bots are authored in Robot Framework syntax (per :26); Input Mapping declares which process variables become robot variables; Output Mapping projects the Robot's Set Output Variable outputs back into process scope. worker-tags=... md:39-54), not a hand-typed task type string."
+    },
+    {
+      "id": "b",
+      "text": "RPA bots in Camunda 8 have no mechanism to receive input parameters from the BPMN process and must operate on fixed hardcoded values -- this description does not reflect the actual behaviour. The Camunda Robot Framework library auto-maps process variables to robot variables automatically. Process variables available at task activation become accessible to the Robot Framework script by the same variable names. The auto-mapping happens transparently through the Camunda library without requiring explicit variable passing configuration in most cases."
+    },
+    {
+      "id": "c",
+      "text": "Manually copy the required process variables into robot variables using explicit assignment steps at the start of each robot script, and manually copy outputs back at the end -- this is an unnecessary workaround. The Camunda Robot Framework library provides automatic bidirectional variable mapping: process variables are automatically available as robot variables on input, and Set Output Variable keyword calls make robot outputs available as process variables on completion. Manual copying is redundant when using the Camunda library."
+    },
+    {
+      "id": "d",
+      "text": "Store all input parameters and output values in Document Handling documents to pass data between the BPMN process and the RPA bot -- this is over-engineered for simple scalar data. Document Handling is designed for large binary payloads like PDFs, images, and office documents that would be too large for process variables. Scalar values like customer IDs, dates, amounts, and status flags should flow as regular process variables through the standard auto-mapping mechanism provided by the Camunda Robot Framework library."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. RPA tasks (added in the Modeler as RPA connector task type, per rpa/getting-started.md:59) compose with the rest of BPMN through two complementary mechanisms: Auto-mapping of process variables → robot variables by the Camunda library bundled into every RPA worker: per :85 \"Process variables will be mapped to robot variables automatically.\" Robot scripts reference them by name as if they were Robot-defined. Auto-mapping back via Set Output Variable per :86: bots call the Set Output Variable keyword (from the Camunda Robot Framework library) to publish output. Those become job-completion variables that Zeebe writes back to the process instance. Standard BPMN Input / Output Mappings layered on top: Input Mapping can rename / project / transform variables before they hit the bot; Output Mapping can re-shape the bot's outputs into a different process-variable shape (or restrict scope). Worker-task affinity is via labels (camunda.rpa.zeebe.worker-tags=... per rpa/production.md:39-54), NOT a hand-typed camunda::rpa task type string (that string is a recurring fabrication -- the canonical task type is the RPA connector first-class element template). This makes RPA tasks composable with regular BPMN flow -- process variables in, robot output variables out, like any other Service Task."
+    },
+    "b": {
+      "text": "Incorrect. Integration designed for parameter passing."
+    },
+    "c": {
+      "text": "Incorrect. Native integration."
+    },
+    "d": {
+      "text": "Incorrect. Document Handling for binaries; simple data via variables."
+    }
+  },
+  "explanation": "RPA tasks (added in the Modeler as RPA connector task type, per rpa/getting-started.md:59) compose with the rest of BPMN through two complementary mechanisms: Auto-mapping of process variables → robot variables by the Camunda library bundled into every RPA worker: per :85 \"Process variables will be mapped to robot variables automatically.\" Robot scripts reference them by name as if they were Robot-defined. Auto-mapping back via Set Output Variable per :86: bots call the Set Output Variable keyword (from the Camunda Robot Framework library) to publish output. Those become job-completion variables that Zeebe writes back to the process instance. Standard BPMN Input / Output Mappings layered on top: Input Mapping can rename / project / transform variables before they hit the bot; Output Mapping can re-shape the bot's outputs into a different process-variable shape (or restrict scope). Worker-task affinity is via labels (camunda.rpa.zeebe.worker-tags=... per rpa/production.md:39-54), NOT a hand-typed camunda::rpa task type string (that string is a recurring fabrication -- the canonical task type is the RPA connector first-class element template). This makes RPA tasks composable with regular BPMN flow -- process variables in, robot output variables out, like any other Service Task.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/rpa/getting-started/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q47",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-writing-good-workers-102",
+  "topic": "extensions-integrations",
+  "subtopic": "process-solution",
+  "difficulty": "easy",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An order-fulfillment process needs three synchronous REST calls (payment, inventory, shipping) implemented as glue code. What is the docs' default recommendation for organizing this glue code?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Put all the glue code into one process-solution application that also deploys the BPMN model."
+    },
+    {
+      "id": "b",
+      "text": "Build three separate applications — one worker per task type — even when there is no scaling or language reason to split."
+    },
+    {
+      "id": "c",
+      "text": "Embed the REST calls in the BPMN XML as FEEL expressions on each service task so no workers are needed."
+    },
+    {
+      "id": "d",
+      "text": "Run the workers inside the Zeebe broker as embedded plugins to avoid the network hop."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "As a rule of thumb, the docs recommend implementing all glue code in one application — the so-called process solution — which often also deploys the BPMN model at startup. This makes the result self-contained and easy to version, test, integrate, and deploy."
+    },
+    "b": {
+      "text": "The docs list splitting into multiple applications only as an exception (independent scaling/throttling or different programming languages). It is not the default."
+    },
+    "c": {
+      "text": "BPMN service tasks call out to job workers; FEEL is for data, not for issuing REST calls. The docs do not propose this approach."
+    },
+    "d": {
+      "text": "Zeebe runs no embedded user plugins for glue code; workers are external applications that activate jobs via the gateway API."
+    }
+  },
+  "explanation": "The docs' default recommendation is a single process solution: one application containing all the glue code (and often the BPMN itself), which is self-contained and easy to version, test, integrate, and deploy. Splitting into multiple applications is reserved for cases that need independent scaling/throttling or different programming languages.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

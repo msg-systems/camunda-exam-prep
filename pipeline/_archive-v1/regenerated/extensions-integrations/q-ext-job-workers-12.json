@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-12",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers-concept",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Logistics runs a Camunda 8.8 customs-clearance service whose jobs typically last between 5 and 240 minutes across different lanes. Each worker activates a job with a default timeout of 10 minutes and must extend or shorten the timeout dynamically while processing 1800 shipments per day so jobs are not reassigned prematurely or held longer than necessary.",
+  "question": "How does the Camunda 8.8 UpdateJobTimeout gRPC command interpret the duration value it receives for an already activated job?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The duration is the new total timeout measured from the moment the command is processed; the value can shorten or extend the timeout and replaces the previously configured timeout on the activated job"
+    },
+    {
+      "id": "b",
+      "text": "The duration is added to the originally requested activation timeout and the engine keeps a running sum; sending the command three times with PT5M extends the timeout by 15 minutes in total on the active job"
+    },
+    {
+      "id": "c",
+      "text": "The duration is subtracted from the remaining time-to-timeout so that workers can speed up reassignment; only positive durations are accepted and a negative value is rejected by the broker for the activated job"
+    },
+    {
+      "id": "d",
+      "text": "The duration replaces the originally requested activation timeout and starts counting from the original activation moment, so short durations may already be expired when the command is applied to the active job"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Timeout-update section states that the duration becomes the new total timeout from the current moment, so the same command can both extend and shorten the timeout; the docs add that workers should leave a buffer to avoid races with the broker-side timeout."
+    },
+    "b": {
+      "text": "Incorrect. The command does not extend by a delta added to a running sum; it replaces the timeout with a new duration measured from when the broker processes the command on the active job."
+    },
+    "c": {
+      "text": "Incorrect. The command does not interpret the duration as a shrink delta; both shorter and longer total timeouts are supported and the duration is measured from the current moment of processing on the broker."
+    },
+    "d": {
+      "text": "Incorrect. The duration is measured from when the command is processed, not from the original activation moment; a short duration becomes a near-term timeout from the time of update."
+    }
+  },
+  "explanation": "UpdateJobTimeout takes a duration that becomes the new total time-to-timeout measured from the moment the broker processes the command. The same command can therefore extend or shorten the active timeout, so workers can start with a standard initial value and adjust later based on actual job progress, leaving a buffer to avoid expiry during the update.",
+  "docs": [
+    {
+      "title": "Job workers timeouts",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q11",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task process-refund has retries = 3 configured. The worker fails on first attempt with a transient error. The team is wondering: between the failure and the next activation, does Zeebe wait some interval (linear, exponential backoff), or re-activate immediately?",
+  "question": "What is Zeebe's default retry backoff behavior between failed attempts?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:710). The next ActivateJobs call from any subscribed worker will pick it up. md:677, 701, or set the worker wide default via @JobWorker(retryBackoff = <ms>) per :940 946. md:35 52 and applied automatically. There is no retryBackoff attribute on zeebe:taskDefinition -- backoff is a worker side / header side concern, not a task definition attribute."
+    },
+    {
+      "id": "b",
+      "text": "Zeebe applies a default linear backoff of 1 second between retries, so a 3-retry job would wait 1s, 2s, and 3s before each subsequent attempt -- this is inaccurate. No automatic linear backoff strategy is specified in Zeebe's behaviour. When a worker fails a job via FailJob without providing a retryBackoff duration, the broker decrements the retry count and makes the job immediately re-activatable. The job enters the activation pool as if no time had passed. Any delay-based strategy must be explicitly requested by the worker on each fail call, not by configuring a linear schedule at the broker level."
+    },
+    {
+      "id": "c",
+      "text": ") by default, doubling the interval on each retry -- this is also incorrect. While exponential backoff is a common pattern in distributed systems and many teams implement it voluntarily in their worker code, the Zeebe broker itself does not impose this strategy. The broker-side default is immediate re-activation (implicit 0 backoff). Workers that want exponential delays must track the retry count in their handler code and pass the calculated delay via retryBackoff to the FailJob call."
+    },
+    {
+      "id": "d",
+      "text": "Zeebe waits exactly 1 minute between retries as a fixed default -- this is also incorrect. No fixed per-retry delay of any kind is specified as a Zeebe broker default. This misconception may come from confusion with SLA timeout settings or message TTL defaults, which are unrelated to job retry timing. The retry interval in Zeebe is entirely under worker control via the retryBackoff field on the FailJob call; without it, the broker makes the job activatable immediately after the failure is reported."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Zeebe's design philosophy: keep the broker simple and let workers control retry timing. Default broker behaviour on FailJob with no retryBackOff is to decrement retries and put the job back into the activatable pool -- the next worker poll picks it up (implicit retryBackoff of 0 per camunda-spring-boot-starter/configuration.md:710). This may be milliseconds after the failure if a worker is waiting. For controlled backoff, three canonical knobs: (1) per-fail -- JobError carries a retryBackoff Duration parameter on FailJob (configuration.md:677, 701); (2) per-worker default -- @JobWorker(retryBackoff = ) annotation (:940-946); (3) per-connector -- element-template property bound to the retryBackoff task header, ISO 8601 duration (connectors/use-connectors/outbound.md:35-52). The default is \"no backoff\" -- design accordingly. There is no zeebe:taskDefinition attribute for retryBackoff -- it lives at the worker/header level."
+    },
+    "b": {
+      "text": "Incorrect. No linear backoff is part of Zeebe's spec. The misconception likely comes from C7 (legacy) defaults or other engines."
+    },
+    "c": {
+      "text": "Incorrect. No exponential backoff is the broker default. Workers may implement exponential backoff in their FailJob delay logic, but it's worker-side, not broker-side."
+    },
+    "d": {
+      "text": "Incorrect. No 1-minute wait. The broker doesn't enforce a delay."
+    }
+  },
+  "explanation": "Zeebe's design philosophy: keep the broker simple and let workers control retry timing. Default broker behaviour on FailJob with no retryBackOff is to decrement retries and put the job back into the activatable pool -- the next worker poll picks it up (implicit retryBackoff of 0 per camunda-spring-boot-starter/configuration.md:710). This may be milliseconds after the failure if a worker is waiting. For controlled backoff, three canonical knobs: (1) per-fail -- JobError carries a retryBackoff Duration parameter on FailJob (configuration.md:677, 701); (2) per-worker default -- @JobWorker(retryBackoff = ) annotation (:940-946); (3) per-connector -- element-template property bound to the retryBackoff task header, ISO 8601 duration (connectors/use-connectors/outbound.md:35-52). The default is \"no backoff\" -- design accordingly. There is no zeebe:taskDefinition attribute for retryBackoff -- it lives at the worker/header level.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q11",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

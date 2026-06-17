@@ -1,0 +1,69 @@
+{
+  "id": "imp-set17-q31",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Form has Date field for \"Delivery Date.\" Wonders Date Picker component.",
+  "question": "Form Date Picker component?",
+  "options": [
+    {
+      "id": "a",
+      "text": "md:11-35: - Subtype (:17): three values -- Date, Time, or Date & Time. - Date label / Time label / Field description / Key (form-variable binding). - Use 24h (:18) -- 24-hour time format toggle. - Time format (:23): UTC offset / UTC normalized / No timezone. - Time interval (:24) -- step granularity in the time picker. - Disallow past dates (:25) -- prevents past-date selection (no separate min/max constraint exists in the doc-published schema). - Validation > Required (:26-27) -- only Required is documented; no min/max validators. - Read only / Disabled / Hide if (FEEL) / Columns (Carbon Grid). - Stored as (per :31-35): always string. Format per subtype: - date → YYYY-MM-DD. - datetime → YYYY-MM-DDTHH:MM (leading zeros required: 01:30, not 1:30). - time → HH:MM (leading zeros optional). No second granularity in the component."
+    },
+    {
+      "id": "b",
+      "text": "Camunda 8 Forms only support text input for date and time values with no dedicated date-time picker component -- this does not accurately reflect the behavior. Camunda Forms include a dedicated Datetime component providing a calendar date picker and optional time selector. The component stores date values as ISO 8601 strings in the format YYYY-MM-DD and datetime values as YYYY-MM-DDTHH:MM with leading zeros required for the time portion. It binds directly to process variables via the Key field and eliminates the need for manual date string parsing and validation. The component can be configured for date-only, time-only, or combined date-and-time input via the Subtype property, and supports disallowing past dates via the validation configuration."
+    },
+    {
+      "id": "c",
+      "text": "Camunda 8 Forms have no built-in date or time input capability requiring custom implementation for all date handling -- this does not accurately reflect the behavior. The Camunda Forms element library includes a built-in Datetime component that provides native date and time input with a calendar picker. It stores values in ISO 8601 format for direct use in FEEL expressions and process variables. No custom implementation is required for standard date-time scenarios. The component supports validation constraints like disallowing past dates, making it suitable for delivery or appointment scheduling forms."
+    },
+    {
+      "id": "d",
+      "text": "Date and time input in Camunda 8 Forms always requires writing custom JavaScript for picker rendering and ISO format conversion -- this overstates implementation complexity. The built-in Datetime component handles calendar rendering, user interaction, timezone configuration, and ISO 8601 format conversion automatically without any custom JavaScript code. The three subtypes -- date, time, and datetime -- cover the majority of real-world use cases. Custom JavaScript would only be needed for highly specialized calendar systems, non-Gregorian calendar support, or locale-specific formatting requirements far beyond what the built-in component supports natively in standard deployments."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Datetime component per forms-element-library-datetime.md:11-35: Subtypes (:17 -- UI labels are Date / Time / Date & Time; JSON values date / time / datetime): date: Day, month, year. Format: YYYY-MM-DD. Stored as ISO string. datetime (UI: \"Date & Time\"): With time portion (no seconds). Format: YYYY-MM-DDTHH:MM -- leading zeros required per :34. Stored as ISO string. time: Hour, minute only. Format: HH:MM -- leading zeros optional per :35. Configuration: `json { \"type\": \"datetime\", \"key\": \"deliveryDate\", \"label\": \"Delivery Date\", \"subtype\": \"date\", \"disallowPassedDates\": true, \"validate\": { \"required\": true } } Constraints (only what is documented in C8.8): Disallow past dates (:25) -- single boolean toggle; no fine-grained min/max validator exists in the doc-published schema. Time format (:23) -- UTC offset / UTC normalized / No timezone (affects how the time string serializes). Custom \"max date\" / \"max date = today+30\" type constraints require an external process-level FEEL guard or a separate Expression field (per Set 17 Q31 expression-field intermediary pattern). Default value: Pre-fill from variable (per Set 16 Q22). Or computed: e.g., today + 7 days. Time zone: User TZ vs server TZ: handle carefully. Display in user TZ: convert. Store in UTC: canonical. For FEEL temporal types (per Set 15 Q28): Date variable in FEEL: native temporal. Form stores string: parse in FEEL via date()`. Validation patterns: Min date: Today: prevent past dates. Specific date: business rule. Max date: Today + N days: limit future. Specific deadline. For business hours / business days: Native Forms: typically calendar-based. Business day logic: in process / FEEL. For range (start - end): Two date fields: separate. Validation: end > start. Or: date range picker (verify support). For Operate visibility: Date variables: displayed. Format: per Operate locale. For Tasklist UX: Calendar widget: pick visually. Mobile-friendly: native date pickers. For locale: Date format: dd/mm/yyyy vs mm/dd/yyyy. Per user locale. Stored canonically: ISO. For decision input: Date variable: passed to DMN. FEEL date functions apply. For pre-fill from process: Variable contains date: form pre-filled. User can edit. For dependent dates: Start date + N days = End date: computed field. For very specific input: Hour:minute granularity: datetime type. Second granularity: rare in business. For internationalisation: Calendar may vary: per locale. Display in user TZ. For batch operations: Multiple date inputs: in same form. Each independent field. For validation errors: Inline error: \"Date must be in future.\" User can fix before submit. For complex date logic: Pre-fill: today. Min: tomorrow. Max: today + 30 days. Combine: realistic input window. For weekend / holiday exclusion: Standard Form components: typically don't natively. Custom UI: required. Or: server-side validation. For mobile experience: HTML5 date input: native calendar. Touch-friendly. Anti-patterns: Free-text date input: parsing errors. No format hint: user confused. No constraints: invalid dates accepted. Best practices: Use Date Picker component: not text. Set constraints: min, max. Default value: helpful. Test locales: cross-region. For the scenario (Delivery Date): Date Picker (date subtype). Min: today. Max: today + 30 days. Required. For UX flow: Pre-fill estimated date: based on order. User overrides if needed."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "Datetime component per forms-element-library-datetime.md:11-35: Subtypes (:17 -- UI labels are Date / Time / Date & Time; JSON values date / time / datetime): date: Day, month, year. Format: YYYY-MM-DD. Stored as ISO string. datetime (UI: \"Date & Time\"): With time portion (no seconds). Format: YYYY-MM-DDTHH:MM -- leading zeros required per :34. Stored as ISO string. time: Hour, minute only. Format: HH:MM -- leading zeros optional per :35. Configuration: `json { \"type\": \"datetime\", \"key\": \"deliveryDate\", \"label\": \"Delivery Date\", \"subtype\": \"date\", \"disallowPassedDates\": true, \"validate\": { \"required\": true } } Constraints (only what is documented in C8.8): Disallow past dates (:25) -- single boolean toggle; no fine-grained min/max validator exists in the doc-published schema. Time format (:23) -- UTC offset / UTC normalized / No timezone (affects how the time string serializes). Custom \"max date\" / \"max date = today+30\" type constraints require an external process-level FEEL guard or a separate Expression field (per Set 17 Q31 expression-field intermediary pattern). Default value: Pre-fill from variable (per Set 16 Q22). Or computed: e.g., today + 7 days. Time zone: User TZ vs server TZ: handle carefully. Display in user TZ: convert. Store in UTC: canonical. For FEEL temporal types (per Set 15 Q28): Date variable in FEEL: native temporal. Form stores string: parse in FEEL via date()`. Validation patterns: Min date: Today: prevent past dates. Specific date: business rule. Max date: Today + N days: limit future. Specific deadline. For business hours / business days: Native Forms: typically calendar-based. Business day logic: in process / FEEL. For range (start - end): Two date fields: separate. Validation: end > start. Or: date range picker (verify support). For Operate visibility: Date variables: displayed. Format: per Operate locale. For Tasklist UX: Calendar widget: pick visually. Mobile-friendly: native date pickers. For locale: Date format: dd/mm/yyyy vs mm/dd/yyyy. Per user locale. Stored canonically: ISO. For decision input: Date variable: passed to DMN. FEEL date functions apply. For pre-fill from process: Variable contains date: form pre-filled. User can edit. For dependent dates: Start date + N days = End date: computed field. For very specific input: Hour:minute granularity: datetime type. Second granularity: rare in business. For internationalisation: Calendar may vary: per locale. Display in user TZ. For batch operations: Multiple date inputs: in same form. Each independent field. For validation errors: Inline error: \"Date must be in future.\" User can fix before submit. For complex date logic: Pre-fill: today. Min: tomorrow. Max: today + 30 days. Combine: realistic input window. For weekend / holiday exclusion: Standard Form components: typically don't natively. Custom UI: required. Or: server-side validation. For mobile experience: HTML5 date input: native calendar. Touch-friendly. Anti-patterns: Free-text date input: parsing errors. No format hint: user confused. No constraints: invalid dates accepted. Best practices: Use Date Picker component: not text. Set constraints: min, max. Default value: helpful. Test locales: cross-region. For the scenario (Delivery Date): Date Picker (date subtype). Min: today. Max: today + 30 days. Required. For UX flow: Pre-fill estimated date: based on order. User overrides if needed.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q31",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-scenario-too-short",
+        "severity": "block",
+        "message": "scenario length 71 < 80 (catastrophically short)",
+        "where": "scenario"
+      },
+      {
+        "code": "quality-internal-ref-leak",
+        "severity": "block",
+        "message": "option text contains internal source/line reference",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

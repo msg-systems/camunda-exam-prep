@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q32",
+  "topic": "forms",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A long form should be organised into sections -- \"Personal Info,\" \"Contact,\" \"Preferences.\" Team wonders if Forms support grouping.",
+  "question": "Form group / section components?",
+  "options": [
+    {
+      "id": "a",
+      "text": "\" Each group renders with a title and its nested fields. Groups can optionally be made collapsible. Conditional visibility expressions on groups allow showing or hiding entire sections based on other field values. Grouping does not affect submission: all fields, regardless of which group they belong to, are submitted together when the form is completed."
+    },
+    {
+      "id": "b",
+      "text": "Camunda Forms support hierarchical organization through Group and Section components that act as containers for related fields. These components allow nesting fields within labeled groups, providing visual structure for long forms. The form schema supports \"type\": \"group\" components that can contain multiple child fields. Flat-only forms would be impractical for real-world business forms with many fields across different categories, and Camunda's form component library is specifically designed to support this hierarchical structure."
+    },
+    {
+      "id": "c",
+      "text": "Camunda Forms typically include grouping components (verify per version): Group and Section components act as containers for child fields, providing titled and optionally collapsible sections. Each group renders as a visually distinct area with a label and contains its nested fields. All fields still submit together when the form is submitted -- grouping is visual/organizational only. Conditional visibility can be applied to groups, allowing dynamic showing/hiding of sections based on form state."
+    },
+    {
+      "id": "d",
+      "text": "Multiple forms required -- this is only partially correct. While using multiple sequential User Tasks (each with its own form) is one valid approach to splitting long forms into manageable sections, it is not a requirement. A single form can use Group and Section components to organize fields into clearly labeled sections without requiring process engineers to create multiple User Tasks. The choice between one rich form with groups vs multiple smaller forms is a UX and process design decision, not a technical constraint."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Form grouping components: Group / Section component: Container: holds child fields. Title / label: identifies group. Visual styling: bordered, indented, etc. Optional collapse: expand / collapse. In Form JSON (typical): `json { \"components\": [ { \"type\": \"group\", \"label\": \"Personal Info\", \"components\": [ {\"type\": \"textfield\", \"key\": \"firstName\", \"label\": \"First Name\"}, {\"type\": \"textfield\", \"key\": \"lastName\", \"label\": \"Last Name\"} ] }, { \"type\": \"group\", \"label\": \"Contact\", \"components\": [ {\"type\": \"textfield\", \"key\": \"email\", \"label\": \"Email\"}, {\"type\": \"textfield\", \"key\": \"phone\", \"label\": \"Phone\"} ] } ] } Verify exact component name / schema per version. Visual rendering: ┌─ Personal Info ─────────┐ │ First Name: [ ] │ │ Last Name: [ ] │ └─────────────────────────┘ ┌─ Contact ───────────────┐ │ Email: [ ] │ │ Phone: [ ] │ └─────────────────────────┘ Submit behavior: All fields submit together: grouping is visual. No partial submit: entire form. Validation: Per-field validation: standard. Group-level validation: typically not (verify). Use cases: Use case 1: Logical grouping: Related fields together. Better UX for long forms. Use case 2: Required vs optional sections: \"Required Info\" group. \"Optional Details\" group (maybe collapsible). Use case 3: Step-by-step UI: Multiple groups visible. Visual progression. Tabs / Wizard patterns: Tabs: switch between groups. Wizard / Stepper: linear progression. Verify Forms support these patterns. For very long forms: Multiple groups: organise. Or: multiple User Tasks: each smaller form (wizard pattern via process). Trade-off: single form vs split process. Multiple User Task pattern: [User Task: Personal Info Form] → [User Task: Contact Form] → [User Task: Preferences Form] → [Submit Complete] Pros: smaller forms; clear progress; can save between. Cons: more clicks; process complexity. Single form with groups: Pros: one task; one submit. Cons: long form; lose work if cancelled. For dynamic groups: Conditional group visibility: based on form state. Per Set 14 Q31: hide / show conditions. json { \"type\": \"group\", \"label\": \"Business Info\", \"conditional\": {\"hide\": \"=accountType = 'Individual'\"}, \"components\": [...] } Show business group only for business accounts. For nested groups: Groups within groups. Hierarchical structure. Verify per version. For form sections that are repeated (table-like): Repeating component / table: per item. Verify support: for \"add another row\" patterns. Best practices: Group logically related fields: clear organisation. Label groups meaningfully: not just \"Group 1\". Limit nesting depth: 2 levels usually enough. Test rendering: verify visual layout. Anti-patterns: Single huge form with no groups: poor UX. Too many groups: fragmentation. Over-nesting: confusing. For the scenario (Personal Info, Contact, Preferences): json [ {\"type\": \"group\", \"label\": \"Personal Info\", \"components\": [...]}, {\"type\": \"group\", \"label\": \"Contact\", \"components\": [...]}, {\"type\": \"group\", \"label\": \"Preferences\", \"components\": [...]} ] ` Verify support; configure accordingly. For multi-page forms: Process-based wizard: multiple User Tasks. Single-page with collapsible groups: visual only. Pick based on UX needs. For accessibility: Group labels: announced by screen readers. Logical reading order: maintained."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Correct. wrong."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/forms/form-element-library/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q32",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[3]"
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q09",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A BPMN file has . Team wonders what isExecutable controls. Process isExecutable attribute?",
+  "question": "Process isExecutable attribute?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The isExecutable attribute affects process performance by enabling optimization -- this approach has limitations. The isExecutable attribute is a boolean flag on the <bpmn:process> element that signals whether the process is intended for execution by an engine. Setting it to true means the process should be deployed and instantiated; setting it to false marks the process as documentary-only. It has no bearing on execution performance, resource allocation, or optimization. Performance characteristics depend on factors like process complexity, variable sizes, and worker implementation -- not this deployment flag."
+    },
+    {
+      "id": "b",
+      "text": "isExecutable=\"true\" signals the process can be deployed and executed by the engine. false (or absent in some interpretations) means the model is documentary -- for visualisation only, not deployed for execution. In Camunda 8: typically must be true for deployment. Use case for false: model \"to be\" or external collaborator processes in diagrams that include them for completeness but aren't intended to run in this engine."
+    },
+    {
+      "id": "c",
+      "text": "For executable processes intended to be deployed and run in Camunda 8, isExecutable=\"true\" is indeed required. A single BPMN file can contain multiple process elements with different isExecutable values to mix executable and documentary processes."
+    },
+    {
+      "id": "d",
+      "text": "The isExecutable attribute controls process visibility in Operate or other monitoring tools -- this approach has limitations. The isExecutable attribute is a deployment flag in the BPMN XML that signals whether a process is intended for execution by the engine, not a visibility or permissions control. Visibility in Camunda Operate is governed by authorization policies in Management Identity, not by BPMN attributes. Setting isExecutable=\"false\" means Zeebe will not create a ProcessDefinition resource for that process during deployment -- it is simply skipped, not hidden or restricted."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Process attributes per BPMN spec: isExecutable: true: process is intended for execution by an engine; deployable. false (or absent): documentary process; not for execution. In Camunda 8: For deployment: process must be executable. isExecutable=\"true\" typical default in tooling. Web Modeler / Desktop Modeler: creates processes with isExecutable=\"true\". Use cases for isExecutable=\"false\": Use case 1: Documentation processes: High-level diagrams showing as-is or to-be state. For analysis / stakeholder communication. Not intended to run. Use case 2: External collaborator pools (per Set 15 Q5): Collaboration diagram with external participant. That pool's internals shown for context. But not deployed; runs in external system. Use case 3: Reference models: Industry templates / standards. Customised + adapted into executable models elsewhere. Other process attributes: id: Process ID; unique within deployment. Stable: don't rename in production (deployed instances reference by ID). name: Display name; human-readable. Can change without affecting deployment. processType (BPMN spec): Private (default): organisation-internal. Public: external-facing. Mostly documentary. versionTag / zeebe:versionTag (Camunda): Custom version label. Useful for versioning beyond auto-increment. Camunda extensions: `xml ... Various Camunda-specific extensions for retention, etc. Deployment behavior: Non-executable processes: Zeebe will not create a process definition / runtime resource for a with isExecutable=\"false\". The deployed BPMN file may still contain such processes for documentation, but they are skipped at deployment time (no ProcessDefinition entity, no CREATED event in the exporter). Multiple processes per file: One BPMN file can contain multiple . Each can have own isExecutable. Useful for collaboration diagrams with one executable + non-executable. For the scenario: isExecutable=\"true\" means this process will run when deployed. Best practice: explicit isExecutable=\"true\" for clarity. Anti-patterns: Forgetting isExecutable: may default to false in some tools; deployment fails. Mixing executable + non-executable in same file without clarity: confusing. In Web Modeler: Default: isExecutable=\"true\". UI option to toggle if making documentation diagrams. For deployment automation: CI / CD pipelines deploy only isExecutable=\"true\" processes. Skip documentary processes. Validation: check attribute before deploy. Compare with isClosed (BPMN spec): Different attribute; less commonly used. Indicates whether process can receive arbitrary external events. For Camunda 8 specifically: Web Modeler / Desktop Modeler default isExecutable=\"true\". The bpmn-primer.md:20 example confirms isExecutable=\"true\"` as the canonical attribute on the executable process."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q09",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

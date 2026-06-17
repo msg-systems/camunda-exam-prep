@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-33",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client-job-worker",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "A government agency running Camunda 8.8 across 4 microservices needs to wire the optional Micrometer implementation of JobWorkerMetrics into each Java worker. The observability team consults the Usage section to confirm exactly which builder call activates the implementation so every worker reports activated and handled counters to Prometheus.",
+  "question": "Which builder call wires a JobWorkerMetrics implementation into a Camunda 8.8 Java job worker according to the Usage section?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Call .metrics(jobWorkerMetrics) on the JobWorkerBuilder before .open(), passing either a custom JobWorkerMetrics implementation or JobWorkerMetrics.micrometer().withMeterRegistry(reg).build() for built-in support"
+    },
+    {
+      "id": "b",
+      "text": "Call .observability(observabilityRegistry) on the JobWorkerBuilder before .open(), passing a Micrometer MeterRegistry so the worker auto-discovers JobWorkerMetrics through the registry at start-up"
+    },
+    {
+      "id": "c",
+      "text": "Call .micrometer(meterRegistry) on the CamundaClientBuilder before constructing the worker, which globally enables JobWorkerMetrics for every worker the client subsequently opens through the builder"
+    },
+    {
+      "id": "d",
+      "text": "Call .registerMetrics(JobWorkerMetrics.class) on the JobWorkerBuilder before .open(), which causes Spring to inject the default Micrometer JobWorkerMetrics bean into the worker at runtime"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Usage section shows .metrics(metrics) called on the worker builder before .open(); the implementation can be a custom JobWorkerMetrics class or the bundled JobWorkerMetrics.micrometer().withMeterRegistry(meterRegistry).build() variant."
+    },
+    "b": {
+      "text": "Incorrect. There is no .observability(...) method on the worker builder; metrics are wired through .metrics(JobWorkerMetrics) on the JobWorkerBuilder before opening the worker."
+    },
+    "c": {
+      "text": "Incorrect. JobWorkerMetrics is registered per worker via .metrics on the JobWorkerBuilder, not globally on the client builder; each worker passes its own instance."
+    },
+    "d": {
+      "text": "Incorrect. The builder method is .metrics(jobWorkerMetrics) and the registration is explicit; the docs do not describe a Spring auto-injection mechanism for the Java client builder itself."
+    }
+  },
+  "explanation": "The Usage section shows that an implementation of JobWorkerMetrics, either a custom class or the bundled Micrometer one built with JobWorkerMetrics.micrometer().withMeterRegistry(reg).build(), is registered by calling .metrics(jobWorkerMetrics) on the worker builder before .open(). Workers without a registered implementation track nothing.",
+  "docs": [
+    {
+      "title": "Java client job worker metrics usage",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "ext-writing-good-workers-110",
+  "topic": "extensions-integrations",
+  "subtopic": "csharp-worker",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "When configuring a C# worker with `.HandlerThreads(3)`, what does that number actually control according to the docs?",
+  "codeBlocks": {
+    "stem": "zeebeClient.NewWorker()\n  .JobType(\"payment\")\n  .Handler(JobHandler)\n  .HandlerThreads(3)\n  .Name(\"MyPaymentWorker\")\n  .Open()"
+  },
+  "options": [
+    {
+      "id": "a",
+      "text": "The degree of parallelism allowed to the Dataflow TPL — implemented as a mix of event loop and threads — not a literal OS-thread count."
+    },
+    {
+      "id": "b",
+      "text": "The exact number of OS threads the SDK pins to the worker for its lifetime."
+    },
+    {
+      "id": "c",
+      "text": "The number of broker partitions the worker subscribes to, one OS thread per partition."
+    },
+    {
+      "id": "d",
+      "text": "The number of times each job will be retried before failing, overriding the service-task `retries` attribute."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs describe `HandlerThreads` as a naming legacy: the C# client uses the Dataflow Task Parallel Library (TPL), so the value really configures the degree of parallelism allowed to TPL. Internally it is a mixture of event loop and threading — an implementation detail of TPL."
+    },
+    "b": {
+      "text": "The docs explicitly say it is not a literal OS-thread count; the implementation is a mixture of event loop and threading driven by TPL."
+    },
+    "c": {
+      "text": "Handler threads are unrelated to partition subscription; the partition fan-out is an internal broker/client concern, not exposed by `HandlerThreads`."
+    },
+    "d": {
+      "text": "Retry counts are configured on the service task definition (or via the fail command), not via the worker builder's `HandlerThreads` setting."
+    }
+  },
+  "explanation": "In the C# client, `HandlerThreads(n)` is a naming legacy. The implementation uses the Dataflow Task Parallel Library (TPL), so the value controls the degree of parallelism allowed to TPL — internally a mixture of event loop and threading — rather than a literal OS-thread count. This is a good foundation for scaling the worker.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

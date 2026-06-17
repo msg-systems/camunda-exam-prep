@@ -1,0 +1,56 @@
+{
+  "id": "imp-set16-q25",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Team wants to expose multiple decisions as a unified Decision Service with declared inputs/outputs. Wonders DMN Decision Service signature.",
+  "question": "Decision Service signature?",
+  "options": [
+    {
+      "id": "a",
+      "text": "\"No signatures at all\" -- this misses an important nuance. At the individual Decision element level, inputs are implicitly declared via <informationRequirement> edges pointing to Input Data elements or other Decisions, and the output is the Decision's typed result expression. This constitutes a de-facto contract -- not a first-class Decision Service signature, but a clear declaration of inputs and outputs readable from the DRD structure. In Camunda 8, when invoking a Business Rule Task, the process passes variables that match Input Data names, forming an informal but meaningful signature that teams should document."
+    },
+    {
+      "id": "b",
+      "text": "md:23-28, Camunda 8 Modeler supports only four DMN elements: Decision (tables and literal expressions) / Input data / Knowledge source / Business knowledge model. Decision Service (DMN spec construct grouping output/encapsulated decisions with declared signature) is not in this list. Canonical Camunda-8 replacement: invoke the top-level Decision of the DRG; the engine resolves dependencies on other Decisions + Input Data + BKMs automatically per the information-requirement graph. BPMN orchestration via multiple Business Rule Tasks is the alternative when explicit per-decision composition is needed."
+    },
+    {
+      "id": "c",
+      "text": "Single decision only -- this is only partially aligned with Camunda 8 reality. While the canonical C8 invocation pattern calls one top-level Decision, that single Decision can depend on many other Decisions, BKMs, and Input Data elements within the same DRG file. The engine automatically resolves these dependencies. The framing of \"only one decision per DMN file\" is therefore misleading: a single DMN file can contain a rich DRG with multiple cooperating elements, all resolved transparently from one Business Rule Task invocation pointing at the top-level Decision."
+    },
+    {
+      "id": "d",
+      "text": "Custom code required -- this overstates the complexity. Multi-decision composition in Camunda 8 requires no custom code because the engine handles DRG dependency resolution natively. When a Business Rule Task invokes the top-level Decision, the engine automatically evaluates all prerequisite Decisions, BKMs, and Input Data declared in the DRD's information-requirement graph. No custom resolver, script, or middleware is needed to orchestrate this. Custom code would only be required for scenarios completely outside the standard Business Rule Task invocation path, which is not the typical design pattern."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. DMN Decision Service: DMN spec concept: Decision Service: Groups decisions as a unified service. Declares signature: inputs, outputs, encapsulated decisions. Like a function signature at the DMN model level. Components: Output decisions: Decisions whose outputs are exposed. Service callers see these. Encapsulated decisions: Internal helpers. Not exposed in signature. Used by output decisions. Input data: External inputs to the service. Input decisions: Other decisions (perhaps from other DMN files) used. Example XML: `xml ` Use cases: Use case 1: Grouping related decisions: \"loanApproval\" service contains all loan-related decisions. Single point of invocation. Use case 2: API gateway pattern: Multiple decisions exposed as one service. Caller invokes service, not individual decisions. Use case 3: Hide internal logic: Helpers encapsulated. Stable external signature. For Camunda 8: Verify Decision Service support per version: Standalone decision invocation (per Set 14 Q28): typical pattern. Decision Service as first-class: may have limited support. Alternative: invoke individual decision; DRG handles dependencies. In BPMN invocation: Business Rule Task references decision (or service). Decision Service: would reference service ID. Engine evaluates: per service definition. For external API: Decision Service may be invocable via REST. Same call pattern as standalone decision. Trade-offs: With Decision Service: Pros: clear signature; encapsulation. Cons: more spec to learn; tool support varies. Without (individual decisions): Pros: simpler; widely supported. Cons: less abstraction. For Camunda 8 practical approach: For most cases: invoke individual top-level decision. DRG handles dependencies (per Set 15 Q28). Decision Service as advanced pattern if supported. For"
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. partial; C8 invocation is single top-level Decision, but the DRG can compose many."
+    },
+    "d": {
+      "text": "Incorrect. overstates; no custom code needed."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/dmn/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q25",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

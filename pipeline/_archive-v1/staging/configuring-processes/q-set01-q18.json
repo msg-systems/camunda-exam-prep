@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q18",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Onboarding process passes uploaded documents (10-50 MB) through several steps. Storing binary as Base64 in variable triggers \"variable size exceeds limit\" (~4 MB Zeebe limit).",
+  "question": "Correct Camunda 8 mechanism?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Increase the Zeebe variable size limit by modifying the cluster configuration settings. yaml under the Zeebe engine settings. Raising it to accommodate 50 MB documents would allow Base64-encoded files to flow as process variables without the size exceeded error."
+    },
+    {
+      "id": "b",
+      "text": "Store the document in an external AWS S3 bucket and pass only the S3 object URL as a small string variable in the process. Each service task that needs the document fetches it directly from S3 using the URL. The team also loses the integrated security, audit trail, and lifecycle management that Camunda's Document Handling provides natively."
+    },
+    {
+      "id": "c",
+      "text": "Split the Base64-encoded document into chunks of roughly 4 MB each and store them as separate numbered process variables like doc_chunk_0, doc_chunk_1, and so on. Each service task retrieves all chunks and reassembles them before processing. This anti-pattern multiplies the number of variables, bloats the process state, complicates every consumer task that needs the document, and is fragile if the number of chunks varies. It provides no security or lifecycle benefits and is fundamentally the wrong approach for large binary data in a process."
+    },
+    {
+      "id": "d",
+      "text": "Use Camunda 8's built-in Document Handling API to upload the document to Camunda-managed storage via the Document API. The API returns a small document reference object containing the document ID and metadata. This reference is stored as the process variable -- it is tiny regardless of the original file size. Any subsequent service task that needs the document retrieves it by calling the Document API with the reference. This is the purpose-built Camunda 8 pattern for large documents, providing integrated access control, lifecycle management, audit logging, and automatic cleanup."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Document Handling is the canonical Camunda 8 mechanism for large documents: API-managed storage, small reference variable, integrated lifecycle."
+    },
+    "b": {
+      "text": "Incorrect. Variable size limit is hard architectural bound rooted in log/snapshot design."
+    },
+    "c": {
+      "text": "Incorrect. Works but reinvents Document Handling without integrated security/audit."
+    },
+    "d": {
+      "text": "Correct. Fragile reassembly; bloats state."
+    }
+  },
+  "explanation": "Fragile reassembly; bloats state.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q18",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-22",
+  "topic": "extensions-integrations",
+  "subtopic": "multi-tenancy",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "negative",
+  "camundaVersion": "8.8",
+  "question": "Which statement about configuring multi-tenancy on a Java job worker is **NOT** true?",
+  "options": [
+    {
+      "id": "a",
+      "text": "If the client is unauthorised for one of the configured tenants, the worker still picks up jobs for the other authorised tenants."
+    },
+    {
+      "id": "b",
+      "text": "`client.newWorker().tenantIds(\"myTenant\", \"myOtherTenant\").open()` opens one worker that picks up jobs for both tenants."
+    },
+    {
+      "id": "c",
+      "text": "Default tenants for every opened worker can be set with the env var `CAMUNDA_DEFAULT_JOB_WORKER_TENANT_IDS` (or the equivalent system property)."
+    },
+    {
+      "id": "d",
+      "text": "A single-tenant worker is opened with `client.newWorker().tenantId(\"myTenant\").open()`."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "This is the false statement (and therefore the correct pick for a NOT question). The docs are explicit: the client must be authorised for ALL provided tenants; if it is not, the job worker will not work on any jobs at all — there is no silent subsetting to the authorised ones."
+    },
+    "b": {
+      "text": "The `.tenantIds(\"myTenant\", \"myOtherTenant\")` builder call really does open a worker for both tenants in a single subscription — this statement is true."
+    },
+    "c": {
+      "text": "Setting `CAMUNDA_DEFAULT_JOB_WORKER_TENANT_IDS` (or `camunda.client.worker.tenantIds`) does configure default tenants for every worker opened by that client — this statement is true."
+    },
+    "d": {
+      "text": "Calling `.tenantId(\"myTenant\")` opens a single-tenant worker exactly as the docs show — this statement is true."
+    }
+  },
+  "explanation": "Java job workers can be scoped to one tenant (`.tenantId`), to several (`.tenantIds`), or driven by client-wide defaults (`CAMUNDA_DEFAULT_JOB_WORKER_TENANT_IDS` / `camunda.client.worker.tenantIds`). The critical authorisation rule is all-or-nothing: the client must be authorised for every configured tenant. If authorisation is missing for any one of them, the worker activates no jobs — not even for the tenants it is authorised for.",
+  "docs": [
+    {
+      "title": "Job worker",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

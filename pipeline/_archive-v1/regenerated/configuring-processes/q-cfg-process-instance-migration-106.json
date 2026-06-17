@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-106",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Apex Retail has 600 instances of its Camunda 8.8 fulfillment process waiting on task C after a parallel joining gateway. The team is considering a migration that maps active task C onto task A, which sits before that same parallel joining gateway in the source model, and wants the documented risk.",
+  "question": "What documented risk arises if active task C is mapped back to task A located before the parallel joining gateway?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The migrated process instance can become stuck on the parallel joining gateway; the gateway still requires both of its incoming flows to complete before the instance can continue."
+    },
+    {
+      "id": "b",
+      "text": "The migrated process instance is rolled back to the start event automatically; the parallel joining gateway forbids any retrograde mapping of an active element during process instance migration."
+    },
+    {
+      "id": "c",
+      "text": "The migrated process instance silently completes immediately; the parallel joining gateway treats any retrograde mapping as an implicit TERMINATE_PROCESS_INSTANCE instruction."
+    },
+    {
+      "id": "d",
+      "text": "The migrated process instance creates a duplicate of task C as a sibling of task A; the engine inserts a copy whenever a mapping instruction creates a backward flow on a join."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The documentation warns that mapping task C back to A or B leaves the process instance stuck on the parallel gateway, because the gateway still expects both incoming flows to complete."
+    },
+    "b": {
+      "text": "Incorrect. The instance is not rolled back to the start event automatically; the documented outcome is that it gets stuck on the parallel joining gateway."
+    },
+    "c": {
+      "text": "Incorrect. The instance does not silently complete; retrograde mappings are not interpreted as terminate instructions by the engine."
+    },
+    "d": {
+      "text": "Incorrect. The engine does not duplicate the mapped element as a sibling; the documented effect of this kind of mapping is that the instance becomes stuck on the parallel join."
+    }
+  },
+  "explanation": "Mapping an active task back to a task located before a parallel joining gateway can leave the migrated instance stuck on the gateway, because the join still requires both of its incoming flows to complete before the instance can move on.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

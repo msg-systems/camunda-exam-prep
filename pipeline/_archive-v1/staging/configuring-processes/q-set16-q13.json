@@ -1,0 +1,82 @@
+{
+  "id": "imp-set16-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Operator needs to cancel a stuck process instance. Team wonders API + Operate UI options.",
+  "question": "Cancel process instance API + UI?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Can't cancel -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "8: the Operate UI provides a Cancel action on any process instance view, requiring a confirmation step and producing an audit entry. The Orchestration Cluster REST API supports POST /process-instances/{processInstanceKey}/cancellation for programmatic cancellation. join(). Batch cancellation via the batch operations API allows cancelling multiple instances matching a filter. Effects include: instance state set to CANCELLED, all active elements terminated, in-flight jobs orphaned."
+    },
+    {
+      "id": "c",
+      "text": "Only via Operate UI -- this is only partially correct. While Operate UI does offer a Cancel action for stuck process instances, it is not the only mechanism available in Camunda 8. The Orchestration Cluster REST API provides a programmatic cancellation endpoint, and the Java client SDK offers a cancel command. Batch cancellation for multiple instances simultaneously requires the API or batch operations rather than the UI alone. Limiting operators to Operate UI means no automation, no scripted remediation, and no integration with external operations tooling."
+    },
+    {
+      "id": "d",
+      "text": "Cancelling a process instance in Camunda 8 terminates it permanently; there is no automatic restart after cancellation. Once a process instance is cancelled, its state is set to CANCELLED and it is finished. Any auto-restart behavior must be explicitly designed: for example, a new instance can be started via API by an external orchestrator or a retry mechanism. Confusing cancellation with a restart or recovery mechanism would lead to lost in-flight work and incorrect assumptions about process lifecycle in production operations."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Process cancellation: Cancellation options: Operate UI: Open process instance view. Cancel button / action. Confirmation prompt. Audit trail. Orchestration Cluster REST API per cancel-process-instance.api.mdx:32-36: ` POST /process-instances/{processInstanceKey}/cancellation (No request body required for a basic cancel; the cancellation is a strongly consistent operation per the API spec.) Java client (Camunda Spring Boot Starter): java client.newCancelInstanceCommand(processInstanceKey) .send() .join(); ` Effects of cancellation: Process instance state: CANCELLED. All active elements: terminated. In-flight jobs: orphaned -- worker completion will fail silently or error. Boundary events: not triggered (clean cancellation, not error). Compensation: not triggered (clean cancellation). For partial cancellation (one branch only): Modify API (per Set 13 Q53). Terminate specific element instance. For audit: Information to capture: Who cancelled: user identity. When: timestamp. Why: free-text reason (some APIs support). What state: at time of cancellation. Audit trail: Operate logs operations. Available for review. For bulk cancellation: Batch operations API (per Set 14 Q52 / Set 15 Q51). Filter + bulk cancel. Same audit considerations. For \"soft\" cancellation patterns: Pattern: Cancel via Message: Process has Message Boundary \"USER_CANCEL\". User publishes message → process cancels gracefully. Cleanup logic runs before exit. Pattern: Cancellation request variable: Process checks variable at gateways. If \"cancelled\" set: route to cleanup + end. Avoid hard kill. Why \"soft\" vs \"hard\": Hard cancel: instant; no cleanup; may leave external systems in bad state. Soft cancel: graceful; cleanup runs; preferable for production. For external system state: Hard cancel: external state (DB, partner) may need manual cleanup. Soft cancel: BPMN can include cleanup steps. Recovery from cancellation: Cancelled = final state: can't resume. For \"pause + resume\": not supported; design with Receive Task instead. For unintended cancellations: No undo: cancellation is permanent. Recreate: start new instance with same data. Audit: track unintended cancels; review process. For the scenario (stuck instance): First: investigate why stuck (incident, missing worker, etc.). Try fix: resolve underlying issue. If unfixable: cancel. Document reason: audit. Permissions: Cancel typically requires elevated permission: not every user. Configure in Identity / authorization. For SaaS: Console may show operations log. API limits per plan. For Self-Managed: Full control. Audit via standard operations. Best practices: Document reasons: don't cancel without notes. Investigate first: stuck usually means bug. Soft cancel when possible: graceful. Audit access: track who can cancel. Monitor cancel rates: trends indicate issues. Anti-patterns: Cancel as fix: hides bugs. No audit: lost accountability. Cancel without external cleanup: orphaned state."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q13",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 22 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[2]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 25.6 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

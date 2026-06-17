@@ -1,0 +1,76 @@
+{
+  "id": "imp-set14-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A legacy partner system exposes only SOAP/XML APIs. Team wonders if Camunda has a SOAP Connector or only REST.",
+  "question": "SOAP Connector availability vs REST?",
+  "options": [
+    {
+      "id": "a",
+      "text": "SOAP impossible -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "\" SaaS-only users must use Hybrid mode (external Connector Runtime with Camunda-provided SOAP connector) or a custom REST-to-SOAP proxy. For Self-Managed, configure the SOAP connector element template with WSDL URL, operation, and authentication."
+    },
+    {
+      "id": "c",
+      "text": "REST is not the only protocol connector available in Camunda 8. The connector catalog includes dedicated connectors for SOAP (Self-Managed/Hybrid), GraphQL, gRPC, and various SaaS platforms. While REST is the most commonly used protocol for modern API integration, legacy enterprise systems often expose SOAP or other protocol interfaces. Claiming REST is the only option ignores the SOAP connector and other protocol connectors that Camunda 8 ships for exactly these legacy integration scenarios."
+    },
+    {
+      "id": "d",
+      "text": "Custom connectors require implementation effort, maintenance, testing, and deployment infrastructure. The built-in SOAP connector provides a pre-built, tested solution with standard element template configuration. Custom connector development is warranted only when no existing connector covers the required protocol or service, which is not the case for SOAP in Self-Managed environments."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. SOAP integration patterns: SOAP Outbound Connector (typical features when available): WSDL parsing: import WSDL; auto-generate input/output schemas. SOAP envelope composition: handles envelope wrapping. Authentication: WS-Security, basic auth, custom headers. Output: parses SOAP response; extracts relevant fields. Alternative: Generic HTTP / REST Connector with manual SOAP: Compose SOAP envelope as XML string. POST with content type text/xml or application/soap+xml. Parse XML response manually. More work; useful when dedicated SOAP Connector unavailable. Example: manual SOAP request: `xml London In FEEL: feel body = \"\" + ... + \"\" REST Connector configuration for SOAP: URL: SOAP endpoint URL. Method: POST. Headers: Content-Type: text/xml; charset=utf-8. SOAPAction: \"operation-name\"`. Body: SOAP envelope XML. Response handling: parse XML. Response parsing: XML to JSON (verify FEEL capability or custom worker). Custom worker: pre-parse XML; pass structured data to BPMN. For WS-Security / advanced features: WS-Security headers (UsernameToken, signatures, encryption): complex. MTOM (binary attachments): non-trivial. Specialised tools: external SOAP client service; Camunda calls via REST. When SOAP Connector isn't sufficient: Build a Service Task with a custom worker. Worker uses a SOAP library (Apache CXF for Java, etc.). Worker handles complexity; exposes clean variables to BPMN. Migration patterns: SOAP legacy → REST modernised: build adapter service; BPMN uses REST. Coexistence: BPMN uses both; route per partner. Trade-offs: | Approach | Pros | Cons | |----------|------|------| | Dedicated SOAP Connector | WSDL-aware, less manual work | Verify availability + capabilities | | REST Connector + manual SOAP | Flexible, no extra Connector | More work; manual XML handling | | Custom worker with SOAP library | Full SOAP support, libraries handle complexity | More engineering | | External adapter service | Modernises API; reusable | Extra service to maintain | Verify Camunda 8 version's exact SOAP Connector capabilities."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q33",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 25 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 19.9 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

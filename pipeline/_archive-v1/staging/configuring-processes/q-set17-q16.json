@@ -1,0 +1,70 @@
+{
+  "id": "imp-set17-q16",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "AI Agent should call external functions / tools during conversation -- e.g., check inventory, look up customer. Team wonders function calling capability.",
+  "question": "AI Agent function calling / tools?",
+  "options": [
+    {
+      "id": "a",
+      "text": "No tools -- wrong typically."
+    },
+    {
+      "id": "b",
+      "text": "AI Agents in Camunda 8 can only call functions built into the Camunda platform itself -- this partially overstates restrictions. The Camunda 8 AI Agent connector uses an Ad-hoc subprocess where any BPMN activity acts as a callable tool. These activities can include Service Tasks calling external systems, REST Connector calls, custom job workers, and MCP Client connectors. The catalog of available tools is fully extensible and not limited to pre-built Camunda platform functions."
+    },
+    {
+      "id": "c",
+      "text": "md:19-66: each BPMN activity inside the Ad-hoc subprocess acts as a tool exposed to the LLM. The AI Agent connector orchestrates the LLM feedback loop, selecting and executing tools based on LLM responses. Tool name and the BPMN documentation field guide the LLM in tool selection. MCP Client connectors enable integration with Model Context Protocol tool servers for expanded tool catalogs."
+    },
+    {
+      "id": "d",
+      "text": "AI Agent function calling in Camunda 8 requires writing entirely custom code without any platform support -- this overstates the implementation effort. 8 provides a dedicated AI Agent connector and the Ad-hoc subprocess pattern specifically for LLM function calling workflows. The platform handles the LLM feedback loop automatically. Developers configure tools as BPMN activities inside the Ad-hoc subprocess without writing orchestration code from scratch."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. AI Agent function calling: Concept: LLM-driven tool use: LLM decides when to call functions. Functions declared: with schema (name, parameters). LLM returns: function call request in response. Framework executes: actual function. Result fed back: to LLM. For Camunda 8 AI Agent: Verify per version + Connector: Function calling support. Tool registration mechanism. Integration with BPMN. Tool schema: Example: `json { \"name\": \"check_inventory\", \"description\": \"Check stock availability for an SKU\", \"parameters\": { \"type\": \"object\", \"properties\": { \"sku\": {\"type\": \"string\"} }, \"required\": [\"sku\"] } } LLM understands; can request invocation. Conversation flow with tools: User: \"Is the widget in stock?\" LLM (decides to call tool): function_call: check_inventory(sku=\"WIDGET-001\") Framework executes: calls inventory service. Tool returns: {\"available\": 5} LLM (next turn with tool result): \"Yes, we have 5 widgets in stock.\" ` Multi-turn with tool calls. For BPMN orchestration: Pattern 1: AI Agent + sub-process tools: AI Agent Connector calls LLM. LLM requests tool. BPMN invokes tool Service Task. Result back to AI Agent. Pattern 2: Tools as Camunda Connectors: Each tool = Connector. AI Agent orchestrates. Pattern 3: External tool execution: AI Agent Connector handles tools internally. Camunda doesn't see tool calls explicitly. Tool implementation considerations: Identity / auth: Tool calls authenticated per Camunda secrets. LLM doesn't see credentials. Latency: Tool calls add latency. User waits for full chain. Error handling: Tool failures: graceful. LLM informed of failure. Idempotency: LLM may retry tools. Tools should be safe. For multi-tool conversations: LLM may chain multiple tool calls. Each turn: one tool call. Conversation history grows. For token budget (per Set 15 Q16): Tool schemas count toward tokens. Many tools = larger prompts. For tool selection: LLM picks based on description. Clear descriptions → better selection. Test with realistic prompts. For Camunda 8 RAG patterns: Tool: vector search. Tool: knowledge base lookup. LLM combines: tools + reasoning. For agentic orchestration: Goal-driven LLM. Plans + executes tools. Camunda orchestrates the LLM. For safety: Limit tool capabilities: don't expose destructive. Audit tool calls: which LLM, which tool, when. Rate limit: tools per conversation. For testing: Mock tools: test LLM logic. Test tool integration: end-to-end. For prompt engineering: System prompt: tool usage instructions. Examples: when to use which tool. For Camunda Connector design: Verify Camunda 8 AI Agent: includes tool calling. Provider-specific: OpenAI vs Anthropic syntax. Best practices: Clear tool descriptions: LLM understands. Limit tools: focused set. Audit invocations: traceability. Test thoroughly: edge cases. Idempotent tools: safe retries. Anti-patterns: Too many tools: LLM overwhelmed. Vague descriptions: wrong tool picked. Destructive tools without guardrails: risk. For the scenario (call inventory, customer lookup): Define tools with schemas. AI Agent connector registers tools. LLM decides when to call. Camunda integrates results. For business value: Agentic flow: LLM reasons + acts. Powerful for complex queries. Combine with deterministic BPMN: structured + flexible."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/agentic-orchestration/ai-agents/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q16",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 28 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 17.2 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

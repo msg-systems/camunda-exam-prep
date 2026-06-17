@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q35",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A bank's loan-origination process orchestrates calls to multiple back-office systems: credit bureau (Experian REST API), document storage (S3), email notifications (SendGrid). Each system has a stable, well-documented REST API. The team is deciding for each integration whether to use the out-of-the-box Outbound Connectors (Camunda's bundled HTTP REST Connector, AWS S3 Connector, etc.) or to write custom Java Job Workers that call the APIs. The architect needs to articulate a decision framework: \"when does an Outbound Connector fit, and when does a custom Job Worker fit?\"",
+  "question": "Which of the following correctly describes the trade-off?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Outbound Connectors fit when the integration is declarative (standard HTTP/REST, no complex business logic during the call) and the API has a stable contract. Custom Job Workers fit when the integration needs imperative logic (state tracking, conditional retries, complex error handling, transformations not expressible in FEEL). For the bank's loan process: the Experian REST call fits as a Connector (standard HTTP with straightforward request/response); the S3 upload fits with the AWS S3 OOTB Connector; the email notification via SendGrid would use the HTTP REST Connector (SendGrid not in OOTB catalog) or a custom Job Worker if business logic around retries and error classification is needed."
+    },
+    {
+      "id": "b",
+      "text": "Outbound Connectors are always preferred -- Job Workers are legacy and being deprecated. This is factually incorrect in Camunda 8. Job Workers are not deprecated -- they remain the primary building block for custom integrations and are the foundation on which Connectors themselves are built. The Connector framework is built on top of the Job Worker mechanism (Connectors are specialised Job Workers with an Element Template and a standardised runtime). For integration scenarios involving complex orchestration, stateful retry logic, chained API calls, or logic exceeding FEEL's capability, a custom Java Job Worker (using Camunda Spring Boot Starter) remains the canonical approach."
+    },
+    {
+      "id": "c",
+      "text": "Custom Job Workers are always preferred -- Outbound Connectors are limited to specific vendor integrations. This is also factually incorrect. The Generic HTTP REST Connector included in the OOTB Connector catalog can call any REST API -- it is not limited to specific vendors. Additionally, the Connector SDK allows building completely custom Connectors for any integration target. Claiming Job Workers are \"always preferred\" ignores the significant development, testing, deployment, and maintenance overhead they impose compared to the zero-code declarative Connector approach for straightforward HTTP integrations."
+    },
+    {
+      "id": "d",
+      "text": "Outbound Connectors and Job Workers are functionally identical; the choice is purely stylistic. This is a false equivalence. They differ meaningfully: Outbound Connectors are declarative (configuration lives in the BPMN model XML as properties, no separate codebase), execute in the Connector runtime (a shared runtime process), come with an Element Template for the Web Modeler's property panel UI, and have standardised error handling for HTTP status codes. Job Workers are imperative (code in a separate application), require building, testing, deploying, and versioning a separate Java or TypeScript application, and have full control over retry logic, error handling, and execution context. The choice has significant architectural and operational implications."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. This is the canonical decision framework. Outbound Connectors shine for declarative integrations: HTTP REST with simple JSON payloads, standard authentication (Bearer, API key, OAuth2), and predictable error handling. Configuration is in the BPMN model (XML), making the integration transparent and version-controlled. Custom Job Workers are needed when the integration involves imperative orchestration that doesn't fit Connector configuration: chained API calls with shared state, custom retry policies, polling loops, complex error transformation, type marshalling that exceeds FEEL's capability. (Note: for the bank's email notifications, SendGrid is not in the OOTB Connector catalog -- verify against connectors/out-of-the-box-connectors/; HTTP REST Connector or a Custom Connector is needed. AWS S3 IS in OOTB catalog per amazon-s3.md.)"
+    },
+    "b": {
+      "text": "Incorrect. Job Workers are not deprecated -- they remain the foundation for custom integrations in Camunda 8."
+    },
+    "c": {
+      "text": "Incorrect. Outbound Connectors are not limited to specific vendors; the generic HTTP REST Connector handles any REST API."
+    },
+    "d": {
+      "text": "Incorrect. They have meaningful functional differences (declarative vs imperative, BPMN-embedded vs external code), not just stylistic preferences."
+    }
+  },
+  "explanation": "This is the canonical decision framework. Outbound Connectors shine for declarative integrations: HTTP REST with simple JSON payloads, standard authentication (Bearer, API key, OAuth2), and predictable error handling. Configuration is in the BPMN model (XML), making the integration transparent and version-controlled. Custom Job Workers are needed when the integration involves imperative orchestration that doesn't fit Connector configuration: chained API calls with shared state, custom retry policies, polling loops, complex error transformation, type marshalling that exceeds FEEL's capability. (Note: for the bank's email notifications, SendGrid is not in the OOTB Connector catalog -- verify against connectors/out-of-the-box-connectors/; HTTP REST Connector or a Custom Connector is needed. AWS S3 IS in OOTB catalog per amazon-s3.md.)",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q35",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

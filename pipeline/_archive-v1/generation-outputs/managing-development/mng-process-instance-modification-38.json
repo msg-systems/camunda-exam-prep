@@ -1,0 +1,50 @@
+{
+  "id": "mng-process-instance-modification-38",
+  "topic": "managing-development",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "docs": [
+    {
+      "title": "Process instance modification",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/process-instance-modification/"
+    }
+  ],
+  "subtopic": "Operate",
+  "scenario": "Lattice Bank runs Camunda 8.8 with 3500 active payment instances in Operate. One instance is stuck mid-flow after a misrouted decision and the operator needs to advance that single instance past the stuck activity, allowing its execution to continue while the other 3499 instances keep running untouched.",
+  "question": "How does process instance modification in Operate let the operator handle the single stuck instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Process instance modification lets the operator continue execution by skipping or repeating activities on the one stuck instance, without altering any of the other running payment instances"
+    },
+    {
+      "id": "b",
+      "text": "Process instance batch modification is the only available path, so the operator selects every running payment instance and moves all of them to the same next activity in one operation"
+    },
+    {
+      "id": "c",
+      "text": "Operate signals the broker to automatically push the stuck token forward to the next healthy flow node, with no operator action required on the affected instance"
+    },
+    {
+      "id": "d",
+      "text": "Operate cannot advance a stuck instance, so the operator must cancel it and create a brand new process instance from scratch to keep processing the underlying payment work"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs describe process instance modification as the mechanism to allow execution to continue on a stuck instance, where the operator can skip or repeat activities for that single instance without affecting any others."
+    },
+    "b": {
+      "text": "Incorrect. Batch modification is intended for the separate case where many instances entered the wrong branch and need to move together; using it here would alter healthy payment instances unintentionally."
+    },
+    "c": {
+      "text": "Incorrect. The docs describe an operator-driven modification mode in Operate; the broker does not silently advance stuck tokens to a healthy flow node on its own."
+    },
+    "d": {
+      "text": "Incorrect. Operate offers modification mode precisely so that a stuck instance can continue execution by skipping or repeating activities, avoiding the need to cancel and recreate the instance."
+    }
+  },
+  "explanation": "Process instance modification in Operate is the operator action that lets a single stuck instance continue execution by skipping or repeating activities. Batch modification is a separate operation for cases where many instances entered the wrong branch and need to be moved together."
+}

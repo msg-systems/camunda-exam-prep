@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process has 5 tasks that can run in any order (or some may be skipped). No strict sequence. Team wonders if BPMN supports \"do these tasks in any order\" without explicit gateways.",
+  "question": "Ad-hoc Subprocess for flexible task execution?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use Multi-Instance Subprocess â€” this approach iterates the same task over a collection and is not designed for case management with flexible ordering. Multi-Instance (MI) applies the same subprocess template to each element in an input collection, running instances either sequentially or in parallel. All instances use the same activity structure; there is no mechanism for selective activation or skip logic. The Ad-hoc Subprocess is purpose-built for unordered, selective task execution where the modeler defines available activities and business logic controls which ones actually run."
+    },
+    {
+      "id": "b",
+      "text": "Use Parallel Gateway -- this partially addresses the need for concurrent task execution but forces all tasks to run, missing the \"some may be skipped\" requirement. A Parallel Gateway (AND-split) creates tokens on every outgoing path simultaneously and the join waits for all to complete. While tasks run without strict sequence, every task executes -- there is no skip mechanism. The Ad-hoc Subprocess improves on this by allowing selective activation via activeElementsCollection and conditional completion via completionCondition, supporting genuine case management where individual tasks may be omitted."
+    },
+    {
+      "id": "c",
+      "text": "0 defines the Ad-hoc Subprocess specifically for unordered execution without requiring sequence flows between inner activities. 8 fully implements the Ad-hoc Subprocess with activeElementsCollection (FEEL expression listing inner element IDs to activate), completionCondition (FEEL boolean evaluated after each element), and cancelRemainingInstances (default true). This enables genuine case management where tasks execute in any order, some may be skipped, and completion is determined by business logic."
+    },
+    {
+      "id": "d",
+      "text": "BPMN Ad-hoc Subprocess (tilde ~ marker) is designed for unordered, flexible execution in Camunda 8. The activeElementsCollection FEEL expression lists inner element IDs to activate; completionCondition FEEL boolean determines when the subprocess ends; cancelRemainingInstances (default true) terminates remaining active elements on completion. An alternative worker-driven mode lets a job worker control activation step-by-step via adHocSubProcess job result. md -- this is the canonical BPMN construct for case management workflows with flexible task ordering and optional skip logic."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Ad-hoc Subprocess semantics: BPMN spec: Container for inner activities that can be executed in any order. Completion condition: defines when ad-hoc subprocess ends. Tilde marker (~): distinguishes from regular subprocess. Behavior: Inner activities are not connected by sequence flows (or only optionally). Manual / dynamic execution: typically driven by user / external trigger. Completion condition evaluated; when true, subprocess completes. Use cases: Use case 1: Case management: Customer support case with multiple optional actions (call, email, escalate, log). Agent chooses which to execute. Case closes when conditions met. Use case 2: Expert workflows: Loan officer has tools: check credit, request docs, interview applicant, etc. Different cases need different combinations. Officer drives flow. Use case 3: Knowledge work: Research process with various information-gathering tasks. Order doesn't matter; what matters is having enough info. Camunda 8 support (fully implemented in 8.8): Per ad-hoc-subprocesses.md:7-9: \"Ad-hoc sub-processes are a special kind of embedded subprocesses with an ad-hoc marker (represented by a ~ tilde character).\" Constraints (:23-26): must have at least one activity; must NOT have start events or end events. Activate elements (:33-48): set activeElementsCollection to a FEEL expression returning a list of strings (each string is an inner element ID). Empty list / undefined → no element activated. Completion (:55-67): optional completionCondition FEEL boolean evaluated after each inner element completes; if true, sub-process completes. With cancelRemainingInstances=true (default), remaining active inner elements are terminated. Special variable adHocSubProcessElements exposes the inner-element catalog at runtime (definition-time metadata; not a list of completed activities -- Pattern #39). Camunda 7 had ad-hoc support too; the C8 implementation is a clean rewrite, not a feature gap. Completion condition examples: ` Completion condition: \"all required tasks completed\" \"case closed flag set\" \"3 of 5 sub-activities done\" Manual completion: User explicitly marks subprocess complete. Via UI / API. Best practices: Use ad-hoc for genuine case management: not for fixed-order workflows. Define clear completion semantics: when does case \"close\"? Document case lifecycle: states, transitions, triggers. Verify Camunda 8 support level: may need workarounds. Anti-patterns: Ad-hoc for sequenced workflows: causes confusion. No completion condition: subprocess runs forever. For the scenario (5 tasks, any order): Use Ad-hoc Sub-process with activeElementsCollection listing the IDs of the 5 inner tasks (or a subset for skip), and completionCondition that evaluates business closure (e.g. =tasksDone >= 3`). Worker-driven variant: define a task definition on the ad-hoc sub-process; a worker controls activation step-by-step."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/ad-hoc-subprocesses/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

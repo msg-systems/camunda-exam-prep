@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team writes a Business Rule Task that calls DMN priceCheck. The team forgets to configure a resultVariable on the Business Rule Task. At runtime, the DMN evaluates successfully, but the result is not visible anywhere downstream -- subsequent tasks expecting the price tier see no variable. What happens to the DMN result when resultVariable is not configured?",
+  "question": "What happens to the DMN result when resultVariable is not configured?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Zeebe automatically stores the DMN evaluation result under a default variable name such as dmnResult or decisionOutput when no resultVariable is configured, so downstream tasks can always reference the result by this well-known name. Zeebe has no default variable name for DMN results -- if resultVariable is absent, the result has no storage target and is silently discarded. There is no auto-naming fallback in Camunda 8."
+    },
+    {
+      "id": "b",
+      "text": "The Business Rule Task throws a Zeebe Incident with message \"missing resultVariable\" when the property is absent, flagging the instance in Operate for manual resolution. Zeebe does not validate the absence of resultVariable at runtime -- the DMN evaluates successfully and produces a result, which is then silently discarded because there is no variable name to store it under. No Incident is raised; the failure mode is invisible."
+    },
+    {
+      "id": "c",
+      "text": "The DMN result is automatically flattened into individual process variables whose names match the DMN output column names, making each output directly accessible without any explicit configuration. No auto-flattening occurs in Camunda 8 when resultVariable is absent. The evaluation result is discarded entirely. Even with resultVariable configured, the result is stored as a structured object -- individual column access requires FEEL path navigation or explicit output mappings."
+    },
+    {
+      "id": "d",
+      "text": "The DMN result is discarded -- no process variable is created when resultVariable is absent. Subsequent tasks expecting the price tier see no variable because the result was never stored. Per Camunda 8 documentation, the Business Rule Task \"must define\" the resultVariable property. Configure resultVariable: priceTier (or any descriptive name) to capture the decision output and make it available for downstream FEEL expressions and tasks."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per the Camunda 8 docs (business-rule-tasks.md line 57-59): \"A business rule task must define the process variable name of the decision result as resultVariable. The result of the decision is stored in this variable.\" Without resultVariable, the DMN result has no name to be stored under -- Zeebe does not persist it as a process variable accessible downstream. (Configure resultVariable: priceTier (or any descriptive name) to capture the decision output.) The same must define requirement applies when bindingType is set to deployment or versionTag."
+    },
+    "b": {
+      "text": "Incorrect. No default variable name; the result is discarded."
+    },
+    "c": {
+      "text": "Incorrect. No automatic incident; the missing configuration is silent."
+    },
+    "d": {
+      "text": "Correct. No auto-flattening; the result is discarded entirely."
+    }
+  },
+  "explanation": "No auto-flattening; the result is discarded entirely.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q14",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

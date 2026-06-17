@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q17",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Element Template for an \"Email\" Connector has properties: to, subject, body, and cc. The team wants cc to be visible in the property panel only when a checkbox \"Send copy to manager?\" is checked.",
+  "question": "Does Element Template support conditional property visibility?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Element Template properties in Camunda 8 are always visible to the user in the property panel. There is no mechanism to conditionally show or hide individual properties based on the value of other properties -- all properties defined in the template JSON appear at all times. Element Templates do support conditional property visibility through a condition clause in the property definition JSON, documented and available for use in both Web Modeler and Desktop Modeler."
+    },
+    {
+      "id": "b",
+      "text": "Yes -- Element Template properties support a condition attribute in the JSON definition that determines visibility based on other property values. For example, cc property: \"condition\": { \"property\": \"sendCopy\", \"oneOf\": [\"true\"] }. The modeler renders cc only when the sendCopy property equals \"true\". This enables progressive disclosure where simple options appear first and advanced options appear conditionally based on user choices."
+    },
+    {
+      "id": "c",
+      "text": "Yes, conditional visibility in Element Templates is implemented by placing FEEL expressions directly on each property definition in the template JSON, similar to how FEEL is used in BPMN for gateway conditions. The FEEL expression evaluates based on other property values to determine visibility. This uses the incorrect mechanism. Element Templates use a declarative JSON condition clause with operators like equals, oneOf, and isActive -- not FEEL expressions for property visibility."
+    },
+    {
+      "id": "d",
+      "text": "Use JavaScript lifecycle hooks attached to the Element Template to dynamically show or hide properties based on user interactions in the modeler. Element Templates are declarative JSON definitions; they do not support JavaScript hooks. The conditional visibility mechanism is purely the declarative JSON condition clause, requiring no code."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per template-properties.md:1226-1278, Element Template properties support a condition clause that gates visibility based on other property values. The dependent property must reference the source by id (not propertyName). Supported operators per :1241-1243: equals, oneOf, isActive. Multiple conditions can be combined with allMatch. Example: `json { \"id\": \"ccProperty\", \"label\": \"CC recipients\", \"binding\": { ... }, \"condition\": { \"property\": \"sendCopy\", \"oneOf\": [\"true\"] } } ` Web Modeler / Desktop Modeler renders the property only when the condition evaluates true. Use this to create progressive disclosure: simple properties always visible, advanced/optional properties shown conditionally."
+    },
+    "b": {
+      "text": "Correct. Conditional visibility supported."
+    },
+    "c": {
+      "text": "Incorrect. JSON condition, not FEEL."
+    },
+    "d": {
+      "text": "Incorrect. Declarative JSON, no JS."
+    }
+  },
+  "explanation": "Conditional visibility supported.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/element-templates/template-properties/#showing-properties-conditionally-condition"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q17",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

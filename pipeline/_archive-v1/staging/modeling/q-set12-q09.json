@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q09",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A multi-step payment process has nested Embedded Subprocesses: outer \"Process Order\" contains inner \"Process Payment\" subprocess. Within the inner, there are compensable activities (charge-card etc.). The team wonders about Compensation scope in nested subprocesses.",
+  "question": "How does Compensation scope work in nested subprocesses?",
+  "options": [
+    {
+      "id": "a",
+      "text": "All compensation handlers in the whole process fire -- wrong; scoped."
+    },
+    {
+      "id": "b",
+      "text": "Compensation is scoped per subprocess: when a Compensation Throw Event fires within a given subprocess scope, it triggers compensation handlers only for activities that completed within that same scope. The inner subprocess \"Process Payment\" and the outer subprocess \"Process Order\" each have independent compensation scopes. For cross-scope compensation, the outer subprocess can attach a Compensation Boundary to its invocation of the inner subprocess element; that Boundary's handler then undoes the inner's effects. Always model compensation handlers at the appropriate scope level."
+    },
+    {
+      "id": "c",
+      "text": "Restricting compensation to only the top-level process scope does not reflect the actual behavior. Each subprocess scope is independently compensable: you can attach Compensation Boundary Events to activities within an inner subprocess and throw compensation from within that same inner subprocess. This enables fine-grained saga-rollback patterns where each subprocess independently undoes its own completed work without needing to expose those details to the outer scope."
+    },
+    {
+      "id": "d",
+      "text": "Activities inside an inner subprocess can have Compensation Boundaries attached, and a Compensation Throw fired within that inner scope will invoke those handlers. Complex nested compensation scenarios involving ordered rollback across multiple inner scopes are achievable using activityRef on Compensation Throw Events per the documentation."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Compensation operates within scope boundaries: Compensation Throw at scope X: triggers compensation for completed activities within scope X that have attached Compensation Boundary Events. Nested scopes: each subprocess has its own scope. Compensation thrown in an inner subprocess fires the compensation handlers for that inner scope's completed activities. Per compensation-events.md:31-35 verbatim: \"The process instance invokes all compensation handlers at once without any specific order. If the order is important, the compensation can be triggered for a specific activity.\" For ordered rollback inside the inner scope, chain explicit Compensation Intermediate Throw Events with activityRef per :73-83 (Pattern #1). Cross-scope compensation patterns: Outer needs to compensate inner's work: the outer's invocation of the inner subprocess can have a Compensation Boundary on the subprocess element. The Boundary's handler is responsible for \"undoing the inner subprocess's effects\" -- typically by invoking another subprocess or worker that knows how to undo what the inner did. Inner propagation: if the inner subprocess has its own compensation logic (Throw in inner; compensates inner's activities), reaching out to compensate outer's separate completed activities requires a different mechanism (typically by throwing compensation in the outer scope after the inner completes / fails). Design implication: model compensation handlers at the appropriate scope. Don't expect compensation to magically reach across all subprocess boundaries -- it follows the throwing event's scope. Verify your Zeebe version's coverage of nested compensation; complex compensation patterns can have edge-case behaviour."
+    },
+    "b": {
+      "text": "Correct. Scoped."
+    },
+    "c": {
+      "text": "Incorrect. Nested supported."
+    },
+    "d": {
+      "text": "Incorrect. Supported."
+    }
+  },
+  "explanation": "Scoped.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q09",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 8.5 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

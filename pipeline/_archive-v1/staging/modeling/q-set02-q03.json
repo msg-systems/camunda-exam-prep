@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A high-volume manufacturing plant orchestrates production line monitoring via Camunda 8. When an assembly run starts, a User Task \"Monitor Line\" is assigned to a shift supervisor. The plant manager wants two levels of alerting attached to this task: at 15 minutes of inactivity the system should page the line lead (notification only -- supervisor's task continues); at 30 minutes the system must escalate by force-cancelling the supervisor's task, reassigning to plant management, and starting an incident review process. Previous attempts placed two Interrupting Boundary Events on the User Task -- the first one fired correctly at 15 min but cancelled the supervisor's task immediately preventing them from continuing work; the line lead got notified but the supervisor was kicked out of an active task, producing data inconsistency.",
+  "question": "How should the developer configure the Boundary Events for correct two-stage escalation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Attach two Interrupting Timer Boundary Events at 15 min and 30 min -- the first one's outgoing flow can re-instantiate a new User Task assigned to the same supervisor. Using two interrupting boundaries repeats the original bug: the 15-minute event immediately cancels the supervisor's active task before they finish, losing task identity, claim history, and any partial work already entered. Re-instantiation introduces discontinuity in the audit trail and does not solve the \"supervisor keeps working\" requirement."
+    },
+    {
+      "id": "b",
+      "text": "Attach two Non-interrupting Timer Boundary Events at 15 min and 30 min -- both notify without cancelling, and an Exclusive Gateway downstream chooses the appropriate handler based on a severity variable. Using two non-interrupting boundaries means neither event cancels the User Task -- the 30-minute escalation that the plant manager requires (force-cancellation of the supervisor's task and handover to plant management) never happens. The supervisor's task remains active indefinitely regardless of escalation level."
+    },
+    {
+      "id": "c",
+      "text": "Place the User Task inside an Event Subprocess with two Timer Start Events (non-interrupting at 15 min, interrupting at 30 min). , the parent process or subprocess), not at individual activity level. For activity-level escalation attached specifically to a User Task, Boundary Events on that activity are the correct construct. This approach applies the wrong scope and does not produce the intended per-task timing behaviour."
+    },
+    {
+      "id": "d",
+      "text": "Attach one Non-interrupting Timer Boundary Event at 15 min (notify line lead, supervisor's task continues) and one Interrupting Timer Boundary Event at 30 min (cancel task, escalate to plant management). The non-interrupting boundary spawns a parallel notification token while the User Task stays active and claimable. The interrupting boundary at 30 min cancels the task and routes to the escalation path. This mixed-semantics pattern is the canonical \"soft warning then hard timeout\" design in Camunda 8."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Non-interrupting Boundary at 15 min spawns a new token following its outgoing flow (the notify-line-lead path) while leaving the User Task active and claimable -- exactly the \"alert without cancellation\" semantic the plant manager wants. Interrupting Boundary at 30 min cancels the User Task and the token follows the boundary's outgoing flow (escalation path). Two different timers with two different semantics; canonical \"soft warning then hard timeout\" pattern."
+    },
+    "b": {
+      "text": "Incorrect. Two Interrupting Boundaries means the 15-min boundary cancels the task and re-instantiation loses the operator's bookmark, claim history, and any partial state. Plus cancelling at 15-min was the original bug."
+    },
+    "c": {
+      "text": "Incorrect. Two Non-interrupting means at 30 min the task continues when the plant manager wanted it cancelled. Both events fire notifications but the task is never terminated."
+    },
+    "d": {
+      "text": "Correct. Event Subprocess with Timer Start Events fires when the enclosing scope matches the trigger condition -- works for scope-level events, but for activity-level escalation on a specific User Task you need Boundary Events on the activity. Wrong scope."
+    }
+  },
+  "explanation": "Event Subprocess with Timer Start Events fires when the enclosing scope matches the trigger condition -- works for scope-level events, but for activity-level escalation on a specific User Task you need Boundary Events on the activity. Wrong scope.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/timer-events/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

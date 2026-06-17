@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team must investigate why a process-application instance took 4 hours to complete when normal time is 30 minutes. They open Operate.",
+  "question": "Which Operate views best aid this duration investigation?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Open Optimize and look at the process duration KPI dashboard to see aggregate performance metrics across all recent process-application instances -- this will show average and percentile durations and highlight if this instance was an outlier. Operate does not have task-level timing. Optimize is designed for aggregate analytics across many instances, not for investigating a single specific slow instance. Additionally, Operate does have task-level timing; each flow node's start and end timestamps are visible in the instance detail view."
+    },
+    {
+      "id": "b",
+      "text": "Re-deploy the BPMN process to the cluster with a debug: true configuration flag enabled in the deployment descriptor -- this activates detailed timing capture for all flow node activations in subsequent process instances. Zeebe records flow node start and end timestamps as standard behavior for every process instance -- no special deployment configuration is needed. The timing data for the existing slow instance is already recorded in Operate."
+    },
+    {
+      "id": "c",
+      "text": "Query the gRPC Zeebe API to export the raw execution event log for this process instance -- each flow node activation, variable update, and state transition is recorded as an event with timestamps, which can be parsed to build a custom timing analysis. While this provides the most granular data, it requires writing custom client code, authenticating against the gRPC endpoint, and manually correlating events. Operate already processes this same event data and presents it as a readable timeline, making the raw API approach unnecessarily complex."
+    },
+    {
+      "id": "d",
+      "text": "Open the instance detail view for the specific process-application instance in Operate. Review the execution timeline showing per-flow-node start and end timestamps -- each task, gateway, and event shows when it started, when it ended, and the duration. Tasks that took unusually long are immediately visible as extended bars in the timeline. A 4-hour total duration with 30-minute normal suggests one task is stuck or slow; the timeline pinpoints which one so the team can investigate that specific Service Task or worker."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate's instance detail view shows the execution timeline with per-flow-node start/end timestamps and durations. For a slow instance, the slow task is immediately visible in the timeline -- start with that."
+    },
+    "b": {
+      "text": "Incorrect. Optimize aggregates KPIs across many instances; for a single slow instance, Operate's per-instance view is the right tool. Operate does have task-level timing."
+    },
+    "c": {
+      "text": "Incorrect. No \"debug mode\" needed; timing is always recorded."
+    },
+    "d": {
+      "text": "Correct. Raw gRPC events are deep diagnostic; Operate's UI is the right starting point."
+    }
+  },
+  "explanation": "Raw gRPC events are deep diagnostic; Operate's UI is the right starting point.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q58",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

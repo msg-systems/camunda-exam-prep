@@ -1,0 +1,63 @@
+{
+  "id": "imp-set05-q26",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A DMN input represents a contract's effective date. The input entry must match when the date is after 2025-01-01. The modeler uses FEEL date literal.",
+  "question": "Which input entry syntax fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "> \"2025-01-01\" using string comparison with a quoted ISO date string. String comparisons in FEEL are lexicographic, not chronological. For ISO 8601 date strings (YYYY-MM-DD format), lexicographic ordering coincidentally produces correct date ordering, but this is type-unsafe -- the engine treats the value as a string, not a date type, and edge cases or non-ISO formats could produce incorrect results."
+    },
+    {
+      "id": "b",
+      "text": "> 2025-01-01 without quotes and without a date constructor function. In FEEL, the expression 2025-01-01 is parsed as an arithmetic subtraction: 2025 minus 1 minus 1, which evaluates to the number 2023. Comparing a date value against the number 2023 produces a type error or incorrect result. The expression has no syntactic relationship to a date value without the date() constructor."
+    },
+    {
+      "id": "c",
+      "text": "> isoDate(\"2025-01-01\") using a hypothetical isoDate() function. No isoDate() function exists in the FEEL specification or in Camunda 8's built-in function library. The correct FEEL function for constructing a date value from an ISO 8601 string is date(\"2025-01-01\"). Using a non-existent function name causes a parse error or null result in the DMN engine at evaluation time, making this option incorrect."
+    },
+    {
+      "id": "d",
+      "text": "> date(\"2025-01-01\") -- the correct FEEL unary test syntax for date comparison in a DMN input column. The date() built-in function accepts an ISO 8601 date string and returns a FEEL date value. The > operator then applies a greater-than comparison, so the rule fires for any input date that falls after January 1, 2025. This is the standard Camunda 8 pattern for temporal boundary rules in decision tables and directly matches the DMN spec for date-type input entries."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL date(\"2025-01-01\") constructs a date value; > date(...) is a valid unary test for dates. Type-safe and semantically correct."
+    },
+    "b": {
+      "text": "Incorrect. String comparison is lexicographic; works for ISO dates by coincidence but isn't type-safe."
+    },
+    "c": {
+      "text": "Incorrect. 2025-01-01 evaluates as 2025 minus 1 minus 1 = 2023."
+    },
+    "d": {
+      "text": "Correct. No isoDate() function."
+    }
+  },
+  "explanation": "No isoDate() function.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-temporal/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q26",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

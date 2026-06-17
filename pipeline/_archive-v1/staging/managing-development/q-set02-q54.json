@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q54",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team identifies that one running process instance has a bug -- it's stuck at a Service Task that's calling a deprecated endpoint, and the team has fixed the worker but the in-flight job is in retry-loop hitting the old endpoint. The team wants to cancel just that specific Service Task (let the rest of the flow continue) and manually advance the token to the next activity.",
+  "question": "Which Operate feature handles this?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Cancel the entire process instance in Operate to stop the retry-looping Service Task, then start a new process instance from the beginning with the same input data. Downstream BPMN logic and variable state from before the buggy task should be preserved by the worker logic in the new instance. Cancelling the entire instance and restarting from scratch discards all process state accumulated before the buggy task -- user task completions, variable values set by earlier steps, and the execution history. This violates the \"let the rest of the flow continue\" requirement and produces a poor user and operational experience."
+    },
+    {
+      "id": "b",
+      "text": "Leave the instance running and wait for the retry counter to exhaust (reach zero), allowing Zeebe to create a permanent Incident. Once the incident is created, use Operate's incident resolution workflow to acknowledge the incident and click Retry, which will re-activate the job against the now-fixed worker. Waiting for retries to exhaust creates an incident and then resolving it re-runs the same buggy task against the new worker -- which may now succeed. Process Instance Modification skips the task entirely, which is the more targeted intervention."
+    },
+    {
+      "id": "c",
+      "text": "Open the BPMN model in Web Modeler, remove the buggy Service Task, re-deploy the updated process definition as a new version, and rely on the fact that all in-flight process instances automatically upgrade to the new version and skip the removed task when the deployment is published. In-flight process instances do not automatically pick up changes from a new process version deployment. Each process instance runs against the version it was created with. To move in-flight instances to a new version requires using Operate's Process Instance Migration feature with an explicit migration plan."
+    },
+    {
+      "id": "d",
+      "text": "Process Instance Modification -- Operate's feature for targeted runtime in-place intervention on a specific process instance. , the next Service Task or a Gateway), and updates any process variables as needed. All other active paths in the instance continue unaffected. The rest of the flow proceeds normally after the modification is applied. This is the canonical Operate tool for skipping a buggy task without cancelling the entire instance or waiting for retry exhaustion."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Process Instance Modification is exactly the feature for targeted runtime intervention on a single instance. The operator can cancel a specific flow node (skip the buggy Service Task), move the token to a different node (next activity), and update variables -- all without affecting other instances or canceling the entire flow."
+    },
+    "b": {
+      "text": "Incorrect. Cancel + restart loses state, contradicts the \"let the rest of the flow continue\" requirement."
+    },
+    "c": {
+      "text": "Incorrect. Waiting for retries then resolving works, but doesn't bypass the buggy task -- it just keeps retrying. Modification skips the problematic task."
+    },
+    "d": {
+      "text": "Correct. In-flight instances don't auto-pick-up new versions (need explicit migration)."
+    }
+  },
+  "explanation": "In-flight instances don't auto-pick-up new versions (need explicit migration).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/process-instance-modification/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q54",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

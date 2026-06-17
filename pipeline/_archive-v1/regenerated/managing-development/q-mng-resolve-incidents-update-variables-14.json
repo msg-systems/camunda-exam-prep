@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-14",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Meridian Brokerage runs Camunda 8.8 on the order-process model with 8000 orders per day at the brokerage. After the operator starts an instance with orderId 1234 and completes Initiate Payment within 4 minutes, the team must choose the right correlationKey on the published payment-received message so it correlates with that exact instance on the broker.",
+  "question": "Which correlationKey value on the published payment-received message correlates with the running instance carrying orderId 1234 in this case?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The correlationKey value must be set to the broker-generated process instance key on the order-process instance"
+    },
+    {
+      "id": "b",
+      "text": "The correlationKey value must be set to the bpmnProcessId order-process on the published payment-received message"
+    },
+    {
+      "id": "c",
+      "text": "The correlationKey value must be set to the deployment id of the order-process model on the published payment-received message"
+    },
+    {
+      "id": "d",
+      "text": "The correlationKey value must be set to 1234, the orderId variable set on the running order-process instance on the broker"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The documented command uses --correlationKey=1234, which matches the orderId variable on the instance rather than the broker-generated process instance key; correlation happens on the configured correlation key, not the engine instance key."
+    },
+    "b": {
+      "text": "Incorrect. bpmnProcessId names the process definition and is shared across every instance, so it cannot pick a single running instance; correlation uses the correlationKey value that matches the catch event's correlation key expression."
+    },
+    "c": {
+      "text": "Incorrect. Deployment ids identify a deployment batch and cannot pick a single running instance; correlation of the payment-received message uses the correlationKey value tied to the instance's correlation key expression."
+    },
+    "d": {
+      "text": "Correct. The documented step runs ./bin/zbctl --insecure publish message payment-received --correlationKey=1234, where 1234 is the orderId set on the instance, so the message correlates with that specific running process instance."
+    }
+  },
+  "explanation": "The Operate guide publishes a payment-received message with --correlationKey=1234, where 1234 is the orderId set on the instance when it was created; this correlation key value targets the specific running instance so it advances past the Payment Received catch event.",
+  "docs": [
+    {
+      "title": "Variables and incidents",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ]
+}

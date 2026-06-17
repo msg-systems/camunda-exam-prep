@@ -1,0 +1,25 @@
+{
+  "id": "con-http-webhook-26",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Beacon Energy, a utility provider integrating Slack to receive 800 incident alerts per week, subscribes a Camunda 8.8 HTTP Webhook to a Slack Events API endpoint. Slack first sends a one-time verification request with body type 'url_verification' that must be answered by echoing the challenge field, and only genuine events should create new process instances.",
+  "question": "Which Verification expression answers the Slack url_verification challenge without starting a process instance?",
+  "options": [
+    { "id": "a", "text": "Use =if request.body.type = \"url_verification\" then {\"body\": {\"challenge\": request.body.challenge}, \"statusCode\": 200} else null in the Verification expression field" },
+    { "id": "b", "text": "Use =if request.body.type = \"url_verification\" then bpmnError(\"verify\", request.body.challenge) else null in the Error expression field of the webhook" },
+    { "id": "c", "text": "Use ={\"body\": {\"challenge\": request.body.challenge}, \"statusCode\": 200} as a constant Response expression that always echoes the challenge field back to Slack" },
+    { "id": "d", "text": "Use ={\"body\": {\"challenge\": request.body.challenge}} placed in the Activation condition so verification requests skip correlation while still firing the process" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. When the Verification expression returns a non-null value, the webhook responds immediately and skips activation conditions, HMAC validation, and process correlation; the documented Slack url_verification recipe matches this exact shape with body, statusCode, and the else null branch." },
+    "b": { "text": "Incorrect. bpmnError belongs to outbound connector error handling, not to the inbound Verification expression; the Verification expression must yield a response object with body/statusCode/headers or null, not a BPMN error structure." },
+    "c": { "text": "Incorrect. A constant non-null Verification expression would echo the challenge for every request, including real Slack events, so no event would ever be correlated; the expression must return null for events that should be processed normally." },
+    "d": { "text": "Incorrect. The Activation condition decides whether to trigger correlation but cannot craft the HTTP response body or status code; only the Verification expression returns a custom response while bypassing correlation." }
+  },
+  "explanation": "The Verification expression returns a custom HTTP response without triggering process correlation. When it evaluates to a non-null value, the webhook returns the specified body/statusCode/headers immediately and skips activation conditions, HMAC validation, and correlation; when it evaluates to null, normal webhook processing proceeds.",
+  "docs": [ { "title": "HTTP Webhook connector", "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/" } ]
+}

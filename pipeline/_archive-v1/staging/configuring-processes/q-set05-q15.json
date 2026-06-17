@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A document-archival process uploads files via Document Handling. After the process completes, the team wants to explicitly delete the document (don't wait for TTL).",
+  "question": "Which approach fits?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Call the Documents API DELETE endpoint (DELETE /documents/{documentId}) at the end of the process via an HTTP Outbound Connector or Service Task. The document reference stored as a process variable earlier is passed as the documentId path parameter. This is the canonical lifecycle management approach, giving the process explicit control over when document storage is reclaimed rather than waiting for a time-to-live expiry."
+    },
+    {
+      "id": "b",
+      "text": "Documents stored via Camunda 8 Document Handling are immutable and cannot be deleted programmatically. This is factually incorrect. The Orchestration Cluster REST API provides a dedicated DELETE /documents/{documentId} endpoint for explicit document lifecycle management. Applications that store documents during process execution can invoke this endpoint to release storage immediately rather than waiting for the configured time-to-live expiry."
+    },
+    {
+      "id": "c",
+      "text": "Set expiresAt = now() in the document metadata to trigger immediate expiry. While this leverages the time-to-live mechanism, setting expiry to the current time is a workaround rather than explicit deletion. It depends on background cleanup processes that may not reclaim storage instantly. The purpose-built DELETE endpoint is the semantically correct and operationally immediate mechanism for explicit document lifecycle management."
+    },
+    {
+      "id": "d",
+      "text": "The Operate UI provides a dedicated \"Delete documents\" action for document lifecycle management. Operate is a monitoring tool for process instances and incidents, not a document storage manager. Document lifecycle management -- including deletion -- is handled through the Orchestration Cluster REST API's Documents endpoints, not through the Operate user interface, which focuses on process operational oversight rather than storage management."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Orchestration Cluster REST API supports DELETE /documents/{documentId} for explicit lifecycle management (per apis-tools/orchestration-cluster-api-rest/specifications/delete-document.api.mdx:32-36). Call from BPMN via Service Task or HTTP Connector at the appropriate point with the stored document reference."
+    },
+    "b": {
+      "text": "Incorrect. Documents are deletable."
+    },
+    "c": {
+      "text": "Incorrect. Setting expiresAt = now leverages TTL but is hacky vs explicit DELETE."
+    },
+    "d": {
+      "text": "Incorrect. Document lifecycle is managed via the Documents API."
+    }
+  },
+  "explanation": "The Orchestration Cluster REST API supports DELETE /documents/{documentId} for explicit lifecycle management (per apis-tools/orchestration-cluster-api-rest/specifications/delete-document.api.mdx:32-36). Call from BPMN via Service Task or HTTP Connector at the appropriate point with the stored document reference.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/getting-started/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q15",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

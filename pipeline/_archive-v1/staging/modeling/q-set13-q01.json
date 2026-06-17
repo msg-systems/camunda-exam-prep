@@ -1,0 +1,63 @@
+{
+  "id": "imp-set13-q01",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An XOR Gateway has 3 outgoing flows. One has condition =approved = true, another has =approved = false, the third has no condition at all. The team wonders what happens with the third flow -- is it implicitly the default?",
+  "question": "Is an XOR outgoing flow without a condition automatically the default flow?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes -- automatically default -- wrong; needs explicit designation."
+    },
+    {
+      "id": "b",
+      "text": "No -- \"no condition\" and \"default flow\" are distinct concepts. A flow without a condition is NOT automatically the default. In Camunda 8, the default flow must be explicitly designated via the gateway's default XML attribute referencing the flow ID, or via the \"Default flow\" checkbox in Web Modeler. A conditionless flow that is not designated as default is an ambiguous configuration -- at runtime, if no conditioned flow evaluates to true and no default is designated, the engine creates an incident. Always use either a condition or an explicit default designation on every outgoing flow from an XOR gateway."
+    },
+    {
+      "id": "c",
+      "text": "Deploying an XOR gateway with a conditionless flow that is not designated as the default fails immediately at deployment time, preventing the process from deploying until all outgoing flows are properly configured. Some BPMN linters and validators may warn about this at design time or reject it at deployment, but the primary documented Camunda 8 behavior is that deployment succeeds and the issue surfaces only at runtime as an incident when the gateway is reached and no conditioned flow matches."
+    },
+    {
+      "id": "d",
+      "text": "A conditionless outgoing flow from an XOR gateway is always taken regardless of the other flows' conditions, effectively making it an implicit default that fires before any conditional evaluation. This would conflict with the XOR semantics of selecting exactly one outgoing flow. Conditionless flows are not always taken; in an XOR gateway, only one outgoing flow is taken based on the evaluation of condition expressions. An unconditioned non-default flow creates an ambiguous or error state at runtime."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. BPMN distinguishes two concepts that look similar: Conditioned flow: has a element. Evaluated; if true, taken (for XOR -- first true wins). Default flow: explicitly marked via the gateway's default attribute referencing the flow's ID. No condition expression on the flow itself. Taken only if no conditioned flow matches. Unconditioned-but-not-default flow: ambiguous / error case. Some engines / validators flag this; some treat unpredictably. Avoid -- make every flow either conditioned OR explicitly default. In Web Modeler: Set conditions in the flow's \"Condition expression\" property. For default: select the flow + check \"Default flow\" box; the gateway's appearance updates (slash mark across the default flow's arrow). In BPMN XML: xml =approved = true =approved = false Notice: Flow_default has no condition AND is referenced by the gateway's default attribute → it's the explicit default. Coverage: ensure every possible input has a matching path -- conditioned flows cover the expected cases; default handles \"anything else.\""
+    },
+    "b": {
+      "text": "Correct. Explicit designation needed."
+    },
+    "c": {
+      "text": "Incorrect. Some validators may warn; designation is the fix."
+    },
+    "d": {
+      "text": "Incorrect. Would conflict."
+    }
+  },
+  "explanation": "Explicit designation needed.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/exclusive-gateways/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q01",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 9.3 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

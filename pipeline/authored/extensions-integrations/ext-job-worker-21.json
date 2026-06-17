@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-worker-21",
+  "topic": "extensions-integrations",
+  "subtopic": "java-client-streaming",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A Java job worker is opened with `streamEnabled(true)` and `maxJobsActive = 32`. The worker is already handling 32 jobs when a 33rd job becomes activate-able on the broker. What happens?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The gRPC stream blocks via built-in flow control, signalling the gateway to stop pushing more jobs until one in-flight job completes."
+    },
+    {
+      "id": "b",
+      "text": "The 33rd job is dropped on the worker and an incident is raised on the process instance immediately."
+    },
+    {
+      "id": "c",
+      "text": "The worker silently bypasses `maxJobsActive` because streaming is enabled — the cap only applies to polling."
+    },
+    {
+      "id": "d",
+      "text": "The 33rd job is buffered in worker memory indefinitely until any of the in-flight jobs finishes."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "With streaming, the Java client relies on built-in gRPC flow control. At `maxJobsActive` capacity the gRPC thread blocks, which signals the gateway to stop sending more jobs until in-flight work drops below the cap."
+    },
+    "b": {
+      "text": "Backpressure does not drop jobs at the worker. Jobs are only 'dropped' on the broker side when the worker blocks longer than the job's deadline — and even then, the job is later re-pushed after timing out."
+    },
+    "c": {
+      "text": "The docs are explicit that backpressure applies to BOTH pushing and polling when streaming is enabled, so `maxJobsActive` still bounds concurrent in-flight work."
+    },
+    "d": {
+      "text": "There is no unbounded memory buffer beyond `maxJobsActive`; the gateway is told to pause sending more."
+    }
+  },
+  "explanation": "Enabling `streamEnabled(true)` opens a long-living stream over which jobs are pushed without polling. `maxJobsActive` remains the soft cap on concurrent in-flight jobs (and a soft bound on memory: roughly `maxJobsActive × maxMessageSize`). When that cap is reached, the gRPC thread blocks, the built-in flow control signals the gateway to stop pushing, and the worker resumes receiving jobs once in-flight work drains.",
+  "docs": [
+    {
+      "title": "Job worker",
+      "url": "https://docs.camunda.io/docs/apis-tools/java-client/job-worker/"
+    }
+  ]
+}

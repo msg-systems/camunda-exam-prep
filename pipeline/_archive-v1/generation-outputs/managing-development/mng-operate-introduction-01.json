@@ -1,0 +1,27 @@
+{
+  "id": "mng-operate-introduction-01",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Crest Marketplace runs Camunda 8.8 SaaS for 22000 orders per day. A downstream payment API outage caused 3000 orders to raise incidents at the payment service task because of a stale token variable. The operations team wants to fix the variable on each affected order and let the engine continue execution from the failed task without redeploying the BPMN model.",
+  "question": "Which Operate capability lets the marketplace resolve the incident and continue execution on each affected order?",
+  "options": [
+    { "id": "a", "text": "Operate exposes a Zeebe job worker that automatically clears incidents once the broker reports the failed task as healthy again" },
+    { "id": "b", "text": "Operate exposes an action to resolve incidents and update process variables so an operator can fix each affected instance and continue" },
+    { "id": "c", "text": "Operate exposes a Replay from cluster feature that rolls back each affected instance to the prior service task and replays it from there" },
+    { "id": "d", "text": "Operate exposes a Camunda 7 style external job lock API so the operator can lock and complete each stuck job from the marketplace tooling" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. Operate does not run an internal job worker that auto-clears incidents; the docs describe operator-driven incident resolution where the variable is updated and the task is then retried." },
+    "b": { "text": "Correct. Per docs, Operate lets operators resolve incidents and update process variables, which is the flow needed for the marketplace to fix the stale token on each affected order and continue execution." },
+    "c": { "text": "Incorrect. Operate offers modification and batch move actions for active instances, but there is no Replay from cluster feature in the documented Operate feature set." },
+    "d": { "text": "Incorrect. Camunda 8 does not use the Camunda 7 style external job lock API; in Operate, incidents are resolved by updating variables and retrying the task, not by locking jobs." }
+  },
+  "explanation": "Among the Operate capabilities listed in the docs is carrying out key operations such as resolving incidents and updating process variables, which is exactly the path needed to fix the stale token on each affected payment task and continue execution.",
+  "docs": [
+    { "title": "Operate introduction", "url": "https://docs.camunda.io/docs/components/operate/operate-introduction/" }
+  ]
+}

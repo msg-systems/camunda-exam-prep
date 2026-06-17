@@ -1,0 +1,27 @@
+{
+  "id": "mod-receive-tasks-44",
+  "topic": "modeling",
+  "subtopic": "tasks",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Vanta Telco correlates inbound payment messages to 3000 orders per day in Camunda 8.8 at a receive task. The correlationKey expression references a process variable orderId, and the engineer must know exactly when the engine evaluates this expression.",
+  "question": "When is the correlationKey expression of a receive task evaluated?",
+  "options": [
+    { "id": "a", "text": "The correlationKey expression is evaluated on deploying the process and the resulting value is stored on the message subscription as a static routing key for every instance" },
+    { "id": "b", "text": "The correlationKey expression is evaluated on publishing the message by the client and the resulting value is stored alongside the message name as instance metadata" },
+    { "id": "c", "text": "The correlationKey expression is evaluated on completing the receive task and the resulting value is used to discard any further messages that share the same name" },
+    { "id": "d", "text": "The correlationKey expression is evaluated on activating the receive task and must result in a string or number that is matched against the published message correlation key" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documentation evaluates the correlationKey on activation per instance rather than once at deploy time, since the key normally depends on per-instance variable values." },
+    "b": { "text": "Incorrect. The publishing client provides a correlation key value alongside the message; the receive task evaluates its own correlationKey expression on activation to match against that value." },
+    "c": { "text": "Incorrect. The correlationKey is evaluated on activation rather than completion; completion is when the receive task finishes after a message has already been correlated to it." },
+    "d": { "text": "Correct. The documentation specifies that the correlationKey expression is evaluated on activating the receive task and must result in a string or number, which the engine then matches against the value of the published message." }
+  },
+  "explanation": "At a receive task the correlationKey expression is evaluated on activation and must return a string or number; the engine then matches that value against the correlation key carried by a published message.",
+  "docs": [
+    { "title": "BPMN receive tasks", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/receive-tasks/" }
+  ]
+}

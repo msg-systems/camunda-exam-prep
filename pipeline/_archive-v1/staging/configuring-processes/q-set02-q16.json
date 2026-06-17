@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q16",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A loan origination Subprocess contains four Service Tasks that compute different parts of the credit decision. The Subprocess takes input variable applicantData (object). Inside the Subprocess, the team wants several scratch variables (computedRisk, internalScore, redFlags) that should NOT leak back to the parent scope. When the Subprocess ends, only the clean finalDecision boolean should be available to the parent.",
+  "question": "How to configure variable scoping correctly?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Subprocess local variables are absent from Zeebe; the runtime makes all variables globally visible across the entire process instance. Zeebe does support subprocess-scoped variables -- variables created inside an Embedded Subprocess scope via Service Task output mappings or local declarations live only in that scope and are discarded when the subprocess ends. No naming convention workaround is needed."
+    },
+    {
+      "id": "b",
+      "text": "Configure explicit input mapping on the Subprocess to copy applicantData into the subprocess scope, and an explicit output mapping to copy finalDecision back to the parent. Without the input mapping the Subprocess lacks access to applicantData. Embedded Subprocess inherits read access to all parent-scope variables automatically -- no input mapping is needed for read access. Explicit input mapping would just create a redundant copy. The output mapping for finalDecision is genuinely needed to promote it to parent scope."
+    },
+    {
+      "id": "c",
+      "text": "Embedded Subprocess inherits read access to parent variables by default -- no input mapping is needed for applicantData. Variables created inside the Subprocess via Service Task output mappings or local variable declarations are scoped to the Subprocess and discarded when it ends. Use the Subprocess's output mapping to promote only finalDecision to the parent scope, preventing scratch variables from leaking."
+    },
+    {
+      "id": "d",
+      "text": "Use a Call Activity instead of an Embedded Subprocess because only Call Activity provides proper variable scope isolation. Embedded Subprocess does provide scope isolation for locally-created variables. Call Activity creates a fully separate child process instance with its own execution context and isolated variable scope -- which works but is heavier than needed here, adding a separate process instance to Operate's view, separate audit trail, and cross-process variable mapping overhead for what is a simple inline scope boundary."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Embedded Subprocess in Zeebe inherits read access to parent variables automatically (no input mapping needed for read-only access). Variables that are created inside the Subprocess scope (via Service Task output mappings or local variable declarations) live only in that scope and are discarded when the Subprocess ends. To promote a variable to the parent, configure the Subprocess's output mapping with source=finalDecision, target=finalDecision."
+    },
+    "b": {
+      "text": "Incorrect. Subprocess local scope IS supported; _internal_ namespace workaround is unnecessary."
+    },
+    "c": {
+      "text": "Correct. Embedded Subprocess inherits scope read access -- explicit input mapping is redundant."
+    },
+    "d": {
+      "text": "Incorrect. Call Activity gives full scope isolation but is heavier (separate process instance, separate audit). Embedded Subprocess gives sufficient scope isolation here."
+    }
+  },
+  "explanation": "Embedded Subprocess inherits scope read access -- explicit input mapping is redundant.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/variables/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q16",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q18",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process can be started by specific users / groups only -- not everyone. Team wonders if there's a BPMN attribute for this.",
+  "question": "Process start authorization?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Authorizations can be configured at the process definition level to restrict which users or groups are permitted to create instances. Without explicit authorization grants, process starts may succeed for admin users but fail for regular users depending on the deployment configuration. Self-Managed deployments can configure Keycloak-backed role assignments that control process start permissions across different organizational roles."
+    },
+    {
+      "id": "b",
+      "text": "Process start authorization restrictions are not possible in Camunda 8 -- anyone with cluster access can start any process -- this approach has limitations. Resource authorizations on PROCESS_DEFINITION resource type with CREATE_PROCESS_INSTANCE permission restrict which users, groups, or API clients can start specific processes. The orchestration cluster broker validates caller tokens against these authorizations and returns HTTP 403 for unauthorized callers. Fine-grained process-level start authorization is a supported security feature, not an afterthought."
+    },
+    {
+      "id": "c",
+      "text": "). ) is configured within Management Identity as resource authorizations -- this is Camunda-internal configuration, not purely external. Management Identity maps identity provider groups/roles to Camunda resource permissions, combining external authentication with internal authorization rules."
+    },
+    {
+      "id": "d",
+      "text": "In Camunda 8, BPMN-level candidateStarterUsers / candidateStarterGroups attributes are not recognized (those are Camunda 7 legacy attributes absent from C8 documentation). Process-start authorization is enforced by Management Identity resource authorizations (Self-Managed) or SaaS Console cluster roles: resource type PROCESS_DEFINITION, permission CREATE_PROCESS_INSTANCE, assigned to a user/group/client. The BPMN file contains no auth metadata -- authorization is a separate configuration layer. Unauthorized API callers receive HTTP 403. For Tasklist-initiated starts, pair a public start form (zeebe:formDefinition on None Start Event) with Identity authorization so only authorized users see and start the process."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Process start authorization patterns in C8: What does NOT work in C8: candidateStarterUsers / candidateStarterGroups BPMN attributes -- silently ignored (0 occurrences in 8.8 docs). Camunda 7 legacy. camunda: extension-namespace authorization attributes -- not part of the Zeebe extension surface (which is zeebe: namespace only). What DOES work in C8 -- Management Identity resource authorizations: Resource type PROCESS_DEFINITION. Permission type CREATE_PROCESS_INSTANCE (the canonical start permission). Resource id = the process definition bpmnProcessId (e.g. approveLoan) or * for all. Assigned to a user, group, or M2M client (mapping rules). Example BPMN (clean -- no auth attributes, the BPMN file carries no auth metadata): `xml ... Camunda 8 enforcement (verbatim per management-identity/): Authorization is a separate layer; BPMN files contain no auth metadata. Resource authorizations defined in Management Identity / Console; the orchestration cluster broker checks tokens at REST/gRPC boundary. Authorization layers: Layer 1: API auth (per Set 14 Q55): OAuth client credentials / API key. Establishes \"who is calling\". Layer 2: Camunda authorization: Per-resource permissions: deploy, start instance, view, etc. Per-role: assigned to users / groups. Granular: per-process-definition restrictions. Layer 3: NO BPMN-level hints in C8: C8 does NOT read candidateStarterUsers / candidateStarterGroups (those are C7 legacy and absent from 8.8 docs). All start authorization lives in Management Identity (SM) or Console roles + cluster authorizations (SaaS). For the scenario: Step 1: Configure Management Identity: Define \"loan-officers\" group. Assign users. Step 2: Configure Management Identity authorization: Resource type = PROCESS_DEFINITION; resource id = approveLoan; permission = CREATE_PROCESS_INSTANCE; assignee = loan-officers group. Other groups have no authorization → blocked. Step 3: No BPMN change required: The BPMN file remains free of authorization metadata; the auth model is enforced outside the BPMN. Start process API call: User's identity (token / credentials) provided. Camunda checks: is this user / group authorized for this process? If yes: instance starts. If no: 403 Forbidden. Alternative: API-only restriction: Don't expose process-start to end users. Only specific services / admin tools call start API. Layered: app-level controls who can request start. Use cases: Use case 1: Restricted workflow: Loan approval process: only loan officers. Onboarding process: only HR. Use case 2: Multi-tenant: Tenant A's process: only tenant A users. Use case 3: Audit-sensitive: Track who started which instance. Combine with logging. Best practices: Defense in depth: BPMN attributes + Camunda authorization + app-level controls. Document who can start what: in process design doc. Audit log: track instance starts. Test authorization: unauthorized users should fail. Other start-related attributes (C8 reality, not C7 vestiges): zeebe:userTaskForm, zeebe:formDefinition -- public form binding for start events, surfaced in Tasklist's Public start forms if the form is published. History/retention -- handled at cluster-config / exporter level (not a BPMN attribute in C8); see Operate / Optimize retention settings. For Tasklist-initiated starts: Public start form (zeebe:formDefinition formId=\"...\" /> on a None Start Event in a process with form publication) makes the process startable from Tasklist. Combined with authorization: only authorised users see / start (Management Identity authorization for the process definition). Anti-patterns: Putting candidateStarterUsers in C8 BPMN: silently ignored -- no enforcement. No authorization at all: anyone with valid token can start anything; never deploy without resource authorizations. Hard-coded users in BPMN: even if it worked, hard to maintain; use groups in Management Identity. For Self-Managed: Management Identity (formerly Identity, backed by Keycloak) provides users / groups + resource authorizations. Authorizations on PROCESS_DEFINITION` resource type gate process-instance creation. For SaaS: Console manages users / groups. Cluster roles + per-resource authorizations gate process-instance creation. Tokens issued via OAuth2 client_credentials carry the caller's identity claims."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Correct. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/components/management-identity/access-management"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q18",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

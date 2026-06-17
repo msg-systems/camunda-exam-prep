@@ -1,0 +1,50 @@
+{
+  "id": "ext-service-integration-patterns-161",
+  "topic": "extensions-integrations",
+  "subtopic": "Message mapping",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Ridge Bank operates 12 AMQP queues that feed a Camunda 8.8 onboarding process. The team writes glue code that bridges the workflow engine to those queues for around 1500 messages per day, and the architect must explain how technical wire message types relate to BPMN message types used inside the process model when those messages arrive.",
+  "question": "Which statement reflects the documented relationship between wire message types and BPMN message types?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The BPMN message type does not have to equal the wire message type; the glue code that calls the workflow engine API can transform headers or payload into the BPMN message that fits"
+    },
+    {
+      "id": "b",
+      "text": "The BPMN message type must always be the same identifier as the technical message type observed on the AMQP queue at runtime, with no transformation permitted by the glue code layer in between"
+    },
+    {
+      "id": "c",
+      "text": "The BPMN message type is automatically derived by the broker from the AMQP routing key, so the glue code only forwards the payload without selecting any BPMN message name at engine runtime"
+    },
+    {
+      "id": "d",
+      "text": "The BPMN message type must be the technical queue name itself; the workflow engine refuses to correlate any message whose BPMN message type differs from the originating queue name string"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Message type on the wire != BPMN message type section explains that glue code can map several wire queues into one BPMN message type or pick different BPMN message types based on payload or headers."
+    },
+    "b": {
+      "text": "Incorrect. The whole point of the section is that the two layers do not have to match, with glue code performing the mapping."
+    },
+    "c": {
+      "text": "Incorrect. There is no automatic derivation; the glue code explicitly calls the workflow engine API with whatever BPMN message name the model expects."
+    },
+    "d": {
+      "text": "Incorrect. There is no requirement that the BPMN message type match the queue name; correlation is by the BPMN message name and key the glue code supplies."
+    }
+  },
+  "explanation": "Camunda 8 lets the integration glue code translate between wire-level messages (for example on AMQP queues) and BPMN message types. Several queues can map to one BPMN message type or headers and payload can select between different BPMN message types as needed.",
+  "docs": [
+    {
+      "title": "Service integration patterns",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/"
+    }
+  ]
+}

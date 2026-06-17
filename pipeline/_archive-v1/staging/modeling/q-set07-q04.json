@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q04",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A registration process runs exactly 5 verification checks in sequence (or parallel -- separately decidable), and the number 5 is fixed at design time -- it doesn't depend on any process variable. The team is configuring Multi-Instance and wonders how to specify a static count without using an inputCollection.",
+  "question": "Which Multi-Instance configuration fits a known compile-time fixed count?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Set loopCardinality = 5 on the Multi Instance marker -- Zeebe creates exactly 5 inner instances. No inputCollection / inputElement is needed because there's no collection to iterate; the engine simply spawns the count of instances. 5) as a built in scope variable. This is the BPMN spec way to express a static MI count."
+    },
+    {
+      "id": "b",
+      "text": "Use inputCollection = [1, 2, 3, 4, 5] -- this technically works because the list has 5 elements, spawning 5 inner instances. However it is verbose, encodes the iteration count as a literal data list rather than a configuration parameter, and does not communicate \"static count\" clearly to readers of the BPMN. Each inner instance receives the item (1, 2, 3, 4, or 5) as inputElement, which is meaningless payload since the numbers themselves carry no business data. The loopCardinality attribute expresses the same intent far more clearly."
+    },
+    {
+      "id": "c",
+      "text": "Model 5 explicit task elements in sequence -- this approach defeats the entire purpose of Multi Instance (keeping a single visual element that represents repeated work). Five copy pasted task elements violate the DRY principle; every change to the task logic must be replicated five times. If the count changes from 5 to 6, the modeller must add another task element. Readers cannot easily confirm that all five tasks are truly identical without comparing them side by side. Multi Instance is the correct tool for repeated identical work."
+    },
+    {
+      "id": "d",
+      "text": "Multi Instance requires inputCollection as the mandatory configuration, and the loopCardinality attribute is seldom used in practice, so teams typically default to a collection approach even when iterating a fixed number of times. This can lead to maintaining a literal list like [1,2,3,4,5] rather than the cleaner cardinality attribute. While collection based MI is valid and commonly used, loopCardinality is explicitly part of the BPMN specification and fully supported in Camunda 8 for static count scenarios. Both approaches are valid; cardinality is simply more idiomatic when the count is fixed at design time."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. loopCardinality is the BPMN-standard attribute for a static instance count. Set to a number (or a FEEL expression that evaluates to a number at MI activation), the engine spawns that many instances. Inside each instance, the built-in loopCounter variable (1-based index) is available for identifying which iteration you're in. This is the cleanest way to model \"do N times\" when N is known at design time."
+    },
+    "b": {
+      "text": "Incorrect. Using a 5-element list as inputCollection produces the same runtime behaviour (5 instances). The downsides: (1) communicates \"iterate this list\" semantically when the intent is just \"do 5 times\"; (2) couples the count to a literal list; (3) requires inputElement even though you don't use it. loopCardinality is more idiomatic for static counts."
+    },
+    "c": {
+      "text": "Incorrect. Five copy-pasted task elements lose the DRY benefit of Multi-Instance. Any future change to the inner activity must be replicated 5×, and readers must compare them to confirm they're identical. Use MI for repeated identical work."
+    },
+    "d": {
+      "text": "Incorrect. loopCardinality is a first-class MI attribute. The BPMN spec explicitly supports it; Zeebe implements it."
+    }
+  },
+  "explanation": "loopCardinality is the BPMN-standard attribute for a static instance count. Set to a number (or a FEEL expression that evaluates to a number at MI activation), the engine spawns that many instances. Inside each instance, the built-in loopCounter variable (1-based index) is available for identifying which iteration you're in. This is the cleanest way to model \"do N times\" when N is known at design time.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q04",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q34",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Inbound Webhook Connector receives external system callbacks. To prevent unauthorized calls, the team wants to require an HMAC signature in the request, validated by the Connector before correlation.",
+  "question": "Which Webhook Connector feature handles HMAC verification?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Adding a Service Task inside the process to validate the HMAC signature means the process instance activates before authentication is verified -- the webhook already triggered a new process instance. A process already started cannot be securely rejected mid-flow without cancellation. HMAC validation should happen at the webhook entry point before the process starts, not after. The Webhook Connector performs authentication before process instantiation, preventing unauthenticated instances from ever entering the engine."
+    },
+    {
+      "id": "b",
+      "text": "Webhook Connectors in Camunda 8 support multiple authentication mechanisms in addition to HMAC -- including API key authentication, JWT validation, and none (public). Claiming that all webhook endpoints are unconditionally public is factually incorrect. The HMAC signature validation built into the webhook configuration allows operators to authenticate requests using a shared secret without deploying any middleware. Webhook security options are configured directly in the Connector properties panel."
+    },
+    {
+      "id": "c",
+      "text": "A reverse proxy with mutual TLS (mTLS) provides transport-level client certificate authentication between the caller and the proxy, not application-level request integrity validation via HMAC. mTLS authenticates the connecting party by certificate but does not validate message payload integrity the way HMAC does. Setting up a reverse proxy with mTLS adds infrastructure complexity (certificate management, proxy deployment, routing configuration) when the Webhook Connector already provides native HMAC signature verification."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 Webhook Connector supports HMAC signature validation natively in its configuration. , X-Hub-Signature-256), and the signature prefix. When an inbound request arrives, the Connector verifies the HMAC signature before activating the process start event. No custom Service Task or middleware is needed for this validation. ###"
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Webhook Connector supports HMAC signature validation natively. Configure algorithm + secret + header; Connector verifies before instance creation."
+    },
+    "b": {
+      "text": "Incorrect. By the time the Service Task runs, the instance has been created -- invalid callbacks have already polluted state."
+    },
+    "c": {
+      "text": "Incorrect. Webhook supports multiple auth methods."
+    },
+    "d": {
+      "text": "Correct. Proxy/mTLS works but HMAC is the canonical Webhook-level mechanism."
+    }
+  },
+  "explanation": "Proxy/mTLS works but HMAC is the canonical Webhook-level mechanism.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q34",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

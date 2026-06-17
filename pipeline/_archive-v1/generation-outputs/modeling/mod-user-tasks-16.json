@@ -1,0 +1,27 @@
+{
+  "id": "mod-user-tasks-16",
+  "topic": "modeling",
+  "subtopic": "user-tasks",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Kestrel Insurance maintains a Camunda 8.8 policy admin process that handles 8000 policies per day. One user task must run under a legacy job worker implementation instead of the Camunda user task runtime so the existing worker can keep processing the same job type as before during a phased migration.",
+  "question": "Which BPMN configuration change converts a Camunda user task into a job-worker user task implementation?",
+  "options": [
+    { "id": "a", "text": "Adding a zeebe:taskDefinition with type io.camunda.zeebe:userTask alongside the existing zeebe:userTask element converts it into a job worker implementation" },
+    { "id": "b", "text": "Setting bindingType to legacy on the zeebe:formDefinition extension element of the user task converts it into a job worker implementation" },
+    { "id": "c", "text": "Replacing the zeebe:assignmentDefinition extension element with zeebe:taskListeners on the user task converts it into a job worker implementation" },
+    { "id": "d", "text": "Removing the zeebe:userTask extension element from the user task in the BPMN model converts it into a job worker implementation" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documentation states the job worker implementation is selected by removing the zeebe:userTask extension element, not by adding a taskDefinition alongside it; keeping zeebe:userTask preserves the Camunda user task runtime." },
+    "b": { "text": "Incorrect. The zeebe:formDefinition element does not carry a legacy bindingType value; allowed bindingType values are latest, deployment, and versionTag, and none of them switch the task to a job worker implementation." },
+    "c": { "text": "Incorrect. zeebe:taskListeners react to user task lifecycle events on Camunda user tasks; swapping the assignment definition for listeners does not convert the user task to a job worker implementation." },
+    "d": { "text": "Correct. To define a job worker implementation for a user task, the zeebe:userTask extension element is removed from the task; Zeebe then creates a job of type io.camunda.zeebe:userTask for a worker to process." }
+  },
+  "explanation": "A user task uses the Camunda user task runtime when zeebe:userTask is present and switches to the job worker implementation when that extension element is removed, after which Zeebe creates a job of type io.camunda.zeebe:userTask.",
+  "docs": [
+    { "title": "BPMN user tasks", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/user-tasks/" }
+  ]
+}

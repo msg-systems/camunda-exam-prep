@@ -1,0 +1,53 @@
+{
+  "id": "cfg-feel-built-in-functions-conversion-105",
+  "topic": "configuring-processes",
+  "subtopic": "feel-conversion-functions",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An input mapping calls FEEL `date()` on a string supplied by an upstream system. What does the expression shown evaluate to?",
+  "options": [
+    {
+      "id": "a",
+      "text": "`null` — `\"2024-06-31\"` is not a valid calendar date because June has only 30 days."
+    },
+    {
+      "id": "b",
+      "text": "`date(\"2024-07-01\")` — the engine rolls the invalid day over to the next month."
+    },
+    {
+      "id": "c",
+      "text": "`date(\"2024-06-30\")` — the engine clamps the day to the last valid day of the month."
+    },
+    {
+      "id": "d",
+      "text": "An incident is raised at the activity because the date is malformed."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "`date(from: string)` parses the string into a date and returns `null` if the string is not a valid calendar date. The docs explicitly use `\"2024-06-31\"` as the example of an invalid date because June only has 30 days."
+    },
+    "b": {
+      "text": "FEEL `date()` does not silently roll an invalid day forward into the next month; it returns `null`."
+    },
+    "c": {
+      "text": "FEEL `date()` does not clamp the day to the last valid day of the month; an invalid calendar date simply returns `null`."
+    },
+    "d": {
+      "text": "Returning `null` from `date()` is not an incident on its own. An incident would follow only if a downstream consumer required a non-null date."
+    }
+  },
+  "explanation": "`date(from)` parses a string in ISO date format and returns the corresponding date. When the string is syntactically well-formed but is not a valid calendar date (such as June 31), the function returns `null` rather than rolling, clamping, or raising an error.",
+  "docs": [
+    {
+      "title": "FEEL conversion functions",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/builtin-functions/feel-built-in-functions-conversion/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "date(\"2024-06-31\")"
+  }
+}

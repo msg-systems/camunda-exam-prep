@@ -1,0 +1,70 @@
+{
+  "id": "imp-set03-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A customer-service platform wants to integrate an LLM for ticket triage. Two scenarios: Scenario A: Categorise the ticket into one of 5 predefined categories (single LLM call, structured response, no follow-up). Scenario B: Investigate complex tickets where the LLM may need to call search APIs, summarise findings, request human review -- multi-step agentic reasoning.",
+  "question": "For each scenario, which Camunda 8.8 pattern fits best?",
+  "options": [
+    {
+      "id": "a",
+      "text": "8 and should be applied uniformly for any LLM interaction. Using AI Agent Connector for the agentic scenario misses the Ad-hoc Subprocess's ability to manage non-deterministic multi-step agent execution."
+    },
+    {
+      "id": "b",
+      "text": "8."
+    },
+    {
+      "id": "c",
+      "text": "Scenario A: AI Agent Connector for a single deterministic structured LLM call (categorise ticket into one of 5 predefined categories, structured response, no follow-up required). Scenario B: Ad-hoc Subprocess with AI Agent Connector inside for dynamic multi-step agentic orchestration -- the LLM may call search APIs, summarise findings, and request human review in a non-deterministic iterative loop. Each pattern is purpose-built for its orchestration complexity level."
+    },
+    {
+      "id": "d",
+      "text": "Scenario A: a regular Service Task with a custom Job Worker for the LLM integration. Scenario B: a Multi-Instance Subprocess iterating over a fixed collection of investigation steps in parallel. 8's LLM-specific orchestration features. A regular Service Task lacks structured LLM invocation support, and Multi-Instance is designed for repeating the same operation over a collection, not for non-deterministic agentic reasoning where the number and type of steps cannot be predetermined."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The two patterns target different use cases: AI Agent Connector (single-element LLM invocation) = best for deterministic, single-shot LLM calls (categorisation, summarisation, draft generation). The connector exposes a structured prompt and response. Ad-hoc Subprocess + AI Agent Connector = canonical pattern for agentic orchestration per agentic-orchestration/ai-agents.md. Ad-hoc subprocess is an embedded BPMN subprocess with the ~ tilde marker whose inner elements can be activated multiple times, in any order, or skipped (per ad-hoc-subprocesses.md); the AI Agent Connector is \"designed for use with an ad-hoc sub-process in a feedback loop, providing automated user interaction and tool selection.\" Each inner BPMN activity becomes a tool exposed to the LLM. Best for non-deterministic agentic orchestration."
+    },
+    "b": {
+      "text": "Incorrect. AI Agent Connector doesn't fit multi-step dynamic agentic reasoning -- it's a single call."
+    },
+    "c": {
+      "text": "Correct. Ad-hoc Subprocess is overkill for single-shot categorisation; AI Agent Connector is cleaner."
+    },
+    "d": {
+      "text": "Incorrect. Regular Service Task lacks the LLM-specific structuring; Multi-Instance is wrong abstraction for dynamic agentic reasoning."
+    }
+  },
+  "explanation": "Ad-hoc Subprocess is overkill for single-shot categorisation; AI Agent Connector is cleaner.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/agentic-orchestration/agentic-orchestration-overview/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q20",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 2 < 30 (catastrophically short)",
+        "where": "options[1]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 243.0 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

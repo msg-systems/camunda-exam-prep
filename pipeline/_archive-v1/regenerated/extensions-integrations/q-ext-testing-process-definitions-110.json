@@ -1,0 +1,50 @@
+{
+  "id": "ext-testing-process-definitions-110",
+  "topic": "extensions-integrations",
+  "subtopic": "process tests",
+  "difficulty": "hard",
+  "style": "recall",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Insurance runs 4200 invoices per day through an approval process in Camunda 8.8. The team writes a process test for the timeout path where 5 days elapse on the approval user task and the process auto-approves. The test must advance the engine clock without touching real wall-clock time.",
+  "question": "Which process test API call advances the engine clock by 5 days inside the test method?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Call processTestContext.increaseTime(Duration.ofDays(5)) to advance the engine clock before asserting the auto-approval completion path on the instance"
+    },
+    {
+      "id": "b",
+      "text": "Call processTestContext.advanceClock(Duration.ofDays(5)) to move the engine clock forward before asserting the auto-approval completion path on the instance"
+    },
+    {
+      "id": "c",
+      "text": "Call Thread.sleep(Duration.ofDays(5).toMillis()) to let the engine timer fire naturally before asserting the auto-approval completion path on the instance"
+    },
+    {
+      "id": "d",
+      "text": "Call client.newClockResetCommand().offset(Duration.ofDays(5)).send().join() to move the engine clock before asserting the auto-approval completion path"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The documented timeout test uses processTestContext.increaseTime(Duration.ofDays(5)) to advance the engine clock so the approval timer fires inside the unit test."
+    },
+    "b": {
+      "text": "Incorrect. The documented helper is named increaseTime, not advanceClock; the snippet shows processTestContext.increaseTime(Duration.ofDays(5))."
+    },
+    "c": {
+      "text": "Incorrect. Thread.sleep would block the test for five days of real time; the docs use processTestContext.increaseTime to move the engine clock."
+    },
+    "d": {
+      "text": "Incorrect. The source uses processTestContext.increaseTime(Duration.ofDays(5)); there is no clock-reset command shown for advancing time in the test."
+    }
+  },
+  "explanation": "In Camunda 8.8 process tests, processTestContext.increaseTime advances the engine clock so timer boundary events fire inside a unit test, as shown in the documented testApprovalTimeout example using Duration.ofDays(5).",
+  "docs": [
+    {
+      "title": "Testing process definitions",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/testing-process-definitions/"
+    }
+  ]
+}

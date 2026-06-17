@@ -1,0 +1,27 @@
+{
+  "id": "ext-connecting-the-workflow-engine-with-your-world-100",
+  "topic": "extensions-integrations",
+  "subtopic": "calling-zeebe",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Sable Bank handles 9000 messages per day from a payments gateway and wants to correlate each inbound payment confirmation to the right waiting process instance on Camunda 8.8. The integration team already uses the Zeebe Java client to start instances from the channel adapter, and now needs the matching client call to publish each correlated payment message with a deduplication id and a correlation key drawn from the gateway payload.",
+  "question": "Which Zeebe Java client call correlates an inbound message to a waiting process instance on Camunda 8.8?",
+  "options": [
+    { "id": "a", "text": "Call zeebeClient.newCreateInstanceCommand() with bpmnProcessId, latestVersion, and variables; the call starts a new process instance for the supplied process definition every time it runs" },
+    { "id": "b", "text": "Call zeebeClient.newPublishMessageCommand() with messageName, messageId, correlationKey, and variables; the call publishes the message so the broker correlates it to the waiting process instance" },
+    { "id": "c", "text": "Call zeebeClient.newCorrelateMessageCommand() with messageName, processInstanceKey, and variables; the call correlates the message to one specific running instance by its instance key" },
+    { "id": "d", "text": "Call zeebeClient.newBroadcastSignalCommand() with signalName, correlationKey, and variables; the call broadcasts a signal so every running process instance receives the same payload at once" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. newCreateInstanceCommand starts a fresh process instance and does not correlate any incoming message; the documented correlation call is newPublishMessageCommand." },
+    "b": { "text": "Correct. The docs show newPublishMessageCommand taking messageName, messageId, correlationKey, and variables, and the broker correlates the published message to the waiting process instance." },
+    "c": { "text": "Incorrect. There is no newCorrelateMessageCommand on the Zeebe Java client in the docs; the correlation entry point is the publish-message command shown in the example." },
+    "d": { "text": "Incorrect. The Calling Zeebe section does not show a broadcast-signal command for message correlation; messages flow through newPublishMessageCommand with a correlationKey instead." }
+  },
+  "explanation": "The Calling Zeebe section shows newPublishMessageCommand as the Zeebe Java client entry point for correlation; it takes messageName, messageId, correlationKey, and variables, and the broker correlates the published message to the waiting process instance.",
+  "docs": [
+    { "title": "Connecting the workflow engine with your world", "url": "https://docs.camunda.io/docs/components/best-practices/development/connecting-the-workflow-engine-with-your-world/" }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-creation-46",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-creation",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Lumen Bank starts 22000 instances per day in Camunda 8.8 from a none start event using the CreateProcessInstance command on the v2 process-instances REST endpoint, and a developer must confirm the timing of the gateway response relative to actual process execution on the broker.",
+  "question": "When the CreateProcessInstance command is used for a process with a none start event, when does the gateway respond to the client?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Immediately with the process instance ID, with the execution of the process occurring after the response is sent back to the calling client by the gateway"
+    },
+    {
+      "id": "b",
+      "text": "After the first service task completes, so the response carries an initial variable snapshot for the calling client to read on success of the call"
+    },
+    {
+      "id": "c",
+      "text": "Only after the process instance reaches a wait state such as a message catch event or user task to keep latency bounded for the caller in a known window"
+    },
+    {
+      "id": "d",
+      "text": "Only after the process instance ends, with CreateProcessInstance returning once execution is complete with all final variables for the caller to read"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Create and execute asynchronously section states that CreateProcessInstance immediately responds with the process instance ID, and that the execution of the process occurs after the response is sent."
+    },
+    "b": {
+      "text": "Incorrect. The async create command does not wait for any service task; it returns the process instance ID immediately and execution continues afterwards on the broker side."
+    },
+    "c": {
+      "text": "Incorrect. CreateProcessInstance returns immediately without waiting for any wait state; that variant is not described in the asynchronous section of the process instance creation docs."
+    },
+    "d": {
+      "text": "Incorrect. Waiting for the end of execution is the behaviour of CreateProcessInstanceWithResult, not the plain CreateProcessInstance command described in the async section."
+    }
+  },
+  "explanation": "The Create and execute asynchronously section documents that CreateProcessInstance returns the process instance ID immediately and that the execution of the process occurs after the response is sent. This decouples creation from execution and gives the caller a key to track the new instance.",
+  "docs": [
+    {
+      "title": "Process instance creation",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/"
+    }
+  ]
+}

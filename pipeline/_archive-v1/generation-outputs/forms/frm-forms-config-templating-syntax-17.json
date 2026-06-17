@@ -1,0 +1,27 @@
+{
+  "id": "frm-forms-config-templating-syntax-17",
+  "topic": "forms",
+  "subtopic": "feelers - underscore accessor",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Government tracks 4000 records per week on Camunda 8.8 Forms. Each node carries a property literally named parent, and the template loops over 25 nodes while also needing to read a root property on the surrounding scope, without the accessor colliding with the node's own parent field within 200 ms per render.",
+  "question": "Which Feelers syntax avoids the collision when iterated data already uses a property literally named parent?",
+  "options": [
+    { "id": "a", "text": "Renaming the field at the BPMN data input mapping level so the conflicting property is removed from the node objects before the form template is rendered" },
+    { "id": "b", "text": "Using parent.parent inside the loop body so the template skips one level above the node and reaches the surrounding scope above the iterated array" },
+    { "id": "c", "text": "Using the underscore-wrapped form of the parent accessor inside the loop body, which makes the accessor reach the surrounding scope instead of the node's own parent property" },
+    { "id": "d", "text": "Wrapping the loop in an if block and reading the surrounding value through a separate FEEL expression evaluated before the loop opens its iteration body" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The collision is resolved at the template level by the underscore accessor; rewriting the data through input mappings is not the documented mechanism." },
+    "b": { "text": "Incorrect. parent.parent would still resolve the inner parent property of the node first, so the collision is not avoided this way." },
+    "c": { "text": "Correct. When the data already uses parent or this as a key, the alternative syntax surrounds the accessor with underscores, so _parent_ reaches the surrounding scope." },
+    "d": { "text": "Incorrect. Splitting the template into an if-and-loop pattern does not address the conflict on the parent identifier inside the loop body itself." }
+  },
+  "explanation": "Feelers offers an alternative accessor syntax that surrounds parent or this with underscores, so _parent_ and _this_ reach the surrounding scope or current item without colliding with data fields of the same name.",
+  "docs": [
+    { "title": "Forms templating syntax", "url": "https://docs.camunda.io/docs/components/modeler/forms/configuration/forms-config-templating-syntax/" }
+  ]
+}

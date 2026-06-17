@@ -1,0 +1,50 @@
+{
+  "id": "mng-resolve-incidents-update-variables-13",
+  "topic": "managing-development",
+  "subtopic": "Operate",
+  "difficulty": "medium",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Nimbus Insurance teaches new operators the concept of advancing an order-process instance through Camunda 8.8 by completing the Initiate Payment service task at the insurer, with 3 daily training cohorts and 45 minutes allocated per session for hands-on practice using community-supported zbctl on the order-process model.",
+  "question": "Which concept correctly describes how the order-process instance is advanced to its XOR gateway in Camunda 8.8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The instance is advanced by Operate calling an internal task completion API on the Initiate Payment task using the operator's signed-in credentials, with no external worker subscribing to the job on the broker for the insurer's instance"
+    },
+    {
+      "id": "b",
+      "text": "The instance is advanced by deploying a new BPMN version that auto-completes the Initiate Payment task using a built-in handler shipped with the engine, without any job worker subscribing to the task type on the broker for the insurer"
+    },
+    {
+      "id": "c",
+      "text": "The instance is advanced by starting a job worker that subscribes to the Initiate Payment job type and completes activated jobs so the token moves through the service task toward the XOR gateway on the broker for the insurer"
+    },
+    {
+      "id": "d",
+      "text": "The instance is advanced by setting the orderValue variable to 100 in Operate so the XOR gateway evaluates true and the Initiate Payment task auto-completes through the gateway condition on the broker for the insurer's instance"
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Operate does not complete service tasks through an internal API; the documented step starts a job worker via zbctl that subscribes to the Initiate Payment job type and completes activated jobs to advance the instance."
+    },
+    "b": {
+      "text": "Incorrect. The engine does not auto-complete service tasks through a built-in handler shipped with a redeploy; the documented approach is to start a job worker with zbctl that handles the Initiate Payment job type."
+    },
+    "c": {
+      "text": "Correct. The Advance an instance to an XOR gateway section creates a job worker with zbctl that subscribes to the initiate-payment job type and completes activated jobs, moving the token through Initiate Payment toward the XOR gateway."
+    },
+    "d": {
+      "text": "Incorrect. Setting orderValue does not complete the Initiate Payment service task; the task remains active until a job worker activates and completes its job, regardless of the XOR gateway condition value on the model."
+    }
+  },
+  "explanation": "Advancing the order-process instance to its XOR gateway relies on a job worker that subscribes to the Initiate Payment job type and completes activated jobs, which is the concept the Operate guide demonstrates with zbctl create worker initiate-payment --handler cat.",
+  "docs": [
+    {
+      "title": "Variables and incidents",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ]
+}

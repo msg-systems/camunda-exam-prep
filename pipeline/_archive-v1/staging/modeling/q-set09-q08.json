@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q08",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Multi-Instance Subprocess processes a list of applicants. The team wants the MI to complete early when more than 30% of applicants have been approved -- not wait for all to finish. Combine inputCollection with a completionCondition. Can inputCollection and completionCondition be used together?",
+  "question": "Can inputCollection and completionCondition be used together?",
+  "options": [
+    {
+      "id": "a",
+      "text": ", the applicants list), and completionCondition (a FEEL boolean expression) is evaluated after each inner instance completes to determine whether to terminate the MI early. 3. When the condition evaluates to true, remaining active inner instances are cancelled and the MI activity completes immediately. Both Sequential and Parallel MI modes support this combination."
+    },
+    {
+      "id": "b",
+      "text": "No, inputCollection and completionCondition are mutually exclusive Multi-Instance attributes. When inputCollection is specified, the engine uses it to control the number of instances, so the completionCondition would conflict and cause a configuration error. The two attributes actually serve complementary purposes and compose freely. The inputCollection defines how many instances to create and what data each receives; the completionCondition defines when to stop early."
+    },
+    {
+      "id": "c",
+      "text": "Yes, inputCollection and completionCondition can be combined, but the completionCondition early-exit behaviour is only available when using Sequential Multi-Instance mode. Parallel mode does not support early termination via completionCondition. In actuality, both Sequential and Parallel Multi-Instance modes fully support the completionCondition attribute for early completion. The condition is a FEEL boolean expression evaluated after each inner instance finishes, and if it returns true, the engine cancels remaining pending instances in either mode."
+    },
+    {
+      "id": "d",
+      "text": "Yes, completionCondition can be used alongside inputCollection, but when a completionCondition is present it replaces and overrides the inputCollection as the source of iteration control, making the inputCollection attribute redundant. The two attributes have entirely distinct roles. The inputCollection defines the dataset and per-instance variable bindings; the completionCondition defines a FEEL predicate for early exit. They serve different purposes and both are evaluated by the engine simultaneously."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Multi-Instance attributes compose: inputCollection + inputElement (per multi-instance.md:33-43): defines the iteration source and per-instance variable. Note: Zeebe does NOT support BPMN's loopCardinality attribute; the documented workaround for fixed-N iteration is inputCollection = \"= for i in 1..n return i\" per the tip at multi-instance.md:39. completionCondition (per :98-100): FEEL boolean evaluated after each inner instance completes; if true, MI completes (remaining instances are terminated). outputCollection + outputElement (optional) per :47-55: accumulates results in index-aligned order matching inputCollection. Combining inputCollection + completionCondition supports patterns like \"iterate but stop early when enough completed.\" BPMN-2.0 spec helpers available inside the completionCondition FEEL expression (per :104-109): numberOfInstances, numberOfActiveInstances, numberOfCompletedInstances, numberOfTerminatedInstances. Example: = numberOfCompletedInstances / numberOfInstances >= 0.5."
+    },
+    "b": {
+      "text": "Incorrect. They compose, not exclude."
+    },
+    "c": {
+      "text": "Incorrect. Both modes support completionCondition."
+    },
+    "d": {
+      "text": "Incorrect. Distinct roles."
+    }
+  },
+  "explanation": "Multi-Instance attributes compose: inputCollection + inputElement (per multi-instance.md:33-43): defines the iteration source and per-instance variable. Note: Zeebe does NOT support BPMN's loopCardinality attribute; the documented workaround for fixed-N iteration is inputCollection = \"= for i in 1..n return i\" per the tip at multi-instance.md:39. completionCondition (per :98-100): FEEL boolean evaluated after each inner instance completes; if true, MI completes (remaining instances are terminated). outputCollection + outputElement (optional) per :47-55: accumulates results in index-aligned order matching inputCollection. Combining inputCollection + completionCondition supports patterns like \"iterate but stop early when enough completed.\" BPMN-2.0 spec helpers available inside the completionCondition FEEL expression (per :104-109): numberOfInstances, numberOfActiveInstances, numberOfCompletedInstances, numberOfTerminatedInstances. Example: = numberOfCompletedInstances / numberOfInstances >= 0.5.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q08",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set07-q21",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Camunda 7 veteran joining a Camunda 8 team asks: \"I used Task Listeners (on-create, on-assignment, on-complete) extensively in C7 for cross-cutting concerns like audit logging, dynamic assignment, validation. How do I model the equivalent in Camunda 8?\"",
+  "question": "What is Camunda 8's approach to Task-Listener-style cross-cutting concerns?",
+  "options": [
+    {
+      "id": "a",
+      "text": "7. md:151-161). Saying \"C8 has no listeners\" is a stale C7-migration talking point that no longer reflects the current product. Teams migrating from C7 should verify which C8 version they are targeting before assuming feature parity gaps exist."
+    },
+    {
+      "id": "b",
+      "text": "Use the zeebe:taskListeners extension element on the User Task, containing one or more zeebe:taskListener children, each with required eventType ∈ {creating, assigning, updating, completing, canceling} + required type (static string or =FEEL expression for the worker subscription) + optional retries (default 3). 7. Workers subscribe to the listener's type exactly like a Service Task worker. assignee with a FEEL expression."
+    },
+    {
+      "id": "c",
+      "text": "Set a listenTo attribute on Service Tasks to subscribe a cross-cutting concern handler to the task lifecycle -- this attribute has no implementation in Camunda 8. No listenTo extension is defined in Zeebe's schema for Service Tasks. 7. Service Tasks are handled by job workers that subscribe to the task's type string; there is no separate \"listener\" hook for Service Task lifecycle events."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 has a native Listener pattern exactly equivalent to C7 -- partial truth, but with material differences: (1) C8 listeners apply only to User Tasks, not to all task types as in C7; (2) C8 eventType vocabulary is creating/assigning/updating/completing/canceling, not C7's create/assignment/complete/delete; (3) C8 listeners are job worker based (worker subscribes to a type string), not in process Java handlers like C7. So the concept maps, but the implementation differs substantially."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. True for Camunda 8 versions before 8.7 -- but user task listeners shipped in 8.7. The blueprint v8.8.0 covers a version where they exist; flagging \"no listeners\" is now a stale claim. Explicit BPMN modelling remains a valid alternative for cross-cutting concerns that don't fit the user-task-lifecycle hook model (e.g., Service Task → audit-log Service Task pipeline)."
+    },
+    "b": {
+      "text": "Correct. Per user-tasks.md:151-161, Camunda 8.7+ supports user task listeners via zeebe:taskListeners extension element containing one or more zeebe:taskListener children. Required attributes: eventType (creating/assigning/updating/completing/canceling) + type (worker subscription string, static or =FEEL); optional retries (default 3). The listener is a job -- when the lifecycle event fires, a job worker subscribed to that type activates and runs the listener logic, then completes the job; the user-task lifecycle proceeds. XML example from user-tasks.md:294-297: . For dynamic assignment specifically, the lighter declarative path is assignmentDefinition.assignee=\"=FEEL\" (no listener needed)."
+    },
+    "c": {
+      "text": "Incorrect. No listenTo attribute on Service Tasks. Service Tasks don't support listeners in C8 -- only User Tasks do via zeebe:taskListeners."
+    },
+    "d": {
+      "text": "Incorrect. The concept maps (event-driven lifecycle hook), but C8 narrows scope to user tasks only, uses different eventType names, and runs listeners as external job-worker jobs (not in-broker handlers). \"Exactly equivalent to C7\" overstates the parity."
+    }
+  },
+  "explanation": "Per user-tasks.md:151-161, Camunda 8.7+ supports user task listeners via zeebe:taskListeners extension element containing one or more zeebe:taskListener children. Required attributes: eventType (creating/assigning/updating/completing/canceling) + type (worker subscription string, static or =FEEL); optional retries (default 3). The listener is a job -- when the lifecycle event fires, a job worker subscribed to that type activates and runs the listener logic, then completes the job; the user-task lifecycle proceeds. XML example from user-tasks.md:294-297: . For dynamic assignment specifically, the lighter declarative path is assignmentDefinition.assignee=\"=FEEL\" (no listener needed).",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/user-task-listeners/"
+    }
+  ],
+  "sourceSet": 7,
+  "sourceId": "set07-q21",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

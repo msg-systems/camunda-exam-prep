@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q09",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A purchase-order process has a place-order Service Task and a charge-card Service Task. If charge-card fails after the order is placed, the team wants to automatically cancel the placed order as part of failure recovery.",
+  "question": "Which BPMN construct fits compensation semantics?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Error Boundary Event on charge-card handles errors thrown by the charge-card task itself, intercepting the failure and routing to an error-handling path. An Error Boundary Event cannot trigger compensation for the already-completed place-order task. To undo completed prior work, a Compensation mechanism is needed rather than relying on error boundary routing that only covers the single failing task."
+    },
+    {
+      "id": "b",
+      "text": "Compensation Event â€” attaching a Compensation Boundary Event to place-order with an associated Compensation Handler (cancel-order Service Task) â€” is the BPMN saga-undo mechanism. When charge-card fails and a Compensation Throw Event fires, Zeebe invokes registered compensation handlers of completed activities at once without any specific order. For ordered rollback, fire multiple Compensation Throw Events with explicit activityRef pointing at each target. This is the purpose-built construct for undoing completed work."
+    },
+    {
+      "id": "c",
+      "text": "Conditional Sequence Flow with FEEL expression routes execution to a recovery path when the charge fails. While this can lead to a cancel-order task, it does not express compensation semantics â€” there is no engine-managed notion of undoing a previously completed activity. This works for simple linear recovery but does not scale when many prior tasks need rollback. It also does not self-document as a saga/undo pattern to other modelers reading the BPMN diagram structure."
+    },
+    {
+      "id": "d",
+      "text": "Adding an explicit cancel-order Service Task on the failure path manually models the undo as a regular task in error-handling flow. This works for simple two-step transactions but becomes unwieldy as completed activities to roll back multiply. Each additional step requires another manual recovery task. BPMN Compensation scales automatically â€” all registered handlers trigger with a single Compensation Throw Event regardless of how many preceding steps must be undone in the process. ###"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Compensation is BPMN's purpose-built mechanism for undoing completed work in saga-style transactions. Attach Compensation Boundary Event to the activity whose effect needs undoing (place-order), wire the handler (cancel-order). When charge-card fails and a Compensation Throw Event fires, the engine invokes all completed activities' handlers in the throw event's scope at once without any specific order (per compensation-events.md:32-35). If a strict rollback order is required, use multiple Throw Events each with activityRef (lines 73-77). Cleaner than manual recovery paths."
+    },
+    "b": {
+      "text": "Correct. Error Boundary handles errors on the failing task, not undo logic for prior tasks."
+    },
+    "c": {
+      "text": "Incorrect. A conditional flow can route to a manual recovery path but doesn't express compensation semantics."
+    },
+    "d": {
+      "text": "Incorrect. Explicit recovery paths get unwieldy when there are many completed steps to roll back."
+    }
+  },
+  "explanation": "Error Boundary handles errors on the failing task, not undo logic for prior tasks.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q09",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

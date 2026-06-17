@@ -1,0 +1,56 @@
+{
+  "id": "imp-set09-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Ops wants to monitor an Inbound Webhook Connector -- verify it's actively listening, see recent message correlation activity, check for errors.",
+  "question": "How does ops monitor Inbound Connector status?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Inbound Connectors are fully observable through multiple mechanisms. The Connector Runtime exposes operational metrics including subscription counts, message correlation success and failure rates, and throughput data. These metrics are available as Prometheus metrics that integrate with Grafana dashboards. Additionally, Connector Runtime logs provide detailed information about subscription lifecycle events, incoming payloads, correlation results, and error details. Claiming no monitoring exists misunderstands the available observability tooling."
+    },
+    {
+      "id": "b",
+      "text": "Operate provides process-instance-level visibility showing instances that were created or correlated by Inbound Connector triggers. A complete monitoring picture requires combining Operate's process-level view with the Connector Runtime's own metrics and logs."
+    },
+    {
+      "id": "c",
+      "text": "While it is accurate that integrating monitoring infrastructure such as Prometheus and Grafana is the team's responsibility, the Connector Runtime does expose the raw data needed for monitoring. The runtime provides Prometheus-compatible metrics endpoints and structured logs that feed into standard monitoring stacks. Teams do not need to build raw data collection from scratch -- they need to configure their monitoring infrastructure to scrape and visualise the data that the Connector Runtime already exposes."
+    },
+    {
+      "id": "d",
+      "text": "The Connector Runtime exposes metrics and logs covering subscription counts, correlation success and failure rates, polling status, and recent errors. Integrate with Prometheus and Grafana for metrics dashboards and set up log aggregation for structured log analysis. For per-instance event details, Operate's instance views show whether instances were started by Inbound triggers and display any correlation errors linked to those instances."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Multi-layer observability for Inbound Connectors: Connector Runtime: as a separate process (in SM) or managed component (in SaaS), exposes operational metrics (subscription counts, throughput, error rates) and logs. Typically Spring Boot Actuator endpoints for metrics + structured logs. Process Engine (Zeebe / Operate): when an Inbound Connector triggers a process instance, Operate sees the new instance. The instance's history shows it was started by the inbound trigger. Cluster monitoring: aggregate metrics across components via Prometheus / Grafana. Practical monitoring setup: Scrape Connector Runtime metrics → Grafana dashboard for subscription health, error rates, latency. Aggregate logs → search for correlation failures, auth errors. Alert on Connector Runtime health endpoint, on metric thresholds, on Operate Incident growth tied to Inbound-triggered instances."
+    },
+    "b": {
+      "text": "Incorrect. Monitoring available."
+    },
+    "c": {
+      "text": "Incorrect. Operate is one part; Connector Runtime metrics are separate."
+    },
+    "d": {
+      "text": "Correct. Integration is team's work; raw data exposed."
+    }
+  },
+  "explanation": "Integration is team's work; raw data exposed.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/"
+    }
+  ],
+  "sourceSet": 9,
+  "sourceId": "set09-q46",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

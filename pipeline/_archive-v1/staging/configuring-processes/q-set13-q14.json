@@ -1,0 +1,63 @@
+{
+  "id": "imp-set13-q14",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team's contracts process versions documents -- the same contract might exist as v1 (original) and v2 (amended). They wonder if Document Handling supports document versioning.",
+  "question": "Does Document Handling support document versioning?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Built-in versioning -- partial; verify per version."
+    },
+    {
+      "id": "b",
+      "text": "Document Handling provides no versioning capability whatsoever -- partial; while built-in automatic versioning may not be a primary feature, application-level versioning is entirely achievable through the metadata and naming capabilities of the Document Handling API. Each document upload creates a unique ID and supports arbitrary metadata fields. Teams can implement versioning by storing version numbers in metadata, using consistent naming conventions that include version identifiers, or tracking document version chains in process variables or an external database. The lack of native versioning does not prevent effective version management."
+    },
+    {
+      "id": "c",
+      "text": "Use Git Large File Storage for all business document versioning within Camunda processes -- partial; Git LFS is one valid option for technical document versioning but is typically better suited for source code and technical assets than for business process documents. For operational process documents like contracts, invoices, and reports, purpose-built Document Management Systems (DMS) or cloud storage with versioning (such as S3 versioned buckets) provide more appropriate access control, retention policies, metadata, and audit trails. Git LFS lacks business-oriented metadata and approval workflows needed in regulated environments."
+    },
+    {
+      "id": "d",
+      "text": "Document Handling's primary abstraction is per-document -- each upload creates a unique document ID with associated metadata -- and versioning is a higher-level concern typically implemented at the application or business level. 8. Teams implement versioning by naming documents with version identifiers, storing version chains in process variables, or using an external Document Management System with native versioning. The Document Handling API provides the storage foundation; version management logic lives in the process model or application layer."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Document Handling design vs document versioning: Camunda Documents API: Upload: creates a document with unique ID. Reference: the ID is passed around via process variables. Metadata: optional metadata attached at upload (custom fields, business context). Lifecycle: TTL-based expiry or explicit DELETE. Built-in versioning: typically NOT a primary feature -- verify your Camunda 8 version's specific capabilities. Documents are individual entities. Application-level versioning patterns: Pattern 1: Metadata-based: Upload v1 with metadata {\"contractId\": \"C-100\", \"version\": 1}. Upload v2 with metadata {\"contractId\": \"C-100\", \"version\": 2}. Query by contractId; sort by version. Two documents in storage; logically a version chain. Pattern 2: External DMS (Document Management System): Use a dedicated DMS (SharePoint, Alfresco, etc.) for versioned documents. Camunda Document Handling references DMS URLs / IDs. DMS handles versioning, audit, retention, locking, etc. Pattern 3: S3 with versioning: S3 bucket with versioning enabled. Each upload to same key creates a new version automatically. Camunda references S3 keys; client retrieves specific versions if needed. Pattern 4: External DB tracking: Process variables store document IDs per version. External database tracks version history. Camunda holds references; DB is source of truth for version chain. Pick based on requirements (collaboration features, retention, compliance, etc.)."
+    },
+    "b": {
+      "text": "Incorrect. Verify."
+    },
+    "c": {
+      "text": "Incorrect. Achievable via app."
+    },
+    "d": {
+      "text": "Correct. One option."
+    }
+  },
+  "explanation": "One option.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/document-handling/getting-started/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q14",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 12.7 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

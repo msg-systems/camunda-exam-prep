@@ -1,0 +1,56 @@
+{
+  "id": "imp-set04-q33",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An Outbound HTTP Connector calls a partner API that returns paginated results (1000 items per page; 50 pages total). The team wants to fetch all 50 pages without manually modelling 50 calls.",
+  "question": "Which BPMN+Connector pattern handles paginated fetch?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The HTTP Connector in Camunda 8 does not have a built-in paginate = true option that automatically traverses multiple pages. The Connector executes a single HTTP request and returns one response. Pagination logic -- tracking page numbers, appending results, deciding when to stop -- must be implemented in the BPMN process structure rather than inside the Connector configuration. Each page requires a separate Connector invocation coordinated by loop flow around the Service Task."
+    },
+    {
+      "id": "b",
+      "text": "A Service Task with HTTP Connector inside a loop -- implemented as a Sequential Multi-Instance Subprocess or a loop with XOR gateway -- allows each iteration to call the next API page using a page-number variable updated between calls. The process continues iterating until a hasNextPage flag or a total count condition is met. Each HTTP call fetches one page; results are appended to an accumulator list. This is the standard BPMN architecture for paginated REST API traversal in Camunda 8."
+    },
+    {
+      "id": "c",
+      "text": "Building a Custom Connector specifically for pagination is a valid but overengineered approach for standard REST pagination patterns. Custom Connectors require Connector SDK development, containerised deployment, and ongoing maintenance. The same result is achievable with the existing HTTP Connector inside a BPMN loop without any custom code. Custom Connectors are warranted for complex, reusable integration patterns unaddressed by the existing Connector catalogue -- not for straightforward loop-and-accumulate pagination."
+    },
+    {
+      "id": "d",
+      "text": "The first page is fetched, result items appended to a list variable, the page counter incremented, and the loop continues until the last page is reached. ###"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Pagination is a BPMN-level pattern: loop the Connector call within MI Subprocess (sequential when tokens chain, parallel when pages are independent), accumulate via outputCollection."
+    },
+    "b": {
+      "text": "Correct. HTTP Connector doesn't have a paginate toggle."
+    },
+    "c": {
+      "text": "Incorrect. Standard Connector + BPMN loop suffices."
+    },
+    "d": {
+      "text": "Incorrect. Pagination is solvable via BPMN constructs."
+    }
+  },
+  "explanation": "HTTP Connector doesn't have a paginate toggle.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 4,
+  "sourceId": "set04-q33",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

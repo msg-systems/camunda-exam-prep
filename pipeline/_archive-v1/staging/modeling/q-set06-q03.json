@@ -1,0 +1,56 @@
+{
+  "id": "imp-set06-q03",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A money-transfer process consists of: debit-source, credit-target, send-confirmation. If credit-target fails after debit-source succeeded, the team needs an automatic reversal of the debit via a compensation handler. Which BPMN construct fits the compensation handler attached to debit-source?",
+  "question": "Which BPMN construct fits the compensation handler attached to debit-source?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Error Boundary Event on debit-source would handle a failure occurring within that task itself. It does not address reversing a completed successful activity when a later step fails. Compensation is about undoing past successes, whereas Error Boundary handles the failing task in the present moment of execution. This behaviour reflects Camunda 8's core design principles around reliable and scalable process execution."
+    },
+    {
+      "id": "b",
+      "text": "Timer Boundary Event fires on a scheduled duration or calendar date, not in response to a compensation trigger. It cannot be wired to execute a reversal task when a downstream step fails. The trigger condition is time-based, not compensation-based, so it is misaligned with this use case. Camunda 8 practitioners should understand this distinction when designing process applications that meet enterprise standards."
+    },
+    {
+      "id": "c",
+      "text": "A downstream Service Task that always reverses the debit would execute unconditionally on every process execution, including the happy path where no failure occurred. 0 in Camunda 8."
+    },
+    {
+      "id": "d",
+      "text": ", reverse-debit Service Task). When a Compensation Throw event fires upstream or downstream, this handler executes the reversal. The boundary event associates the undo behaviour with the completed activity at design time and is invoked only when compensation is triggered."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Compensation Boundary Event attaches to a completed activity and associates a handler. When a Compensation Throw event fires, the engine invokes all compensation handlers of completed activities in its scope at once, without any specific order (per compensation-events.md:31-35). If a specific order is required, fire the compensation per-activity via a chain of Compensation Intermediate Throw Events with the activityRef attribute pointing at each compensation activity in turn (per :73-83). The boundary event itself is the handler association -- declares the undo behaviour at design time."
+    },
+    "b": {
+      "text": "Incorrect. Error handles the failing task, not undo for prior successes."
+    },
+    "c": {
+      "text": "Incorrect. Timer fires on schedule, not on need-to-compensate."
+    },
+    "d": {
+      "text": "Correct. Reverses even when no failure occurred."
+    }
+  },
+  "explanation": "Reverses even when no failure occurred.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 6,
+  "sourceId": "set06-q03",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

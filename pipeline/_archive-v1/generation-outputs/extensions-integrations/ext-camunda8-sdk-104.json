@@ -1,0 +1,27 @@
+{
+  "id": "ext-camunda8-sdk-104",
+  "topic": "extensions-integrations",
+  "subtopic": "typescript-sdk",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Meridian Insurance runs a Camunda 8.8 claims process with a follow-up user task that is currently produced 2400 instances per day. A Node.js program built with the TypeScript SDK must continuously discover new CREATED user tasks, claim them as assignee jwulf, and then mark them complete with userTaskStatus 'Got done', using the documented polling subscription idiom on the camunda client.",
+  "question": "Which SDK call sets up the polling subscription that the quickstart uses to find CREATED user tasks?",
+  "options": [
+    { "id": "a", "text": "Call camunda.subscribeUserTasks with a filter for state CREATED and pass a predicate handler that calls assignUserTask and completeUserTask for each new userTaskKey discovered" },
+    { "id": "b", "text": "Call camunda.streamUserTasks with a filter for state CREATED and pass a predicate handler that calls assignUserTask and completeUserTask for each new userTaskKey discovered" },
+    { "id": "c", "text": "Call camunda.searchUserTasks with filter state CREATED and consistency.waitUpToMs Infinity, where the predicate becomes a polling subscription that handles each new userTaskKey" },
+    { "id": "d", "text": "Call camunda.watchUserTasks with filter state CREATED and consistency.intervalMs 1000, where the watcher fires callbacks for each new userTaskKey returned by the polling cycle" }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The SDK does not expose subscribeUserTasks for this flow; the documented pattern uses searchUserTasks with consistency.waitUpToMs Infinity to turn the predicate into a polling subscription." },
+    "b": { "text": "Incorrect. There is no streamUserTasks call in the quickstart; the documented call is searchUserTasks together with a consistency block that includes waitUpToMs Infinity." },
+    "c": { "text": "Correct. The quickstart sets up camunda.searchUserTasks with filter state CREATED and a consistency object whose waitUpToMs is Infinity, so the predicate becomes a polling subscription invoked on each cycle." },
+    "d": { "text": "Incorrect. The SDK does not document a watchUserTasks API; the documented user task polling uses searchUserTasks with consistency.waitUpToMs Infinity and a predicate function." }
+  },
+  "explanation": "The quickstart uses camunda.searchUserTasks with filter state CREATED and a consistency block whose waitUpToMs is Infinity and pollIntervalMs is 1000, so the predicate function becomes a polling subscription that claims and completes each new user task.",
+  "docs": [
+    { "title": "Camunda 8 TypeScript SDK", "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/" }
+  ]
+}

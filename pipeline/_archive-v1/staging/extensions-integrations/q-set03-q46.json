@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q46",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team builds a custom Inbound Connector that listens for events from RabbitMQ. The Connector should be deployable as a JAR to the Connector Runtime. The team is unfamiliar with the SDK structure.",
+  "question": "Which is the main SDK interface that an Inbound Connector must implement?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Implement OutboundConnectorFunction -- this interface handles both inbound and outbound connector patterns through a unified interface with a single execute(OutboundConnectorContext) method. OutboundConnectorFunction is specifically for outbound connectors that are invoked synchronously by the Connector Runtime to process a job and return a result. Inbound connectors require a completely different interface with lifecycle methods (activate and deactivate) for managing long-running event subscriptions to external sources like RabbitMQ."
+    },
+    {
+      "id": "b",
+      "text": "Subclass ZeebeJobWorker -- this is the base class for inbound connectors in the Connector SDK, providing the event subscription lifecycle and the RabbitMQ integration hooks needed. ZeebeJobWorker is absent from the Connector SDK as a class or interface. Job Workers are a separate abstraction layer below connectors; they directly handle Zeebe job activations rather than managing subscriptions to external event sources. Inbound Connectors in the SDK implement InboundConnectorExecutable, not a job-worker subclass."
+    },
+    {
+      "id": "c",
+      "text": "No specific interface is required -- Inbound Connectors are plain Java objects (POJOs) that the Connector Runtime discovers via classpath scanning and invokes through reflection. The team just needs to annotate the class and implement the event subscription logic without any interface contract. POJOs without the required interface will not be recognized as Inbound Connectors."
+    },
+    {
+      "id": "d",
+      "text": "InboundConnectorExecutable (or its newer typed variants like MessageInboundConnectorExecutable) -- defines the activate(InboundConnectorContext context) and deactivate() lifecycle methods that the Connector Runtime invokes when a matching BPMN element is deployed (activate: subscribe to RabbitMQ queue and start consuming events) or undeployed (deactivate: unsubscribe cleanly and release all connections). The Connector Runtime manages lifecycle orchestration; the implementation handles the actual event source integration and message publishing."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Connector SDK defines InboundConnectorExecutable (and subtypes for specific event-handling shapes like MessageInboundConnectorExecutable). Implement activate() to subscribe to the external event source (RabbitMQ queue), and deactivate() to release resources when the process is undeployed. The Connector Runtime calls these."
+    },
+    "b": {
+      "text": "Incorrect. OutboundConnectorFunction is for outbound; inbound has its own interface."
+    },
+    "c": {
+      "text": "Incorrect. Job Workers are a different abstraction; Inbound Connectors run in Connector Runtime."
+    },
+    "d": {
+      "text": "Correct. SDK requires interface implementation."
+    }
+  },
+  "explanation": "SDK requires interface implementation.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q46",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "id": "imp-set12-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A custom Java Connector depends on several Spring beans (HTTP client, logger, config). The team wonders if Connector code can use Spring DI.",
+  "question": "Can custom Connector code use Spring DI?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Claiming that Spring dependency injection always works fully for custom Connector code is only partially correct. Spring DI works seamlessly when the Connector Runtime is embedded in the team's own Spring Boot application, because in that case Connector classes are standard Spring-managed beans with full @Autowired support, AOP, and lifecycle management. Teams must verify their specific Connector Runtime deployment model before assuming full Spring DI availability."
+    },
+    {
+      "id": "b",
+      "text": "Whether Spring DI is available in custom Connector code depends on the Connector Runtime deployment model being used. When teams embed the Connector Runtime inside their own Spring Boot application, Connector classes become standard Spring-managed beans with full @Autowired support, AOP, and lifecycle management. Dependencies like HTTP clients, loggers, and configuration beans can be injected normally. Teams must verify their specific deployment model before assuming full Spring DI availability for Connector code."
+    },
+    {
+      "id": "c",
+      "text": "When teams embed the Connector Runtime within their own Spring Boot application, Connector classes participate fully in the Spring application context. Dependencies like HTTP clients, loggers, and configuration beans can be injected via @Autowired or constructor injection. The Connector class itself can be annotated with @Component or @Service. The \"never\" assertion applies only to the bundled Connector Runtime model, where DI requires workarounds; it does not represent the general case for all Connector deployment patterns."
+    },
+    {
+      "id": "d",
+      "text": "Spring DI is a well-established and legitimate pattern for managing dependencies in Java applications, and using it in Connector code is fully supported when the Connector Runtime is embedded in a Spring Boot application. Injecting services like HTTP clients, configuration beans, and loggers via Spring DI makes Connector code more testable, configurable, and maintainable. The concern is not about whether to use DI but about which Connector Runtime model enables it -- embedded Spring Boot hosting enables it; bundled runtime may require alternatives."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Spring DI in custom Connectors depends on the Connector Runtime deployment model: Embedded Connector Runtime in Spring Boot app: Your team operates a Spring Boot application that hosts the Connector Runtime AND your custom Connectors. Connectors are Spring beans; @Autowired works. Pro: full Spring features; DI; lifecycle management; profiles; configuration. Con: you operate the Connector Runtime (deployment, scaling, monitoring). Bundled Connector Runtime (Camunda-managed in SM / SaaS): The Connector Runtime is provided by Camunda; you upload custom Connector JARs. The SDK / Runtime instantiates Connector classes; Spring DI in your Connector class may not auto-work (depends on the Runtime's wiring). Workarounds: Pass dependencies via Connector properties / context. Static / factory-pattern dependencies. Wrap Spring-DI in a separate service; Connector calls it via HTTP / gRPC. Recommendation for Spring-heavy teams: Self-host the Connector Runtime in a Spring Boot app (option 1). Full DI; easier to maintain Spring services in Connectors. For SaaS / managed Runtime: rely on context-passed dependencies or external service calls. Verify the specific Connector Runtime model in your Camunda 8 setup."
+    },
+    "b": {
+      "text": "Correct. Depends."
+    },
+    "c": {
+      "text": "Incorrect. Depends."
+    },
+    "d": {
+      "text": "Incorrect. Legitimate."
+    }
+  },
+  "explanation": "Depends.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q45",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      }
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q50",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "SDK connects to gRPC for job activation but REST for some operations. Team wonders which APIs use which.",
+  "question": "gRPC vs REST endpoints in Camunda 8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "6+ added a comprehensive REST API alongside the existing gRPC (Zeebe) API. The REST API exposes endpoints for process instance management, variable operations, job activation, user task management, and deployment. Both APIs are available simultaneously on the same Orchestration Cluster. 1 with JSON, while gRPC uses HTTP/2 with Protocol Buffers. Teams can use either or both APIs depending on language and tooling preferences."
+    },
+    {
+      "id": "b",
+      "text": "8. gRPC (Zeebe gateway, port 26500) remains the high-performance channel for job workers and operations requiring bidirectional streaming. REST (Orchestration Cluster REST API, port 8080) provides HTTP/JSON access for the same operations plus consolidated query APIs. The CamundaClient Java client configures both via grpcAddress and restAddress. 8 but did not replace gRPC; both coexist serving different use case needs."
+    },
+    {
+      "id": "c",
+      "text": "The Camunda 8 gRPC and REST APIs are identical in capability and performance -- there is no difference between them -- this approach has limitations. While both APIs provide access to the same core operations, they differ in important ways. js SDKs. 8 to replace fragmented per-component APIs (Operate API, Tasklist API). They are complementary, not identical."
+    },
+    {
+      "id": "d",
+      "text": "8 exposes both gRPC and REST APIs on the Orchestration Cluster: gRPC (Zeebe gateway, default :26500) per apis-tools/zeebe-api/: high-performance ops -- job activation, complete, fail, deploy, etc. grpcAddress(URI) is configured. restAddress(URI) is configured. 8, Pattern #11). md:93-95 (Pattern #54 -- ZeebeClient renamed to CamundaClient). md streaming)."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8 API layers: gRPC API (Zeebe): Endpoint: gateway typically localhost:26500 (Self-Managed) or cluster.region.zeebe.camunda.io:443 (SaaS). Use cases: Job activation, complete, fail, throwError. Deploy resources. Create process instance. Cancel / Modify instance. Pros: High performance: binary protocol, efficient. Bi-directional streaming: streaming job activation (per Set 15 Q20). Type-safe: protocol buffers. Cons: Less browser-friendly: HTTP/2 + binary. Tooling: gRPC clients needed. Some firewalls: HTTP/2 sometimes blocked. REST API (Zeebe) (newer): Endpoint: HTTP/REST alongside gRPC. Use cases: Same operations as gRPC. Designed for compatibility. Pros: Universal: any HTTP client works. Browser-friendly: JS fetch / etc. Easier debugging: curl, Postman. Cons: Lower performance vs gRPC (typically). Newer: feature parity in flux; verify version. Operate / Tasklist REST APIs: Separate from Zeebe APIs: Operate: query instances, incidents. Tasklist: query/manage tasks. Authentication: same OAuth client credentials typically. Use cases: Custom dashboards / UIs. Bulk operations (per Set 14 Q52). Integration with external systems. SDK abstractions: 8.8 Java client CamundaClient uses both: `java CamundaClient.newClientBuilder() .grpcAddress(URI.create(\"http://localhost:26500\")) // gRPC .restAddress(URI.create(\"http://localhost:8080\")) // REST .build(); TypeScript / Node SDK (@camunda8/sdk`): REST-first in 8.8 (operates against the consolidated Orchestration Cluster API). Standalone Operate-API / Tasklist-API clients: legacy 8.7 endpoints -- in 8.8 the equivalent calls are consolidated under the Orchestration Cluster REST API (Pattern #11). For different roles: Workers: gRPC preferred: streaming, low latency. REST possible: especially for non-Java languages. Admins / Ops: REST: Operate/Tasklist APIs. For management operations. Custom UIs: REST: easier from browser. Operate API for process state; Tasklist API for tasks. For non-JVM languages: Node: SDK uses gRPC. Python: gRPC libraries available. Browser: REST preferred. gRPC client tools: grpcurl: command-line gRPC. BloomRPC / Insomnia: GUI clients. Generated stubs: from proto files. REST client tools: curl: universal. Postman / Insomnia: GUI. HTTP libraries: any language. For the scenario (some via gRPC, some REST): Workers: gRPC for jobs. Operate queries: REST for instance info. Tasklist actions: REST for tasks. Both via same OAuth credentials typically. Best practices: Use gRPC for performance-critical (jobs). Use REST for management / integration (queries, custom UI). SDKs abstract: use SDK over raw API typically. Verify version: feature parity evolves. Anti-patterns: Polling Zeebe REST in browser: high overhead; use Operate UI. gRPC from browser without proxy: doesn't work directly. For SaaS: Both gRPC and REST exposed. Configure SDK with cluster endpoints. For Self-Managed: Gateway exposes both. Configure ports. For migration: gRPC clients can stay; REST emerges as alternative. New integrations: REST often easier."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/orchestration-cluster-api-rest/orchestration-cluster-api-rest-overview/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q50",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

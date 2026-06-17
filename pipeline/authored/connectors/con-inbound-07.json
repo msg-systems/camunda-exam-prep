@@ -1,0 +1,58 @@
+{
+  "id": "con-inbound-07",
+  "topic": "connectors",
+  "subtopic": "inbound",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A webhook is invoked with `curl -X POST -H \"MyHeader: myValue\" -d '{\"id\": 123}' \"http://host/inbound/myWebhook?param1=val1\"`. Inside the **Result expression**, which FEEL expression correctly reads the URL parameter `param1`?",
+  "options": [
+    {
+      "id": "a",
+      "text": "First expression"
+    },
+    {
+      "id": "b",
+      "text": "Second expression"
+    },
+    {
+      "id": "c",
+      "text": "Third expression"
+    },
+    {
+      "id": "d",
+      "text": "Fourth expression"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "URL query parameters are exposed on `request.params`. The docs show that the incoming context contains `request.params.param1 = \"val1\"`, accessed as `=request.params.param1`."
+    },
+    "b": {
+      "text": "`request.body.param1` would only resolve if `param1` were a JSON body field. In this request, `param1` is a URL query parameter, not part of the body."
+    },
+    "c": {
+      "text": "Headers are exposed under `request.headers` (e.g., `request.headers.myheader`), not URL parameters. Camunda webhooks lowercase header keys."
+    },
+    "d": {
+      "text": "Webhook context is rooted at `request`. There is no top-level `params` variable; the prefix `request.` is required."
+    }
+  },
+  "explanation": "Inbound webhook context is exposed as a `request` object with three sub-maps: `request.body` for JSON body fields, `request.headers` for HTTP headers (keys lowercased), and `request.params` for URL query parameters. These references are available in the **Activation condition**, **Result expression**, and **Response body expression**.",
+  "docs": [
+    {
+      "title": "Use inbound connectors",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/inbound/"
+    }
+  ],
+  "codeBlocks": {
+    "perOption": {
+      "a": "=request.params.param1",
+      "b": "=request.body.param1",
+      "c": "=request.headers.param1",
+      "d": "=params.param1"
+    }
+  }
+}

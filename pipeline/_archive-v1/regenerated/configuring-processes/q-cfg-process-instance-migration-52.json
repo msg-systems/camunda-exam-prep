@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-52",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Bank runs 12000 transactions per day on Camunda 8.8. The redesigned process keeps a message event subprocess with the same message name as before, and the migration team wants the message subscription preserved across the migration so that in-flight instances continue to react to the same message events without interruption.",
+  "question": "Which mapping instruction preserves the message subscription for a message event subprocess across migration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Map the start event of the source event subprocess to the start event of the target event subprocess so the engine preserves the message name across migration"
+    },
+    {
+      "id": "b",
+      "text": "Map the process definition id of the source to the process definition id of the target so the engine preserves the message name across migration of the instance"
+    },
+    {
+      "id": "c",
+      "text": "Map the parent subprocess of the source to the parent subprocess of the target so the engine preserves the message name across migration of the instance"
+    },
+    {
+      "id": "d",
+      "text": "Map a user task in the source process to the same user task in the target process so the engine preserves the message name across migration of the instance"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The documentation states that to keep the message name the same for a message event subprocess, the start event of the event subprocess must be mapped when migrating the process instance."
+    },
+    "b": {
+      "text": "Incorrect. Mapping process definition ids is not how event subscriptions are preserved; the documented mechanism is to map the start event of the event subprocess between source and target."
+    },
+    "c": {
+      "text": "Incorrect. Mapping a parent subprocess does not preserve a message subscription on its own; the start event of the event subprocess must be mapped to keep the message name."
+    },
+    "d": {
+      "text": "Incorrect. User task mappings are unrelated to preserving a message event subscription; the start event of the message event subprocess must be mapped between source and target."
+    }
+  },
+  "explanation": "Preserving the message name on a message event subprocess across migration requires mapping the start event of the event subprocess from source to target, so the message subscription is migrated rather than closed.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

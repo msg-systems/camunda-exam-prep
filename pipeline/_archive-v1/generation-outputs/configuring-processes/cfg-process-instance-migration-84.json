@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-84",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Lattice Insurance is migrating 2500 claims that are waiting at an intermediate signal catch event attached to an event-based gateway. The team has renamed the signal in the target process definition from claim-paid to claim-settled and wants the in-flight instances to start subscribing to the new signal name once the migration completes.",
+  "question": "Which mapping choice for the intermediate signal catch event causes the subscription to be reopened against the renamed signal in the target process?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Omit the mapping for the intermediate signal catch event so the source subscription is closed and a new one is opened against the target catch event with the renamed signal name"
+    },
+    {
+      "id": "b",
+      "text": "Map the intermediate signal catch event to the renamed target catch event so the subscription is migrated and the broker rewrites the signal name to match the target definition"
+    },
+    {
+      "id": "c",
+      "text": "Map the intermediate signal catch event to itself and add a variable instruction signalName set to claim-settled so the broker rebinds the subscription to the new signal at runtime"
+    },
+    {
+      "id": "d",
+      "text": "Provide no mappings for any element and rely on the broker to auto-rename signal subscriptions whenever a new deployment is detected within the migrated process instance"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. To update a signal name for an intermediate signal catch event during migration, the mapping for that catch event must be omitted. The engine then closes the source subscription and opens a new one on the target catch event using the renamed signal name."
+    },
+    "b": {
+      "text": "Incorrect. Mapping a catch event preserves the existing subscription and does not rewrite the signal name. The migrated instance would continue to be subscribed to the original signal name from the source process definition."
+    },
+    "c": {
+      "text": "Incorrect. Migration does not provide a signalName variable instruction to rebind a subscription. Subscription identity for a catch event is decided by mapping or omitting the mapping, not by setting a variable."
+    },
+    "d": {
+      "text": "Incorrect. The migration plan must also map every active element, and there is no auto-rename behaviour at deployment time. A migration command without the required element mappings would be rejected by the validation step."
+    }
+  },
+  "explanation": "To update the signal name on an intermediate signal catch event after migration, the catch event mapping must be omitted. The engine then closes the existing subscription and opens a new one on the target catch event with the renamed signal.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

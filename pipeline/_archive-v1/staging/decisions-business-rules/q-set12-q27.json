@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q27",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team wants to call the same DMN decision from multiple BPMN processes. They wonder if this is supported and best practice.",
+  "question": "Can a DMN decision be invoked from multiple BPMN processes?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Yes -- DMN decisions are deployed cluster-wide and can be invoked by any BPMN process via Business Rule Task with decisionId reference. Single source of truth for the decision logic; reused across processes. Best practices: - Stable decisionId across versions (treat as public interface). - Backward-compatible changes when evolving (don't break callers). - Document the decision's inputs / outputs for caller awareness. - Test changes against representative callers."
+    },
+    {
+      "id": "b",
+      "text": "DMN decisions in Camunda 8 are deployed cluster-wide and referenced by their decision ID. Any number of BPMN processes can configure a Business Rule Task pointing to the same decisionId, and each invocation runs independently without shared state. Restricting a decision to a single caller would negate the primary architectural benefit of centralized decision logic and force teams to maintain duplicate rules across separate DMN files."
+    },
+    {
+      "id": "c",
+      "text": "Duplicating the DMN file once for each BPMN process that needs it is an anti-pattern that violates the DRY (Don't Repeat Yourself) principle. When the rule logic needs to change, every duplicated copy must be found and updated individually -- any missed copy causes inconsistency between processes. Bug fixes in one copy do not propagate to others. Camunda 8 is specifically designed to allow multiple processes to call the same deployed decision by referencing a shared decisionId, making duplication unnecessary and harmful to maintainability."
+    },
+    {
+      "id": "d",
+      "text": "Suggesting BKMs (Business Knowledge Models) as the mechanism for sharing decision logic across multiple BPMN processes is a misapplication. BKMs are a DMN-internal reuse mechanism -- they encapsulate sub-logic that can be called from within other decisions in the same DMN file. BKMs are not directly invokable from BPMN process instances. The correct approach for multi-process reuse is to deploy a shared decision and have each BPMN process reference it via a Business Rule Task with the shared decisionId."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. DMN decisions, like BPMN processes, are deployed cluster-wide and referenced by ID. Multiple BPMN processes can invoke the same decision: Setup: 1. Deploy DMN with decision discount-calculator. 2. BPMN Process A: Business Rule Task with decisionId=\"discount-calculator\". 3. BPMN Process B: Business Rule Task with same decisionId. 4. Each invocation evaluates the decision independently; results don't share state. Benefits: Single source of truth: one decision implementation; all callers use it. Consistency: updating the decision propagates to all callers' next invocations. Maintainability: centralised logic. Best practices: Stable interface (decisionId): don't change ID across versions; callers depend on it. Backward-compatible evolution: add inputs / outputs without removing existing ones. Communication: when changing the decision, notify caller process owners. Versioning awareness: decisions evolve; running instances of older BPMN versions may use older decision versions depending on resolution semantics. Testing: changes tested against representative input sets covering all callers' use cases. Anti-pattern: copy-pasting the same DMN logic into multiple files for separate callers -- diverges over time; bug fixes don't propagate; defeats DRY."
+    },
+    "b": {
+      "text": "Incorrect. Multi-caller designed."
+    },
+    "c": {
+      "text": "Incorrect. Option d) -- Partial. BKM is DMN-internal; multi-process reuse via decision invocation."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "DMN decisions, like BPMN processes, are deployed cluster-wide and referenced by ID. Multiple BPMN processes can invoke the same decision: Setup: 1. Deploy DMN with decision discount-calculator. 2. BPMN Process A: Business Rule Task with decisionId=\"discount-calculator\". 3. BPMN Process B: Business Rule Task with same decisionId. 4. Each invocation evaluates the decision independently; results don't share state. Benefits: Single source of truth: one decision implementation; all callers use it. Consistency: updating the decision propagates to all callers' next invocations. Maintainability: centralised logic. Best practices: Stable interface (decisionId): don't change ID across versions; callers depend on it. Backward-compatible evolution: add inputs / outputs without removing existing ones. Communication: when changing the decision, notify caller process owners. Versioning awareness: decisions evolve; running instances of older BPMN versions may use older decision versions depending on resolution semantics. Testing: changes tested against representative input sets covering all callers' use cases. Anti-pattern: copy-pasting the same DMN logic into multiple files for separate callers -- diverges over time; bug fixes don't propagate; defeats DRY.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/business-rule-tasks/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q27",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q24",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A retail analytics report queries the highest discount that applied to each order. The DMN discount-rules matches multiple rules per order and outputs discount percentages. The team wants the final result to be the maximum discount across all matching rules (e.g., if both \"loyalty\" and \"bulk\" matched at 10% and 15%, return 15%).",
+  "question": "Which Hit Policy + aggregator returns the MAX of all matching outputs?",
+  "options": [
+    {
+      "id": "a",
+      "text": "PRIORITY hit policy -- when multiple rules match, returns the output value ranked highest according to the declared output priority list in the output column enumeration. 3 specification, PRIORITY selects the highest-ranked output by declaration order, not by maximum numerical value."
+    },
+    {
+      "id": "b",
+      "text": "Use COLLECT hit policy without an aggregator to gather all matching rule outputs into a list, then add a downstream Script Task with FEEL max(discounts) to compute the maximum discount from the collected list. While this technically produces the correct numerical result, it bypasses the native COLLECT-MAX aggregator built into DMN. The additional Script Task adds unnecessary process complexity, splits the aggregation logic across two separate elements, and increases maintenance overhead compared to the built-in solution."
+    },
+    {
+      "id": "c",
+      "text": "COLLECT with MAX aggregator -- the decision table evaluates all rules, collects outputs from every matching rule, then applies the MAX aggregator to return only the single highest discount value. No downstream processing is needed. md lines 139-170, COLLECT supports four aggregators: SUM, MIN, MAX, and COUNT. When an aggregator is configured, the table must have exactly one output column. This directly satisfies the \"maximum discount across all matching rules\" requirement in a single DMN element."
+    },
+    {
+      "id": "d",
+      "text": "OUTPUT ORDER hit policy -- returns all matching rule outputs as a sorted list ordered by declared output priority, from which the first element (highest priority) can be taken. 3, OUTPUT ORDER returns a sorted list based on output enumeration order, not a single maximum numerical value. Sorting by declared order is fundamentally different from computing a numerical maximum."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. COLLECT with MAX aggregator is the canonical DMN policy for \"max of matching outputs\". The DMN engine evaluates all matching rules, computes max of their outputs, returns single scalar. No downstream processing needed. Per decision-table-hit-policy.md lines 139-170, COLLECT supports four aggregators: SUM, MIN, MAX, COUNT. With an aggregator set, the table must have exactly one output (line 126)."
+    },
+    "b": {
+      "text": "Incorrect. PRIORITY is not in Camunda 8's supported hit-policy list (only UNIQUE / ANY / FIRST / RULE ORDER / COLLECT per decision-table-hit-policy.md lines 26-53); even in the DMN-1.3 spec it orders by declared output priority, not numerical max value."
+    },
+    "c": {
+      "text": "Correct. Adding a Script Task with max() works but COLLECT-MAX does it natively."
+    },
+    "d": {
+      "text": "Incorrect. OUTPUT ORDER is also not supported in Camunda 8 (per decision-table-hit-policy.md lines 26-53 only the five listed policies are supported); even in DMN-1.3 it returns a sorted list, not a single max value."
+    }
+  },
+  "explanation": "Adding a Script Task with max() works but COLLECT-MAX does it natively.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q24",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

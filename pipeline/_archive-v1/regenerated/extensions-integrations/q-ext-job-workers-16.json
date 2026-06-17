@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-16",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Vale Health, a healthcare provider running Camunda 8.8 to coordinate 9000 records per month, tags each process instance with attributes such as Priority:High and region:eu. A new worker team needs to know whether those tags can be mutated by job workers, and whether tag comparisons inside worker logic should be treated as case-sensitive.",
+  "question": "How are tags applied to a job once the BPMN element creates that job in Camunda 8.8?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Tags are snapshotted from the process instance at job creation and remain immutable, and case is preserved so Priority:High and priority:high are treated as different tags on the job"
+    },
+    {
+      "id": "b",
+      "text": "Tags can be added or removed on a job after creation by the worker, and the runtime broadcasts those changes back to the originating process instance for re-evaluation"
+    },
+    {
+      "id": "c",
+      "text": "Tags are recomputed from the process instance each time a worker activates the job, so any tag change on the instance is visible to the next activation of the same job"
+    },
+    {
+      "id": "d",
+      "text": "Tags are normalized to lowercase before being copied to the job, so Priority:High and priority:high reference the same tag on the resulting job for worker comparisons"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. When a BPMN element creates a job, the job receives a snapshot copy of all process-instance tags and that set is immutable thereafter. Tags are also case-sensitive, so Priority:High and priority:high are distinct keys for worker logic."
+    },
+    "b": {
+      "text": "Incorrect. Once tags are copied to a job they cannot be modified, added, or removed, and there is no documented broadcast back to the process instance."
+    },
+    "c": {
+      "text": "Incorrect. Tags are copied exactly once at job creation, not recomputed on each activation, so later tag changes on the instance do not propagate to existing jobs."
+    },
+    "d": {
+      "text": "Incorrect. Tags are case-sensitive on jobs, so Priority:High and priority:high remain distinct and there is no documented lowercase normalization step."
+    }
+  },
+  "explanation": "When a BPMN element creates a job in Camunda 8.8, the job inherits a snapshot of the process instance's complete tag set at that moment. That snapshot is immutable for the life of the job, and tag keys/values are case-sensitive, so workers must match them exactly.",
+  "docs": [
+    {
+      "title": "Job workers",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

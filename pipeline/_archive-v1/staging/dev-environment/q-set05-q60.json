@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q60",
+  "topic": "dev-environment",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team uses the official Docker Compose quickstart for local Camunda 8 Self-Managed. After docker compose up -d, they want to access the UIs.",
+  "question": "Which port mapping is canonical for the bundled services?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Operate on port 8080, Tasklist on port 8082, Identity on port 8084, Zeebe gRPC on port 26500, and Connectors on port 8085 -- each service on a separate dedicated port. 8 layout where Operate and Tasklist ran as separate HTTP server processes. 8, these components are consolidated into a single Orchestration Cluster process on port 8080 with path-based routing, making this separate-port layout outdated."
+    },
+    {
+      "id": "b",
+      "text": "All Camunda 8 bundled services in the Docker Compose quickstart are accessible on the standard HTTP port 80 via different paths. The Camunda 8 Docker Compose quickstart does not bind services to port 80. The Orchestration Cluster listens on port 8080, Zeebe gRPC on port 26500, and additional services like Console, Optimize, and Web Modeler use their own dedicated non-standard ports defined in the compose file."
+    },
+    {
+      "id": "c",
+      "text": "Orchestration Cluster consolidated on :8080 -- Operate at /operate, Tasklist at /tasklist, Admin at /admin, REST v2 at /v2. Zeebe gRPC on port :26500. In the full-configuration setup, additional services run on their own ports: Console on 8087, Optimize on 8083, Management Identity on 8084, Web Modeler on 8070. Elasticsearch on 9200, Keycloak on 18080."
+    },
+    {
+      "id": "d",
+      "text": "The Docker Compose quickstart assigns ports randomly to avoid conflicts, and users must check docker ps output to find which port each service is using after startup. Port assignments in the official Camunda 8 Docker Compose quickstart are fixed and deterministic, defined explicitly in the compose file. The Orchestration Cluster always binds to port 8080, Zeebe gRPC always binds to port 26500, and other services use their documented fixed ports."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. In 8.8 the Orchestration Cluster (Zeebe + Operate + Tasklist + Orchestration Cluster Admin) is consolidated on a single HTTP port :8080, served at path prefixes /operate, /tasklist, /admin, /v2 (REST) per self-managed/quickstart/developer-quickstart/docker-compose.md:80-86. Zeebe gRPC remains on :26500. In the full configuration additional services bind to their own ports: Console :8087, Optimize :8083, Management Identity :8084, Web Modeler :8070 (:94-99). External deps: Elasticsearch :9200, Keycloak :18080, PostgreSQL :5432 (:103-107)."
+    },
+    "b": {
+      "text": "Incorrect. Operate and Tasklist were separate processes on distinct ports in older Camunda 8 releases; from 8.8 they're consolidated into a single Orchestration Cluster process on :8080 with path-based routing (docker-compose.md:12)."
+    },
+    "c": {
+      "text": "Correct. Default isn't :80."
+    },
+    "d": {
+      "text": "Incorrect. Fixed by compose file."
+    }
+  },
+  "explanation": "Default isn't :80.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/docker-compose/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q60",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

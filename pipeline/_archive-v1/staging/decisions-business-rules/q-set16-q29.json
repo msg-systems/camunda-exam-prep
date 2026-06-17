@@ -1,0 +1,63 @@
+{
+  "id": "imp-set16-q29",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "FEEL needs intermediate variable for clarity: compute subtotal = sum(items), then total = subtotal * 1.2. Team wonders FEEL let syntax.",
+  "question": "FEEL context-let bindings?",
+  "options": [
+    {
+      "id": "a",
+      "text": "FEEL does support intermediate named bindings through context expressions {}. 2. total is valid Camunda 8 FEEL written inline in a Decision Literal Expression body. While the Boxed Context visual type is absent from Camunda 8 Modeler body types, the underlying context expression syntax is available inline."
+    },
+    {
+      "id": "b",
+      "text": "md:11-35 (Camunda 8 FEEL): each named entry can reference earlier entries defined in the same context. 2} computes subtotal first, then uses it in total. This is the canonical Camunda 8 FEEL approach for multi-step computations. fieldName to extract a scalar result. The let keyword syntax is absent from Camunda 8 FEEL documentation; use context expressions instead."
+    },
+    {
+      "id": "c",
+      "text": "Use process variables -- this is only partially correct. While process variables can serve as intermediate storage between separate Service Tasks or multiple BPMN elements, they are a heavyweight solution for computation within a single FEEL expression or Decision. Context expressions provide lightweight inline bindings that avoid roundtripping data through process scope. Storing every intermediate computation as a process variable inflates process state, complicates variable management, and requires additional Service Tasks or mappings. Context expressions are the idiomatic FEEL solution for intermediate variables within one expression."
+    },
+    {
+      "id": "d",
+      "text": "Only inline expressions -- this mischaracterizes how FEEL handles multi-step logic. While simple FEEL uses inline expressions, FEEL context expressions {} enable structured, named intermediate bindings within a single inline expression. This is not a limitation to flat, one-liner expressions but rather a composable, readable pattern for multi-step computations. b is itself inline (one expression) but internally structured with named bindings. FEEL's expressiveness goes well beyond simple arithmetic formulas."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. FEEL intermediate bindings: Context expression: `feel { subtotal: sum(items.price), tax: subtotal 0.20, total: subtotal + tax } Each field can reference earlier fields. Returns: context with all three fields. For specific output: Last field convention: some FEEL implementations return last field. Or explicit: pick field after. Verify per version. Boxed Context (DMN visual): Tabular UI: ┌──────────┬────────────────────────┐ │ subtotal │ sum(items.price) │ │ tax │ subtotal 0.20 │ │ total │ subtotal + tax │ ├──────────┼────────────────────────┤ │ │ total │ └──────────┴────────────────────────┘ Last row: final result expression (referencing fields). Use cases: Use case 1: Multi-step computation: feel { grossSalary: hours rate, tax: grossSalary 0.25, deductions: grossSalary 0.05, netSalary: grossSalary - tax - deductions } Each step builds on previous; clear logic. Use case 2: Named intermediate for clarity: feel { isVIP: customer.tier in [\"gold\", \"platinum\"], isLargeOrder: order.total > 10000, eligible: isVIP and isLargeOrder } Self-documenting. Use case 3: Avoiding repetition: feel { base: complicated_expression, a: base 2, b: base / 3, c: base + 5, result: {a: a, b: b, c: c} } Compute base once; use multiple times. let keyword (verify): Some FEEL implementations: feel let subtotal = sum(items.price), tax = subtotal 0.20 in subtotal + tax Functional-style. Verify Camunda 8 FEEL support. For Camunda 8: Boxed Context typical: In Web Modeler: visual table. In DMN XML: element. In BPMN FEEL (e.g., Output Mapping): xml Use field access on context. Compare with helper BKMs: BKM: Reusable across decisions. Function-like. Inline context: One-decision use. Inline clarity. Pick by reuse: Single-use: inline context. Multi-use: BKM. For multi-step in one decision: Context expression keeps related logic together. Cleaner than nested function calls. Anti-patterns: Long inline expressions: feel result: sum(items.price) + sum(items.price) 0.20 // repeats sum Better with context: feel { subtotal: sum(items.price), result: subtotal + subtotal 0.20 } Avoid repetition. For testing: Test each intermediate field separately: easier debugging. Modular logic. Best practices: Name intermediates clearly: self-documenting. One concept per field: focused. Use context for clarity: not just to \"fit\" complex logic. For the scenario (subtotal + total): feel { subtotal: sum(items), total: subtotal 1.2 } Or: feel let subtotal = sum(items) in subtotal 1.2 (verify let support). For composition: feel { pricing: { subtotal: sum(items.price), tax: subtotal 0.20, total: subtotal + tax }, shipping: { method: customer.preferredShipping, cost: if method = \"express\" then 20 else 10 }, grandTotal: pricing.total + shipping.cost } ` Nested contexts; clear structure."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-context-expressions/"
+    }
+  ],
+  "sourceSet": 16,
+  "sourceId": "set16-q29",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[2]"
+      }
+    ]
+  }
+}

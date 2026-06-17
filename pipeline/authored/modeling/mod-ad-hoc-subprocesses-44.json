@@ -1,0 +1,53 @@
+{
+  "id": "mod-ad-hoc-subprocesses-44",
+  "topic": "modeling",
+  "subtopic": "ad-hoc sub-processes",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An ad-hoc sub-process is handled internally by Zeebe with `completionCondition` set as shown and `cancelRemainingInstances` set to `false`. Five inner activities have been activated; the third one completes and the condition evaluates to `true`. What happens to the two activities still running?",
+  "options": [
+    {
+      "id": "a",
+      "text": "They are terminated immediately and the ad-hoc sub-process completes right away."
+    },
+    {
+      "id": "b",
+      "text": "They keep running, and the ad-hoc sub-process completes only after both remaining instances finish."
+    },
+    {
+      "id": "c",
+      "text": "An incident is raised because `cancelRemainingInstances` must be `true` when a `completionCondition` is defined."
+    },
+    {
+      "id": "d",
+      "text": "They are paused until a future inner-element completion re-evaluates `completionCondition`."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Immediate termination of remaining instances is the behavior when `cancelRemainingInstances` is `true` (the default), not when it is set to `false`."
+    },
+    "b": {
+      "text": "When `cancelRemainingInstances` is `false`, the ad-hoc sub-process waits for the completion of all active instances before completing, even after the `completionCondition` has been met."
+    },
+    "c": {
+      "text": "Both `true` and `false` are valid settings for `cancelRemainingInstances`; setting it to `false` does not cause an incident."
+    },
+    "d": {
+      "text": "There is no pause-and-re-evaluate behavior. Once the condition is true, the sub-process either cancels the remaining instances or waits for them, depending on `cancelRemainingInstances`."
+    }
+  },
+  "explanation": "An ad-hoc sub-process evaluates its `completionCondition` after every inner element completes. When the condition becomes true, the `cancelRemainingInstances` attribute decides what happens to still-active inner instances: `true` (the default) terminates them and completes the sub-process immediately; `false` waits for all active instances to complete before the sub-process completes.",
+  "docs": [
+    {
+      "title": "BPMN ad-hoc sub-processes",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/ad-hoc-subprocesses/"
+    }
+  ],
+  "codeBlocks": {
+    "stem": "completionCondition: = count >= 3\ncancelRemainingInstances: false"
+  }
+}

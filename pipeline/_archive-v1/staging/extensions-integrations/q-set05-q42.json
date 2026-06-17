@@ -1,0 +1,56 @@
+{
+  "id": "imp-set05-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A custom Outbound Connector is implemented in Java. The team is writing the entry-point class.",
+  "question": "Which interface must the Java class implement?",
+  "options": [
+    {
+      "id": "a",
+      "text": "InboundConnectorExecutable -- the interface for building inbound Connectors that subscribe to external event sources and trigger BPMN process instances. This interface is designed for the inbound direction where the connector listens for external events. An outbound Connector that executes when a Service Task activates and calls an external system requires the OutboundConnectorFunction interface instead -- implementing InboundConnectorExecutable here would be a design-direction error."
+    },
+    {
+      "id": "b",
+      "text": "JobHandler -- the interface for implementing raw Zeebe Job Workers that poll the broker for jobs of a specific type. Job Workers operate at a lower abstraction level than Connectors and do not benefit from the Connector Runtime's built-in lifecycle management, secret resolution, retry backoff, and result mapping. Building a Connector using the JobHandler interface bypasses the Connector SDK entirely."
+    },
+    {
+      "id": "c",
+      "text": "Implement no interface but annotate the class with @Connector to enable Connector Runtime discovery. Without the interface, the Connector Runtime has no typed entry point to invoke when the associated Service Task activates, causing a runtime error or silent skip."
+    },
+    {
+      "id": "d",
+      "text": "OutboundConnectorFunction -- defines the Object execute(OutboundConnectorContext context) method that the Connector Runtime calls when the associated Service Task is activated as a job. The context object provides access to process variables, secrets, and input binding values. The return value of execute() is mapped to the job complete payload by the Connector Runtime automatically, making it straightforward to return structured results to the BPMN process."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Outbound Connectors implement OutboundConnectorFunction -- single execute(context) method. Result is returned from execute; Connector Runtime maps it to Job complete."
+    },
+    "b": {
+      "text": "Incorrect. Inbound interface for events; Outbound for active calls."
+    },
+    "c": {
+      "text": "Incorrect. JobHandler is the lower-level Job Worker API."
+    },
+    "d": {
+      "text": "Correct. Annotation alone insufficient; interface contract needed."
+    }
+  },
+  "explanation": "Annotation alone insufficient; interface contract needed.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ],
+  "sourceSet": 5,
+  "sourceId": "set05-q42",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

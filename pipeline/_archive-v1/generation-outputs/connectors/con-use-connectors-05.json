@@ -1,0 +1,25 @@
+{
+  "id": "con-use-connectors-05",
+  "topic": "connectors",
+  "subtopic": "use-connectors",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Quantum SaaS, a multi-tenant SaaS platform serving 600 customers, builds a Camunda 8.8 REST URL at runtime by combining the process variable baseUrl with a tenant identifier stored as a cluster secret named TENANT_ID. The URL field must evaluate to https://my.company.domain/<tenant>/accounting when baseUrl resolves to my.company.domain at execution time.",
+  "question": "Which URL field FEEL expression follows the documented secret-referencing rules?",
+  "options": [
+    { "id": "a", "text": "=\"https://\" + baseUrl + \"/{{secrets.TENANT_ID}}/accounting\", wrapping the secret placeholder in double quotes so the engine passes it through to the connector for resolution" },
+    { "id": "b", "text": "=\"https://\" + baseUrl + \"/\" + secrets.TENANT_ID + \"/accounting\", using the secrets.* prefix to read the tenant identifier as if it were a normal FEEL variable" },
+    { "id": "c", "text": "=\"https://\" + baseUrl + \"/\" + {{secrets.TENANT_ID}} + \"/accounting\", leaving the placeholder unquoted so FEEL evaluates it directly to the tenant value at runtime" },
+    { "id": "d", "text": "\"https://\" + baseUrl + \"/{{secrets.TENANT_ID}}/accounting\", a plain-text concatenation without a leading = so the connector receives the rendered URL string" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The docs show =\"https://\" + baseUrl + \"/{{secrets.TENANT_ID}}/accounting\": the secret placeholder is wrapped in double quotes inside the FEEL string, the engine resolves baseUrl at runtime, and the placeholder is passed through unchanged so the connector substitutes the secret at execution time." },
+    "b": { "text": "Incorrect. The bare secrets.* form is the legacy syntax called out in a danger admonition; the supported reference is the placeholder {{secrets.NAME}}, which is not a FEEL variable and therefore cannot be read with the secrets.X form." },
+    "c": { "text": "Incorrect. Secrets are not variables, so an unquoted {{secrets.TENANT_ID}} does not evaluate inside a FEEL expression; the placeholder must sit inside a double-quoted string so the engine treats it as text and forwards it to the connector." },
+    "d": { "text": "Incorrect. The URL field expects a FEEL expression introduced by a leading =; without it, the value is treated as plain text, so the + operator never concatenates baseUrl with the rest of the URL." }
+  },
+  "explanation": "Secrets in connector fields use the placeholder syntax {{secrets.NAME}}, and the bare secrets.* form is the legacy syntax. Secrets are not variables, so the placeholder must be wrapped in double quotes inside a FEEL expression. The engine resolves process variables in the expression and forwards the placeholder to the connector, which substitutes the secret at execution time.",
+  "docs": [ { "title": "How to use connectors", "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/" } ]
+}

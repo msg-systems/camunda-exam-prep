@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-03",
+  "topic": "extensions-integrations",
+  "subtopic": "complete-fail",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A worker fails a job with `remaining retries` set to `0` and supplies a `reason` variable. What happens next, and where does `reason` live?",
+  "options": [
+    {
+      "id": "a",
+      "text": "An incident is raised; the `reason` variable is created only in the task's local scope and is not propagated to higher scopes."
+    },
+    {
+      "id": "b",
+      "text": "The job is retried immediately and `reason` is merged up to higher scopes for visibility everywhere in the process."
+    },
+    {
+      "id": "c",
+      "text": "The process instance is cancelled, and `reason` is discarded because the job did not complete."
+    },
+    {
+      "id": "d",
+      "text": "The `retry back off` delays the next retry indefinitely; `reason` is attached automatically to the incident itself."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state that when remaining retries is zero or negative, an incident is raised and the job is not retried until the incident is resolved. They also state that variables supplied when failing a job are created only in the local scope of the task — they are not merged upward like on completion."
+    },
+    "b": {
+      "text": "Immediate retry only happens when remaining retries is greater than zero (and no `retry back off` is set). With retries at zero, an incident is raised instead."
+    },
+    "c": {
+      "text": "An unresolved incident pauses progress at the failed job; it does not cancel the process instance."
+    },
+    "d": {
+      "text": "`Retry back off` only delays retries that would otherwise occur, so it has no role when retries are already exhausted. Variables supplied on fail are not auto-attached to the incident."
+    }
+  },
+  "explanation": "Failing a job with zero (or negative) remaining retries raises an incident, and the process instance pauses at that job until the incident is resolved. Variables supplied on `fail` are scoped only to the local task; they propagate to higher scopes only on `complete`. This local-vs-merged scoping difference is a key contrast between the complete and fail commands and is often useful for capturing diagnostic context when an incident is later analysed.",
+  "docs": [
+    {
+      "title": "Job workers",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

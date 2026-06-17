@@ -1,0 +1,27 @@
+{
+  "id": "ext-service-integration-patterns-99",
+  "topic": "extensions-integrations",
+  "subtopic": "service-integration-patterns",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Bank integrates a Camunda 8.8 loan process that calls a legacy document storage service for 4500 customers per day. Firewall limits prevent the storage system from issuing real callbacks, so the integration developer must implement persistent polling every 60 seconds without polluting the visible business diagram with technical detail.",
+  "question": "Which Camunda 8.8 modeling technique does the guide recommend to hide complex polling technicalities from the main business process?",
+  "options": [
+    { "id": "a", "text": "Model the polling and waiting logic in a dedicated technical adapter process and invoke it from the main process via a call activity" },
+    { "id": "b", "text": "Model the polling and waiting logic as a multi-instance subprocess directly inside the main business process to keep technical state local" },
+    { "id": "c", "text": "Model the polling and waiting logic as a sequence of boundary timer events on the main process service task to drive the retry behavior" },
+    { "id": "d", "text": "Model the polling and waiting logic as repeated send and receive task pairs visible on the top level of the main business process" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The guide recommends placing the technical polling and persistent waiting in a separate adapter process and invoking it from the main process via a call activity, so the main diagram stays focused on business logic." },
+    "b": { "text": "Incorrect. A multi-instance subprocess inside the main process exposes the polling mechanics to business readers, which contradicts the goal of hiding technical complexity behind a call activity." },
+    "c": { "text": "Incorrect. Boundary timers on a main-process service task still surface the retry mechanics in the business diagram; the guide instead extracts the polling into a separate adapter process." },
+    "d": { "text": "Incorrect. Repeating send and receive task pairs on the top level adds visual clutter to the business diagram, which is exactly the situation the call activity pattern is meant to prevent in the guide." }
+  },
+  "explanation": "When one integration becomes technically complex, the guide recommends extracting the technicalities into a dedicated adapter process and invoking it via a call activity, so the main business process stays clean and readable.",
+  "docs": [
+    { "title": "Service integration patterns", "url": "https://docs.camunda.io/docs/components/best-practices/development/service-integration-patterns/" }
+  ]
+}

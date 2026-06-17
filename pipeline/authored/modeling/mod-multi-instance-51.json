@@ -1,0 +1,50 @@
+{
+  "id": "mod-multi-instance-51",
+  "topic": "modeling",
+  "subtopic": "multi-instance",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "negative",
+  "camundaVersion": "8.8",
+  "question": "A parallel multi-instance activity defines `outputCollection = results` and `outputElement = = result`. Which statement about how its output is collected is NOT true?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The order of entries in `results` matches the order of the corresponding entries in `inputCollection`."
+    },
+    {
+      "id": "b",
+      "text": "If an instance completes without ever setting a `result` variable, `null` is inserted at that index of `results`."
+    },
+    {
+      "id": "c",
+      "text": "When the multi-instance body completes, `results` is propagated from the body's local scope into its parent scope."
+    },
+    {
+      "id": "d",
+      "text": "Entries are appended to `results` in the order in which the parallel instances actually complete, so the result order depends on worker timing."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "True. Each `outputElement` result is inserted into `outputCollection` at the same index as the corresponding `inputElement` in `inputCollection`, so the order is determined and matches — even for parallel multi-instance."
+    },
+    "b": {
+      "text": "True. If the `outputElement` variable is not updated by an instance, `null` is inserted instead of a value at that index."
+    },
+    "c": {
+      "text": "True. `outputCollection` is created as a local variable of the multi-instance body and is propagated to the parent scope when the body completes."
+    },
+    "d": {
+      "text": "False. Order does not depend on completion timing. Even for parallel multi-instance, entries are placed at the index of the matching `inputElement`, so the resulting order mirrors `inputCollection`."
+    }
+  },
+  "explanation": "Camunda 8.8 stores each instance's `outputElement` result at the same index in `outputCollection` as that instance's `inputElement` in `inputCollection`. This holds for parallel as well as sequential multi-instance, so the output order is deterministic and mirrors the input, regardless of which worker finishes first. Missing values become `null`.",
+  "docs": [
+    {
+      "title": "BPMN multi-instance",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ]
+}

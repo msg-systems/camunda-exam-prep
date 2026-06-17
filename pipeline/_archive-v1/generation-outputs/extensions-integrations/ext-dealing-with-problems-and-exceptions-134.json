@@ -1,0 +1,27 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-134",
+  "topic": "extensions-integrations",
+  "subtopic": "problems-and-exceptions",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Pinnacle Bank orchestrates an onboarding process on Camunda 8.8 that updates a CRM and a billing system for 8800 customers per day in a regional bank. A new architect asks whether one ACID transaction can span the workflow engine, CRM, and billing system so the customer either exists in both downstream systems or in neither one after each onboarding case finishes.",
+  "question": "Which statement does the best-practices guide make about technical transactions across the workflow engine, CRM, and billing systems?",
+  "options": [
+    { "id": "a", "text": "Camunda 8 exposes a distributed XA coordinator that joins the broker, CRM, and billing systems into one ACID transaction so a process scope can roll back the entire transaction as a single atomic unit on any failure across the systems" },
+    { "id": "b", "text": "Each system has a local ACID transaction and the workflow engine itself runs transactional too, but no joined technical transaction is possible across distributed systems; consistency on the business level is enforced by a business transaction in the model" },
+    { "id": "c", "text": "The Zeebe broker exposes a Saga-as-a-service flag in the cluster configuration that automatically wraps every BPMN scope in a distributed transaction across CRM and billing systems without the team having to model compensation handlers manually" },
+    { "id": "d", "text": "Process variables persist atomically through a two-phase commit between the broker and downstream services, so a service task either commits in both the broker and the downstream service or rolls back in both during the call" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. There is no distributed XA coordinator in Camunda 8; the page explicitly says ACID transactions cannot be applied across distributed systems." },
+    "b": { "text": "Correct. The page states that each external system has its own local ACID transaction, that the workflow engine itself runs transactional, but that no joined technical transaction exists across systems; business-level consistency is modeled as a business transaction." },
+    "c": { "text": "Incorrect. There is no Saga-as-a-service flag; the Saga pattern is implemented in the BPMN model using compensation events." },
+    "d": { "text": "Incorrect. There is no two-phase commit between the broker and downstream services; ACID cannot span the distributed systems involved here." }
+  },
+  "explanation": "The Technical vs business transactions section is explicit: in distributed integrations, each external system has its own local ACID transaction and the workflow engine runs transactional too, but no single joined technical transaction can span them. Consistency must therefore be modeled at the business level as a business transaction in BPMN, which is what makes inconsistencies between CRM and billing temporarily possible.",
+  "docs": [
+    { "title": "Dealing with problems and exceptions", "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/" }
+  ]
+}

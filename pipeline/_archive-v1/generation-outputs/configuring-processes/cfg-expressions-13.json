@@ -1,0 +1,27 @@
+{
+  "id": "cfg-expressions-13",
+  "topic": "configuring-processes",
+  "subtopic": "expressions",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Vector Insurer runs Camunda 8.8 across 9000 customers per day and uses FEEL expressions on sequence flows that occasionally process very large input lists. The platform team needs to know how the engine guards itself against runaway evaluations and what happens when one of those expressions does not finish in time.",
+  "question": "What is the default FEEL expression evaluation timeout in Camunda 8 and what happens when an expression exceeds it?",
+  "options": [
+    { "id": "a", "text": "The default timeout is 30 seconds; on timeout the engine retries the evaluation up to 3 times and only raises an incident after the final attempt also fails to complete" },
+    { "id": "b", "text": "The default timeout is 1 second; on timeout the engine substitutes a null result for the expression and continues the process instance without raising any incident" },
+    { "id": "c", "text": "There is no default timeout; FEEL expressions run until they complete and platform teams must enforce limits at the worker level rather than inside the engine itself" },
+    { "id": "d", "text": "The default timeout is five seconds; on timeout the engine interrupts evaluation and raises an incident on the affected process instance for that expression" }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The docs do not describe automatic retries on timeout; the engine interrupts the evaluation as soon as the configured limit elapses and immediately raises an incident on the process instance." },
+    "b": { "text": "Incorrect. The engine does not silently substitute a null result on timeout; per the docs it interrupts evaluation and raises an incident on the affected process instance." },
+    "c": { "text": "Incorrect. Camunda 8 ships with a default expression evaluation timeout of five seconds enforced inside the engine; the limit is configurable rather than absent." },
+    "d": { "text": "Correct. The expressions concept page states that expression evaluation times out after five seconds by default, at which point evaluation is interrupted and an incident is raised on the affected process instance." }
+  },
+  "explanation": "Camunda 8 protects the broker from runaway FEEL evaluation with a default five-second timeout. When an expression exceeds it, the engine interrupts the evaluation and raises an incident on the affected process instance. The limit itself is configurable through the orchestration cluster properties.",
+  "docs": [
+    { "title": "Expressions", "url": "https://docs.camunda.io/docs/components/concepts/expressions/" }
+  ]
+}

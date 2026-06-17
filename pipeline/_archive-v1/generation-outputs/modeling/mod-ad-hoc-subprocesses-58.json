@@ -1,0 +1,25 @@
+{
+  "id": "mod-ad-hoc-subprocesses-58",
+  "topic": "modeling",
+  "subtopic": "subprocesses",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Atlas Retailer runs a Camunda 8.8 fulfillment workflow that processes 20000 orders per day. An ad-hoc sub-process must activate only the subset of inner activities (pick, pack, label) whose element IDs appear in a process variable computed from the order profile.",
+  "question": "Which configuration drives Zeebe to activate the chosen inner elements when the ad-hoc sub-process is entered?",
+  "options": [
+    { "id": "a", "text": "The completionCondition boolean expression evaluates which inner element IDs should be activated when the ad-hoc sub-process is reached by the token" },
+    { "id": "b", "text": "The activeElementsCollection expression returns a list of element IDs that match the inner elements which should be activated when the sub-process is entered" },
+    { "id": "c", "text": "The cancelRemainingInstances attribute on the sub-process selects which inner element IDs to activate when the ad-hoc sub-process is entered by the token" },
+    { "id": "d", "text": "The outputElement expression returns a list of element IDs to activate when the ad-hoc sub-process is entered, before any inner flow has completed" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The completionCondition boolean expression is evaluated each time an inner element completes to decide whether the sub-process is done; it does not pick which elements to activate." },
+    "b": { "text": "Correct. The activeElementsCollection expression evaluates on entering the ad-hoc sub-process and returns a list of element IDs; Zeebe activates the inner elements whose IDs appear in that list." },
+    "c": { "text": "Incorrect. The cancelRemainingInstances attribute governs whether active inner instances are cancelled when the completion condition is met; it does not select inner elements to start." },
+    "d": { "text": "Incorrect. The outputElement expression is evaluated on each inner flow completion to append a value to the output collection; it has no role in activating inner elements." }
+  },
+  "explanation": "On entering an ad-hoc sub-process, Zeebe evaluates the activeElementsCollection expression. The result must be a list of strings matching inner element IDs, and those elements are activated.",
+  "docs": [ { "title": "BPMN ad-hoc sub-processes", "url": "https://docs.camunda.io/docs/components/modeler/bpmn/ad-hoc-subprocesses/" } ]
+}

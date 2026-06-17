@@ -1,0 +1,56 @@
+{
+  "id": "imp-set03-q01",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A regional money-transfer service runs cross-border remittances in Camunda 8 SaaS. Each transfer involves three sequential steps that each modify external state: charge the sender's account, perform FX currency conversion via a third-party FX desk, and credit the recipient's bank account through the recipient-country's payment rail. Each step has its own irreversible side effect -- money debited from sender, FX position taken at a rate, settlement leg with the recipient's bank. The compliance team's requirement is strict: if any step in the sequence fails -- for example, recipient's bank rejects the deposit because of a sanctions hit -- the transfer must be completely unwound, in reverse order, with proper audit. The currently-deployed model uses a regular Subprocess with an Error Boundary Event that routes to three \"Reverse X\" Service Tasks; last quarter a sanctions-hit on the deposit step triggered the reversal path, but the \"Reverse FX\" task failed (the FX desk was temporarily unreachable), and \"Reverse Sender Charge\" ran anyway -- leaving the sender refunded but the FX position still open with the third party, producing a reconciliation gap visible only in the next-day audit. The compliance team wants reverse-order rollback with per-step audit and per-step retry, all engine-managed.",
+  "question": "Which BPMN pattern matches this requirement?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Wrap the steps in a regular subprocess and use an Inclusive Gateway to route to \"Reverse\" branches based on a failedStep variable indicating which step to undo. This approach requires the developer to manually populate failedStep and keep that logic consistent with the actual execution state. The Inclusive Gateway evaluates synchronous variable conditions, not events, so the reverse-order guarantee depends entirely on correct manual encoding -- a fragile design that has already failed in this scenario."
+    },
+    {
+      "id": "b",
+      "text": "Place the three transfer Service Tasks inside an Embedded Subprocess, attach a Compensation Boundary Event with a dedicated Compensation Handler Service Task to each, and place a Compensation Intermediate Throw Event chain on the error path with explicit activityRef to each compensation activity in reverse order -- this enforces synchronous, ordered compensation. Each handler is a tracked Zeebe activity in Operate providing per-step audit, and has its own job retry configuration for per-step retry. This is BPMN's standard Saga pattern in Camunda 8."
+    },
+    {
+      "id": "c",
+      "text": "Replace the Service Tasks with Send Tasks publishing to a \"reversal\" topic; let downstream Receive Tasks correlate cancellations asynchronously. This approach uses asynchronous messaging, which is the wrong axis for transactional rollback. It adds correlation latency, breaks audit clarity because \"message correlated\" does not equal \"step compensated\", and introduces a separate correlation infrastructure dependency that is entirely unnecessary for this use case."
+    },
+    {
+      "id": "d",
+      "text": "Use a Parallel Multi-Instance Subprocess over the three steps with an inputCollection of step names; each iteration handles both the forward and reverse logic via an Exclusive Gateway inside the iteration. Parallel Multi-Instance executes the same activity over a collection, which is the wrong abstraction for three heterogeneous steps with different inputs, outputs, and reversal procedures. It also provides no reverse-order semantics; you would need to encode execution order manually."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Embedded Subprocess + Compensation Boundary + Compensation Handler is BPMN's standard Saga pattern in Camunda 8. Important: per the Camunda 8 docs, \"the process instance invokes all compensation handlers at once without any specific order\" -- so a single Compensation End/Throw Event broadcast does NOT give reverse-order semantics by itself. To enforce reverse order, model explicit Compensation Intermediate Throw Events with activityRef sequenced manually (e.g. throw activityRef=Credit-Recipient → then activityRef=FX-Conversion → then activityRef=Charge-Sender); each activityRef triggers only the named activity's handler synchronously. Compensation handlers are only invoked for completed activities (not active/terminated), so partial-completion is handled automatically. Each handler is a tracked activity in Operate (per-step audit) with its own job retries on failure (per-step retry). Note: the Transactional Subprocess is NOT implemented for execution in Camunda 8 (per bpmn-coverage.md) -- use a regular Embedded Subprocess."
+    },
+    "b": {
+      "text": "Correct. Inclusive Gateway evaluates synchronous conditions, not events; using it to drive reverse steps requires manually maintaining the failedStep variable, which is fragile. Plus order isn't engine-managed -- you encode reverse order manually in flow geometry."
+    },
+    "c": {
+      "text": "Incorrect. Send/Receive correlation is async messaging -- wrong axis for transactional rollback. Adds latency, breaks audit clarity (\"message correlated\" ≠ \"step compensated\"), and depends on a separate correlation infrastructure."
+    },
+    "d": {
+      "text": "Incorrect. Parallel Multi-Instance executes the same activity over a collection -- wrong abstraction for three heterogeneous steps with different inputs, outputs, and reverse procedures. MI also doesn't give reverse-order semantics; you'd encode order manually."
+    }
+  },
+  "explanation": "Inclusive Gateway evaluates synchronous conditions, not events; using it to drive reverse steps requires manually maintaining the failedStep variable, which is fragile. Plus order isn't engine-managed -- you encode reverse order manually in flow geometry.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 3,
+  "sourceId": "set03-q01",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

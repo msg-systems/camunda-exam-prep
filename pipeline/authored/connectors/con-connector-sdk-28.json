@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-sdk-28",
+  "topic": "connectors",
+  "subtopic": "runtime-docker",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Using the official `camunda/connectors:X.Y.Z` Docker image to run a custom outbound connector JAR, which command line correctly adds the JAR to the connector runtime's classpath per the docs?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Rebuild the image with `docker build --build-arg CONNECTOR_JAR=connector.jar` and push a new tag."
+    },
+    {
+      "id": "b",
+      "text": "Mount the JAR with `-v $PWD/connector.jar:/opt/app/connector.jar` so it is added to the runtime's classpath."
+    },
+    {
+      "id": "c",
+      "text": "Place the JAR in `/connectors/runtime/` on the host; the container auto-discovers anything under that directory."
+    },
+    {
+      "id": "d",
+      "text": "Upload the JAR through the Operate UI; the connector runtime fetches and loads it on startup."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs do not document a `CONNECTOR_JAR` build argument; the documented path is to mount the JAR into a running container at `/opt/app/connector.jar`."
+    },
+    "b": {
+      "text": "The docs' `docker run` example shows exactly this volume mount: `-v $PWD/connector.jar:/opt/app/connector.jar`, annotated \"Add a connector jar to the classpath\"."
+    },
+    "c": {
+      "text": "There is no `/connectors/runtime/` host-path convention; the documented in-container path is `/opt/app/connector.jar`."
+    },
+    "d": {
+      "text": "Operate is the monitoring tool for process instances; it does not host or deploy connector JARs."
+    }
+  },
+  "explanation": "The Connector SDK's Docker runtime image section gives a `docker run` example that mounts the custom connector JAR into the container at `/opt/app/connector.jar` using `-v $PWD/connector.jar:/opt/app/connector.jar`. The same example shows how to point the runtime at Zeebe (`ZEEBE_CLIENT_BROKER_GATEWAY-ADDRESS`) and Operate (`CAMUNDA_OPERATE_CLIENT_URL`) and how to inject secrets via `-e` variables or an env-file.",
+  "docs": [
+    {
+      "title": "Connector SDK",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/"
+    }
+  ]
+}

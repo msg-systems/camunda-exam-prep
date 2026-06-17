@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q08",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A B2B procurement process at a manufacturing company evaluates supplier offers against three independent criteria -- price, quality certification, and delivery time -- modelled in BPMN as three parallel paths after an Inclusive Gateway. Each path performs its own scoring Service Task; depending on the offer details, one, two, or all three paths may activate. After scoring, the paths must merge back together so the downstream \"Compute Total Score\" task only runs after all activated paths have completed -- never partial scores. The current model uses an Exclusive Gateway downstream to merge, which is producing incorrect behaviour: as soon as the first activated path completes, the Exclusive Gateway lets the token through with incomplete data.",
+  "question": "Which BPMN construct correctly synchronises only the activated paths back together?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Replace the downstream Exclusive Gateway with an Inclusive Gateway. The converging Inclusive Gateway completes either when all incoming sequence flows have been taken at least once, or when no path exists from any active flow node to the gateway -- whichever condition is satisfied first. This allows the join to wait for exactly the subset of paths that were activated by the upstream diverging Inclusive Gateway, without waiting for paths that were never started. Zeebe evaluates the process graph state after each token arrives and proceeds as soon as no further tokens could possibly reach the gateway from currently active flow nodes."
+    },
+    {
+      "id": "b",
+      "text": "Replace the downstream Exclusive Gateway with a Parallel Gateway. A converging Parallel Gateway waits for a token on every single incoming sequence flow before activating its outgoing flow. When used downstream of a diverging Parallel Gateway, this creates perfect synchronisation because the diverging gateway always activates all outgoing paths, so the join always receives exactly one token per path. The Parallel Gateway's join semantics are unconditional -- it never evaluates process state, conditions, or remaining active paths, only counts whether all expected incoming flows have delivered a token."
+    },
+    {
+      "id": "c",
+      "text": "Convert the three parallel paths into a Multi-Instance Subprocess with a completionCondition of \"all three completed\". A Multi-Instance Subprocess applies the same activity repeatedly for each element in an input collection, executing all iterations in parallel (Parallel MI) or sequentially. The completionCondition FEEL expression is evaluated after each iteration completes; when it evaluates to true, any remaining active iterations are cancelled and the MI subprocess completes. Setting the condition to require all three completions effectively disables early completion and waits for all iterations, equivalent to the default MI behaviour without a completion condition."
+    },
+    {
+      "id": "d",
+      "text": "Keep the downstream Exclusive Gateway but add a Service Task after it that polls the Operate API to verify all three scoring tasks have finished before proceeding. The Operate API provides read access to process instance state, activity status, variables, and incidents for running and completed process instances. A polling Service Task could query the API with the current process instance key, check whether all three scoring activities have reached \"COMPLETED\" status, and loop back via a Timer if not all have finished yet. This gives the developer visibility into which scoring paths completed, enabling a manual synchronisation barrier outside the BPMN engine's native flow control."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The converging Inclusive Gateway in Camunda 8.8 completes when one of two conditions is met: (1) all incoming sequence flows have been taken at least once, OR (2) no path exists from any active flow node to the inclusive gateway (excluding incoming paths already taken). This precisely handles the \"wait for activated paths only\" semantic -- the engine examines the process state and determines when all that will arrive have arrived."
+    },
+    "b": {
+      "text": "Incorrect. Parallel Gateway always activates all outgoing paths at fan-out and waits for all incoming paths at join. If the upstream Inclusive Gateway activated only 2 of 3 paths, the Parallel join will block indefinitely waiting for the third token that was never created."
+    },
+    "c": {
+      "text": "Incorrect. Multi-Instance requires the same activity repeated with different inputs. Here we have three different scoring tasks with three different conditions -- wrong abstraction."
+    },
+    "d": {
+      "text": "Incorrect. Operate API is eventually consistent and meant for human/admin querying, not for runtime control flow. Polling it from a Service Task introduces latency, race conditions, and brittle infrastructure dependence."
+    }
+  },
+  "explanation": "The converging Inclusive Gateway in Camunda 8.8 completes when one of two conditions is met: (1) all incoming sequence flows have been taken at least once, OR (2) no path exists from any active flow node to the inclusive gateway (excluding incoming paths already taken). This precisely handles the \"wait for activated paths only\" semantic -- the engine examines the process state and determines when all that will arrive have arrived.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/inclusive-gateways/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q08",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

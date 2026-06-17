@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q45",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Custom Outbound Connector returns object. Wonders return structure + Camunda binding.",
+  "question": "Custom Connector return value?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Void only -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "md:233-291): the method can return any Java Object including a POJO, Map, String, number, or null. Jackson automatically serializes the returned object to JSON and the top-level fields become process variables. A POJO with fields paymentId and status would create two process variables of those names. The resultExpression task header allows FEEL-based transformation of the result before variable assignment. The resultVariable task header wraps the entire result under a single named variable. Null return means no variables are updated."
+    },
+    {
+      "id": "c",
+      "text": "8 OutboundConnectorProvider API can return any Java object including POJOs, primitive types, String, or null. Jackson handles serialization of POJOs to JSON automatically based on field names and getter methods. A Map is one valid option, but a typed POJO is often preferred for type safety and better IDE support. The restriction to Map only applies to the legacy execute() API pattern, not the modern annotation-driven approach."
+    },
+    {
+      "id": "d",
+      "text": "A custom serializer must always be implemented for Connector return values -- this overstates the requirement. The Connector SDK uses Jackson for automatic JSON serialization of return values. Standard Java types, POJOs with standard getters/setters, collections, and primitive wrappers all serialize correctly without any custom serializer. Custom Jackson annotations like @JsonProperty or @JsonIgnore can be added when field naming customization is needed. Only unusual types with complex serialization requirements -- such as custom date formats or polymorphic type handling -- might need a custom serializer configuration."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Custom Connector return: OutboundConnectorProvider + @Operation (canonical 8.8 SDK per connector-sdk.md:233-291): Verbatim example (:246-291): `java import io.camunda.connector.api.outbound.OutboundConnectorProvider; import io.camunda.connector.api.annotation.Operation; import io.camunda.connector.api.annotation.Variable; public class MyConnector implements OutboundConnectorProvider { @Operation(id = \"operation1\") public String operation1(@Variable(name = \"input\") String input) { ... } @Operation(id = \"operation2\") public MyOutput operation2(@Variable MyInput input) { ... } // complex type uses field names } Returns Object (any type) -- annotation-driven binding replaces the legacy execute(OutboundConnectorContext context) + context.bindVariables(...) pattern. Common return types: POJO: java public class PaymentResult { private String paymentId; private String status; private BigDecimal amount; // getters / setters } @Operation(id = \"processPayment\") public PaymentResult processPayment(@Variable PaymentInput input) { // ... do work PaymentResult result = new PaymentResult(); result.setPaymentId(\"pmt-123\"); result.setStatus(\"completed\"); result.setAmount(input.getAmount()); return result; } Map: java return Map.of( \"paymentId\", \"pmt-123\", \"status\", \"completed\", \"amount\", new BigDecimal(\"100\") ); Single value: java return \"simple-result\"; Null: java return null; // no variables updated Serialisation: Jackson: POJO → JSON. Field names → variable names (top-level). Camel case typically (Java convention). Variable mapping: Default: result fields top-level in process scope. Customisation: resultExpression (per Set 16 Q17): FEEL transforms. resultVariable: name for whole result. Output Mapping: BPMN-level shaping. For Element Template: json { \"label\": \"Result Variable\", \"type\": \"String\", \"binding\": { \"type\": \"zeebe:taskHeader\", \"key\": \"resultVariable\" } } Modeler picks name. For Jackson configuration: java @JsonProperty(\"payment_id\") private String paymentId; @JsonIgnore private String internalField; Customise serialisation. For dates / times: Use Java time types: LocalDate, Instant. Jackson serialises: ISO 8601. For decimals: Use BigDecimal: precision (per Set 13 Q48). Serialised: as number. For lists: java return new ListResult(List.of(item1, item2, item3)); Or: java return Map.of(\"items\", List.of(...)); Lists become arrays in JSON. For nested objects: java public class Result { private Customer customer; private List items; // ... } Serialised as nested JSON. For null values: Null fields: typically included as null. Or excluded: configure Jackson @JsonInclude(NON_NULL). For testing: Mock context: return predefined. Verify result structure: in tests. For error vs success: Success: return result. Error: throw exception. BPMN error: throw specific exception type. For BPMN error throws: java if (failureCondition) { throw new ConnectorException(\"ERROR_CODE\", \"message\"); } Verify exact exception type for BPMN errors per SDK. For metadata in result: Latency: include in result. Provider info: which service responded. Useful for: monitoring. For"
+    },
+    "b": {
+      "text": "Correct. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. overstates."
+    }
+  },
+  "explanation": "Option c) -- Partial.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-sdk/#outbound-connector"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q45",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 19 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 32.9 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "id": "ext-job-workers-09",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers-concept",
+  "difficulty": "easy",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Helios Logistics runs a Camunda 8.8 shipment routing process that creates 6000 jobs per hour across several BPMN service tasks. The lead engineer must configure the job activation request from each Java worker so that workers identify themselves, cap the batch size returned by the engine, and request only a focused subset of process variables rather than the full instance variable map.",
+  "question": "Which four parameters does the Camunda 8.8 job-workers documentation list for a job activation request from a worker?",
+  "options": [
+    { "id": "a", "text": "Worker name, retries, batch size, and a list of pinned BPMN task ids that constrain which service task instances of the requested job type the worker may take on during activation from the engine" },
+    { "id": "b", "text": "Worker name, timeout, maxJobsToActivate, and fetchVariables that optionally narrows the activated jobs to a specific list of required process variable names rather than every variable on the instance" },
+    { "id": "c", "text": "Job key, custom headers, tags, and a maxQueueDepth value that defines how many activated jobs may remain unhandled before further activations are throttled by the gateway on subsequent requests" },
+    { "id": "d", "text": "Tenant id, audience, lease duration, and a long-polling toggle that keeps the activation request open until at least maxJobsToActivate jobs have been collected by the worker through the gateway" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The activation request parameters listed in the docs are worker, timeout, maxJobsToActivate, and fetchVariables; retries and pinned BPMN ids are not part of that list." },
+    "b": { "text": "Correct. The Requesting-jobs section lists worker (identifier used for auditing), timeout (how long the job is assigned to the worker), maxJobsToActivate (batch cap), and fetchVariables (an optional list of required variable names; if empty, all instance variables are returned)." },
+    "c": { "text": "Incorrect. Job key, custom headers, and tags are properties of activated jobs themselves, not parameters of the activation request that the worker sends to the gateway." },
+    "d": { "text": "Incorrect. The activation request does not take audience or lease duration; long polling is governed by the separate request-timeout parameter on the gRPC ActivateJobs RPC." }
+  },
+  "explanation": "The Requesting-jobs section lists four request parameters: worker (identifier used for auditing), timeout (how long the job is assigned to the worker before it can be reassigned), maxJobsToActivate (maximum number of jobs returned), and fetchVariables (a list of required variable names; if empty, all process instance variables are returned).",
+  "docs": [
+    { "title": "Job workers requesting jobs", "url": "https://docs.camunda.io/docs/components/concepts/job-workers/" }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "con-inbound-05",
+  "topic": "connectors",
+  "subtopic": "inbound",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Mariner Logistics, a fulfillment provider receiving 8000 shipments per day from carrier partners, models a Camunda 8.8 inbound HTTP Webhook to start a new process instance for each parcel-status change. Carriers occasionally redeliver the same event with the same trackingId after a network glitch, and the platform team must prevent duplicate process instances when those reprocessed deliveries arrive.",
+  "question": "Which inbound connector element type satisfies this idempotency requirement?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A message start event with a Message ID expression derived from the connector output so retried deliveries share a single Message ID for uniqueness"
+    },
+    {
+      "id": "b",
+      "text": "A plain start event with a Result expression that copies trackingId into a process variable so that downstream tasks deduplicate the parcel themselves"
+    },
+    {
+      "id": "c",
+      "text": "A boundary event attached to a manual receive task that catches duplicate trackingId messages on the parent process instance for new shipments"
+    },
+    {
+      "id": "d",
+      "text": "An intermediate catch event with a Correlation key extracted from trackingId so duplicate deliveries correlate into the existing running instance"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The docs call out message start events when idempotency on process creation matters because they publish a message whose Message ID expression Zeebe uses to guarantee message uniqueness, so retried deliveries do not create duplicate process instances."
+    },
+    "b": {
+      "text": "Incorrect. Plain start events are triggered directly by process instance creation and do not expose a Message ID expression, so each redelivered request would still produce a fresh process instance regardless of the result mapping."
+    },
+    "c": {
+      "text": "Incorrect. Boundary events receive messages in an already running process instance attached to a task, so they cannot be used to start a new process and therefore do not address the duplication risk at creation time."
+    },
+    "d": {
+      "text": "Incorrect. Intermediate catch events receive messages in an already running process instance, so they cannot start a new process and do not solve duplicate creation for new shipment events arriving fresh."
+    }
+  },
+  "explanation": "Inbound connectors can be modeled as start, message start, intermediate catch, boundary, or receive elements. When idempotency on process creation is required, the docs recommend message start events because they publish messages whose Message ID expression Zeebe uses to enforce uniqueness across reprocessed deliveries.",
+  "docs": [
+    {
+      "title": "Use inbound connectors - Creating the connector event",
+      "url": "https://docs.camunda.io/docs/components/connectors/use-connectors/inbound/"
+    }
+  ]
+}

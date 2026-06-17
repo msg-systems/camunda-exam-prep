@@ -1,0 +1,50 @@
+{
+  "id": "cfg-messages-22",
+  "topic": "configuring-processes",
+  "subtopic": "messages",
+  "difficulty": "hard",
+  "style": "recall",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Which combination of attributes causes Zeebe to reject a published message as a duplicate under the message uniqueness check?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Same `name`, same `correlationKey`, and same `messageId` as a message already in the buffer."
+    },
+    {
+      "id": "b",
+      "text": "Same `name` and same `correlationKey` as a message already in the buffer, regardless of `messageId`."
+    },
+    {
+      "id": "c",
+      "text": "Same `name` as any other message currently in the buffer, regardless of `correlationKey` and `messageId`."
+    },
+    {
+      "id": "d",
+      "text": "Any two messages published with the same `messageId` within the same TTL window, regardless of `name`."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs state that \"a message is rejected and not correlated if a message with the same name, the same correlation key, and the same ID is already buffered.\" All three attributes must match for the uniqueness check to fire."
+    },
+    "b": {
+      "text": "The uniqueness check is keyed on all three of `name`, `correlationKey`, and `messageId`. Without a matching `messageId`, two messages with the same name and correlation key are accepted independently."
+    },
+    "c": {
+      "text": "Matching only on `name` would over-reject. The uniqueness check explicitly requires the same correlation key and the same ID as well."
+    },
+    "d": {
+      "text": "Matching only on `messageId` ignores the name and correlation key, which is not how the uniqueness check works. The docs also note the check is disabled entirely when no message ID is set."
+    }
+  },
+  "explanation": "Message uniqueness in Zeebe is opt-in via a `messageId`. When set, a publish is rejected if another message with the same `name`, `correlationKey`, and `messageId` is currently buffered. Once the buffered message expires or is consumed, the same triple can be published again. Omitting the message ID disables the check entirely.",
+  "docs": [
+    {
+      "title": "Message correlation",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ]
+}

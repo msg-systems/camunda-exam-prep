@@ -1,0 +1,50 @@
+{
+  "id": "con-connector-templates-35",
+  "topic": "connectors",
+  "subtopic": "outbound-rest",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "In the example outbound REST connector template, a user sets `REST Method` to `GET` and the `Request Body` field disappears from the properties panel. What in the template causes this behavior?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Webhook ID field's pattern constraint disallows bodies on GET requests."
+    },
+    {
+      "id": "b",
+      "text": "The `Request Body` property has `condition: { property: \"httpMethod\", oneOf: [\"patch\", \"post\", \"delete\"] }`, so it is only shown when one of those methods is selected."
+    },
+    {
+      "id": "c",
+      "text": "GET methods cannot carry any binding; the modeler strips properties without a binding at deploy time."
+    },
+    {
+      "id": "d",
+      "text": "The modeler automatically hides any optional property whenever a form is partially filled."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Webhook IDs are not part of the outbound REST template — that is an inbound webhook concept. Visibility here is controlled by a `condition` clause, not a Webhook ID pattern."
+    },
+    "b": {
+      "text": "The `Request Body` entry in the template carries `condition: { property: \"httpMethod\", oneOf: [\"patch\", \"post\", \"delete\"] }`. With `httpMethod = get` the condition is false, so the modeler hides the property."
+    },
+    "c": {
+      "text": "The `Request Body` property does have a `zeebe:input` binding to `body`; visibility is governed by the `condition` clause, not by binding presence."
+    },
+    "d": {
+      "text": "The modeler does not auto-hide optional fields based on form completeness; visibility comes from the explicit `condition` clauses on each property."
+    }
+  },
+  "explanation": "Element templates use a `condition` clause to control which properties appear in the modeler's properties panel. In the REST connector template, the `Request Body` field is declared with `condition: { property: \"httpMethod\", oneOf: [\"patch\", \"post\", \"delete\"] }`. When the user picks `GET`, the condition does not match, so the field is hidden. The same conditional pattern is used for the Basic and Bearer authentication fields, which only show when the matching `authenticationType` value is selected.",
+  "docs": [
+    {
+      "title": "Connector templates",
+      "url": "https://docs.camunda.io/docs/components/connectors/custom-built-connectors/connector-templates/"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "ext-dealing-with-problems-and-exceptions-76",
+  "topic": "extensions-integrations",
+  "subtopic": "retries",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Apex Bank processes 12000 jobs per day on Camunda 8.8 for the retrieveMoney service task against a flaky downstream payments service. The team configured the service task with zeebeTaskDefinition retries set to 5 so transient downstream failures do not raise incidents immediately, and the worker must drive the built-in retry mechanism correctly on every caught exception.",
+  "question": "How does the Camunda 8.8 worker correctly drive the built-in retry mechanism when it catches an exception while handling a retrieveMoney job?",
+  "options": [
+    { "id": "a", "text": "The worker calls newFailCommand on the job with retries set to job.getRetries() minus one and provides a meaningful error message so the workflow engine decrements the count and raises an incident once the count reaches zero" },
+    { "id": "b", "text": "The worker calls newCompleteCommand on the job with a meaningful error message attached so the workflow engine treats the attempt as a failed retry and re-dispatches the job to another competing consumer in the pool" },
+    { "id": "c", "text": "The worker calls newThrowErrorCommand on the job with a BPMN error code so the workflow engine reduces the retry count automatically and triggers a matching boundary error event after the final retry attempt" },
+    { "id": "d", "text": "The worker calls newFailCommand on the job with retries set to job.getRetries() plus one so the workflow engine keeps the retry count steady across attempts and never raises an incident for this task type at runtime" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The documented Java pattern catches the exception, then calls newFailCommand on the job with retries set to job.getRetries() minus one and a meaningful error message so the workflow engine decrements the count and raises an incident in Operate once the remaining retries reach zero." },
+    "b": { "text": "Incorrect. CompleteJob signals success and clears the job from the queue; it does not decrement the retry counter and it does not trigger another attempt." },
+    "c": { "text": "Incorrect. ThrowError raises a BPMN error for handling on the process model, but it does not interact with the technical retry counter that drives the FailJob retry behavior." },
+    "d": { "text": "Incorrect. The retry counter must be decremented by the worker, not incremented; raising it would create an unbounded retry loop and bypass the incident mechanism entirely." }
+  },
+  "explanation": "To leverage the built-in retry mechanism, the Camunda 8.8 worker catches the exception and calls newFailCommand on the job with retries set to job.getRetries() minus one plus a meaningful error message. When the remaining retries reach zero, an incident is raised in Operate for human intervention.",
+  "docs": [
+    { "title": "Dealing with problems and exceptions", "url": "https://docs.camunda.io/docs/components/best-practices/development/dealing-with-problems-and-exceptions/" }
+  ]
+}

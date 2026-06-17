@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-05",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "Two job worker clients open `StreamActivatedJobs` streams for the same job type. Under what condition will the gateway treat them as logically equivalent and aggregate them into one stream registered with each broker?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Same job type, same worker name, same job activation timeout, and same fetch variables."
+    },
+    {
+      "id": "b",
+      "text": "Same job type only; worker name and timeout are ignored for aggregation."
+    },
+    {
+      "id": "c",
+      "text": "Same gateway endpoint and same TLS certificate, regardless of worker name."
+    },
+    {
+      "id": "d",
+      "text": "Same job type and same tenant; activation timeout is decided broker-side."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs define logically equivalent streams as those that would activate the same job in the exact same way: same job type, same worker name, same job activation timeout, and same fetch variables."
+    },
+    "b": {
+      "text": "Worker name and activation timeout are explicitly part of the equivalence criteria, not optional aggregation hints."
+    },
+    "c": {
+      "text": "Equivalence is about job activation semantics, not transport-level details like gateway endpoint or TLS."
+    },
+    "d": {
+      "text": "Tenant is not in the equivalence list; the four criteria are job type, worker name, activation timeout, and fetch variables."
+    }
+  },
+  "explanation": "Job streaming aggregates logically equivalent streams on the gateway and registers the aggregate with each broker. Two streams are equivalent only when they target the same job type, worker name, activation timeout, and fetch variables — because they would otherwise activate the same job differently and could not safely share an aggregated stream.",
+  "docs": [
+    {
+      "title": "Job workers",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

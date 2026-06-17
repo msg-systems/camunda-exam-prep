@@ -1,0 +1,50 @@
+{
+  "id": "ext-writing-good-workers-145",
+  "topic": "extensions-integrations",
+  "subtopic": "workers",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Polaris Marketplace must scale a Camunda 8.8 worker that calls an external REST API taking about 100 ms per call, with a target throughput of 100 jobs per second. The platform lead is choosing between sequential processing, a thread pool, and reactive non-blocking code.",
+  "question": "How do the Camunda 8.8 best practices guide Polaris on scaling this worker beyond sequential execution?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Prefer reactive non-blocking code so the runtime can optimize thread utilization itself; with 100 ms REST latency a sequential worker is capped near 10 jobs per second and configuring thread pools manually is discouraged"
+    },
+    {
+      "id": "b",
+      "text": "Configure a large thread pool tuned to the broker partition count and run blocking REST calls; reactive programming is only recommended for read-only workers and not for workers that mutate downstream systems"
+    },
+    {
+      "id": "c",
+      "text": "Keep the worker sequential and request one job per long-poll; the Camunda 8 documentation states that going beyond sequential execution requires running multiple worker JVMs on dedicated host machines"
+    },
+    {
+      "id": "d",
+      "text": "Disable long polling, request one job per remote call, and process each job on a dedicated newly spawned thread; this gives the best parallelism for blocking REST clients against the Camunda 8 broker"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The Scaling workers section notes a sequential worker with 100 ms REST latency tops out near 10 jobs per second, recommends reactive non-blocking code so the runtime optimizes thread utilization, and says configuring thread pools yourself is generally not recommended."
+    },
+    "b": {
+      "text": "Incorrect. The best practice does not steer you toward manual thread-pool tuning by partition count, and reactive programming is recommended generally for parallel work, not limited to read-only workers."
+    },
+    "c": {
+      "text": "Incorrect. The page explicitly describes batching up to 50 jobs per request and reactive code as ways to scale beyond sequential execution, not running more JVMs as the prescribed path."
+    },
+    "d": {
+      "text": "Incorrect. The page recommends long polling and batched job activation, not disabling long polling and spawning a thread per job."
+    }
+  },
+  "explanation": "Camunda 8.8 best practice points to reactive non-blocking code for high-throughput workers because the runtime manages thread utilization, sequential workers are bandwidth-bound by per-call latency, and manual thread-pool configuration is generally discouraged.",
+  "docs": [
+    {
+      "title": "Writing good workers",
+      "url": "https://docs.camunda.io/docs/components/best-practices/development/writing-good-workers/"
+    }
+  ]
+}

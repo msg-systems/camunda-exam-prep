@@ -1,0 +1,56 @@
+{
+  "id": "imp-set12-q13",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Sequential MI subprocess processes tasks list. The team needs stable iteration order -- first item in the list processed first, second second, etc. They wonder if Sequential MI guarantees this.",
+  "question": "Does Sequential MI guarantee processing order matching inputCollection order?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Claiming Sequential MI processes items concurrently does not reflect the actual behavior -- concurrent processing is the behavior of Parallel MI, not Sequential MI. In Parallel MI, all inner instances are created simultaneously and execute concurrently, with completion order depending on worker availability and processing time. Sequential MI, by contrast, creates exactly one inner instance at a time, waits for it to complete before creating the next, and processes items strictly one after another in the inputCollection order. The distinction is fundamental to choosing the right MI mode."
+    },
+    {
+      "id": "b",
+      "text": "Sequential MI processes inner instances exactly one at a time in inputCollection order. Instance 1 receives inputCollection[1] as its input variable and must complete before instance 2 is created, which in turn receives inputCollection[2]. This sequencing is deterministic and stable: given the same inputCollection, Sequential MI always processes items in the same sequence. The output is also ordered: the outputElement results are collected into outputCollection in position-correspondent order, meaning outputCollection[1] is the result from processing inputCollection[1], and so on. This guaranteed ordering makes Sequential MI the correct choice for tasks requiring stable, predictable processing sequences."
+    },
+    {
+      "id": "c",
+      "text": ", unspecified and potentially varying between engine versions) misrepresents the BPMN specification and Camunda 8 behavior. Sequential MI is explicitly defined to process items in inputCollection order. 0 specification, not an implementation detail. The order is deterministic and stable: given the same inputCollection, Sequential MI will always process items in the same sequence, making it safe to use for ordered processing requirements."
+    },
+    {
+      "id": "d",
+      "text": "Claiming that only Parallel MI is supported in Camunda 8 is factually wrong. Both Sequential and Parallel Multi-Instance modes are fully supported by the Zeebe engine. Sequential MI activates one inner instance at a time in inputCollection order, while Parallel MI activates all inner instances concurrently. Teams can choose between the two modes based on their requirements: Sequential for ordered processing or rate limiting; Parallel for maximum throughput where order does not matter."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Sequential MI semantics: One inner instance at a time: instance N starts only after instance N-1 completes. Order: matches inputCollection's order. Instance 1 ↔ inputCollection[1], etc. Deterministic: same input → same processing order. outputCollection: position-correspondent (per Set 10 Q8 -- outputCollection[i] matches inputCollection[i]). Use cases for Sequential MI: Order matters: process items in their list order (chronological, priority, etc.). Rate limiting: external API requires serial processing. State accumulation: each iteration depends on previous (via parent-scope updates or outputCollection accumulation). Contrast with Parallel MI: All inner instances spawn concurrently. Completion order is non-deterministic (which instance finishes first depends on worker availability, processing time, etc.). outputCollection still position-correspondent (per inputCollection index). For \"stable processing order\": Sequential MI is the explicit choice."
+    },
+    "b": {
+      "text": "Correct. That's Parallel."
+    },
+    "c": {
+      "text": "Incorrect. Deterministic."
+    },
+    "d": {
+      "text": "Incorrect. Both supported."
+    }
+  },
+  "explanation": "That's Parallel.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/multi-instance/"
+    }
+  ],
+  "sourceSet": 12,
+  "sourceId": "set12-q13",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

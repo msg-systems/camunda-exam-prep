@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q36",
+  "topic": "connectors",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team integrates with a GraphQL API. They want to send queries / mutations from BPMN. Camunda's out-of-the-box Connector library may or may not include a dedicated GraphQL Connector -- they want to know their options.",
+  "question": "How can the team integrate with a GraphQL API from BPMN?",
+  "options": [
+    {
+      "id": "a",
+      "text": "GraphQL endpoints have no dedicated Camunda 8 Connector -- teams must build a complete custom Connector from scratch to integrate with GraphQL APIs -- this description does not reflect the actual behaviour. GraphQL APIs accept standard HTTP POST requests with a JSON body containing the query string. The Camunda 8 HTTP REST Connector can send POST requests with arbitrary JSON bodies to any HTTP endpoint including GraphQL APIs. By configuring the HTTP Connector with the GraphQL endpoint URL and a JSON body containing the GraphQL query and variables, teams can invoke GraphQL APIs without building any custom Connector code."
+    },
+    {
+      "id": "b",
+      "text": "The HTTP REST Connector handles GraphQL calls effectively since GraphQL uses standard HTTP POST with JSON bodies. Custom Connector development is justified only if GraphQL-specific features like automatic schema validation or response type mapping are required. For basic query execution, the REST Connector provides sufficient capability without custom development effort."
+    },
+    {
+      "id": "c",
+      "text": "md:1-15 -- \"an outbound protocol connector that allows you to execute a GraphQL query or mutation from your BPMN process\". Configure: endpoint URL, Authentication (None/Basic/OAuth -- see :28-40), and the query/mutation with variables. }}, but the dedicated GraphQL connector provides better ergonomics (separated query and variables fields)."
+    },
+    {
+      "id": "d",
+      "text": "GraphQL endpoints must be wrapped in a REST adapter or proxy service first that translates standard REST GET/POST requests into the GraphQL query format before the Camunda REST Connector can call them -- this description does not reflect the actual behaviour. GraphQL APIs natively accept HTTP POST requests with a JSON body containing the query, variables, and optional operation name fields. No proxy or adapter layer is needed. The Camunda HTTP REST Connector can POST directly to a GraphQL endpoint by configuring the URL, setting Content-Type to application/json, and providing the GraphQL query in the request body as a JSON object."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. GraphQL endpoints are HTTP endpoints accepting POST with a JSON body containing query (the GraphQL query string) and variables (the variable bindings). Any HTTP client -- including Camunda's REST / HTTP Outbound Connector -- can call them. If Camunda's Connector library includes a dedicated GraphQL Connector, it offers a better UX (separate fields for query and variables); the REST Connector is the always-available fallback. Practical setup with REST Connector: method=POST, URL=GraphQL endpoint, body=FEEL constructing {query: \"...\", variables: {...}}, headers include Content-Type: application/json + Authorization."
+    },
+    "b": {
+      "text": "Incorrect. Supported via REST."
+    },
+    "c": {
+      "text": "Correct. REST Connector handles the simple case."
+    },
+    "d": {
+      "text": "Incorrect. GraphQL accepts POST directly."
+    }
+  },
+  "explanation": "REST Connector handles the simple case.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/protocol/graphql/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q36",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

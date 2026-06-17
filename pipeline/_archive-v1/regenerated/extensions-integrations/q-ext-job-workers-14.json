@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-14",
+  "topic": "extensions-integrations",
+  "subtopic": "job-workers",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Logistics runs a Java job worker fleet processing 12000 jobs per hour in a Camunda 8.8 self-managed cluster. The platform team notices the workers are falling behind and wants to use client-side metrics, not just broker metrics, to estimate the queue depth and decide when to scale out the worker deployment.",
+  "question": "Which metric calculation estimates the rate of queued jobs on a Camunda 8.8 job worker from the client side?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Subtract camunda.client.worker.job.handled from camunda.client.worker.job.activated to estimate the rate of queued jobs, and scale workers if the result approaches maxJobsActive"
+    },
+    {
+      "id": "b",
+      "text": "Subtract camunda.client.worker.job.activated from camunda.client.worker.job.handled to estimate the rate of queued jobs, and scale workers if the result approaches maxJobsActive"
+    },
+    {
+      "id": "c",
+      "text": "Divide zeebe_broker_jobs_push_fail_try_count_total by zeebe_gateway_job_stream_servers to estimate the rate of queued jobs, and scale workers if the result approaches maxJobsActive"
+    },
+    {
+      "id": "d",
+      "text": "Read zeebe_gateway_job_stream_push_total on a single gateway to estimate the rate of queued jobs, and scale workers if the result approaches maxJobsActive"
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. The job-workers docs recommend estimating queued jobs as activated minus handled (camunda.client.worker.job.activated - camunda.client.worker.job.handled); a value consistently close to maxJobsActive indicates the worker deployment needs to scale."
+    },
+    "b": {
+      "text": "Incorrect. The direction is reversed; handled minus activated does not represent queue depth, since handled cannot exceed activated for a healthy worker."
+    },
+    "c": {
+      "text": "Incorrect. zeebe_broker_jobs_push_fail_try_count_total counts failed push attempts on the server side and zeebe_gateway_job_stream_servers counts known brokers; their ratio is not the queue-depth estimator the docs describe."
+    },
+    "d": {
+      "text": "Incorrect. zeebe_gateway_job_stream_push_total measures the push rate from a gateway, not the client-side queue depth, and reading a single gateway misses the per-worker view."
+    }
+  },
+  "explanation": "On the client side, queue depth is estimated by subtracting the handled rate from the activated rate using camunda.client.worker.job.activated and camunda.client.worker.job.handled. When this difference stays close to maxJobsActive, the docs advise scaling the worker deployment.",
+  "docs": [
+    {
+      "title": "Job workers",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

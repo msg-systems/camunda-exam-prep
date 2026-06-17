@@ -1,0 +1,56 @@
+{
+  "id": "imp-set08-q20",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process has a Message Boundary Event attached to a User Task manual-review. The boundary catches message \"REVIEW_TIMEOUT\". The team is curious about the scope and lifetime of this subscription -- when does Zeebe create it, when does it end?",
+  "question": "When is the Message Boundary subscription active?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The Message Boundary Event subscription persists for the entire process instance lifetime from process start until a terminal state is reached -- this description does not reflect the actual behaviour. The subscription lifecycle is scoped to the active period of the host element on which the boundary event is defined. For a User Task with a Message Boundary Event, the subscription is created when the User Task activates and is cancelled when the User Task completes, whether through normal task completion, boundary event triggering, or task cancellation. Outside the User Task's active period, no subscription exists and messages will not correlate to this boundary event."
+    },
+    {
+      "id": "b",
+      "text": "The Message Boundary Event subscription exists at the Zeebe cluster level and serves as a shared subscription that routes matching messages across all running process instances regardless of which specific instance the message is intended for -- this description does not reflect the actual behaviour. Each active process instance creates its own independent subscription when the host activity becomes active. Message correlation uses the configured correlation key to match an incoming message to the specific process instance expecting it. There is no shared cross-instance subscription; each instance's boundary event has an isolated subscription with its own correlation key value."
+    },
+    {
+      "id": "c",
+      "text": "The subscription is active while the host User Task is active -- created when the User Task activates, so messages published before the task starts will not correlate to this instance unless the message was buffered via time-to-live. The subscription is destroyed when the User Task completes normally, is cancelled by a boundary event, or is cancelled by the operator. The subscription is scoped to the activity's active lifetime and not to the broader process instance. md, the correlation key used when the subscription was created must match the correlation key in the incoming message for successful delivery."
+    },
+    {
+      "id": "d",
+      "text": "The Message Boundary Event subscription is a one-shot subscription: it is created when the process starts, receives one message, and is then permanently destroyed even if the host User Task is still active and could receive more -- this description does not reflect the actual behaviour. The subscription lifecycle is tied to the host activity's active period, not to the arrival of a single message. For a non-interrupting Message Boundary Event the subscription remains active and can trigger multiple times while the User Task is active. For an interrupting boundary event the subscription is cancelled because the host task is cancelled, not because of a one-shot design."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Boundary Event subscriptions are scoped to the activity they're attached to. Lifecycle: Creation: when the host activity activates (e.g., User Task is offered to assignee). Active: while the host is in progress, the subscription listens for matching messages (name + correlation key match). Destruction: when the host completes, is cancelled, or the boundary fires (in interrupting case). Important implications: Messages published before the activity activates won't correlate (unless message TTL is set high enough that they're still buffered when the activity activates). Messages published after the activity completes won't correlate (no subscription exists). The team should consider publish timing carefully relative to expected activation timing."
+    },
+    "b": {
+      "text": "Incorrect. Process-instance scope would be a different construct (e.g., Event Subprocess with Message Start, which is process-instance-wide)."
+    },
+    "c": {
+      "text": "Correct. Subscriptions are per-instance."
+    },
+    "d": {
+      "text": "Incorrect. Subscription waits for matching messages indefinitely (while activity is active)."
+    }
+  },
+  "explanation": "Subscriptions are per-instance.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/messages/"
+    }
+  ],
+  "sourceSet": 8,
+  "sourceId": "set08-q20",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set01-q58",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A process instance has variable customerEmail = \"wrong@example.com\". The team realised this is the result of a data ingestion bug. They want to correct it to \"correct@example.com\" while the instance is still in-flight, before it reaches a \"Send Notification\" Service Task downstream.",
+  "question": "Which is the correct approach to update the variable?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Use Operate UI -- navigate to the running instance, find the variable in the Variables panel, click edit, set the new value. Operate writes the update via the Orchestration Cluster API. The instance picks up the new value on next read. While this approach is valid for a human-driven one-off fix, presenting it as the sole correct answer ignores the equally valid Orchestration Cluster API path. For recurring fixes, scripted bulk corrections, or automated monitoring workflows, the API is the appropriate approach. The question acknowledges that Operate UI is one of two valid mechanisms -- the complete answer must recognise both rather than presenting either in isolation as the definitive correct approach."
+    },
+    {
+      "id": "b",
+      "text": "mdx:32-36; the scope can be the process-instance element or a specific embedded scope). Same effect as Operate UI. While this approach is equally valid and is the better choice for automated or scripted corrections, presenting it as the sole answer ignores the Operate UI path which is more appropriate for a quick human-driven one-off fix. The question's correct answer acknowledges that both mechanisms exist and that the choice between them depends on the operational context -- human or programmatic -- rather than there being a single definitive correct mechanism."
+    },
+    {
+      "id": "c",
+      "text": "Variables are immutable once set -- cancel the instance and re-start with corrected variables. Variables in Camunda 8 process instances are fully mutable throughout the instance's lifetime. Any variable can be updated via the Operate UI (Variables panel with inline editing) or via the Orchestration Cluster API (PUT /element-instances/{elementInstanceKey}/variables). , when a downstream task activates and accesses its input mappings), it reads the updated value. Cancelling the instance and restarting would destroy all accumulated process state for no reason, since the variable can simply be edited in-place."
+    },
+    {
+      "id": "d",
+      "text": "Both Operate UI and Orchestration Cluster API are valid; choose based on whether human or programmatic access. For a one-off fix by an operator (the described scenario), Operate UI is the most practical choice: navigate to the instance, find customerEmail in the Variables panel, click the pencil icon, type the correct value, and click Save. The variable update is applied immediately. , a monitoring script that detects and corrects bad email values), the Orchestration Cluster API PUT /element-instances/{elementInstanceKey}/variables endpoint is the appropriate tool. In both cases the change is reflected immediately and the downstream \"Send Notification\" task reads the corrected value when it activates."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Partially correct -- Operate UI works but ignores the API option."
+    },
+    "b": {
+      "text": "Incorrect. Partially correct -- API works but ignores the UI option."
+    },
+    "c": {
+      "text": "Incorrect. Both Operate UI and Orchestration Cluster API (the modern equivalent of Operate API for state-changing operations) support runtime variable updates. The choice is operational: a one-off human-driven fix uses Operate UI (faster, immediate); a recurring or automated fix uses the API (scriptable, repeatable). Both write the new value to the variable record; downstream tasks read the updated value when they activate. Options a) and b) are partially correct individually -- both ARE valid, but option c) acknowledges both work."
+    },
+    "d": {
+      "text": "Correct. Variables are mutable; update without instance loss."
+    }
+  },
+  "explanation": "Variables are mutable; update without instance loss.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/operate/userguide/resolve-incidents-update-variables/"
+    }
+  ],
+  "sourceSet": 1,
+  "sourceId": "set01-q58",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

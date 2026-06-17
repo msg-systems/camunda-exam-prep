@@ -1,0 +1,56 @@
+{
+  "id": "imp-set02-q01",
+  "topic": "modeling",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A regional hospital orchestrates its scheduled surgical workflow in Camunda 8 Self-Managed. Each surgery involves several pre-operative steps: patient pre-medication, anesthesia preparation, sterile equipment setup, and operating room booking. These steps must occur in a strict order because each one consumes resources and creates state (drugs administered, equipment dedicated, OR blocked from other procedures). If the surgery is cancelled mid-prep -- for example, the patient's blood test reveals a contraindication after pre-medication is already given -- the hospital must safely undo whatever has already been done: reverse the medication where possible, return equipment to pool, release the OR. The current implementation models the four steps as four sequential Service Tasks. When a cancellation event fires from the chief surgeon, an Error Boundary Event routes to four manually-coded \"Undo X\" Service Tasks. Last quarter, a cancellation hit the workflow after pre-medication but before equipment setup; the \"Undo Equipment\" task ran anyway (returning equipment that was never reserved) producing an inventory mismatch. There is also no record in Operate of which undo steps succeeded vs which were skipped because they were unnecessary. The clinical operations team wants a model where only the already-completed steps are rolled back, in reverse order, with a full audit per step.",
+  "question": "Which BPMN pattern best fits this requirement?",
+  "options": [
+    {
+      "id": "a",
+      "text": "X. This manually-coded compensation map is fragile -- if steps complete in varying order, the flags go stale; if you reorder undo tasks you must manually resynchronise the FEEL conditions. State tracking also bloats the process variable scope and creates debugging complexity."
+    },
+    {
+      "id": "b",
+      "text": "Place the four surgical preparation Service Tasks inside an Embedded Subprocess, attach a Compensation Boundary Event with a dedicated Compensation Handler to each task, and on cancellation throw individual Compensation Intermediate Throw Events with activityRef pointing to each task in the desired reverse order. Each handler only fires if the task completed -- steps that never ran have no registered handler. Operate records each handler as a distinct tracked activity, providing full per-step audit automatically."
+    },
+    {
+      "id": "c",
+      "text": "Replace the Service Tasks with Send Tasks that publish to an \"operations\" topic, and let four downstream Receive Tasks listen for either \"completed\" or \"cancelled\" messages to perform compensation by message correlation. This approach introduces asynchronous messaging latency, fragile correlation infrastructure, and unclear audit semantics -- \"message correlated\" does not convey \"step X compensated\" -- for a problem that BPMN Compensation already solves natively and with better clarity."
+    },
+    {
+      "id": "d",
+      "text": "Use a Parallel Multi-Instance Subprocess with input collection [\"medicate\",\"anesthesia\",\"equipment\",\"or-booking\"], and inside each instance, use an Exclusive Gateway to choose between \"do\" and \"undo\" branches based on a mode variable. This misapplies Multi-Instance, which is designed for parallel execution of similar work items, not coordinated rollback of heterogeneous steps. The four preparation steps differ in inputs, outputs, and undo logic, so forcing them into MI iterations abandons reverse-order semantics entirely."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. The Embedded Subprocess + Compensation Handler pattern is exactly engineered for selective rollback. Each Service Task that completes successfully registers its Compensation Handler with the engine. Critical nuance per docs: a Compensation End Event invokes all registered handlers \"at once without any specific order\" -- there is NO automatic LIFO walk. To enforce strict reverse order, the model issues individual Compensation Intermediate Throw Events with the activityRef attribute pointing to each activity, sequenced in reverse. Steps that never completed have no registered handler, so they are not \"undone\". Each handler runs as a tracked activity in Operate -- full per-step audit comes free. Note: Transactional Subprocess is NOT implemented for execution in Camunda 8 (per bpmn-coverage.md), so an Embedded Subprocess is the executable container; the Compensation Handler attribute carries the rollback semantics here, not the subprocess type."
+    },
+    "b": {
+      "text": "Correct. Conditional FEEL gateways on every undo task is a manually-coded compensation map -- exactly the design the scenario reports as fragile. It also leaks state (stepCompleted.X variables) into the process scope. Most importantly, ordering is not engine-managed: if you reorder the undo tasks in the model, you have to manually keep the FEEL conditions in sync. Compensation gives reverse order for free."
+    },
+    "c": {
+      "text": "Incorrect. Send/Receive correlation is real Camunda 8 feature for async message-based integration, NOT transactional rollback. The engine waits for response messages, introducing latency and a brittle correlation infrastructure for a problem BPMN already solves with Compensation. Audit trail also loses semantic clarity -- \"message correlated\" doesn't read as \"step X compensated\"."
+    },
+    "d": {
+      "text": "Incorrect. Parallel Multi-Instance is for parallel execution of similar work, NOT coordinated rollback across heterogeneous steps. The four surgical preparation steps differ in inputs, outputs, side effects, and undo procedures. Cramming them into MI iterations forces awkward mode switches and abandons reverse-order semantics -- MI gives no rollback ordering at all."
+    }
+  },
+  "explanation": "Conditional FEEL gateways on every undo task is a manually-coded compensation map -- exactly the design the scenario reports as fragile. It also leaks state (stepCompleted.X variables) into the process scope. Most importantly, ordering is not engine-managed: if you reorder the undo tasks in the model, you have to manually keep the FEEL conditions in sync. Compensation gives reverse order for free.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/compensation-events/"
+    }
+  ],
+  "sourceSet": 2,
+  "sourceId": "set02-q01",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "id": "imp-set13-q18",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A worker uses job.fail() vs job.error() to report problems. The team wonders the difference. job.fail() vs job.error() in worker SDKs -- when to use which?",
+  "question": "job.fail() vs job.error() in worker SDKs -- when to use which?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Identical -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "fail() is always the preferred method for all error conditions regardless of the error type -- partial; the choice between fail() and error() depends on whether the error represents a technical failure or a business outcome. Using fail() for business errors like \"customer not found\" wastes retries and eventually creates an Incident instead of routing to the appropriate BPMN error handler. error() to trigger Error Boundary routing."
+    },
+    {
+      "id": "c",
+      "text": "error() is always the preferred method for all failure conditions regardless of context -- partial; error() triggers BPMN error propagation which searches for a matching Error Boundary Event. For transient technical failures like network blips or partner API timeouts, using error() bypasses the retry mechanism entirely and immediately routes to a BPMN error handler (or creates an Incident if no handler exists). This skips valuable automatic retry behavior that could resolve the transient issue. Technical failures that benefit from retries should use fail() which decrements the retry counter and re-activates the job for another attempt."
+    },
+    {
+      "id": "d",
+      "text": "error() serve different purposes in Camunda 8 job workers. fail() signals a technical failure and decrements the retry counter -- the engine re-activates the job for another attempt after a configurable backoff delay. When retries are exhausted, an Incident is raised. Use for transient technical errors (network timeouts, 503 responses) that auto-recovery may resolve. error() signals a BPMN business error with a specific errorCode -- the engine propagates through the scope hierarchy to find a matching Error Boundary Event. Use for expected business exceptions (customer not found, payment declined) that require BPMN-modelled error handling paths."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. SDK error reporting APIs: job.fail(errorMessage) (technical failure): Semantic: \"this job failed; retry if applicable.\" Engine action: decrements retries; if > 0, job re-activates (potentially after backoff); if 0, Incident with errorMessage. No BPMN routing: doesn't trigger Error Boundary Events. Use for: Transient errors (network blip, partner timeout). Unexpected exceptions. \"Retry might help.\" System / technical issues. job.error({errorCode, errorMessage}) (BPMN business error): Semantic: \"a specific business error occurred.\" Engine action: propagates BPMN error with errorCode; engine searches scope hierarchy for matching Error Boundary / Event Subprocess Error Start. BPMN routing: triggers Error Boundary Events with matching errorCode. Use for: Business outcomes routed to specific paths (e.g., \"INVALID_VAT\" → manual review path). Known error scenarios with defined recovery. Domain-specific failure modes. Decision matrix: | Scenario | API | |---|---| | Network timeout (retryable) | job.fail | | Partner returns 500 (retryable) | job.fail | | Partner returns 400 with \"invalid VAT\" | job.error({errorCode: \"INVALID_VAT\"}) | | Customer not found in DB (business) | job.error({errorCode: \"CUSTOMER_NOT_FOUND\"}) | | Unexpected null pointer (bug) | job.fail (or unhandled exception → SDK fails) | | Insufficient funds (business) | job.error({errorCode: \"INSUFFICIENT_FUNDS\"}) | Combined patterns: same worker may use both -- job.fail for retryables, job.error for known business errors."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. Partially correct."
+    },
+    "d": {
+      "text": "Correct. Partially correct."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 13,
+  "sourceId": "set13-q18",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 19 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 34.3 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

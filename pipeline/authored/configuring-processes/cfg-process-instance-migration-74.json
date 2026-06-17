@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-74",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "easy",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "An operator submits a migration command whose target process definition has been deleted from Zeebe and is therefore no longer deployed. What is the outcome?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The migration succeeds because Zeebe keeps a cached copy of every previously deployed definition."
+    },
+    {
+      "id": "b",
+      "text": "The migration command is rejected because the target process definition does not exist in Zeebe."
+    },
+    {
+      "id": "c",
+      "text": "Zeebe falls back and migrates the instance to the latest deployed version with the same `bpmnProcessId`."
+    },
+    {
+      "id": "d",
+      "text": "The instance is paused in the engine until the target process definition is redeployed."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Zeebe does not retain deleted definitions for migration purposes. The target must be currently deployed and not yet deleted."
+    },
+    "b": {
+      "text": "A documented limitation states that the target process definition must exist in Zeebe — it must be deployed and not yet deleted. If it isn't, the migration command is rejected."
+    },
+    "c": {
+      "text": "There is no implicit fallback to a different version. Migration uses the specific target process definition referenced in the command."
+    },
+    "d": {
+      "text": "Zeebe does not park process instances waiting for a missing target. The command is rejected immediately."
+    }
+  },
+  "explanation": "Process instance migration requires that the target process definition currently exists in Zeebe — i.e., it must be deployed and not yet deleted. If the target is missing, the migration command is rejected outright rather than silently substituted or queued.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

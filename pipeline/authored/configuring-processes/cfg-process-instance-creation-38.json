@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-creation-38",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-creation",
+  "difficulty": "medium",
+  "style": "concept",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A `CreateProcessInstance` request supplies one start instruction at `elementId: ship_parcel` and one runtime instruction of type `TERMINATE_PROCESS_INSTANCE` with `afterElementId: ship_parcel`. What is the resulting execution?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The instance starts at `ship_parcel` and terminates once that element completes or terminates."
+    },
+    {
+      "id": "b",
+      "text": "The instance starts at the none start event and stops once it reaches `ship_parcel`."
+    },
+    {
+      "id": "c",
+      "text": "The instance repeatedly re-executes `ship_parcel` until manually terminated."
+    },
+    {
+      "id": "d",
+      "text": "The command is rejected because runtime instructions may only reference sequence flow IDs, not element IDs."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "The docs' example shows exactly this combination: a start instruction at `ship_parcel` plus a `TERMINATE_PROCESS_INSTANCE` runtime instruction `afterElementId: ship_parcel` runs only that segment of the process."
+    },
+    "b": {
+      "text": "The start instruction overrides the default none start event entry, so the instance does not begin at the none start event."
+    },
+    "c": {
+      "text": "Runtime instructions terminate the instance once the specified element completes or terminates; they do not loop the element."
+    },
+    "d": {
+      "text": "Runtime instructions reference element IDs. The documented limitation is the opposite: instructions cannot start or end at a sequence flow."
+    }
+  },
+  "explanation": "Combining start and runtime instructions allows running a process segment: the start instruction enters at a chosen element, and the `TERMINATE_PROCESS_INSTANCE` runtime instruction ends the instance after that element completes. This is an advanced feature recommended for testing only.",
+  "docs": [
+    {
+      "title": "Process instance creation",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-creation/"
+    }
+  ]
+}

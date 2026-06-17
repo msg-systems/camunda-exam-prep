@@ -1,0 +1,50 @@
+{
+  "id": "dev-docker-compose-05",
+  "topic": "dev-environment",
+  "subtopic": "docker-compose",
+  "difficulty": "hard",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A developer starts the Docker Compose lightweight configuration and opens `http://localhost:8070` to use Web Modeler, but the page does not load. What is required to use Web Modeler with the lightweight setup?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Restart the lightweight stack with `docker compose up -d --profile web-modeler` to enable the bundled Web Modeler service."
+    },
+    {
+      "id": "b",
+      "text": "Run `docker compose -f docker-compose-web-modeler.yaml up -d` separately, then manually configure the cluster connection in Web Modeler using `NONE` or `BASIC` authentication."
+    },
+    {
+      "id": "c",
+      "text": "Set `WEB_MODELER_ENABLED=true` in the `.env` file and restart the lightweight stack to activate Web Modeler."
+    },
+    {
+      "id": "d",
+      "text": "Switch to the full configuration; Web Modeler cannot run alongside the lightweight Orchestration Cluster on the same machine."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "There is no `--profile web-modeler` toggle on the lightweight compose file. Web Modeler is not bundled with the lightweight configuration and cannot be turned on with a Compose profile."
+    },
+    "b": {
+      "text": "Web Modeler is not included in the lightweight configuration. The docs instruct you to run `docker-compose-web-modeler.yaml` separately and configure the cluster connection by hand, using `NONE` or `BASIC` authentication because the lightweight Orchestration Cluster does not run Keycloak/OIDC."
+    },
+    "c": {
+      "text": "There is no `WEB_MODELER_ENABLED` environment variable on the lightweight stack. Web Modeler ships as a separate compose file, not as a flag enabled on the lightweight setup."
+    },
+    "d": {
+      "text": "Web Modeler can run alongside the lightweight Orchestration Cluster — it just has to come from `docker-compose-web-modeler.yaml` and be wired to the cluster manually. Switching to the full configuration is one option, but not a requirement."
+    }
+  },
+  "explanation": "Web Modeler is only included in the full Docker Compose configuration by default. To use it with the lightweight setup, start Web Modeler independently via `docker compose -f docker-compose-web-modeler.yaml up -d` and configure the cluster connection by hand. Because the lightweight Orchestration Cluster does not run Keycloak/OIDC, the connection must use `NONE` or `BASIC` authentication rather than OAuth.",
+  "docs": [
+    {
+      "title": "Docker Compose",
+      "url": "https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/docker-compose/"
+    }
+  ]
+}

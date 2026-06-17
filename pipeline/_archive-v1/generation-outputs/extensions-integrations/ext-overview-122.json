@@ -1,0 +1,27 @@
+{
+  "id": "ext-overview-122",
+  "topic": "extensions-integrations",
+  "subtopic": "operate-api",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Forge Insurance investigates a single misbehaving process instance with key 2251799813699213 in a Camunda 8.8 Operate cluster that handles 7200 claims per month. The on-call engineer wants the documented direct-lookup endpoint that returns the matching process instance object by key, without having to page through a search response.",
+  "question": "Which Camunda 8.8 Operate API endpoint retrieves a single process instance object by its key?",
+  "options": [
+    { "id": "a", "text": "Call GET /v1/process-instances/{key} where {key} is the value of the object's key field, for example GET /v1/process-instances/2251799813699213, returning the matching process instance" },
+    { "id": "b", "text": "Call POST /v1/process-instances/{key}/get with an empty JSON body where {key} is the value of the object's key field, returning the single matching process instance object in JSON" },
+    { "id": "c", "text": "Call GET /v1/process-instances/search?key={key} where {key} is the value of the object's key field, returning the single matching process instance inside a Results envelope" },
+    { "id": "d", "text": "Call GET /v1/process-instances/by-id/{id} where {id} is always the value of the object's id field for any object type, returning the single matching process instance object" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The Get object by key section states every object has a GET /v1/<object>/{key} endpoint, where {key} is the object's key field. The example GET /v1/process-instances/2251799813699213 returns the matching process instance JSON directly." },
+    "b": { "text": "Incorrect. There is no POST /<object>/{key}/get pattern in the docs; direct lookup is the GET on the same path with the key as a path parameter." },
+    "c": { "text": "Incorrect. /search returns a Results envelope and is for queries, not single-object lookup; the direct-lookup endpoint is GET /v1/<object>/{key}." },
+    "d": { "text": "Incorrect. The id field is only the identifier for decision instances (where key is not unique). For process instances the documented identifier is key, used in GET /v1/process-instances/{key}." }
+  },
+  "explanation": "Operate exposes a direct lookup for every object as GET /v1/<object>/{key}, where {key} is the object's key field. For process instances that means GET /v1/process-instances/{key}, for example /v1/process-instances/2251799813699213, which returns the matching JSON object. Decision instances are the special case where the id field is used instead of key.",
+  "docs": [
+    { "title": "Operate API overview", "url": "https://docs.camunda.io/docs/apis-tools/operate-api/overview/" }
+  ]
+}

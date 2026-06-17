@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q15",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An IDP extracts data with per-field confidence. The team wonders about computing an overall confidence for the entire extraction -- e.g., to compare across documents.",
+  "question": "How might \"overall confidence\" be computed from per-field confidences?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Options (using canonical FEEL projection for ... in ... return ... , vendorName matters more than memo). Choice depends on the use case. \" → minimum is safest. \") → mean."
+    },
+    {
+      "id": "b",
+      "text": "The IDP component automatically computes and returns an overall confidence score with no need for manual aggregation -- some IDP extraction responses may include aggregate confidence metrics depending on the implementation and version."
+    },
+    {
+      "id": "c",
+      "text": "Overall confidence is not a meaningful or useful metric when working with IDP extraction results -- this dismisses a valuable quality indicator. Aggregating per-field confidence scores into an overall confidence metric helps teams decide whether to auto-process a document or route it for human review. A minimum confidence threshold check prevents silent errors from low-quality extractions reaching downstream systems without appropriate human validation."
+    },
+    {
+      "id": "d",
+      "text": "Mean confidence masks individual weak fields that may contain critical data errors. \" decisions, while weighted averages allow business-critical fields like vendor name and invoice amount to carry more weight than secondary fields. The correct aggregation method depends on the specific use case."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. \"Overall confidence\" can be computed in FEEL from per-field confidences. Pick the aggregation method based on semantic: Minimum (conservative): =min(for f in fields return f.confidence) -- canonical FEEL projection per feel-list-expressions.md:67-86. Use case: \"is the extraction trustworthy?\" -- only as good as the weakest field. Highlights potential issues. Mean (general feel): =mean(for f in fields return f.confidence) Use case: aggregate quality reporting; masks individual weak fields. Weighted average (importance-aware): =(0.5 vendorName.confidence + 0.3 invoiceDate.confidence + 0.2 * amount.confidence) Use case: business-critical fields (vendorName, amount) weighted more than secondary (memo). Median (robust): =median(for f in fields return f.confidence) Use case: less sensitive to outliers than mean. Anti-pattern: bracket-comprehension [f in fields : f.confidence] looks plausible but is NOT FEEL syntax -- projection uses for ... in ... return ...; the bracket form list[predicate] is filter syntax with implicit item variable per :75. For \"should I auto-process this?\" decision: minimum is typically safest -- if any critical field is low-confidence, don't auto-process. For trend analytics, mean or median."
+    },
+    "b": {
+      "text": "Incorrect. Some IDP responses may include aggregate; check."
+    },
+    "c": {
+      "text": "Incorrect. Useful metric."
+    },
+    "d": {
+      "text": "Incorrect. Multiple valid."
+    }
+  },
+  "explanation": "\"Overall confidence\" can be computed in FEEL from per-field confidences. Pick the aggregation method based on semantic: Minimum (conservative): =min(for f in fields return f.confidence) -- canonical FEEL projection per feel-list-expressions.md:67-86. Use case: \"is the extraction trustworthy?\" -- only as good as the weakest field. Highlights potential issues. Mean (general feel): =mean(for f in fields return f.confidence) Use case: aggregate quality reporting; masks individual weak fields. Weighted average (importance-aware): =(0.5 vendorName.confidence + 0.3 invoiceDate.confidence + 0.2 * amount.confidence) Use case: business-critical fields (vendorName, amount) weighted more than secondary (memo). Median (robust): =median(for f in fields return f.confidence) Use case: less sensitive to outliers than mean. Anti-pattern: bracket-comprehension [f in fields : f.confidence] looks plausible but is NOT FEEL syntax -- projection uses for ... in ... return ...; the bracket form list[predicate] is filter syntax with implicit item variable per :75. For \"should I auto-process this?\" decision: minimum is typically safest -- if any critical field is low-confidence, don't auto-process. For trend analytics, mean or median.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/feel/language-guide/feel-list-expressions/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q15",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

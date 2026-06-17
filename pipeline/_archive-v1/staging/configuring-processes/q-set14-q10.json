@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q10",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Service Task has retries=3 and activationTimeout=5min. Worker takes 6 min per attempt. Team wonders how retries and activation timeout interact in this case.",
+  "question": "Retries vs activation timeout interaction?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Activation timeout does not decrement retries in Camunda 8. These are independent mechanisms: activation timeout fires when a worker fails to respond within the configured duration, causing the broker to re-offer the job to any available worker without counting it as a failure. fail() to report a processing error. In this scenario where the worker takes 6 minutes but the timeout is 5 minutes, the broker re-activates the job while the original worker is still running, and retries remain unchanged."
+    },
+    {
+      "id": "b",
+      "text": "Retries do not exhaust before activation timeouts can fire -- the two mechanisms operate independently on different triggers. fail() to signal a processing failure. Activation timeout fires when the worker fails to respond within the configured duration, re-offering the job to any available worker without touching the retry counter. A slow worker can trigger dozens of activation timeout re-activations while the retry counter remains at its original value."
+    },
+    {
+      "id": "c",
+      "text": "Retries and activation timeout are distinct, orthogonal mechanisms in Camunda 8 with separate triggers and separate effects. Activation timeout is a per-activation deadline that expires when a worker fails to respond, causing the broker to re-offer the job without decrementing anything. fail() calls. Treating them as the same mechanism produces incorrect predictions about process behavior under slow or failing workers."
+    },
+    {
+      "id": "d",
+      "text": "Independent mechanisms: retries and activation timeout operate on entirely separate triggers and counters. g. fail() to report a processing failure; reaching zero creates an Incident. Activation timeout fires when the worker fails to respond within the configured duration, causing the broker to re-offer the job to any available worker without decrementing retries. When the worker takes 6 min with a 5-min timeout, the broker re-activates the job while the original worker is still running. Right-size activation timeout to actual worker P99 duration plus buffer."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Retries and activation timeout are orthogonal: Activation timeout (per-activation): Set when worker activates the job; deadline = now + timeout. If worker doesn't complete / fail / throwError by deadline: activation expires. Broker considers job re-activatable; another worker (or same) can pick up. Retries: unchanged by activation timeout -- it's not a \"failure,\" just a \"no response.\" Retries (job-level counter): Set in BPMN (e.g., retries=3). Decrement on job.fail() calls. At 0: Incident; process pauses. Scenario analysis: t=0: Worker A activates job; timeout = 5 min from now. t=5min: Worker A still working; activation expires. Retries still = 3. t=5min: Worker B (or A re-polling) activates same job; new timeout = 5 min. t=6min: Worker A finishes; calls job.complete(). Broker accepts (or rejects if another already completed; depends on implementation). If duplicate completes are rejected: harmless duplicate work; idempotency mitigates. If duplicate completes accepted: process advances; subsequent attempts to complete fail silently or with error log. Worst-case scenarios: Scenario A: Worker eventually completes within retry budget: Activation timeouts may fire multiple times. Each re-activation runs the worker code again. Concurrent executions: multiple workers may run simultaneously. Duplicate side effects: non-idempotent workers cause bugs. Scenario B: Worker keeps failing fast: Each failure decrements retries. 3 failures → Incident. Slow worker scenario distinct: failures cause retry decrement; timeouts don't. Mitigations: Right-size activation timeout: match worst-case worker duration + buffer (e.g., P99 + 50%). Idempotent workers: design code so duplicate execution is safe. Monitor activation timeout events: high rate signals undersized timeout or slow workers. Best practices: Workers that take > 5 min should explicitly set longer activation timeout. Monitor job processing time distribution; tune accordingly. Pair with chaos testing: ensure idempotency holds under concurrent execution. Important distinction: Retries = \"how many failed attempts before giving up.\" Activation timeout = \"how long broker waits before re-offering.\" Don't conflate; tune separately."
+    },
+    "b": {
+      "text": "Incorrect. Timeout != failure."
+    },
+    "c": {
+      "text": "Incorrect. Option d) -- Wrong."
+    },
+    "d": {
+      "text": "Correct. wrong."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q10",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

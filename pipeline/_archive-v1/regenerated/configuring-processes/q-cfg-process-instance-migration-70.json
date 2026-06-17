@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-70",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Polaris Brokerage has 2200 instances of its Camunda 8.8 client-onboarding process stuck on an outdated process definition after a regulatory requirement change. The team wants to fit those running instances to a different process definition while preserving as much of the current execution state as possible.",
+  "question": "Which Camunda 8 operation fits a running process instance to a different process definition with minimal disruption to its state?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Process instance migration, invoked through the gateway MigrateProcessInstance RPC or its REST equivalent, which targets each affected running instance and changes its process model in place."
+    },
+    {
+      "id": "b",
+      "text": "Process instance modification, invoked through the gateway ModifyProcessInstance RPC on each affected instance to switch the underlying process definition pointer to the new version."
+    },
+    {
+      "id": "c",
+      "text": "Process instance redeployment, performed by deleting each affected running instance and creating a fresh instance against the new process definition through the gateway."
+    },
+    {
+      "id": "d",
+      "text": "Process instance reassignment, performed by republishing the deployment with the same processId so the engine automatically rebinds every running instance to the new model."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Process instance migration is documented as the operation that fits a running process instance to a different process definition while interfering as little as possible with state, invoked via the MigrateProcessInstance RPC or REST."
+    },
+    "b": {
+      "text": "Incorrect. Process instance modification is for repairing a broken process instance without changing the process definition; for switching to a different definition, migration is the documented operation."
+    },
+    "c": {
+      "text": "Incorrect. Deleting and recreating instances loses execution state, which is the opposite of the documented migration goal of minimal state interference."
+    },
+    "d": {
+      "text": "Incorrect. Redeploying a process does not retroactively rebind running instances; the documented mechanism for switching running instances to a new definition is process instance migration."
+    }
+  },
+  "explanation": "Process instance migration is the documented Camunda 8 operation for fitting a running process instance to a different process definition while interfering as little as possible with its current execution state.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

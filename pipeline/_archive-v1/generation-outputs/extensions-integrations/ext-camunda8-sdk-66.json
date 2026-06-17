@@ -1,0 +1,27 @@
+{
+  "id": "ext-camunda8-sdk-66",
+  "topic": "extensions-integrations",
+  "subtopic": "TypeScript SDK",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Northwind Insurance processes 4500 claims per day on Camunda 8.8 and needs to fetch the historical process instance state after createProcessInstance returns the process instance key. The TypeScript service must query Operate via the Camunda 8 SDK and accept eventual consistency from the Zeebe exporter when the state is read back through the SDK call inside the main function.",
+  "question": "Which Camunda 8.8 SDK call retrieves the historical process instance state for a given process instance key?",
+  "options": [
+    { "id": "a", "text": "Call camunda.getProcessByKey passing the result.processInstanceKey value so the SDK returns the live process instance state from the Zeebe broker without any exporter lag at all" },
+    { "id": "b", "text": "Call camunda.getProcessInstance passing processInstanceKey and a consistency option with waitUpToMs 5000 so the SDK returns historical data sourced from the Zeebe exporter pipeline" },
+    { "id": "c", "text": "Call camunda.queryProcessInstance passing the id field and a consistency strong option so the SDK blocks until the Zeebe exporter has fully caught up to the latest broker state" },
+    { "id": "d", "text": "Call camunda.getOperateProcess passing processInstanceKey and a waitMs 5000 option so the SDK returns the live broker state proxied through the Operate gateway endpoint" }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": { "text": "Incorrect. The documented SDK method is camunda.getProcessInstance taking a processInstanceKey, not a getProcessByKey method; the data is sourced from the Zeebe exporter and is eventually consistent." },
+    "b": { "text": "Correct. The Camunda 8 SDK exposes camunda.getProcessInstance taking processInstanceKey with an optional consistency.waitUpToMs setting such as 5000; the response comes from the Zeebe exporter and is eventually consistent." },
+    "c": { "text": "Incorrect. The documented call is camunda.getProcessInstance, and the consistency option is waitUpToMs measured in milliseconds; there is no strong consistency mode that blocks for full exporter catch-up." },
+    "d": { "text": "Incorrect. There is no camunda.getOperateProcess method on the SDK; historical retrieval uses camunda.getProcessInstance, which reads from the Operate API backed by the Zeebe exporter." }
+  },
+  "explanation": "The Camunda 8 SDK retrieves historical process instance data via camunda.getProcessInstance using the processInstanceKey, with an optional consistency option such as waitUpToMs 5000; the response comes from the Zeebe exporter and is eventually consistent, so the state may appear as ACTIVE before showing COMPLETED.",
+  "docs": [
+    { "title": "Camunda 8 TypeScript SDK", "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/" }
+  ]
+}

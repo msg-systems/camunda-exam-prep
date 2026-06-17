@@ -1,0 +1,50 @@
+{
+  "id": "cfg-process-instance-migration-67",
+  "topic": "configuring-processes",
+  "subtopic": "process-instance-migration",
+  "difficulty": "medium",
+  "style": "scenario",
+  "kind": "single",
+  "camundaVersion": "8.8",
+  "question": "A process instance is waiting at a joining parallel gateway after sequence flow `flow1` was taken from completed task `A`; user task `B` is still active on a parallel branch. The target process adds element `C` before the joining gateway. Which mapping instructions are required to migrate this instance?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Map `B`->`B`, the joining parallel gateway `gateway1`->`gateway2`, and the taken sequence flow `flow1`->`flow2`."
+    },
+    {
+      "id": "b",
+      "text": "Map only `B`->`B`; joining gateways and taken sequence flows are derived from the model and need no explicit mapping."
+    },
+    {
+      "id": "c",
+      "text": "Map `B`->`B` and `gateway1`->`gateway2`; taken sequence flows cannot be mapped."
+    },
+    {
+      "id": "d",
+      "text": "Map only the gateway; active user tasks are inferred from matching element IDs, and taken sequence flows always carry over."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Joining parallel and inclusive gateways with already-taken incoming flows require explicit mappings: the active element `B`, the joining gateway, and each taken sequence flow must all be mapped. The target gateway must also have at least the same number of incoming flows as the source."
+    },
+    "b": {
+      "text": "Joining parallel gateways that are still waiting for more incoming flows require an explicit mapping instruction — they cannot be inferred from IDs."
+    },
+    "c": {
+      "text": "Taken sequence flows feeding into a joining parallel or inclusive gateway are part of the migration plan and must be mapped explicitly."
+    },
+    "d": {
+      "text": "Active user tasks are not auto-inferred by ID; they require explicit mapping instructions like any other active element."
+    }
+  },
+  "explanation": "Joining parallel and inclusive gateways with already-taken incoming sequence flows require explicit mapping instructions alongside any other active elements. The joining gateway itself must be mapped, each taken sequence flow must be mapped, and the target gateway must have at least the same number of incoming sequence flows as the source gateway.",
+  "docs": [
+    {
+      "title": "Process instance migration",
+      "url": "https://docs.camunda.io/docs/components/concepts/process-instance-migration/"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "id": "imp-set17-q56",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Want to see worker metrics (active workers, jobs handled) in Operate or dashboards.",
+  "question": "Worker metrics visibility?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Not visible -- wrong."
+    },
+    {
+      "id": "b",
+      "text": "Operate provides operational visibility into process instances, pending jobs, and incidents, but it is not the primary tool for worker-level metrics like job activation rates, completion throughput, or handler latency. invocations metric). Grafana dashboards combine these metrics for comprehensive operational insight."
+    },
+    {
+      "id": "c",
+      "text": "Multiple approaches: Camunda 8 worker metrics and job visibility can be achieved through multiple complementary mechanisms. The Zeebe cluster exposes Prometheus metrics including zeebe_job_events_total with action labels for created/activated/completed/failed/canceled counts. invocations metric tagged by job type and action. Grafana dashboards combine cluster and worker metrics for comprehensive visualization. The Operate UI provides operational triage views for pending jobs and incidents per process and task type. Optimize provides trend analysis and process KPI dashboards for business analytics across historical data."
+    },
+    {
+      "id": "d",
+      "text": "While application logging is an important part of observability, Camunda 8 provides structured metrics through Prometheus for both cluster-level and worker-level visibility. The Zeebe broker exposes metrics endpoints that Prometheus scrapes, including job event counters, backpressure indicators, and element instance counts. Worker applications can emit metrics through the Camunda Spring Boot Starter or custom Micrometer instrumentation. These structured metrics provide much better aggregation, alerting, and visualization than unstructured log parsing."
+    }
+  ],
+  "correctOptionId": "c",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Worker metrics: Levels of visibility: Level 1: Cluster metrics per self-managed/operational-guides/monitoring/metrics.md:215-237: Zeebe metrics (verbatim -- note singular job and action-label semantics): zeebe_job_events_total (:219) -- action label ∈ {created, activated, timed_out, completed, failed, canceled}. zeebe_element_instance_events_total (:218) -- activated/completed/terminated counts with type label for BPMN element type. zeebe_incident_events_total (:220) -- created/resolved. zeebe_pending_incidents_total (:221) -- currently pending. zeebe_stream_processor_records_total (:216) -- processed/skipped/written events. zeebe_dropped_request_count_total (:231) -- backpressure rejections. In Prometheus (verbatim metric name; action filter): `promql rate(zeebe_job_events_total{action=\"activated\"}[5m]) rate(zeebe_job_events_total{action=\"completed\"}[5m]) rate(zeebe_job_events_total{action=\"failed\"}[5m]) Activation / completion / failure rates separated by action label. Level 2: Worker self-metrics: Workers expose metrics: Spring Boot Actuator (per Q41): /actuator/prometheus. Custom Micrometer counters. Worker-side metrics: Active jobs: how many being processed. Handler latency: per task type. Error rate: per task. Level 3: Operate: Pending jobs: visible. Per process / task type: aggregate. Per-instance: detail. Level 4: Custom dashboards (Grafana): Combine cluster + worker metrics. Per service view. Alerts. For active worker count: Worker registration metric: emit at startup. Heartbeat / ping: per worker. Alert on missing: detect outages. For job throughput: promql rate(zeebe_jobs_completed_total{taskType=\"...\"}[5m]) Per-task-type rate. For backlog: promql zeebe_jobs_pending{taskType=\"...\"} Per-task pending. For worker latency: Custom metric: per handler. Histogram: P50, P95, P99. For per-worker visibility: Worker name: in metric labels. Aggregate per worker. In Operate UI: Process detail: shows element-level activity. Pending tasks: visible. Per Set 15 Q51: flow node breakdown. For incidents: Worker failed: incident on task. Operate shows: per Set 16 Q57. For Camunda Spring Boot Starter (Pattern #54 -- replaces Spring Zeebe SDK as of 8.8): Auto-emits camunda.job.invocations via Micrometer per configuration.md:1094-1117 -- tagged by job type, action ∈ {activated, completed, failed, bpmn-error}. Standard JVM + Spring Boot Actuator metrics. For custom Camunda instrumentation: java @JobWorker(type = \"process-payment\") public void handle() { // Auto-tracked: timer, counter, etc. // Custom: business metrics } For monitoring scaling: Worker CPU / memory: app-level. Jobs per worker: distribution. Identify hot spots. For SLA tracking: Task duration: histogram. Compare to SLA: alert if exceeded. For deployment correlation: Metric per worker version: track deploy impact. Compare before / after. For Camunda 8 specifics: Metric names evolve: per version."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Correct. partial."
+    },
+    "d": {
+      "text": "Incorrect. partial."
+    }
+  },
+  "explanation": "",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/self-managed/operational-guides/monitoring/metrics/"
+    }
+  ],
+  "sourceSet": 17,
+  "sourceId": "set17-q56",
+  "_needs_review": "option-text-too-short-after-rewrite",
+  "_lint": {
+    "clean": false,
+    "findings": [
+      {
+        "code": "quality-option-too-short",
+        "severity": "block",
+        "message": "option text length 21 < 30 (catastrophically short)",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-rationale-leak",
+        "severity": "block",
+        "message": "option text contains its own verdict/rationale",
+        "where": "options[0]"
+      },
+      {
+        "code": "quality-option-length-ratio",
+        "severity": "block",
+        "message": "option length ratio 29.9 > 6.0 (catastrophic imbalance)",
+        "where": "options"
+      }
+    ]
+  }
+}

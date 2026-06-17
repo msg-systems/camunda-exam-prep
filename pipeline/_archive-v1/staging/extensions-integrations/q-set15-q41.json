@@ -1,0 +1,56 @@
+{
+  "id": "imp-set15-q41",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Spring Boot app needs to deploy a BPMN file after specific custom setup (e.g., DB seed). Team wonders alternative to @Deployment annotation that allows ordering. @PostConstruct deployment for custom timing?",
+  "question": "@PostConstruct deployment for custom timing?",
+  "options": [
+    {
+      "id": "a",
+      "text": "@Deployment is indeed one approach for specifying which BPMN resources to deploy with a Camunda application. This is useful for conditional deployment logic that @Deployment cannot express."
+    },
+    {
+      "id": "b",
+      "text": "Programmatic deployment via @PostConstruct or @EventListener for custom timing: @PostConstruct: method runs after Spring bean initialised. class): after full app start (all beans + auto-config ready). Order: control via Spring's bean ordering (@DependsOn, constructor DI, or @Order annotation). Use cases: deploy after DB migrations; after custom Connector registration; conditional deploys per env. newDeployResourceCommand()… for programmatic deployment."
+    },
+    {
+      "id": "c",
+      "text": "Deploying new process definitions in a Camunda Spring Boot Starter application always requires a full application restart -- this approach has limitations. While the @Deployment annotation and @PostConstruct/@EventListener programmatic deployment run at startup, the CamundaClient can also be injected into any Spring component and used to call newDeployResourceCommand() at any time during application runtime -- for example, triggered by an admin REST endpoint, a configuration change event, or a scheduled task. This enables hot-deployment of updated process definitions without restarting the Spring Boot application."
+    },
+    {
+      "id": "d",
+      "text": "The Camunda Spring Boot Starter provides no programmatic API for deploying process resources -- only the declarative @Deployment annotation is available -- this approach has limitations. yaml) exposes the full Zeebe gRPC and REST API surface including newDeployResourceCommand(). This command accepts classpath resources, file system files, or in-memory byte arrays and deploys them to the connected cluster. 8)."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Programmatic deployment timing: Pattern 1: @PostConstruct: `java @Component public class ProcessDeployer { @Autowired private CamundaClient client; // C8.8: CamundaClient, not ZeebeClient @Autowired private DatabaseMigrationService dbMigration; @PostConstruct public void deployProcesses() { // Ensure DB migration ran first via dependency dbMigration.ensureMigrated(); // Then deploy client.newDeployResourceCommand() .addResourceFromClasspath(\"processes/order.bpmn\") .send() .join(); } } Pros: Custom timing: after specific setup. Programmatic control: error handling, conditional deploys. Cons: Boilerplate: more code than @Deployment annotation. Bean lifecycle dependencies: ensure correct ordering. Pattern 2: @EventListener(ApplicationReadyEvent.class): java @Component public class ProcessDeployer { @Autowired private CamundaClient client; @EventListener(ApplicationReadyEvent.class) public void deployOnReady() { // App fully started; deploy client.newDeployResourceCommand() .addResourceFromClasspath(\"processes/order.bpmn\") .send() .join(); } } Pros: After full app start: all beans initialised. Decoupled: not tied to specific bean's @PostConstruct. Pattern 3: Ordered bean initialisation: java @Component @DependsOn(\"databaseMigrator\") // deploy after migrator public class ProcessDeployer { // @PostConstruct deployment } Spring ensures databaseMigrator initialised first. Pattern 4: Conditional deployment: java @PostConstruct public void deploy() { if (shouldDeploy()) { // deploy logic } } private boolean shouldDeploy() { // check env, feature flag, etc. return env.isDeployEnabled(); } Skip deploy in some environments (e.g., production via CI/CD). Pattern 5: Programmatic with batching: java @EventListener(ApplicationReadyEvent.class) public void deployAll() { Resource[] processes = ... // find all BPMN files DeployResourceCommandStep1 command = zeebeClient.newDeployResourceCommand(); for (Resource r : processes) { command = command.addResourceFromClasspath(r.getPath()); } command.send().join(); } Single deployment with multiple resources (atomic). For the scenario (deploy after DB setup): java @Component public class CustomDeployer { @Autowired private CamundaClient client; // 8.8 unified client (replaces ZeebeClient) @Autowired private DbSetupService dbSetup; @EventListener(ApplicationReadyEvent.class) public void deployAfterSetup() { dbSetup.runMigrations(); dbSetup.seedData(); client.newDeployResourceCommand() .addResourceFromClasspath(\"processes/order.bpmn\") .send() .join(); } } Comparison with @Deployment`: | Aspect | @Deployment | Programmatic | |--------|-------------|--------------| | Boilerplate | Minimal | More code | | Timing control | Auto on startup | Custom | | Error handling | Implicit | Explicit | | Conditional | Limited | Full | | Custom setup deps | Hard | Easy | Best practices: Use @Deployment for simple cases. Use programmatic for custom timing / conditions. Log deployments: track which resources deployed. Error handling: explicit; don't silently fail. Testing considerations: Test deploys in dev / staging. Mock ZeebeClient in unit tests. For production: Typically CI/CD-driven (per Set 14 Q53 / Q56). App auto-deploy useful for dev / staging. Don't double-deploy in prod."
+    },
+    "b": {
+      "text": "Correct. Option c) -- Wrong."
+    },
+    "c": {
+      "text": "Incorrect. wrong."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Option c) -- Wrong.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/camunda-spring-boot-starter/getting-started/"
+    }
+  ],
+  "sourceSet": 15,
+  "sourceId": "set15-q41",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

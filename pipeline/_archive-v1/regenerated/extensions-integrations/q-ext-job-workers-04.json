@@ -1,0 +1,50 @@
+{
+  "id": "ext-job-workers-04",
+  "topic": "extensions-integrations",
+  "subtopic": "Job timeouts",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Tessera Insurance runs Camunda 8.8 workers that activate claim validation jobs with a 5 minutes initial timeout, but some claims take 90 minutes when external policy lookups are slow. The team wants to extend the timeout of an already activated job once the worker realises the work will take longer, and the architect must explain how UpdateJobTimeout interprets the duration it receives.",
+  "question": "How does the Camunda 8.8 UpdateJobTimeout gRPC command interpret the duration it receives?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The duration is added to the previous timeout so the new deadline is the previous deadline plus the supplied duration, which lets the worker extend the assignment incrementally for long jobs"
+    },
+    {
+      "id": "b",
+      "text": "The duration is the new timeout measured from the current time, so the deadline is the current time plus the supplied duration, which lets the worker extend or shorten the assignment"
+    },
+    {
+      "id": "c",
+      "text": "The duration is the new timeout measured from the job activation time, so the deadline is the activation time plus the supplied duration, regardless of how long the worker has been running"
+    },
+    {
+      "id": "d",
+      "text": "The duration replaces the remaining retries counter on the job so the deadline shifts forward by the supplied duration, which lets the worker extend the assignment for very long jobs"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Camunda 8.8 does not add the supplied duration to the previous timeout; the documentation states that UpdateJobTimeout sets the new timeout from the current time, not as an increment to the existing deadline."
+    },
+    "b": {
+      "text": "Correct. Camunda 8.8 documents that UpdateJobTimeout takes a duration which becomes the new timeout measured from the current time, so the deadline is current time plus the supplied duration; this also lets workers shorten the assignment when needed."
+    },
+    "c": {
+      "text": "Incorrect. UpdateJobTimeout is measured from the current time rather than from the original activation time, so the new deadline depends on when the update command is processed by the broker."
+    },
+    "d": {
+      "text": "Incorrect. UpdateJobTimeout does not touch the retries counter on the job; it sets the new timeout duration measured from the current time, leaving retries unchanged."
+    }
+  },
+  "explanation": "Camunda 8.8 documents UpdateJobTimeout as setting the new timeout from the current time rather than adding to the previous one. Workers can therefore both extend and shorten the timeout, and should apply a buffer before the deadline because the update itself takes some processing time.",
+  "docs": [
+    {
+      "title": "Job workers",
+      "url": "https://docs.camunda.io/docs/components/concepts/job-workers/"
+    }
+  ]
+}

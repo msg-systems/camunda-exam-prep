@@ -1,0 +1,50 @@
+{
+  "id": "mod-bpmn-primer-08",
+  "topic": "modeling",
+  "subtopic": "service-tasks",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Polaris Marketplace deploys a Camunda 8.8 order process modelled on the BPMN primer example that runs 9000 orders per day. The Collect Money service task fails intermittently and the team plans to allow 5 retries before raising an incident, so the architect inspects the BPMN XML to confirm which Zeebe extension element binds the worker job type and the retry count.",
+  "question": "Which Zeebe extension element on a service task binds the worker job type and the retry count in the BPMN primer order process?",
+  "options": [
+    {
+      "id": "a",
+      "text": "A zeebe:taskHeaders element with key and value attributes binds the worker job type and a separate zeebe:retryPolicy attribute sets the retry count"
+    },
+    {
+      "id": "b",
+      "text": "A zeebe:taskDefinition element with a type attribute and a retries attribute binds the worker job type and sets the retry count for the service task"
+    },
+    {
+      "id": "c",
+      "text": "A zeebe:ioMapping element with source and target expressions binds the worker job type and an outer attempts attribute sets the retry count for the task"
+    },
+    {
+      "id": "d",
+      "text": "A zeebe:assignmentDefinition element with assignee and candidateGroups attributes binds the worker job type and a retries attribute sets the retry count"
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. zeebe:taskHeaders carries arbitrary headers passed to the worker payload and there is no separate zeebe:retryPolicy attribute in the BPMN primer order process example."
+    },
+    "b": {
+      "text": "Correct. The BPMN primer XML shows each service task carrying a single zeebe:taskDefinition extension element whose type attribute is the worker job type and whose retries attribute sets the retry count, for example type collect-money and retries 3."
+    },
+    "c": {
+      "text": "Incorrect. zeebe:ioMapping handles input and output variable mapping for a task; it does not bind the worker job type and the BPMN primer order example does not use it for retries."
+    },
+    "d": {
+      "text": "Incorrect. zeebe:assignmentDefinition is used for user task assignment with assignee and candidateGroups; it does not bind a service-task worker job type in the BPMN primer order process."
+    }
+  },
+  "explanation": "In the BPMN primer order process each service task carries a single zeebe:taskDefinition extension element. The type attribute is the worker job type and the retries attribute sets the retry count, illustrated in the primer with type collect-money and retries 3.",
+  "docs": [
+    {
+      "title": "BPMN primer",
+      "url": "https://docs.camunda.io/docs/components/modeler/bpmn/bpmn-primer/"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q17",
+  "topic": "configuring-processes",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "An AI Agent Connector has 4 tools available in its Ad-hoc Subprocess: lookup-order, check-shipping, escalate-ticket, send-survey. The LLM decides which to call. The team wonders how the LLM picks -- random, weighted, strict?",
+  "question": "How does the LLM choose a tool in agentic orchestration?",
+  "options": [
+    {
+      "id": "a",
+      "text": "The LLM selects tools randomly from the available set in the Ad-hoc Subprocess -- this mischaracterises how language model tool calling works. The LLM evaluates the available tools against the conversation context, user intent, and system prompt guidance, then selects the most contextually appropriate tool based on its reasoning capabilities. Even at higher temperature settings, tool selection reflects the model's training and context rather than uniform random sampling."
+    },
+    {
+      "id": "b",
+      "text": "The LLM's choice is determined by its reasoning -- given the available tools (with names + descriptions), the conversation context, and any system prompt guidance, the LLM evaluates which tool best fits the next step. Not random: the LLM's output is largely deterministic given the same inputs (modulo temperature setting for creativity). Tool descriptions matter: clear, accurate descriptions help the LLM pick correctly. System prompt steering: instructions like \"always check shipping status before escalating\" guide selection."
+    },
+    {
+      "id": "c",
+      "text": "The LLM follows a strict predefined priority order when selecting among tools in the Ad-hoc Subprocess -- this describes a deterministic rule-based system rather than LLM-based reasoning. Language models consider the full conversation context, tool descriptions, and system prompt guidance holistically. Clear tool descriptions and well-crafted system prompts can guide selection tendencies, but there is no static ordering rule enforced by the AI Agent Connector. The model reasons over all available tools simultaneously."
+    },
+    {
+      "id": "d",
+      "text": "The AI Agent always invokes the first activity listed in the Ad-hoc Subprocess as its initial tool selection -- this describes a deterministic first-match strategy rather than LLM-driven contextual reasoning. The LLM receives descriptions of all available tools and selects based on which tool best matches the current conversational state and task objective. Ad-hoc Subprocess element ordering in the BPMN diagram has no bearing on LLM tool selection priority."
+    }
+  ],
+  "correctOptionId": "b",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Per agentic-ai-aiagent.md:124-136 (\"System prompt, user prompt, and tool descriptions\"): \"At runtime, the connector passes this combined context to the LLM. The model then selects which tools to call (if any), along with parameters.\" LLM tool-calling agentic flows operate on the LLM's reasoning over: Available tools (Ad-hoc Subprocess inner activities): the LLM sees the list of tool names, descriptions (the activity's name + Element Documentation property), and parameter schemas. Automatic tool resolution per :28 identifies the tools available in an ad-hoc sub-process. Conversation context: previous turns, user inputs, system prompt. Current task: what the user / process is currently asking for. The LLM evaluates and outputs a \"tool call\" specifying which tool to invoke and with what arguments. Determinism: With temperature = 0 (most deterministic), the LLM tends toward consistent choices given the same inputs. With higher temperature (more creativity), small variations possible. Not random: even at higher temperatures, output reflects the LLM's training and the input context, not a uniform random choice. Design implications: Clear tool names: \"lookup-order\" (clear) beats \"func1\" (opaque). Helpful descriptions: explain what each tool does, when to use it, when NOT to use it. System prompt guidance: shape the LLM's reasoning (e.g., \"Always confirm details before completing an order; use lookup-order to verify\"). Iteration: review actual agent behaviour; refine prompts / descriptions based on observed choices."
+    },
+    "b": {
+      "text": "Correct. LLM reasons."
+    },
+    "c": {
+      "text": "Incorrect. LLM-driven."
+    },
+    "d": {
+      "text": "Incorrect. Context-based."
+    }
+  },
+  "explanation": "LLM reasons.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/connectors/out-of-the-box-connectors/agentic-ai-aiagent/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q17",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "id": "con-http-webhook-25",
+  "topic": "connectors",
+  "subtopic": "http-webhook",
+  "difficulty": "easy",
+  "style": "concept",
+  "camundaVersion": "8.8",
+  "scenario": "Mosaic Insurance, an insurer issuing 4000 policies per week, secures a Camunda 8.8 HTTP Webhook with JWT authorization. The team defines a JWT role property expression that returns a list of role names extracted from the JWT payload before the inbound connector compares it against the Required roles list configured on the webhook for the policy-update process.",
+  "question": "What is the documented constraint on a JWT role property expression in the HTTP Webhook connector?",
+  "options": [
+    { "id": "a", "text": "The expression is evaluated only against the JWT payload and must always return an array, with no access to process variables or secrets" },
+    { "id": "b", "text": "The expression is evaluated against the JWT payload merged with process variables, allowing secrets to be substituted before role comparison runs" },
+    { "id": "c", "text": "The expression must return a single role string, which the Required roles configuration matches against the first entry of the JWT roles claim" },
+    { "id": "d", "text": "The expression is evaluated after the activation condition and can read both the request headers and the JWT payload to derive the final role list" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The HTTP Webhook docs explicitly note that the JWT role property expression is evaluated only against the JWT payload, so process variables and secrets cannot be reached, and the result of the expression should always be an array such as if admin = true then [\"admin\"] else roles." },
+    "b": { "text": "Incorrect. The expression has access only to the JWT payload; process variables and secrets are out of scope, and the docs call this restriction out as a note specifically for the JWT role expression." },
+    "c": { "text": "Incorrect. The result must always be an array, and Required roles is compared against the full extracted list, which is why the example resolves to [\"admin\"] rather than a single role string." },
+    "d": { "text": "Incorrect. The JWT role expression runs only over the JWT payload to derive roles, not over request headers; header access and activation-condition timing apply to other webhook fields, not to role extraction." }
+  },
+  "explanation": "The JWT role property expression is a FEEL expression that derives the user's roles from the JWT payload. It is evaluated only against the JWT payload, so it cannot use process variables or secrets, and its result must always be an array because Required roles is matched as a list against the extracted role list.",
+  "docs": [ { "title": "HTTP Webhook connector", "url": "https://docs.camunda.io/docs/components/connectors/protocol/http-webhook/" } ]
+}

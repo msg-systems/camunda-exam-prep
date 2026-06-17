@@ -1,0 +1,56 @@
+{
+  "id": "imp-set10-q55",
+  "topic": "managing-development",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A team versions their BPMN files. They wonder about naming conventions for process IDs across versions -- should the ID include the version (e.g., order-fulfillment-v2)?",
+  "question": "Best practice for process ID versioning naming?",
+  "options": [
+    {
+      "id": "a",
+      "text": "Generally NOT include version in the process ID: Camunda 8 tracks process versions automatically (each deployment of the same processId creates a new version). Including version in the ID (order-fulfillment-v2) fragments the version tracking -- Camunda sees order-fulfillment-v1 and order-fulfillment-v2 as different processes, not versions of the same one. Migration, instance listing, \"latest version\" semantics break. Best practice: keep processId stable across versions (order-fulfillment), let Camunda manage versions automatically. Use version in the ID only for truly distinct processes (different business logic, not just upgrades)."
+    },
+    {
+      "id": "b",
+      "text": "Always include the version number in the process ID such as order-fulfillment-v2 to make the version explicit and visible in all tooling -- this fragments version tracking. When two process IDs differ by version suffix, Camunda treats them as completely separate processes. The auto-versioning feature that increments version numbers on each deployment of the same process ID stops working because each ID only ever has one deployment. Migration tooling and instance queries no longer work across what are logically different versions of the same process."
+    },
+    {
+      "id": "c",
+      "text": "Embed a timestamp in the process ID such as order-fulfillment-20260526 to create unique process identifiers for each deployment -- this creates the same fragmentation problem as including version numbers. Each timestamped ID is a separate process from Camunda's perspective with no version relationship to its predecessors. The Camunda versioning model that tracks v1, v2, v3 of the same process ID stops working. Instance migration becomes impossible across what are logically the same process at different points in time."
+    },
+    {
+      "id": "d",
+      "text": "Camunda 8 has no automatic version tracking -- teams must manually manage version numbers and ensure compatibility -- this description does not reflect the actual behaviour. Camunda 8 automatically assigns version numbers to process definitions based on deployment history. Each time a BPMN with the same process ID is deployed, Zeebe increments the version number automatically. The latest version is used for new instances by default. The version number is visible in Operate and queryable through the API without any manual version management."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Camunda 8's process versioning model: Same processId across deployments: each new deployment of the BPMN with the same ` increments the version automatically. Camunda tracks v1, v2, v3 of order-fulfillment. Different processId: deploying with a different ID is a different process, not a new version. Migration features wouldn't work to move from v1 of order-fulfillment to v1 of order-fulfillment-v2. Implications for naming: Keep processId stable: order-fulfillment across all versions. Camunda's version tracking handles the rest. In BPMN comments /"
+    },
+    "b": {
+      "text": "Incorrect. Fragments tracking."
+    },
+    "c": {
+      "text": "Incorrect. Same fragmentation issue."
+    },
+    "d": {
+      "text": "Incorrect. Auto-versions per processId."
+    }
+  },
+  "explanation": "Camunda 8's process versioning model: Same processId across deployments: each new deployment of the BPMN with the same ` increments the version automatically. Camunda tracks v1, v2, v3 of order-fulfillment. Different processId: deploying with a different ID is a different process, not a new version. Migration features wouldn't work to move from v1 of order-fulfillment to v1 of order-fulfillment-v2. Implications for naming: Keep processId stable: order-fulfillment across all versions. Camunda's version tracking handles the rest. In BPMN comments /",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/web-modeler/modeling/versions/"
+    }
+  ],
+  "sourceSet": 10,
+  "sourceId": "set10-q55",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

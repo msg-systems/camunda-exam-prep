@@ -1,0 +1,56 @@
+{
+  "id": "imp-set11-q42",
+  "topic": "extensions-integrations",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A Node.js worker handles process-payment. The team wants the worker to retry transient HTTP errors automatically (e.g., 503) before reporting failure to Zeebe.",
+  "question": "Where does retry-on-transient-error logic typically live in a Node SDK worker?",
+  "options": [
+    {
+      "id": "a",
+      "text": "js SDK automatically retries all transient HTTP errors on behalf of workers without any configuration -- the default retry behaviour of the SDK varies by version and is not universally comprehensive. Workers must typically implement their own transient-error retry logic using HTTP client libraries with retry support or manual backoff loops."
+    },
+    {
+      "id": "b",
+      "text": "BPMN retries re-activate the entire job from the beginning after the retry backoff period, which is less granular than worker-side retry that can distinguish error types, apply progressive backoff, and accumulate partial results across attempts without full job re-activation."
+    },
+    {
+      "id": "c",
+      "text": "js workers -- this understates the retry architecture options. Multiple retry layers are available: worker-internal retry using HTTP client libraries (axios-retry, got, custom loops), BPMN-level retries on the Service Task element, and combinations of both. Each layer addresses different failure scenarios and they can be composed for layered resilience strategies."
+    },
+    {
+      "id": "d",
+      "text": "Inside the worker's handler code -- implement retry logic using a library (axios-retry, got with retry, manual for loop with backoff). fail()). Combining with BPMN retries: BPMN's retries count applies on top -- if worker exhausts internal retries AND reports failure, BPMN retries can re-activate (each re-activation re-runs worker's internal retry loop). Be mindful of total retry count and time. 8)."
+    }
+  ],
+  "correctOptionId": "d",
+  "optionExplanations": {
+    "a": {
+      "text": "Incorrect. Retry logic typically lives in the worker's handler code: HTTP libraries with retry support: axios-retry, got (built-in retry config), fetch with retry wrappers. Configure retry count, backoff, retry-on conditions. Manual loop: for i in 1..maxRetries: try call; if success return; if transient, wait + retry; if permanent, fail. Distinguish error types: transient (5xx, network errors, rate limiting) vs permanent (4xx, validation errors, business rule violations). Only retry transients. Example: `javascript async function processPayment(job) { for (let i = 1; i <= 3; i++) { try { const result = await callPaymentAPI(job.variables); return { paymentResult: result }; } catch (e) { if (isTransient(e) && i < 3) { await sleep(1000 * i); // Linear backoff continue; } else if (isPermanent(e)) { await job.error({ errorCode: \"PAYMENT_REJECTED\", errorMessage: e.message }); return; } else { throw e; // Let SDK / Zeebe fail the job } } } } Combine with BPMN retries: BPMN-level retries (e.g., retries = 3`) provide an additional safety net. If the worker exhausts its internal 3 retries and reports failure, BPMN's 3 retries kick in (each re-activates the worker, which retries internally 3 more times). Total: up to 9 attempts. Be aware of total time / load implications."
+    },
+    "b": {
+      "text": "Incorrect. SDK default varies."
+    },
+    "c": {
+      "text": "Incorrect. Worker-internal more granular."
+    },
+    "d": {
+      "text": "Correct. Multiple layers."
+    }
+  },
+  "explanation": "Multiple layers.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/apis-tools/typescript/camunda8-sdk/"
+    }
+  ],
+  "sourceSet": 11,
+  "sourceId": "set11-q42",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}

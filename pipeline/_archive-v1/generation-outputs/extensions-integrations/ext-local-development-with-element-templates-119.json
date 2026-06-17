@@ -1,0 +1,27 @@
+{
+  "id": "ext-local-development-with-element-templates-119",
+  "topic": "extensions-integrations",
+  "subtopic": "Element templates",
+  "difficulty": "hard",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "Stellar Retailer ships a custom outbound connector that handles 4500 orders per day on local developer laptops running Camunda 8.8 Run. The platform team needs the connector runtime auto-loaded by Camunda 8 Run so that BPMN processes referencing the new template can execute jobs without the developer manually wiring a separate runtime container next to the broker.",
+  "question": "How does a developer provision the custom outbound connector runtime in a local Camunda 8.8 Run installation?",
+  "options": [
+    { "id": "a", "text": "Build the connector with mvn clean verify package, then copy the resulting jar with all dependencies into the custom_connectors directory in the root of Camunda 8 Run and start the stack with start.sh --docker" },
+    { "id": "b", "text": "Deploy the connector jar through the Orchestration Cluster REST API by sending a POST request to /v2/deployments with the jar attached as a resources multipart form field on the running cluster" },
+    { "id": "c", "text": "Place the connector jar in the connector-secrets folder of Camunda 8 Run and restart the broker process so the runtime picks up the new template definitions at the next startup cycle" },
+    { "id": "d", "text": "Publish the connector jar to the Camunda Console connector marketplace and bind it to the local cluster from the cluster details page so Camunda 8 Run loads it on next boot" }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": { "text": "Correct. The documented flow builds the connector jar with mvn clean verify package, places the resulting jar with all dependencies into the custom_connectors directory at the root of Camunda 8 Run, and then starts the stack with start.sh --docker so the runtime loads it." },
+    "b": { "text": "Incorrect. /v2/deployments accepts BPMN, forms, and DMN resources for the cluster, not connector runtime jars; connector runtimes are provisioned by placing the jar in the custom_connectors directory." },
+    "c": { "text": "Incorrect. There is no connector-secrets folder used to host connector runtimes; the documented location for a custom connector jar in Camunda 8 Run is the custom_connectors directory." },
+    "d": { "text": "Incorrect. Camunda 8 Run does not pull custom connector jars from a Console marketplace; the jar must be copied into the local custom_connectors directory of the Camunda 8 Run installation." }
+  },
+  "explanation": "To add a custom connector runtime to Camunda 8 Run, build the connector jar that bundles all dependencies, copy it into the custom_connectors directory at the root of the Camunda 8 Run installation, and start the stack with start.sh --docker. The connector is then ready to execute jobs whenever a process references it.",
+  "docs": [
+    { "title": "Local development with element templates", "url": "https://docs.camunda.io/docs/components/best-practices/development/local-development-with-element-templates/" }
+  ]
+}

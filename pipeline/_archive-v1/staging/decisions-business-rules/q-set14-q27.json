@@ -1,0 +1,56 @@
+{
+  "id": "imp-set14-q27",
+  "topic": "decisions-business-rules",
+  "subtopic": "imported",
+  "difficulty": "medium",
+  "style": "scenario",
+  "camundaVersion": "8.8",
+  "scenario": "A FIRST hit policy table has rules covering most cases but a possible \"no match\" scenario. Team wonders where to place a default / catch-all rule.",
+  "question": "Default rule placement convention?",
+  "options": [
+    {
+      "id": "a",
+      "text": "For FIRST hit policy: place the default / catch-all rule LAST in the table (after specific rules). Engine evaluates top-to-bottom; first match wins; default catches anything not matched earlier. Convention: - Specific rules at top (narrow conditions). - Default rule at bottom (input conditions - meaning \"any value\"). - Always have a default if \"no match\" is undesired (Incident otherwise). md:26-53): default rule semantics differ; UNIQUE/ANY may not need default; COLLECT returns empty list [] on no match (no error)."
+    },
+    {
+      "id": "b",
+      "text": "For FIRST hit policy, rule order matters because the engine stops at the first matching rule, so placing the most specific rules at the top is the recommended practice. For UNIQUE and other hit policies, rule order does not determine which rule wins. Placement at the top would make the default rule preempt all others under FIRST hit policy."
+    },
+    {
+      "id": "c",
+      "text": "Whether a default rule is needed depends on both the hit policy and business requirements. For UNIQUE hit policy, if any input combination could match no rules, the decision returns null or undefined -- a default rule provides a fallback. For FIRST hit policy, a default rule at the bottom provides the catch-all. Some use cases legitimately have no default because all valid inputs are explicitly covered by specific rules."
+    },
+    {
+      "id": "d",
+      "text": "DMN decision tables do not select rules randomly. All hit policies are deterministic: UNIQUE expects at most one rule to match; FIRST selects the first matching rule by row order; ANY requires all matching rules to return the same output; RULE ORDER returns matches in document order; COLLECT returns all matches. Random selection has no basis in DMN specification and would produce non-reproducible decision outcomes, violating the determinism requirement for auditable business rules."
+    }
+  ],
+  "correctOptionId": "a",
+  "optionExplanations": {
+    "a": {
+      "text": "Correct. Default rule conventions per hit policy: FIRST (F): Evaluation: top-to-bottom; first matching rule wins. Default placement: LAST. Default condition: typically - (any) on all inputs → matches everything. Result: specific rules at top catch their cases; default catches rest. Example: ` Rules (FIRST): 1. age = 65 → \"senior\" 3. - → \"adult\" ← default at bottom UNIQUE (U): Evaluation: expects exactly one match. Multiple matches: error (modelling problem). No match: depends on default rule presence: With default: catches no-match case. Without: error / null. ANY (A): Multiple matches expected: all return same output (modeler responsibility). No match: depends on default presence; otherwise null/error. COLLECT (C): All matches return list. No match: returns empty list []. Default rule (matching everything): adds a baseline output to every evaluation. NOTE on PRIORITY (P) / OUTPUT ORDER (O): NOT supported in Camunda 8 -- only 5 hit policies are supported per decision-table-hit-policy.md:26-53: UNIQUE, ANY, FIRST, RULE ORDER, COLLECT. Designs targeting Camunda 8 must NOT model PRIORITY/OUTPUT ORDER. RULE ORDER (R): Returns matching rules in rule order per :101-110 -- output of all satisfied rules in rule-table order. Similar to COLLECT but ordered. General defaulting strategies: Strategy 1: Catch-all rule: Input conditions all - (any). Placed LAST for FIRST policy. Provides fallback output. Strategy 2: No default; handle null downstream: DMN may return null on no match. Process logic handles null (FEEL if result = null then ...). Strategy 3: Throw error: Decision invocation incidents if no match. Operator investigates; manual fix. Best practice for FIRST: Rules: 1. Specific case A → output A 2. Specific case B → output B 3. Specific case C → output C ... N. - - - → default output In Web Modeler: Default condition (-`) is typically explicit; modeler ticks \"any\" or leaves blank. Tool may visualize default differently. Anti-patterns: Anti-pattern 1: Default at top (FIRST): Default fires first; specific rules never reached. Likely bug; specific cases ignored. Anti-pattern 2: No default with FIRST and incomplete rules: No-match scenario causes null/error. Production surprises. Anti-pattern 3: Overlapping rules without UNIQUE check: With FIRST: silent overlap (first match wins, others ignored). With UNIQUE: error on overlap. Pick policy that catches overlap if undesired."
+    },
+    "b": {
+      "text": "Incorrect. Option c) -- Partial."
+    },
+    "c": {
+      "text": "Incorrect. partial."
+    },
+    "d": {
+      "text": "Incorrect. wrong."
+    }
+  },
+  "explanation": "Default rule conventions per hit policy: FIRST (F): Evaluation: top-to-bottom; first matching rule wins. Default placement: LAST. Default condition: typically - (any) on all inputs → matches everything. Result: specific rules at top catch their cases; default catches rest. Example: ` Rules (FIRST): 1. age = 65 → \"senior\" 3. - → \"adult\" ← default at bottom UNIQUE (U): Evaluation: expects exactly one match. Multiple matches: error (modelling problem). No match: depends on default rule presence: With default: catches no-match case. Without: error / null. ANY (A): Multiple matches expected: all return same output (modeler responsibility). No match: depends on default presence; otherwise null/error. COLLECT (C): All matches return list. No match: returns empty list []. Default rule (matching everything): adds a baseline output to every evaluation. NOTE on PRIORITY (P) / OUTPUT ORDER (O): NOT supported in Camunda 8 -- only 5 hit policies are supported per decision-table-hit-policy.md:26-53: UNIQUE, ANY, FIRST, RULE ORDER, COLLECT. Designs targeting Camunda 8 must NOT model PRIORITY/OUTPUT ORDER. RULE ORDER (R): Returns matching rules in rule order per :101-110 -- output of all satisfied rules in rule-table order. Similar to COLLECT but ordered. General defaulting strategies: Strategy 1: Catch-all rule: Input conditions all - (any). Placed LAST for FIRST policy. Provides fallback output. Strategy 2: No default; handle null downstream: DMN may return null on no match. Process logic handles null (FEEL if result = null then ...). Strategy 3: Throw error: Decision invocation incidents if no match. Operator investigates; manual fix. Best practice for FIRST: Rules: 1. Specific case A → output A 2. Specific case B → output B 3. Specific case C → output C ... N. - - - → default output In Web Modeler: Default condition (-`) is typically explicit; modeler ticks \"any\" or leaves blank. Tool may visualize default differently. Anti-patterns: Anti-pattern 1: Default at top (FIRST): Default fires first; specific rules never reached. Likely bug; specific cases ignored. Anti-pattern 2: No default with FIRST and incomplete rules: No-match scenario causes null/error. Production surprises. Anti-pattern 3: Overlapping rules without UNIQUE check: With FIRST: silent overlap (first match wins, others ignored). With UNIQUE: error on overlap. Pick policy that catches overlap if undesired.",
+  "docs": [
+    {
+      "title": "Camunda 8 docs",
+      "url": "https://docs.camunda.io/docs/components/modeler/dmn/decision-table-hit-policy/"
+    }
+  ],
+  "sourceSet": 14,
+  "sourceId": "set14-q27",
+  "_lint": {
+    "clean": true,
+    "findings": []
+  }
+}
