@@ -26,6 +26,7 @@ export const LINT_CODES = Object.freeze({
   KIND_INVALID: 'kind-invalid',
   NEGATIVE_STEM_MUST_FLAG: 'negative-stem-must-flag',
   CODE_BLOCK_BAD_KEY: 'code-block-bad-key',
+  CODE_BLOCK_PER_OPTION_ASYMMETRIC: 'code-block-per-option-asymmetric',
   EXPLANATION_TOO_SHORT: 'explanation-too-short',
 });
 
@@ -176,10 +177,22 @@ export function lintQuestion(q, opts = {}) {
   if (codeBlocks && typeof codeBlocks === 'object') {
     const per = codeBlocks.perOption;
     if (per && typeof per === 'object') {
-      for (const k of Object.keys(per)) {
+      const perKeys = Object.keys(per);
+      for (const k of perKeys) {
         if (!VALID_OPT_IDS.has(k)) {
           push(LINT_CODES.CODE_BLOCK_BAD_KEY, `codeBlocks.perOption.${k} is not a valid option id (a..d)`, `codeBlocks.perOption.${k}`);
         }
+      }
+      // perOption must be all-or-nothing across a/b/c/d. A partial set
+      // makes some options visually larger than others, which telegraphs
+      // the answer to the test taker.
+      const abcdSet = perKeys.filter((k) => VALID_OPT_IDS.has(k));
+      if (abcdSet.length > 0 && abcdSet.length < 4) {
+        push(
+          LINT_CODES.CODE_BLOCK_PER_OPTION_ASYMMETRIC,
+          `codeBlocks.perOption covers ${abcdSet.length}/4 options (${abcdSet.sort().join(',')}); must cover all four or none — partial sets reveal the answer visually`,
+          'codeBlocks.perOption',
+        );
       }
     }
   }

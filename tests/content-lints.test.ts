@@ -60,7 +60,6 @@ function codeBlocksQ(overrides: Partial<Record<string, unknown>> = {}) {
     question: 'What does the FEEL expression above return?',
     codeBlocks: {
       stem: 'substring("Camunda", 4)',
-      perOption: { a: '"Camu"', b: '"unda"', c: '"munda"' },
     },
     options: [
       { id: 'a', text: '"Camu"' },
@@ -185,9 +184,37 @@ describe('content lints', () => {
 
   it('flags codeBlocks.perOption with non-abcd key', () => {
     const q = codeBlocksQ() as Record<string, unknown>;
-    (q.codeBlocks as { perOption: Record<string, string> }).perOption.e = '"err"';
+    (q.codeBlocks as { perOption?: Record<string, string> }).perOption = {
+      a: '"Camu"',
+      b: '"unda"',
+      c: '"munda"',
+      d: '"err"',
+      e: '"extra"',
+    };
     const f = lintQuestion(q);
     expect(f.some((x) => x.code === LINT_CODES.CODE_BLOCK_BAD_KEY)).toBe(true);
+  });
+
+  it('flags asymmetric codeBlocks.perOption (some options but not all)', () => {
+    const q = codeBlocksQ() as Record<string, unknown>;
+    (q.codeBlocks as { perOption?: Record<string, string> }).perOption = {
+      a: '"Camu"',
+      b: '"unda"',
+      c: '"munda"',
+    };
+    const f = lintQuestion(q);
+    expect(f.some((x) => x.code === LINT_CODES.CODE_BLOCK_PER_OPTION_ASYMMETRIC)).toBe(true);
+  });
+
+  it('accepts codeBlocks.perOption covering all four options', () => {
+    const q = codeBlocksQ() as Record<string, unknown>;
+    (q.codeBlocks as { perOption?: Record<string, string> }).perOption = {
+      a: '"Camu"',
+      b: '"unda"',
+      c: '"munda"',
+      d: 'null',
+    };
+    expect(lintQuestion(q)).toEqual([]);
   });
 
   it('lenient mode skips the negative-stem flag', () => {
